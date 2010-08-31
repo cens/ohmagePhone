@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<campaign>
+  <campaignName>CHIPTS</campaignName>
+  <campaignVersion>0.1</campaignVersion>
+
+  <surveys>
+    <survey>
+      <id>generalFeelingToday</id>
+      <title>General Feeling Today</title>
+      <description />
+      <introText />
+      <submitText />
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText  />
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>generalFeelingTodaySad</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Sad, blue, or depressed</displayLabel>
+          <promptText>Sad, blue, or depressed?</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <default />
+          <condition />
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>generalFeelingTodayWorried</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Worried, tense, or anxious</displayLabel>
+          <promptText>Worried, tense, or anxious?</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>10</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>50</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>20</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>30</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <default />
+          <condition />
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>generalFeelingTodayNotEnoughRest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Not get enough rest or sleep</displayLabel>
+          <promptText>Not get enough rest or sleep</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <default />
+          <condition />
+          <skippable>true</skippable>
+        </prompt>
+        
+        
+        <prompt>
+          <id>generalFeelingTodayVeryHealthy</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Very healthy and full of energy</displayLabel>
+          <promptText>Very healthy and full of energy</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <default />
+          <condition />
+          <skippable>false</skippable>
+        </prompt>
+        
+        
+        <prompt>
+          <id>generalFeelingTodayUsualActivities</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Usual activities were hard to do</displayLabel>
+          <promptText>Usual activities were hard to do?</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <default />
+          <condition />
+          <skippable>false</skippable>
+        </prompt>
+        
+      </contentList>
+    
+    </survey>
+  </surveys>
+</campaign>
