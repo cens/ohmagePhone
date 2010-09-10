@@ -58,7 +58,7 @@ public class SingleChoicePrompt extends AbstractPrompt {
 		try {
 			responseJson.put("prompt_id", this.getId());
 			//responseJson.put("value", mSelectedKey);
-			responseJson.put("value", getResponseValue());
+			responseJson.put("value", getResponseString());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,14 +68,41 @@ public class SingleChoicePrompt extends AbstractPrompt {
 	}
 	
 	@Override
-	public String getResponseValue() {
-		//return mSelectedKey;
+	protected String getTypeSpecificResponseValue() {
 		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
 			return mChoices.get(mSelectedIndex).key;
 		} else {
-			return "RESPONSE_SKIPPED";
+			return null;
 		}
 	}
+	
+	@Override
+	protected void clearTypeSpecificResponseData() {
+		mSelectedIndex = -1;
+	}
+	
+	/*@Override
+	public String getResponseValue() {
+		//return mSelectedKey;
+		String value = super.getResponseValue();
+		if (value != null) {
+			return value;
+		} else if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
+			return mChoices.get(mSelectedIndex).key;
+		} else {
+			return "WTF";
+		}
+		
+		if (!isDisplayed()) {
+			return "NOT_DISPLAYED";
+		} else if (isSkipped()) {
+			return "SKIPPED";
+		} else if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
+			return mChoices.get(mSelectedIndex).key;
+		} else {
+			return "WTF";
+		}
+	}*/
 
 	@Override
 	public View getView(Context context) {
@@ -121,6 +148,7 @@ public class SingleChoicePrompt extends AbstractPrompt {
 				//Map<String, String> map = (HashMap<String, String>) parent.getItemAtPosition(position);
 				//mSelectedKey = map.get("key");
 				mSelectedIndex = position;
+				//((SurveyActivity)context).setResponse(index, id, value)
 			}
 		});
 		

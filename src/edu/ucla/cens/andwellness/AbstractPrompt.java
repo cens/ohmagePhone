@@ -8,18 +8,62 @@ import android.view.View;
 public abstract class AbstractPrompt implements Prompt {
 
 	// TODO change private to protected
-	private String mId;
-	private String mDisplayType;
-	private String mDisplayLabel;
-	private String mPromptText;
-	private String mAbbreviatedText;
-	private String mExplanationText;
-	private String mDefaultValue;
-	private String mCondition;
-	private String mSkippable;
-	private String mSkipLabel;
+	protected String mId;
+	protected String mDisplayType;
+	protected String mDisplayLabel;
+	protected String mPromptText;
+	protected String mAbbreviatedText;
+	protected String mExplanationText;
+	protected String mDefaultValue;
+	protected String mCondition;
+	protected String mSkippable;
+	protected String mSkipLabel;
 	
-	public AbstractPrompt() {};
+	// should these be here?
+	protected boolean mDisplayed;
+	protected boolean mSkipped;
+	
+	public boolean isDisplayed() {
+		return mDisplayed;
+	}
+	
+	public boolean isSkipped() {
+		return mSkipped;
+	}
+	
+	public void setDisplayed(boolean displayed) {
+		this.mDisplayed = displayed;
+		// should we clear or not clear?!
+		if (!displayed) {
+			clearTypeSpecificResponseData();
+		}
+	}
+	
+	public void setSkipped(boolean skipped) {
+		this.mSkipped = skipped;
+		if (skipped) {
+			clearTypeSpecificResponseData();
+		}
+	}
+	
+	public String getResponseString() {
+		if (!isDisplayed()) {
+			return "NOT_DISPLAYED";
+		} else if (isSkipped()) {
+			return "SKIPPED";
+		} else {
+			return getTypeSpecificResponseValue();
+		}
+	}
+	
+	abstract String getTypeSpecificResponseValue();
+	
+	abstract void clearTypeSpecificResponseData();
+	
+	public AbstractPrompt() {
+		setDisplayed(false);
+		setSkipped(false);
+	}
 	
 	/*public AbstractPrompt(	String id, String displayType, String displayLabel,
 					String promptText, String abbreviatedText, String explanationText, 

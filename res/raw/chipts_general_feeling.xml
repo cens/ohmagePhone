@@ -58,19 +58,19 @@
           <promptType>single_choice</promptType>
           <properties>
             <p>
-              <k>10</k>
+              <k>0</k>
               <v>not at all</v>
             </p>
             <p>
-              <k>50</k>
+              <k>1</k>
               <v>slightly</v>
             </p>
             <p>
-              <k>20</k>
+              <k>2</k>
               <v>moderately</v>
             </p>
             <p>
-              <k>30</k>
+              <k>3</k>
               <v>extremely</v>
             </p>
           </properties>
@@ -106,7 +106,7 @@
             </p>
           </properties>
           <default />
-          <condition />
+          <condition>generalFeelingTodayWorried != 0</condition>
           <skippable>true</skippable>
         </prompt>
         

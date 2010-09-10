@@ -12,6 +12,6 @@ public interface Prompt {
 
 	String getResponseJson();
 
-	String getResponseValue();
+	String getResponseString();
 
 }

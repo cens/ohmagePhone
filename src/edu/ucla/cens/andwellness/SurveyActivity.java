@@ -1,8 +1,11 @@
 package edu.ucla.cens.andwellness;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.andwellness.xml.datagenerator.custom.DataPointConditionEvaluator;
+import org.andwellness.xml.datagenerator.model.DataPoint;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
@@ -15,6 +18,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SurveyActivity extends Activity {
 	
@@ -29,6 +33,7 @@ public class SurveyActivity extends Activity {
 	private Button mNextButton;
 	
 	private List<Prompt> mPrompts;
+	private List<PromptResponse> mResponses;
 	private int mCurrentIndex;
 	
 	@Override
@@ -64,9 +69,11 @@ public class SurveyActivity extends Activity {
 			e.printStackTrace();
 		}
 		
+		mResponses = new ArrayList<PromptResponse>(mPrompts.size());
+		
 		mCurrentIndex = 0;
 		
-		showCurrentPrompt();
+		showPrompt(mCurrentIndex);
 		
 		mProgressBar.setProgress(0);
     }
@@ -79,20 +86,43 @@ public class SurveyActivity extends Activity {
 			switch (v.getId()) {
 			case R.id.next_button:
 				Log.i(TAG, mPrompts.get(mCurrentIndex).getResponseJson());
-				if (mCurrentIndex + 1 < mPrompts.size()) {
-					mCurrentIndex++;
-					showCurrentPrompt();
+				if (((AbstractPrompt)mPrompts.get(mCurrentIndex)).getResponseString() == null) {
+					Toast.makeText(SurveyActivity.this, "You must respond to this question before proceding.", Toast.LENGTH_SHORT).show();
+				} else {
+					while (mCurrentIndex + 1 < mPrompts.size()) {
+						mCurrentIndex++;
+						if (DataPointConditionEvaluator.evaluateCondition(((AbstractPrompt)mPrompts.get(mCurrentIndex)).getCondition(), getPreviousResponses())) {
+							showPrompt(mCurrentIndex);
+							break;
+						} else {
+							((AbstractPrompt)mPrompts.get(mCurrentIndex)).setDisplayed(false);
+						}
+					}
 				}
 				break;
 			
 			case R.id.skip_button:
-				
+				((AbstractPrompt)mPrompts.get(mCurrentIndex)).setSkipped(true);
+				while (mCurrentIndex + 1 < mPrompts.size()) {
+					mCurrentIndex++;
+					if (DataPointConditionEvaluator.evaluateCondition(((AbstractPrompt)mPrompts.get(mCurrentIndex)).getCondition(), getPreviousResponses())) {
+						showPrompt(mCurrentIndex);
+						break;
+					} else {
+						((AbstractPrompt)mPrompts.get(mCurrentIndex)).setDisplayed(false);
+					}
+				}
 				break;
 				
 			case R.id.prev_button:
-				if (mCurrentIndex > 0) {
+				while (mCurrentIndex > 0) {
 					mCurrentIndex--;
-					showCurrentPrompt();
+					if (DataPointConditionEvaluator.evaluateCondition(((AbstractPrompt)mPrompts.get(mCurrentIndex)).getCondition(), getPreviousResponses())) {
+						showPrompt(mCurrentIndex);
+						break;
+					} else {
+						((AbstractPrompt)mPrompts.get(mCurrentIndex)).setDisplayed(false);
+					}
 				}
 				break;
 			}
@@ -100,20 +130,51 @@ public class SurveyActivity extends Activity {
 		}
 	};
 
-	private void showCurrentPrompt() {
+	private void showPrompt(int index) {
 		
-		// TODO for now I'm casting, but maybe I should move to interface
-		mPromptText.setText(((AbstractPrompt)mPrompts.get(mCurrentIndex)).getPromptText());
-		mProgressBar.setProgress(mCurrentIndex * 100 / mPrompts.size());
+		// someone needs to check condition before showing prompt
+				
+		((AbstractPrompt)mPrompts.get(index)).setDisplayed(true);
+		((AbstractPrompt)mPrompts.get(index)).setSkipped(false);
 		
-		if (((AbstractPrompt)mPrompts.get(mCurrentIndex)).getSkippable().equals("true")) {
-			mSkipButton.setVisibility(View.INVISIBLE);
-		} else {
+		// TODO for now I'm casting, but maybe I should move getters/setters to interface?
+		// or just use a list of AbstractPrompt
+		mPromptText.setText(((AbstractPrompt)mPrompts.get(index)).getPromptText());
+		mProgressBar.setProgress(index * 100 / mPrompts.size());
+		
+		if (((AbstractPrompt)mPrompts.get(index)).getSkippable().equals("true")) {
 			mSkipButton.setVisibility(View.VISIBLE);
+		} else {
+			mSkipButton.setVisibility(View.INVISIBLE);
 		}
 		
 		mPromptFrame.removeAllViews();
-		mPromptFrame.addView(mPrompts.get(mCurrentIndex).getView(this));
+		mPromptFrame.addView(mPrompts.get(index).getView(this));
 		//mPromptFrame.invalidate();
+	}
+	
+	/*public void setResponse(int index, String id, String value) {
+		// prompt doesn't know it's own index... :(
+		mResponses.set(index, new PromptResponse(id, value));
+	}*/
+	
+	private List<DataPoint> getPreviousResponses() {
+		ArrayList<DataPoint> previousResponses = new ArrayList<DataPoint>();
+		for (int i = 0; i < mCurrentIndex; i++) {
+			DataPoint dataPoint = new DataPoint(((AbstractPrompt)mPrompts.get(i)).getId());
+			dataPoint.setDisplayType(((AbstractPrompt)mPrompts.get(i)).getDisplayType());
+			//dataPoint.setId();
+			if (mPrompts.get(i) instanceof SingleChoicePrompt)
+				dataPoint.setPromptType("single_choice");
+			if (((AbstractPrompt)mPrompts.get(i)).isSkipped()) {
+				dataPoint.setSkipped();
+			} else if (!((AbstractPrompt)mPrompts.get(i)).isDisplayed()) { 
+				dataPoint.setNotDisplayed();
+			} else {
+				dataPoint.setValue(Integer.decode(mPrompts.get(i).getResponseString()));
+			}
+			previousResponses.add(dataPoint);
+		}
+		return previousResponses;
 	}
 }
