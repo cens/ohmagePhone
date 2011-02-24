@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+         
+	<ListPreference
+	    android:key="trigger_location"
+	    android:persistent="false"
+	    android:title="Trigger location"
+	    android:summary="(Not selected)" />
+	    
+	<CheckBoxPreference
+        android:key="enable_time_range"
+        android:title="Time range"
+        android:persistent="false"
+        android:summary="Trigger only during the following interval" />
+        
+		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+		    android:key="interval_start_time"
+		    android:dependency="enable_time_range"
+		    android:persistent="false"
+		    android:title="Start Time"
+		    android:summary="(Not selected)" />
+		    
+		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+		    android:key="interval_end_time"
+		    android:dependency="enable_time_range"
+		    android:persistent="false"
+		    android:title="End Time"
+		    android:summary="(Not selected)" />
+		
+		<CheckBoxPreference
+	        android:key="trigger_always"
+	        android:dependency="enable_time_range"
+	        android:persistent="false"
+	        android:title="Trigger always"
+	        android:summary="Trigger at End Time even if the location is not reached" />
+	        
+	<Preference
+        android:key="minimum_reentry"
+        android:title="Minimum re-entry interval"
+        android:persistent="false"
+        android:enabled="false"
+        android:summary="30 minutes" />   
+         
+</PreferenceScreen>

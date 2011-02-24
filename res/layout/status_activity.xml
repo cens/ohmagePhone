@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:layout_width="fill_parent"
+  	android:layout_height="fill_parent"
+  	android:orientation="vertical">
+  	
+<LinearLayout
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:orientation="vertical">
+  
+  <RelativeLayout
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+  	android:layout_weight="2">
+  	
+  <TextView
+  	android:id="@+id/status_username_label"
+  	android:text="Current user:"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:layout_alignParentLeft="true"
+  	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium" />
+  
+  <TextView
+  	android:id="@+id/status_username_text"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:layout_below="@id/status_username_label"
+  	android:layout_alignParentLeft="true"
+  	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium" />
+  	
+  <Button
+  	android:id="@+id/status_password_button"
+  	android:text="Change Password"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:layout_alignParentRight="true"
+  	android:layout_alignTop="@id/status_username_text" />
+  	
+  </RelativeLayout>
+  
+  <RelativeLayout
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+  	android:layout_weight="2">
+  	
+  	<TextView
+  	android:id="@+id/status_responses_label"
+  	android:text="# of survey responses not yet uploaded: "
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content" 
+  	android:layout_alignParentLeft="true"
+  	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium"/>
+  	
+  	<TextView
+  	android:id="@+id/status_responses_text"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content" 
+  	android:layout_below="@id/status_responses_label"
+  	android:layout_alignParentLeft="true"
+	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium"/>
+	
+	<Button
+  	android:id="@+id/status_upload_responses_button"
+  	android:text="Upload Now"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:layout_alignParentRight="true"
+  	android:layout_alignTop="@id/status_responses_text" />
+  	
+  </RelativeLayout>
+  
+  <RelativeLayout
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+  	android:layout_weight="2">
+  	
+  	<TextView
+  	android:id="@+id/status_mobility_label"
+  	android:text="# of mobility data points not yet uploaded: "
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content" 
+  	android:layout_alignParentLeft="true"
+  	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium"/>
+  	
+  	<TextView
+  	android:id="@+id/status_mobility_text"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content" 
+  	android:layout_below="@id/status_mobility_label"
+  	android:layout_alignParentLeft="true"
+	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium"/>
+	
+	<Button
+  	android:id="@+id/status_upload_mobility_button"
+  	android:text="Upload Now"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:layout_alignParentRight="true"
+  	android:layout_alignTop="@id/status_mobility_text" />
+  	
+  </RelativeLayout>
+  
+  <RelativeLayout
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+  	android:layout_weight="2">
+  	
+  	<TextView
+  	android:id="@+id/status_photos_label"
+  	android:text="# of photos not yet uploaded: "
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content" 
+  	android:layout_alignParentLeft="true"
+  	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium"/>
+  	
+  	<TextView
+  	android:id="@+id/status_photos_text"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content" 
+  	android:layout_below="@id/status_photos_label"
+  	android:layout_alignParentLeft="true"
+	android:padding="4dp"
+	android:textAppearance="?android:attr/textAppearanceMedium"/>
+	
+	<Button
+  	android:id="@+id/status_upload_photos_button"
+  	android:text="Upload Now"
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:layout_alignParentRight="true"
+  	android:layout_alignTop="@id/status_photos_text" />
+  	
+  </RelativeLayout>
+  
+</LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:orientation="horizontal">
+  
+  <Button android:id="@+id/widget_aw_button"
+  	android:layout_width="wrap_content"
+  	android:layout_height="fill_parent"
+  	android:layout_weight="2"
+  	android:text="AndWellness" />
+  	
+  <Button android:id="@+id/widget_food_button"
+  	android:layout_width="wrap_content"
+  	android:layout_height="fill_parent"
+  	android:layout_weight="2"
+  	android:text="Food" />
+  	
+  <Button android:id="@+id/widget_stress_button"
+  	android:layout_width="wrap_content"
+  	android:layout_height="fill_parent"
+  	android:layout_weight="2"
+  	android:text="Stress" />
+  
+</LinearLayout>

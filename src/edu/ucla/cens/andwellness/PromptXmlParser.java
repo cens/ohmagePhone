@@ -11,30 +11,289 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.util.Xml;
+import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
 import edu.ucla.cens.andwellness.Utilities.KVPair;
+import edu.ucla.cens.andwellness.prompts.Prompt;
+import edu.ucla.cens.andwellness.prompts.PromptBuilder;
+import edu.ucla.cens.andwellness.prompts.PromptBuilderFactory;
+import edu.ucla.cens.andwellness.prompts.PromptFactory;
 
 public class PromptXmlParser {
 	
 	//list of tags in our xml schema
+	private static final String CAMPAIGN_NAME = "campaignName";
+	private static final String CAMPAIGN_VERSION = "campaignVersion";
+	private static final String SERVER_URL = "serverUrl";
+	private static final String SURVEYS = "surveys";
+	private static final String SURVEY = "survey";
+	private static final String SURVEY_ID = "id";
+	private static final String SURVEY_TITLE = "title";
+	private static final String SURVEY_DESCRIPTION = "description";
+	private static final String SURVEY_INTRO_TEXT = "introText";
+	private static final String SURVEY_SUBMIT_TEXT = "submitText";
+	private static final String SURVEY_SHOW_SUMMARY = "showSummary";
+	private static final String SURVEY_EDIT_SUMMARY = "editSummary";
+	private static final String SURVEY_SUMMARY_TEXT = "summaryText";
+	private static final String SURVEY_ANYTIME = "anytime";
+	private static final String SURVEY_CONTENT_LIST = "contentList";
+	private static final String REPEATABLE_SET = "repeatableSet";
+	private static final String REPEATABLE_SET_ID = "id";
+	private static final String REPEATABLE_SET_TERMINATION_QUESTION = "terminationQuestion";
+	private static final String REPEATABLE_SET_TERMINATION_TRUE_LABEL = "terminationTrueLabel";
+	private static final String REPEATABLE_SET_TERMINATION_FALSE_LABEL = "terminationFalseLabel";
+	private static final String REPEATABLE_SET_TERMINATION_SKIP_ENABLED = "terminationSkipEnabled";
+	private static final String REPEATABLE_SET_TERMINATION_SKIP_LABEL = "terminationSkipLabel";
+	private static final String REPEATABLE_SET_CONDITION = "condition";
+	private static final String REPEATABLE_SET_PROMPTS = "prompts";
 	private static final String PROMPT = "prompt";
-	private static final String ID = "id";
-	private static final String DISPLAY_TYPE = "displayType";
-	private static final String DISPLAY_LABEL = "displayLabel";
+	private static final String PROMPT_ID = "id";
+	private static final String PROMPT_DISPLAY_TYPE = "displayType";
+	private static final String PROMPT_DISPLAY_LABEL = "displayLabel";
+	private static final String PROMPT_UNIT = "unit";
 	private static final String PROMPT_TEXT = "promptText";
-	private static final String ABBREVIATED_TEXT = "abbreviatedText";
-	private static final String EXPLANATION_TEXT = "explanationText";
+	private static final String PROMPT_ABBREVIATED_TEXT = "abbreviatedText";
+	private static final String PROMPT_EXPLANATION_TEXT = "explanationText";
 	private static final String PROMPT_TYPE = "promptType";
-	private static final String DEFAULT = "default";
-	private static final String CONDITION = "condition";
-	private static final String SKIPPABLE = "skippable";
-	private static final String SKIP_LABEL = "skipLabel";
-	private static final String PROPERTIES = "properties";
-	private static final String P = "p";
-	private static final String K = "k";
-	private static final String V = "v";
-
+	private static final String PROMPT_DEFAULT = "default";
+	private static final String PROMPT_CONDITION = "condition";
+	private static final String PROMPT_SKIPPABLE = "skippable";
+	private static final String PROMPT_SKIP_LABEL = "skipLabel";
+	private static final String PROMPT_PROPERTIES = "properties";
+	private static final String PROMPT_PROPERTY = "property";
+	private static final String PROPERTY_KEY = "key";
+	private static final String PROPERTY_VALUE = "value";
+	private static final String PROPERTY_LABEL = "label";
+	private static final String MESSAGE = "message";
+	private static final String MESSAGE_TEXT = "messageText";
+	private static final String MESSAGE_CONDITION = "condition";
 	
-	public static List<Prompt> parse(InputStream promptXmlStream) throws XmlPullParserException, IOException {
+	
+	public static List<Survey> parseSurveys(InputStream promptXmlStream) throws XmlPullParserException, IOException {
+		
+		XmlPullParser parser = Xml.newPullParser();
+		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
+		
+		List<Survey> surveys = null;
+		boolean surveyInProgress = false;
+		boolean contentListInProgress = false;
+		
+		String id = null;
+		String title = null;
+		String description = null;
+		String introText = null;
+		String submitText = null;
+		String showSummary = null;
+		String editSummary = null;
+		String summaryText = null;
+		String anytime = null;
+		String contentListXml = null;
+		
+		int eventType = parser.getEventType();
+		while (eventType != XmlPullParser.END_DOCUMENT) {
+			
+			String tagName = null;
+			
+			switch (eventType) {
+			case XmlPullParser.START_DOCUMENT:
+				surveys = new ArrayList<Survey>();
+				break;
+			case XmlPullParser.START_TAG:
+				tagName = parser.getName();
+				if (tagName.equalsIgnoreCase(SURVEY)) {
+					surveyInProgress = true;
+					
+					
+					id = null;
+					title = null;
+					description = null;
+					introText = null;
+					submitText = null;
+					showSummary = null;
+					editSummary = null;
+					summaryText = null;
+					anytime = null;
+					contentListXml = null;
+					
+				} else if (surveyInProgress && !contentListInProgress) {
+					if (tagName.equalsIgnoreCase(SURVEY_ID)) {
+						id = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_TITLE)) {
+						title = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_DESCRIPTION)) {
+						description = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_INTRO_TEXT)) {
+						introText = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_SUBMIT_TEXT)) {
+						submitText = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_SHOW_SUMMARY)) {
+						showSummary = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_EDIT_SUMMARY)) {
+						editSummary = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_SUMMARY_TEXT)) {
+						summaryText = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_ANYTIME)) {
+						anytime = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(SURVEY_CONTENT_LIST)) {
+						contentListInProgress = true;
+					} 
+				}
+				break;
+			case XmlPullParser.END_TAG:
+				tagName = parser.getName();
+				if (tagName.equalsIgnoreCase(SURVEY)) {
+					if(!id.equals("foodButton") && !id.equals("stressButton")) {
+						Survey survey = new Survey(id, title, description, introText, submitText, showSummary, editSummary, summaryText, anytime, contentListXml);
+						surveys.add(survey);
+					}
+					surveyInProgress = false;
+				} else if (tagName.equalsIgnoreCase(SURVEY_CONTENT_LIST)) {
+					contentListInProgress = false;
+				} 
+				break;
+			}
+			eventType = parser.next();
+		}
+		
+		return surveys;
+	}
+
+public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
+		
+		XmlPullParser parser = Xml.newPullParser();
+		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
+		
+		List<Prompt> prompts = null;
+		boolean promptInProgress = false;
+		boolean surveyInProgress = false;
+		boolean surveyFound = false;
+		
+		String id = null;
+		String displayType = null;
+		String displayLabel = null;
+		String unit = null;
+		String promptText = null;
+		String abbreviatedText = null;
+		String explanationText = null;
+		String promptType = null;
+		String defaultValue = null;
+		String condition = null;
+		String skippable = null;
+		String skipLabel = null;
+		//ArrayList<String[]> properties = null;
+		ArrayList<KVLTriplet> properties = null;
+		String key = null;
+		String value = null;
+		String label = null;
+		
+		// TODO deal with optional tags
+		
+		int eventType = parser.getEventType();
+		while (eventType != XmlPullParser.END_DOCUMENT) {
+			
+			String tagName = null;
+			
+			switch (eventType) {
+			case XmlPullParser.START_DOCUMENT:
+				
+				break;
+			case XmlPullParser.START_TAG:
+				tagName = parser.getName();
+				if (tagName.equalsIgnoreCase(SURVEY)) {
+					surveyInProgress = true;
+				} else if (surveyInProgress) {
+					if (tagName.equalsIgnoreCase(SURVEY_ID) && !promptInProgress) {
+						if (parser.nextText().equals(surveyId)) {
+							surveyFound = true;
+							prompts = new ArrayList<Prompt>();
+						}
+					} else if (surveyFound) {
+						if (tagName.equalsIgnoreCase(PROMPT)) {
+							promptInProgress = true;
+							
+							id  = null;
+							displayType = null;
+							displayLabel = null;
+							unit = null;
+							promptText = null;
+							abbreviatedText = null;
+							explanationText = null;
+							promptType = null;
+							defaultValue = null;
+							condition = null;
+							skippable = null;
+							skipLabel = null;
+							properties = null;
+							
+						} else if (promptInProgress) {
+							if (tagName.equalsIgnoreCase(PROMPT_ID)) {
+								id = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_TYPE)) {
+								displayType = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_LABEL)) {
+								displayLabel = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_UNIT)) {
+								unit = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_TEXT)) {
+								promptText = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_ABBREVIATED_TEXT)) {
+								abbreviatedText = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_EXPLANATION_TEXT)) {
+								explanationText = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_TYPE)) {
+								promptType = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_DEFAULT)) {
+								defaultValue = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_CONDITION)) {
+								condition = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_SKIPPABLE)) {
+								skippable = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_SKIP_LABEL)) {
+								skipLabel = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTIES)) {
+								properties = new ArrayList<KVLTriplet>();
+							} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
+								key = null;
+								value = null;
+								label = null;
+							} else if (tagName.equalsIgnoreCase(PROPERTY_KEY)) {
+								key = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROPERTY_VALUE)) {
+								value = parser.nextText();
+							} else if (tagName.equalsIgnoreCase(PROPERTY_LABEL)) {
+								label = parser.nextText();
+							}
+						}
+					}
+				}
+				
+				break;
+			case XmlPullParser.END_TAG:
+				tagName = parser.getName();
+				if (tagName.equalsIgnoreCase(SURVEY)) {
+					surveyInProgress = false;
+					surveyFound = false;
+				} else if (surveyFound) {
+					if (tagName.equalsIgnoreCase(PROMPT)) {
+						Prompt prompt = PromptFactory.createPrompt(promptType);
+						PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
+						builder.build(prompt, id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+						prompts.add(prompt);
+						promptInProgress = false;
+					} else if (promptInProgress) {
+						if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
+							properties.add(new KVLTriplet(key, value, label));
+						}
+					}
+				}
+				break;
+			}
+			eventType = parser.next();
+		}
+		
+		return prompts;
+	}
+
+	public static List<Prompt> parsePrompts(InputStream promptXmlStream) throws XmlPullParserException, IOException {
 		
 		XmlPullParser parser = Xml.newPullParser();
 		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
@@ -45,6 +304,7 @@ public class PromptXmlParser {
 		String id = null;
 		String displayType = null;
 		String displayLabel = null;
+		String unit = null;
 		String promptText = null;
 		String abbreviatedText = null;
 		String explanationText = null;
@@ -54,9 +314,10 @@ public class PromptXmlParser {
 		String skippable = null;
 		String skipLabel = null;
 		//ArrayList<String[]> properties = null;
-		ArrayList<KVPair> properties = null;
+		ArrayList<KVLTriplet> properties = null;
 		String key = null;
 		String value = null;
+		String label = null;
 		
 		// TODO deal with optional tags
 		
@@ -77,6 +338,7 @@ public class PromptXmlParser {
 					id  = null;
 					displayType = null;
 					displayLabel = null;
+					unit = null;
 					promptText = null;
 					abbreviatedText = null;
 					explanationText = null;
@@ -88,37 +350,42 @@ public class PromptXmlParser {
 					properties = null;
 					
 				} else if (promptInProgress) {
-					if (tagName.equalsIgnoreCase(ID)) {
+					if (tagName.equalsIgnoreCase(PROMPT_ID)) {
 						id = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(DISPLAY_TYPE)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_TYPE)) {
 						displayType = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(DISPLAY_LABEL)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_LABEL)) {
 						displayLabel = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(PROMPT_UNIT)) {
+						unit = parser.nextText();
 					} else if (tagName.equalsIgnoreCase(PROMPT_TEXT)) {
 						promptText = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(ABBREVIATED_TEXT)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_ABBREVIATED_TEXT)) {
 						abbreviatedText = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(EXPLANATION_TEXT)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_EXPLANATION_TEXT)) {
 						explanationText = parser.nextText();
 					} else if (tagName.equalsIgnoreCase(PROMPT_TYPE)) {
 						promptType = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(DEFAULT)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_DEFAULT)) {
 						defaultValue = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(CONDITION)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_CONDITION)) {
 						condition = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(SKIPPABLE)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_SKIPPABLE)) {
 						skippable = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(SKIP_LABEL)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_SKIP_LABEL)) {
 						skipLabel = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(PROPERTIES)) {
-						properties = new ArrayList<KVPair>();
-					} else if (tagName.equalsIgnoreCase(P)) {
+					} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTIES)) {
+						properties = new ArrayList<KVLTriplet>();
+					} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
 						key = null;
 						value = null;
-					} else if (tagName.equalsIgnoreCase(K)) {
+						label = null;
+					} else if (tagName.equalsIgnoreCase(PROPERTY_KEY)) {
 						key = parser.nextText();
-					} else if (tagName.equalsIgnoreCase(V)) {
+					} else if (tagName.equalsIgnoreCase(PROPERTY_VALUE)) {
 						value = parser.nextText();
+					} else if (tagName.equalsIgnoreCase(PROPERTY_LABEL)) {
+						label = parser.nextText();
 					}
 				}
 				break;
@@ -131,8 +398,8 @@ public class PromptXmlParser {
 					prompts.add(prompt);
 					promptInProgress = false;
 				} else if (promptInProgress) {
-					if (tagName.equalsIgnoreCase(P)) {
-						properties.add(new KVPair(key, value));
+					if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
+						properties.add(new KVLTriplet(key, value, label));
 					}
 				}
 				break;

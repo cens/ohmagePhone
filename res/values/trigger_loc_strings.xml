@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loading_locations">Loading locations...</string>
+    <string name="menu_open_maps">Open maps</string>
+    <string name="menu_edit_trigger">Modify triggers</string>
+    <string name="menu_my_loc">My location</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_delete">Delete</string>
+    <string name="menu_rename">Rename</string>
+    <string name="menu_help">Help</string>
+    <string name="determining_loc">Trying to determine your location...</string>
+    <string name="gps_disabled">GPS is disabled in phone settings</string>
+    <string name="gps_out">GPS out of service</string>
+    <string name="location_on_map">location on map</string>
+    <string name="locations_on_map">locations on map</string>
+    <string name="rename_msg">Rename %s</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="ok">OK</string>
+    <string name="del_categ_msg">Delete %s? This will remove all the locations and the triggers associated with it.</string>
+    <string name="survey_sel_msg">Select the surveys to be triggered at %s</string>
+    <string name="maps_tile_default">Press and hold a location on the map to add it to %s. Open menu for more options.</string>
+    <string name="maps_title_focused">Press and hold the red circle and drag it to change its size. Press and hold the red marker to delete it.</string>
+    <string name="maps_title_nofocus">Tap a red marker to view the area covered by it. Press and hold a red marker to delete it.</string>
+    <string name="maps_title_myloc">Tap the blue dot to add your current location to %s</string>
+    <string name="add_this_loc">Add this location</string>
+    <string name="add_my_loc">Add my location</string>
+    <string name="search_addr_title">Enter address to search</string>
+    <string name="exisiting_loc">Existing location</string>
+    <string name="delete_loc">Delete this location?</string>
+    <string name="loading_approx_addr">Loading approximate address...</string>
+    <string name="no_addr_found">No address found</string>
+    <string name="unable_fetch_addr">Unable to fetch the address</string>
+    <string name="loc_overlap_title">Location overlap</string>
+    <string name="loc_overlap_msg">This location is too close to %s. Choose a different location</string>
+    <string name="loc_too_big_msg">The size of this location cannot be increased further as it gets too close to %s. Choose a different location</string>
+    <string name="searching_msg">Searching, Please wait...</string>
+    <string name="search_fail">Search failed!</string>
+    <string name="maps_help_title">Managing your locations</string>
+    <string name="maps_help_text">This is the help text</string>
+    
+    <string-array name="trigger_builtin_places">
+        <item>Home</item>
+        <item>Work</item>
+    </string-array> 
+    
+</resources>

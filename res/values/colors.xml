@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<drawable name="background">#212121</drawable>
+<drawable name="textcolor">#4DB2DB</drawable>
+
+<drawable name="black">#000000</drawable>
+<drawable name="green">#0ff0ff</drawable>
+<drawable name="blue">#00ffff</drawable>
+<drawable name="gray">#808080ff</drawable>
+
+<drawable name="white">#FFFFFF</drawable>
+<drawable name="babyblue">#7FB2EF</drawable>
+<drawable name="powderkegblue">#0063CE</drawable>
+<drawable name="darkgray">#636363</drawable>
+<drawable name="lightgray">#A3A3A3</drawable>
+</resources>

@@ -1,0 +1,892 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<campaign>
+  <campaignName>NIH</campaignName>
+  <campaignVersion>1.0</campaignVersion>
+  <serverUrl>https://heart.andwellness.org</serverUrl>
+  
+  <surveys>
+   <survey>
+      <id>diet</id>
+      <title>Diet</title>
+      <description>This is the diet survey.</description>
+      <submitText>This is the diet survey submit text.</submitText>
+      <showSummary>false</showSummary>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>mealPrepared</id>
+          <displayType>category</displayType>
+          <displayLabel>How was your last meal prepared</displayLabel>
+          <promptText>How was your last meal prepared?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Restaurant</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Fast food</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Home made</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Pre-pared (i.e., deli, salad bar)</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Frozen dinner</label>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Other</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>whoDidYouEatWith</id>
+          <displayType>category</displayType>
+          <displayLabel>Who did you eat with</displayLabel>
+          <promptText>Who did you eat with?</promptText>
+          <promptType>multi_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Alone</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Friends</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Family</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Co-workers</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Other</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>howMuchDidYouEat</id>
+          <displayType>category</displayType>
+          <displayLabel>How much did you eat</displayLabel>
+          <promptText>How much did you eat?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Too little/not enough</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Just right</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Too much</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>nutritionalQuality</id>
+          <displayType>category</displayType>
+          <displayLabel>Rate the nutritional quality of this meal</displayLabel>
+          <promptText>Rate the nutritional quality of this meal</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>low</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>medium</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>high</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+    
+      </contentList>
+    
+    </survey>
+
+      <survey>
+      <id>exerciseAndActivity</id>
+      <title>Exercise and Activity</title>
+      <description>This is the exercise and activity survey.</description>
+      <submitText>This is the exercise and activity survey submit text.</submitText>
+      <showSummary>false</showSummary>
+      <anytime>true</anytime>
+    
+      <contentList>
+
+        <prompt>
+          <id>didYouExercise</id>
+          <displayType>category</displayType>
+          <displayLabel>Have you exercised today</displayLabel>
+          <promptText>Have you exercised today?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>No</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Yes</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>planningToExercise</id>
+          <condition>didYouExercise == 0</condition>
+          <displayType>category</displayType>
+          <displayLabel>Were you planning to exercise today</displayLabel>
+          <promptText>Were you planning to exercise today?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>No</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Yes</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>whyNotExercise</id>
+          <condition>didYouExercise == 0 and planningToExercise == 1</condition>
+          <displayType>category</displayType>
+          <displayLabel>Disrupted plan</displayLabel>
+          <promptText>What prevented you from exercising as planned?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Child care</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Work</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Personal needs</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Household responsibilities</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Injured, in pain</label>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Social function</label>
+            </property>
+            <property>
+              <key>6</key>
+              <label>Medical emergency</label>
+            </property>
+            <property>
+              <key>7</key>
+              <label>No energy</label>
+            </property>
+            <property>
+              <key>8</key>
+              <label>Other</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>typeExercise</id>
+          <condition>didYouExercise == 1</condition>
+          <displayType>category</displayType>
+          <displayLabel>Type Exercise</displayLabel>
+          <promptText>Describe the types of exercise you did today.</promptText>
+          <promptType>multi_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Walk</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Run</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Yoga</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Outdoor cycling or sports</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Indoor sports</label>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Gym</label>
+            </property>
+            <property>
+              <key>6</key>
+              <label>Swim</label>
+            </property>
+            <property>
+              <key>7</key>
+              <label>Other</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>timeSpentLight</id>
+          <condition>didYouExercise == 1</condition>
+          <displayType>count</displayType>
+          <displayLabel>Time light exercise</displayLabel>
+          <promptText>How many minutes of light exercise did you do today? (No increase in breathing or heart rate.)</promptText>
+          <promptType>number</promptType>
+          <properties>
+            <property>
+              <key>min</key>
+              <label>0</label>
+            </property>
+            <property>
+              <key>max</key>
+              <label>300</label>
+            </property>
+          </properties>
+          <default>15</default>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>timeSpentModerate</id>
+          <condition>didYouExercise == 1</condition>
+          <displayType>count</displayType>
+          <displayLabel>Time moderate exercise</displayLabel>
+          <promptText>How many minutes of moderate exercise did you do today? (Mild increase in breathing or heart rate.)</promptText>
+          <promptType>number</promptType>
+          <properties>
+            <property>
+              <key>min</key>
+              <label>0</label>
+            </property>
+            <property>
+              <key>max</key>
+              <label>300</label>
+            </property>
+          </properties>
+          <default>15</default>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>timeSpentVigorous</id>
+          <condition>didYouExercise == 1</condition>
+          <displayType>count</displayType>
+          <displayLabel>Time vigorous exercise</displayLabel>
+          <promptText>How many minutes of vigorous exercise did you do today? (Significant increase in breathing or heart rate.)</promptText>
+          <promptType>number</promptType>
+          <properties>
+            <property>
+              <key>min</key>
+              <label>0</label>
+            </property>
+            <property>
+              <key>max</key>
+              <label>300</label>
+            </property>
+          </properties>
+          <default>15</default>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>whoWith</id>
+          <condition>didYouExercise == 1</condition>
+          <displayType>category</displayType>
+          <displayLabel>Who did you exercise with</displayLabel>
+          <promptText>Who did you do this exercise with?</promptText>
+          <promptType>multi_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Alone</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Friends</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Child</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Partner/Spouse</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Co-workers</label>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Class or group</label>
+            </property>
+            <property>
+              <key>6</key>
+              <label>Other</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>physicalActivity</id>
+          <displayType>category</displayType>
+          <displayLabel>What other kinds of physical activity did you do today</displayLabel>
+          <promptText>What other kinds of physical activity did you do today?</promptText>
+          <promptType>multi_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>None</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Housework / Gardening</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Work related</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Carrying heavy loads</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Active play with children</label>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Walking</label>
+            </property>
+            <property>
+              <key>6</key>
+              <label>Other</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>timeForYourself</id>
+          <displayType>count</displayType>
+          <displayLabel>How much time did you have for yourself today</displayLabel>
+          <promptText>How much time did you have for yourself today?</promptText>
+          <promptType>number</promptType>
+          <properties>
+            <property>
+              <key>min</key>
+              <label>0</label>
+            </property>
+            <property>
+              <key>max</key>
+              <label>300</label>
+            </property>
+          </properties>
+          <default>15</default>
+          <skippable>false</skippable>
+        </prompt>
+    
+      </contentList>
+    
+    </survey>
+
+    <survey>
+      <id>foodButton</id>
+      <title>Stress</title>
+      <description>Not displayed</description>
+      <submitText>Not displayed</submitText>
+      <showSummary>false</showSummary>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>foodPhoto</id>
+          <displayType>event</displayType>
+          <displayLabel>photo</displayLabel>
+          <promptText>Take a picture of your food</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>photo</promptType>
+          <properties>
+            <property>
+              <key>res</key>
+              <label>720</label>
+            </property>
+          </properties>
+          <skippable>true</skippable>
+          <skipLabel>skip</skipLabel>
+        </prompt>
+
+        <prompt>
+          <id>foodSnackMeal</id>
+          <displayType>category</displayType>
+          <displayLabel>Type</displayLabel>
+          <promptText>Was this a snack or a meal?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Snack</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Meal</label>
+              <value>1</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>foodHowHungry</id>
+          <displayType>count</displayType>
+          <displayLabel>Hunger</displayLabel>
+          <unit>hunger amount</unit>
+          <promptText>How hungry were you before eating?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Very</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Moderately</label>
+              <value>1</value>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Slightly</label>
+              <value>2</value>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Not at all</label>
+              <value>3</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>foodHowPrepared</id>
+          <displayType>category</displayType>
+          <displayLabel>HowPrepared</displayLabel>
+          <promptText>How was this food prepared?</promptText>
+          <promptType>multi_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Restaurant</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Fast food</label>
+              <value>1</value>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Home made</label>
+              <value>2</value>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Pre-pared (i.e., deli, salad bar) </label>
+              <value>3</value>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Frozen dinner</label>
+              <value>4</value>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Other </label>
+              <value>5</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>foodWhoAteWith</id>
+          <displayType>category</displayType>
+          <displayLabel>WhoWith</displayLabel>
+          <promptText>Who did you eat with?</promptText>
+          <promptType>multi_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Alone</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Friends</label>
+              <value>1</value>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Family</label>
+              <value>2</value>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Co-workers</label>
+              <value>3</value>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Other</label>
+              <value>4</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>foodHowMuch</id>
+          <displayType>category</displayType>
+          <displayLabel>HowMuch</displayLabel>
+          <promptText>How much did you eat?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Too little / not enough</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Just right</label>
+              <value>1</value>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Too much</label>
+              <value>2</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>foodQuality</id>
+          <displayType>category</displayType>
+          <displayLabel>NutritionalQuality</displayLabel>
+          <promptText>Rate the nutritional quality of this meal?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Low</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Medium</label>
+              <value>1</value>
+            </property>
+            <property>
+              <key>2</key>
+              <label>High</label>
+              <value>2</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+      </contentList>
+    
+    </survey>
+
+       <survey>
+      <id>moodAndStress</id>
+      <title>Mood and Stress</title>
+      <description>This is the mood and stress survey.</description>
+      <submitText>This is the mood and stress survey submit text.</submitText>
+      <showSummary>false</showSummary>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>mood</id>
+          <displayType>category</displayType>
+          <displayLabel>How would you describe your mood at this moment</displayLabel>
+          <promptText>How would you describe your mood at this moment?</promptText>
+          <promptType>multi_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Sad</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Relaxed</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Anxious</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Tired</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Happy</label>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Upset</label>
+            </property>
+            <property>
+              <key>6</key>
+              <label>Energetic</label>
+            </property>
+            <property>
+              <key>7</key>
+              <label>Irritable</label>
+            </property>
+            <property>
+              <key>8</key>
+              <label>Calm</label>
+            </property>
+            <property>
+              <key>9</key>
+              <label>Bored</label>
+            </property>
+            <property>
+              <key>10</key>
+              <label>Focused</label>
+            </property>
+            <property>
+              <key>11</key>
+              <label>Stressed</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>feltStress</id>
+          <displayType>category</displayType>
+          <displayLabel>Stress in last two hours</displayLabel>
+          <promptText>Have you felt stress in the last two hours?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>No</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Yes</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>howStressed</id>
+          <displayType>measurement</displayType>
+		  <unit>how stressed</unit>
+          <condition>feltStress == 1</condition>
+          <displayLabel>How stressed</displayLabel>
+          <promptText>How stressed were you, on a scale of 1-5?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>1</label>
+              <value>1</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>2</label>
+              <value>2</value>
+            </property>
+            <property>
+              <key>2</key>
+              <label>3</label>
+              <value>3</value>
+            </property>
+            <property>
+              <key>3</key>
+              <label>4</label>
+              <value>4</value>
+            </property>
+            <property>
+              <key>4</key>
+              <label>5</label>
+              <value>5</value>
+            </property> 
+           </properties>
+          <skippable>false</skippable>
+        </prompt>
+
+        <prompt>
+          <id>whatEvent</id>
+          <condition>feltStress == 1</condition>
+          <displayType>category</displayType>
+          <displayLabel>Cause</displayLabel>
+          <promptText>What was the cause of your stress?</promptText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Finances</label>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Work/School</label>
+            </property>
+            <property>
+              <key>2</key>
+              <label>Lack of control</label>
+            </property>
+            <property>
+              <key>3</key>
+              <label>Family/Relationships</label>
+            </property>
+            <property>
+              <key>4</key>
+              <label>Health</label>
+            </property>
+            <property>
+              <key>5</key>
+              <label>Traffic</label>
+            </property>
+            <property>
+              <key>6</key>
+              <label>Other</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+    
+      </contentList>
+    
+    </survey>
+
+    <survey>
+      <id>sleep</id>
+      <title>Sleep</title>
+      <description>This is the sleep survey.</description>
+      <submitText>This is the sleep survey submit text.</submitText>
+      <showSummary>false</showSummary>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>hoursOfSleep</id>
+          <displayType>count</displayType>
+          <displayLabel>Hours of Sleep</displayLabel>
+          <promptText>How many hours in total did you sleep last night?</promptText>
+          <promptType>number</promptType>
+          <properties>
+            <property>
+              <key>min</key>
+              <label>0</label>
+            </property>
+            <property>
+              <key>max</key>
+              <label>24</label>
+            </property>
+          </properties>
+          <default>8</default>
+          <skippable>false</skippable>
+        </prompt>
+    
+      </contentList>
+    
+    </survey>
+
+    <survey>
+      <id>stressButton</id>
+      <title>Stress</title>
+      <description>Not displayed</description>
+      <submitText>Not displayed</submitText>
+      <showSummary>false</showSummary>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>stress</id>
+          <displayType>metadata</displayType>
+          <displayLabel>Stress</displayLabel>
+                    
+          <promptText>Not displayed</promptText>
+          <promptType>text</promptType>
+          <properties>
+            <property>
+              <key>min</key>
+              <label>1</label>
+            </property>
+            <property>
+              <key>max</key>
+              <label>1</label>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+      </contentList>
+    
+    </survey>
+  </surveys>
+</campaign>

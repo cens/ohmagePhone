@@ -1,0 +1,952 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<campaign>
+  <campaignName>CHIPTS</campaignName>
+  <campaignVersion>0.1</campaignVersion>
+  <serverUrl>https://www.andwellness.org</serverUrl>
+  <surveys>
+  
+    <survey>
+      <id>alcohol</id>
+      <title>Alcohol</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>This is the summary text. Our rules state that if showSummary is true, this element cannot be empty.</summaryText>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>alcoholNumberOfDrinks</id>
+          <displayType>category</displayType>
+          <displayLabel>Alcohol - Number of Drinks</displayLabel>
+          <promptText>How many drinks did you have today?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>1-3</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>4-6</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>7-10</v>
+            </p>
+            <p>
+              <k>4</k>
+              <v>10+</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>alcoholHowManyHoursFirst</id>
+          <displayType>event</displayType>
+          <displayLabel>Alcohol - How Many Hours Ago Was the First Drink</displayLabel>
+          <promptText>How many hours ago was the first drink?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>hours_before_now</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>24</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>alcoholHowManyHoursLast</id>
+          <displayType>event</displayType>
+          <displayLabel>Alcohol - How Many Hours Ago Was the Last Drink</displayLabel>
+          <promptText>How many hours ago was the last drink?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>hours_before_now</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>24</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+      </contentList>
+    
+    </survey>
+    
+    <survey>
+      <id>drugs</id>
+      <title>Drugs</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>This is the summary text. Our rules state that if showSummary is true, this element cannot be empty.</summaryText>
+      <anytime>true</anytime>
+      
+      <contentList>
+        
+        <!-- need a message node here? -->
+        
+        <repeatableSet>
+          <id>drugsRepeatableSet</id>
+          <terminationQuestion>A terminationQuestion is required.</terminationQuestion>
+          <terminationTrueLabel>A terminationTrueLabel is required.</terminationTrueLabel>
+          <terminationFalseLabel>A terminationFalseLabel is required.</terminationFalseLabel>
+          <terminationSkipLabel>A terminationSkipLabel is required.</terminationSkipLabel>
+          <terminationSkipEnabled>true</terminationSkipEnabled>
+          
+          <prompts>
+          
+            <prompt>
+              <id>drugsWhatDrug</id>
+              <displayType>category</displayType>
+              <displayLabel>Drugs - What Drug</displayLabel>
+              <promptText>What drug did you take?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice_custom</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>crystal/meth</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>cocaine</v>
+                </p>
+                <p>
+                  <k>2</k>
+                  <v>crack</v>
+                </p>
+                <p>
+                  <k>3</k>
+                  <v>marijuana</v>
+                </p>
+                <p>
+                  <k>4</k>
+                  <v>opiates</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt> 
+            
+            <prompt>
+              <id>drugsHowManyTimes</id>
+              <displayType>category</displayType>
+              <displayLabel>Drugs - How Many Times</displayLabel>
+              <promptText>How many times?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>1-3</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>4-6</v>
+                </p>
+                <p>
+                  <k>3</k>
+                  <v>7-9</v>
+                </p>
+                <p>
+                  <k>4</k>
+                  <v>10+</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt> 
+          
+            <prompt>
+              <id>drugsHowMuchEachTime</id>
+              <displayType>metadata</displayType>
+              <displayLabel>Drugs - How Much Each Time</displayLabel>
+              <promptText>How much each time?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>text</promptType>
+              <properties>
+                <p>
+                  <k>min</k>
+                  <v>1</v>
+                </p>
+                <p>
+                  <k>max</k>
+                  <v>50</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt> 
+          
+            <prompt>
+              <id>drugsHowManyHoursFirst</id>
+              <displayType>event</displayType>
+              <displayLabel>Drugs - How Many Hours Ago Was the First Use</displayLabel>
+              <promptText>How many hours ago was the first use?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>hours_before_now</promptType>
+              <properties>
+                <p>
+                  <k>min</k>
+                  <v>0</v>
+                </p>
+                <p>
+                  <k>max</k>
+                  <v>24</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt>
+            
+            <prompt>
+              <id>drugsHowManyHoursLast</id>
+              <displayType>event</displayType>
+              <displayLabel>Drugs - How Many Hours Ago Was the Last Use</displayLabel>
+              <promptText>How many hours ago was the last use?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>hours_before_now</promptType>
+              <properties>
+                <p>
+                  <k>min</k>
+                  <v>0</v>
+                </p>
+                <p>
+                  <k>max</k>
+                  <v>24</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt>
+          </prompts>
+        </repeatableSet>
+      </contentList>
+    </survey>
+    
+    <survey>
+      <id>generalFeelingToday</id>
+      <title>General Feeling Today</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>This is the summary text. Our rules state that if showSummary is true, this element cannot be empty.</summaryText>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>generalFeelingTodaySad</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Sad, blue, or depressed</displayLabel>
+          <promptText>Sad, blue, or depressed?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>generalFeelingTodayWorried</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Worried, tense, or anxious</displayLabel>
+          <promptText>Worried, tense, or anxious?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>generalFeelingTodayNotEnoughRest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Not get enough rest or sleep</displayLabel>
+          <promptText>Not get enough rest or sleep</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>generalFeelingTodayVeryHealthy</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Very healthy and full of energy</displayLabel>
+          <promptText>Very healthy and full of energy</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>generalFeelingTodayUsualActivities</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Usual activities were hard to do</displayLabel>
+          <promptText>Usual activities were hard to do?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>not at all</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>slightly</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>moderately</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>extremely</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+      </contentList>
+    </survey>
+    
+    <survey>
+      <id>medication</id>
+      <title>Medication</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>This is the summary text. Our rules state that if showSummary is true, this element cannot be empty.</summaryText>
+      <anytime>true</anytime>
+     
+      <contentList>
+      
+        <prompt>
+          <id>medicationWhich</id>
+          <displayType>category</displayType>
+          <displayLabel>Which medication</displayLabel>
+          <promptText>Which medication?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>multi_choice_custom</promptType>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>medicationTookOrMissed</id>
+          <displayType>metadata</displayType>
+          <displayLabel>Took or missed</displayLabel>
+          <promptText>Are you reporting that you took or missed medication?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>took</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>missed</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>medicationHowManyHoursAgo</id>
+          <displayType>metadata</displayType>
+          <displayLabel>Medication - How Many Hours Ago</displayLabel>
+          <promptText>How many hours ago?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>hours_before_now</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>24</v>
+            </p>
+          </properties>
+          <condition>(medicationTookOrMissed == took)</condition> 
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>medicationOnTime</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Medication - On Time</displayLabel>
+          <promptText>On time?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>yes</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>no</v>
+            </p>
+          </properties>
+          <condition>(medicationTookOrMissed == took)</condition>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>medicationWhyMissed</id>
+          <displayType>metadata</displayType>
+          <displayLabel>Medication - Why Missed?</displayLabel> <!-- metadata probably does not need a display label -->
+          <promptText>Why?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>text</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>1</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>500</v> <!-- ???? -->
+            </p>
+          </properties>
+          <condition>(medicationTookOrMissed == missed)</condition>
+          <skipLabel>Required if skippable is true.</skipLabel>
+          <skippable>true</skippable>
+        </prompt>
+      </contentList>
+    </survey>
+    
+    <survey>
+      <id>photoDiary</id>
+      <title>Photo Diary</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>This is the summary text. Our rules state that if showSummary is true, this element cannot be empty.</summaryText>
+      <anytime>true</anytime>
+     
+      <contentList>
+      
+        <prompt>
+          <id>photoDiaryPhoto</id>
+          <displayType>event</displayType>
+          <displayLabel>photo</displayLabel>
+          <promptText>Take a picture?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>photo</promptType>
+          <properties>
+            <p>
+              <k>res</k>
+              <v>720</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>photoDiaryText</id>
+          <displayType>metadata</displayType>
+          <displayLabel>text</displayLabel>
+          <promptText>Add text?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>text</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>1</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>500</v> <!-- ??? -->
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+      </contentList>
+    </survey>
+    
+    <survey>
+      <id>sexualEncounter</id>
+      <title>Sexual Encounter</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>This is the summary text. Our rules state that if showSummary is true, this element cannot be empty.</summaryText>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>sexualEncounterHowManyHoursAgo</id>
+          <displayType>metadata</displayType>
+          <displayLabel>Sexual Encounter - How many hours ago</displayLabel>
+          <promptText>How many hours ago did it occur?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>number</promptType>
+           <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>24</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>sexualEncounterPartnerType</id>
+          <displayType>category</displayType>
+          <displayLabel>Sexual Encounter - Partner Type</displayLabel>
+          <promptText>Partner type?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>one-time</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>casual</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>regular</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>sexualEncounterPartnerNickname</id>
+          <displayType>category</displayType>
+          <displayLabel>Sexual Encounter - Partner Nickname</displayLabel>
+          <promptText>Partner nickname?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>text</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>1</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>50</v>
+            </p>
+          </properties>
+          <skipLabel>required if skippable is true</skipLabel>
+          <skippable>true</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>sexualEncounterPartnerGender</id>
+          <displayType>category</displayType>
+          <displayLabel>Sexual Encounter - Partner Gender</displayLabel>
+          <promptText>Partner gender?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>male</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>transgender</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>female</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>sexualEncounterPartnerHivStatus</id>
+          <displayType>category</displayType>
+          <displayLabel>Sexual Encounter - HIV Status</displayLabel>
+          <promptText>Partner HIV status?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>positive</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>negative</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>don't know</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <message>
+          <messageText>Thr following three questions will ask about each individual  sexual activity you engaged in during this encounter. Start with the first activity, and repeat for each following act.</messageText>
+        </message>
+        
+        <repeatableSet>
+          <id>sexualActivityRepeatableSet</id>
+          <terminationQuestion>termination question</terminationQuestion>
+          <terminationTrueLabel>true</terminationTrueLabel>
+          <terminationFalseLabel>false</terminationFalseLabel>
+          <terminationSkipEnabled>false</terminationSkipEnabled>
+          <prompts>
+          
+            <prompt>
+              <id>sexualEncounterKindOfSex</id>
+              <displayType>category</displayType>
+              <displayLabel>Sexual Encounter - Kind of Sex</displayLabel>
+              <promptText>What kind of sex?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>anal</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>oral</v>
+                </p>
+                <p>
+                  <k>2</k>
+                  <v>vaginal</v>
+                </p>
+                <p>
+                  <k>3</k>
+                  <v>other</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt>
+            
+            <prompt>
+              <id>sexualEncounterPositionAnalVaginalOther</id>
+              <displayType>category</displayType>
+              <displayLabel>Sexual Encounter - Position (Anal, Vaginal, Other)</displayLabel>
+              <promptText>Your position?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>received/bottom</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>inserted/top</v>
+                </p>
+              </properties>
+              <condition>(sexualEncounterKindOfSex == anal or sexualEncounterKindOfSex == vaginal or sexualEncounterKindOfSex == other)</condition>
+              <skippable>false</skippable>
+            </prompt>
+            
+            <prompt>
+              <id>sexualEncounterPositionOral</id>
+              <displayType>category</displayType>
+              <displayLabel>Sexual Encounter - Position (Oral)</displayLabel>
+              <promptText>Your position?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>received</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>performed</v>
+                </p>
+              </properties>
+              <condition>(sexualEncounterKindOfSex == oral)</condition>
+              <skippable>false</skippable>
+            </prompt>
+            
+            <prompt>
+              <id>sexualEncounterCondom</id>
+              <displayType>measurement</displayType>
+              <displayLabel>Sexual Encounter - Condom</displayLabel>
+              <promptText>Was a condom used?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>yes</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>no</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt>
+
+            <prompt>
+              <id>sexualEncounterSafety</id>
+              <displayType>category</displayType>
+              <displayLabel>Sexual Encounter - Safety</displayLabel>
+              <promptText>Was safety discussed?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>no</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>yes (this time)</v>
+                </p>
+                <p>
+                  <k>2</k>
+                  <v>yes (previously)</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt>
+            
+             <prompt>
+              <id>sexualEncounterHighOnAlcoholOrDrugs</id>
+              <displayType>measurement</displayType>
+              <displayLabel>Sexual Encounter - High on Alcohol or Drugs</displayLabel>
+              <promptText>Were you high on alcohol or drugs?</promptText>
+              <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+              <promptType>single_choice</promptType>
+              <properties>
+                <p>
+                  <k>0</k>
+                  <v>yes</v>
+                </p>
+                <p>
+                  <k>1</k>
+                  <v>no</v>
+                </p>
+              </properties>
+              <skippable>false</skippable>
+            </prompt>
+            
+          </prompts>
+        </repeatableSet>
+      </contentList>
+    </survey>
+    
+    <survey>
+      <id>specificStressfulEvent</id>
+      <title>Specific Stressful Event</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>This is the summary text. Our rules state that if showSummary is true, this element cannot be empty.</summaryText>
+      <anytime>true</anytime>
+     
+      <contentList>
+        <prompt>
+          <id>specificStressfulEventHoursAgo</id>
+          <displayType>metadata</displayType>
+          <displayLabel>how many hours agao</displayLabel>
+          <promptText>How many hours ago did the event occur?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>hours_before_now</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>24</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>specificStressfulEventWhatHappened</id>
+          <displayType>category</displayType>
+          <displayLabel>what happened</displayLabel>
+          <promptText>What happened?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>text</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>1</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>500</v> <!-- ??? -->
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>specificStressfulEventPhoto</id>
+          <displayType>metadata</displayType>
+          <displayLabel>photo</displayLabel>
+          <promptText>Take a picture?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>photo</promptType>
+          <properties>
+            <p>
+              <k>res</k>
+              <v>720</v>
+            </p>
+          </properties>
+          <skippable>true</skippable>
+          <skipLabel>required if skippable is true</skipLabel>
+        </prompt>
+      </contentList>
+    </survey>
+    
+    <survey>
+      <id>tobacco</id>
+      <title>Tobacco</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>true</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>required if showSummary is true.</summaryText>
+      <anytime>true</anytime>
+    
+      <contentList>
+        <prompt>
+          <id>tobaccoNumberOfCigarettes</id>
+          <displayType>category</displayType>
+          <displayLabel>Tobacco - Number of Cigarettes</displayLabel>
+          <promptText>How many cigarettes did you smoke today?</promptText>
+          <abbreviatedText>abbreviatedText must not be empty if showSummary on its parent survey is true.</abbreviatedText>
+          <promptType>single_choice</promptType>
+          <properties>
+            <p>
+              <k>0</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>1</k>
+              <v>1-5</v>
+            </p>
+            <p>
+              <k>2</k>
+              <v>6-10</v>
+            </p>
+            <p>
+              <k>3</k>
+              <v>11-15</v>
+            </p>
+            <p>
+              <k>4</k>
+              <v>16-20</v>
+            </p>
+            <p>
+              <k>5</k>
+              <v>20+</v>
+            </p>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+      </contentList>
+    </survey>
+    
+  </surveys>
+</campaign>

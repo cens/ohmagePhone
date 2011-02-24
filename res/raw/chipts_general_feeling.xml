@@ -55,7 +55,7 @@
           <promptText>Worried, tense, or anxious?</promptText>
           <abbreviatedText></abbreviatedText>
           <explanationText></explanationText>
-          <promptType>single_choice</promptType>
+          <promptType>multi_choice</promptType>
           <properties>
             <p>
               <k>0</k>
@@ -86,10 +86,10 @@
           <promptText>Not get enough rest or sleep</promptText>
           <abbreviatedText></abbreviatedText>
           <explanationText></explanationText>
-          <promptType>single_choice</promptType>
+          <promptType>multi_choice</promptType>
           <properties>
             <p>
-              <k>0</k>
+              <k>100</k>
               <v>not at all</v>
             </p>
             <p>
@@ -97,19 +97,106 @@
               <v>slightly</v>
             </p>
             <p>
-              <k>2</k>
+              <k>12</k>
               <v>moderately</v>
             </p>
             <p>
-              <k>3</k>
+              <k>300</k>
               <v>extremely</v>
             </p>
           </properties>
           <default />
-          <condition>generalFeelingTodayWorried != 0</condition>
+          <condition>generalFeelingTodayWorried != 0 or generalFeelingTodayWorried == 3</condition>
           <skippable>true</skippable>
         </prompt>
         
+        <prompt>
+          <id>numberTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Number of drinks</displayLabel>
+          <promptText>How many drinks did you have?</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>number</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>10</v>
+            </p>
+          </properties>
+          <default/>
+          <condition />
+          <skippable>true</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>hoursTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Last meal time</displayLabel>
+          <promptText>When did you last eat my friend?</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>hours_before_now</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>24</v>
+            </p>
+          </properties>
+          <default>1</default>
+          <condition />
+          <skippable>true</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>textTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Text Test</displayLabel>
+          <promptText>What is your favorite thing in the world?</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>text</promptType>
+          <properties>
+            <p>
+              <k>min</k>
+              <v>0</v>
+            </p>
+            <p>
+              <k>max</k>
+              <v>100</v>
+            </p>
+          </properties>
+          <default></default>
+          <condition />
+          <skippable>true</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>photoTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Photo Test</displayLabel>
+          <promptText>Take a picture of the closest person in your vicinity.</promptText>
+          <abbreviatedText></abbreviatedText>
+          <explanationText></explanationText>
+          <promptType>photo</promptType>
+          <properties>
+            <p>
+              <k>res</k>
+              <v>800</v>
+            </p>
+          </properties>
+          <default></default>
+          <condition />
+          <skippable>true</skippable>
+        </prompt>
         
         <prompt>
           <id>generalFeelingTodayVeryHealthy</id>
@@ -138,7 +225,7 @@
             </p>
           </properties>
           <default />
-          <condition />
+          <condition>numberTest > 4</condition>
           <skippable>false</skippable>
         </prompt>
         
