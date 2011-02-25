@@ -7,37 +7,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.andwellness.grammar.syntaxtree.start;
 import org.xmlpull.v1.XmlPullParserException;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.andwellness.PromptXmlParser;
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.SharedPreferencesHelper;
-import edu.ucla.cens.andwellness.Survey;
-import edu.ucla.cens.andwellness.R.id;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.R.menu;
-import edu.ucla.cens.andwellness.R.raw;
-import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
-import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
+import edu.ucla.cens.andwellness.PromptXmlParser;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
+import edu.ucla.cens.andwellness.Survey;
+import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 public class SurveyListActivity extends ListActivity {
 	
