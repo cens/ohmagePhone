@@ -1,6 +1,10 @@
 package edu.ucla.cens.andwellness;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
 import edu.ucla.cens.andwellness.service.UploadReceiver;
@@ -11,8 +15,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources.NotFoundException;
 import android.os.SystemClock;
 import android.util.Log;
+import android.widget.Toast;
 
 public class BackgroundManager {
 	
@@ -25,6 +31,29 @@ public class BackgroundManager {
 		Context appContext = context.getApplicationContext();
 		
 		new File(PhotoPrompt.IMAGE_PATH).mkdirs();
+		
+		boolean parsedCampaign = false;
+		
+		SharedPreferencesHelper prefs = new SharedPreferencesHelper(appContext);
+		try {
+			Map<String, String> map = PromptXmlParser.parseCampaignInfo(appContext.getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID));
+			if (map.containsKey("campaign_name") && map.containsKey("campaign_version")) {
+				prefs.putCampaignName(map.get("campaign_name"));
+				prefs.putCampaignVersion(map.get("campaign_version"));
+				parsedCampaign = true;
+			} 
+		} catch (NotFoundException e) {
+			Log.e(TAG, "Error parsing xml for campaign info", e);
+		} catch (XmlPullParserException e) {
+			Log.e(TAG, "Error parsing xml for campaign info", e);
+		} catch (IOException e) {
+			Log.e(TAG, "Error parsing xml for campaign info", e);
+		}
+		
+		if (!parsedCampaign) {
+			Log.e(TAG, "Unable to set campaign name and version!");
+			Toast.makeText(appContext, "Unable to set campaign name and version!", Toast.LENGTH_LONG).show();
+		}
 		
 		//uploadservice
 		AlarmManager alarms = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);

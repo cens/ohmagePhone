@@ -343,7 +343,8 @@ public class StatusActivity extends Activity {
 		private AndWellnessApi.ServerResponse uploadSurveyResponses() {
 			
 			SharedPreferencesHelper helper = new SharedPreferencesHelper(mActivity);
-			
+			String campaign = helper.getCampaignName();
+			String campaignVersion = helper.getCampaignVersion();
 			String username = helper.getUsername();
 			String hashedPassword = helper.getHashedPassword();
 			
@@ -387,7 +388,7 @@ public class StatusActivity extends Activity {
 					responsesJsonArray.put(responseJson);
 				}
 				
-				AndWellnessApi.ServerResponse response = AndWellnessApi.surveyUpload(username, hashedPassword, "android", "NIH", "1.0", responsesJsonArray.toString());
+				AndWellnessApi.ServerResponse response = AndWellnessApi.surveyUpload(username, hashedPassword, "android", campaign, campaignVersion, responsesJsonArray.toString());
 				
 				if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded survey responses.");
@@ -571,7 +572,8 @@ public class StatusActivity extends Activity {
 		private AndWellnessApi.ServerResponse uploadMedia() {
 
 			SharedPreferencesHelper helper = new SharedPreferencesHelper(mActivity);
-			
+			String campaign = helper.getCampaignName();
+			String campaignVersion = helper.getCampaignVersion();
 			String username = helper.getUsername();
 			String hashedPassword = helper.getHashedPassword();
 			
@@ -585,7 +587,7 @@ public class StatusActivity extends Activity {
 						Log.i(TAG, "Temporary image was discarded.");
 						files[i].delete();
 					} else {
-						response = AndWellnessApi.mediaUpload(username, hashedPassword, "android", "NIH", files[i].getName().split("\\.")[0], files[i]);
+						response = AndWellnessApi.mediaUpload(username, hashedPassword, "android", campaign, files[i].getName().split("\\.")[0], files[i]);
 						
 						if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 							Log.i(TAG, "Successfully uploaded an image.");

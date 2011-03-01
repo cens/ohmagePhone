@@ -58,16 +58,13 @@ public class SurveyListActivity extends ListActivity {
 		mSurveys = null; 
 		
 		try {
-			mSurveys = PromptXmlParser.parseSurveys(getResources().openRawResource(R.raw.nih_all));
+			mSurveys = PromptXmlParser.parseSurveys(getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID));
 		} catch (NotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Error parsing surveys from xml", e);
 		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Error parsing surveys from xml", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Error parsing surveys from xml", e);
 		}
 		
 		//List<Map<String,?>> data = new ArrayList<Map<String,?>>();

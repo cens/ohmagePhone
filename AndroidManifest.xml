@@ -22,7 +22,7 @@
             </intent-filter>
 		</activity>
 		
-		<receiver android:name="service.TriggerNotificationReceiver">
+		<receiver android:name=".service.TriggerNotificationReceiver">
     		<intent-filter>
         		<action android:name="edu.ucla.cens.andwellness.triggers.TRIGGER_NOTIFICATION"/>
         	</intent-filter>
@@ -42,7 +42,7 @@
         
     <service android:name=".service.UploadService"/>
     	
-	<receiver android:name="service.UploadReceiver">
+	<receiver android:name=".service.UploadReceiver">
 		<intent-filter>
     		<action android:name="edu.ucla.cens.andwellness.service.ACTION_UPLOAD_ALARM"/>
     	</intent-filter>

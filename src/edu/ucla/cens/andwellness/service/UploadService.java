@@ -45,7 +45,8 @@ public class UploadService extends WakefulIntentService{
 	private void uploadSurveyResponses() {
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
-		
+		String campaign = helper.getCampaignName();
+		String campaignVersion = helper.getCampaignVersion();
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
 		
@@ -89,7 +90,7 @@ public class UploadService extends WakefulIntentService{
 				responsesJsonArray.put(responseJson);
 			}
 			
-			AndWellnessApi.ServerResponse response = AndWellnessApi.surveyUpload(username, hashedPassword, "android", "NIH", "1.0", responsesJsonArray.toString());
+			AndWellnessApi.ServerResponse response = AndWellnessApi.surveyUpload(username, hashedPassword, "android", campaign, campaignVersion, responsesJsonArray.toString());
 			
 			if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 				Log.i(TAG, "Successfully uploaded survey responses.");
@@ -205,7 +206,8 @@ public class UploadService extends WakefulIntentService{
 	private void uploadMedia() {
 
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
-		
+		String campaign = helper.getCampaignName();
+		String campaignVersion = helper.getCampaignVersion();
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
 		
@@ -220,7 +222,7 @@ public class UploadService extends WakefulIntentService{
 						files[i].delete();
 					}
 				} else {	
-					AndWellnessApi.ServerResponse response = AndWellnessApi.mediaUpload(username, hashedPassword, "android", "NIH", files[i].getName().split("\\.")[0], files[i]);
+					AndWellnessApi.ServerResponse response = AndWellnessApi.mediaUpload(username, hashedPassword, "android", campaign, files[i].getName().split("\\.")[0], files[i]);
 					
 					if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 						Log.i(TAG, "Successfully uploaded an image.");

@@ -60,7 +60,7 @@ public class StressButtonService extends IntentService {
         String surveyTitle = "Stress";
         
         try {
-			prompts = PromptXmlParser.parsePrompts(getResources().openRawResource(R.raw.nih_all), surveyId);
+			prompts = PromptXmlParser.parsePrompts(getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID), surveyId);
 		} catch (NotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -100,9 +100,10 @@ public class StressButtonService extends IntentService {
 	}
 
 	private void storeResponse(String surveyId, String surveyTitle, String launchTime, List<Prompt> prompts) {
-		String campaign = "NIH";
-		String campaignVersion = "1.0";
+		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		String campaign = helper.getCampaignName();
+		String campaignVersion = helper.getCampaignVersion();
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();

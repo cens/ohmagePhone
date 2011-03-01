@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 public class SharedPreferencesHelper {
 	
+	public static final int CAMPAIGN_XML_RESOURCE_ID = R.raw.nih_all;
+	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
 	public static final String PREFERENCES_TRIGGERS = "preferences_triggers";
@@ -15,6 +17,8 @@ public class SharedPreferencesHelper {
 	private static final String KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String KEY_IS_AUTHENTICATED = "is_authenticated";
 	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
+	private static final String KEY_CAMPAIGN_NAME = "campaign_name";
+	private static final String KEY_CAMPAIGN_VERSION = "campaign_version";
 
 	private SharedPreferences mPreferences;
 	
@@ -60,6 +64,22 @@ public class SharedPreferencesHelper {
 	
 	public void putLastMobilityUploadTimestamp(Long timestamp) {
 		mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
+	}
+	
+	public String getCampaignName() {
+		return mPreferences.getString(KEY_CAMPAIGN_NAME, "");
+	}
+	
+	public void putCampaignName(String campaignName) {
+		mPreferences.edit().putString(KEY_CAMPAIGN_NAME, campaignName).commit();
+	}
+	
+	public String getCampaignVersion() {
+		return mPreferences.getString(KEY_CAMPAIGN_VERSION, "");
+	}
+	
+	public void putCampaignVersion(String campaignVersion) {
+		mPreferences.edit().putString(KEY_CAMPAIGN_VERSION, campaignVersion).commit();
 	}
 
 	/*public boolean isAuthenticated() {

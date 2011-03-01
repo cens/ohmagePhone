@@ -102,16 +102,13 @@ public class SurveyActivity extends Activity {
         	mPrompts = null;
             
             try {
-    			mPrompts = PromptXmlParser.parsePrompts(getResources().openRawResource(R.raw.nih_all), mSurveyId);
+    			mPrompts = PromptXmlParser.parsePrompts(getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID), mSurveyId);
     		} catch (NotFoundException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
+    			Log.e(TAG, "Error parsing prompts from xml", e);
     		} catch (XmlPullParserException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
+    			Log.e(TAG, "Error parsing prompts from xml", e);
     		} catch (IOException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
+    			Log.e(TAG, "Error parsing prompts from xml", e);
     		}
     		
     		//mResponses = new ArrayList<PromptResponse>(mPrompts.size());
@@ -425,9 +422,9 @@ public class SurveyActivity extends Activity {
 			}
 		}
 		
-		String campaign = "NIH";
-		String campaignVersion = "1.0";
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		String campaign = helper.getCampaignName();
+		String campaignVersion = helper.getCampaignVersion();
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();

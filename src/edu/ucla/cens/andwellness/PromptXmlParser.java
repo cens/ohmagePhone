@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -67,6 +69,46 @@ public class PromptXmlParser {
 	private static final String MESSAGE_TEXT = "messageText";
 	private static final String MESSAGE_CONDITION = "condition";
 	
+	public static Map<String, String> parseCampaignInfo(InputStream promptXmlStream) throws XmlPullParserException, IOException {
+		XmlPullParser parser = Xml.newPullParser();
+		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
+		
+		HashMap<String, String> map = null;
+		
+		int eventType = parser.getEventType();
+		while (eventType != XmlPullParser.END_DOCUMENT) {
+			
+			if (map != null && map.containsKey("campaign_name") && map.containsKey("campaign_version")) {
+				return map;
+			}
+			
+			String tagName = null;
+			
+			switch (eventType) {
+			
+			case XmlPullParser.START_DOCUMENT:
+				map = new HashMap<String, String>(2);
+				break;
+				
+			case XmlPullParser.START_TAG:
+				
+				tagName = parser.getName();
+				if (tagName.equalsIgnoreCase(CAMPAIGN_NAME)) {
+					map.put("campaign_name", parser.nextText());
+				} else if (tagName.equalsIgnoreCase(CAMPAIGN_VERSION)) {
+					map.put("campaign_version", parser.nextText());
+				} 
+				break;
+				
+			case XmlPullParser.END_TAG:
+								 
+				break;
+			}
+			eventType = parser.next();
+		}
+		
+		return map;
+	}
 	
 	public static List<Survey> parseSurveys(InputStream promptXmlStream) throws XmlPullParserException, IOException {
 		
