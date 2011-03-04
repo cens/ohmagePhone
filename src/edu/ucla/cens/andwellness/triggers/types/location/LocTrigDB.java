@@ -273,7 +273,8 @@ public class LocTrigDB {
 				ContentValues values = new ContentValues();
 				values.put(KEY_NAME, builtinCategories[i]);
 				values.put(KEY_BUILT_IN, 1);
-						
+				values.put(KEY_TIMESTAMP, TIME_STAMP_INVALID);
+				
 				mDb.insertOrThrow(TABLE_CATEGORIES, null, values);
 			}
 		}

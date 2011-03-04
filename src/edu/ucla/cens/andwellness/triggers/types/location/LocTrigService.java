@@ -6,33 +6,47 @@ package edu.ucla.cens.andwellness.triggers.types.location;
  */
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 
+import edu.ucla.cens.accelservice.IAccelService;
+import edu.ucla.cens.andwellness.triggers.config.LocTrigConfig;
 import edu.ucla.cens.andwellness.triggers.utils.SimpleTime;
+import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
+import edu.ucla.cens.wifigpslocation.IWiFiGPSLocationService;
 
 public class LocTrigService extends Service 
 			 implements LocationListener {
 
 	private static final String DEBUG_TAG = "LocationTrigger";
+	private static final String REMOTE_CLIENT_NAME = 
+				LocTrigService.class.getName() + ".remote_client";
 	
 	private static final String WAKE_LOCK_TAG = 
 					LocTrigService.class.getName() + ".wake_lock";
@@ -75,19 +89,20 @@ public class LocTrigService extends Service
 	//Time value for the alarm to keep the service alive
 	private static final long SERV_KEEP_ALIVE_TIME = 300000; //5min
 	//Time value for the alarm to check if the user is passing through
-	private static final long PASS_THROUGH_TIME = 180000; //3min 
+	private static final long PASS_THROUGH_TIME = 180000; //3min
+	private static final long STALE_LOC_TIME = 180000; //3min
 	//The number of accurate samples to collect during every
 	//sampling instance
 	private static final int SAMPLES_LIMIT = 10;
 	//GPS timeout alarm time value. The GPS is timed out after
 	//this if it cannot obtain the above number of accurate 
 	//samples.
-	private static final long GPS_TIMEOUT = 60000; //1min
+	private static final long GPS_TIMEOUT = 45000; //45s
 	//The threshold value to use when checking if a location
 	//belongs to a category
 	private static final float CATEG_ACCURACY_MARGIN = 20; //m
 	//The maximum value of GPS duty cycle interval
-	private static final long MAX_SLEEP_TIME = 300000; //5 mins
+	private static final long MAX_SLEEP_TIME = 360000; //6 mins
 	//The minimum value of GPS duty cycle interval
 	private static final long MIN_SLEEP_TIME = 30000; //30sec
 	//The actual sleep time is calculated based on the speed. 
@@ -103,12 +118,24 @@ public class LocTrigService extends Service
 	//Calculate the speed from the displacement only if the user has
 	//moved at least this much.
 	private static final float SPEED_CALC_MIN_DISPLACEMENT 
-							   = 2 * INACCURATE_SAMPLE_THRESHOLD;
+							   = 4 * INACCURATE_SAMPLE_THRESHOLD;
+	
+	private static final double MOTION_DETECT_ACCEL_THRESHOLD = 5;
+	
+	private static final long SLEEP_TIME_MIN_MOTION_DETECT = 60000; //1 min
+	
+	private static final long MOTION_DETECT_DELAY = 60000; //1min
 	
 	//Wake lock for GPS sampling
 	private PowerManager.WakeLock mWakeLock = null;
 	//Wake lock for alarm receiver
 	private static PowerManager.WakeLock mRecvrWakeLock = null;
+	
+	private IWiFiGPSLocationService mWiFiGPSServ = null;
+	private IAccelService mAccelServ = null;
+	private ILocationChangedCallback mMotionDetectCB= null;
+	private ServiceConnection mWifiGPSServConn = null;
+	private ServiceConnection mAccelServConn = null;
 	
 	//Number of samples collected in the current duty cycle
 	private int mNSamples = 0;
@@ -137,8 +164,20 @@ public class LocTrigService extends Service
 	private boolean mPassThroughChecking = false;
 	//The category id for which the pass through check is being performed
 	private int mPassThroughCheckCateg = CATEG_ID_INVAL;
+	private long mCategPrevTS = LocTrigDB.TIME_STAMP_INVALID;
 	//Flag to check if the sampling is started at all
 	private boolean mSamplingStarted = false;
+	private boolean mGPSStarted = false;
+	private long mMotionDetectTS = 0;
+	private WifiManager.WifiLock mWifiLock = null;
+	
+	//Handler to handle motion detection callback
+	//It is require to run the handling in the current thread
+	Handler mHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			handleWifiGPSLocChange();
+		}
+	};
 	
 	//The list of all locations to watch for
 	private LinkedList<LocListItem> mLocList;
@@ -165,8 +204,30 @@ public class LocTrigService extends Service
 		PowerManager powerMan = (PowerManager) getSystemService(POWER_SERVICE);
 		mWakeLock = powerMan.newWakeLock(
     				PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
+
+		if(LocTrigConfig.useNetworkLocation) {
+			Log.i(DEBUG_TAG, "LocTrigService: Using network location");
+			WifiManager wifiMan = (WifiManager) getSystemService(WIFI_SERVICE);
+			mWifiLock = wifiMan.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY, DEBUG_TAG);
+		}
+		
+		if(LocTrigConfig.useMotionDetection) {
+			Log.i(DEBUG_TAG, "LocTrigService: Using motion detection");
+		}
+		
+		mMotionDetectCB = new ILocationChangedCallback.Stub() {
+			
+			@Override
+			public void locationChanged() throws RemoteException {
+				if(LocTrigConfig.useMotionDetection) {
+					mHandler.sendMessage(mHandler.obtainMessage());
+				}
+				
+			}
+		};
 	
-		mSamplingStarted = false;		
+		mSamplingStarted = false;	
+		
 		super.onCreate();
 	}
 	
@@ -192,7 +253,7 @@ public class LocTrigService extends Service
 		else if(intent.getAction().equals(ACTION_UPDATE_LOCATIONS)) {
 			populateLocList();
 		}
-		
+
 		updateSamplingStatus();
 		
 		releaseRecvrWakeLock();
@@ -208,10 +269,38 @@ public class LocTrigService extends Service
 		
 		mLocList.clear();
 		
+		disconnectRemoteServices();
+		
 		releaseWakeLock();
 		releaseRecvrWakeLock();
 		
 		super.onDestroy();
+	}
+	
+	private void connectToRemoteServices() {
+		//Connect to WIFIGPS
+		bindService(new Intent(IWiFiGPSLocationService.class.getName()), 
+					mWifiGPSServConn, Context.BIND_AUTO_CREATE);
+		
+		//Connect to ACCEL
+		bindService(new Intent(IAccelService.class.getName()), 
+					mAccelServConn, Context.BIND_AUTO_CREATE);
+	}
+	
+	private void disconnectRemoteServices() {
+		if(mAccelServConn != null && mAccelServ != null) {
+			unbindService(mAccelServConn);
+		}
+		
+		if(mWifiGPSServConn != null && mWiFiGPSServ != null) {
+			unbindService(mWifiGPSServConn);
+		}
+		
+		mAccelServ = null;
+		mAccelServConn = null;
+		
+		mWiFiGPSServ = null;
+		mWifiGPSServConn = null;
 	}
 	
 	private void acquireWakeLock() {
@@ -267,7 +356,7 @@ public class LocTrigService extends Service
 		else if(alm.equals(ACTION_ALRM_GPS_TIMEOUT)) {
 			handleGPSTimeoutAlarm();
 		}
-		else if(alm.endsWith(ACTION_ALRM_PASS_THROUGH)) {
+		else if(alm.equals(ACTION_ALRM_PASS_THROUGH)) {
 			handlePassThroughCheckAlarm(extras.getInt(KEY_SAMPLING_ALARM_EXTRA));
 		}
 	}
@@ -278,15 +367,16 @@ public class LocTrigService extends Service
 		//set the alarm if not already existing
 		PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 
 				   		   PendingIntent.FLAG_NO_CREATE);
+		
+		AlarmManager alarmMan = (AlarmManager) getSystemService(ALARM_SERVICE);
 		if(pi != null) {
-			//Already exists, do nothing
-			return;
+			alarmMan.cancel(pi);
+			pi.cancel();
 		}
 		
     	pi = PendingIntent.getBroadcast(this, 0, i, 
     					   PendingIntent.FLAG_CANCEL_CURRENT);
     	
-    	AlarmManager alarmMan = (AlarmManager) getSystemService(ALARM_SERVICE);
     	alarmMan.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
     						  SystemClock.elapsedRealtime() + SERV_KEEP_ALIVE_TIME, 
     						  SERV_KEEP_ALIVE_TIME, pi);
@@ -390,6 +480,9 @@ public class LocTrigService extends Service
         mLatestCateg = CATEG_ID_INVAL;
         mPassThroughChecking = false;
         mPassThroughCheckCateg = CATEG_ID_INVAL;
+        mGPSStarted = false;
+        mMotionDetectTS = 0;
+        mCategPrevTS = LocTrigDB.TIME_STAMP_INVALID;
 	}
  	
 	private void startSampling() {
@@ -431,29 +524,255 @@ public class LocTrigService extends Service
 			stopSampling();
 		}
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	private boolean hasUserMoved() {
+	
+		List<Double> fList = null;
+		try {
+			//TODO cast problem
+			//AccelService must return a typed list
+			fList = mAccelServ.getLastForce();
+		} catch (RemoteException e) {
+			Log.e(DEBUG_TAG, "LocTrigService: Exception while " +
+						"getLastForce");
+			Log.v(DEBUG_TAG, e.toString());
+			return false;
+		}
+		
+		if(fList == null) {
+			Log.e(DEBUG_TAG, "LocTrigService: AccelService returned null" +
+					" force list");
+			return false;
+		}
+		
+		if(fList.size() == 0) {
+			Log.i(DEBUG_TAG, "LocTrigService: AccelService returned empty" +
+						" force list");
+			return false;
+		}
+		
+		double mean = 0;
+		for(double force : fList) {
+			mean += force;
+		}
+		mean /= fList.size();
+		
+		double var = 0;
+		for(double force : fList) {
+			var += Math.pow(force - mean, 2);
+		}
+		var /= fList.size();
+		var *= 1000;
+		
+		Log.i(DEBUG_TAG, "LocTrigService: Variance = " + var);
+		
+		if(var < MOTION_DETECT_ACCEL_THRESHOLD) {
+			return false;
+		}
+		
+		Log.i(DEBUG_TAG, "LocTrigService: Motion detected");
+		return true;
+	}
+	
+	private void handleWifiGPSLocChange() {
+		Log.i(DEBUG_TAG, "LocTrigService: WifiGPS loc changed");
+		
+		long elapsed = SystemClock.elapsedRealtime() - mMotionDetectTS;
+		if(elapsed < MOTION_DETECT_DELAY || 
+				mCurrSleepTime < SLEEP_TIME_MIN_MOTION_DETECT) {
+			
+			Log.i(DEBUG_TAG, "LocTrigService: Too early, ignoring WifiGPS loc change");
+			return;
+		}
+		
+		try {
+			if(mAccelServ == null || !mAccelServ.isRunning()) {
+				Log.i(DEBUG_TAG, "Accel service is not running, " +
+						"stopping motion detection");
+				
+				stopMotionDetection();
+				return;
+			}
+		} catch (RemoteException e) {
+			Log.e(DEBUG_TAG, "Error while checking accel status");
+			return;
+		}
+		
+		if(hasUserMoved()) {
+			Log.i(DEBUG_TAG, "LocTrigService: Starting GPS due to movement");
+			
+			startGPS();
+		}
+	}
+	
+	private void registerMotionDetectionCB(){
+		Log.i(DEBUG_TAG, "LocTrigService: Registering for WifiGPS CB");
+		
+		if(mWiFiGPSServ == null || mAccelServ == null) {
+			Log.i(DEBUG_TAG, "LocTrigService: Not all services are connected yet." +
+					" Skipping...");
+			return;
+		}
+		
+		Log.i(DEBUG_TAG, "LocTrigService: All services connected, " +
+				"attempting to register");
+		
+		//Use the services opportunistically. Do not start
+		//motion detection if the services are not already 
+		//running
+		try {
+			if(!mWiFiGPSServ.isRunning() || !mAccelServ.isRunning()) {
+				Log.i(DEBUG_TAG, "LocTrigService: Motion detection NOT started " +
+						"as the services are not already running");
+				
+				disconnectRemoteServices();
+				return;
+			}
+		
+			mMotionDetectTS = SystemClock.elapsedRealtime();
+		
+			//Register a location change cb with wifigps
+			mWiFiGPSServ.registerCallback(REMOTE_CLIENT_NAME, mMotionDetectCB);
+			/*
+			 * The following line is a hack/work-around. If this is not done, 
+			 * the WifiGPS service will continue to run even after all the other
+			 * have stopped. Essentially, the 'registerCallback' function above
+			 * will increase the 'clientCount' inside the service even if we didnt
+			 * start it explicitly. Thus, we need to call stop to nullify the effect.
+			 */
+			mWiFiGPSServ.stop(REMOTE_CLIENT_NAME);
+		} catch (RemoteException e) {
+			Log.e(DEBUG_TAG, "LocTrigService: Exception while " +
+								"registering wifigps cb");
+			Log.v(DEBUG_TAG, e.toString());
+		}
+	}
+	
+	private void startMotionDetection() {
+		Log.i(DEBUG_TAG, "LocTrigService: Starting motion detection...");
+		
+		mWifiGPSServConn = new ServiceConnection() {
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
+				Log.i(DEBUG_TAG, "LocTrigService: WifiGPS disconnected");
+				
+				mWiFiGPSServ = null;
+			}
+			
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
+				Log.i(DEBUG_TAG, "LocTrigService: WifiGPS connected");
+				
+				mWiFiGPSServ = IWiFiGPSLocationService.Stub.asInterface(service);
+				registerMotionDetectionCB();		}
+		};
+		
+		
+		mAccelServConn = new ServiceConnection() {
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
+				Log.i(DEBUG_TAG, "LocTrigService: AccelService disconnected");
+				
+				mAccelServ = null;
+			}
+			
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
+				Log.i(DEBUG_TAG, "LocTrigService: AccelService connected");
+				
+				mAccelServ = IAccelService.Stub.asInterface(service);
+				registerMotionDetectionCB();
+			}
+		};
+		
+		connectToRemoteServices();
+	}
+	
+	private void stopMotionDetection() {
+		Log.i(DEBUG_TAG, "LocTrigService: Stopping motion detection...");
+		
+		if(mWiFiGPSServ != null) {
+			try {
+				mWiFiGPSServ.unregisterCallback(REMOTE_CLIENT_NAME, mMotionDetectCB);
+				
+				/* 
+				 * A stop call is actually not required. But to be 
+				 * on the safer side...
+				 */
+				mWiFiGPSServ.stop(REMOTE_CLIENT_NAME);
+			} catch (RemoteException e) {
+				Log.e(DEBUG_TAG, "LocTrigService: Exception while " +
+									"stopping motion detection");
+				Log.v(DEBUG_TAG, e.toString());
+			}
+		}
+	
+		disconnectRemoteServices();
+	}
+	
 	private void startGPS() {
+		if(mGPSStarted) {
+			return;
+		}
+		
+		if(LocTrigConfig.useMotionDetection) {
+			stopMotionDetection();
+		}
+			
 		//Get a wake lock for this duty cycle
 		acquireWakeLock();
 		
 		mNSamples = 0;
 		mPrevSpeed = mCurrSpeed;
-		//mCurrSpeed = 0;
+		
+		Log.i(DEBUG_TAG, "LocTrigService: Turning on location updates");
 		
 		LocationManager locMan = (LocationManager) getSystemService(LOCATION_SERVICE);
 		locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
 				 						0, 0, this);
 		
+		//Use network location as well
+		if(LocTrigConfig.useNetworkLocation) {
+				  
+			if(mWifiLock != null) {
+				if(!mWifiLock.isHeld()) {
+					mWifiLock.acquire();
+				}
+			}
+			
+			locMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 
+						0, 0, this);
+		}
+		
 		cancelSamplingAlarm(ACTION_ALRM_GPS_SAMPLE);
 		//Set GPS timeout
 		setSamplingAlarm(ACTION_ALRM_GPS_TIMEOUT, GPS_TIMEOUT, 0);
+		
+		mGPSStarted = true;
 	}
 	
 	private void stopGPS() {
+		if(!mGPSStarted) {
+			return;
+		}
+		
 		cancelSamplingAlarm(ACTION_ALRM_GPS_TIMEOUT);
+		
+		Log.i(DEBUG_TAG, "LocTrigService: Turning off location updates");
 		
 		LocationManager locMan = (LocationManager) getSystemService(LOCATION_SERVICE);
 		locMan.removeUpdates(this);
+		
+		if(LocTrigConfig.useNetworkLocation) {
+			if(mWifiLock != null) {
+				if(mWifiLock.isHeld()) {
+					mWifiLock.release();
+				}
+			}
+		}
+		
+		mGPSStarted = false;
 	}
 	
 	/* Calculate the sleep time and set the GPS sampling alarm */
@@ -462,6 +781,12 @@ public class LocTrigService extends Service
 		
 		long sTime = getUpdatedSleepTime();
 		setSamplingAlarm(ACTION_ALRM_GPS_SAMPLE, sTime, 0);
+		
+		if(LocTrigConfig.useMotionDetection) {
+			if(sTime >= SLEEP_TIME_MIN_MOTION_DETECT) {
+				startMotionDetection();
+			}
+		}
 		
 		releaseWakeLock();
 	}
@@ -760,7 +1085,8 @@ public class LocTrigService extends Service
 		
 		//If the speed is non-zero, calculate the sleep time based on it
 		else if(sleepDist != 0) {
-			sTime = (long) ((sleepDist / mCurrSpeed) * 1000);
+			float roundSpeed = (float) Math.ceil(mCurrSpeed);
+			sTime = (long) ((sleepDist / roundSpeed) * 1000);
 		}
 		else {
 			sTime = MAX_SLEEP_TIME;
@@ -800,9 +1126,6 @@ public class LocTrigService extends Service
 			mCurrSpeed = 0;
 		}
 		
-		//Set the speed to next integer val
-		mCurrSpeed = (float) Math.ceil(mCurrSpeed);
-		
 		Log.i(DEBUG_TAG, "LocTrigService: Current speed: " + mCurrSpeed);
 	}
 	
@@ -834,7 +1157,6 @@ public class LocTrigService extends Service
 		LocTrigDB db = new LocTrigDB(this);
 		db.open();
 		String categName = db.getCategoryName(categId);
-		long categTS = db.getCategoryTimeStamp(categId);
 		db.close();
 		
 		LocationTrigger locTrig = new LocationTrigger();
@@ -853,7 +1175,11 @@ public class LocTrigService extends Service
 			
 			if(desc.isRangeEnabled()) {
 				
+				Log.i(DEBUG_TAG, "LocTrigService: Range enabling. Checking whether" +
+						" to trigger");
+				
 				if(locTrig.hasTriggeredToday(this, trigId)) {
+					Log.i(DEBUG_TAG, "LocTrigService: Has triggered today, skipping");
 					continue;
 				}
 			
@@ -873,18 +1199,28 @@ public class LocTrigService extends Service
 					continue;
 				}
 				
+				Log.i(DEBUG_TAG, "LocTrigService: Triggering now");
 				cancelTriggerAlwaysAlarm(trigId);
 				locTrig.notifyTrigger(this, trigId);
 			}
-			else if(categTS != LocTrigDB.TIME_STAMP_INVALID) { 
+			else if(mCategPrevTS == LocTrigDB.TIME_STAMP_INVALID) { 
+				Log.i(DEBUG_TAG, "LocTrigService: Invalid categ timestamp." +
+						" Triggering...");
+				
 				locTrig.notifyTrigger(this, trigId);
 			}
 			else {
-				long elapsed = System.currentTimeMillis() - categTS;
+				long elapsed = System.currentTimeMillis() - mCategPrevTS;
 				long minReentry = desc.getMinReentryInterval() * 60 * 1000;
 				
 				if(elapsed > minReentry) {
+					Log.i(DEBUG_TAG, "LocTrigService: Beyond minimum re-entry. " +
+							"Triggering...");
 					locTrig.notifyTrigger(this, trigId);
+				}
+				else {
+					Log.i(DEBUG_TAG, "LocTrigService: Minimum re-entry has not expired. " +
+							" Not triggering.");
 				}
 			}
 		}	
@@ -918,7 +1254,21 @@ public class LocTrigService extends Service
 						 loc.getLongitude() + " (" + 
 						 loc.getProvider() + "), accuracy = " +
 						 loc.getAccuracy() + ", speed = " + 
-						 loc.getSpeed());
+						 loc.getSpeed() + ", Time = " + 
+						 new Date(loc.getTime()).toString());
+		
+		if(!mGPSStarted) {
+			Log.i(DEBUG_TAG, "LocTrigService: Discarding stray location " +
+					"after disabling locaiton updates");
+			return;
+		}
+		
+		//Discard if a stale location is received (could be possible in network
+		//location)
+		if((loc.getTime() + STALE_LOC_TIME) < System.currentTimeMillis()) {
+			Log.i(DEBUG_TAG, "LocTrigService: Discarding stale location");
+			return;
+		}
 		
 		/* Check if the last known location belongs to a category. 
 		 * This is required when the user defines a category on the current
@@ -939,13 +1289,13 @@ public class LocTrigService extends Service
 			Log.i(DEBUG_TAG, "LocTrigService: Assigning category to the prev loc");
 			recordLatestCategory(prevCateg);
 		}
-		
-		recordLocation(loc);
-		
+				
 		if(!loc.hasAccuracy()) {
 			Log.i(DEBUG_TAG, "LocTrigService: Discarding loc with no accuracy info");
 			return;
 		}
+
+		recordLocation(loc);
 		
 		int locCateg = getLocCategory(loc);
 		Log.i(DEBUG_TAG, "LocTrigService: Loc category = " + locCateg);
@@ -959,6 +1309,16 @@ public class LocTrigService extends Service
 				//start triggering only after sufficient number of
 				//initial samples have been collected
 				if(mNInitialSamples >= SAMPLES_LIMIT) {
+					
+					//Cache the previous visit time for this category
+					//as it is going to be updated now
+					LocTrigDB db = new LocTrigDB(this);
+					db.open();
+					mCategPrevTS = db.getCategoryTimeStamp(locCateg);
+					Log.i(DEBUG_TAG, "LocTrigService: Caching category time stamp: " +
+							mCategPrevTS);
+					
+					db.close();
 					
 					setSamplingAlarm(ACTION_ALRM_PASS_THROUGH, 
 									PASS_THROUGH_TIME, locCateg);
@@ -995,6 +1355,18 @@ public class LocTrigService extends Service
 			}
 			
 			recordLatestCategory(locCateg);
+			
+			//Do not turn off updates until sufficient samples with speed info
+			//are obtained
+			if(LocTrigConfig.useNetworkLocation) {
+				if(loc.getProvider().equals(LocationManager.NETWORK_PROVIDER) && 
+				   !loc.hasSpeed()) {
+					Log.i(DEBUG_TAG, "LocTrigService: Discarding network " +
+							"location without speed");
+					return;
+				}
+			}
+			
 			recordSpeed(loc);
 			
 			//Collect some initial samples when the service/sampling starts for
@@ -1008,7 +1380,7 @@ public class LocTrigService extends Service
 			
 			mNSamples++;
 			//If the sample count hits the limit, reschedule.
-			if(mNSamples >= SAMPLES_LIMIT) {
+			if(mNSamples == SAMPLES_LIMIT) {
 				cancelPassThroughCheckingIfRequired();
 				reScheduleGPS();	
 			}
@@ -1017,16 +1389,12 @@ public class LocTrigService extends Service
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		if(provider.equals(LocationManager.GPS_PROVIDER)) {
-			stopSampling();
-		}
+	
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		if(provider.equals(LocationManager.GPS_PROVIDER)) {
-			updateSamplingStatus();
-		}
+		updateSamplingStatus();
 	}
 
 	@Override
@@ -1034,6 +1402,7 @@ public class LocTrigService extends Service
 				Bundle extras) {
 	}
 
+	
 	/************************ INNER CLASSES ************************/
     /* Class representing an item in the cached location list */
     private class LocListItem {

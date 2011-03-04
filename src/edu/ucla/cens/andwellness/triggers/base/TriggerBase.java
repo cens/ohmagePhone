@@ -2,6 +2,8 @@ package edu.ucla.cens.andwellness.triggers.base;
 
 import java.util.LinkedList;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
@@ -230,6 +232,7 @@ public abstract class TriggerBase {
 	public abstract String getTriggerTypeDisplayName();
 	public abstract String getDisplayTitle(Context context, String trigDesc);
 	public abstract String getDisplaySummary(Context context, String trigDesc);
+	public abstract JSONObject getPreferences(Context context);
 
 	public abstract void startTrigger(Context context, int trigId, String trigDesc);
 	public abstract void resetTrigger(Context context, int trigId, String trigDesc);

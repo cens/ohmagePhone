@@ -4,7 +4,21 @@
 	android:versionCode="1"
 	android:versionName="2.0">
     
-    <application android:icon="@drawable/icon" android:label="@string/app_name" >
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
+	<uses-permission android:name="android.permission.ACCESS_CELL_ID" />
+	<uses-permission android:name="android.permission.CONTROL_LOCATION_UPDATES"/>
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" /> 
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+	
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
 
 		<activity android:name=".activity.SurveyActivity"
 			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
@@ -121,15 +135,6 @@
 	    	</intent-filter>
 		</receiver>
 		
-    <receiver android:name=".triggers.notif.NotifSurveyAdaptor$NotifTimeReceiver">
-	    	<intent-filter>
-	    		<action android:name="android.intent.action.TIME_SET" />
-	    	</intent-filter>
-	    	<intent-filter>
-	    		<action android:name="android.intent.action.TIMEZONE_CHANGED" />
-	    	</intent-filter>
-		</receiver>
-		
 		<service android:name=".triggers.types.time.TimeTrigService"/>
 		
     <receiver android:name=".triggers.types.time.TimeTrigService$AlarmReceiver">
@@ -140,15 +145,6 @@
 		</receiver>
 		
 		<service android:name=".triggers.types.location.LocTrigService"/>
-		
-    <receiver android:name=".triggers.types.location.LocTrigTimeReceiver">
-	    	<intent-filter>
-	    		<action android:name="android.intent.action.TIME_SET" />
-	    	</intent-filter>
-	    	<intent-filter>
-	    		<action android:name="android.intent.action.TIMEZONE_CHANGED" />
-	    	</intent-filter>
-		</receiver>
 		
     <receiver android:name=".triggers.types.location.LocTrigService$AlarmReceiver">
 	    	<intent-filter>
@@ -242,17 +238,5 @@
 	
     <uses-sdk android:minSdkVersion="3" />
 
-	<uses-permission android:name="android.permission.INTERNET"/>
-	<uses-permission android:name="android.permission.CAMERA" />
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-	<uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
-	<uses-permission android:name="android.permission.ACCESS_CELL_ID" />
-	<uses-permission android:name="android.permission.CONTROL_LOCATION_UPDATES"/>
-	<uses-permission android:name="android.permission.READ_PHONE_STATE" /> 
-	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-	<uses-permission android:name="android.permission.WAKE_LOCK" />
-	<uses-permission android:name="android.permission.VIBRATE" />
-	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+	
 </manifest> 

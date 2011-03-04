@@ -1,5 +1,7 @@
 package edu.ucla.cens.andwellness.triggers.types.time;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -141,5 +143,10 @@ public class TimeTrigger extends TriggerBase {
 	@Override
 	public int getIcon() {
 		return R.drawable.clock;
+	}
+
+	@Override
+	public JSONObject getPreferences(Context context) {
+		return new JSONObject();
 	}
 }

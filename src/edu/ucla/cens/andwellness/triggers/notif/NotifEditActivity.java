@@ -241,14 +241,18 @@ public class NotifEditActivity extends ListActivity
 		switch(id) {
 		
 		case LIST_POS_DURATION:
-			title = "Notification duration"; 	
+			title = "Notification duration \n(1 - " + 
+			   				NotifConfig.maxDuration + ")";
+ 	
 			text = String.valueOf(mListData.get(LIST_POS_DURATION));
 			max = NotifConfig.maxDuration;
 			min = DURATION_MIN;
 			break;
 		
 		case LIST_POS_SUPPRESSION:
-			title = "Suppression length";
+			title = "Suppression window \n(0 - " + 
+			   		NotifConfig.maxSuppression + ")";
+
 			text = String.valueOf(mListData.get(LIST_POS_SUPPRESSION));
 			max = NotifConfig.maxSuppression;
 			min = SUPPRESSION_MIN;

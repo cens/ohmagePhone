@@ -1,229 +1,96 @@
 package edu.ucla.cens.systemlog;
 
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.os.RemoteException;
+import android.content.Context;
+import android.content.Intent;
 
 
 
-public class Log
-{
-    private static final String DEFAULT_APP_NAME = "default";
-    private static final String TAG = "CENS.SystemLog";
-
-	private static ISystemLog sLogger;
+public class Log {
 	
-	private static boolean sConnected = false;
+	private static final String DEFAULT_APP_NAME = "default";
 
-    private static String sAppName = DEFAULT_APP_NAME;
+	private static String ACTION_LOG_MESSAGE = 
+			"edu.ucla.cens.systemlog.log_message";
+  
+	private static final String KEY_TAG = 
+			"edu.ucla.cens.systemlog.key_tag";
+	private static final String KEY_MSG = 
+			"edu.ucla.cens.systemlog.key_msg";
+	private static final String KEY_APP_NAME = 
+			"edu.ucla.cens.systemlog.key_app_name";
+	private static final String KEY_LOG_LEVEL = 
+			"edu.ucla.cens.systemlog.key_log_level";
+	
+    private static final String ERROR_LOGLEVEL = "error";
+    private static final String WARNING_LOGLEVEL = "warning";
+    private static final String INFO_LOGLEVEL = "info";
+    private static final String DEBUG_LOGLEVEL = "debug";
+    private static final String VERBOSE_LOGLEVEL = "verbose";
+	
+    private static String mAppName = DEFAULT_APP_NAME;
+    private static Context mContext = null;
 
-    public static void setAppName(String name)
-    {
-        sAppName = name;
+    public static void initialize(Context context, String appName) {
+    	mContext = context.getApplicationContext();
+    	mAppName = appName;
     }
+    
+    private static boolean logMessage(String logLevel, String tag, String msg) {
+    	if(mContext == null || mAppName == null) {
+    		return false;
+    	}
+    	
+		Intent i = new Intent(ACTION_LOG_MESSAGE);
+
+		i.putExtra(KEY_LOG_LEVEL, logLevel);
+		i.putExtra(KEY_APP_NAME, mAppName);
+		i.putExtra(KEY_TAG, tag);
+		i.putExtra(KEY_MSG, msg);
 		
-    public static ServiceConnection SystemLogConnection 
-        = new ServiceConnection() 
-    {
-        public void onServiceConnected(ComponentName className, 
-                IBinder service) 
-        {
-            sLogger = ISystemLog.Stub.asInterface(service);
-            sConnected = true;
-        }
+		mContext.startService(i);
 
-        public void onServiceDisconnected(ComponentName className) 
-        {
-            sLogger = null;
-            sConnected = false;
-        }
-    };
-    
-    public static void register(String tag) 
-    {
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-	    		sLogger.registerLogger(tag, sAppName);
-	    	} 
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, 
-                        "Remote Exception when trying to register tag"
-                        + tag, re);
-	    	}
-    	}
-		else
-		{
-			android.util.Log.i(TAG, 
-                    "Not connected to SystemLog. Could not register "
-                    + tag);
-		}    	
+    	return true;
     }
-
-    public static boolean isRegistered(String tag)
-    {
-    	boolean res = false;
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-	    		res =  sLogger.isRegistered(tag);
-	    	}
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, "Remote Exception", re);
-	    		res =  false;
-	    	}
-    	}
-    	else
-    	{
-    		android.util.Log.e(tag, "Not connected");
-    		res = false;
-    	}
-    	return res;
-    }
-
 	
-    public static void i (String tag, String message)
-    {
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-                if (!sLogger.isRegistered(tag))
-                    register(tag);
-
-	    		sLogger.info(tag, message);
-	    	}
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, "Remote Exception", re);
-	    	}
+    public static void i(String tag, String message) {
+    	
+    	if(!logMessage(INFO_LOGLEVEL, tag, message)) {
+    		android.util.Log.i(tag, message);
     	}
-		else
-		{
-			android.util.Log.i(tag, message);
-		}
     }
     
-    public static void d (String tag, String message)
-    {
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-                if (!sLogger.isRegistered(tag))
-                    register(tag);
-
-	    		sLogger.debug(tag, message);
-	    	}
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, "Remote Exception", re);
-	    	}
+    public static void d(String tag, String message) {
+    	
+    	if(!logMessage(DEBUG_LOGLEVEL, tag, message)) {
+    		android.util.Log.d(tag, message);
     	}
-		else
-		{
-			android.util.Log.d(tag, message);
-		}
     }
     
-
-    
-    public static void e (String tag, String message, Exception e)
-    {
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-                if (!sLogger.isRegistered(tag))
-                    register(tag);
-
-	    		sLogger.error(tag, message + e.getMessage());
-	    	}
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, "Remote Exception", re);
-	    	}
-    	}
-    	else
-    	{
-    		android.util.Log.e(tag, message, e);
+    public static void e(String tag, String message, Exception e) {
+    	
+    	if(!logMessage(ERROR_LOGLEVEL, tag, message + e.getMessage())) {
+    		 android.util.Log.e(tag, message, e);
     	}
     }
 
-
-    public static void e (String tag, String message)
-    {
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-                if (!sLogger.isRegistered(tag))
-                    register(tag);
-
-	    		sLogger.error(tag, message);
-	    	}
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, "Remote Exception", re);
-	    	}
-    	}
-    	else
-    	{
+    public static void e(String tag, String message) {
+    	
+    	if(!logMessage(ERROR_LOGLEVEL, tag, message)) {
     		android.util.Log.e(tag, message);
     	}
     }
 
-
-
-    public static void v (String tag, String message)
-    {
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-                if (!sLogger.isRegistered(tag))
-                    register(tag);
-
-	    		sLogger.verbose(tag, message);
-	    	}
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, "Remote Exception", re);
-	    	}
-    	}
-    	else
-    	{
+    public static void v(String tag, String message) {
+    	
+    	if(!logMessage(VERBOSE_LOGLEVEL, tag, message)) {
     		android.util.Log.v(tag, message);
     	}
     }
 
-
-    public static void w (String tag, String message)
-    {
-    	if (sConnected)
-    	{
-	    	try
-	    	{
-                if (!sLogger.isRegistered(tag))
-                    register(tag);
-
-	    		sLogger.warning(tag, message);
-	    	}
-	    	catch (RemoteException re)
-	    	{
-	    		android.util.Log.e(TAG, "Remote Exception", re);
-	    	}
-    	}
-    	else
-    	{
+    public static void w(String tag, String message) {
+    	
+    	if(!logMessage(WARNING_LOGLEVEL, tag, message)) {
     		android.util.Log.w(tag, message);
     	}
     }
-
-
 }
