@@ -128,7 +128,6 @@ public class PromptXmlParser {
 		String editSummary = null;
 		String summaryText = null;
 		String anytime = null;
-		String contentListXml = null;
 		
 		int eventType = parser.getEventType();
 		while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -154,7 +153,6 @@ public class PromptXmlParser {
 					editSummary = null;
 					summaryText = null;
 					anytime = null;
-					contentListXml = null;
 					
 				} else if (surveyInProgress && !contentListInProgress) {
 					if (tagName.equalsIgnoreCase(SURVEY_ID)) {
@@ -184,7 +182,7 @@ public class PromptXmlParser {
 				tagName = parser.getName();
 				if (tagName.equalsIgnoreCase(SURVEY)) {
 					if(!id.equals("foodButton") && !id.equals("stressButton")) {
-						Survey survey = new Survey(id, title, description, introText, submitText, showSummary, editSummary, summaryText, anytime, contentListXml);
+						Survey survey = Survey.build(id, title, description, introText, submitText, showSummary, editSummary, summaryText, anytime);
 						surveys.add(survey);
 					}
 					surveyInProgress = false;

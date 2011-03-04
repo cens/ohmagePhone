@@ -3,6 +3,7 @@ package edu.ucla.cens.andwellness.activity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,14 +32,9 @@ public class SurveyListActivity extends ListActivity {
 	
 	private static final String TAG = "SurveyListActivity";
 	
-	/*public static final String [] SURVEYS = {	"Survey 1",
-												"Survey 2",
-												"Survey 3",
-												"Survey 4" };*/
-	
 	private List<Survey> mSurveys;
-	private List<Map<String,?>> data;
-	private SimpleAdapter adapter;
+	private List<String> mActiveSurveyTitles;
+	private SurveyAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +52,7 @@ public class SurveyListActivity extends ListActivity {
 		}
 		
 		mSurveys = null; 
+		mActiveSurveyTitles = new ArrayList<String>();
 		
 		try {
 			mSurveys = PromptXmlParser.parseSurveys(getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID));
@@ -67,25 +64,9 @@ public class SurveyListActivity extends ListActivity {
 			Log.e(TAG, "Error parsing surveys from xml", e);
 		}
 		
-		//List<Map<String,?>> data = new ArrayList<Map<String,?>>();
-		data = new ArrayList<Map<String,?>>();
+		Collections.addAll(mActiveSurveyTitles, TriggerFramework.getActiveSurveys(this));
 		
-		/*List<String> activeList = Arrays.asList(TriggerFramework.getActiveSurveys(this));
-		
-		for (int i = 0; i < mSurveys.size(); i++) {
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("title", mSurveys.get(i).getTitle());
-			if (activeList.contains(mSurveys.get(i).getTitle())) {
-				map.put("active", "active");
-			} else {
-				map.put("active", "inactive");
-			}
-			data.add(map);
-		}*/
-		
-		adapter = new SimpleAdapter(this, data, R.layout.survey_list_item, new String [] {"title", "active"}, new int [] {R.id.survey_title, R.id.survey_active});
-		
-		//ListAdapter adapter = new ArrayAdapter<String>(this, R.layout.survey_list_item, R.id.survey_title, SURVEYS);
+		adapter = new SurveyAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
 		
 		setListAdapter(adapter);
 	}	
@@ -94,20 +75,19 @@ public class SurveyListActivity extends ListActivity {
 	protected void onResume() {
 		super.onResume();
 		
-		data.clear();
+		/*List<String> activeSurveyTitles = Arrays.asList(TriggerFramework.getActiveSurveys(this));
 		
-		List<String> activeList = Arrays.asList(TriggerFramework.getActiveSurveys(this));
-		
-		for (int i = 0; i < mSurveys.size(); i++) {
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("title", mSurveys.get(i).getTitle());
-			if (activeList.contains(mSurveys.get(i).getTitle())) {
-				map.put("active", "active");
+		for (Survey survey : mSurveys) {
+			if (activeSurveyTitles.contains(survey.getTitle())) {
+				survey.setTriggered(true);
 			} else {
-				map.put("active", "inactive");
+				survey.setTriggered(false);
 			}
-			data.add(map);
-		}
+		}*/
+		
+		mActiveSurveyTitles.clear();
+		
+		Collections.addAll(mActiveSurveyTitles, TriggerFramework.getActiveSurveys(this));
 		
 		adapter.notifyDataSetChanged();
 	}
@@ -116,10 +96,12 @@ public class SurveyListActivity extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
+		Survey survey = (Survey) getListView().getItemAtPosition(position);
+		
 		Intent intent = new Intent(this, SurveyActivity.class);
-		intent.putExtra("survey_id", mSurveys.get(position).getId());
-		intent.putExtra("survey_title", mSurveys.get(position).getTitle());
-		intent.putExtra("survey_submit_text", mSurveys.get(position).getSubmitText());
+		intent.putExtra("survey_id", survey.getId());
+		intent.putExtra("survey_title", survey.getTitle());
+		intent.putExtra("survey_submit_text", survey.getSubmitText());
 		startActivity(intent);
 	}
 

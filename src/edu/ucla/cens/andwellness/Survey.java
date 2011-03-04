@@ -10,10 +10,10 @@ public class Survey {
 	private String mShowSummary;
 	private String mEditSummary;
 	private String mSummaryText;
-	private String mAnytime;
-	private String mContentListXml;
+	private boolean mAnytime;
+	private boolean mTriggered;
 	
-	public Survey(String id, String title, String description, String introText, String submitText, String showSummary, String editSummary, String summaryText, String anytime, String contentListXml) {
+	private Survey(String id, String title, String description, String introText, String submitText, String showSummary, String editSummary, String summaryText, boolean anytime) {
 		
 		this.mId = id;
 		this.mTitle = title;
@@ -24,7 +24,15 @@ public class Survey {
 		this.mEditSummary = editSummary;
 		this.mSummaryText = summaryText;
 		this.mAnytime = anytime;
-		this.mContentListXml = contentListXml;
+		this.mTriggered = false;
+	}
+	
+	public static Survey build(String id, String title, String description, String introText, String submitText, String showSummary, String editSummary, String summaryText, String anytime) {
+		if (anytime.equals("false")) {
+			return new Survey(id, title, description, introText, submitText, showSummary, editSummary, summaryText, false);
+		} else {
+			return new Survey(id, title, description, introText, submitText, showSummary, editSummary, summaryText, true);
+		}
 	}
 
 	public String getId() {
@@ -59,12 +67,15 @@ public class Survey {
 		return mSummaryText;
 	}
 
-	public String getAnytime() {
+	public boolean isAnytime() {
 		return mAnytime;
 	}
-
-	public String getContentListXml() {
-		return mContentListXml;
-	}
 	
+//	public void setTriggered(boolean value) {
+//		mTriggered = value;
+//	}
+//	
+//	public boolean isTriggered() {
+//		return mTriggered;
+//	}
 }
