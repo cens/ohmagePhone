@@ -15,4 +15,9 @@ public class LocTrigConfig {
 	public static final float LOC_RADIUS_MAX = 200;//m
 	//Minimum allowed gap between any two locations
 	public static final float MIN_LOC_GAP = 200;//m
+	//Whether fall back to network based provider
+	//when GPS is available
+	public static final boolean useNetworkLocation = true;
+	//Whether to use motion detection
+	public static final boolean useMotionDetection = true;
 }

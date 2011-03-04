@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import edu.ucla.cens.andwellness.R;
 
@@ -181,9 +180,10 @@ public class Notifier {
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 
 						   PendingIntent.FLAG_CANCEL_CURRENT);
 
-		long elapsedRT = mins * 60 * 1000;
-		alarmMan.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-					 SystemClock.elapsedRealtime() + elapsedRT, pi);
+		long elapsed = mins * 60 * 1000;
+		
+		alarmMan.set(AlarmManager.RTC_WAKEUP,
+					 System.currentTimeMillis() + elapsed, pi);
 	}
 	
 	private static void setRepeatAlarm(Context context, int trigId, 
@@ -344,6 +344,18 @@ public class Notifier {
 		saveNotifVisibility(context, false);
 	}
 	
+	private static void handleTriggerExpired(Context context, int trigId) {
+	
+		Log.i(DEBUG_TAG, "Notifier: Handling expiration alarm for: " 
+				+ trigId);
+		
+		//Log information related to expired triggers.
+		NotifSurveyAdaptor.handleExpiredTrigger(context, trigId);
+		
+		//Quietly refresh the notification
+		Notifier.refreshNotification(context, true);
+	}
+	
 	public static void notifyNewTrigger(Context context, 
 							  		 	int trigId, 
 							  		 	String notifDesc) {
@@ -387,8 +399,8 @@ public class Notifier {
 			}
 			else if(intent.getAction().equals(ACTION_EXPIRE_ALM)) {
 				
-				//Quietly refresh the notification
-				Notifier.refreshNotification(context, true);
+				Notifier.handleTriggerExpired(context, 
+						intent.getIntExtra(KEY_TRIGGER_ID, -1));
 			}
 			else if(intent.getAction().equals(ACTION_REPEAT_ALM)) {
 				

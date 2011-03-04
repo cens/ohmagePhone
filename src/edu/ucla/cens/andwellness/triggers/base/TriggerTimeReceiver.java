@@ -1,5 +1,6 @@
 package edu.ucla.cens.andwellness.triggers.base;
 
+import edu.ucla.cens.andwellness.triggers.notif.Notifier;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,17 +14,6 @@ import android.util.Log;
 public class TriggerTimeReceiver extends BroadcastReceiver{
 
 	private static final String DEBUG_TAG = "TriggerFramework";
-	
-	/*
-	private static void clearTriggerTimeStamp(TriggerDB db, int trigId, String rtDesc) {
-		TriggerRunTimeDesc desc = new TriggerRunTimeDesc();
-		
-		if(desc.loadString(rtDesc)) {
-			desc.setTriggerTimeStamp(TriggerRunTimeDesc.INVALID_TIMESTAMP);
-			db.updateRunTimeDescription(trigId, desc.toString());
-		}
-	}
-	*/
 	
 	private static void handleTimeChange(Context context) {
 		TriggerTypeMap trigMap = new TriggerTypeMap();
@@ -44,9 +34,6 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 				String actDesc = c.getString(
  		   		  				 c.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_ACTION_DESCRIPT));
 				
-				//TODO enable this later
-				//clearTriggerTimeStamp(db, trigId, rtDesc);
-				
 				TriggerBase trig = trigMap.getTrigger(trigType);
 				if(trig != null) {
 					TriggerActionDesc aDesc = new TriggerActionDesc();
@@ -59,6 +46,8 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 		
 		c.close();
 		db.close();
+		
+		Notifier.refreshNotification(context,true);
 	}
 	
 	@Override

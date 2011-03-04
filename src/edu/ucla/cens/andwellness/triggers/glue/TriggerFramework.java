@@ -3,7 +3,6 @@ package edu.ucla.cens.andwellness.triggers.glue;
 import java.util.Set;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;

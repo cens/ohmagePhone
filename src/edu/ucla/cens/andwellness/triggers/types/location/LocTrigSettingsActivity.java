@@ -6,9 +6,6 @@ package edu.ucla.cens.andwellness.triggers.types.location;
  * under each category as well the number of surveys associated with
  * each place are also displayed. Provides options to manage the
  * categories (add, delete, rename and modify surveys)
- * 
- * TODO: Currently, the list of surveys are hardcoded. This needs to be
- * retrieved from AndWellness.
  */
 
 import java.util.HashSet;

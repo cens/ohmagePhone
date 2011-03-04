@@ -29,6 +29,9 @@ import edu.ucla.cens.andwellness.R;
 /* Class for the 'add location' balloon */
 public class LocTrigAddLocBalloon implements OnClickListener{
 
+	private static final int GEOCODING_RETRIES = 3;
+	private static final long GEOCODING_RETRY_INTERVAL = 300;
+	
 	//Maximum height of the balloon
 	private static final int MAX_H = 150;
 	//Maximum width of the balloon
@@ -146,32 +149,42 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 		}
 		
 		protected String doInBackground(GeoPoint... params) {
-			String addr = "No address found.\n";
 			
 			//Get the address
 			Geocoder geoCoder = new Geocoder(mContext, Locale.getDefault());
-		    try {
-		    	List<Address> addresses = geoCoder.getFromLocation(
-		    					params[0].getLatitudeE6()/1E6, 
-		    					params[0].getLongitudeE6()/1E6, 2);
-		
-		    	//Get 2 address lines
-		        if(addresses.size() > 0) {
-		        	int addrLines = addresses.get(0).getMaxAddressLineIndex();
-		        	if(addrLines > 0) {
-		        		addr = "";
-		        	}
-		        	
-		        	for (int i=0; i<Math.min(2, addrLines); i++) {
-		                   addr += addresses.get(0).getAddressLine(i) + "\n";
-		        	}
-		        }
-		    }
-		    catch (Exception e) {
-		    	addr = "Unable to fetch the address!\n";
+		    for(int cTry = 0; cTry < GEOCODING_RETRIES; cTry++) {
+				try {
+			    	String addr = "";
+			    	List<Address> addresses = geoCoder.getFromLocation(
+			    					params[0].getLatitudeE6()/1E6, 
+			    					params[0].getLongitudeE6()/1E6, 2);
+			
+			    	//Get 2 address lines
+			        if(addresses.size() > 0) {
+			        	int addrLines = addresses.get(0).getMaxAddressLineIndex();
+			        	if(addrLines > 0) {
+			        		addr = "";
+			        	}
+			        	
+			        	for (int i=0; i<Math.min(2, addrLines); i++) {
+			                   addr += addresses.get(0).getAddressLine(i) + "\n";
+			        	}
+			        	
+			        	if(addr.length() > 0) {
+			        		return addr;
+			        	}
+			        }
+			    }
+			    catch (Exception e) {
+			    }
+			    
+			    try {
+					Thread.sleep(GEOCODING_RETRY_INTERVAL);
+				} catch (InterruptedException e) {
+				}
 		    }
 		    
-		    return addr;
+		    return new String("Unable to fetch the address!\n");
 		}
 		
 		protected void onPostExecute(String addr) {

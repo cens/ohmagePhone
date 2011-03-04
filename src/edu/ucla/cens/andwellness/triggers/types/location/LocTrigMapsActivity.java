@@ -73,6 +73,9 @@ public class LocTrigMapsActivity extends MapActivity
 	//Location id for the 'my location' overlay
 	private static final int CURR_LOC_ID = -1;
 	
+	private static final int GEOCODING_RETRIES = 5;
+	private static final long GEOCODING_RETRY_INTERVAL = 500;
+	
 	/* Menu ids */
 	private static final int MENU_MY_LOC_ID = Menu.FIRST;
 	private static final int MENU_SEARCH_ID = Menu.FIRST + 1;
@@ -80,6 +83,8 @@ public class LocTrigMapsActivity extends MapActivity
 	
 	//Timeout for 'my location' GPS sampling
 	private static final long MY_LOC_SAMPLE_TIMEOUT = 180000; //3 mins
+	private static final long MY_LOC_EXPIRY = 60000; //1min
+	
 	//Alarm action string for GPS timeout
 	private static final String ACTION_ALRM_GPS_TIMEOUT = 
 				"edu.ucla.cens.loctriggers.activity.MapsActivity.myloc_timeout";
@@ -102,7 +107,8 @@ public class LocTrigMapsActivity extends MapActivity
 	//The async task for address search 
 	private AsyncTask<String, Void, Address> mSearchTask = null;
 	//Alarm manager (for GPS timeout)
-	AlarmManager mAlarmMan = null;
+	private AlarmManager mAlarmMan = null;
+	private Location mLatestLoc = null;
 
 	/*****************************************************************************/
     @Override
@@ -270,6 +276,7 @@ public class LocTrigMapsActivity extends MapActivity
     		addrText += adr.getAddressLine(i) + "\n";
     	}
  
+    	mMapView.getController().setZoom(mMapView.getMaxZoomLevel());
     	mAddLocBalloon.show(gp, getString(R.string.add_this_loc), addrText);
     }
     
@@ -293,13 +300,22 @@ public class LocTrigMapsActivity extends MapActivity
     	switch(item.getItemId()) {
     	
     	case MENU_MY_LOC_ID: //Show my location
-    		Toast.makeText(this, 
-    				R.string.determining_loc, Toast.LENGTH_SHORT).show();
-    		
+    		  
     		if(mOverlayItems.getCurrentLocOverlay() != null) {
     			mOverlayItems.removeOverlay(CURR_LOC_ID);
     			mMapView.invalidate();
     		}
+    		
+            List<String> provs = mLocMan.getProviders(true);
+            if(provs == null || provs.size() == 0) {
+            	Toast.makeText(this, "Location provideres " +
+            			"are disabled in settings!", Toast.LENGTH_SHORT)
+            		 .show();
+            	return true;
+            }
+            
+    		Toast.makeText(this, 
+    				R.string.determining_loc, Toast.LENGTH_SHORT).show();
     		
     		//Start GPS
     		getGPSSamples();
@@ -419,8 +435,14 @@ public class LocTrigMapsActivity extends MapActivity
     		mGpsTimeoutPI.cancel();
     	}
     	
+    	mLatestLoc = null;
+    	
     	mLocMan.requestLocationUpdates(
 				LocationManager.GPS_PROVIDER, 0, 0, this);
+    	
+    	//Use network location as well
+    	mLocMan.requestLocationUpdates(
+				LocationManager.NETWORK_PROVIDER, 0, 0, this);
     	
     	Intent intent = new Intent(ACTION_ALRM_GPS_TIMEOUT);
     	mGpsTimeoutPI = PendingIntent.getBroadcast(this, 0, intent, 
@@ -471,7 +493,12 @@ public class LocTrigMapsActivity extends MapActivity
 	
 	/* GPS location changed callback. Display the blue marker */
 	public void onLocationChanged(Location loc) {
-		Log.i(DEBUG_TAG, "Maps: onLocationChanged");
+		Log.i(DEBUG_TAG, "Maps: new location received: " +
+				 loc.getLatitude() + ", " +
+				 loc.getLongitude() + " (" + 
+				 loc.getProvider() + "), accuracy = " +
+				 loc.getAccuracy() + ", speed = " + 
+				 loc.getSpeed());
 		
 		//Check to see if the activity has exited. This callback might get
 		//invoked even after that. A boolean flag can be used here, but this
@@ -479,6 +506,22 @@ public class LocTrigMapsActivity extends MapActivity
 		if(mDb == null) {
 			return;
 		}
+		
+		//Use this loc only if it more accurate than the last one. 
+		//If the most accurate one is more than MY_LOC_EXPIRY old,
+		//discard it.
+		if(mLatestLoc != null) {
+			
+			if(loc.getAccuracy() > mLatestLoc.getAccuracy()) {
+				long dTime = loc.getTime() - mLatestLoc.getTime();
+				
+				if(dTime < MY_LOC_EXPIRY) {
+					return;
+				}
+			}
+		}
+		
+		mLatestLoc = new Location(loc);
 		
 		GeoPoint currLoc = new GeoPoint((int)(loc.getLatitude() * 1E6), 
 						  (int) (loc.getLongitude() * 1E6));
@@ -496,14 +539,15 @@ public class LocTrigMapsActivity extends MapActivity
         if(!currOverlayPresent) {
         	mAddLocBalloon.hide();
         	mMapView.getController().animateTo(currLoc);
+        	mMapView.getController().setZoom(mMapView.getMaxZoomLevel());
         	mOverlayItems.setFocus(null);
         	updateTitleText();
         }
 	}
 
 	@Override
-	public void onProviderDisabled(String arg0) {
-		Toast.makeText(this, R.string.gps_disabled, Toast.LENGTH_SHORT).show();
+	public void onProviderDisabled(String prov) {
+
 	}
 
 	@Override
@@ -528,7 +572,7 @@ public class LocTrigMapsActivity extends MapActivity
 	
 	/* Display a message */
 	private void displayMessage(String cName, int resId) {
-		new AlertDialog.Builder(this)
+		AlertDialog dialog = new AlertDialog.Builder(this)
 		.setTitle(R.string.loc_overlap_title)
 		.setMessage(getString(resId, cName))
 		.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -536,8 +580,9 @@ public class LocTrigMapsActivity extends MapActivity
 				dialog.dismiss();
 			}
 		})
-		.create()
-		.show();
+		.create();
+		dialog.show();
+		dialog.setOwnerActivity(this);
 	}
 	
 	/* Check if a location overlaps a location is another category 
@@ -1095,13 +1140,14 @@ public class LocTrigMapsActivity extends MapActivity
 		
 		/* Display the dialog */
 		public void show(Context context) {
-			new AlertDialog.Builder(context)
+			AlertDialog dialog = new AlertDialog.Builder(context)
 			.setTitle(R.string.exisiting_loc)
 			.setMessage(R.string.delete_loc)
 			.setPositiveButton(R.string.yes, this)
 			.setNegativeButton(R.string.no, this)
-			.create()
-			.show();
+			.create();
+			dialog.show();
+			dialog.setOwnerActivity(LocTrigMapsActivity.this);
 		}
 		
 		/* Delete the location */
@@ -1133,6 +1179,7 @@ public class LocTrigMapsActivity extends MapActivity
 			//Start progress bar
 			mBusyPrg = ProgressDialog.show(LocTrigMapsActivity.this, "", 
                     				getString(R.string.searching_msg), true);
+			mBusyPrg.setOwnerActivity(LocTrigMapsActivity.this);
 		}
 		
 		@Override
@@ -1140,15 +1187,23 @@ public class LocTrigMapsActivity extends MapActivity
 			//Search the address
 			Geocoder geoCoder = new Geocoder(LocTrigMapsActivity.this, 
 											 Locale.getDefault());
-		    try {
-		    	List<Address> addrs = geoCoder.getFromLocationName(params[0], 1);
-	
-		        if(addrs.size() > 0) {
-		        	return addrs.get(0);
-		        }
-		    }
-		    catch (Exception e) {
-		    }
+			
+			for(int i = 0; i < GEOCODING_RETRIES; i++) {
+			    try {
+			    	List<Address> addrs = geoCoder.getFromLocationName(params[0], 5);
+		
+			        if(addrs.size() > 0) {
+			        	return addrs.get(0);
+			        }
+			    }
+			    catch (Exception e) {
+			    }
+			    
+			    try {
+					Thread.sleep(GEOCODING_RETRY_INTERVAL);
+				} catch (InterruptedException e) {
+				}
+			}
 		    
 		    return null;
 		}
@@ -1159,9 +1214,10 @@ public class LocTrigMapsActivity extends MapActivity
 			
 			if(mBusyPrg != null) {
 				mBusyPrg.cancel();
+				mBusyPrg = null;
 			}
 
-			if(adr != null && adr.hasLongitude() && adr.hasLongitude()) {
+			if(adr != null && adr.hasLongitude() && adr.hasLatitude()) {
 				handleSearchResult(adr);
 			}
 			else {

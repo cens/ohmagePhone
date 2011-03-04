@@ -1,7 +1,12 @@
 package edu.ucla.cens.andwellness.triggers.types.location;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.triggers.base.TriggerBase;
@@ -13,6 +18,13 @@ public class LocationTrigger extends TriggerBase {
 	private static final String TRIGGER_TYPE = "LocationTrigger";	
 	//TODO localize
 	private static final String DISP_NAME = "Location Trigger";
+	
+	private static final String KEY_PLACES = "places";
+	private static final String KEY_NAME = "name";
+	private static final String KEY_LOCATIONS = "locations";
+	private static final String KEY_LATITUDE = "latitude";
+	private static final String KEY_LONGITUDE = "longitude";
+	private static final String KEY_RADIUS = "radius";
 	
 	@Override
 	public String getTriggerTypeDisplayName() {
@@ -151,6 +163,88 @@ public class LocationTrigger extends TriggerBase {
 		i.putExtra(LocTrigService.KEY_TRIG_ID, trigId);
 		i.putExtra(LocTrigService.KEY_TRIG_DESC, trigDesc);
 		context.startService(i);
+	}
+
+	private JSONArray getLocations(Context context, int categId) {
+	
+		JSONArray jLocs = new JSONArray();
+		
+		LocTrigDB db = new LocTrigDB(context);
+		db.open();
+		
+		Cursor cLocs = db.getLocations(categId);
+		if(cLocs.moveToFirst()) {
+			do {
+				int lat = cLocs.getInt(
+						  cLocs.getColumnIndexOrThrow(LocTrigDB.KEY_LAT));
+				int lng = cLocs.getInt(
+						  cLocs.getColumnIndexOrThrow(LocTrigDB.KEY_LONG));
+				float radius = cLocs.getFloat(
+							   cLocs.getColumnIndexOrThrow(LocTrigDB.KEY_RADIUS));
+				
+				JSONObject jLoc = new JSONObject();
+				try {
+					jLoc.put(KEY_LATITUDE, (double)(lat / 1E6));
+					jLoc.put(KEY_LONGITUDE, (double)(lng / 1E6));
+					jLoc.put(KEY_RADIUS, radius);
+					
+					jLocs.put(jLoc);
+				} catch (JSONException e) {
+					Log.e(DEBUG_TAG, "LocationTrigger: Error adding locations to " +
+									 "preference JSON");
+				}
+				
+			} while(cLocs.moveToNext());
+		}
+		
+		cLocs.close();
+		db.close();
+		
+		return jLocs;
+	}
+	
+	@Override
+	public JSONObject getPreferences(Context context) {
+		LocTrigDB db = new LocTrigDB(context);
+		db.open();
+		
+		JSONArray jPlaces = new JSONArray();
+		
+		Cursor cCategs = db.getAllCategories();
+		if(cCategs.moveToFirst()) {
+			do {
+				String categName = cCategs.getString(
+								   cCategs.getColumnIndexOrThrow(LocTrigDB.KEY_NAME));
+				int categId = cCategs.getInt(
+						   	  cCategs.getColumnIndexOrThrow(LocTrigDB.KEY_ID));
+				
+				JSONObject jPlace = new JSONObject();
+				try {
+					jPlace.put(KEY_NAME, categName);
+					jPlace.put(KEY_LOCATIONS, getLocations(context, categId));
+					
+					jPlaces.put(jPlace);
+				} catch (JSONException e) {
+					Log.e(DEBUG_TAG, "LocationTrigger: Error adding place to " +
+					 				  "preference JSON");
+				}
+				
+			} while(cCategs.moveToNext());
+		}
+		
+		cCategs.close();
+		db.close();
+		
+		JSONObject jPref = new JSONObject();
+		
+		try {
+			jPref.put(KEY_PLACES, jPlaces);
+		} catch (JSONException e) {
+			Log.e(DEBUG_TAG, "LocationTrigger: Error adding places to " +
+			 				 "preference JSON");
+		}
+		
+		return jPref;
 	}
 
 }
