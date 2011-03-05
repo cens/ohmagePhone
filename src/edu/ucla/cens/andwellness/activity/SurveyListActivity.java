@@ -11,7 +11,10 @@ import java.util.Map;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources.NotFoundException;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,13 +67,20 @@ public class SurveyListActivity extends ListActivity {
 			Log.e(TAG, "Error parsing surveys from xml", e);
 		}
 		
-		Collections.addAll(mActiveSurveyTitles, TriggerFramework.getActiveSurveys(this));
-		
 		adapter = new SurveyAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
 		
 		setListAdapter(adapter);
 	}	
 	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
+		registerReceiver(mSurveyListChangedReceiver, new IntentFilter(TriggerFramework.ACTION_ACTIVE_SURVEY_LIST_CHANGED));
+		
+		updateList();
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -85,6 +95,17 @@ public class SurveyListActivity extends ListActivity {
 			}
 		}*/
 		
+		
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		
+		unregisterReceiver(mSurveyListChangedReceiver);
+	}
+
+	private void updateList() {
 		mActiveSurveyTitles.clear();
 		
 		Collections.addAll(mActiveSurveyTitles, TriggerFramework.getActiveSurveys(this));
@@ -135,5 +156,15 @@ public class SurveyListActivity extends ListActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	private BroadcastReceiver mSurveyListChangedReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(TriggerFramework.ACTION_ACTIVE_SURVEY_LIST_CHANGED)) {
+				updateList();
+			}
+		}
+	};
 
 }
