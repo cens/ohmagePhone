@@ -8,8 +8,8 @@ import android.database.Cursor;
 import android.util.Log;
 
 /*
- * Time/Time-zone change listener. Resets all the time stamps and 
- * restarts the triggers. 
+ * Time/Time-zone change listener. Restarts the triggers and
+ * refreshes the notification 
  */
 public class TriggerTimeReceiver extends BroadcastReceiver{
 
@@ -37,6 +37,7 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 				TriggerBase trig = trigMap.getTrigger(trigType);
 				if(trig != null) {
 					TriggerActionDesc aDesc = new TriggerActionDesc();
+					//Restart the trigger if it is active
 					if(aDesc.loadString(actDesc) && aDesc.getCount() > 0) {
 						trig.resetTrigger(context, trigId, trigDesc);
 					}
@@ -47,6 +48,7 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 		c.close();
 		db.close();
 		
+		//Finally, quietly refresh the notification
 		Notifier.refreshNotification(context,true);
 	}
 	

@@ -8,8 +8,8 @@ import android.util.Log;
 import edu.ucla.cens.andwellness.triggers.notif.Notifier;
 
 /*
- * Boot listener. Initialized all triggers and pending
- * notifications
+ * Boot listener. Starts all the active triggers. 
+ * Also restores the pending notifications if any
  */
 public class TriggerInit extends BroadcastReceiver {
 	
@@ -54,6 +54,7 @@ public class TriggerInit extends BroadcastReceiver {
 	
 					//Start the trigger
 					TriggerActionDesc aDesc = new TriggerActionDesc();
+					//Start only if it has a positive number of surveys
 					if(aDesc.loadString(actDesc) && aDesc.getCount() > 0) {
 						Log.i(DEBUG_TAG, "TriggerInit: Starting trigger: " + trigId + 
 										 ", " + trigDesc);

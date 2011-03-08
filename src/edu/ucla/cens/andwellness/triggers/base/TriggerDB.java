@@ -9,7 +9,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /*
- * The main db to store triggers
+ * The database to store all triggers in the system. Each row 
+ * is as follows:
+ * (id, trigger type, trigger desc, action desc, notif desc, 
+ * runtime desc)
+ * 
+ * where each of the above expect the id is a String. 
+ * 
+ *  - trigger type: String to uniquely identify the type of trigger
+ *  - trigger desc: The description of the trigger itself
+ *  - action desc: The action to be taken when the trigger goes off
+ *  - notif desc: The manner in which the notification is to be done
+ *  			  when the trigger goes off
+ *  - run time desc: A collection of run time info related to the trigger  
  */
 public class TriggerDB {
 
@@ -61,6 +73,9 @@ public class TriggerDB {
 		}
 	}
 	
+	/*
+	 * Add a new trigger to the db
+	 */
 	public long addTrigger(String trigType, 
 						  String trigDescript,
 						  String trigActDesc,
@@ -83,6 +98,9 @@ public class TriggerDB {
 		return mDb.insert(TABLE_TRIGGERS, null, values);
 	}
 	
+	/*
+	 * Get the row corresponding to a trigger id
+	 */
 	public Cursor getTrigger(int trigId) {
 		Log.i(DEBUG_TAG, "DB: getTrigger(" + trigId + ")");
 		
@@ -91,6 +109,9 @@ public class TriggerDB {
 						 null, null, null);
 	}
 	
+	/*
+	 * Get all the triggers corresponding to a type
+	 */
 	public Cursor getTriggers(String trigType) {
 		Log.i(DEBUG_TAG, "DB: getTriggers(" + trigType + ")");
 		
@@ -100,6 +121,9 @@ public class TriggerDB {
 						 null, null, null);
 	}
 	
+	/*
+	 * Get all triggers in the system
+	 */
 	public Cursor getAllTriggers() {
 		Log.i(DEBUG_TAG, "DB: getAllTriggers");
 		
@@ -107,6 +131,9 @@ public class TriggerDB {
 				null, null, null, null);
 	}
 	
+	/*
+	 * Get the notification description for a trigger
+	 */
 	public String getNotifDescription(int trigId) {
 		Log.i(DEBUG_TAG, "DB: getNotifDescription(" + trigId + ")");
 		
@@ -123,6 +150,9 @@ public class TriggerDB {
 		return notifDesc;
 	}
 	
+	/*
+	 * Get the type of a trigger
+	 */
 	public String getTriggerType(int trigId) {
 		Log.i(DEBUG_TAG, "DB: getTriggerType(" + trigId + ")");
 		
@@ -139,6 +169,9 @@ public class TriggerDB {
 		return trigType;
 	}
 	
+	/*
+	 * Get the description of a trigger
+	 */
 	public String getTriggerDescription(int trigId) {
 		Log.i(DEBUG_TAG, "DB: getTriggerDescription(" + trigId + ")");
 		
@@ -155,6 +188,9 @@ public class TriggerDB {
 		return trigDesc;
 	}
 
+	/*
+	 * Get the action description of a trigger
+	 */
 	public String getActionDescription(int trigId) {
 		Log.i(DEBUG_TAG, "DB: getActionDescription(" + trigId + ")");
 		
@@ -171,6 +207,9 @@ public class TriggerDB {
 		return actDesc;
 	}
 	
+	/*
+	 * Get the run time description of a trigger
+	 */
 	public String getRunTimeDescription(int trigId) {
 		Log.i(DEBUG_TAG, "DB: getRunTimeDescription(" + trigId + ")");
 		
@@ -187,6 +226,9 @@ public class TriggerDB {
 		return rtDesc;
 	}
 	
+	/*
+	 * Update the trigger description of an existing trigger
+	 */
 	public boolean updateTriggerDescription(int trigId, String newDesc) {
 		Log.i(DEBUG_TAG, "DB: updateTriggerDescription(" + trigId + 
 													   ", " + newDesc + ")");
@@ -203,6 +245,9 @@ public class TriggerDB {
 		return true;
 	}
 	
+	/*
+	 * Update the action description of an existing trigger
+	 */
 	public boolean updateActionDescription(int trigId, String newDesc) {
 		Log.i(DEBUG_TAG, "DB: updateActionDescription(" + trigId + 
 				   ", " + newDesc + ")");
@@ -219,6 +264,9 @@ public class TriggerDB {
 		return true;
 	}
 
+	/*
+	 * Update the run time description of an existing trigger
+	 */
 	public boolean updateRunTimeDescription(int trigId, String newDesc) {
 		Log.i(DEBUG_TAG, "DB: updateRunTimeDescription(" + trigId + 
 				   ", " + newDesc + ")");
@@ -235,6 +283,10 @@ public class TriggerDB {
 		return true;
 	}
 	
+	/*
+	 * Update the notification descriptions of all triggers with 
+	 * a new one
+	 */
 	public boolean updateAllNotificationDescriptions(String newDesc) {
 		Log.i(DEBUG_TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
 		
@@ -245,6 +297,9 @@ public class TriggerDB {
 		return true;
 	}
 	
+	/*
+	 * Delete a specific trigger
+	 */
 	public boolean deleteTrigger(int trigId) {
 		Log.i(DEBUG_TAG, "DB: deleteTrigger(" + trigId + ")");
 		
