@@ -8,13 +8,17 @@ import edu.ucla.cens.andwellness.triggers.config.LocTrigConfig;
 import edu.ucla.cens.andwellness.triggers.utils.SimpleTime;
 
 /*
- * e.g.:
+ * The class which can parse and store the JSON string of location 
+ * trigger description. 
+ * 
+ * Example of a location trigger description:
+ * 
  * {
  * 		"location": "Home",
- * 		"min_reentry_interval": 30
+ * 		"min_reentry_interval": 30,
  * 		"time_range": {
  * 			"start": "11:00",
- * 			"end": "13:00"
+ * 			"end": "13:00",
  * 			"trigger_always": true
  * 		}
  * }
@@ -42,6 +46,10 @@ public class LocTrigDesc {
 		mMinInterval = 0;
 	}
 	
+	/*
+	 * Parse a location trigger description 
+	 * and load the parameters into this object. 
+	 */
 	public boolean loadString(String desc) {
 		
 		initialize();
@@ -80,58 +88,106 @@ public class LocTrigDesc {
 		return true;
 	}
 	
+	/*
+	 * Get the location of the trigger
+	 */
 	public String getLocation() {
 		return mLocation;
 	}
 	
+	/*
+	 * Set the location of the trigger
+	 */
 	public void setLocation(String loc) {
 		mLocation = loc;
 	}
 	
+	/*
+	 * Get the minimum re-entry interval for this
+	 * location trigger
+	 */
 	public int getMinReentryInterval() {
 		return mMinInterval;
 	}
 	
+	/*
+	 * Get the global setting for minimum re-entry interval
+	 */
 	public static int getGlobalMinReentryInterval(Context context) {
 		return LocTrigConfig.MIN_REENTRY;
 	}
 	
+	/*
+	 * Set the minimum re-entry interval for this trigger
+	 */
 	public void setMinReentryInterval(int interval) {
 		mMinInterval = interval;
 	}
 	
+	/*
+	 * Check if there is a time range enabled for this trigger
+	 */
 	public boolean isRangeEnabled() {
 		return mRangeEnabled;
 	}
 	
+	/*
+	 * Set whether there is a time range
+	 */
 	public void setRangeEnabled(boolean enable) {
 		mRangeEnabled = enable;
 	}
 	
+	/*
+	 * Get the start time if a time range is enabled
+	 */
 	public SimpleTime getStartTime() {
 		return new SimpleTime(mStartTime);
 	}
 	
+	/*
+	 * Set the start time. 
+	 */
 	public void setStartTime(SimpleTime time) {
 		mStartTime.copy(time);
 	}
 	
+	/*
+	 * Get the end time if a time range is enabled
+	 */
 	public SimpleTime getEndTime() {
 		return new SimpleTime(mEndTime);
 	}
 	
+	/*
+	 * Set the end time
+	 */
 	public void setEndTime(SimpleTime time) {
 		mEndTime.copy(time);
 	}
 
+	/*
+	 * Check if this trigger is set to go off 
+	 * at the end of time range even if the 
+	 * location is not reached.
+	 */
 	public boolean shouldTriggerAlways() {
 		return mTriggerAlways;
 	}
 	
+	/*
+	 * Set whether this trigger must go off 
+	 * at the end of time range even if the 
+	 * location is not reached.
+	 */
 	public void setTriggerAlways(boolean enable) {
 		mTriggerAlways = enable;
 	}
 	
+	/*
+	 * Convert the trigger description represented by
+	 * this object to a JSON string.
+	 */
 	public String toString() {
 		JSONObject jDesc = new JSONObject();
 		
@@ -155,6 +211,10 @@ public class LocTrigDesc {
 		return jDesc.toString();
 	}
 	
+	/*
+	 * Validate the trigger description associated
+	 * with this object. 
+	 */
 	public boolean validate() {
 		
 		if(mLocation == null || mLocation.length() == 0) {

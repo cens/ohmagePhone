@@ -20,6 +20,11 @@ import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.triggers.config.TrigUserConfig;
 import edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference;
 
+/*
+ * Editor activity for location based trigger. This activity is
+ * invoked for creating a new location trigger and also for editing
+ * an existing trigger. 
+ */
 public class LocTrigEditActivity extends PreferenceActivity 
 								implements OnPreferenceClickListener, 
 								OnPreferenceChangeListener, 
@@ -43,6 +48,10 @@ public class LocTrigEditActivity extends PreferenceActivity
 	
 	private boolean mAdminMode = false;
 	
+	/*
+	 * Interface for the callback which is invoked when the
+	 * done button is pressed. 
+	 */
 	public interface ExitListener {
 		
 		public void onDone(Context context, int trigId, String trigDesc);

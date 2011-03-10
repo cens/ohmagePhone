@@ -1,12 +1,26 @@
 package edu.ucla.cens.andwellness.triggers.types.location;
 
 
-/* The maps activity to display and modify the coordinates
- * associated with each place
+/* 
+ * The maps activity to display and modify the coordinates
+ * associated with each place (category).
+ * 
+ * This class has a complex implementation because of the 
+ * limitations in the maps api. The following scenarios are
+ * implemented here:
+ * 	- Overlays of different types
+ *  - Drawing circles around overlays
+ *  - Long press on any geo point
+ *  - Tap on overlays
+ *  - Show and hide additional views on a geo point.
+ *  
+ *  Since all the above scenarios cannot be address at once
+ *  using the built in mechanisms, the implementation below
+ *  uses its own overridden overlay mechanism and touch handling.
  */
 
 /*
- * TODO: This Activity has leaking dialogs. Needs to be fixed
+ * TODO: This Activity has leaking dialogs. Needs to be fixed.
  * Currently, activity rotation is disabled in the manifest
  */
 import java.util.ArrayList;
@@ -73,8 +87,10 @@ public class LocTrigMapsActivity extends MapActivity
 	//Location id for the 'my location' overlay
 	private static final int CURR_LOC_ID = -1;
 	
+	//Number of retries of address look up in case of failures
 	private static final int GEOCODING_RETRIES = 5;
-	private static final long GEOCODING_RETRY_INTERVAL = 500;
+	//Interval between consecutive address lookups
+	private static final long GEOCODING_RETRY_INTERVAL = 500; //ms
 	
 	/* Menu ids */
 	private static final int MENU_MY_LOC_ID = Menu.FIRST;
