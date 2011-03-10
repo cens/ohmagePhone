@@ -15,10 +15,15 @@ import android.content.SharedPreferences.Editor;
 import edu.ucla.cens.andwellness.triggers.config.NotifConfig;
 
 /*
+ * The class which can parse and represent the trigger 
+ * notification description in JSON.
+ * 
+ * An example notification description:
+ * 
  * {
- * 		"duration": 60
- * 		"suppression": 30
- * 		"repeat": [5, 10, 30] 
+ * 		"duration": 60 //minutes
+ * 		"suppression": 30 //minutes
+ * 		"repeat": [5, 10, 30] //array of minutes
  * }
  */
 public class NotifDesc {
@@ -27,6 +32,7 @@ public class NotifDesc {
 				"edu.ucla.cens.triggers.notif.NotifDesc";
 	private static final String PREF_KEY_GLOBAL_NOTIF_DESC = "notif_desc";
 
+	//The minimum value allowed for a repeat reminder
 	private static final int REPEAT_MIN = 1;
 	
 	private static final String KEY_DURATION = "duration";
@@ -43,6 +49,10 @@ public class NotifDesc {
 		mRepeatList.clear();
 	}
 	
+	/*
+	 * Parse a notification description in JSON format and 
+	 * load the parameters into this object.
+	 */
 	public boolean loadString(String desc) {
 		
 		initialze();
@@ -52,13 +62,14 @@ public class NotifDesc {
 		}
 		
 		try {
+			//Load the string
 			JSONObject jDesc = new JSONObject(desc);
 			
 			mDuration = jDesc.getInt(KEY_DURATION);
 			mSuppress = jDesc.getInt(KEY_SUPPRESSION);
 			
 			if(jDesc.has(KEY_REPEAT)) {
-				
+			
 				mRepeatList.clear();
 				
 				JSONArray repeats = jDesc.getJSONArray(KEY_REPEAT);
@@ -75,22 +86,39 @@ public class NotifDesc {
 		return true;
 	}
 	
+	/*
+	 * Get the notification duration in minutes
+	 */
 	public int getDuration() {
 		return mDuration;
 	}
 	
+	/*
+	 * Set the notification duration in minutes
+	 */
 	public void setDuration(int duration) {
 		mDuration = duration;
 	}
 	
+	/*
+	 * Get the suppression window in minutes. 
+	 */
 	public int getSuppression() {
 		return mSuppress;
 	}
 	
+	/*
+	 * Set the suppression window in minutes
+	 */
 	public void setSuppression(int suppress) {
 		mSuppress = suppress;
 	}
 	
+	/*
+	 * Get the list (sorted) of reminders associated 
+	 * with this notification description. Each item 
+	 * is in minutes.  
+	 */
 	public List<Integer> getSortedRepeats() {
 		LinkedList<Integer> ret = new LinkedList<Integer>(mRepeatList);
 		
@@ -106,6 +134,12 @@ public class NotifDesc {
 		return ret;
 	}
 	
+	/*
+	 * Set the list of repeat reminders for this description. 
+	 * The items in the list must be represented in minutes.
+	 * This function will replace the previous set of repeat
+	 * reminders in this description with the given list. 
+	 */
 	public void setRepeats(List<Integer> repeats) {
 		mRepeatList.clear();
 		
@@ -116,6 +150,13 @@ public class NotifDesc {
 		}
 	}
 	
+	/*
+	 * Utility function to support the maintenance of a global
+	 * notification description (as opposed to different description
+	 * for different triggers). This function will return the string
+	 * representation of the global notification description stored in
+	 * the shared preferences. 
+	 */
 	public static String getGlobalDesc(Context context) {
 		
 		SharedPreferences prefs = context.getSharedPreferences(
@@ -127,6 +168,12 @@ public class NotifDesc {
 		return notifDesc;
 	}
 	
+	/*
+	 * Utility function to support the maintenance of a global
+	 * notification description (as opposed to different description
+	 * for different triggers). This function can be used to set the 
+	 * global description and it will be saved in shared preferences.
+	 */
 	public static void setGlobalDesc(Context context, String desc) {
 	
 		SharedPreferences prefs = context.getSharedPreferences(
@@ -137,14 +184,29 @@ public class NotifDesc {
 		editor.commit();
 	}
 	
+	/*
+	 * Get the default notification description for a trigger. 
+	 * This function can be used while adding a new trigger entry
+	 * to the database. 
+	 * 
+	 *  Currently returns the global notification description.
+	 */
 	public static String getDefaultDesc(Context context) {
 		return getGlobalDesc(context);
 	}
 	
+	/*
+	 * Get the minimum allowed value (in minutes) for a
+	 * repeat reminder. 
+	 */
 	public int getMinAllowedRepeat() {
 		return REPEAT_MIN;
 	}
 	
+	/*
+	 * Convert the notification description represented by 
+	 * this object to a JSON string. 
+	 */
 	public String toString() {
 		
 		JSONObject jDesc = new JSONObject();

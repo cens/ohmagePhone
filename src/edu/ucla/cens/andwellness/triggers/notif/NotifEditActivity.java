@@ -8,6 +8,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,19 @@ import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.triggers.config.NotifConfig;
 import edu.ucla.cens.andwellness.triggers.utils.TrigTextInput;
 
+/*
+ * Activity to edit the notification description visually. 
+ * Currently, this activity is called by the trigger list 
+ * activity to edit the global notification description. 
+ * It can also be called (without any change) to edit the 
+ * notification description associated with individual trigger
+ * if required in the future. 
+ */
 public class NotifEditActivity extends ListActivity 
 							   implements OnClickListener {
 
+	private static final String DEBUG_TAG = "TriggerFramework";
+	
 	public static final String KEY_NOTIF_CONFIG = "notif_config";
 	private static final String KEY_SAVE_LIST_DATA = "list_data";
 	
@@ -32,7 +43,9 @@ public class NotifEditActivity extends ListActivity
 	private static final int LIST_POS_REPEAT_HEADER = 2;
 	private static final int LIST_POS_REPEAT_START = 3;
 	
+	//Minimum value allowed for notification duration
 	private static final int DURATION_MIN = 1;
+	//Minimum value allowed for suppression window
 	private static final int SUPPRESSION_MIN = 0; //Disables suppression
 	
 	private ArrayList<Integer> mListData = null;
@@ -44,17 +57,23 @@ public class NotifEditActivity extends ListActivity
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		//Get the notification description from the intent
 		Intent intent = getIntent();
 		String desc = intent.getStringExtra(KEY_NOTIF_CONFIG);
 		if(desc == null) {
-			//TODO log
+			Log.e(DEBUG_TAG, "NotifEditActivity: No notification " +
+					"description passed. Exiting...");
+			
 			finish();
 			return;
 		}
 		
+		//Parse and load the description
 		mNotifDesc = new NotifDesc();
 		if(!mNotifDesc.loadString(desc)) {
-			//TODO log
+			Log.e(DEBUG_TAG, "NotifEditActivity: Failed to parse the " +
+					"notification description passed. Exiting...");
+			
 			finish();
 			return;
 		}
@@ -66,6 +85,7 @@ public class NotifEditActivity extends ListActivity
 		b = (Button) findViewById(R.id.notif_edit_cancel);
 		b.setOnClickListener(this);
 		
+		//Update the GUI with the data
 		initializeListData();
 		setupListAdaptor();
 		validateDataAndUpdateView();
@@ -209,7 +229,7 @@ public class NotifEditActivity extends ListActivity
 		
 		Iterator<Integer> i = mListData.iterator();
 		
-		//Skip the initial items
+		//Skip the initial items until repeat
 		int pos = 0;
 		while(i.hasNext() && pos < LIST_POS_REPEAT_START) {
 			pos++;
@@ -217,7 +237,8 @@ public class NotifEditActivity extends ListActivity
 		}
 		
 		while(i.hasNext()) {
-			//Remove all items which is greater than the allowed one
+			//Remove all items which is greater than the allowed value
+			//which is max(duration) - 1
 			if(i.next() > (mListData.get(LIST_POS_DURATION) - 1)) {
 				i.remove();
 			}
@@ -240,7 +261,7 @@ public class NotifEditActivity extends ListActivity
 		
 		switch(id) {
 		
-		case LIST_POS_DURATION:
+		case LIST_POS_DURATION: //Edit notification duration
 			title = "Notification duration \n(1 - " + 
 			   				NotifConfig.maxDuration + ")";
  	
@@ -249,7 +270,7 @@ public class NotifEditActivity extends ListActivity
 			min = DURATION_MIN;
 			break;
 		
-		case LIST_POS_SUPPRESSION:
+		case LIST_POS_SUPPRESSION: //Edit suppression window
 			title = "Suppression window \n(0 - " + 
 			   		NotifConfig.maxSuppression + ")";
 
@@ -258,17 +279,25 @@ public class NotifEditActivity extends ListActivity
 			min = SUPPRESSION_MIN;
 			break;
 			
-		case LIST_POS_REPEAT_HEADER:
+		case LIST_POS_REPEAT_HEADER: //Repeat header, ignore. Nothing
+									//to edit here.
 			return null;
 			
-		default:
+		default: //Any other id would correspond to a repeat value
 			
-			title = "Set reminder";
 			text = String.valueOf(mListData.get(id));
 			min = mNotifDesc.getMinAllowedRepeat();
 			max = mListData.get(LIST_POS_DURATION) - 1;
+			
+			title = "Set reminder \n(" + min + " - " + max + ")";
+			
+			if(min == max) {
+				//Nothing to edit. Do nothing
+				return null;
+			}
 		}
 		
+		//Launch the text edit dialog
 		TrigTextInput ti = new TrigTextInput(this);
 		ti.setTitle(title);
 		ti.setText(text);
@@ -288,6 +317,7 @@ public class NotifEditActivity extends ListActivity
 						mListData.set(listPos, 
 									  Integer.valueOf(textInput.getText()));
 		
+						//Validate the data
 						validateDataAndUpdateView();
 					}
 				}
@@ -303,6 +333,11 @@ public class NotifEditActivity extends ListActivity
 		super.onListItemClick(l, v, pos, id);
 		
 		if(pos != LIST_POS_REPEAT_HEADER) {
+			//Remove the dialog first to force onCreateDialog().
+			//We need to prepare the dialog every time based
+			//on the list index. This is possible without this
+			//approach in future API levels (by passing a bundle)
+			//but not in 1.6
 			removeDialog(pos);
 			showDialog(pos);
 		}
@@ -310,20 +345,28 @@ public class NotifEditActivity extends ListActivity
 	
 	@Override
 	public void onClick(View v) {
+		//Ignore all clicks on the list once a dialog has been 
+		//created. This is needed to guard against quikly pressing
+		//the buttons multiple times.
 		if(mDialog != null && mDialog.isShowing()) {
 			return;
 		}
 		
 		switch(v.getId()) {
 		
-		case R.id.button_remove_repeat:
+		case R.id.button_remove_repeat: //The 'minus' button
 			int iList = (Integer) v.getTag();
 			mListData.remove(iList);
 			mListAdapter.notifyDataSetChanged();
 			break;
 			
-		case R.id.button_add_new:
+		case R.id.button_add_new: //The 'plus' button
 			
+			//Find a new value for the repeat and add a 
+			//repeat item based on it. This is done by simply 
+			//adding the default repeat value to the maximum 
+			//value in the list and then bounding it using the
+			//maximum repeat value (which is max(duration) - 1)
 			int maxRepeat = 0;
 			for(int i = LIST_POS_REPEAT_START; i < mListData.size(); i++) {
 				int repeat = mListData.get(i);
@@ -339,12 +382,16 @@ public class NotifEditActivity extends ListActivity
 				maxRepeat = duration - 1;
 			}
 			
+			//Add the new repeat item to the list
 			mListData.add(LIST_POS_REPEAT_START, new Integer(maxRepeat));
 			mListAdapter.notifyDataSetChanged();
 			break;
 			
-		case R.id.notif_edit_done:
+		case R.id.notif_edit_done: //Done with editing the notification settings
 			//TODO validate
+			
+			//Copy the values from the UI to the description class, 
+			//convert to string and then send back the result
 			mNotifDesc.setDuration(mListData.get(LIST_POS_DURATION));
 			mNotifDesc.setSuppression(mListData.get(LIST_POS_SUPPRESSION));
 			
@@ -363,7 +410,7 @@ public class NotifEditActivity extends ListActivity
 			finish();
 			break;
 			
-		case R.id.notif_edit_cancel:
+		case R.id.notif_edit_cancel: //Canceled editing
 			finish();
 			break;
 		}

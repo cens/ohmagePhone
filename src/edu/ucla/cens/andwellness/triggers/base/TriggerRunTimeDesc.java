@@ -10,9 +10,11 @@ import org.json.JSONObject;
 import android.location.Location;
 
 /*
- * Description for the trigger run time info
+ * The class which can parse and store the JSON string of the run time
+ * info of each trigger.
  * 
- * e.g:
+ * An example run time description:
+ * 
  * {
  * 		"trigger_timestamp": 12336673
  * 		"trigger_time_zone": ""

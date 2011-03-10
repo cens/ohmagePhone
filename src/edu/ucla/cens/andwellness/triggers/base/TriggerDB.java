@@ -30,8 +30,10 @@ public class TriggerDB {
 	private static final String DATABASE_NAME = "trigger_framework"; 
 	private static final int DATABASE_VERSION = 1;
 	
+	/* Table name */
 	private static final String TABLE_TRIGGERS = "triggers";
 	
+	/* Columns */
 	public static final String KEY_ID = "_id";
 	public static final String KEY_TRIG_TYPE = "trigger_type";
 	public static final String KEY_TRIG_DESCRIPT = "trig_descript";

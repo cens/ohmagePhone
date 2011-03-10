@@ -26,11 +26,23 @@ import com.google.android.maps.MapView;
 
 import edu.ucla.cens.andwellness.R;
 
-/* Class for the 'add location' balloon */
+/*
+ * Class which draws and manages the 'add this location' 
+ * balloon which is displayed as a view on top of the 
+ * map view. This class can be instantiated and the show
+ * method can be called to display the balloon at a given
+ * geo-point. The address corresponding to that geo-point
+ * will be fetched and displayed. It also displays a button
+ * in the balloon view and a callback is called when the 
+ * user clicks on the button. 
+ */
 public class LocTrigAddLocBalloon implements OnClickListener{
 
+	//Number of times the addressing fetching 
+	//to be tried
 	private static final int GEOCODING_RETRIES = 3;
-	private static final long GEOCODING_RETRY_INTERVAL = 300;
+	//Interval between each retry
+	private static final long GEOCODING_RETRY_INTERVAL = 300; //ms
 	
 	//Maximum height of the balloon
 	private static final int MAX_H = 150;
@@ -55,6 +67,7 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 		LayoutInflater  layoutInflater = 
         	(LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         
+		//Inflate the balloon layout
 		mLayout = (LinearLayout) layoutInflater.inflate(
         										R.layout.trigger_loc_maps_balloon, null);
 		
@@ -62,7 +75,10 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 		mLayout.setClickable(true);
 	}
 	
-	/* Display this balloon */
+	/* 
+	 * Display this balloon at the given geo-point. 
+	 * 
+	 */
 	public void show(GeoPoint gp, String action, String addr) { 
 		
 		if(mVisible) {
@@ -74,6 +90,7 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 		
 		Button button = (Button) mLayout.findViewById(R.id.balloon_add_loc);
 		button.setOnClickListener(this);
+		//Set the given text to the button
 		button.setText(action);
 		button.setHeight(mMapView.getHeight() / 2 - 10);
 		button.invalidate();
@@ -82,12 +99,14 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 		tv.setTextColor(Color.WHITE);
 		
 		mMapView.getController().animateTo(gp);
+		//Add the view to the map
 		mMapView.addView(mLayout, 
 	    		   new MapView.LayoutParams(
 	    		   Math.min(mMapView.getWidth() - 20, MAX_W),
 	    		   Math.min(mMapView.getHeight() / 2 - 10, MAX_H), gp, 
 	    		   MapView.LayoutParams.BOTTOM_CENTER));
 	    
+		//If no address passed, fetch the address
 		if(addr.equals("")) {
 			tv.setText("Loading approximate address...");
 			ProgressBar pb = (ProgressBar) mLayout.findViewById(R.id.balloon_progress);
@@ -126,9 +145,12 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 	
 	@Override
 	public void onClick(View v) {
+		
 		if(v.getId() == R.id.balloon_add_loc) {
+			//User pressed the button
 			
 			if(mListener != null) {
+				//Invoke the callback
 				mListener.onAddLocationClick(mLocGP);
 			}
 		}

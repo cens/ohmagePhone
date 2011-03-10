@@ -18,11 +18,25 @@ import edu.ucla.cens.andwellness.triggers.base.TriggerDB;
 import edu.ucla.cens.andwellness.triggers.base.TriggerRunTimeDesc;
 import edu.ucla.cens.andwellness.triggers.base.TriggerTypeMap;
 
+/*
+ * An interface to the survey list management. This class 
+ * provides functions to keep track of the survey taken
+ * time stamps, to get the list of active surveys and to 
+ * get various trigger related JSON strings used while 
+ * uploading survey responses. 
+ * 
+ * This class isolates the logic related to surveys from 
+ * the Notifier class thus making the implementation of the
+ * Notifier generic and independent of the surveys.  
+ */
 public class NotifSurveyAdaptor {
 	
 	private static final String DEBUG_TAG = "TriggerFramework";
+	
+	/* Tag used to log through SystemLog */
 	private static final String SYSTEM_LOG_TAG = "TriggerFramework";
 	
+	/* Keys used in preparation of the JSON strings */
 	private static final String KEY_ACTIVE_TRIGGERS = "active_triggers";
 	private static final String KEY_TRIGGER_DESC = "trigger_description";
 	private static final String KEY_NOTIF_DESC = "notification_description";
@@ -32,6 +46,17 @@ public class NotifSurveyAdaptor {
 	private static final String KEY_SURVEY_LIST = "survey_list";
 	private static final String KEY_UNTAKEN_SURVEYS = "surveys_not_taken";
 	
+	/*
+	 * Helper function to prepare the list of active surveys corresponding 
+	 * to trigger. 
+	 * 
+	 * A trigger is active if it has not expired (the notification duration 
+	 * has not been reached) after going off the last time. 
+	 * 
+	 * All surveys associated with an active active trigger are active
+	 * 	- EXCEPT those which have already been taken by the user within
+	 * 	  the suppression window. 
+	 */
 	private static HashSet<String> getActiveSurveys(Context context, Cursor trig) {
 		
 		HashSet<String> actSurveys = new HashSet<String>();
@@ -74,20 +99,27 @@ public class NotifSurveyAdaptor {
 			return actSurveys;
 		}
 		
+		//How long it has been since the trigger went off
 		long elapsedMS = now - trigTS;
+		
 		long durationMS = notifDesc.getDuration() * 60000;
 		long suppressMS = notifDesc.getSuppression() * 60000;  
 
 		if(elapsedMS < durationMS) {
 			
+			//The trigger has not expired, check each survey
+			
 			String[] surveys = actDesc.getSurveys();
 			for(int i = 0; i < surveys.length; i++) {
-				
+			
+				//Has the survey been taken in within the 
+				//suppression window?
 				if(IsSurveyTaken(context, surveys[i], 
 							     trigTS - suppressMS)) {
 					continue;
 				}
 				
+				//Add the active survey to the set
 				actSurveys.add(surveys[i]);
 			}
 		}
@@ -95,6 +127,11 @@ public class NotifSurveyAdaptor {
 		return actSurveys;
 	}
 	
+	/*
+	 * Utility function to check if a survey has been taken
+	 * by the user since a given time. This function checks 
+	 * the time stamp of the survey stored in shared preferences.
+	 */
 	private static boolean IsSurveyTaken(Context context, 
 							      		 String survey, 
 							      		 long since) {
@@ -114,6 +151,14 @@ public class NotifSurveyAdaptor {
 		return true;
 	}
 
+	/*
+	 * Get the list of all surveys active at the moment. This 
+	 * function creates a set of all active surveys from all 
+	 * active triggers.
+	 * 
+	 * This function is used by the Notifier to prepare the 
+	 * notification item.
+	 */
 	public static Set<String> getAllActiveSurveys(Context context) {
 		HashSet<String> actSurveys = new HashSet<String>();
 	
@@ -134,6 +179,9 @@ public class NotifSurveyAdaptor {
 		return actSurveys;
 	} 
 	
+	/*
+	 * Get all the active surveys corresponding to a specific trigger.
+	 */
 	public static Set<String> getActiveSurveysForTrigger(Context context, 
 														 int trigId) {
 		HashSet<String> actSurveys = new HashSet<String>();
@@ -152,6 +200,10 @@ public class NotifSurveyAdaptor {
 		return actSurveys;
 	}
 														 
+	/*
+	 * Saves the current time stamp against the given survey name.
+	 * This must be called whenever a survey is taken by the user.
+	 */
 	public static void recordSurveyTaken(Context context, String survey) {
 			
 		SharedPreferences pref = context.getSharedPreferences(
@@ -163,6 +215,10 @@ public class NotifSurveyAdaptor {
 		editor.commit();
 	}
 	
+	/*
+	 * Utility function to add the JSON description of a active
+	 * trigger to JSON array.
+	 */
 	private static void addTriggerInfoToArray(Context context, 
 			 								  Cursor trig, JSONArray jArray) {
 		String rtDesc = trig.getString(
@@ -201,7 +257,10 @@ public class NotifSurveyAdaptor {
 		jArray.put(jTrigInfo);
 	}	
 	
-	
+	/*
+	 * Get the JSON array containing the details of all the triggers
+	 * which have activated a given survey at the moment.
+	 */
 	public static JSONArray getActiveTriggerInfo(Context context, 
 												  String survey) {
 		JSONObject jInfo = new JSONObject();
@@ -231,11 +290,19 @@ public class NotifSurveyAdaptor {
 		return jTrigs;
 	}
 	
+	/*
+	 * Convenience wrapper for SystemLog api.
+	 */
 	private static void systemLog(Context context, String msg) {
 		
 		edu.ucla.cens.systemlog.Log.i(SYSTEM_LOG_TAG, msg);
 	}
 	
+	/*
+	 * To be called when a trigger expires. This function logs using
+	 * SystemLog, the list of all surveys not taken by the user 
+	 * but were activated by the given trigger. 
+	 */
 	public static void handleExpiredTrigger(Context context, int trigId) {
 		TriggerDB db = new TriggerDB(context);
 		db.open();

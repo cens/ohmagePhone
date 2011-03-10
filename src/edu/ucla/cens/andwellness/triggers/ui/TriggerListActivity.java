@@ -79,7 +79,6 @@ public class TriggerListActivity extends ListActivity
 		setContentView(R.layout.trigger_main_list);
 			
 		mTrigMap = new TriggerTypeMap();
-
 		
 		TextView tv = (TextView) findViewById(R.id.add_new_label);
 		tv.setText("Triggers");
@@ -105,6 +104,15 @@ public class TriggerListActivity extends ListActivity
         
 		populateTriggerList();
 		registerForContextMenu(getListView());
+		
+		//Display message and exit if there are no supported 
+		//trigger types
+		if(mTrigMap.getAllTriggers().size() == 0) {
+			Toast.makeText(this, "No supported trigger types!", 
+					Toast.LENGTH_SHORT).show();
+			
+			finish();
+		}
     }
 	
 	public void onDestroy() {
@@ -542,10 +550,19 @@ public class TriggerListActivity extends ListActivity
 		menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, "Notification settings")
 			.setIcon(R.drawable.ic_menu_notification)
 			.setEnabled(adminMode || TrigUserConfig.editNotificationSettings);
-
-		menu.add(0, MENU_ID_SETTINGS, 0, "Preferences")
-			.setIcon(R.drawable.ic_menu_preferences)
-			.setEnabled(adminMode || TrigUserConfig.editTriggerSettings);
+		
+		//Add 'preferences' menu item only if there is at least
+		//one trigger type registered which has settings
+		for(TriggerBase trig : mTrigMap.getAllTriggers()) {
+			
+			if(trig.hasSettings()) {
+				menu.add(0, MENU_ID_SETTINGS, 0, "Preferences")
+					.setIcon(R.drawable.ic_menu_preferences)
+					.setEnabled(adminMode || TrigUserConfig.editTriggerSettings);
+				
+				break;
+			}
+		}
 	    
      	return ret;
 	}
@@ -663,6 +680,7 @@ public class TriggerListActivity extends ListActivity
 	public void onClick(View v) {
 		
 		if(v.getId() == R.id.button_add_new) {
+			
 			showDialog(DIALOG_ID_ADD_NEW);
 		}
 	}

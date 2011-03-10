@@ -7,11 +7,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /*
- * Description of the action to be taken when a trigger goes off.
- * Represented as a JSON string and is stored in the db against 
- * each trigger. Currently, the action corresponds to the list 
- * of surveys associated with each trigger. The notification module
- * uses this list to display the alert. 
+ * Class which can parse and store the description of the action 
+ * to be taken when a trigger goes off. Represented as a JSON string 
+ * and is stored in the db against each trigger. 
+ * 
+ * Currently, the action corresponds to the list of surveys associated 
+ * with each trigger. The notification module uses this list to display 
+ * the alert. 
  * 
  * 
  * In order to generalize the trigger action (instead of just displaying
@@ -20,7 +22,8 @@ import org.json.JSONObject;
  * handlers (such as notification module) can be invoked when a trigger 
  * goes off. 
  * 
- * e.g.:
+ * An example trigger action description:
+ * 
  * {
  * 		"surveys": ["Sleep", "Stress"]
  * }
