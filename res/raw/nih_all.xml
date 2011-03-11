@@ -657,7 +657,7 @@
       <description>This is the mood and stress survey.</description>
       <submitText>This is the mood and stress survey submit text.</submitText>
       <showSummary>false</showSummary>
-      <anytime>false</anytime>
+      <anytime>true</anytime>
     
       <contentList>
       
@@ -827,7 +827,7 @@
       <description>This is the sleep survey.</description>
       <submitText>This is the sleep survey submit text.</submitText>
       <showSummary>false</showSummary>
-      <anytime>true</anytime>
+      <anytime>false</anytime>
     
       <contentList>
       
@@ -869,7 +869,7 @@
           <id>stress</id>
           <displayType>metadata</displayType>
           <displayLabel>Stress</displayLabel>
-                    
+          <default>*</default>
           <promptText>Not displayed</promptText>
           <promptType>text</promptType>
           <properties>

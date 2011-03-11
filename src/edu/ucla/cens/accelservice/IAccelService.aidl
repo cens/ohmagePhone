@@ -1,5 +1,7 @@
 package edu.ucla.cens.accelservice;
 
+/* Goes with AccelService-v2.2.apk */
+
 interface IAccelService
 {
 

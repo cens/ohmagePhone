@@ -1,14 +1,12 @@
 package edu.ucla.cens.mobility.glue;
 
-import java.net.URI;
-
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import edu.ucla.cens.mobility.MobilityContentProvider;
-import edu.ucla.cens.mobility.MobilityControl;
+import android.widget.Toast;
 
 public class MobilityInterface
 {
@@ -26,7 +24,10 @@ public class MobilityInterface
 	public static final String KEY_LATITUDE = "latitude";
 	public static final String KEY_LONGITUDE = "longitude";
 	private static String [] columns = {KEY_ROWID, KEY_MODE, KEY_SPEED, KEY_STATUS, KEY_LOC_TIMESTAMP, KEY_ACCURACY, KEY_PROVIDER, KEY_WIFIDATA, KEY_ACCELDATA, KEY_TIME, KEY_TIMEZONE, KEY_LATITUDE, KEY_LONGITUDE};
-	
+	// Content provider strings
+	public static final String AUTHORITY = "edu.ucla.cens.mobility.MobilityContentProvider";
+	public static final String PATH_MOBILITY = "mobility";
+	public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY + "/" + PATH_MOBILITY);
 	/**
 	 * Helper function to get cursor to data with only the last retrieved timestamp.
 	 * @param timestamp
@@ -36,13 +37,23 @@ public class MobilityInterface
 	{
 		ContentResolver r = context.getContentResolver();
 		
-		return r.query(MobilityContentProvider.CONTENT_URI, columns, KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, KEY_TIME);
+		return r.query(CONTENT_URI, columns, KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, KEY_TIME);
 	}
 	
 	
 	public static void showMobilityOptions(Context context)
 	{
-		context.startActivity(new Intent(context, MobilityControl.class));
+//		context.startActivity(new Intent(context, MobilityControl.class));
+		try
+		{
+			final Intent intentDeviceTest = new Intent("android.intent.action.MAIN");                
+			intentDeviceTest.setComponent(new ComponentName("edu.ucla.cens.mobility","edu.ucla.cens.mobility.MobilityControl"));
+			context.startActivity(intentDeviceTest);
+		}
+		catch(Exception e)
+		{
+			Toast.makeText(context, "There was an error. Please verify that Mobility has been installed.", Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 }

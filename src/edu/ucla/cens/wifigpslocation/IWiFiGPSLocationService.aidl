@@ -1,7 +1,8 @@
 package edu.ucla.cens.wifigpslocation;
 
-import android.location.Location;
+/* Goes with WiFiGPSLocation-v3.1.apk */
 
+import android.location.Location;
 import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
 
 interface IWiFiGPSLocationService {

@@ -1,5 +1,6 @@
 package edu.ucla.cens.wifigpslocation;
 
+/* Goes with WiFiGPSLocation-v3.1.apk */
 
 oneway interface ILocationChangedCallback {
 	/**

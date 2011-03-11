@@ -28,6 +28,7 @@ import android.content.res.Resources.NotFoundException;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -49,6 +50,9 @@ public class StressButtonService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
+		
+		Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		vibrator.vibrate(100);
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
@@ -83,6 +87,7 @@ public class StressButtonService extends IntentService {
 			storeResponse(surveyId, surveyTitle, launchTime, prompts);
 			//Toast.makeText(this, "Registered stressful event.", Toast.LENGTH_SHORT).show();
 			mHandler.post(new DisplayToast("Registered stressful event."));
+			
 		}
 		return;
 	}

@@ -197,37 +197,7 @@
         ******************************************************
         -->
     
-     <provider android:name="edu.ucla.cens.mobility.MobilityContentProvider" android:authorities="edu.ucla.cens.mobility.MobilityContentProvider" />
-        <activity android:name="edu.ucla.cens.mobility.MobilityControl"
-                  android:label="Mobility Settings"
-                  >
-	            <!--<intent-filter>
-	                <action android:name="android.intent.action.MAIN" />
-	                <category android:name="android.intent.category.LAUNCHER" />
-	            </intent-filter>
-        --></activity>
-	<service android:name="edu.ucla.cens.mobility.ClassifierService"/>
-	
-		<receiver android:name="edu.ucla.cens.mobility.BootReceiver">
-        	<intent-filter>
-        		<action android:name="android.intent.action.BOOT_COMPLETED"/>
-        	</intent-filter>
-        </receiver>
-        
-	<service android:name="edu.ucla.cens.mobility.GarbageCollectService"/>
- 
-<receiver android:name="edu.ucla.cens.mobility.SampleReceiver">
-                                <intent-filter>
-                                                <action android:name="edu.ucla.cens.mobility.record" />
-                                </intent-filter>
-                               
-                                </receiver>
-    <receiver android:name="edu.ucla.cens.mobility.GarbageCollectReceiver">
-                                <intent-filter>
-                                                <action android:name="edu.ucla.cens.mobility.garbagecollect" />
-                                </intent-filter>
-                               
-                                </receiver>
+     
     
     <!-- 
         ******************************************************
