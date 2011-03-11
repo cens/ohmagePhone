@@ -1,8 +1,12 @@
 package edu.ucla.cens.andwellness.triggers.types.location;
 
-/* Location triggers service.
- * Performs location detection based on adaptive 
- * location sampling.
+/* 
+ * The service which performs energy efficient 
+ * location sampling and location change detection. 
+ * 
+ * The location updates are duty cycled based on the 
+ * user speed and proximity to the nearest defined 
+ * location.
  */
 
 import java.util.Calendar;
@@ -119,11 +123,12 @@ public class LocTrigService extends Service
 	//moved at least this much.
 	private static final float SPEED_CALC_MIN_DISPLACEMENT 
 							   = 4 * INACCURATE_SAMPLE_THRESHOLD;
-	
+	//Minimum accelerometer value for motion detection
 	private static final double MOTION_DETECT_ACCEL_THRESHOLD = 5;
-	
+	//Use motion detection only if the sleep time is greater than this value
 	private static final long SLEEP_TIME_MIN_MOTION_DETECT = 60000; //1 min
-	
+	//Ignore a movement callback if the motion detection was started
+	//within this interval
 	private static final long MOTION_DETECT_DELAY = 60000; //1min
 	
 	//Wake lock for GPS sampling
@@ -1102,6 +1107,7 @@ public class LocTrigService extends Service
 	
 	private void recordSpeed(Location loc) {
 		
+		//Record speed as a running average
 		if(loc.hasSpeed()) {
 			mCurrSpeed = (mCurrSpeed + loc.getSpeed()) / 2;
 		}
@@ -1371,6 +1377,8 @@ public class LocTrigService extends Service
 			
 			//Collect some initial samples when the service/sampling starts for
 			//the first time. This is to establish the current location.
+			//This makes sure than the very first trigger set on the current
+			//location is not triggered immediately.
 			if(mNInitialSamples < SAMPLES_LIMIT) {
 				mNInitialSamples++;
 				
@@ -1417,6 +1425,7 @@ public class LocTrigService extends Service
 		}
 	}
 
+    /* Receiver for all the alarms */
 	public static class AlarmReceiver extends BroadcastReceiver {
 
 		public void onReceive(Context context, Intent intent) {

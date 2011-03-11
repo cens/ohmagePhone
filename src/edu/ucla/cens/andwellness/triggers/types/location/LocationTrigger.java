@@ -11,11 +11,22 @@ import android.util.Log;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.triggers.base.TriggerBase;
 
+/*
+ * The concrete instance of the location based triggers class. 
+ * 
+ * This class inherits TriggerBase and is registered with the
+ * framework by adding an entry in TriggerTypeMap. This class
+ * implements the abstract functions in TriggerBase through
+ * which the framework interacts with location triggers.   
+ */
 public class LocationTrigger extends TriggerBase {
 
 	private static final String DEBUG_TAG = "LocationTrigger";
 	
-	private static final String TRIGGER_TYPE = "LocationTrigger";	
+	//This string must be unique across all trigger types 
+	//registered with the framework.
+	private static final String TRIGGER_TYPE = "LocationTrigger";
+	
 	//TODO localize
 	private static final String DISP_NAME = "Location Trigger";
 	
@@ -25,6 +36,8 @@ public class LocationTrigger extends TriggerBase {
 	private static final String KEY_LATITUDE = "latitude";
 	private static final String KEY_LONGITUDE = "longitude";
 	private static final String KEY_RADIUS = "radius";
+	
+	/* IMPLEMENTATION OF THE ABSTRACT FUNCTIONS */
 	
 	@Override
 	public String getTriggerTypeDisplayName() {
@@ -45,6 +58,12 @@ public class LocationTrigger extends TriggerBase {
 	}
 	
 	@Override
+	/*
+	 * The summary of a location trigger is the information 
+	 * related to its time range. If there is no time range set, 
+	 * returns "Always". If there is a time range, it returns 
+	 * the range in the form "start - end". 
+	 */
 	public String getDisplaySummary(Context context, String trigDesc) {
 		LocTrigDesc desc = new LocTrigDesc();
 		
@@ -66,6 +85,10 @@ public class LocationTrigger extends TriggerBase {
 	}
 
 	@Override
+	/*
+	 * The display title of a location trigger is the name 
+	 * of the location. 
+	 */
 	public String getDisplayTitle(Context context, String trigDesc) {
 		LocTrigDesc desc = new LocTrigDesc();
 		
@@ -84,6 +107,8 @@ public class LocationTrigger extends TriggerBase {
 	@Override
 	public void launchTriggerCreateActivity(Context context) {
 
+		//Register a listener with the editor
+		//activity to listen for the 'done' event
 		LocTrigEditActivity.setOnExitListener(
 					new LocTrigEditActivity.ExitListener() {
 			
@@ -91,6 +116,7 @@ public class LocationTrigger extends TriggerBase {
 			public void onDone(Context context, int trigId, 
 							   String trigDesc) {
 				
+				//When done, save the trigger to the db
 				addNewTrigger(context, trigDesc);
 			}
 		});
@@ -110,6 +136,9 @@ public class LocationTrigger extends TriggerBase {
 	@Override
 	public void launchTriggerEditActivity(Context context, int trigId, 
 										  String trigDesc, boolean adminMode) {
+		
+		//Register a listener with the editor
+		//activity to listen for the 'done' event
 		LocTrigEditActivity.setOnExitListener(
 				new LocTrigEditActivity.ExitListener() {
 		
@@ -117,11 +146,13 @@ public class LocationTrigger extends TriggerBase {
 			public void onDone(Context context, int trigId, 
 							   String trigDesc) {
 				
+				//Update the trigger in db when done
 				updateTrigger(context, trigId, trigDesc);
 			}
 		});
 	
 	
+		//Pass the trigger details to the editor
 		Intent i = new Intent(context, LocTrigEditActivity.class);
 		i.putExtra(LocTrigEditActivity.KEY_TRIG_ID, trigId);
 		i.putExtra(LocTrigEditActivity.KEY_TRIG_DESC, trigDesc);
@@ -134,6 +165,7 @@ public class LocationTrigger extends TriggerBase {
 		Log.i(DEBUG_TAG, "LocationTrigger: removeTrigger(" + trigId +
 										", " + trigDesc + ")");
 		
+		//Tell the service to stop this trigger
 		Intent i = new Intent(context, LocTrigService.class);
 		i.setAction(LocTrigService.ACTION_REMOVE_TRIGGER);
 		i.putExtra(LocTrigService.KEY_TRIG_ID, trigId);
@@ -146,6 +178,7 @@ public class LocationTrigger extends TriggerBase {
 		Log.i(DEBUG_TAG, "LocationTrigger: resetTrigger(" + trigId +
 				", " + trigDesc + ")");
 		
+		//Tell the service to restart the trigger
 		Intent i = new Intent(context, LocTrigService.class);
 		i.setAction(LocTrigService.ACTION_RESET_TRIGGER);
 		i.putExtra(LocTrigService.KEY_TRIG_ID, trigId);
@@ -158,6 +191,7 @@ public class LocationTrigger extends TriggerBase {
 		Log.i(DEBUG_TAG, "LocationTrigger: startTrigger(" + trigId +
 				", " + trigDesc + ")");
 		
+		//Tell the service to start the trigger
 		Intent i = new Intent(context, LocTrigService.class);
 		i.setAction(LocTrigService.ACTION_START_TRIGGER);
 		i.putExtra(LocTrigService.KEY_TRIG_ID, trigId);
@@ -165,6 +199,10 @@ public class LocationTrigger extends TriggerBase {
 		context.startService(i);
 	}
 
+	/*
+	 * Helper function to serialize all the location settings to
+	 * a JSON array.
+	 */
 	private JSONArray getLocations(Context context, int categId) {
 	
 		JSONArray jLocs = new JSONArray();
@@ -204,6 +242,10 @@ public class LocationTrigger extends TriggerBase {
 	}
 	
 	@Override
+	/*
+	 * Returns a JSON object containing all the location 
+	 * settings.
+	 */
 	public JSONObject getPreferences(Context context) {
 		LocTrigDB db = new LocTrigDB(context);
 		db.open();

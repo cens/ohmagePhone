@@ -1,12 +1,6 @@
 package edu.ucla.cens.andwellness.triggers.types.location;
 
-/*
- * Location Triggers main activity.
- * Displays the list of categories (places). The number of locations
- * under each category as well the number of surveys associated with
- * each place are also displayed. Provides options to manage the
- * categories (add, delete, rename and modify surveys)
- */
+
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,7 +34,11 @@ import edu.ucla.cens.andwellness.triggers.config.TrigUserConfig;
 import edu.ucla.cens.andwellness.triggers.utils.TrigTextInput;
 
 /*
- * Location triggers main activity.
+ * Location triggers settings activity.
+ * Displays the list of categories (places). The number of locations
+ * under each category as well the number of surveys associated with
+ * each place are also displayed. Provides options to manage the
+ * categories (add, delete, rename and modify surveys)
  */
 public class LocTrigSettingsActivity extends ListActivity 
 			 implements OnClickListener, 
@@ -212,7 +210,10 @@ public class LocTrigSettingsActivity extends ListActivity
 				case R.id.text2: //locations count
 					TextView tv = (TextView) view;
 					
-					int nLocs = mDb.getLocations(c.getInt(colIndex)).getCount();
+					Cursor cLocs = mDb.getLocations(c.getInt(colIndex));
+					int nLocs = cLocs.getCount();
+					cLocs.close();
+					
 					String locStr = (nLocs == 1) ? " " +
 									 getString(R.string.location_on_map) : " " +
 									 getString(R.string.locations_on_map);

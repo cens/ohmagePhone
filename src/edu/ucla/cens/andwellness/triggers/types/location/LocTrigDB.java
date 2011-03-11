@@ -1,11 +1,6 @@
 package edu.ucla.cens.andwellness.triggers.types.location;
 
-/* Location Triggers database. 
- * Implements three tables:
- * 	- Categories table
- *  - Locations table
- *  - Triggers table
- */
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,6 +12,14 @@ import android.util.Log;
 import com.google.android.maps.GeoPoint;
 
 import edu.ucla.cens.andwellness.R;
+
+/*
+ * Database to store the location triggers settings. 
+ * Implements two tables:
+ * 	- Categories: The table of all places such as Home, Work etc
+ * 	- Locations: The table of all markers (coordinates) 
+ * 				 within each place 
+ */
 
 /*
  * TODO: update the where clauses with "=?" syntax
@@ -34,6 +37,7 @@ public class LocTrigDB {
 	/* Locations table */
 	private static final String TABLE_LOCATIONS = "locations";
 	
+	//Value of an invalid timestamp
 	public static final long TIME_STAMP_INVALID = -1;
 	
 	/* Keys */
@@ -147,6 +151,9 @@ public class LocTrigDB {
 		return locs;
 	}
 	
+	/*
+	 * Get the time stamp of a category. 
+	 */
 	public long getCategoryTimeStamp(int categId) {
 		Cursor c = mDb.query(TABLE_CATEGORIES, new String[] {KEY_TIMESTAMP}, 
 				 				KEY_ID + "=?", new String[] {String.valueOf(categId)}, 
@@ -161,6 +168,9 @@ public class LocTrigDB {
 		return ret;
 	}
 	
+	/*
+	 * Set the time stamp of a category.
+	 */
 	public void setCategoryTimeStamp(int categId, long timeStamp) {
 		ContentValues values = new ContentValues();
 		values.put(KEY_TIMESTAMP, timeStamp);
@@ -170,6 +180,10 @@ public class LocTrigDB {
 					  new String[]{ String.valueOf(categId)});
 	}
 	
+	/*
+	 * Remove the time stamps from all teh categories 
+	 * in the categories table.
+	 */
 	public boolean removeAllCategoryTimeStamps() {
 		
 		ContentValues values = new ContentValues();
@@ -244,7 +258,8 @@ public class LocTrigDB {
 		@Override
 		public void onCreate(SQLiteDatabase mDb) {
 			Log.i("LocationTriggers", "SQLiteOpenHelper: onCreate");
-			
+		
+			//Category table
 			final String QUERY_CREATE_CATEGORY_TB = 
 				"create table " + TABLE_CATEGORIES + " ("
 				 + KEY_ID + " integer primary key autoincrement, "
@@ -252,6 +267,7 @@ public class LocTrigDB {
 				 + KEY_TIMESTAMP + " long, "
 				 + KEY_BUILT_IN + " integer)";
 			
+			//Location table
 			final String QUERY_CREATE_LOCATION_TB = 
 				"create table " + TABLE_LOCATIONS + " ("
 				 + KEY_ID + " integer primary key autoincrement, "
@@ -263,7 +279,7 @@ public class LocTrigDB {
 			mDb.execSQL(QUERY_CREATE_CATEGORY_TB);
 			mDb.execSQL(QUERY_CREATE_LOCATION_TB);
 			
-			//Create the built-in categories
+			//Add the built-in categories
 			String[] builtinCategories = 
 				context.getResources().getStringArray(
 									R.array.trigger_builtin_places);

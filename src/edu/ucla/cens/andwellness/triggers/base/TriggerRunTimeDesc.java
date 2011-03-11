@@ -10,11 +10,23 @@ import org.json.JSONObject;
 import android.location.Location;
 
 /*
- * Description for the trigger run time info
- * e.g:
+ * The class which can parse and store the JSON string of the run time
+ * info of each trigger.
+ * 
+ * An example run time description:
+ * 
  * {
  * 		"trigger_timestamp": 12336673
- * }
+ * 		"trigger_time_zone": ""
+ * 	    
+ * 		"trigger_location": {
+ * 			"latitude": ...
+ * 			"longitude": ...
+ * 		    "accuracy": ...
+ * 			"provider": ...
+ * 			"time": ...	
+ * 		}
+ * }	
  */
 public class TriggerRunTimeDesc {
 	
@@ -53,6 +65,10 @@ public class TriggerRunTimeDesc {
 		
 	}
 	
+	/*
+	 * Parse a run time info JSON string and load into this
+	 * object
+	 */
 	public boolean loadString(String desc) {
 		
 		initialize();
@@ -86,19 +102,31 @@ public class TriggerRunTimeDesc {
 		return true;
 	}
 	
+	/*
+	 * Check if there is a valid trigger time stamp
+	 */
 	public boolean hasTriggerTimeStamp() {
 		return (mTrigTimeStamp != INVALID_TIMESTAMP);
 	}
 	
+	/*
+	 * Get the trigger time stamp
+	 */
 	public long getTriggerTimeStamp() {
 		return mTrigTimeStamp;
 	}
 	
+	/*
+	 * Set the trigger time stamp
+	 */
 	public void setTriggerTimeStamp(long timeStamp) {
 		mTrigTimeStamp = timeStamp;
 		mTrigTimeZone = TimeZone.getDefault().getID();
 	}
 	
+	/*
+	 * Get the trigger location
+	 */
 	public Location getTriggerLocation() {
 		Location loc = new Location(mTrigLocProvider);
 		
@@ -110,6 +138,9 @@ public class TriggerRunTimeDesc {
 		return loc;
 	}
 	
+	/*
+	 * Set the trigger location 
+	 */
 	public void setTriggerLocation(Location loc) {
 		if(loc == null) {
 			return;
@@ -122,11 +153,19 @@ public class TriggerRunTimeDesc {
 		mTrigLocTime = loc.getTime();
 	}
 	
+	/*
+	 * Format millisecond time stamp in human readable form
+	 */
 	private String millisToFormatedTimeStamp(long millis) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_STAMP_FORMAT);
 		return  dateFormat.format(new Date(millis));
 	}
 	
+	/*
+	 * Convert this object into a JSON string. If humanReadable
+	 * is true, the time stamp will be formatted in 
+	 * yyyy-MM-dd HH:mm:ss form
+	 */
 	private String convertToString(boolean humanReadable) {
 		JSONObject jDesc = new JSONObject();
 		
@@ -168,11 +207,17 @@ public class TriggerRunTimeDesc {
 		return jDesc.toString();
 	}
 	
+	/*
+	 * Convert this object to a JSON string. 
+	 */
 	public String toString() {
 		return convertToString(false);
 	}
 	
 	/*
+	 * Convert this object to a JSON string where the time stamps
+	 * are in human readable format
+	 * 
 	 * Note: the loadString() cannot parse the output of this
 	 * function
 	 */
@@ -180,6 +225,11 @@ public class TriggerRunTimeDesc {
 		return convertToString(true);
 	}
 	
+	/*
+	 * Get the default run time description for a trigger. 
+	 * This can be used while adding a new trigger to the 
+	 * database.
+	 */
 	public static String getDefaultDesc() {
 		return new JSONObject().toString();
 	}
