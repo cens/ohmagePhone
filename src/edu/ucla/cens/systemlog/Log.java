@@ -39,7 +39,7 @@ public class Log {
     
     private static boolean logMessage(String logLevel, String tag, String msg) {
     	if(mContext == null || mAppName == null) {
-    		Log.e(TAG, "SystemLog not initialized");
+    		android.util.Log.e(TAG, "SystemLog not initialized");
     		return false;
     	}
     	
