@@ -158,6 +158,7 @@ public class StatusActivity extends Activity {
 			switch (v.getId()) {
 			case R.id.status_password_button:
 				startActivity(new Intent(StatusActivity.this, LoginActivity.class));
+				setResult(123);
 				finish();
 				break;
 			case R.id.status_upload_responses_button:

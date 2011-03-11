@@ -15,6 +15,7 @@ import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.R.raw;
+import edu.ucla.cens.andwellness.activity.LoginActivity;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 import edu.ucla.cens.andwellness.prompts.Prompt;
@@ -30,6 +31,12 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class StressButtonService extends IntentService {
@@ -57,6 +64,14 @@ public class StressButtonService extends IntentService {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
 		String launchTime = dateFormat.format(now.getTime());
+		
+		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+		
+		if (!preferencesHelper.isAuthenticated()) {
+			Log.i(TAG, "no credentials saved, so launch Login");
+			startActivity(new Intent(this, LoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+			return;
+		}
 		
 		List<Prompt> prompts = null;
 		
@@ -86,10 +101,9 @@ public class StressButtonService extends IntentService {
 			Log.i(TAG, prompts.get(0).getResponseJson());
 			storeResponse(surveyId, surveyTitle, launchTime, prompts);
 			//Toast.makeText(this, "Registered stressful event.", Toast.LENGTH_SHORT).show();
-			mHandler.post(new DisplayToast("Registered stressful event."));
+			mHandler.post(new DisplayToast("Registered stressful event!"));
 			
 		}
-		return;
 	}
 	
 	private class DisplayToast implements Runnable{
@@ -100,7 +114,19 @@ public class StressButtonService extends IntentService {
 		}
 
 		public void run(){
-			Toast.makeText(StressButtonService.this, mText, Toast.LENGTH_SHORT).show();
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View layout = inflater.inflate(R.layout.stress_button_toast, null);
+
+			ImageView image = (ImageView) layout.findViewById(R.id.image);
+			image.setImageResource(R.drawable.stress);
+			TextView text = (TextView) layout.findViewById(R.id.text);
+			text.setText(mText);
+
+			Toast toast = new Toast(getApplicationContext());
+			toast.setGravity(Gravity.CENTER, 0, 0);
+			toast.setDuration(Toast.LENGTH_SHORT);
+			toast.setView(layout);
+			toast.show();
 		}
 	}
 

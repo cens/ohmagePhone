@@ -99,6 +99,14 @@ public class SurveyActivity extends Activity {
     		Calendar now = Calendar.getInstance();
     		mLaunchTime = dateFormat.format(now.getTime());
     		
+    		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+    		
+    		if (!preferencesHelper.isAuthenticated()) {
+    			Log.i(TAG, "no credentials saved, so launch Login");
+    			startActivity(new Intent(this, LoginActivity.class));
+    			finish();
+    		}
+    		
         	mPrompts = null;
             
             try {
@@ -123,47 +131,26 @@ public class SurveyActivity extends Activity {
         	mReachedEnd = instance.reachedEnd;
         }
         
-        if (mSurveyId.equals("stressButton")) {
-        	//not sure this is in the right place
-        	//auto-fill stressButton survey and submit
-        	submitStressButtonSurvey();
-        } else {
+        setContentView(R.layout.survey_activity);
         
-	        setContentView(R.layout.survey_activity);
-	        
-	        mSurveyTitleText = (TextView) findViewById(R.id.survey_title_text);
-	        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-	        mPromptText = (TextView) findViewById(R.id.prompt_text);
-	        mPromptFrame = (FrameLayout) findViewById(R.id.prompt_frame);
-	        mPrevButton = (Button) findViewById(R.id.prev_button);
-	        mSkipButton = (Button) findViewById(R.id.skip_button);
-	        mNextButton = (Button) findViewById(R.id.next_button);
-	        
-	        mPrevButton.setOnClickListener(mClickListener);
-	        mSkipButton.setOnClickListener(mClickListener);
-	        mNextButton.setOnClickListener(mClickListener);
-	        
-	        mSurveyTitleText.setText(mSurveyTitle);
-	        if (mReachedEnd == false) {
-	        	showPrompt(mCurrentPosition);
-	        } else {
-	        	showSubmitScreen();
-	        }
+        mSurveyTitleText = (TextView) findViewById(R.id.survey_title_text);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        mPromptText = (TextView) findViewById(R.id.prompt_text);
+        mPromptFrame = (FrameLayout) findViewById(R.id.prompt_frame);
+        mPrevButton = (Button) findViewById(R.id.prev_button);
+        mSkipButton = (Button) findViewById(R.id.skip_button);
+        mNextButton = (Button) findViewById(R.id.next_button);
+        
+        mPrevButton.setOnClickListener(mClickListener);
+        mSkipButton.setOnClickListener(mClickListener);
+        mNextButton.setOnClickListener(mClickListener);
+        
+        mSurveyTitleText.setText(mSurveyTitle);
+        if (mReachedEnd == false) {
+        	showPrompt(mCurrentPosition);
+        } else {
+        	showSubmitScreen();
         }
-	}
-	
-	private void submitStressButtonSurvey() {
-		
-		if (((AbstractPrompt)mPrompts.get(0)).getResponseObject() == null) {
-			Toast.makeText(SurveyActivity.this, "There is a bug: default value not being set!", Toast.LENGTH_SHORT).show();
-		} else {
-			((AbstractPrompt)mPrompts.get(0)).setDisplayed(true);
-			((AbstractPrompt)mPrompts.get(0)).setSkipped(false);
-			Log.i(TAG, mPrompts.get(mCurrentPosition).getResponseJson());
-			storeResponse();
-			finish();
-			Toast.makeText(SurveyActivity.this, "Registered stressful event.", Toast.LENGTH_SHORT).show();
-		}
 	}
 	
 	@Override
@@ -195,6 +182,8 @@ public class SurveyActivity extends Activity {
 				if (mReachedEnd) {
 					storeResponse();
 					TriggerFramework.notifySurveyTaken(SurveyActivity.this, mSurveyTitle);
+					SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
+					prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
 					finish();
 				} else {
 					if (((AbstractPrompt)mPrompts.get(mCurrentPosition)).getResponseObject() == null) {
@@ -470,285 +459,6 @@ public class SurveyActivity extends Activity {
 			dbHelper.addResponseRow(campaign, campaignVersion, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response);
 		} else {
 			dbHelper.addResponseRowWithoutLocation(campaign, campaignVersion, username, date, time, timezone, surveyId, surveyLaunchContext, response);
-		}
-	}
-	
-	private static final int DIALOG_UPLOAD_PROGRESS = 1;
-	private static final int DIALOG_NETWORK_ERROR = 2;
-	private static final int DIALOG_INTERNAL_ERROR = 3;
-	private static final int DIALOG_AUTHENTICATION_ERROR = 4;
-	
-	private static final String BCRYPT_KEY = "$2a$04$r8zKliEptVkzoiQgD833Oe";
-	
-	private UploadTask mTask;
-	
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = super.onCreateDialog(id);
-		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-		switch (id) {
-		case DIALOG_UPLOAD_PROGRESS:
-			ProgressDialog pDialog = new ProgressDialog(this);
-			pDialog.setMessage("Uploading data...");
-			pDialog.setCancelable(false);
-			//pDialog.setIndeterminate(true);
-			dialog = pDialog;
-        	break;
-        	
-		case DIALOG_NETWORK_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to communicate with server. Please try again later.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
-        	dialog = dialogBuilder.create();
-        	break;
-        
-		case DIALOG_INTERNAL_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("The server returned an unexpected response. Please try again later.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
-        	dialog = dialogBuilder.create();
-        	break;
-        	
-		case DIALOG_AUTHENTICATION_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to authenticate. Please check username and re-enter password.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
-        	dialog = dialogBuilder.create();        	
-        	break;
-        }
-		
-		return dialog;
-	}
-	
-	private void doUpload() {
-		mTask = new UploadTask(SurveyActivity.this);
-		mTask.execute();
-	}
-	
-	private void onUploadTaskDone(AndWellnessApi.ServerResponse response) {
-		
-		mTask = null;
-		
-		try {
-			dismissDialog(DIALOG_UPLOAD_PROGRESS);
-		} catch (IllegalArgumentException e) {
-			Log.e(TAG, "Attempting to dismiss dialog that had not been shown.");
-			e.printStackTrace();
-		}
-		
-		switch (response.getResult()) {
-		case SUCCESS:
-			Log.d(TAG, "Uploaded!");
-			break;
-		case FAILURE:
-			Log.e(TAG, "Upload FAILED!!");
-			
-			boolean isAuthenticationError = false;
-			
-			for (String code : response.getErrorCodes()) {
-				if (code.charAt(1) == '2') {
-					isAuthenticationError = true;
-				}
-			}
-			
-			if (isAuthenticationError) {
-				showDialog(DIALOG_AUTHENTICATION_ERROR);
-			} else {
-				showDialog(DIALOG_INTERNAL_ERROR);
-			}
-			break;
-		case HTTP_ERROR:
-			Log.e(TAG, "Upload FAILED!!");
-			showDialog(DIALOG_NETWORK_ERROR);
-			break;
-		case INTERNAL_ERROR:
-			Log.e(TAG, "Upload FAILED!!");
-			showDialog(DIALOG_INTERNAL_ERROR);
-			break;
-		}
-	}
-	
-	private static class UploadTask extends AsyncTask<Void, Void, AndWellnessApi.ServerResponse> {
-		
-		private SurveyActivity mActivity;
-		private boolean mIsDone = false;
-		private SharedPreferences mPreferences;
-		private String mUsername;
-		private String mHashedPassword;
-		private AndWellnessApi.ServerResponse mResponse = null;
-
-		private UploadTask(SurveyActivity activity) {
-			this.mActivity = activity;
-		}
-		
-		public void setActivity(SurveyActivity activity) {
-			this.mActivity = activity;
-			if (mIsDone) {
-				notifyTaskDone();
-			}
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			Log.i(TAG, "Upload Task Started.");
-			mActivity.showDialog(DIALOG_UPLOAD_PROGRESS);
-			SharedPreferencesHelper helper = new SharedPreferencesHelper(mActivity);
-			mUsername = helper.getUsername();//"xerox.gimp";
-			mHashedPassword = helper.getHashedPassword();//BCrypt.hashpw("mama.quanta", BCRYPT_KEY);
-		}
-
-		@Override
-		protected AndWellnessApi.ServerResponse doInBackground(Void... params) {
-			
-			AndWellnessApi.ServerResponse response = new AndWellnessApi.ServerResponse(AndWellnessApi.Result.SUCCESS, null);
-			
-			response = uploadResponses();
-			
-			return response;
-		}
-		
-		@Override
-		protected void onPostExecute(AndWellnessApi.ServerResponse response) {
-			super.onPostExecute(response);
-			
-			Log.i(TAG, "Upload Task Finished.");
-			
-			mResponse = response;
-			mIsDone = true;
-			notifyTaskDone();			
-		}
-		
-		private void notifyTaskDone() {
-			if (mActivity != null) {
-				mActivity.onUploadTaskDone(mResponse);
-			}
-		}
-		
-		private AndWellnessApi.ServerResponse uploadResponses() {
-			
-			DbHelper dbHelper = new DbHelper(mActivity);
-			
-			long cutoffTime = System.currentTimeMillis() - SurveyGeotagService.LOCATION_STALENESS_LIMIT;
-			
-			//List<Response> responseRows = dbHelper.getSurveyResponses();
-			List<Response> responseRows = dbHelper.getSurveyResponsesBefore(cutoffTime);
-			
-			JSONArray responsesJsonArray = new JSONArray(); 
-			
-			for (int i = 0; i < responseRows.size(); i++) {
-				JSONObject responseJson = new JSONObject();
-				
-				try {
-					responseJson.put("date", responseRows.get(i).date);
-					responseJson.put("time", responseRows.get(i).time);
-					responseJson.put("timezone", responseRows.get(i).timezone);
-					responseJson.put("location_status", responseRows.get(i).locationStatus);
-					if (! responseRows.get(i).locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
-						JSONObject locationJson = new JSONObject();
-						locationJson.put("latitude", responseRows.get(i).locationLatitude);
-						locationJson.put("longitude", responseRows.get(i).locationLongitude);
-						locationJson.put("provider", responseRows.get(i).locationProvider);
-						locationJson.put("accuracy", responseRows.get(i).locationAccuracy);
-						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						String locationTimestamp = dateFormat.format(new Date(responseRows.get(i).locationTime));
-						locationJson.put("timestamp", locationTimestamp);
-						responseJson.put("location", locationJson);
-					}
-					responseJson.put("survey_id", responseRows.get(i).surveyId);
-					responseJson.put("survey_launch_context", new JSONObject(responseRows.get(i).surveyLaunchContext));;
-					responseJson.put("responses", new JSONArray(responseRows.get(i).response));
-				} catch (JSONException e) {
-					throw new RuntimeException(e);
-				}
-				
-				responsesJsonArray.put(responseJson);
-			}
-			
-			AndWellnessApi.ServerResponse response = AndWellnessApi.surveyUpload(mUsername, mHashedPassword, "android", "TEST", "0.1", responsesJsonArray.toString());
-			//AndWellnessApi.ServerResponse response = AndWellnessApi.mediaUpload(mUsername, mHashedPassword, "android", "TEST", "5ab872fe-3e3f-477b-8a09-7a8c29ab4879", new File(Environment.getExternalStorageDirectory(), "5ab872fe-3e3f-477b-8a09-7a8c29ab4879.jpg"));
-			//AndWellnessApi.ServerResponse response = AndWellnessApi.mobilityUpload(mUsername, mHashedPassword, "android", getMobilityJsonString());
-			//AndWellnessApi.ServerResponse response = AndWellnessApi.authenticate(mUsername, mHashedPassword, "android");
-			
-			if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
-				for (int i = 0; i < responseRows.size(); i++) {
-					dbHelper.removeResponseRow(responseRows.get(i)._id);
-				}
-			}
-			
-			return response;
-		}
-		
-		private String getMobilityJsonString() {
-			
-			String campaign = "TEST";
-			String username = "xerox.gimp";
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Calendar now = Calendar.getInstance();
-			String timezone = TimeZone.getDefault().getID();
-			double latitude = 0;
-			double longitude = 0;
-			
-			JSONArray responsesJsonArray = new JSONArray(); 
-			
-			for (int i = 0; i < 5; i++) {
-				JSONObject responseJson = new JSONObject();
-				
-				now.add(Calendar.MINUTE, 1);
-				
-				try {
-					responseJson.put("date", dateFormat.format(now.getTime()));
-					responseJson.put("time", now.getTimeInMillis());
-					responseJson.put("timezone", timezone);
-					JSONObject locationJson = new JSONObject();
-					locationJson.put("latitude", latitude);
-					locationJson.put("longitude", longitude);
-					locationJson.put("provider", "wifigpslocationservice");
-					locationJson.put("accuracy", 0);
-					responseJson.put("location", locationJson);
-					responseJson.put("subtype", "mode_only");
-					responseJson.put("mode", "still");
-				} catch (JSONException e) {
-					throw new RuntimeException(e);
-				}
-				
-				responsesJsonArray.put(responseJson);
-			}
-			
-			for (int i = 0; i < 5; i++) {
-				JSONObject responseJson = new JSONObject();
-				
-				now.add(Calendar.MINUTE, 1);
-				
-				try {
-					responseJson.put("date", dateFormat.format(now.getTime()));
-					responseJson.put("time", now.getTimeInMillis());
-					responseJson.put("timezone", timezone);
-					JSONObject locationJson = new JSONObject();
-					locationJson.put("latitude", latitude);
-					locationJson.put("longitude", longitude);
-					locationJson.put("provider", "wifigpslocationservice");
-					locationJson.put("accuracy", 0);
-					responseJson.put("location", locationJson);
-					responseJson.put("subtype", "mode_features");
-					responseJson.put("mode", "still");
-					JSONObject featuresJson = new JSONObject();
-					featuresJson.put("speed", 0.0);
-					featuresJson.put("variance", 0.0);
-					featuresJson.put("average", 0.0);
-					featuresJson.put("fft", "0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0");
-					responseJson.put("features", featuresJson);
-				} catch (JSONException e) {
-					throw new RuntimeException(e);
-				}
-				
-				responsesJsonArray.put(responseJson);
-			}
-			
-			return responsesJsonArray.toString();
 		}
 	}
 }

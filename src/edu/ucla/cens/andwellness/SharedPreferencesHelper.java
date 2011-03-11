@@ -17,6 +17,7 @@ public class SharedPreferencesHelper {
 	private static final String KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String KEY_IS_AUTHENTICATED = "is_authenticated";
 	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
+	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_CAMPAIGN_NAME = "campaign_name";
 	private static final String KEY_CAMPAIGN_VERSION = "campaign_version";
 
@@ -66,6 +67,14 @@ public class SharedPreferencesHelper {
 		mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
 	}
 	
+	public Long getLastSurveyTimestamp(String surveyId) {
+		return mPreferences.getLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, 0);
+	}
+	
+	public void putLastSurveyTimestamp(String surveyId, Long timestamp) {
+		mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
+	}
+	
 	public String getCampaignName() {
 		return mPreferences.getString(KEY_CAMPAIGN_NAME, "");
 	}
@@ -80,6 +89,15 @@ public class SharedPreferencesHelper {
 	
 	public void putCampaignVersion(String campaignVersion) {
 		mPreferences.edit().putString(KEY_CAMPAIGN_VERSION, campaignVersion).commit();
+	}
+	
+	public boolean isAuthenticated() {
+		if (getUsername().length() > 0 && getHashedPassword().length() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+		
 	}
 
 	/*public boolean isAuthenticated() {

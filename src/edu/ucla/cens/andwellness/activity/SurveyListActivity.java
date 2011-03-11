@@ -45,11 +45,9 @@ public class SurveyListActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		
 		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
-		String username = preferencesHelper.getUsername();
-			
-		//check password instead (in addition to?) the username  
-		if (username.length() < 1) {
-			Log.i(TAG, "no username saved, must be first run, so launch Login");
+		
+		if (!preferencesHelper.isAuthenticated()) {
+			Log.i(TAG, "no credentials saved, so launch Login");
 			startActivity(new Intent(this, LoginActivity.class));
 			finish();
 		}
@@ -151,12 +149,23 @@ public class SurveyListActivity extends ListActivity {
 		case R.id.status:
 			//WakefulIntentService.sendWakefulWork(this, UploadService.class);
 			Intent intent = new Intent(this, StatusActivity.class);
-			startActivity(intent);
+			startActivityForResult(intent, 1);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (requestCode == 1) {
+			if (resultCode == 123) {
+				finish();
+			}
+		}
+	}
+
 	private BroadcastReceiver mSurveyListChangedReceiver = new BroadcastReceiver() {
 		
 		@Override

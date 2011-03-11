@@ -1,12 +1,15 @@
 package edu.ucla.cens.andwellness.activity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Survey;
 import android.content.Context;
 import android.graphics.Color;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,7 @@ public class SurveyAdapter extends BaseAdapter {
 	private List<Survey> mAvailable;
 	private List<Survey> mUnavailable;
 	private LayoutInflater mInflater;
+	private SharedPreferencesHelper mPreferencesHelper;
 	
 	private static final int VIEW_SURVEY = 0;
 	private static final int VIEW_HEADER = 1;
@@ -46,6 +50,7 @@ public class SurveyAdapter extends BaseAdapter {
 		updateStates();
 				
 		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mPreferencesHelper = new SharedPreferencesHelper(context);
 	}
 
 	@Override
@@ -242,10 +247,18 @@ public class SurveyAdapter extends BaseAdapter {
 				break;
 			}
 			
-			holder.titleText.setText(((Survey)getItem(position)).getTitle());
+			Survey survey = (Survey)getItem(position); 
+			holder.titleText.setText(survey.getTitle());
 			
-			holder.lastTakenDateText.setText("Yesterday");
-			holder.lastTakenTimeText.setText("9:03 AM");
+			Long lastSubmitTime = mPreferencesHelper.getLastSurveyTimestamp(survey.getId());
+			
+			if (lastSubmitTime == 0) {
+				holder.lastTakenDateText.setText("");
+				holder.lastTakenTimeText.setText("");
+			} else {
+				holder.lastTakenDateText.setText(DateFormat.format("MMMM dd", lastSubmitTime));
+				holder.lastTakenTimeText.setText(DateFormat.format("h:mmaa", lastSubmitTime));
+			}
 			
 		} else {
 			HeaderViewHolder holder;
@@ -258,8 +271,6 @@ public class SurveyAdapter extends BaseAdapter {
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
 			}
-			
-			
 			
 			switch (getItemGroup(position)) {
 			case GROUP_PENDING:
@@ -348,4 +359,53 @@ public class SurveyAdapter extends BaseAdapter {
 			}
 		}
 	}
+	
+	/*String getRelativeTimeString(long time) {
+		final int SECOND = 1;
+		final int MINUTE = 60 * SECOND;
+		final int HOUR = 60 * MINUTE;
+		final int DAY = 24 * HOUR;
+		final int MONTH = 30 * DAY;
+		
+		
+		long delta = System.currentTimeMillis() - time;
+
+		if (delta < 0)
+		{
+		  return "not yet";
+		}
+		if (delta < 1 * MINUTE)
+		{
+		  return ts.Seconds == 1 ? "one second ago" : ts.Seconds + " seconds ago";
+		}
+		if (delta < 2 * MINUTE)
+		{
+		  return "a minute ago";
+		}
+		if (delta < 45 * MINUTE)
+		{
+		  return ts.Minutes + " minutes ago";
+		}
+		if (delta < 90 * MINUTE)
+		{
+		  return "an hour ago";
+		}
+		if (delta < 24 * HOUR)
+		{
+		  return ts.Hours + " hours ago";
+		}
+		if (delta < 48 * HOUR)
+		{
+		  return "yesterday";
+		}
+		if (delta < 30 * DAY)
+		{
+		  return ts.Days + " days ago";
+		}
+		if (delta < 12 * MONTH)
+		{
+		  int months = Convert.ToInt32(Math.Floor((double)ts.Days / 30));
+		  return months <= 1 ? "one month ago" : months + " months ago";
+		}
+	}*/
 }

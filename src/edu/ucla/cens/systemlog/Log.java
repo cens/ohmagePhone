@@ -7,6 +7,8 @@ import android.content.Intent;
 
 public class Log {
 	
+	private static final String TAG = "LOG";
+	
 	private static final String DEFAULT_APP_NAME = "default";
 
 	private static String ACTION_LOG_MESSAGE = 
@@ -37,6 +39,7 @@ public class Log {
     
     private static boolean logMessage(String logLevel, String tag, String msg) {
     	if(mContext == null || mAppName == null) {
+    		Log.e(TAG, "SystemLog not initialized");
     		return false;
     	}
     	
