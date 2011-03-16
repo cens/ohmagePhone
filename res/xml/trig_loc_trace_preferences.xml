@@ -13,6 +13,6 @@
         android:dependency="enable_location_tracing"
         android:persistent="true"
         android:title="Upload always"
-        android:summary="Upload all location updates even if it is similar to the previous location" />
+        android:summary="Periodically upload even when the user has not changed the location" />
        
 </PreferenceScreen>
