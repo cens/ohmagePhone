@@ -10,6 +10,10 @@
         android:title="Mobility" />
         
     <item 
+		android:id="@+id/location_trace_settings"
+        android:title="Location tracing" />
+        
+    <item 
 		android:id="@+id/status"
         android:title="Status" />
 </menu>

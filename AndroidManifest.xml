@@ -116,7 +116,7 @@
 				  android:screenOrientation="portrait"/>
 		
     <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
-		
+	<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
     <activity android:name=".triggers.types.location.LocTrigMapsActivity"
 				  android:screenOrientation="portrait"/>
 		

@@ -9,10 +9,14 @@ package edu.ucla.cens.andwellness.triggers.types.location;
  * location.
  */
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -22,6 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
@@ -35,6 +40,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
@@ -49,6 +55,8 @@ public class LocTrigService extends Service
 			 implements LocationListener {
 
 	private static final String DEBUG_TAG = "LocationTrigger";
+	private static final String SYSTEM_LOG_TAG = "LocationTrigger";
+	
 	private static final String REMOTE_CLIENT_NAME = 
 				LocTrigService.class.getName() + ".remote_client";
 	
@@ -67,6 +75,8 @@ public class LocTrigService extends Service
 					LocTrigService.class.getName() + ".update_locations";
 	private static final String ACTION_HANDLE_ALARM =
 					LocTrigService.class.getName() + ".handle_alarm";
+	public static final String ACTION_UPDATE_TRACING_STATUS =
+					LocTrigService.class.getName() + ".update_tracing";
 	
 	public static final String KEY_TRIG_ID = "trigger_id";
 	public static final String KEY_TRIG_DESC = "trigger_description";
@@ -175,6 +185,12 @@ public class LocTrigService extends Service
 	private boolean mGPSStarted = false;
 	private long mMotionDetectTS = 0;
 	private WifiManager.WifiLock mWifiLock = null;
+	//Status of location tracing
+	private boolean mLocTraceEnabled = false;
+	//Upload trace even if it is similar to the previous trace
+	private boolean mLocTraceUploadAlways = false;
+	//Latest location uploaded 
+	private Location mLastLocTrace = new Location(LocationManager.GPS_PROVIDER);
 	
 	//Handler to handle motion detection callback
 	//It is require to run the handling in the current thread
@@ -257,6 +273,9 @@ public class LocTrigService extends Service
 		}
 		else if(intent.getAction().equals(ACTION_UPDATE_LOCATIONS)) {
 			populateLocList();
+		}
+		else if(intent.getAction().equals(ACTION_UPDATE_TRACING_STATUS)) {
+			updateLocTracingState();
 		}
 
 		updateSamplingStatus();
@@ -470,6 +489,23 @@ public class LocTrigService extends Service
 					 SystemClock.elapsedRealtime() + elapsedRT, pi);
 	}
 	
+	private void updateLocTracingState() {
+		SharedPreferences prefs = 
+						  PreferenceManager.getDefaultSharedPreferences(this);
+
+		mLocTraceEnabled = prefs.getBoolean(
+			        	   LocTrigTracingSettActivity.PREF_KEY_TRACING_STATUS, 
+			        	   false); 
+		
+		mLocTraceUploadAlways = prefs.getBoolean(
+								LocTrigTracingSettActivity.PREF_KEY_UPLOAD_ALWAYS, 
+								false);
+		
+		Log.i(DEBUG_TAG, "LocTrigService: Updating tracing status to: " 
+							+ mLocTraceEnabled + ", Upload always = "
+							+ mLocTraceUploadAlways);
+	}
+	
  	private void initState() {
 		Log.i(DEBUG_TAG, "LocTrigService: initState");
 		
@@ -488,6 +524,10 @@ public class LocTrigService extends Service
         mGPSStarted = false;
         mMotionDetectTS = 0;
         mCategPrevTS = LocTrigDB.TIME_STAMP_INVALID;
+        
+        mLastLocTrace.reset();
+        mLastLocTrace.setTime(0);
+        updateLocTracingState();       
 	}
  	
 	private void startSampling() {
@@ -522,7 +562,10 @@ public class LocTrigService extends Service
 		LinkedList<Integer> actTrigs = new LocationTrigger()
 										.getAllActiveTriggerIds(this);
 		
-		if(actTrigs.size() > 0 && mLocList.size() > 0) {
+		//Start sampling if there are active surveys 
+		//or if the location tracing is enabled.
+		if(mLocTraceEnabled || 
+		   (actTrigs.size() > 0 && mLocList.size() > 0)) {
 			startSampling();
 		}
 		else {
@@ -780,6 +823,81 @@ public class LocTrigService extends Service
 		mGPSStarted = false;
 	}
 	
+	/*
+	 * Convenience wrapper for SystemLog api.
+	 * This assumes that the SystemLog is already initialized.
+	 */
+	private void systemLog(String msg) {
+		
+		edu.ucla.cens.systemlog.Log.i(SYSTEM_LOG_TAG, msg);
+	}
+	
+	private void uploadLatestLocation() {
+		
+		final String KEY_LOC_LAT = "latitude";
+		final String KEY_LOC_LONG = "longitude";
+		final String KEY_LOC_ACC = "accuracy";
+		final String KEY_LOC_PROVIDER = "provider";
+		final String KEY_LOC_TIME = "time";
+		final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
+		
+		//Check if any location update has been received
+		if(mLastKnownLocTime == 0 || mLastKnownLoc == null) {
+			return;
+		}
+		
+		//If 'upload always' is not enabled, check for the 
+		//compile time constants and upload only if it is 
+		//allowed
+		if(!mLocTraceUploadAlways) {
+			
+			//Check if the user has moved at least the distance specified
+			if(mLastKnownLoc.distanceTo(mLastLocTrace) < 
+				LocTrigConfig.LOC_TRACE_MIN_DISTANCE_FOR_UPLOAD) {
+			
+				//Before discarding the trace, check the time stamp 
+				//of the last upload. If it has been longer than the
+				//specified time, upload.
+				if(mLastKnownLoc.getTime() - mLastLocTrace.getTime() < 
+					LocTrigConfig.LOC_TRACE_MAX_GAP_BETWEEN_UPLOADS) {
+					
+					Log.i(DEBUG_TAG, "LocTrigService: Skipping the location" +
+							" trace upload");
+					return;
+				}
+			}
+		}
+		
+		//TODO move loc to JSON conversion to a common place
+		//The trigger details upload also has the same logic
+		JSONObject jLoc = new JSONObject();
+		
+
+		try {
+			jLoc.put(KEY_LOC_LAT, mLastKnownLoc.getLatitude());
+			jLoc.put(KEY_LOC_LONG, mLastKnownLoc.getLongitude());
+			jLoc.put(KEY_LOC_ACC, mLastKnownLoc.getAccuracy());
+			jLoc.put(KEY_LOC_PROVIDER, mLastKnownLoc.getProvider());
+			
+			SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_STAMP_FORMAT);
+			jLoc.put(KEY_LOC_TIME, dateFormat.format(
+									new Date(mLastKnownLoc.getTime())));
+		} catch (JSONException e) {
+			
+			Log.e(DEBUG_TAG, "LocTrigService: Error while converting " +
+					" location to JSON for tracing", e);
+			return;
+		}
+		
+		String msg = "Location trace: " + jLoc.toString();
+		//Upload the trace using SystemLog
+		Log.i(DEBUG_TAG, "LocTrigService: Upload location trace: " + msg);
+		systemLog(msg);
+		
+		//Save this location locally
+		mLastLocTrace.set(mLastKnownLoc);
+	}
+	
 	/* Calculate the sleep time and set the GPS sampling alarm */
 	private void reScheduleGPS() {
 		stopGPS();
@@ -792,6 +910,9 @@ public class LocTrigService extends Service
 				startMotionDetection();
 			}
 		}
+		
+		//Upload the latest location for location tracing
+		uploadLatestLocation();
 		
 		releaseWakeLock();
 	}
@@ -1015,10 +1136,14 @@ public class LocTrigService extends Service
 	
 
 	private float getDistanceToClosestCategory() {
+	
 		float minDist = -1;
 		
 		for(LocListItem item : mLocList) {
 			
+			//Check the distance to all locations to watch for.
+			//This includes only those locations which have not 
+			//expired.
 			if(checkIfCategoryExpired(item.categoryId)) {
 				
 				float[] dist = new float[1];
@@ -1035,6 +1160,13 @@ public class LocTrigService extends Service
 				}
 			}
 		}
+		
+		//If there is no closest location, and if the tracing
+		//needs to be done, use a constant factor
+		if(minDist == -1 && mLocTraceEnabled) {
+			minDist = LocTrigConfig.LOC_TRACE_DISTANCE_FACTOR;
+		}
+		
 		return minDist;
 	}
 	
