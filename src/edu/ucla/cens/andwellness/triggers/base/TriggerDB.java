@@ -332,6 +332,7 @@ public class TriggerDB {
 				 + KEY_NOTIF_DESCRIPT + " text, "
 				 + KEY_RUNTIME_DESCRIPT + " text)";
 			
+			
 			//Create the table
 			mDb.execSQL(QUERY_CREATE_TRIGGERS_TB);
 		}

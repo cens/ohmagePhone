@@ -29,6 +29,7 @@ import java.util.Locale;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -36,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -61,7 +63,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,6 +88,14 @@ public class LocTrigMapsActivity extends MapActivity
 			 			LocTrigAddLocBalloon.ActionListener {
 
 	private static final String DEBUG_TAG = "LocationTrigger";
+	
+	private static final String TOOL_TIP_PREF_NAME =
+		LocTrigMapsActivity.class.getName() + "tool_tip_pref";
+	private static final String KEY_TOOL_TIP_DO_NT_SHOW =
+		LocTrigMapsActivity.class.getName() + "tool_tip_do_not_show";
+	
+	//The delay before showing the tool tip
+	private static long TOOL_TIP_DELAY = 500; //ms
 	
 	//Location id for the 'my location' overlay
 	private static final int CURR_LOC_ID = -1;
@@ -233,6 +246,70 @@ public class LocTrigMapsActivity extends MapActivity
     
     	//Display appropriate title text
         updateTitleText();
+        
+        Runnable runnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				showHelpDialog();
+			}
+		};
+		
+		if(!shouldSkipToolTip()) {
+			//Show the tool tip after a small delay
+			new Handler().postDelayed(runnable, TOOL_TIP_DELAY);
+		}
+    }
+    
+    private boolean shouldSkipToolTip() {
+
+		SharedPreferences pref = getSharedPreferences(TOOL_TIP_PREF_NAME, 
+											Context.MODE_PRIVATE);
+		return pref.getBoolean(KEY_TOOL_TIP_DO_NT_SHOW, false);
+    }
+    
+    private void showHelpDialog() {
+    	Dialog dialog = new Dialog(this);
+
+    	dialog.setContentView(R.layout.trigger_loc_maps_tips);
+    	dialog.setTitle("Defining locations");
+    	dialog.setOwnerActivity(this);
+    	dialog.show();
+    	
+    	WebView webView = (WebView) dialog.findViewById(R.id.web_view);
+    	webView.loadUrl("file:///android_asset/trigger_loc_maps_help.html");
+    	
+    	CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.check_do_not_show);
+    	checkBox.setChecked(shouldSkipToolTip());
+    	checkBox.setOnCheckedChangeListener(
+    			new CompoundButton.OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, 
+											boolean isChecked) {
+				
+				SharedPreferences pref = LocTrigMapsActivity.this
+											.getSharedPreferences(
+												TOOL_TIP_PREF_NAME, 
+												Context.MODE_PRIVATE);
+
+				SharedPreferences.Editor editor = pref.edit();
+				editor.putBoolean(KEY_TOOL_TIP_DO_NT_SHOW, isChecked);
+				editor.commit();
+			}
+		});
+    	
+    	Button button = (Button) dialog.findViewById(R.id.button_close);
+    	button.setTag(dialog);
+    	button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Object tag = v.getTag();
+				if(tag != null && tag instanceof Dialog) {
+					((Dialog) tag).dismiss();
+				}
+			}
+		});
     }
     
     @Override
@@ -303,11 +380,9 @@ public class LocTrigMapsActivity extends MapActivity
         	.setIcon(android.R.drawable.ic_menu_mylocation);
         menu.add(0, MENU_SEARCH_ID, 0, R.string.menu_search)
         	.setIcon(android.R.drawable.ic_menu_search);
-        
-        /* TODO: Enable this
         menu.add(0, MENU_HELP_ID, 0, R.string.menu_help)
         	.setIcon(android.R.drawable.ic_menu_help);
-        	*/
+        
         return ret;
     }
     
@@ -361,11 +436,7 @@ public class LocTrigMapsActivity extends MapActivity
     		return true;
     		
     	case MENU_HELP_ID: //Show help
-    		new AlertDialog.Builder(this)
-    					   .setTitle(R.string.maps_help_title)
-    					   .setMessage(R.string.maps_help_text)
-    					   .setNeutralButton(R.string.close, null)
-    					   .show();
+    		showHelpDialog();
     		return true;
     	}
     	

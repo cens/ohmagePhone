@@ -266,9 +266,10 @@ public class LocTrigSettingsActivity extends ListActivity
 	}
 
     private void deleteCategory(int categId) {
+    	String categName = mDb.getCategoryName(categId);
     	mDb.removeCategory(categId);
 		refreshList();
-		removeTriggers(mDb.getCategoryName(categId));
+		removeTriggers(categName);
 		
 		Intent i = new Intent(this, LocTrigService.class);
     	i.setAction(LocTrigService.ACTION_UPDATE_LOCATIONS);

@@ -63,7 +63,7 @@ public class TimeTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context) {
+	public void launchTriggerCreateActivity(Context context, boolean adminMode) {
 		
 		TimeTrigEditActivity.setOnExitListener(
 					new TimeTrigEditActivity.ExitListener() {

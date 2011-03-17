@@ -123,6 +123,13 @@ public class LocTrigDB {
 					null, null, null, null);
 	}
 	
+	/* Get a single category from category name */
+	public Cursor getCategory(String categName) {
+		return mDb.query(TABLE_CATEGORIES, null, 
+					KEY_NAME + "=?", new String[] {categName}, 
+					null, null, null);
+	}
+	
 	/* Get category name corresponding to a category id */
 	public String getCategoryName(int categId) {
 		String name = null;
@@ -229,13 +236,14 @@ public class LocTrigDB {
 		return true;
 	}
 	
-	/* Get all locations corresponding to a category */
+	/* Get all locations corresponding to a category id */
 	public Cursor getLocations(int categoryId) {		
 		return mDb.rawQuery("SELECT "+ KEY_ID + ", " + KEY_LAT + ", " + KEY_LONG + ", " + KEY_RADIUS
 				+ " FROM " + TABLE_LOCATIONS 
 				+ " WHERE " + KEY_CATEGORY_ID + " = " + categoryId,
 				null);
 	}
+	
 	
 	/* Get all locations */
 	public Cursor getAllLocations() {
