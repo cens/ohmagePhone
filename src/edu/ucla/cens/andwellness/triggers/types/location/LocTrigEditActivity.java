@@ -3,6 +3,8 @@ package edu.ucla.cens.andwellness.triggers.types.location;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.triggers.config.TrigUserConfig;
 import edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference;
+import edu.ucla.cens.andwellness.triggers.utils.TrigListPreference;
 
 /*
  * Editor activity for location based trigger. This activity is
@@ -45,6 +48,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 	private static final String PREF_KEY_RENETRY_INTERVAL = "minimum_reentry";
 	
 	private static final int DIALOG_ID_INVALID_TIME_ALERT = 0;
+	private static final int DIALOG_ID_DEFINE_LOC_PROMPT = 1;
 	
 	private boolean mAdminMode = false;
 	
@@ -72,10 +76,11 @@ public class LocTrigEditActivity extends PreferenceActivity
 		mTrigDesc = new LocTrigDesc();
 		
 		initializeCategories();
-		ListPreference locPref = (ListPreference) getPreferenceScreen()
-									.findPreference(PREF_KEY_LOCATION);
+		TrigListPreference locPref = (TrigListPreference) getPreferenceScreen()
+										.findPreference(PREF_KEY_LOCATION);
 		locPref.setEntries(mCategories);
 		locPref.setEntryValues(mCategories);
+		
 		if(mCategories.length == 0) {
 			locPref.setEnabled(false);
 		}
@@ -84,6 +89,24 @@ public class LocTrigEditActivity extends PreferenceActivity
 			locPref.setSummary(mCategories[0]);
 		}
 		
+		//The cancel button prompts the user to
+		//launch the settings activity
+		locPref.setOnCancelListener(
+				new TrigListPreference.onCancelListener() {
+			
+			@Override
+			public void onCancel() {
+				//TODO - currently this exits this activity
+				//In order to come back to this screen after editing
+				//locations, we need to reinitialize the UI as there
+				//could be changes in the location list. Also, the currently
+				//selected location might have been deleted.
+				new LocationTrigger().launchSettingsEditActivity(
+						LocTrigEditActivity.this, mAdminMode);
+				LocTrigEditActivity.this.finish();
+			}
+		});
+
 		PreferenceScreen screen = getPreferenceScreen();
 		int prefCount = screen.getPreferenceCount();
 		for(int i = 0; i < prefCount; i++) {
@@ -101,6 +124,8 @@ public class LocTrigEditActivity extends PreferenceActivity
 		minIntervalPref.setSummary(LocTrigDesc.getGlobalMinReentryInterval(this) + 
 									" minutes");
 
+		mAdminMode = getIntent().getBooleanExtra(KEY_ADMIN_MODE, false);
+		
 		String config = null;
 		
 		if(savedInstanceState == null) {
@@ -112,7 +137,6 @@ public class LocTrigEditActivity extends PreferenceActivity
 		
 		if(config != null) {	
 			mTrigId = getIntent().getIntExtra(KEY_TRIG_ID, 0);
-			mAdminMode = getIntent().getBooleanExtra(KEY_ADMIN_MODE, false);
 			
 			if(mTrigDesc.loadString(config)) {
 				initializeGUI();
@@ -135,14 +159,48 @@ public class LocTrigEditActivity extends PreferenceActivity
 	
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		if(id == DIALOG_ID_INVALID_TIME_ALERT) {
-			final String msg = "Make sure that the End Time is after the Start Time";
+		switch(id) {
+		
+		case DIALOG_ID_INVALID_TIME_ALERT: 
+			final String msgErr = 
+				"Make sure that the End Time is after the Start Time";
 
 			return new AlertDialog.Builder(this)
 				.setTitle("Invalid time settings!")
 				.setNegativeButton("Cancel", null)
-				.setMessage(msg)
-				.create();			
+				.setMessage(msgErr)
+				.create();
+
+		case DIALOG_ID_DEFINE_LOC_PROMPT:
+			final String msgPrompt = 
+				"'" + mTrigDesc.getLocation() + "' "
+				+ "is not defined yet. Do you want to define it now?";
+
+			return new AlertDialog.Builder(this)
+				.setTitle("Location not defined")
+				.setNegativeButton("No", 
+						new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						//Exit the acivity if the user says no
+						LocTrigEditActivity.this.finish();
+						//Call the done listener
+						mExitListener.onDone(LocTrigEditActivity.this, 
+										mTrigId, mTrigDesc.toString());
+					}
+				})
+				.setPositiveButton("Yes", 
+						new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						launchMapsActivity(mTrigDesc.getLocation());
+					}
+				})
+				.setMessage(msgPrompt)
+				.create();
+			
 		}
 	
 		return null;
@@ -167,6 +225,32 @@ public class LocTrigEditActivity extends PreferenceActivity
 		db.close();
 	}
 	
+	private int getLocationCount(String categName) {
+		LocTrigDB db = new LocTrigDB(this);
+		db.open();
+		
+		Cursor cCateg = db.getCategory(categName);
+		
+		int categId = -1;
+		if(cCateg.moveToFirst()) {
+			categId = cCateg.getInt(
+					  cCateg.getColumnIndexOrThrow(LocTrigDB.KEY_ID));
+		}
+		cCateg.close();
+		
+		int count = 0;
+		if(categId != -1) {
+			Cursor cLocs = db.getLocations(categId);
+			if(cLocs.moveToFirst()) {
+				count = cLocs.getCount();
+			}
+			cLocs.close();
+		}
+		
+		db.close();
+		
+		return count;
+	}
 	
 	public static void setOnExitListener(ExitListener listener) {
 		
@@ -255,6 +339,23 @@ public class LocTrigEditActivity extends PreferenceActivity
 		}
 	}
 
+	private void launchMapsActivity(String categName) {
+		
+		LocTrigDB db = new LocTrigDB(this);
+		db.open();
+		
+		Cursor c = db.getCategory(categName);
+		if(c.moveToFirst()) {
+			int categId = c.getInt(
+					      c.getColumnIndexOrThrow(LocTrigDB.KEY_ID));
+			Intent i = new Intent(this, LocTrigMapsActivity.class);
+	        i.putExtra(LocTrigDB.KEY_ID, categId);
+			startActivity(i);
+		}
+		c.close();
+		db.close();
+	}
+	
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()) {
@@ -264,6 +365,14 @@ public class LocTrigEditActivity extends PreferenceActivity
 				updateTriggerDesc();
 				
 				if(mTrigDesc.validate()) {
+					
+					//If the location is not defined yet, prompt the
+					//user to do so
+					if(getLocationCount(mTrigDesc.getLocation()) == 0) {
+						showDialog(DIALOG_ID_DEFINE_LOC_PROMPT);
+						return;
+					}
+					
 					mExitListener.onDone(this, mTrigId, mTrigDesc.toString());
 				}
 				else {

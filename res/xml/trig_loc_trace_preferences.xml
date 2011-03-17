@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<CheckBoxPreference
+        android:key="enable_location_tracing"
+        android:title="Location tracing"
+        android:persistent="true"
+        android:summary="Track and upload user location changes"/>
+        
+    <CheckBoxPreference
+        android:key="enable_trace_upload_always"
+        android:dependency="enable_location_tracing"
+        android:persistent="true"
+        android:title="Upload always"
+        android:summary="Periodically upload even when the user has not changed the location" />
+       
+</PreferenceScreen>

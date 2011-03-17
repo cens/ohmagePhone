@@ -214,7 +214,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		if(rangePref.isChecked()) {
 			mTrigDesc.setRangeEnabled(true);
 			
-			if(randPref.isEnabled() && randPref.isChecked()) {
+			if(randPref.isChecked()) {
 				mTrigDesc.setRandomized(true);
 			}
 			else {

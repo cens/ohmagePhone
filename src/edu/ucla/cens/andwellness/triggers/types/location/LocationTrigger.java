@@ -105,7 +105,7 @@ public class LocationTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context) {
+	public void launchTriggerCreateActivity(Context context, boolean adminMode) {
 
 		//Register a listener with the editor
 		//activity to listen for the 'done' event
@@ -122,8 +122,9 @@ public class LocationTrigger extends TriggerBase {
 		});
 		
 		
-		context.startActivity(new Intent(context, 
-							  LocTrigEditActivity.class));
+		Intent i = new Intent(context, LocTrigEditActivity.class);
+		i.putExtra(LocTrigEditActivity.KEY_ADMIN_MODE, adminMode);
+		context.startActivity(i);
 	}
 
 	@Override

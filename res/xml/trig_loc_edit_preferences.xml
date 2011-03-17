@@ -2,10 +2,11 @@
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
          
-	<ListPreference
+	<edu.ucla.cens.andwellness.triggers.utils.TrigListPreference
 	    android:key="trigger_location"
 	    android:persistent="false"
 	    android:title="Trigger location"
+	    android:negativeButtonText="Manage locations"
 	    android:summary="(Not selected)" />
 	    
 	<CheckBoxPreference

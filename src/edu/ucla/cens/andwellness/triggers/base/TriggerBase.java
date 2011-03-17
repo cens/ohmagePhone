@@ -352,7 +352,7 @@ public abstract class TriggerBase {
 	 * can save the trigger description to the db using the API addNewTrigger() 
 	 * provided by this class.
 	 */
-	public abstract void launchTriggerCreateActivity(Context context);
+	public abstract void launchTriggerCreateActivity(Context context, boolean adminMode);
 	
 	/*
 	 * Launch the activity to edit an existing trigger of this type. The activity

@@ -30,6 +30,7 @@ import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Survey;
+import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 
@@ -150,6 +151,10 @@ public class SurveyListActivity extends ListActivity {
 		case R.id.mobility_settings:
 			MobilityInterface.showMobilityOptions(this);
 			//Toast.makeText(this, "Mobility is not available.", Toast.LENGTH_SHORT).show();
+			return true;
+			
+		case R.id.location_trace_settings:
+			LocationTriggerAPI.launchLocationTracingSettingsActivity(this);
 			return true;
 			
 		case R.id.status:

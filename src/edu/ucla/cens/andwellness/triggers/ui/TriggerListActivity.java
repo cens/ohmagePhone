@@ -474,7 +474,8 @@ public class TriggerListActivity extends ListActivity
 			@Override
 			public void onClick(String trigType) {
 				mTrigMap.getTrigger(trigType)
-						.launchTriggerCreateActivity(TriggerListActivity.this);
+						.launchTriggerCreateActivity(TriggerListActivity.this, 
+													 isAdminLoggedIn());
 			}
 		});
 		
