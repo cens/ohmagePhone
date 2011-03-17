@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 
-
-
 public class Log {
 	
 	private static final String TAG = "LOG";
@@ -37,14 +35,6 @@ public class Log {
     public static void initialize(Context context, String appName) {
     	mContext = context.getApplicationContext();
     	mAppName = appName;
-    	
-    	/*try {
-			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
-			mPackageInstalled = true;
-		} catch (NameNotFoundException e) {
-			android.util.Log.e(TAG, "SystemLog not installed");
-			mPackageInstalled = false;
-		}*/
     }
     
     private static boolean logMessage(String logLevel, String tag, String msg) {
@@ -52,17 +42,6 @@ public class Log {
     		android.util.Log.e(TAG, "SystemLog not initialized");
     		return false;
     	}
-    	
-/*    	//if systemlog is uninstalled after the initialize call, no logcat logging will happen
-    	if (!mPackageInstalled) {
-    		try {
-    			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
-    			mPackageInstalled = true;
-    		} catch (NameNotFoundException e) {
-    			mPackageInstalled = false;
-    			return false;
-    		}
-    	}*/
     	
     	Intent i = new Intent(ACTION_LOG_MESSAGE);
 
