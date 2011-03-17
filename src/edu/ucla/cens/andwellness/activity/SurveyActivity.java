@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import edu.ucla.cens.andwellness.AndWellnessApi;
+import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
@@ -47,7 +48,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -84,9 +86,6 @@ public class SurveyActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        /*bindService(new Intent(ISystemLog.class.getName()), Log.SystemLogConnection, BIND_AUTO_CREATE);
-        Log.setAppName("AndWellness");*/
-        
         mSurveyId = getIntent().getStringExtra("survey_id");
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
@@ -100,6 +99,10 @@ public class SurveyActivity extends Activity {
     		mLaunchTime = dateFormat.format(now.getTime());
     		
     		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+    		
+    		if (preferencesHelper.isUserDisabled()) {
+            	((AndWellnessApplication) getApplication()).resetAll();
+            }
     		
     		if (!preferencesHelper.isAuthenticated()) {
     			Log.i(TAG, "no credentials saved, so launch Login");
@@ -436,8 +439,9 @@ public class SurveyActivity extends Activity {
 		try {
 			surveyLaunchContextJson.put("launch_time", mLaunchTime);
 			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mSurveyTitle));
-		} catch (JSONException e1) {
-			throw new RuntimeException(e1);
+		} catch (JSONException e) {
+			Log.e(TAG, "JSONException when trying to generate survey launch context json", e);
+			throw new RuntimeException(e);
 		}
 		String surveyLaunchContext = surveyLaunchContextJson.toString();
 		
@@ -447,7 +451,14 @@ public class SurveyActivity extends Activity {
 			try {
 				itemJson.put("prompt_id", ((AbstractPrompt)mPrompts.get(i)).getId());
 				itemJson.put("value", ((AbstractPrompt)mPrompts.get(i)).getResponseObject());
+				Object extras = ((AbstractPrompt)mPrompts.get(i)).getExtrasObject();
+				if (extras != null) {
+					// as of now we don't actually have "extras" we only have "custom_choices" for the custom types
+					// so this is currently only used by single_choice_custom and multi_choice_custom
+					itemJson.put("custom_choices", extras);
+				}
 			} catch (JSONException e) {
+				Log.e(TAG, "JSONException when trying to generate response json", e);
 				throw new RuntimeException(e);
 			}
 			responseJson.put(itemJson);

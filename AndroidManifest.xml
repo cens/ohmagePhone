@@ -20,7 +20,7 @@
 	
     <application android:name=".AndWellnessApplication" android:icon="@drawable/icon" android:label="@string/app_name">
 
-		<activity android:name=".activity.SurveyActivity"
+		<activity android:name=".activity.SurveyActivity" android:launchMode="standard"
 			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
 			<!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,7 @@
             </intent-filter>
 		--></activity>
 		
-		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light.NoTitleBar"
+		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="AndWellness Surveys"
 			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,10 +42,10 @@
         	</intent-filter>
     	</receiver>
     
-    <activity android:name=".activity.LoginActivity">
+    <activity android:name=".activity.LoginActivity" android:label="AndWellness Login">
     </activity>
     
-    <activity android:name=".activity.StatusActivity">
+    <activity android:name=".activity.StatusActivity" android:label="AndWellness Status">
     </activity>
     
     <receiver android:name=".service.BootReceiver">

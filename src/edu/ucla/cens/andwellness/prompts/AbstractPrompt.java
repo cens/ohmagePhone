@@ -61,6 +61,10 @@ public abstract class AbstractPrompt implements Prompt {
 		}
 	}
 	
+	public Object getExtrasObject() {
+		return getTypeSpecificExtrasObject();
+	}
+	
 	@Override
 	public String getResponseJson() {
 		
@@ -78,6 +82,8 @@ public abstract class AbstractPrompt implements Prompt {
 	}
 	
 	protected abstract Object getTypeSpecificResponseObject();
+	
+	protected abstract Object getTypeSpecificExtrasObject();
 	
 	protected abstract void clearTypeSpecificResponseData();
 

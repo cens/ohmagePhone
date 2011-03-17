@@ -103,7 +103,7 @@ public class Notifier {
 										Context.NOTIFICATION_SERVICE);
 		
 		
-		Notification notif = new Notification(R.drawable.apple_logo,
+		Notification notif = new Notification(R.drawable.survey_notification,
 											  title, System.currentTimeMillis());
 
 		if(!quiet) {

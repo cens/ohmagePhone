@@ -43,6 +43,11 @@ public class HoursBeforeNowPrompt extends AbstractPrompt {
 	protected Object getTypeSpecificResponseObject() {
 		return Integer.valueOf(mValue);
 	}
+	
+	@Override
+	protected Object getTypeSpecificExtrasObject() {
+		return null;
+	}
 
 	@Override
 	public View getView(Context context) {

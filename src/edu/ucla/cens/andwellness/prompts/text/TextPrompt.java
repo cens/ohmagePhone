@@ -40,6 +40,11 @@ public class TextPrompt extends AbstractPrompt {
 			return mText;
 		}
 	}
+	
+	@Override
+	protected Object getTypeSpecificExtrasObject() {
+		return null;
+	}
 
 	@Override
 	public View getView(Context context) {

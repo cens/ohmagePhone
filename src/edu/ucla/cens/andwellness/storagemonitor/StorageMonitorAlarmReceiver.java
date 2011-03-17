@@ -3,7 +3,8 @@ package edu.ucla.cens.andwellness.storagemonitor;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 
 public class StorageMonitorAlarmReceiver extends BroadcastReceiver {
 	

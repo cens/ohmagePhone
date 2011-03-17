@@ -61,6 +61,11 @@ public class PhotoPrompt extends AbstractPrompt {
 	}
 	
 	@Override
+	protected Object getTypeSpecificExtrasObject() {
+		return null;
+	}
+	
+	@Override
 	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			
@@ -68,15 +73,22 @@ public class PhotoPrompt extends AbstractPrompt {
 				uuid = UUID.randomUUID().toString();
 			}
 			
-			Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(IMAGE_PATH + "/temp.jpg"), 800, 600, false);
+			Bitmap source = BitmapFactory.decodeFile(IMAGE_PATH + "/temp.jpg");
+			Bitmap scaled;
+			
+			if (source.getWidth() > source.getHeight()) {
+				scaled = Bitmap.createScaledBitmap(source, 800, 600, false);
+			} else {
+				scaled = Bitmap.createScaledBitmap(source, 600, 800, false);
+			}			
 			
 			try {
-			       FileOutputStream out = new FileOutputStream(IMAGE_PATH + "/temp" + uuid + ".jpg");
-			       bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
-			       out.flush();
-			       out.close();
+		       FileOutputStream out = new FileOutputStream(IMAGE_PATH + "/temp" + uuid + ".jpg");
+		       scaled.compress(Bitmap.CompressFormat.JPEG, 80, out);
+		       out.flush();
+		       out.close();
 			} catch (Exception e) {
-			       e.printStackTrace();
+		       e.printStackTrace();
 			}
 			
 			new File(IMAGE_PATH + "/temp.jpg").delete();

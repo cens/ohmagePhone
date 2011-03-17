@@ -78,7 +78,7 @@ public class PromptXmlParser {
 		int eventType = parser.getEventType();
 		while (eventType != XmlPullParser.END_DOCUMENT) {
 			
-			if (map != null && map.containsKey("campaign_name") && map.containsKey("campaign_version")) {
+			if (map != null && map.containsKey("campaign_name") && map.containsKey("campaign_version") && map.containsKey("server_url")) {
 				return map;
 			}
 			
@@ -97,6 +97,8 @@ public class PromptXmlParser {
 					map.put("campaign_name", parser.nextText());
 				} else if (tagName.equalsIgnoreCase(CAMPAIGN_VERSION)) {
 					map.put("campaign_version", parser.nextText());
+				} else if (tagName.equalsIgnoreCase(SERVER_URL)) {
+					map.put("server_url", parser.nextText());
 				} 
 				break;
 				

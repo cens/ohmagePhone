@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
+import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
@@ -30,7 +31,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +68,10 @@ public class StressButtonService extends IntentService {
 		String launchTime = dateFormat.format(now.getTime());
 		
 		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+		
+		if (preferencesHelper.isUserDisabled()) {
+        	((AndWellnessApplication) getApplication()).resetAll();
+        }
 		
 		if (!preferencesHelper.isAuthenticated()) {
 			Log.i(TAG, "no credentials saved, so launch Login");

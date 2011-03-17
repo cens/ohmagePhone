@@ -13,7 +13,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 
 public class SurveyGeotagService extends Service {
 

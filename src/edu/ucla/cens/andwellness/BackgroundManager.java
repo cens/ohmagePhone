@@ -17,7 +17,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources.NotFoundException;
 import android.os.SystemClock;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 import android.widget.Toast;
 
 public class BackgroundManager {
@@ -42,6 +43,9 @@ public class BackgroundManager {
 				prefs.putCampaignVersion(map.get("campaign_version"));
 				parsedCampaign = true;
 			} 
+			if (map.containsKey("server_url")) {
+				prefs.putServerUrl(map.get("server_url"));
+			}
 		} catch (NotFoundException e) {
 			Log.e(TAG, "Error parsing xml for campaign info", e);
 		} catch (XmlPullParserException e) {

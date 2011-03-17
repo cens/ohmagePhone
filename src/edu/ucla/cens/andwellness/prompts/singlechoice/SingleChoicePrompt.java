@@ -17,7 +17,8 @@ import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -69,6 +70,11 @@ public class SingleChoicePrompt extends AbstractPrompt {
 	@Override
 	protected void clearTypeSpecificResponseData() {
 		mSelectedIndex = -1;
+	}
+	
+	@Override
+	protected Object getTypeSpecificExtrasObject() {
+		return null;
 	}
 	
 	/*@Override

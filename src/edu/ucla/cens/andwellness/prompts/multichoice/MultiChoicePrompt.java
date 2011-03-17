@@ -33,8 +33,6 @@ public class MultiChoicePrompt extends AbstractPrompt {
 	private List<KVLTriplet> mChoices;
 	private ArrayList<Integer> mSelectedIndexes;
 	
-	
-
 	public MultiChoicePrompt() {
 		super();
 		mSelectedIndexes = new ArrayList<Integer>();
@@ -61,6 +59,11 @@ public class MultiChoicePrompt extends AbstractPrompt {
 				jsonArray.put(Integer.decode(mChoices.get(index).key));
 		}
 		return jsonArray;
+	}
+	
+	@Override
+	protected Object getTypeSpecificExtrasObject() {
+		return null;
 	}
 
 	@Override

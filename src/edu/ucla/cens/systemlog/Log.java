@@ -2,6 +2,7 @@ package edu.ucla.cens.systemlog;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 
 
@@ -31,10 +32,19 @@ public class Log {
 	
     private static String mAppName = DEFAULT_APP_NAME;
     private static Context mContext = null;
+    private static boolean mPackageInstalled;
 
     public static void initialize(Context context, String appName) {
     	mContext = context.getApplicationContext();
     	mAppName = appName;
+    	
+    	try {
+			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
+			mPackageInstalled = true;
+		} catch (NameNotFoundException e) {
+			android.util.Log.e(TAG, "SystemLog not installed");
+			mPackageInstalled = false;
+		}
     }
     
     private static boolean logMessage(String logLevel, String tag, String msg) {
@@ -43,7 +53,18 @@ public class Log {
     		return false;
     	}
     	
-		Intent i = new Intent(ACTION_LOG_MESSAGE);
+    	//if systemlog is uninstalled after the initialize call, no logcat logging will happen
+    	if (!mPackageInstalled) {
+    		try {
+    			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
+    			mPackageInstalled = true;
+    		} catch (NameNotFoundException e) {
+    			mPackageInstalled = false;
+    			return false;
+    		}
+    	}
+    	
+    	Intent i = new Intent(ACTION_LOG_MESSAGE);
 
 		i.putExtra(KEY_LOG_LEVEL, logLevel);
 		i.putExtra(KEY_APP_NAME, mAppName);

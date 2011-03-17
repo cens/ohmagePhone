@@ -10,6 +10,7 @@ import edu.ucla.cens.andwellness.Survey;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -256,8 +257,17 @@ public class SurveyAdapter extends BaseAdapter {
 				holder.lastTakenDateText.setText("");
 				holder.lastTakenTimeText.setText("");
 			} else {
-				holder.lastTakenDateText.setText(DateFormat.format("MMMM dd", lastSubmitTime));
-				holder.lastTakenTimeText.setText(DateFormat.format("h:mmaa", lastSubmitTime));
+				//String [] dayAndTime = getDayAndTimeStrings(System.currentTimeMillis(), lastSubmitTime);
+				int flags = DateUtils.FORMAT_ABBREV_RELATIVE | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH;
+				String relativeTime = DateUtils.getRelativeDateTimeString(mContext, lastSubmitTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, flags).toString();
+				String [] strings = relativeTime.split(", ");
+				if (strings.length == 2) {
+					holder.lastTakenDateText.setText(strings[0]);
+					holder.lastTakenTimeText.setText(strings[1]);
+				} else {
+					holder.lastTakenDateText.setText("");
+					holder.lastTakenTimeText.setText(relativeTime);
+				}
 			}
 			
 		} else {
@@ -290,45 +300,6 @@ public class SurveyAdapter extends BaseAdapter {
 			}
 		}
 		
-		/*SurveyViewHolder holder;
-		
-		if (convertView == null) {
-			convertView = mInflater.inflate(mLayoutId, parent, false);
-			holder = new SurveyViewHolder();
-			holder.stateView = convertView.findViewById(R.id.survey_state_view);
-			holder.titleText = (TextView) convertView.findViewById(R.id.survey_title_text);
-			holder.lastTakenDateText = (TextView) convertView.findViewById(R.id.survey_last_taken_date_text);
-			holder.lastTakenTimeText = (TextView) convertView.findViewById(R.id.survey_last_taken_time_text);
-			convertView.setTag(holder);
-		} else {
-			holder = (SurveyViewHolder) convertView.getTag();
-		}
-		
-		getItem(position);
-		
-		if (mSurveys.get(position).isTriggered()) {
-			holder.stateView.setBackgroundColor(Color.rgb(1, 173, 73));
-		} else {
-			holder.stateView.setBackgroundColor(Color.rgb(56, 160, 220));
-		}
-		holder.titleText.setText(mSurveys.get(position).getTitle());
-		
-		holder.lastTakenDateText.setText("Yesterday");
-		holder.lastTakenTimeText.setText("9:03 AM");
-		
-		if (position != 1) {
-			convertView.setEnabled(true);
-			holder.titleText.setTextColor(Color.BLACK);
-			holder.lastTakenDateText.setTextColor(Color.DKGRAY);
-			holder.lastTakenTimeText.setTextColor(Color.DKGRAY);
-		} else {
-			convertView.setEnabled(false);
-			holder.titleText.setTextColor(Color.GRAY);
-			holder.lastTakenDateText.setTextColor(Color.GRAY);
-			holder.lastTakenTimeText.setTextColor(Color.GRAY);
-			holder.stateView.setBackgroundColor(Color.LTGRAY);
-		}*/
-		
 		return convertView;
 	}
 
@@ -359,6 +330,61 @@ public class SurveyAdapter extends BaseAdapter {
 			}
 		}
 	}
+	
+	/*String [] getDayAndTimeStrings(long nowInMillis, long thenInMillis) {
+		
+		String [] dayAndTime = new String [2];
+		dayAndTime[0] = DateFormat.format("MMMM dd", thenInMillis).toString();
+		dayAndTime[1] = DateFormat.format("h:mmaa", thenInMillis).toString();
+		
+		Calendar now = Calendar.getInstance();
+		now.setTimeInMillis(nowInMillis);
+		
+		Calendar then = Calendar.getInstance();
+		then.setTimeInMillis(thenInMillis);
+		
+		int yearDiff = now.get(Calendar.YEAR) - then.get(Calendar.YEAR);
+		
+		if (yearDiff == 0) {
+			
+			int monthDiff = now.get(Calendar.MONTH) - then.get(Calendar.MONTH);
+			
+			if (monthDiff == 0) {
+				
+				int weekDiff = now.get(Calendar.WEEK_OF_MONTH) - then.get(Calendar.WEEK_OF_MONTH);
+				
+				if (weekDiff == 0) {
+					
+					int dayDiff = now.get(Calendar.DAY_OF_MONTH) - then.get(Calendar.DAY_OF_MONTH);
+					
+					
+					
+				} else if (weekDiff == 1) {
+					dayAndTime[0] = "";
+					dayAndTime[1] = "Last week";
+				} else {
+					dayAndTime[0] = "";
+					dayAndTime[1] = String.valueOf(weekDiff) + " weeks ago";
+				}
+				
+			} else if (monthDiff == 1) {
+				dayAndTime[0] = "";
+				dayAndTime[1] = "Last month";
+			} else {
+				dayAndTime[0] = "";
+				dayAndTime[1] = String.valueOf(monthDiff) + " months ago";
+			}
+			
+		} else if (yearDiff == 1) {
+			dayAndTime[0] = "";
+			dayAndTime[1] = "Last year";
+		} else {
+			dayAndTime[0] = "";
+			dayAndTime[1] = String.valueOf(yearDiff) + " years ago";
+		}
+		
+		return dayAndTime;
+	}*/
 	
 	/*String getRelativeTimeString(long time) {
 		final int SECOND = 1;

@@ -17,13 +17,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources.NotFoundException;
 import android.os.Bundle;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
@@ -45,6 +47,10 @@ public class SurveyListActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		
 		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+		
+		if (preferencesHelper.isUserDisabled()) {
+        	((AndWellnessApplication) getApplication()).resetAll();
+        }
 		
 		if (!preferencesHelper.isAuthenticated()) {
 			Log.i(TAG, "no credentials saved, so launch Login");

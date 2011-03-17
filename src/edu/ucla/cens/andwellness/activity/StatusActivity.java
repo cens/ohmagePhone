@@ -17,6 +17,7 @@ import jbcrypt.BCrypt;
 import edu.ucla.cens.andwellness.AndWellnessApi;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
+import edu.ucla.cens.andwellness.Utilities;
 import edu.ucla.cens.andwellness.AndWellnessApi.Result;
 import edu.ucla.cens.andwellness.AndWellnessApi.ServerResponse;
 import edu.ucla.cens.andwellness.R.id;
@@ -30,12 +31,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -49,6 +52,7 @@ public class StatusActivity extends Activity {
 	private static final int DIALOG_NETWORK_ERROR = 2;
 	private static final int DIALOG_INTERNAL_ERROR = 3;
 	private static final int DIALOG_AUTHENTICATION_ERROR = 4;
+	private static final int DIALOG_USER_DISABLED = 5;
 	
 	private static final int UPLOAD_RESPONSES = 1;
 	private static final int UPLOAD_MOBILITY = 2;
@@ -92,6 +96,7 @@ public class StatusActivity extends Activity {
 		mUploadResponsesButton.setOnClickListener(mClickListener);
 		mUploadMobilityButton.setOnClickListener(mClickListener);
 		mUploadPhotosButton.setOnClickListener(mClickListener);
+		
 		
 		Object retained = getLastNonConfigurationInstance();
         
@@ -200,28 +205,39 @@ public class StatusActivity extends Activity {
 			Log.d(TAG, "Uploaded!");
 			break;
 		case FAILURE:
-			Log.e(TAG, "Upload FAILED!!");
+			Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
 			
 			boolean isAuthenticationError = false;
+			boolean isUserDisabled = false;
 			
 			for (String code : response.getErrorCodes()) {
 				if (code.charAt(1) == '2') {
 					isAuthenticationError = true;
+					
+					if (code.equals("0201")) {
+						isUserDisabled = true;
+					}
 				}
 			}
 			
-			if (isAuthenticationError) {
+			if (isUserDisabled) {
+				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+				prefs.setUserDisabled(true);
+				
+				showDialog(DIALOG_USER_DISABLED);				
+			} else if (isAuthenticationError) {
 				showDialog(DIALOG_AUTHENTICATION_ERROR);
 			} else {
 				showDialog(DIALOG_INTERNAL_ERROR);
+				//add error codes to dialog?
 			}
 			break;
 		case HTTP_ERROR:
-			Log.e(TAG, "Upload FAILED!!");
+			Log.e(TAG, "Upload failed due to http error");
 			showDialog(DIALOG_NETWORK_ERROR);
 			break;
 		case INTERNAL_ERROR:
-			Log.e(TAG, "Upload FAILED!!");
+			Log.e(TAG, "Upload failed due to internal error");
 			showDialog(DIALOG_INTERNAL_ERROR);
 			break;
 		}
@@ -263,6 +279,22 @@ public class StatusActivity extends Activity {
         				.setPositiveButton("OK", null);
         	dialog = dialogBuilder.create();        	
         	break;
+        	
+		case DIALOG_USER_DISABLED:
+			dialogBuilder.setTitle("Error")
+						.setMessage("User account is disabled. App state has been cleared.")
+						.setCancelable(false)
+						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(new Intent(StatusActivity.this, LoginActivity.class));
+								setResult(123);
+								finish();		
+							}
+						});
+			dialog = dialogBuilder.create();        	
+			break;
         }
 		
 		return dialog;
@@ -388,8 +420,8 @@ public class StatusActivity extends Activity {
 					
 					responsesJsonArray.put(responseJson);
 				}
-				
-				AndWellnessApi.ServerResponse response = AndWellnessApi.surveyUpload(username, hashedPassword, "android", campaign, campaignVersion, responsesJsonArray.toString());
+				AndWellnessApi api = new AndWellnessApi(mActivity);
+				AndWellnessApi.ServerResponse response = api.surveyUpload(username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaign, campaignVersion, responsesJsonArray.toString());
 				
 				if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded survey responses.");
@@ -486,7 +518,8 @@ public class StatusActivity extends Activity {
 						c.moveToNext();
 					}
 					
-					response = AndWellnessApi.mobilityUpload(username, hashedPassword, "android", mobilityJsonArray.toString());
+					AndWellnessApi api = new AndWellnessApi(mActivity);
+					response = api.mobilityUpload(username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 					
 					if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 						Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
@@ -553,7 +586,7 @@ public class StatusActivity extends Activity {
 				
 				String json = mobilityJsonArray.toString();
 				
-				AndWellnessApi.ServerResponse response = AndWellnessApi.mobilityUpload(username, hashedPassword, "android", mobilityJsonArray.toString());
+				AndWellnessApi.ServerResponse response = AndWellnessApi.mobilityUpload(username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded mobility points.");
@@ -588,7 +621,8 @@ public class StatusActivity extends Activity {
 						Log.i(TAG, "Temporary image was discarded.");
 						files[i].delete();
 					} else {
-						response = AndWellnessApi.mediaUpload(username, hashedPassword, "android", campaign, files[i].getName().split("\\.")[0], files[i]);
+						AndWellnessApi api = new AndWellnessApi(mActivity);
+						response = api.mediaUpload(username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaign, files[i].getName().split("\\.")[0], files[i]);
 						
 						if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 							Log.i(TAG, "Successfully uploaded an image.");

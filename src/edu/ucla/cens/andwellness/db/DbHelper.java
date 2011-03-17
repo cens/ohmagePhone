@@ -13,7 +13,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.location.Location;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 
 public class DbHelper extends SQLiteOpenHelper{
 	
@@ -91,6 +92,17 @@ public class DbHelper extends SQLiteOpenHelper{
 			isDbOpen = false;
 			dbLock.notify();
 		}		
+	}
+	
+	public void clearAll() {
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return;
+		}
+		
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESPONSES);
+		onCreate(db);
 	}
 
 	public long addResponseRow(String campaign, String campaignVersion, String username, String date, long time, String timezone, String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime, String surveyId, String surveyLaunchContext, String response) {

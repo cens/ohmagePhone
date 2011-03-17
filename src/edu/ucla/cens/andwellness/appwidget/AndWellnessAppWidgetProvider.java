@@ -35,7 +35,8 @@ public class AndWellnessAppWidgetProvider extends AppWidgetProvider {
             foodIntent.putExtra("survey_id", "foodButton");
     		foodIntent.putExtra("survey_title", "Food");
     		foodIntent.setAction("edu.ucla.cens.andwellnessphone.buttons.foodButton");
-            PendingIntent foodPendingIntent = PendingIntent.getActivity(context, 0, foodIntent, 0);
+    		foodIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent foodPendingIntent = PendingIntent.getActivity(context, 0, foodIntent, PendingIntent.FLAG_CANCEL_CURRENT);
             // Get the layout for the App Widget and attach an on-click listener to the button
             views.setOnClickPendingIntent(R.id.widget_food_button, foodPendingIntent);
             

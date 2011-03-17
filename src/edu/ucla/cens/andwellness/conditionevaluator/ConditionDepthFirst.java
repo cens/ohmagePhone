@@ -15,7 +15,8 @@ import org.andwellness.config.grammar.syntaxtree.start;
 import org.andwellness.config.grammar.syntaxtree.value;
 import org.andwellness.config.grammar.visitor.GJDepthFirst;
 
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 
 import edu.ucla.cens.andwellness.conditionevaluator.DataPoint;
 import edu.ucla.cens.andwellness.conditionevaluator.comparator.DataPointComparator;

@@ -1,6 +1,9 @@
 package edu.ucla.cens.andwellness.activity;
 
+import java.util.Arrays;
+
 import edu.ucla.cens.andwellness.AndWellnessApi;
+import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.BackgroundManager;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
@@ -17,7 +20,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -35,6 +39,7 @@ public class LoginActivity extends Activity {
     private static final int DIALOG_NETWORK_ERROR = 3;
     private static final int DIALOG_LOGIN_PROGRESS = 4;
     private static final int DIALOG_INTERNAL_ERROR = 5;
+    private static final int DIALOG_USER_DISABLED = 6;
 	
 	private EditText mUsernameEdit;
 	private EditText mPasswordEdit;
@@ -115,6 +120,10 @@ public class LoginActivity extends Activity {
             } else {
             	Log.i(TAG, "saved credentials do not exist");
             }*/
+            
+            if (mPreferencesHelper.isUserDisabled()) {
+            	((AndWellnessApplication) getApplication()).resetAll();
+            }
         	
         	//code for single user lock-in
         	String username = mPreferencesHelper.getUsername();
@@ -199,6 +208,22 @@ public class LoginActivity extends Activity {
 		case DIALOG_LOGIN_ERROR:
         	dialogBuilder.setTitle("Error")
         				.setMessage("Unable to authenticate. Please check username and re-enter password.")
+        				.setCancelable(true)
+        				.setPositiveButton("OK", null)
+        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
+								//put extras for specific help on login error
+							}
+						})*/;
+        	//add button for contact
+        	dialog = dialogBuilder.create();        	
+        	break;
+        	
+		case DIALOG_USER_DISABLED:
+        	dialogBuilder.setTitle("Error")
+        				.setMessage("This user account has been disabled.")
         				.setCancelable(true)
         				.setPositiveButton("OK", null)
         				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
@@ -304,7 +329,12 @@ public class LoginActivity extends Activity {
 			mPasswordEdit.setText("");
 			
 			//show error dialog
-			showDialog(DIALOG_LOGIN_ERROR);
+			if (Arrays.asList(response.getErrorCodes()).contains("0201")) {
+				mPreferencesHelper.setUserDisabled(true);
+				showDialog(DIALOG_USER_DISABLED);
+			} else {
+				showDialog(DIALOG_LOGIN_ERROR);
+			}
 			break;
 		case HTTP_ERROR:
 			Log.e(TAG, "login http error");
@@ -365,8 +395,8 @@ public class LoginActivity extends Activity {
 		        	e.printStackTrace();
 		        }
 			}
-			
-			return AndWellnessApi.authenticate(mUsername, mHashedPassword, "android");
+			AndWellnessApi api = new AndWellnessApi(mActivity);
+			return api.authenticate(mUsername, mHashedPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 
 		@Override

@@ -22,7 +22,7 @@
 		android:layout_centerHorizontal="true"
 		android:layout_above="@id/photo_button"
 		android:adjustViewBounds="true"
-		android:scaleType="centerCrop"
+		android:scaleType="centerInside"
 		android:background="@drawable/imageview_border" />
 		
 </RelativeLayout><!--

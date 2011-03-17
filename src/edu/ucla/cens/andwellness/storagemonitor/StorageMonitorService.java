@@ -12,7 +12,8 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.StatFs;
 import android.os.SystemClock;
-import android.util.Log;
+//import android.util.Log;
+import edu.ucla.cens.systemlog.Log;
 
 public class StorageMonitorService extends Service {
 

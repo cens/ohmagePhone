@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 public class SharedPreferencesHelper {
 	
 	public static final int CAMPAIGN_XML_RESOURCE_ID = R.raw.nih_all;
+	public static final String CLIENT_STRING = "android";
+	private static final String DEFAULT_SERVER_URL = "https://dev.andwellness.org/";
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
@@ -16,11 +18,13 @@ public class SharedPreferencesHelper {
 	private static final String KEY_PASSWORD_HASHED = "hashedPassword";
 	private static final String KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String KEY_IS_AUTHENTICATED = "is_authenticated";
+	private static final String KEY_IS_DISABLED = "is_disabled";
 	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_CAMPAIGN_NAME = "campaign_name";
 	private static final String KEY_CAMPAIGN_VERSION = "campaign_version";
-
+	private static final String KEY_SERVER_URL = "server_url";
+	
 	private SharedPreferences mPreferences;
 	
 	public SharedPreferencesHelper(Context context) {
@@ -31,64 +35,76 @@ public class SharedPreferencesHelper {
 		mPreferences = context.getSharedPreferences(prefname + username, Context.MODE_PRIVATE);
 	}
 	
+	public boolean clearAll() {
+		return mPreferences.edit().clear().commit();
+	}
+	
 	public String getUsername() {
 		return mPreferences.getString(KEY_USERNAME, "");
 	}
 	
-	public void putUsername(String username) {
-		mPreferences.edit().putString(KEY_USERNAME, username).commit();
+	public boolean putUsername(String username) {
+		return mPreferences.edit().putString(KEY_USERNAME, username).commit();
 	}
 	
 	public String getHashedPassword() {
 		return mPreferences.getString(KEY_PASSWORD_HASHED, "");
 	}
 	
-	public void putHashedPassword(String hashedPassword) {
-		mPreferences.edit().putString(KEY_PASSWORD_HASHED, hashedPassword).commit();
+	public boolean putHashedPassword(String hashedPassword) {
+		return mPreferences.edit().putString(KEY_PASSWORD_HASHED, hashedPassword).commit();
 	}
 	
-	public void clearCredentials() {
-		mPreferences.edit().remove(KEY_USERNAME).remove(KEY_PASSWORD_HASHED).commit();
+	public boolean clearCredentials() {
+		return mPreferences.edit().remove(KEY_USERNAME).remove(KEY_PASSWORD_HASHED).commit();
 	}
 	
 	public boolean isFirstRun() {
 		return mPreferences.getBoolean(KEY_IS_FIRST_RUN, true);
 	}
 	
-	public void setFirstRun(boolean isFirstRun) {
-		mPreferences.edit().putBoolean(KEY_IS_FIRST_RUN, isFirstRun).commit();
+	public boolean setFirstRun(boolean isFirstRun) {
+		return mPreferences.edit().putBoolean(KEY_IS_FIRST_RUN, isFirstRun).commit();
 	}
 	
 	public Long getLastMobilityUploadTimestamp() {
 		return mPreferences.getLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, 0);
 	}
 	
-	public void putLastMobilityUploadTimestamp(Long timestamp) {
-		mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
+	public boolean putLastMobilityUploadTimestamp(Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
 	}
 	
 	public Long getLastSurveyTimestamp(String surveyId) {
 		return mPreferences.getLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, 0);
 	}
 	
-	public void putLastSurveyTimestamp(String surveyId, Long timestamp) {
-		mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
+	public boolean putLastSurveyTimestamp(String surveyId, Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
 	}
 	
 	public String getCampaignName() {
 		return mPreferences.getString(KEY_CAMPAIGN_NAME, "");
 	}
 	
-	public void putCampaignName(String campaignName) {
-		mPreferences.edit().putString(KEY_CAMPAIGN_NAME, campaignName).commit();
+	public boolean putCampaignName(String campaignName) {
+		return mPreferences.edit().putString(KEY_CAMPAIGN_NAME, campaignName).commit();
 	}
 	
 	public String getCampaignVersion() {
 		return mPreferences.getString(KEY_CAMPAIGN_VERSION, "");
 	}
 	
-	public void putCampaignVersion(String campaignVersion) {
-		mPreferences.edit().putString(KEY_CAMPAIGN_VERSION, campaignVersion).commit();
+	public boolean putCampaignVersion(String campaignVersion) {
+		return mPreferences.edit().putString(KEY_CAMPAIGN_VERSION, campaignVersion).commit();
+	}
+	
+	public String getServerUrl() {
+		return mPreferences.getString(KEY_SERVER_URL, DEFAULT_SERVER_URL);
+	}
+	
+	public boolean putServerUrl(String serverUrl) {
+		return mPreferences.edit().putString(KEY_SERVER_URL, serverUrl).commit();
 	}
 	
 	public boolean isAuthenticated() {
@@ -97,7 +113,14 @@ public class SharedPreferencesHelper {
 		} else {
 			return false;
 		}
-		
+	}
+	
+	public boolean isUserDisabled() {
+		return mPreferences.getBoolean(KEY_IS_DISABLED, false);
+	}
+	
+	public boolean setUserDisabled(boolean isDisabled) {
+		return mPreferences.edit().putBoolean(KEY_IS_DISABLED, isDisabled).commit();
 	}
 
 	/*public boolean isAuthenticated() {
