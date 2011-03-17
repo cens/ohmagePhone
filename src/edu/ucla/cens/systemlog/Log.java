@@ -38,13 +38,13 @@ public class Log {
     	mContext = context.getApplicationContext();
     	mAppName = appName;
     	
-    	try {
+    	/*try {
 			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
 			mPackageInstalled = true;
 		} catch (NameNotFoundException e) {
 			android.util.Log.e(TAG, "SystemLog not installed");
 			mPackageInstalled = false;
-		}
+		}*/
     }
     
     private static boolean logMessage(String logLevel, String tag, String msg) {
@@ -53,7 +53,7 @@ public class Log {
     		return false;
     	}
     	
-    	//if systemlog is uninstalled after the initialize call, no logcat logging will happen
+/*    	//if systemlog is uninstalled after the initialize call, no logcat logging will happen
     	if (!mPackageInstalled) {
     		try {
     			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
@@ -62,7 +62,7 @@ public class Log {
     			mPackageInstalled = false;
     			return false;
     		}
-    	}
+    	}*/
     	
     	Intent i = new Intent(ACTION_LOG_MESSAGE);
 
@@ -71,7 +71,9 @@ public class Log {
 		i.putExtra(KEY_TAG, tag);
 		i.putExtra(KEY_MSG, msg);
 		
-		mContext.startService(i);
+		if (mContext.startService(i) == null ) {
+			return false;
+		}
 
     	return true;
     }
