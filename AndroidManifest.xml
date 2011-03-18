@@ -54,7 +54,7 @@
     	<intent-filter>
 			<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
 			<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
-			<data android:scheme="package" android:host="edu.cens.ucla.andwellness"/>
+			<data android:scheme="package" android:host="edu.ucla.cens.andwellness"/>
 		</intent-filter>
     </receiver>
         
@@ -131,7 +131,7 @@
             <intent-filter>
 				<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
 				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
-				<data android:scheme="package" android:host="edu.cens.ucla.andwellness"/>
+				<data android:scheme="package" android:host="edu.ucla.cens.andwellness"/>
 			</intent-filter>
 		</receiver>
 		
