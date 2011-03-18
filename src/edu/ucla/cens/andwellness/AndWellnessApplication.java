@@ -33,6 +33,5 @@ public class AndWellnessApplication extends Application {
 		//clear triggers
 		//
 		
-		
 	}
 }

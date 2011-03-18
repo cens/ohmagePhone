@@ -120,7 +120,7 @@ public class StressButtonService extends IntentService {
 		}
 
 		public void run(){
-			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			/*LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View layout = inflater.inflate(R.layout.stress_button_toast, null);
 
 			ImageView image = (ImageView) layout.findViewById(R.id.image);
@@ -132,7 +132,9 @@ public class StressButtonService extends IntentService {
 			toast.setGravity(Gravity.CENTER, 0, 0);
 			toast.setDuration(Toast.LENGTH_SHORT);
 			toast.setView(layout);
-			toast.show();
+			toast.show();*/
+			
+			Toast.makeText(getApplicationContext(), mText, Toast.LENGTH_SHORT).show();
 		}
 	}
 

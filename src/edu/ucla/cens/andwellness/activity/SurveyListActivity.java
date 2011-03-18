@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
@@ -122,13 +123,17 @@ public class SurveyListActivity extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
-		Survey survey = (Survey) getListView().getItemAtPosition(position);
-		
-		Intent intent = new Intent(this, SurveyActivity.class);
-		intent.putExtra("survey_id", survey.getId());
-		intent.putExtra("survey_title", survey.getTitle());
-		intent.putExtra("survey_submit_text", survey.getSubmitText());
-		startActivity(intent);
+		if (((SurveyAdapter)getListAdapter()).getItemGroup(position) == SurveyAdapter.GROUP_UNAVAILABLE) {
+			Toast.makeText(this, "This survey can only be taken at certain times.", Toast.LENGTH_LONG).show();
+		} else {
+			Survey survey = (Survey) getListView().getItemAtPosition(position);
+			
+			Intent intent = new Intent(this, SurveyActivity.class);
+			intent.putExtra("survey_id", survey.getId());
+			intent.putExtra("survey_title", survey.getTitle());
+			intent.putExtra("survey_submit_text", survey.getSubmitText());
+			startActivity(intent);
+		}
 	}
 
 	@Override
