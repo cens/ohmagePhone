@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 
 /*
  * The trigger notification manager. The logic which displays, repeats and
@@ -418,6 +419,9 @@ public class Notifier {
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putBoolean(KEY_NOTIF_VISIBILITY_PREF, visible);
 		editor.commit();
+		
+		TrigPrefManager.registerPreferenceFile(context, 
+										Notifier.class.getName());
 	}
 	
 	/*

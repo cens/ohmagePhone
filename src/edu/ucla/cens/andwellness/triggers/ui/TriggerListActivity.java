@@ -32,6 +32,7 @@ import edu.ucla.cens.andwellness.triggers.config.TrigUserConfig;
 import edu.ucla.cens.andwellness.triggers.notif.NotifDesc;
 import edu.ucla.cens.andwellness.triggers.notif.NotifEditActivity;
 import edu.ucla.cens.andwellness.triggers.notif.Notifier;
+import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 import edu.ucla.cens.andwellness.triggers.utils.TrigTextInput;
 
 public class TriggerListActivity extends ListActivity 
@@ -39,6 +40,9 @@ public class TriggerListActivity extends ListActivity
 	
 	private static final String DEBUG_TAG = "TriggerFramework";
 		
+	private static final String PREF_FILE_NAME = 
+		TriggerListActivity.class.getName();
+	
 	public static final String KEY_ACTIONS = 
 		TriggerListActivity.class.getName() + ".actions";
 	public static final String KEY_ADMIN_MODE = 
@@ -113,6 +117,8 @@ public class TriggerListActivity extends ListActivity
 			
 			finish();
 		}
+		
+		TrigPrefManager.registerPreferenceFile(this, PREF_FILE_NAME);
     }
 	
 	public void onDestroy() {
@@ -196,7 +202,7 @@ public class TriggerListActivity extends ListActivity
 					trig.startTrigger(this, trigId, trigDesc);
 				}
 				else {
-					trig.removeTrigger(this, trigId, trigDesc);
+					trig.stopTrigger(this, trigId, trigDesc);
 				}
 			}
 		}
@@ -218,15 +224,7 @@ public class TriggerListActivity extends ListActivity
 		TriggerBase trig = mTrigMap.getTrigger(
 								mDb.getTriggerType(trigId));
 		
-		if(trig != null) {
-			trig.removeTrigger(this, trigId, 
-						mDb.getTriggerDescription(trigId));
-		}
-		
-		//remove from the db
-		mDb.deleteTrigger(trigId);
-		//Clear notifications for this trigger
-		Notifier.removeTriggerNotification(this, trigId);
+		trig.deleteTrigger(this, trigId);
 	}
 
 	private void populateTriggerList() {
@@ -335,13 +333,15 @@ public class TriggerListActivity extends ListActivity
     }
 	
 	private boolean isAdminLoggedIn() {
-		SharedPreferences pref = getPreferences(MODE_PRIVATE);
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME, 
+														MODE_PRIVATE);
 		//Let the app be in admin mode the very first time
 		return pref.getBoolean(KEY_ADMIN_MODE, true);
 	}
 	
 	private void setAdminMode(boolean enable) {
-		SharedPreferences pref = getPreferences(MODE_PRIVATE);
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME, 
+														MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putBoolean(KEY_ADMIN_MODE, enable);
 		editor.commit();

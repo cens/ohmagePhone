@@ -208,10 +208,11 @@ public abstract class TriggerBase {
 					          c.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_TYPE));
 			
 			if(trigType.equals(this.getTriggerType())) {
-				//TODO move both these into a common place.
-				//Trigger list activity also has the same logic
-				db.deleteTrigger(trigId);
 				
+				//Stop trigger first
+				stopTrigger(context, trigId, db.getTriggerDescription(trigId));
+				//Delete from database
+				db.deleteTrigger(trigId);
 				//Now refresh the notification display
 				Notifier.removeTriggerNotification(context, trigId);
 			}
@@ -345,7 +346,7 @@ public abstract class TriggerBase {
 	/*
 	 * Stop a specific trigger 
 	 */
-	public abstract void removeTrigger(Context context, int trigId, String trigDesc);
+	public abstract void stopTrigger(Context context, int trigId, String trigDesc);
 	
 	/*
 	 * Launch the activity to create a new trigger of this type. The activity
@@ -372,4 +373,9 @@ public abstract class TriggerBase {
 	 * has its own settings. 
 	 */
 	public abstract void launchSettingsEditActivity(Context context, boolean adminMode);
+	
+	/*
+	 * Reset all settings to default
+	 */
+	public abstract void resetSettings(Context context);
 }
