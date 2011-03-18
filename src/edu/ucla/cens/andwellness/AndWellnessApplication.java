@@ -1,6 +1,7 @@
 package edu.ucla.cens.andwellness;
 
 import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import android.app.Application;
 import android.util.Log;
 //import edu.ucla.cens.systemlog.Log;
@@ -32,6 +33,6 @@ public class AndWellnessApplication extends Application {
 		
 		//clear triggers
 		//
-		
+		TriggerFramework.resetAllTriggerSettings(this);
 	}
 }
