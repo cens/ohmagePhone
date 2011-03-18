@@ -79,6 +79,7 @@ import com.google.android.maps.ItemizedOverlay.OnFocusChangeListener;
 
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.triggers.config.LocTrigConfig;
+import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 import edu.ucla.cens.andwellness.triggers.utils.TrigTextInput;
 
 /* The maps activity */
@@ -259,6 +260,9 @@ public class LocTrigMapsActivity extends MapActivity
 			//Show the tool tip after a small delay
 			new Handler().postDelayed(runnable, TOOL_TIP_DELAY);
 		}
+		
+		TrigPrefManager.registerPreferenceFile(LocTrigMapsActivity.this, 
+				   								TOOL_TIP_PREF_NAME);
     }
     
     private boolean shouldSkipToolTip() {
