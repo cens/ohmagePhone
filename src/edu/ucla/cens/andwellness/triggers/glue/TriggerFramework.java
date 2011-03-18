@@ -6,6 +6,7 @@ import org.json.JSONArray;
 
 import android.content.Context;
 import android.content.Intent;
+import edu.ucla.cens.andwellness.triggers.base.TriggerInit;
 import edu.ucla.cens.andwellness.triggers.notif.NotifSurveyAdaptor;
 import edu.ucla.cens.andwellness.triggers.notif.Notifier;
 import edu.ucla.cens.andwellness.triggers.ui.TriggerListActivity;
@@ -80,6 +81,18 @@ public class TriggerFramework {
 	public static JSONArray getActiveTriggerInfo(Context context, String survey) {
 		
 		return NotifSurveyAdaptor.getActiveTriggerInfo(context, survey);
+	}
+	
+	/*
+	 * Stops and deletes all triggers and resets all trigger related settings
+	 * to default. 
+	 * 
+	 * Note: This API must be called only on the background and must not be
+	 * called when any of the trigger related UI is being shown.
+	 */
+	public static boolean resetAllTriggerSettings(Context context) {
+		
+		return TriggerInit.resetAllTriggersAndSettings(context);
 	}
 }
 

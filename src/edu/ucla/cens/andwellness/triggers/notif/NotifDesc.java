@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import edu.ucla.cens.andwellness.triggers.config.NotifConfig;
+import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 
 /*
  * The class which can parse and represent the trigger 
@@ -182,6 +183,8 @@ public class NotifDesc {
 		Editor editor = prefs.edit();
 		editor.putString(PREF_KEY_GLOBAL_NOTIF_DESC, desc);
 		editor.commit();
+		
+		TrigPrefManager.registerPreferenceFile(context, PREF_FILE_NAME);
 	}
 	
 	/*

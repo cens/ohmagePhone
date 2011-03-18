@@ -133,6 +133,12 @@ public class LocationTrigger extends TriggerBase {
 		i.putExtra(LocTrigSettingsActivity.KEY_ADMIN_MODE, adminMode);
 		context.startActivity(i);
 	}
+	
+	@Override
+	public void resetSettings(Context context) {
+		LocTrigDB.deleteDatabase(context);
+		LocTrigTracingSettActivity.resetAllSettings(context);
+	}
 
 	@Override
 	public void launchTriggerEditActivity(Context context, int trigId, 
@@ -162,7 +168,7 @@ public class LocationTrigger extends TriggerBase {
 	}
 
 	@Override
-	public void removeTrigger(Context context, int trigId, String trigDesc) {
+	public void stopTrigger(Context context, int trigId, String trigDesc) {
 		Log.i(DEBUG_TAG, "LocationTrigger: removeTrigger(" + trigId +
 										", " + trigDesc + ")");
 		
@@ -289,5 +295,4 @@ public class LocationTrigger extends TriggerBase {
 		
 		return jPref;
 	}
-
 }

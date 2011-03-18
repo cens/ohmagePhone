@@ -183,11 +183,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						//Exit the acivity if the user says no
 						LocTrigEditActivity.this.finish();
-						//Call the done listener
-						mExitListener.onDone(LocTrigEditActivity.this, 
-										mTrigId, mTrigDesc.toString());
 					}
 				})
 				.setPositiveButton("Yes", 
@@ -196,6 +192,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						launchMapsActivity(mTrigDesc.getLocation());
+						LocTrigEditActivity.this.finish();
 					}
 				})
 				.setMessage(msgPrompt)
@@ -366,14 +363,14 @@ public class LocTrigEditActivity extends PreferenceActivity
 				
 				if(mTrigDesc.validate()) {
 					
+					mExitListener.onDone(this, mTrigId, mTrigDesc.toString());
+					
 					//If the location is not defined yet, prompt the
 					//user to do so
 					if(getLocationCount(mTrigDesc.getLocation()) == 0) {
 						showDialog(DIALOG_ID_DEFINE_LOC_PROMPT);
 						return;
 					}
-					
-					mExitListener.onDone(this, mTrigId, mTrigDesc.toString());
 				}
 				else {
 					showDialog(DIALOG_ID_INVALID_TIME_ALERT);

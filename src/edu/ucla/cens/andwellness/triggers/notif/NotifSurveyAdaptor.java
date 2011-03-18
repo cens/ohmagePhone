@@ -17,6 +17,7 @@ import edu.ucla.cens.andwellness.triggers.base.TriggerBase;
 import edu.ucla.cens.andwellness.triggers.base.TriggerDB;
 import edu.ucla.cens.andwellness.triggers.base.TriggerRunTimeDesc;
 import edu.ucla.cens.andwellness.triggers.base.TriggerTypeMap;
+import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 
 /*
  * An interface to the survey list management. This class 
@@ -213,6 +214,9 @@ public class NotifSurveyAdaptor {
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putLong(survey, System.currentTimeMillis());
 		editor.commit();
+		
+		TrigPrefManager.registerPreferenceFile(context, 
+							NotifSurveyAdaptor.class.getName());
 	}
 	
 	/*
