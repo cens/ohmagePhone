@@ -51,6 +51,11 @@
     	<intent-filter>
     		<action android:name="android.intent.action.BOOT_COMPLETED"/>
     	</intent-filter>
+    	<intent-filter>
+			<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
+			<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
+			<data android:scheme="package" android:host="edu.cens.ucla.andwellness"/>
+		</intent-filter>
     </receiver>
         
     <service android:name=".service.UploadService"/>
@@ -123,6 +128,11 @@
 			<intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
+            <intent-filter>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
+				<data android:scheme="package" android:host="edu.cens.ucla.andwellness"/>
+			</intent-filter>
 		</receiver>
 		
 		<receiver android:name=".triggers.base.TriggerTimeReceiver">
