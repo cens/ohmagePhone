@@ -109,7 +109,8 @@ public class LocTrigMapsActivity extends MapActivity
 	/* Menu ids */
 	private static final int MENU_MY_LOC_ID = Menu.FIRST;
 	private static final int MENU_SEARCH_ID = Menu.FIRST + 1;
-	private static final int MENU_HELP_ID = Menu.FIRST + 2;
+	private static final int MENU_SATELLITE_ID = Menu.FIRST + 2;
+	private static final int MENU_HELP_ID = Menu.FIRST + 3;
 	
 	//Timeout for 'my location' GPS sampling
 	private static final long MY_LOC_SAMPLE_TIMEOUT = 180000; //3 mins
@@ -383,12 +384,29 @@ public class LocTrigMapsActivity extends MapActivity
         boolean ret = super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_MY_LOC_ID, 0, R.string.menu_my_loc)
         	.setIcon(android.R.drawable.ic_menu_mylocation);
-        menu.add(0, MENU_SEARCH_ID, 0, R.string.menu_search)
+        menu.add(0, MENU_SEARCH_ID, 1, R.string.menu_search)
         	.setIcon(android.R.drawable.ic_menu_search);
-        menu.add(0, MENU_HELP_ID, 0, R.string.menu_help)
+        menu.add(0, MENU_HELP_ID, 4, R.string.menu_help)
         	.setIcon(android.R.drawable.ic_menu_help);
         
         return ret;
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	boolean ret = super.onPrepareOptionsMenu(menu);
+    	
+    	menu.removeItem(MENU_SATELLITE_ID);
+    	
+    	String txt = "Satellite mode";
+        if(mMapView.isSatellite()) {
+        	txt = "Map mode";
+        }
+         
+        menu.add(0, MENU_SATELLITE_ID, 3, txt)
+     		.setIcon(android.R.drawable.ic_menu_mapmode);
+         
+    	return ret;
     }
     
     @Override
@@ -438,6 +456,11 @@ public class LocTrigMapsActivity extends MapActivity
 			ti.showDialog()
 			  .setOwnerActivity(this);
    
+    		return true;
+    		
+    	case MENU_SATELLITE_ID:
+    		mMapView.setSatellite(!mMapView.isSatellite());
+    		mMapView.invalidate();
     		return true;
     		
     	case MENU_HELP_ID: //Show help
