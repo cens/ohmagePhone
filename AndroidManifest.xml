@@ -41,7 +41,7 @@
         	</intent-filter>
     	</receiver>
     
-    <activity android:name=".activity.LoginActivity" android:label="AndWellness Login">
+    <activity android:name=".activity.LoginActivity" android:label="AndWellness Login" android:theme="@android:style/Theme.Light">
     </activity>
     
     <activity android:name=".activity.StatusActivity" android:label="AndWellness Status">
