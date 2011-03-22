@@ -35,14 +35,14 @@ public class TriggerRunTimeDesc {
 	private static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
 	private static final String KEY_TRIG_TIMESTAMP = "trigger_timestamp";
-	private static final String KEY_TRIGGER_TIMEZONE = "trigger_time_zone";
+	private static final String KEY_TRIGGER_TIMEZONE = "trigger_timezone";
 	
 	private static final String KEY_TRIGGER_LOCATION= "trigger_location";
 	private static final String KEY_TRIGGER_LOC_LAT = "latitude";
 	private static final String KEY_TRIGGER_LOC_LONG = "longitude";
 	private static final String KEY_TRIGGER_LOC_ACC = "accuracy";
 	private static final String KEY_TRIGGER_LOC_PROVIDER = "provider";
-	private static final String KEY_TRIGGER_LOC_TIME = "time";
+	private static final String KEY_TRIGGER_LOC_TIME = "timestamp";
 	
 	private long mTrigTimeStamp = INVALID_TIMESTAMP;
 	
