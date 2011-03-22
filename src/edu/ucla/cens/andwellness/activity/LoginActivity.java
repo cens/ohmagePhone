@@ -298,6 +298,7 @@ public class LoginActivity extends Activity {
 			//save creds
 			mPreferencesHelper.putUsername(username);
 			mPreferencesHelper.putHashedPassword(hashedPassword);
+			mPreferencesHelper.putLastMobilityUploadTimestamp(System.currentTimeMillis());
 			
 			//clear related notifications
 			//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
