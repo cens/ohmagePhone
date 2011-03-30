@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<campaign>
+	<campaignName>ADHD</campaignName>
+	<campaignVersion>1.0</campaignVersion>
+	<serverUrl>https://dev.andwellness.org/</serverUrl>
+	<surveys>
+		<survey>
+			<id>adhd_study_questions</id>
+			<title>Survey</title>
+			<description>An ADHD game, a set of survey questions, and a second ADHD game.</description>
+			<submitText>Thank you for completing the survey!</submitText>
+			<showSummary>true</showSummary>
+			<editSummary>true</editSummary>
+			<summaryText>summaryText</summaryText>
+			<anytime>false</anytime>
+			<contentList>
+				<prompt>
+					<id>game</id>
+					<displayType>event</displayType>
+					<displayLabel>First ADHD Game</displayLabel>
+					<promptText>Press "Play" to play the game.</promptText>
+					<abbreviatedText>abbreviatedText</abbreviatedText>
+					<explanationText>explanationText</explanationText>
+					<promptType>remote_activity</promptType>
+					<properties>
+						<property>
+							<key>package</key>
+							<value>edu.ucla.cens.ADHD.Game</value>
+						</property>
+						<property>
+							<key>activity</key>
+							<value>edu.ucla.cens.ADHD.Game.Game</value>
+						</property>
+						<property>
+							<key>action</key>
+							<value>edu.ucla.cens.ADHD.Game.LAUNCH</value>
+						</property>
+						<property>
+							<key>autolaunch</key>
+							<value>false</value>
+						</property>
+						<property>
+							<key>retries</key>
+							<value>9999</value>
+						</property>
+					</properties>
+					<skippable>false</skippable>
+				</prompt>
+			</contentList>
+		</survey>
+	</surveys>
+</campaign>
