@@ -5,6 +5,7 @@ import edu.ucla.cens.andwellness.prompts.multichoice.MultiChoicePromptBuilder;
 import edu.ucla.cens.andwellness.prompts.multichoicecustom.MultiChoiceCustomPromptBuilder;
 import edu.ucla.cens.andwellness.prompts.number.NumberPromptBuilder;
 import edu.ucla.cens.andwellness.prompts.photo.PhotoPromptBuilder;
+import edu.ucla.cens.andwellness.prompts.remoteactivity.RemoteActivityPromptBuilder;
 import edu.ucla.cens.andwellness.prompts.singlechoice.SingleChoicePromptBuilder;
 import edu.ucla.cens.andwellness.prompts.singlechoicecustom.SingleChoiceCustomPromptBuilder;
 import edu.ucla.cens.andwellness.prompts.text.TextPromptBuilder;
@@ -19,6 +20,7 @@ public class PromptBuilderFactory {
 	private static final String HOURS_BEFORE_NOW = "hours_before_now";
 	private static final String TEXT = "text";
 	private static final String PHOTO = "photo";
+	private static final String REMOTE_ACTIVITY = "remote_activity";
 	
 	private PromptBuilderFactory() {};
 	
@@ -40,6 +42,8 @@ public class PromptBuilderFactory {
 			return new TextPromptBuilder();
 		} else if (promptType.equals(PHOTO)) {
 			return new PhotoPromptBuilder();
+		} else if (promptType.equals(REMOTE_ACTIVITY)) {
+			return new RemoteActivityPromptBuilder();
 		}
 		
 		return null;

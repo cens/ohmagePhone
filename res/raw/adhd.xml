@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <campaign>
+	<campaignUrn>urn:andwellness:adhd</campaignUrn>
 	<campaignName>ADHD</campaignName>
-	<campaignVersion>1.0</campaignVersion>
+	<!-- <campaignVersion>1.0</campaignVersion> -->
 	<serverUrl>https://dev.andwellness.org/</serverUrl>
 	<surveys>
 		<survey>
@@ -15,7 +16,7 @@
 			<anytime>false</anytime>
 			<contentList>
 				<prompt>
-					<id>game</id>
+					<id>firstGame</id>
 					<displayType>event</displayType>
 					<displayLabel>First ADHD Game</displayLabel>
 					<promptText>Press "Play" to play the game.</promptText>
@@ -25,23 +26,23 @@
 					<properties>
 						<property>
 							<key>package</key>
-							<value>edu.ucla.cens.ADHD.Game</value>
+							<label>edu.ucla.cens.ADHD.Game</label>
 						</property>
 						<property>
 							<key>activity</key>
-							<value>edu.ucla.cens.ADHD.Game.Game</value>
+							<label>edu.ucla.cens.ADHD.Game.Game</label>
 						</property>
 						<property>
 							<key>action</key>
-							<value>edu.ucla.cens.ADHD.Game.LAUNCH</value>
+							<label>edu.ucla.cens.ADHD.Game.LAUNCH</label>
 						</property>
 						<property>
 							<key>autolaunch</key>
-							<value>false</value>
+							<label>false</label>
 						</property>
 						<property>
 							<key>retries</key>
-							<value>9999</value>
+							<label>9999</label>
 						</property>
 					</properties>
 					<skippable>false</skippable>

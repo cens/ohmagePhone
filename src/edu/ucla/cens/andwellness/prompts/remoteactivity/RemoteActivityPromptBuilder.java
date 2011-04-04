@@ -36,23 +36,23 @@ public class RemoteActivityPromptBuilder implements PromptBuilder
 		{
 			if(property.key.equals(PACKAGE_ID))
 			{
-				remoteActivityPrompt.setPackage(property.value);
+				remoteActivityPrompt.setPackage(property.label);
 			}
 			else if(property.key.equals(ACTIVITY_ID))
 			{
-				remoteActivityPrompt.setActivity(property.value);
+				remoteActivityPrompt.setActivity(property.label);
 			}
 			else if(property.key.equals(ACTION_ID))
 			{
-				remoteActivityPrompt.setAction(property.value);
+				remoteActivityPrompt.setAction(property.label);
 			}
 			else if(property.key.equals(AUTOLAUNCH_ID))
 			{
-				remoteActivityPrompt.setAutolaunch(property.value.equalsIgnoreCase("true"));
+				remoteActivityPrompt.setAutolaunch(property.label.equalsIgnoreCase("true"));
 			}
 			else if(property.key.equals(NUM_RETRIES_ID))
 			{
-				remoteActivityPrompt.setRetries(Integer.parseInt(property.value));
+				remoteActivityPrompt.setRetries(Integer.parseInt(property.label));
 			}
 		}
 
