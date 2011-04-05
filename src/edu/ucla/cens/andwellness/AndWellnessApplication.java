@@ -1,6 +1,9 @@
 package edu.ucla.cens.andwellness;
 
+import java.io.File;
+
 import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import android.app.Application;
 import android.util.Log;
@@ -34,5 +37,14 @@ public class AndWellnessApplication extends Application {
 		//clear triggers
 		//
 		TriggerFramework.resetAllTriggerSettings(this);
+		
+		//clear images
+		File [] files = new File(PhotoPrompt.IMAGE_PATH).listFiles();
+		
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+				files[i].delete();
+			}
+		}
 	}
 }
