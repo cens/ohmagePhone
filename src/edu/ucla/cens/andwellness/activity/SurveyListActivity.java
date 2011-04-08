@@ -27,6 +27,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
+import edu.ucla.cens.andwellness.CampaignXmlHelper;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
@@ -64,7 +65,7 @@ public class SurveyListActivity extends ListActivity {
 		mActiveSurveyTitles = new ArrayList<String>();
 		
 		try {
-			mSurveys = PromptXmlParser.parseSurveys(getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID));
+			mSurveys = PromptXmlParser.parseSurveys(CampaignXmlHelper.loadDefaultCampaign(this));
 		} catch (NotFoundException e) {
 			Log.e(TAG, "Error parsing surveys from xml", e);
 		} catch (XmlPullParserException e) {

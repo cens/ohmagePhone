@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import edu.ucla.cens.andwellness.AndWellnessApplication;
+import edu.ucla.cens.andwellness.CampaignXmlHelper;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
@@ -85,7 +86,7 @@ public class StressButtonService extends IntentService {
         String surveyTitle = "Stress";
         
         try {
-			prompts = PromptXmlParser.parsePrompts(getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID), surveyId);
+			prompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadDefaultCampaign(this), surveyId);
 		} catch (NotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,18 +98,21 @@ public class StressButtonService extends IntentService {
 			e.printStackTrace();
 		}
 		
-		startService(new Intent(this, SurveyGeotagService.class));
-
-		if (((AbstractPrompt)prompts.get(0)).getResponseObject() == null) {
-			Toast.makeText(this, "There is a bug: default value not being set!", Toast.LENGTH_SHORT).show();
-		} else {
-			((AbstractPrompt)prompts.get(0)).setDisplayed(true);
-			((AbstractPrompt)prompts.get(0)).setSkipped(false);
-			Log.i(TAG, prompts.get(0).getResponseJson());
-			storeResponse(surveyId, surveyTitle, launchTime, prompts);
-			//Toast.makeText(this, "Registered stressful event.", Toast.LENGTH_SHORT).show();
-			mHandler.post(new DisplayToast("Registered stressful event!"));
-			
+		if (prompts != null && prompts.size() > 0) {
+		
+			startService(new Intent(this, SurveyGeotagService.class));
+	
+			if (((AbstractPrompt)prompts.get(0)).getResponseObject() == null) {
+				Toast.makeText(this, "There is a bug: default value not being set!", Toast.LENGTH_SHORT).show();
+			} else {
+				((AbstractPrompt)prompts.get(0)).setDisplayed(true);
+				((AbstractPrompt)prompts.get(0)).setSkipped(false);
+				Log.i(TAG, prompts.get(0).getResponseJson());
+				storeResponse(surveyId, surveyTitle, launchTime, prompts);
+				//Toast.makeText(this, "Registered stressful event.", Toast.LENGTH_SHORT).show();
+				mHandler.post(new DisplayToast("Registered stressful event!"));
+				
+			}
 		}
 	}
 	

@@ -37,7 +37,7 @@ public class BackgroundManager {
 		
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(appContext);
 		try {
-			Map<String, String> map = PromptXmlParser.parseCampaignInfo(appContext.getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID));
+			Map<String, String> map = PromptXmlParser.parseCampaignInfo(CampaignXmlHelper.loadDefaultCampaign(appContext));
 			if (map.containsKey("campaign_name") && map.containsKey("campaign_version")) {
 				prefs.putCampaignName(map.get("campaign_name"));
 				prefs.putCampaignVersion(map.get("campaign_version"));
