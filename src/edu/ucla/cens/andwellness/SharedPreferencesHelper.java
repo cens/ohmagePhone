@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 public class SharedPreferencesHelper {
 	
-	public static final int CAMPAIGN_XML_RESOURCE_ID = R.raw.nih_all;
+	public static final int CAMPAIGN_XML_RESOURCE_ID = R.raw.adhd;
 	public static final String CLIENT_STRING = "android";
 	private static final String DEFAULT_SERVER_URL = "https://dev.andwellness.org/";
 	

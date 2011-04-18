@@ -3,23 +3,23 @@
 	<campaignUrn>urn:andwellness:adhd</campaignUrn>
 	<campaignName>ADHD</campaignName>
 	<!-- <campaignVersion>1.0</campaignVersion> -->
-	<serverUrl>https://dev.andwellness.org/</serverUrl>
+	<serverUrl>http://131.179.144.93:8080/</serverUrl>
 	<surveys>
 		<survey>
 			<id>adhd_study_questions</id>
-			<title>Survey</title>
+			<title>Daily</title>
 			<description>An ADHD game, a set of survey questions, and a second ADHD game.</description>
 			<submitText>Thank you for completing the survey!</submitText>
 			<showSummary>true</showSummary>
 			<editSummary>true</editSummary>
 			<summaryText>summaryText</summaryText>
-			<anytime>false</anytime>
+			<anytime>true</anytime>
 			<contentList>
 				<prompt>
-					<id>firstGame</id>
+					<id>game</id>
 					<displayType>event</displayType>
-					<displayLabel>First ADHD Game</displayLabel>
-					<promptText>Press "Play" to play the game.</promptText>
+					<displayLabel>ADHD Game</displayLabel>
+					<promptText>Press the button below to play the game.</promptText>
 					<abbreviatedText>abbreviatedText</abbreviatedText>
 					<explanationText>explanationText</explanationText>
 					<promptType>remote_activity</promptType>
@@ -42,7 +42,7 @@
 						</property>
 						<property>
 							<key>retries</key>
-							<label>9999</label>
+							<label>10</label>
 						</property>
 					</properties>
 					<skippable>false</skippable>

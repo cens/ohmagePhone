@@ -3,6 +3,7 @@ package edu.ucla.cens.andwellness.prompts.remoteactivity;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,12 +34,6 @@ import edu.ucla.cens.systemlog.Log;
  */
 public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListener
 {
-	@Override
-	protected Object getTypeSpecificExtrasObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private static final String TAG = "RemoteActivityPrompt";
 	
 	private static final String FEEDBACK_STRING = "feedback";
@@ -46,10 +41,10 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	private String packageName;
 	private String activityName;
 	private String actionName;
-	private JSONObject responseObject;
+	private JSONArray responseArray;
 	
 	private TextView feedbackText;
-	private Button replayButton;
+	private Button launchButton;
 	
 	private Activity callingActivity;
 	
@@ -83,30 +78,30 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		{
 			callingActivity = null;
 			Log.e(TAG, "getView() recieved a Context that wasn't an Activity.");
-			// TODO: Should we error out here?
+			// Should we error out here?
 		}
 		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.prompt_remote_activity, null);
 		
 		feedbackText = (TextView) layout.findViewById(R.id.prompt_remote_activity_feedback);
-		replayButton = (Button) layout.findViewById(R.id.prompt_remote_activity_replay_button);
-		replayButton.setOnClickListener(this);
-		replayButton.setText((!launched && !autolaunch) ? "Play" : "Replay");
+		launchButton = (Button) layout.findViewById(R.id.prompt_remote_activity_replay_button);
+		launchButton.setOnClickListener(this);
+		launchButton.setText((!launched && !autolaunch) ? "Launch" : "Relaunch");
 		
 		if(retries > 0)
 		{
-			replayButton.setVisibility(View.VISIBLE);
+			launchButton.setVisibility(View.VISIBLE);
 		}
 		else
 		{
 			if(!launched && !autolaunch)
 			{
-				replayButton.setVisibility(View.VISIBLE);
+				launchButton.setVisibility(View.VISIBLE);
 			}
 			else
 			{
-				replayButton.setVisibility(View.GONE);
+				launchButton.setVisibility(View.GONE);
 			}
 		}
 		
@@ -143,7 +138,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 			{
 				this.setSkipped(true);
 			}
-			else if(mSkippable.equalsIgnoreCase("true"))
+			else if(mSkippable.equalsIgnoreCase("false"))
 			{
 				// The Activity was canceled for some reason, but it shouldn't
 				// have been.
@@ -151,7 +146,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 			}
 			else
 			{
-				// TODO: This should be validated somewhere else!
+				// This should _never_ happen!
 				Log.e(TAG, "Invalid 'skippable' value: " + mSkippable);
 			}
 		}
@@ -159,35 +154,33 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		{
 			if(data != null)
 			{
-				Bundle extras = data.getExtras();
-				Set<String> keysList = extras.keySet();
-				
-				if(responseObject == null)
+				if(responseArray == null)
 				{
-					responseObject = new JSONObject();
+					responseArray = new JSONArray();
 				}
 				
+				JSONObject currResponse = new JSONObject();
+				Bundle extras = data.getExtras();
+				Set<String> keysList = extras.keySet();
 				Iterator<String> keysIter = keysList.iterator();
 				while(keysIter.hasNext())
 				{
 					String nextKey = keysIter.next();
 					try
 					{
-						responseObject.put(nextKey, extras.get(nextKey).toString());
+						currResponse.put(nextKey, extras.get(nextKey).toString());
 					}
 					catch(JSONException e)
 					{
-						Log.e(TAG, "Invalid return value from RemoteActivity for key: " + nextKey);
+						Log.e(TAG, "Invalid return value from remote Activity for key: " + nextKey);
 					}
 				}
+				responseArray.put(currResponse);
 				
-				if(extras.containsKey(FEEDBACK_STRING))
+				String feedback = data.getStringExtra(FEEDBACK_STRING);
+				if(feedback != null)
 				{
-					String feedback = extras.getString(FEEDBACK_STRING);
-					if(feedback != null)
-					{
-						feedbackText.setText(feedback);
-					}
+					feedbackText.setText(feedback);
 				}
 			}
 		}
@@ -202,7 +195,16 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	@Override
 	protected Object getTypeSpecificResponseObject() 
 	{
-		return responseObject;
+		return responseArray;
+	}
+	
+	/**
+	 * There are no extras for this object.
+	 */
+	@Override
+	protected Object getTypeSpecificExtrasObject()
+	{
+		return null;
 	}
 
 	/**
@@ -212,7 +214,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	@Override
 	protected void clearTypeSpecificResponseData()
 	{
-		responseObject = new JSONObject();
+		responseArray = new JSONArray();
 	}
 	
 	/**
@@ -240,23 +242,23 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 				
 				if(retries <= 0)
 				{
-					replayButton.setVisibility(View.GONE);
+					launchButton.setVisibility(View.GONE);
 				}
 				
 				launchActivity();
 			}
 			else
 			{
-				replayButton.setVisibility(View.GONE);
+				launchButton.setVisibility(View.GONE);
 			}
 		}
 		else if(!autolaunch)
 		{
-			replayButton.setText("Replay");
+			launchButton.setText("Relaunch");
 			
 			if(retries <= 0)
 			{
-				replayButton.setVisibility(View.GONE);
+				launchButton.setVisibility(View.GONE);
 			}
 			
 			launchActivity();

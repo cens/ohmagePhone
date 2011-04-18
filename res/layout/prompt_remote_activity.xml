@@ -10,7 +10,7 @@
 		android:layout_height="wrap_content" android:layout_weight="1.0"/>
 	<Button
 		android:id="@+id/prompt_remote_activity_replay_button"
-		android:text="Replay"
+		android:text="Launch"
 		android:visibility="gone"
 		android:layout_gravity="center_horizontal"
 		android:layout_width="wrap_content"
