@@ -1,12 +1,12 @@
 package edu.ucla.cens.andwellness.activity;
 
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -15,41 +15,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
-import edu.ucla.cens.andwellness.AndWellnessApi;
-import edu.ucla.cens.andwellness.AndWellnessApplication;
-import edu.ucla.cens.andwellness.PromptXmlParser;
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.SharedPreferencesHelper;
-import edu.ucla.cens.andwellness.conditionevaluator.DataPoint;
-import edu.ucla.cens.andwellness.conditionevaluator.DataPointConditionEvaluator;
-import edu.ucla.cens.andwellness.conditionevaluator.DataPoint.PromptType;
-import edu.ucla.cens.andwellness.db.DbHelper;
-import edu.ucla.cens.andwellness.db.Response;
-import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
-import edu.ucla.cens.andwellness.prompts.Prompt;
-import edu.ucla.cens.andwellness.prompts.hoursbeforenow.HoursBeforeNowPrompt;
-import edu.ucla.cens.andwellness.prompts.multichoice.MultiChoicePrompt;
-import edu.ucla.cens.andwellness.prompts.number.NumberPrompt;
-import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.prompts.singlechoice.SingleChoicePrompt;
-import edu.ucla.cens.andwellness.prompts.text.TextPrompt;
-import edu.ucla.cens.andwellness.service.SurveyGeotagService;
-import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources.NotFoundException;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -60,6 +32,27 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import edu.ucla.cens.andwellness.AndWellnessApplication;
+import edu.ucla.cens.andwellness.PromptXmlParser;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
+import edu.ucla.cens.andwellness.conditionevaluator.DataPoint;
+import edu.ucla.cens.andwellness.conditionevaluator.DataPoint.PromptType;
+import edu.ucla.cens.andwellness.conditionevaluator.DataPointConditionEvaluator;
+import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
+import edu.ucla.cens.andwellness.prompts.Prompt;
+import edu.ucla.cens.andwellness.prompts.hoursbeforenow.HoursBeforeNowPrompt;
+import edu.ucla.cens.andwellness.prompts.multichoice.MultiChoicePrompt;
+import edu.ucla.cens.andwellness.prompts.multichoicecustom.MultiChoiceCustomPrompt;
+import edu.ucla.cens.andwellness.prompts.number.NumberPrompt;
+import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompts.singlechoice.SingleChoicePrompt;
+import edu.ucla.cens.andwellness.prompts.singlechoicecustom.SingleChoiceCustomPrompt;
+import edu.ucla.cens.andwellness.prompts.text.TextPrompt;
+import edu.ucla.cens.andwellness.service.SurveyGeotagService;
+import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
+import edu.ucla.cens.systemlog.Log;
 
 public class SurveyActivity extends Activity {
 	
@@ -81,6 +74,10 @@ public class SurveyActivity extends Activity {
 	private String mSurveySubmitText;
 	private String mLaunchTime;
 	private boolean mReachedEnd;
+	
+	public String getSurveyId() {
+		return mSurveyId;
+	}
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -265,7 +262,7 @@ public class SurveyActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 		mPrompts.get(mCurrentPosition).handleActivityResult(this, requestCode, resultCode, data);
 	}
-	
+
 	public void reloadCurrentPrompt() {
 		showPrompt(mCurrentPosition);
 	}
@@ -340,6 +337,10 @@ public class SurveyActivity extends Activity {
 				dataPoint.setPromptType("single_choice");
 			} else if (mPrompts.get(i) instanceof MultiChoicePrompt) {
 				dataPoint.setPromptType("multi_choice");
+			} else if (mPrompts.get(i) instanceof MultiChoiceCustomPrompt) {
+				dataPoint.setPromptType("multi_choice_custom");
+			} else if (mPrompts.get(i) instanceof SingleChoiceCustomPrompt) {
+				dataPoint.setPromptType("single_choice_custom");
 			} else if (mPrompts.get(i) instanceof NumberPrompt) {
 				dataPoint.setPromptType("number");
 			} else if (mPrompts.get(i) instanceof HoursBeforeNowPrompt) {
@@ -357,7 +358,22 @@ public class SurveyActivity extends Activity {
 			} else {
 				if (PromptType.single_choice.equals(dataPoint.getPromptType())) {
 					dataPoint.setValue((Integer)mPrompts.get(i).getResponseObject());
+				} else if (PromptType.single_choice_custom.equals(dataPoint.getPromptType())) {
+					dataPoint.setValue((Integer)mPrompts.get(i).getResponseObject());
 				} else if (PromptType.multi_choice.equals(dataPoint.getPromptType())) {
+					JSONArray jsonArray;
+					ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
+					try {
+						jsonArray = (JSONArray)mPrompts.get(i).getResponseObject();
+						for (int j = 0; j < jsonArray.length(); j++) {
+							dataPointValue.add((Integer)jsonArray.get(j));
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					dataPoint.setValue(dataPointValue);
+				} else if (PromptType.multi_choice_custom.equals(dataPoint.getPromptType())) {
 					JSONArray jsonArray;
 					ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
 					try {

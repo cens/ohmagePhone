@@ -335,7 +335,7 @@ public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surv
 		return prompts;
 	}
 
-	public static List<Prompt> parsePrompts(InputStream promptXmlStream) throws XmlPullParserException, IOException {
+	/*public static List<Prompt> parsePrompts(InputStream promptXmlStream) throws XmlPullParserException, IOException {
 		
 		XmlPullParser parser = Xml.newPullParser();
 		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
@@ -450,6 +450,6 @@ public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surv
 		}
 		
 		return prompts;
-	}
+	}*/
 	
 }
