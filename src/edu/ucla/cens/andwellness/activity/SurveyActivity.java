@@ -33,6 +33,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
+import edu.ucla.cens.andwellness.CampaignXmlHelper;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
@@ -110,7 +111,7 @@ public class SurveyActivity extends Activity {
         	mPrompts = null;
             
             try {
-    			mPrompts = PromptXmlParser.parsePrompts(getResources().openRawResource(SharedPreferencesHelper.CAMPAIGN_XML_RESOURCE_ID), mSurveyId);
+    			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadDefaultCampaign(this), mSurveyId);
     		} catch (NotFoundException e) {
     			Log.e(TAG, "Error parsing prompts from xml", e);
     		} catch (XmlPullParserException e) {

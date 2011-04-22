@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="edu.ucla.cens.andwellness"
-	android:versionCode="1"
-	android:versionName="2.0">
+	android:versionName="2.2 pre-alpha" android:versionCode="11042200">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -28,7 +27,7 @@
             </intent-filter>
 		--></activity>
 		
-		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="AndWellness Surveys"
+		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="AndWellness"
 			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,7 +41,7 @@
         	</intent-filter>
     	</receiver>
     
-    <activity android:name=".activity.LoginActivity" android:label="AndWellness Login">
+    <activity android:name=".activity.LoginActivity" android:label="AndWellness Login" android:theme="@android:style/Theme.Light">
     </activity>
     
     <activity android:name=".activity.StatusActivity" android:label="AndWellness Status">
@@ -52,6 +51,11 @@
     	<intent-filter>
     		<action android:name="android.intent.action.BOOT_COMPLETED"/>
     	</intent-filter>
+    	<intent-filter>
+			<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
+			<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
+			<data android:scheme="package" android:host="edu.ucla.cens.andwellness"/>
+		</intent-filter>
     </receiver>
         
     <service android:name=".service.UploadService"/>
@@ -124,6 +128,11 @@
 			<intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
+            <intent-filter>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
+				<data android:scheme="package" android:host="edu.ucla.cens.andwellness"/>
+			</intent-filter>
 		</receiver>
 		
 		<receiver android:name=".triggers.base.TriggerTimeReceiver">
@@ -206,7 +215,7 @@
         -->
 	</application>
 	
-    <uses-sdk android:minSdkVersion="3" />
+    <uses-sdk android:minSdkVersion="4" />
 
 	
 </manifest> 

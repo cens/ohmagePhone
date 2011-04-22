@@ -60,7 +60,7 @@ public class LoginActivity extends Activity {
         mVersionText = (TextView) findViewById(R.id.version);
         
         try {
-			mVersionText.setText(getPackageManager().getPackageInfo("edu.ucla.cens.andwellness", 0).versionName);
+			mVersionText.setText("v" + getPackageManager().getPackageInfo("edu.ucla.cens.andwellness", 0).versionName);
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			Log.e(TAG, "unable to retrieve version");
@@ -298,6 +298,7 @@ public class LoginActivity extends Activity {
 			//save creds
 			mPreferencesHelper.putUsername(username);
 			mPreferencesHelper.putHashedPassword(hashedPassword);
+			mPreferencesHelper.putLastMobilityUploadTimestamp(System.currentTimeMillis());
 			
 			//clear related notifications
 			//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
