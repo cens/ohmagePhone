@@ -27,7 +27,7 @@
             </intent-filter>
 		--></activity>
 		
-		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="AndWellness Surveys"
+		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="AndWellness"
 			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
