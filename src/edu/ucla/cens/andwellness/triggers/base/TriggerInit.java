@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
 import edu.ucla.cens.andwellness.triggers.notif.Notifier;
+import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 
 /*
  * Boot listener. Starts all the active triggers. 
@@ -90,5 +91,54 @@ public class TriggerInit extends BroadcastReceiver {
 			
 			initTriggers(context);
 		}
+	}
+	
+	/*
+	 * Resets all triggers, settings and preferences to its default.
+	 * Removes all triggers from the database after stopping them.
+	 */
+	public static boolean resetAllTriggersAndSettings(Context context) {
+		Log.i(DEBUG_TAG, "TriggerInit: Resetting all triggers");
+		
+		TriggerTypeMap trigMap = new TriggerTypeMap();
+		
+		TriggerDB db = new TriggerDB(context);
+		db.open();
+		
+		Cursor c = db.getAllTriggers();
+		
+		//Stop and delete all triggers
+		if(c.moveToFirst()) {
+			do {
+				int trigId = c.getInt(
+							 c.getColumnIndexOrThrow(TriggerDB.KEY_ID));
+				
+				TriggerBase trig = trigMap.getTrigger(
+											db.getTriggerType(trigId));
+				if(trig != null) {
+					//delete the trigger 
+					trig.deleteTrigger(context, trigId);
+				}
+			} while(c.moveToNext());
+		}
+		
+		c.close();
+		db.close();
+		
+		//Reset the settings of all trigger types
+		for(TriggerBase trig : trigMap.getAllTriggers()) {
+			
+			if(trig.hasSettings()) {
+				trig.resetSettings(context);
+			}
+		}
+		
+		//Refresh the notification display
+		Notifier.refreshNotification(context, true);
+		
+		//Clear all preference files registered with the preference manager
+		TrigPrefManager.clearAllPreferenceFiles(context);
+		
+		return true;
 	}
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <campaign>
-  <campaignName>CHIPTS</campaignName>
+  <campaignName>TEST</campaignName>
   <campaignVersion>0.1</campaignVersion>
-  <serverUrl>http://www.andwellness-dev.org/</serverUrl>
+  <serverUrl>https://dev.andwellness.org/</serverUrl>
 
   <surveys>
     <survey>
@@ -88,6 +88,50 @@
               <key>5</key>
               <label>U</label>
               <value>5</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>multiCustomTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Select all that apply:</displayLabel>
+          <promptText>Select all that apply:</promptText>
+          <abbreviatedText>abbreviatedText</abbreviatedText>
+          <promptType>multi_choice_custom</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Z</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Y</label>
+              <value>1</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>singleCustomTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Select one:</displayLabel>
+          <promptText>Select one:</promptText>
+          <abbreviatedText>abbreviatedText</abbreviatedText>
+          <promptType>single_choice_custom</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Z</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Y</label>
+              <value>1</value>
             </property>
           </properties>
           <skippable>false</skippable>

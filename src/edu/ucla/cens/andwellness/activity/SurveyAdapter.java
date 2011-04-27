@@ -34,9 +34,9 @@ public class SurveyAdapter extends BaseAdapter {
 	private static final int VIEW_SURVEY = 0;
 	private static final int VIEW_HEADER = 1;
 	
-	private static final int GROUP_PENDING = 0;
-	private static final int GROUP_AVAILABLE = 1;
-	private static final int GROUP_UNAVAILABLE = 2;
+	public static final int GROUP_PENDING = 0;
+	public static final int GROUP_AVAILABLE = 1;
+	public static final int GROUP_UNAVAILABLE = 2;
 	
 	public SurveyAdapter(Context context, List<Survey> surveys, List<String> activeSurveyTitles, int surveyLayoutResource, int headerLayoutResource) {
 		mContext = context;
@@ -130,7 +130,7 @@ public class SurveyAdapter extends BaseAdapter {
 		return position;
 	}
 	
-	private int getItemGroup(int position) {
+	public int getItemGroup(int position) {
 		int sizeOfPendingSection = mPending.size() + (mPending.size() > 0 ? 1 : 0);
 		int sizeOfAvailableSection = mAvailable.size() + (mAvailable.size() > 0 ? 1 : 0);
 		int sizeOfUnavailableSection = mUnavailable.size() + (mUnavailable.size() > 0 ? 1 : 0);

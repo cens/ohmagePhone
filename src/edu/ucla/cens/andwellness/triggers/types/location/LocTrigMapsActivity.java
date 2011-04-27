@@ -79,6 +79,7 @@ import com.google.android.maps.ItemizedOverlay.OnFocusChangeListener;
 
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.triggers.config.LocTrigConfig;
+import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 import edu.ucla.cens.andwellness.triggers.utils.TrigTextInput;
 
 /* The maps activity */
@@ -108,7 +109,8 @@ public class LocTrigMapsActivity extends MapActivity
 	/* Menu ids */
 	private static final int MENU_MY_LOC_ID = Menu.FIRST;
 	private static final int MENU_SEARCH_ID = Menu.FIRST + 1;
-	private static final int MENU_HELP_ID = Menu.FIRST + 2;
+	private static final int MENU_SATELLITE_ID = Menu.FIRST + 2;
+	private static final int MENU_HELP_ID = Menu.FIRST + 3;
 	
 	//Timeout for 'my location' GPS sampling
 	private static final long MY_LOC_SAMPLE_TIMEOUT = 180000; //3 mins
@@ -259,6 +261,9 @@ public class LocTrigMapsActivity extends MapActivity
 			//Show the tool tip after a small delay
 			new Handler().postDelayed(runnable, TOOL_TIP_DELAY);
 		}
+		
+		TrigPrefManager.registerPreferenceFile(LocTrigMapsActivity.this, 
+				   								TOOL_TIP_PREF_NAME);
     }
     
     private boolean shouldSkipToolTip() {
@@ -312,6 +317,7 @@ public class LocTrigMapsActivity extends MapActivity
 		});
     }
     
+   
     @Override
     public void onDestroy() {
     	Log.i(DEBUG_TAG, "Maps: onDestroy");
@@ -378,12 +384,29 @@ public class LocTrigMapsActivity extends MapActivity
         boolean ret = super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_MY_LOC_ID, 0, R.string.menu_my_loc)
         	.setIcon(android.R.drawable.ic_menu_mylocation);
-        menu.add(0, MENU_SEARCH_ID, 0, R.string.menu_search)
+        menu.add(0, MENU_SEARCH_ID, 1, R.string.menu_search)
         	.setIcon(android.R.drawable.ic_menu_search);
-        menu.add(0, MENU_HELP_ID, 0, R.string.menu_help)
+        menu.add(0, MENU_HELP_ID, 4, R.string.menu_help)
         	.setIcon(android.R.drawable.ic_menu_help);
         
         return ret;
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	boolean ret = super.onPrepareOptionsMenu(menu);
+    	
+    	menu.removeItem(MENU_SATELLITE_ID);
+    	
+    	String txt = "Satellite mode";
+        if(mMapView.isSatellite()) {
+        	txt = "Map mode";
+        }
+         
+        menu.add(0, MENU_SATELLITE_ID, 3, txt)
+     		.setIcon(android.R.drawable.ic_menu_mapmode);
+         
+    	return ret;
     }
     
     @Override
@@ -433,6 +456,11 @@ public class LocTrigMapsActivity extends MapActivity
 			ti.showDialog()
 			  .setOwnerActivity(this);
    
+    		return true;
+    		
+    	case MENU_SATELLITE_ID:
+    		mMapView.setSatellite(!mMapView.isSatellite());
+    		mMapView.invalidate();
     		return true;
     		
     	case MENU_HELP_ID: //Show help

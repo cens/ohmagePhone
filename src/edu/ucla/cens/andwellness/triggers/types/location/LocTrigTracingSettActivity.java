@@ -1,9 +1,13 @@
 package edu.ucla.cens.andwellness.triggers.types.location;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import edu.ucla.cens.andwellness.R;
@@ -50,5 +54,15 @@ public class LocTrigTracingSettActivity extends PreferenceActivity
 		startService(i);
 		
 		return true;
+	}
+	
+	public static void resetAllSettings(Context context) {
+		SharedPreferences prefs = 
+		  		PreferenceManager.getDefaultSharedPreferences(context);
+	
+		Editor editor = prefs.edit();
+		editor.remove(PREF_KEY_TRACING_STATUS);
+		editor.remove(PREF_KEY_UPLOAD_ALWAYS);
+		editor.commit();
 	}
 }

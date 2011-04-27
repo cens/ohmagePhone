@@ -1,7 +1,6 @@
 package edu.ucla.cens.andwellness.prompts.remoteactivity;
 
 import java.util.Iterator;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +36,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	private static final String TAG = "RemoteActivityPrompt";
 	
 	private static final String FEEDBACK_STRING = "feedback";
+	private static final String SINGLE_VALUE_STRING = "score";
 
 	private String packageName;
 	private String activityName;
@@ -116,18 +116,19 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	/**
 	 * If the 'resultCode' indicates failure then we treat it as if the user
 	 * has skipped the prompt. If skipping is not allowed, we log it as an
-	 * error.
+	 * error, but we do not make an entry in the results array to prevent
+	 * corrupting it nor do we set as skipped to prevent us from corrupting
+	 * the entire survey.
 	 * 
 	 * If the 'resultCode' indicates success then we check to see what was
 	 * returned via the parameterized 'data' object. If 'data' is null, we put
-	 * nothing into the 'responseObject'. If not, we check all the keys in the
-	 * Bundle attached to 'data' and add their key-value pairs to the 
-	 * 'responseObject' JSONObject. In the case of any invalid value, we 
-	 * report the error but continue working on the rest of the key-value
-	 * pairs. Finally, it will check to see if 'data', not the bundle it was
-	 * associated with, had the key "feedback" in it. If so, it will populate
-	 * the text of the 'feedback' TextBox with that value provided it is a 
-	 * String. 
+	 * an empty JSONObject in the array to indicate that something went wrong.
+	 * If 'data' is not null, we get all the key-value pairs from the data's
+	 * extras and place them in a JSONObject. If the keys for these extras are
+	 * certain "special" return codes, some of which are required, then we
+	 * handle those as well which may or may not include putting them in the
+	 * JSONObject. Finally, we put the JSONObject in the JSONArray that is the
+	 * return value for this prompt type.
 	 */
 	@Override
 	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) 
@@ -159,33 +160,59 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 					responseArray = new JSONArray();
 				}
 				
+				boolean singleValueFound = false;
 				JSONObject currResponse = new JSONObject();
 				Bundle extras = data.getExtras();
-				Set<String> keysList = extras.keySet();
-				Iterator<String> keysIter = keysList.iterator();
+				Iterator<String> keysIter = extras.keySet().iterator();
 				while(keysIter.hasNext())
 				{
 					String nextKey = keysIter.next();
-					try
+					if(FEEDBACK_STRING.equals(nextKey))
 					{
-						currResponse.put(nextKey, extras.get(nextKey).toString());
+						feedbackText.setText(extras.getString(nextKey));
 					}
-					catch(JSONException e)
+					else
 					{
-						Log.e(TAG, "Invalid return value from remote Activity for key: " + nextKey);
+						try
+						{
+							currResponse.put(nextKey, extras.get(nextKey).toString());
+						}
+						catch(JSONException e)
+						{
+							Log.e(TAG, "Invalid return value from remote Activity for key: " + nextKey);
+						}
+						
+						if(SINGLE_VALUE_STRING.equals(nextKey))
+						{
+							singleValueFound = true;
+						}
 					}
 				}
-				responseArray.put(currResponse);
 				
-				String feedback = data.getStringExtra(FEEDBACK_STRING);
-				if(feedback != null)
+				if(singleValueFound)
 				{
-					feedbackText.setText(feedback);
+					responseArray.put(currResponse);
 				}
+				else
+				{
+					// We cannot add this to the list of responses because it
+					// will be rejected for not containing the single-value
+					// value.
+					Log.e(TAG, "The remote Activity is not returning a single value which is required for CSV export.");
+				}
+			}
+			else
+			{
+				// If the data is null, we put an empty JSONObject in the
+				// array to indicate that the data was null.
+				responseArray.put(new JSONObject());
+				Log.e(TAG, "The data returned by the remote Activity was null.");
 			}
 		}
 		// TODO: Possibly support user-defined Activity results:
 		//			resultCode > Activity.RESULT_FIRST_USER
+		//
+		// One obvious possibility is some sort of "SKIPPED" return code.
 	}
 
 	/**

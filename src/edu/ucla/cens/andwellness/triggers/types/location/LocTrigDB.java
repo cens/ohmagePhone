@@ -58,6 +58,11 @@ public class LocTrigDB {
 		this.mContext = context;
 	}
 	
+	//Delete the database file
+	public static void deleteDatabase(Context context) {
+		context.deleteDatabase(DATABASE_NAME);
+	}
+	
 	/* Open the database */
 	public boolean open() {
 		Log.i(DEBUG_TAG, "DB: open");

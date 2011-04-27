@@ -36,7 +36,7 @@ public class TimeTrigger extends TriggerBase {
 	}
 
 	@Override
-	public void removeTrigger(Context context, int trigId, String trigDesc) {
+	public void stopTrigger(Context context, int trigId, String trigDesc) {
 		Intent i = new Intent(context, TimeTrigService.class);
 		i.setAction(TimeTrigService.ACTION_REMOVE_TRIGGER);
 		i.putExtra(TimeTrigService.KEY_TRIG_ID, trigId);
@@ -107,6 +107,11 @@ public class TimeTrigger extends TriggerBase {
 
 	@Override
 	public void launchSettingsEditActivity(Context context, boolean adminMode) {
+		
+	}
+	
+	@Override
+	public void resetSettings(Context context) {
 		
 	}
 

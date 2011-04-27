@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<campaign>
+  <campaignName>TEST</campaignName>
+  <campaignVersion>0.22</campaignVersion>
+  <serverUrl>https://dev.andwellness.org/</serverUrl>
+
+  <surveys>
+    <survey>
+      <id>testSurvey</id>
+      <title>First Test Survey</title>
+      <description>Every survey must have a description.</description>
+      <submitText>Every survey must include submitText.</submitText>
+      <showSummary>false</showSummary>
+      <editSummary>false</editSummary>
+      <summaryText>Every survey must include summaryText.</summaryText>
+      <anytime>true</anytime>
+    
+      <contentList>
+      
+        <prompt>
+          <id>multiCustomTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Select all that apply:</displayLabel>
+          <promptText>Select all that apply:</promptText>
+          <abbreviatedText>abbreviatedText</abbreviatedText>
+          <promptType>multi_choice_custom</promptType>
+          <properties>
+            <property>
+              <key>100</key>
+              <label>A</label>
+              <value>100</value>
+            </property>
+            <property>
+              <key>102</key>
+              <label>B</label>
+              <value>102</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+        <prompt>
+          <id>singleCustomTest</id>
+          <displayType>measurement</displayType>
+          <displayLabel>Select one:</displayLabel>
+          <promptText>Select one:</promptText>
+          <abbreviatedText>abbreviatedText</abbreviatedText>
+          <promptType>single_choice_custom</promptType>
+          <properties>
+            <property>
+              <key>0</key>
+              <label>Z</label>
+              <value>0</value>
+            </property>
+            <property>
+              <key>1</key>
+              <label>Y</label>
+              <value>1</value>
+            </property>
+          </properties>
+          <skippable>false</skippable>
+        </prompt>
+        
+      </contentList>
+    
+    </survey>
+  </surveys>
+</campaign>
