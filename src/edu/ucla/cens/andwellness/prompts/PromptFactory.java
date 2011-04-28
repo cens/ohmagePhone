@@ -5,6 +5,7 @@ import edu.ucla.cens.andwellness.prompts.multichoice.MultiChoicePrompt;
 import edu.ucla.cens.andwellness.prompts.multichoicecustom.MultiChoiceCustomPrompt;
 import edu.ucla.cens.andwellness.prompts.number.NumberPrompt;
 import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompts.remoteactivity.RemoteActivityPrompt;
 import edu.ucla.cens.andwellness.prompts.singlechoice.SingleChoicePrompt;
 import edu.ucla.cens.andwellness.prompts.singlechoicecustom.SingleChoiceCustomPrompt;
 import edu.ucla.cens.andwellness.prompts.text.TextPrompt;
@@ -19,6 +20,7 @@ public class PromptFactory {
 	private static final String HOURS_BEFORE_NOW = "hours_before_now";
 	private static final String TEXT = "text";
 	private static final String PHOTO = "photo";
+	private static final String REMOTE_ACTIVITY = "remote_activity";
 	
 	private PromptFactory() {};
 	
@@ -40,6 +42,8 @@ public class PromptFactory {
 			return new TextPrompt();
 		} else if (promptType.equals(PHOTO)) {
 			return new PhotoPrompt();
+		} else if (promptType.equals(REMOTE_ACTIVITY)) {
+			return new RemoteActivityPrompt();
 		}
 		
 		throw new IllegalArgumentException("Unsupported prompt type: " + promptType);
