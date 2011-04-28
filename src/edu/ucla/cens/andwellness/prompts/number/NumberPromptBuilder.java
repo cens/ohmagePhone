@@ -2,9 +2,7 @@ package edu.ucla.cens.andwellness.prompts.number;
 
 import java.util.ArrayList;
 
-import edu.ucla.cens.andwellness.Utilities;
 import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
-import edu.ucla.cens.andwellness.Utilities.KVPair;
 import edu.ucla.cens.andwellness.prompts.Prompt;
 import edu.ucla.cens.andwellness.prompts.PromptBuilder;
 

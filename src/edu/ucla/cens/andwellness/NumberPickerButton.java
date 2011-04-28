@@ -22,8 +22,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
 
-import edu.ucla.cens.andwellness.R;
-
 /**
  * This class exists purely to cancel long click events.
  */

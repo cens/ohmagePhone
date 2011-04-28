@@ -3,30 +3,14 @@ package edu.ucla.cens.andwellness.prompts.multichoicecustom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.SharedPreferencesHelper;
-import edu.ucla.cens.andwellness.Utilities;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
-import edu.ucla.cens.andwellness.Utilities.KVPair;
-import edu.ucla.cens.andwellness.activity.SurveyActivity;
-import edu.ucla.cens.andwellness.db.Response;
-import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
-import edu.ucla.cens.andwellness.triggers.utils.TrigTextInput;
-
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -34,20 +18,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SimpleAdapter.ViewBinder;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
+import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
+import edu.ucla.cens.andwellness.activity.SurveyActivity;
+import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
+import edu.ucla.cens.systemlog.Log;
 
 public class MultiChoiceCustomPrompt extends AbstractPrompt {
 	

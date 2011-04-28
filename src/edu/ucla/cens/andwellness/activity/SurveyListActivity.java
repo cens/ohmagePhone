@@ -2,11 +2,8 @@ package edu.ucla.cens.andwellness.activity;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -17,14 +14,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources.NotFoundException;
 import android.os.Bundle;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.CampaignXmlHelper;
@@ -35,6 +29,7 @@ import edu.ucla.cens.andwellness.Survey;
 import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Log;
 
 public class SurveyListActivity extends ListActivity {
 	

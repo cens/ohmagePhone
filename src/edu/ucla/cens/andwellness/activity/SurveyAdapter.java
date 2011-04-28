@@ -1,22 +1,19 @@
 package edu.ucla.cens.andwellness.activity;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.SharedPreferencesHelper;
-import edu.ucla.cens.andwellness.Survey;
 import android.content.Context;
 import android.graphics.Color;
-import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
+import edu.ucla.cens.andwellness.Survey;
 
 public class SurveyAdapter extends BaseAdapter {
 	

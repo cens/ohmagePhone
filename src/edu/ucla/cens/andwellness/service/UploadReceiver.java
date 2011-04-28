@@ -1,15 +1,14 @@
 package edu.ucla.cens.andwellness.service;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.andwellness.service.UploadService;
-import edu.ucla.cens.andwellness.storagemonitor.StorageMonitorService;
 import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-//import android.util.Log;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.andwellness.storagemonitor.StorageMonitorService;
 import edu.ucla.cens.systemlog.Log;
 
 public class UploadReceiver extends BroadcastReceiver {

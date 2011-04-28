@@ -1,17 +1,14 @@
 package edu.ucla.cens.andwellness.appwidget;
 
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.R.id;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.activity.SurveyActivity;
-import edu.ucla.cens.andwellness.activity.SurveyListActivity;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.widget.RemoteViews;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.activity.SurveyActivity;
+import edu.ucla.cens.andwellness.activity.SurveyListActivity;
 
 public class AndWellnessAppWidgetProvider extends AppWidgetProvider {
 

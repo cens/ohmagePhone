@@ -2,14 +2,6 @@ package edu.ucla.cens.andwellness.activity;
 
 import java.util.Arrays;
 
-import edu.ucla.cens.andwellness.AndWellnessApi;
-import edu.ucla.cens.andwellness.AndWellnessApplication;
-import edu.ucla.cens.andwellness.BackgroundManager;
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.SharedPreferencesHelper;
-import edu.ucla.cens.andwellness.AndWellnessApi.ServerResponse;
-import edu.ucla.cens.andwellness.R.id;
-import edu.ucla.cens.andwellness.R.layout;
 import jbcrypt.BCrypt;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,13 +12,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import edu.ucla.cens.andwellness.AndWellnessApi;
+import edu.ucla.cens.andwellness.AndWellnessApplication;
+import edu.ucla.cens.andwellness.BackgroundManager;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
+import edu.ucla.cens.systemlog.Log;
 
 public class LoginActivity extends Activity {
 	

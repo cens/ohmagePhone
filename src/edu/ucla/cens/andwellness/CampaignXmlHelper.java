@@ -6,10 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import edu.ucla.cens.systemlog.Log;
-
 import android.content.Context;
 import android.os.Environment;
+import edu.ucla.cens.systemlog.Log;
 
 public class CampaignXmlHelper {
 	

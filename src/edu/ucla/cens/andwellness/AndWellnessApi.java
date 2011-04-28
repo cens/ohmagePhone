@@ -1,23 +1,15 @@
 package edu.ucla.cens.andwellness;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -28,7 +20,6 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
@@ -45,8 +36,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.os.Environment;
-//import android.util.Log;
 import edu.ucla.cens.systemlog.Log;
 
 public class AndWellnessApi {
@@ -55,10 +44,11 @@ public class AndWellnessApi {
 	
 	//private static final String SERVER_URL = "https://dev.andwellness.org/";
 	private String mServerUrl;
-	private static final String AUTHENTICATE_PATH = "app/auth";
-	private static final String MOBILITY_UPLOAD_PATH = "app/u/mobility";
-	private static final String SURVEY_UPLOAD_PATH = "app/u/survey";
-	private static final String IMAGE_UPLOAD_PATH = "app/u/image";
+	private static final String AUTHENTICATE_PATH = "app/user/auth";
+	private static final String MOBILITY_UPLOAD_PATH = "app/mobility/upload";
+	private static final String SURVEY_UPLOAD_PATH = "app/survey/upload";
+	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
+	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
 	
 	public AndWellnessApi(Context context) {
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);

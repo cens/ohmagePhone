@@ -1,13 +1,10 @@
 package edu.ucla.cens.andwellness.service;
 
-import edu.ucla.cens.andwellness.BackgroundManager;
-import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-//import android.util.Log;
+import edu.ucla.cens.andwellness.BackgroundManager;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.systemlog.Log;
 
 public class BootReceiver extends BroadcastReceiver {

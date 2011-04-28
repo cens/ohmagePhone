@@ -1,16 +1,14 @@
 package edu.ucla.cens.andwellness.prompts.hoursbeforenow;
 
-import edu.ucla.cens.andwellness.NumberPicker;
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.NumberPicker.OnChangedListener;
-import edu.ucla.cens.andwellness.R.id;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import edu.ucla.cens.andwellness.NumberPicker;
+import edu.ucla.cens.andwellness.NumberPicker.OnChangedListener;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 public class HoursBeforeNowPrompt extends AbstractPrompt {
 

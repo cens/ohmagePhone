@@ -1,21 +1,14 @@
 package edu.ucla.cens.andwellness.storagemonitor;
 
-import java.io.File;
-
-import edu.ucla.cens.andwellness.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.StatFs;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.systemlog.Log;
 
 public class StorageMonitorSettingsActivity extends Activity {
 	

@@ -1,11 +1,11 @@
 package edu.ucla.cens.andwellness.service;
 
-import edu.ucla.cens.andwellness.db.DbHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import edu.ucla.cens.andwellness.db.DbHelper;
 
 public class SurveyGeotagTimeoutReceiver extends BroadcastReceiver {
 

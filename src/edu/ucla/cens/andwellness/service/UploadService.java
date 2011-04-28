@@ -15,8 +15,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -28,6 +26,7 @@ import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.db.Response;
 import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Log;
 
 public class UploadService extends WakefulIntentService{
 	

@@ -3,30 +3,13 @@ package edu.ucla.cens.andwellness.activity;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import jbcrypt.BCrypt;
-
-import edu.ucla.cens.andwellness.AndWellnessApi;
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.SharedPreferencesHelper;
-import edu.ucla.cens.andwellness.Utilities;
-import edu.ucla.cens.andwellness.AndWellnessApi.Result;
-import edu.ucla.cens.andwellness.AndWellnessApi.ServerResponse;
-import edu.ucla.cens.andwellness.R.id;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.db.DbHelper;
-import edu.ucla.cens.andwellness.db.Response;
-import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.service.SurveyGeotagService;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -37,12 +20,20 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import edu.ucla.cens.andwellness.AndWellnessApi;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.SharedPreferencesHelper;
+import edu.ucla.cens.andwellness.Utilities;
+import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.db.Response;
+import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.service.SurveyGeotagService;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Log;
 
 public class StatusActivity extends Activity {
 	

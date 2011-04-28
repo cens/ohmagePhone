@@ -7,9 +7,7 @@ import org.andwellness.config.grammar.parser.ConditionParser;
 import org.andwellness.config.grammar.parser.ParseException;
 import org.andwellness.config.grammar.syntaxtree.start;
 
-//import android.util.Log;
 import edu.ucla.cens.systemlog.Log;
-import edu.ucla.cens.andwellness.conditionevaluator.DataPoint;
 
 /**
  * Basic utility class to evaluate a string condition against a list of data points.

@@ -2,14 +2,13 @@ package edu.ucla.cens.andwellness;
 
 import java.io.File;
 
-import edu.ucla.cens.andwellness.db.DbHelper;
-import edu.ucla.cens.andwellness.prompts.multichoicecustom.MultiChoiceCustomDbAdapter;
-import edu.ucla.cens.andwellness.prompts.singlechoicecustom.SingleChoiceCustomDbAdapter;
-import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import android.app.Application;
 import android.util.Log;
-//import edu.ucla.cens.systemlog.Log;
+import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.prompts.multichoicecustom.MultiChoiceCustomDbAdapter;
+import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompts.singlechoicecustom.SingleChoiceCustomDbAdapter;
+import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 
 public class AndWellnessApplication extends Application {
 	

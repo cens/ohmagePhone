@@ -1,6 +1,5 @@
 package edu.ucla.cens.andwellness.service;
 
-import edu.ucla.cens.andwellness.db.DbHelper;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -13,7 +12,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
-//import android.util.Log;
+import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.systemlog.Log;
 
 public class SurveyGeotagService extends Service {

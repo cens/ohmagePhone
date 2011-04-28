@@ -1,14 +1,7 @@
 package edu.ucla.cens.andwellness.prompts;
 
-import java.util.HashMap;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
-import android.content.Context;
-import android.content.Intent;
-import android.view.View;
 
 public abstract class AbstractPrompt implements Prompt {
 

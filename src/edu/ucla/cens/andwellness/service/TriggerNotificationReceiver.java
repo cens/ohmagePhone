@@ -1,11 +1,10 @@
 package edu.ucla.cens.andwellness.service;
 
-import edu.ucla.cens.andwellness.activity.SurveyListActivity;
-import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-//import android.util.Log;
+import edu.ucla.cens.andwellness.activity.SurveyListActivity;
+import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import edu.ucla.cens.systemlog.Log;
 
 public class TriggerNotificationReceiver extends BroadcastReceiver {

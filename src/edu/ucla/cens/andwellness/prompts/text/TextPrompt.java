@@ -1,9 +1,5 @@
 package edu.ucla.cens.andwellness.prompts.text;
 
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.R.id;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Editable;
@@ -11,7 +7,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 public class TextPrompt extends AbstractPrompt {
 	

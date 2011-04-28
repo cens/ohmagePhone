@@ -6,20 +6,17 @@ import java.util.Map;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.service.UploadReceiver;
-import edu.ucla.cens.andwellness.storagemonitor.StorageMonitorService;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Resources.NotFoundException;
 import android.os.SystemClock;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.widget.Toast;
+import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.service.UploadReceiver;
+import edu.ucla.cens.andwellness.storagemonitor.StorageMonitorService;
+import edu.ucla.cens.systemlog.Log;
 
 public class BackgroundManager {
 	

@@ -1,11 +1,11 @@
 package edu.ucla.cens.andwellness.triggers.base;
 
-import edu.ucla.cens.andwellness.triggers.notif.Notifier;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
+import edu.ucla.cens.andwellness.triggers.notif.Notifier;
 
 /*
  * Time/Time-zone change listener. Restarts the triggers and

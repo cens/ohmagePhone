@@ -1,18 +1,8 @@
 package edu.ucla.cens.andwellness.prompts.photo;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
-
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.R.id;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.activity.SurveyActivity;
-import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,16 +10,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.activity.SurveyActivity;
+import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 public class PhotoPrompt extends AbstractPrompt {
 	

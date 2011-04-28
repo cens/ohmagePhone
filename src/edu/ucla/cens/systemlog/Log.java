@@ -2,7 +2,6 @@ package edu.ucla.cens.systemlog;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
 
 public class Log {
 	

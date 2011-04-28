@@ -5,26 +5,20 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.Utilities;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
-import edu.ucla.cens.andwellness.Utilities.KVPair;
-import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 import android.content.Context;
 import android.content.Intent;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter.ViewBinder;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
+import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 public class MultiChoicePrompt extends AbstractPrompt {
 	

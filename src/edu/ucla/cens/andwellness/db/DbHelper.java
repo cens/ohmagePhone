@@ -3,17 +3,13 @@ package edu.ucla.cens.andwellness.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.ucla.cens.andwellness.service.SurveyGeotagService;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.location.Location;
-//import android.util.Log;
+import edu.ucla.cens.andwellness.service.SurveyGeotagService;
 import edu.ucla.cens.systemlog.Log;
 
 public class DbHelper extends SQLiteOpenHelper{

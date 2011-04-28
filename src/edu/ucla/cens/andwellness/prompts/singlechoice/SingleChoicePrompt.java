@@ -3,30 +3,20 @@ package edu.ucla.cens.andwellness.prompts.singlechoice;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.Utilities;
-import edu.ucla.cens.andwellness.R.layout;
-import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
-import edu.ucla.cens.andwellness.Utilities.KVPair;
-import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 import android.content.Context;
 import android.content.Intent;
-//import android.util.Log;
-import edu.ucla.cens.systemlog.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter.ViewBinder;
+import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
+import edu.ucla.cens.andwellness.prompts.AbstractPrompt;
 
 public class SingleChoicePrompt extends AbstractPrompt {
 	
