@@ -18,7 +18,7 @@
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	
-    <application android:name=".AndWellnessApplication" android:icon="@drawable/icon" android:label="@string/app_name">
+    <application android:name="AndWellnessApplication:icon="@drawable/icon" android:label="@string/app_name">
 
 		<activity android:name=".activity.SurveyActivity" android:launchMode="standard"
 			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
@@ -122,8 +122,7 @@
 		
     <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
 	<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
-    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
-				  android:screenOrientation="portrait"/>
+    <activity android:name="ttttttttttriggers.types.location.LocTrigMapsActivitycreenOrientation="portrait"/>
 		
 		<receiver android:name=".triggers.base.TriggerInit">
 			<intent-filter>
@@ -154,9 +153,7 @@
 	    	</intent-filter>
 		</receiver>
 		
-		<service android:name=".triggers.types.location.LocTrigService"/>
-		
-    <receiver android:name=".triggers.types.location.LocTrigService$AlarmReceiver">
+		<service android:name="trtrtrtrtrtrtrtrtrtriggers.types.location.LocTrigServiceoid:name=".triggers.types.location.LocTrigService$AlarmReceiver">
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.andwellness.triggers.types.location.LocTrigService.TRIGGER_ALWAYS" />
 	    		<data android:scheme="locationtrigger" />
@@ -175,9 +172,7 @@
 	    	</intent-filter>
 		</receiver>
 		
-		<receiver android:name=".triggers.notif.Notifier$NotifReceiver">
-	    	<intent-filter>
-	    		<action android:name="edu.ucla.cens.triggers.notif.Notifier.expire_notif" />
+		<receiver android:name="tritritritritritritritritritriggers.notif.Notifier$NotifReceiverction android:name="edu.ucla.cens.triggers.notif.Notifier.expire_notif" />
 	    		<data android:scheme="notifier" />
 	    	</intent-filter>
 	    	<intent-filter>

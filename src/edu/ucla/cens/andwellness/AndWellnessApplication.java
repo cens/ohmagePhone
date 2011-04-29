@@ -5,9 +5,9 @@ import java.io.File;
 import android.app.Application;
 import android.util.Log;
 import edu.ucla.cens.andwellness.db.DbHelper;
-import edu.ucla.cens.andwellness.prompts.multichoicecustom.MultiChoiceCustomDbAdapter;
-import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.prompts.singlechoicecustom.SingleChoiceCustomDbAdapter;
+import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
+import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 
 public class AndWellnessApplication extends Application {

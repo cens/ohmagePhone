@@ -14,10 +14,10 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.util.Xml;
 import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
-import edu.ucla.cens.andwellness.prompts.Prompt;
-import edu.ucla.cens.andwellness.prompts.PromptBuilder;
-import edu.ucla.cens.andwellness.prompts.PromptBuilderFactory;
-import edu.ucla.cens.andwellness.prompts.PromptFactory;
+import edu.ucla.cens.andwellness.prompt.Prompt;
+import edu.ucla.cens.andwellness.prompt.PromptBuilder;
+import edu.ucla.cens.andwellness.prompt.PromptBuilderFactory;
+import edu.ucla.cens.andwellness.prompt.PromptFactory;
 
 public class PromptXmlParser {
 	

@@ -24,7 +24,7 @@ import edu.ucla.cens.andwellness.Utilities;
 import edu.ucla.cens.andwellness.activity.LoginActivity;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.db.Response;
-import edu.ucla.cens.andwellness.prompts.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
