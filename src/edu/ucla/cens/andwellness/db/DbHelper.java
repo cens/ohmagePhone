@@ -187,6 +187,20 @@ public class DbHelper extends SQLiteOpenHelper{
 		return count > 0;
 	}
 	
+	public boolean removeResponseRows(String campaignUrn) {
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return false;
+		}
+		
+		int count = db.delete(TABLE_RESPONSES, Response.CAMPAIGN_URN + "='" + campaignUrn + "'", null);
+		
+		closeDb(db);
+		
+		return count > 0;
+	}
+	
 	public void getResponseRow() {
 		
 	}
@@ -379,7 +393,7 @@ public class DbHelper extends SQLiteOpenHelper{
 		return rowId;
 	}
 	
-	public boolean removeCampaign(String _id) {
+	public boolean removeCampaign(long _id) {
 		
 		SQLiteDatabase db = openDb();
 		
@@ -388,6 +402,21 @@ public class DbHelper extends SQLiteOpenHelper{
 		}
 		
 		int count = db.delete(TABLE_CAMPAIGNS, Campaign._ID + "=" + _id, null);
+		
+		closeDb(db);
+		
+		return count > 0;
+	}
+	
+	public boolean removeCampaign(String urn) {
+		
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return false;
+		}
+		
+		int count = db.delete(TABLE_CAMPAIGNS, Campaign.URN + "='" + urn +"'", null);
 		
 		closeDb(db);
 		

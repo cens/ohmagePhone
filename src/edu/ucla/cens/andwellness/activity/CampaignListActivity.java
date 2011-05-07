@@ -1,5 +1,6 @@
 package edu.ucla.cens.andwellness.activity;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,12 +28,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import edu.ucla.cens.andwellness.AndWellnessApi;
 import edu.ucla.cens.andwellness.AndWellnessApi.ReadResponse;
 import edu.ucla.cens.andwellness.AndWellnessApi.Result;
 import edu.ucla.cens.andwellness.campaign.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
 import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
@@ -91,6 +96,8 @@ public class CampaignListActivity extends ListActivity {
 	        mFooter = mInflater.inflate(R.layout.campaign_list_footer, null);
 	        mFooter.setVisibility(View.GONE);
 	        getListView().addFooterView(mFooter);
+	        
+	        getListView().setOnItemLongClickListener(mItemLongClickListener);
 			
 			setListAdapter(new CampaignListAdapter(this, mAvailable, mUnavailable, R.layout.list_item_with_image, R.layout.list_header));
 			//setListAdapter(new SimpleAdapter(this, mData , android.R.layout.simple_list_item_2, from, to));
@@ -136,6 +143,67 @@ public class CampaignListActivity extends ListActivity {
 			CampaignDownloadTask task = new CampaignDownloadTask(CampaignListActivity.this);
 			task.execute("xerox.gimp", "mama.quanta", ((Campaign) getListView().getItemAtPosition(position)).mUrn);
 		}
+	}
+	
+	OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
+
+		@Override
+		public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+			if (((CampaignListAdapter)getListAdapter()).getItemGroup(position) == CampaignListAdapter.GROUP_AVAILABLE) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(CampaignListActivity.this)
+				.setNegativeButton("No", null)
+				.setTitle("Confirm")
+				.setMessage("Are you sure you wish to remove this campaign from your campaigns list? All data associated with this campaign will be deleted.")
+				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						removeCampaign(((Campaign) getListView().getItemAtPosition(position)).mUrn);
+						loadCampaigns();
+						updateCampaignList();
+						((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
+					}
+
+				});
+				builder.show();
+				return true;
+			} else {
+				return false;
+			}
+			
+		}
+	};
+	
+	private void removeCampaign(String urn) {
+		DbHelper dbHelper = new DbHelper(this);
+		
+		//remove campaign
+		dbHelper.removeCampaign(urn);
+		
+		//remove responses
+		dbHelper.removeResponseRows(urn);
+		
+		//remove images
+		File imageDir = new File(PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_'));
+		if (imageDir.exists()) {
+			File [] files = imageDir.listFiles();
+			
+			if (files != null) {
+				for (int i = 0; i < files.length; i++) {
+					files[i].delete();
+				}
+			}
+			
+			imageDir.delete();
+		} else {
+			Log.e(TAG, PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_') + " does not exist.");
+		}
+		
+		//clear custom type dbs
+		
+		//remove triggers
+		
+		//clear preferences
 	}
 	
 	@Override
