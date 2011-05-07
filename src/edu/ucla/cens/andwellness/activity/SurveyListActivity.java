@@ -37,7 +37,8 @@ public class SurveyListActivity extends ListActivity {
 	
 	private List<Survey> mSurveys;
 	private List<String> mActiveSurveyTitles;
-	private SurveyAdapter adapter;
+	private SurveyListAdapter adapter;
+	private String mCampaignUrn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +60,18 @@ public class SurveyListActivity extends ListActivity {
 		mSurveys = null; 
 		mActiveSurveyTitles = new ArrayList<String>();
 		
+		Intent intent = getIntent();
+		
+		if (intent != null) {
+			
+			mCampaignUrn = intent.getStringExtra("campaign_urn");
+			setTitle(intent.getStringExtra("campaign_name"));
+		}
+		
+		
+		
 		try {
-			mSurveys = PromptXmlParser.parseSurveys(CampaignXmlHelper.loadDefaultCampaign(this));
+			mSurveys = PromptXmlParser.parseSurveys(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn));
 		} catch (NotFoundException e) {
 			Log.e(TAG, "Error parsing surveys from xml", e);
 		} catch (XmlPullParserException e) {
@@ -69,7 +80,7 @@ public class SurveyListActivity extends ListActivity {
 			Log.e(TAG, "Error parsing surveys from xml", e);
 		}
 		
-		adapter = new SurveyAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
+		adapter = new SurveyListAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
 		
 		setListAdapter(adapter);
 	}	
@@ -96,8 +107,6 @@ public class SurveyListActivity extends ListActivity {
 				survey.setTriggered(false);
 			}
 		}*/
-		
-		
 	}
 	
 	@Override
@@ -119,12 +128,13 @@ public class SurveyListActivity extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
-		if (((SurveyAdapter)getListAdapter()).getItemGroup(position) == SurveyAdapter.GROUP_UNAVAILABLE) {
+		if (((SurveyListAdapter)getListAdapter()).getItemGroup(position) == SurveyListAdapter.GROUP_UNAVAILABLE) {
 			Toast.makeText(this, "This survey can only be taken at certain times.", Toast.LENGTH_LONG).show();
 		} else {
 			Survey survey = (Survey) getListView().getItemAtPosition(position);
 			
 			Intent intent = new Intent(this, SurveyActivity.class);
+			intent.putExtra("campaign_urn", mCampaignUrn);
 			intent.putExtra("survey_id", survey.getId());
 			intent.putExtra("survey_title", survey.getTitle());
 			intent.putExtra("survey_submit_text", survey.getSubmitText());
@@ -135,7 +145,7 @@ public class SurveyListActivity extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.main_menu, menu);
+	    inflater.inflate(R.menu.survey_list_menu, menu);
 	  	return super.onCreateOptionsMenu(menu);
 	}
 
@@ -148,10 +158,6 @@ public class SurveyListActivity extends ListActivity {
 				surveyTitles.add(survey.getTitle());
 			}
 			TriggerFramework.launchTriggersActivity(this, surveyTitles.toArray(new String[surveyTitles.size()]));
-			return true;
-		case R.id.mobility_settings:
-			MobilityInterface.showMobilityOptions(this);
-			//Toast.makeText(this, "Mobility is not available.", Toast.LENGTH_SHORT).show();
 			return true;
 			
 		case R.id.location_trace_settings:

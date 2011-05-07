@@ -9,7 +9,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import edu.ucla.cens.andwellness.AndWellnessApi;
+import edu.ucla.cens.andwellness.AndWellnessApi.AuthenticateResponse;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.BackgroundManager;
 import edu.ucla.cens.andwellness.R;
@@ -28,8 +28,6 @@ public class LoginActivity extends Activity {
 	
 	public static final String TAG = "LoginActivity";
 	
-	private static final String DUMMY_PASSWORD = "******";
-	private static final String BCRYPT_KEY = "$2a$04$r8zKliEptVkzoiQgD833Oe";
     private static final int DIALOG_FIRST_RUN = 1;
     private static final int DIALOG_LOGIN_ERROR = 2;
     private static final int DIALOG_NETWORK_ERROR = 3;
@@ -57,10 +55,8 @@ public class LoginActivity extends Activity {
         
         try {
 			mVersionText.setText("v" + getPackageManager().getPackageInfo("edu.ucla.cens.andwellness", 0).versionName);
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "unable to retrieve version");
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.e(TAG, "unable to retrieve version", e);
 			mVersionText.setText(" ");
 		}
         
@@ -129,14 +125,14 @@ public class LoginActivity extends Activity {
     			mUsernameEdit.setEnabled(false);
     			mUsernameEdit.setFocusable(false);
     			
-    			String hashedPassword = mPreferencesHelper.getHashedPassword();
-    			if (hashedPassword.length() > 0) {
-    				Log.i(TAG, "saved password exists");
-    				mPasswordEdit.setText(DUMMY_PASSWORD);
-    				//doLogin();
-    			} else {
-    				Log.i(TAG, "no saved password, must have had a login problem");
-    			}
+//    			String hashedPassword = mPreferencesHelper.getHashedPassword();
+//    			if (hashedPassword.length() > 0) {
+//    				Log.i(TAG, "saved password exists");
+//    				mPasswordEdit.setText(DUMMY_PASSWORD);
+//    				//doLogin();
+//    			} else {
+//    				Log.i(TAG, "no saved password, must have had a login problem");
+//    			}
     			
         	} else {
         		Log.i(TAG, "no saved username");
@@ -171,10 +167,9 @@ public class LoginActivity extends Activity {
 	private void doLogin() {
 		String username = mUsernameEdit.getText().toString();
 		String password = mPasswordEdit.getText().toString();
-		String hashedPassword = mPreferencesHelper.getHashedPassword();
 		
 		mTask = new LoginTask(LoginActivity.this);
-		mTask.execute(username, password, hashedPassword);
+		mTask.execute(username, password);
 	}
 	
 	@Override
@@ -267,7 +262,7 @@ public class LoginActivity extends Activity {
         	
 		case DIALOG_LOGIN_PROGRESS:
 			ProgressDialog pDialog = new ProgressDialog(this);
-			pDialog.setMessage("Authenticating with AndWellness servers...");
+			pDialog.setMessage("Authenticating with ohmage servers...");
 			pDialog.setCancelable(false);
 			//pDialog.setIndeterminate(true);
 			dialog = pDialog;
@@ -277,7 +272,7 @@ public class LoginActivity extends Activity {
 		return dialog;
 	}
 	
-	private void onLoginTaskDone(AndWellnessApi.ServerResponse response, String username, String hashedPassword) {
+	private void onLoginTaskDone(AndWellnessApi.AuthenticateResponse response, String username) {
 		
 		mTask = null;
 		
@@ -291,6 +286,8 @@ public class LoginActivity extends Activity {
 		switch (response.getResult()) {
 		case SUCCESS:
 			Log.i(TAG, "login success");
+			
+			String hashedPassword = response.getHashedPassword();
 			//save creds
 			mPreferencesHelper.putUsername(username);
 			mPreferencesHelper.putHashedPassword(hashedPassword);
@@ -306,7 +303,7 @@ public class LoginActivity extends Activity {
 			//BackgroundManager.initAuthComponents(this);
 			
 			//start main activity
-			startActivity(new Intent(LoginActivity.this, SurveyListActivity.class));
+			startActivity(new Intent(LoginActivity.this, CampaignListActivity.class));
 			
 			//close this activity
 			finish();
@@ -348,14 +345,13 @@ public class LoginActivity extends Activity {
 		}
 	}
 	
-	private static class LoginTask extends AsyncTask<String, Void, AndWellnessApi.ServerResponse>{
+	private static class LoginTask extends AsyncTask<String, Void, AndWellnessApi.AuthenticateResponse>{
 		
 		private LoginActivity mActivity;
 		private boolean mIsDone = false;
 		private String mUsername;
 		private String mPassword;
-		private String mHashedPassword;
-		private AndWellnessApi.ServerResponse mResponse = null;
+		private AndWellnessApi.AuthenticateResponse mResponse = null;
 
 		private LoginTask(LoginActivity activity) {
 			this.mActivity = activity;
@@ -375,29 +371,28 @@ public class LoginActivity extends Activity {
 		}
 
 		@Override
-		protected AndWellnessApi.ServerResponse doInBackground(String... params) {
+		protected AndWellnessApi.AuthenticateResponse doInBackground(String... params) {
 			mUsername = params[0];
 			mPassword = params[1];
-			mHashedPassword = params[2];
 			
-			if (mPassword.equals(DUMMY_PASSWORD)) {
-				Log.i(TAG, "using stored hashed password");
-			} else {
-				Log.i(TAG, "password field modified, attempting to hash");
-				try {
-		        	mHashedPassword = BCrypt.hashpw(mPassword, BCRYPT_KEY);
-		        	Log.i(TAG, "hash complete");
-		        } catch (Exception e) {
-		        	Log.e(TAG, "unable to hash password");
-		        	e.printStackTrace();
-		        }
-			}
+//			if (mPassword.equals(DUMMY_PASSWORD)) {
+//				Log.i(TAG, "using stored hashed password");
+//			} else {
+//				Log.i(TAG, "password field modified, attempting to hash");
+//				try {
+//		        	mHashedPassword = BCrypt.hashpw(mPassword, BCRYPT_KEY);
+//		        	Log.i(TAG, "hash complete");
+//		        } catch (Exception e) {
+//		        	Log.e(TAG, "unable to hash password");
+//		        	e.printStackTrace();
+//		        }
+//			}
 			AndWellnessApi api = new AndWellnessApi(mActivity);
-			return api.authenticate(mUsername, mHashedPassword, SharedPreferencesHelper.CLIENT_STRING);
+			return api.authenticate(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 
 		@Override
-		protected void onPostExecute(AndWellnessApi.ServerResponse response) {
+		protected void onPostExecute(AndWellnessApi.AuthenticateResponse response) {
 			super.onPostExecute(response);
 			
 			mResponse = response;
@@ -407,7 +402,7 @@ public class LoginActivity extends Activity {
 		
 		private void notifyTaskDone() {
 			if (mActivity != null) {
-				mActivity.onLoginTaskDone(mResponse, mUsername, mHashedPassword);
+				mActivity.onLoginTaskDone(mResponse, mUsername);
 			}
 		}
 	}

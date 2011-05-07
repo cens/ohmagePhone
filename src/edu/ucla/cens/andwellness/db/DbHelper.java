@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import edu.ucla.cens.andwellness.campaign.Campaign;
 import edu.ucla.cens.andwellness.service.SurveyGeotagService;
 import edu.ucla.cens.systemlog.Log;
 
@@ -19,6 +20,7 @@ public class DbHelper extends SQLiteOpenHelper{
 	private static final String DB_NAME = "andwellness.db";
 	private static final int DB_VERSION = 1;
 	private static final String TABLE_RESPONSES = "responses";
+	private static final String TABLE_CAMPAIGNS = "campaigns";
 	
 	
 	private static boolean isDbOpen = false;
@@ -34,8 +36,7 @@ public class DbHelper extends SQLiteOpenHelper{
 
 		db.execSQL("CREATE TABLE " + TABLE_RESPONSES + " ("
 				+ Response._ID + " INTEGER PRIMARY KEY, "
-				+ Response.CAMPAIGN + " TEXT, "
-				+ Response.CAMPAIGN_VERSION + " TEXT, "
+				+ Response.CAMPAIGN_URN + " TEXT, "
 				+ Response.USERNAME + " TEXT, "
 				+ Response.DATE + " TEXT, "
 				+ Response.TIME + " INTEGER, "
@@ -50,11 +51,21 @@ public class DbHelper extends SQLiteOpenHelper{
 				+ Response.SURVEY_LAUNCH_CONTEXT + " TEXT, "
 				+ Response.RESPONSE + " TEXT"
 				+ ");");
+		
+		db.execSQL("CREATE TABLE " + TABLE_CAMPAIGNS + " ("
+				+ Campaign._ID + " INTEGER PRIMARY KEY, "
+				+ Campaign.URN + " TEXT, "
+				+ Campaign.NAME + " TEXT, "
+				+ Campaign.CREATION_TIMESTAMP + " TEXT, "
+				+ Campaign.DOWNLOAD_TIMESTAMP + " TEXT, "
+				+ Campaign.CONFIGURATION_XML + " TEXT "
+				+ ");");
 	}
  
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESPONSES);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAMPAIGNS);
 		onCreate(db);
 	}
 	
@@ -98,10 +109,11 @@ public class DbHelper extends SQLiteOpenHelper{
 		}
 		
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESPONSES);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAMPAIGNS);
 		onCreate(db);
 	}
 
-	public long addResponseRow(String campaign, String campaignVersion, String username, String date, long time, String timezone, String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime, String surveyId, String surveyLaunchContext, String response) {
+	public long addResponseRow(String campaignUrn, String username, String date, long time, String timezone, String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime, String surveyId, String surveyLaunchContext, String response) {
 		SQLiteDatabase db = openDb();
 		
 		if (db == null) {
@@ -109,8 +121,7 @@ public class DbHelper extends SQLiteOpenHelper{
 		}
 		
 		ContentValues values = new ContentValues();
-		values.put(Response.CAMPAIGN, campaign);
-		values.put(Response.CAMPAIGN_VERSION, campaignVersion);
+		values.put(Response.CAMPAIGN_URN, campaignUrn);
 		values.put(Response.USERNAME, username);
 		values.put(Response.DATE, date);
 		values.put(Response.TIME, time);
@@ -132,7 +143,7 @@ public class DbHelper extends SQLiteOpenHelper{
 		return rowId;
 	}
 	
-	public long addResponseRowWithoutLocation(String campaign, String campaignVersion, String username, String date, long time, String timezone, String surveyId, String surveyLaunchContext, String response) {
+	public long addResponseRowWithoutLocation(String campaignUrn, String username, String date, long time, String timezone, String surveyId, String surveyLaunchContext, String response) {
 		SQLiteDatabase db = openDb();
 		
 		if (db == null) {
@@ -140,8 +151,7 @@ public class DbHelper extends SQLiteOpenHelper{
 		}
 		
 		ContentValues values = new ContentValues();
-		values.put(Response.CAMPAIGN, campaign);
-		values.put(Response.CAMPAIGN_VERSION, campaignVersion);
+		values.put(Response.CAMPAIGN_URN, campaignUrn);
 		values.put(Response.USERNAME, username);
 		values.put(Response.DATE, date);
 		values.put(Response.TIME, time);
@@ -181,7 +191,7 @@ public class DbHelper extends SQLiteOpenHelper{
 		
 	}
 	
-	public List<Response> getSurveyResponses() {
+	public List<Response> getSurveyResponses(String campaignUrn) {
 		
 		SQLiteDatabase db = openDb();
 		
@@ -189,7 +199,7 @@ public class DbHelper extends SQLiteOpenHelper{
 			return null;
 		}
 		
-		Cursor cursor = db.query(TABLE_RESPONSES, null, null, null, null, null, null);
+		Cursor cursor = db.query(TABLE_RESPONSES, null, Response.CAMPAIGN_URN + "='" + campaignUrn + "'", null, null, null, null);
 		
 		List<Response> responses = readResponseRows(cursor); 
 			
@@ -198,7 +208,24 @@ public class DbHelper extends SQLiteOpenHelper{
 		return responses;
 	}
 	
-	public List<Response> getSurveyResponsesBefore(long cutoffTime) {
+//	public List<Response> getSurveyResponsesBefore(long cutoffTime) {
+//		
+//		SQLiteDatabase db = openDb();
+//		
+//		if (db == null) {
+//			return null;
+//		}
+//		
+//		Cursor cursor = db.query(TABLE_RESPONSES, null, Response.TIME + " < " + Long.toString(cutoffTime), null, null, null, null);
+//		
+//		List<Response> responses = readResponseRows(cursor); 
+//		
+//		closeDb(db);
+//		
+//		return responses;
+//	}
+	
+	public List<Response> getSurveyResponsesBefore(String campaignUrn, long cutoffTime) {
 		
 		SQLiteDatabase db = openDb();
 		
@@ -206,7 +233,7 @@ public class DbHelper extends SQLiteOpenHelper{
 			return null;
 		}
 		
-		Cursor cursor = db.query(TABLE_RESPONSES, null, Response.TIME + " < " + Long.toString(cutoffTime), null, null, null, null);
+		Cursor cursor = db.query(TABLE_RESPONSES, null, Response.CAMPAIGN_URN + "='" + campaignUrn + "' AND " + Response.TIME + " < " + Long.toString(cutoffTime), null, null, null, null);
 		
 		List<Response> responses = readResponseRows(cursor); 
 		
@@ -225,8 +252,7 @@ public class DbHelper extends SQLiteOpenHelper{
 			
 			Response r = new Response();
 			r._id = cursor.getLong(cursor.getColumnIndex(Response._ID));
-			r.campaign = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN));
-			r.campaignVersion = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_VERSION));
+			r.campaignUrn = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN));
 			r.username = cursor.getString(cursor.getColumnIndex(Response.USERNAME));
 			r.date = cursor.getString(cursor.getColumnIndex(Response.DATE));
 			r.time = cursor.getLong(cursor.getColumnIndex(Response.TIME));
@@ -329,5 +355,131 @@ public class DbHelper extends SQLiteOpenHelper{
 		closeDb(db);
 		
 		return count;
+	}
+	
+	public long addCampaign(String campaignUrn, String campaignName, String creationTimestamp, String downloadTimestamp, String configurationXml) {
+		
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return -1;
+		}
+		
+		ContentValues values = new ContentValues();
+		values.put(Campaign.URN, campaignUrn);
+		values.put(Campaign.NAME, campaignName);
+		values.put(Campaign.CREATION_TIMESTAMP, creationTimestamp);
+		values.put(Campaign.DOWNLOAD_TIMESTAMP, downloadTimestamp);
+		values.put(Campaign.CONFIGURATION_XML, configurationXml);
+		
+		long rowId = db.insert(TABLE_CAMPAIGNS, null, values);
+		
+		closeDb(db);
+		
+		return rowId;
+	}
+	
+	public boolean removeCampaign(String _id) {
+		
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return false;
+		}
+		
+		int count = db.delete(TABLE_CAMPAIGNS, Campaign._ID + "=" + _id, null);
+		
+		closeDb(db);
+		
+		return count > 0;
+	}
+	
+	public Campaign getCampaign(long _id) {
+		
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return null;
+		}
+		
+		Cursor cursor = db.query(TABLE_CAMPAIGNS, null, Campaign._ID + "=" + _id, null, null, null, null);
+		
+		cursor.moveToFirst();
+		
+		Campaign c = new Campaign();
+		c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
+		c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
+		c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
+		c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
+		c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
+		c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
+		
+		cursor.close();
+		
+		closeDb(db);
+		
+		return c;
+	}
+	
+	public Campaign getCampaign(String urn) {
+		
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return null;
+		}
+		
+		Cursor cursor = db.query(TABLE_CAMPAIGNS, null, Campaign.URN + "= '" + urn + "'", null, null, null, null);
+		
+		cursor.moveToFirst();
+		
+		Campaign c = new Campaign();
+		c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
+		c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
+		c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
+		c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
+		c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
+		c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
+		
+		cursor.close();
+		
+		closeDb(db);
+		
+		return c;
+	}
+	
+	public List<Campaign> getCampaigns() {
+		
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return null;
+		}
+		
+		List<Campaign> campaigns = new ArrayList<Campaign>();
+		
+		Cursor cursor = db.query(TABLE_CAMPAIGNS, null, null, null, null, null, null);
+		
+		cursor.moveToFirst();
+		
+		for (int i = 0; i < cursor.getCount(); i++) {
+			
+			Campaign c = new Campaign();
+			c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
+			c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
+			c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
+			c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
+			c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
+			c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
+			campaigns.add(c);
+			
+			cursor.moveToNext();
+		}
+		
+		cursor.close();
+		
+		closeDb(db);
+		
+		return campaigns; 
 	}
 }

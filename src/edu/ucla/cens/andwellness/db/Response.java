@@ -3,8 +3,7 @@ package edu.ucla.cens.andwellness.db;
 public class Response {
 
 	public static final String _ID = "_id";
-	public static final String CAMPAIGN = "campaign";
-	public static final String CAMPAIGN_VERSION = "campaign_version";
+	public static final String CAMPAIGN_URN = "campaign_urn";
 	public static final String USERNAME = "username";
 	public static final String DATE = "date";
 	public static final String TIME = "time";
@@ -20,8 +19,7 @@ public class Response {
 	public static final String RESPONSE = "response";
 	
 	public long _id;
-	public String campaign;
-	public String campaignVersion;
+	public String campaignUrn;
 	public String username;
 	public String date;
 	public long time;

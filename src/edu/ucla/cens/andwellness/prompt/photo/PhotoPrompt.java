@@ -62,7 +62,9 @@ public class PhotoPrompt extends AbstractPrompt {
 				uuid = UUID.randomUUID().toString();
 			}
 			
-			Bitmap source = BitmapFactory.decodeFile(IMAGE_PATH + "/temp.jpg");
+			final String campaignUrn = ((SurveyActivity) context).getCampaignUrn();
+			
+			Bitmap source = BitmapFactory.decodeFile(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp.jpg");
 			Bitmap scaled;
 			
 			if (source.getWidth() > source.getHeight()) {
@@ -72,7 +74,7 @@ public class PhotoPrompt extends AbstractPrompt {
 			}			
 			
 			try {
-		       FileOutputStream out = new FileOutputStream(IMAGE_PATH + "/temp" + uuid + ".jpg");
+		       FileOutputStream out = new FileOutputStream(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp" + uuid + ".jpg");
 		       scaled.compress(Bitmap.CompressFormat.JPEG, 80, out);
 		       out.flush();
 		       out.close();
@@ -80,7 +82,7 @@ public class PhotoPrompt extends AbstractPrompt {
 		       e.printStackTrace();
 			}
 			
-			new File(IMAGE_PATH + "/temp.jpg").delete();
+			new File(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp.jpg").delete();
 			
 			//new File(IMAGE_PATH + "/temp.jpg").renameTo(new File(IMAGE_PATH + "/temp" + uuid + ".jpg"));
 			
@@ -97,8 +99,12 @@ public class PhotoPrompt extends AbstractPrompt {
 		ImageButton button = (ImageButton) layout.findViewById(R.id.photo_button);
 		ImageView imageView = (ImageView) layout.findViewById(R.id.image_view);
 		
+		final String campaignUrn = ((SurveyActivity) context).getCampaignUrn();
+		
+		new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_')).mkdirs();
+		
 		if (uuid != null) {
-			imageView.setImageBitmap(BitmapFactory.decodeFile(IMAGE_PATH + "/temp" + uuid + ".jpg"));
+			imageView.setImageBitmap(BitmapFactory.decodeFile(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp" + uuid + ".jpg"));
 		}
 		
 		final Activity act = (Activity) context;
@@ -108,7 +114,7 @@ public class PhotoPrompt extends AbstractPrompt {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(IMAGE_PATH + "/temp.jpg")));
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp.jpg")));
 				act.startActivityForResult(intent, 1);
 
 			}

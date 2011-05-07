@@ -15,7 +15,7 @@ import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Survey;
 
-public class SurveyAdapter extends BaseAdapter {
+public class SurveyListAdapter extends BaseAdapter {
 	
 	private Context mContext;
 	private int mSurveyLayoutId;
@@ -35,7 +35,7 @@ public class SurveyAdapter extends BaseAdapter {
 	public static final int GROUP_AVAILABLE = 1;
 	public static final int GROUP_UNAVAILABLE = 2;
 	
-	public SurveyAdapter(Context context, List<Survey> surveys, List<String> activeSurveyTitles, int surveyLayoutResource, int headerLayoutResource) {
+	public SurveyListAdapter(Context context, List<Survey> surveys, List<String> activeSurveyTitles, int surveyLayoutResource, int headerLayoutResource) {
 		mContext = context;
 		mSurveyLayoutId = surveyLayoutResource;
 		mHeaderLayoutId = headerLayoutResource;
@@ -282,17 +282,17 @@ public class SurveyAdapter extends BaseAdapter {
 			switch (getItemGroup(position)) {
 			case GROUP_PENDING:
 				convertView.setBackgroundColor(Color.rgb(1, 173, 73));
-				holder.headerText.setText("Pending");
+				holder.headerText.setText("Pending Surveys");
 				break;
 
 			case GROUP_AVAILABLE:
 				convertView.setBackgroundColor(Color.rgb(56, 160, 220));
-				holder.headerText.setText("Available");
+				holder.headerText.setText("Available Surveys");
 				break;
 				
 			case GROUP_UNAVAILABLE:
 				convertView.setBackgroundColor(Color.LTGRAY);
-				holder.headerText.setText("Unavailable");
+				holder.headerText.setText("Currently Unavailable Surveys");
 				break;
 			}
 		}

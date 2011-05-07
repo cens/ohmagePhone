@@ -28,16 +28,14 @@ public class BackgroundManager {
 		
 		Context appContext = context.getApplicationContext();
 		
-		new File(PhotoPrompt.IMAGE_PATH).mkdirs();
-		
-		boolean parsedCampaign = false;
+		/*boolean parsedCampaign = false;
 		
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(appContext);
 		try {
 			Map<String, String> map = PromptXmlParser.parseCampaignInfo(CampaignXmlHelper.loadDefaultCampaign(appContext));
-			if (map.containsKey("campaign_name") && map.containsKey("campaign_version")) {
+			if (map.containsKey("campaign_name") && map.containsKey("campaign_urn")) {
 				prefs.putCampaignName(map.get("campaign_name"));
-				prefs.putCampaignVersion(map.get("campaign_version"));
+				prefs.putCampaignUrn(map.get("campaign_urn"));
 				parsedCampaign = true;
 			} 
 			if (map.containsKey("server_url")) {
@@ -54,7 +52,7 @@ public class BackgroundManager {
 		if (!parsedCampaign) {
 			Log.e(TAG, "Unable to set campaign name and version!");
 			Toast.makeText(appContext, "Unable to set campaign name and version!", Toast.LENGTH_LONG).show();
-		}
+		}*/
 		
 		//uploadservice
 		AlarmManager alarms = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);

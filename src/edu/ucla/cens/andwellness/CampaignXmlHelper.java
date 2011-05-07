@@ -1,13 +1,18 @@
 package edu.ucla.cens.andwellness;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import android.content.Context;
 import android.os.Environment;
+import edu.ucla.cens.andwellness.campaign.Campaign;
+import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.systemlog.Log;
 
 public class CampaignXmlHelper {
@@ -16,7 +21,7 @@ public class CampaignXmlHelper {
 	
 	//public static final String DEFAULT_CAMPAIGN_SOURCE = "file";
 	public static final String DEFAULT_CAMPAIGN_SOURCE = "resource";
-	public static final int CAMPAIGN_XML_RESOURCE_ID = R.raw.test_config_2;
+	public static final int CAMPAIGN_XML_RESOURCE_ID = R.raw.advertisement;
 	public static final String CAMPAIGN_XML_FILE_NAME = "campaign.xml";
 	
 	public static InputStream loadDefaultCampaign(Context context) {
@@ -42,4 +47,12 @@ public class CampaignXmlHelper {
 		
 		return context.getResources().openRawResource(resourceId);
 	}	
+	
+	public static InputStream loadCampaignXmlFromDb(Context context, String campaignUrn) throws IOException {
+		
+		DbHelper dbHelper = new DbHelper(context);
+		Campaign campaign = dbHelper.getCampaign(campaignUrn);
+		
+		return new ByteArrayInputStream(campaign.mXml.getBytes("UTF-8"));
+	}
 }

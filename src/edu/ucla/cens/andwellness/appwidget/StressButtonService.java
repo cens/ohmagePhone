@@ -136,7 +136,7 @@ public class StressButtonService extends IntentService {
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String campaign = helper.getCampaignName();
-		String campaignVersion = helper.getCampaignVersion();
+		String campaignVersion = helper.getCampaignUrn();
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();

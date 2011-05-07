@@ -43,7 +43,9 @@ public class AndWellnessApi {
 	private static final String TAG = "AndWellnessApi";
 	
 	//private static final String SERVER_URL = "https://dev.andwellness.org/";
-	private String mServerUrl;
+	//private String serverUrl;
+	//private String mBaseServerUrl = "https://dev1.andwellness.org/";
+	//public static final String BASE_SERVER_URL = "https://dev1.andwellness.org/";
 	private static final String AUTHENTICATE_PATH = "app/user/auth";
 	private static final String MOBILITY_UPLOAD_PATH = "app/mobility/upload";
 	private static final String SURVEY_UPLOAD_PATH = "app/survey/upload";
@@ -52,7 +54,7 @@ public class AndWellnessApi {
 	
 	public AndWellnessApi(Context context) {
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-		mServerUrl = prefs.getServerUrl();
+//		serverUrl = prefs.getServerUrl();
 	}
 	
 	public static enum Result {
@@ -66,11 +68,47 @@ public class AndWellnessApi {
 		
 	}
 	
-	public static class ServerResponse {
+	public static class AuthenticateResponse {
+		private Result mResult;
+		private String mHashedPassword;
+		private String[] mErrorCodes;
+		
+		public AuthenticateResponse(Result result, String hashedPassword, String[] errorCodes) {
+			mResult = result;
+			mHashedPassword = hashedPassword;
+			mErrorCodes = errorCodes;
+		}
+		
+		public Result getResult() {
+			return mResult;
+		}
+		
+		public String getHashedPassword() {
+			return mHashedPassword;
+		}
+		
+		public String[] getErrorCodes() {
+			return mErrorCodes;
+		}
+
+		public void setResult(Result result) {
+			this.mResult = result;
+		}
+		
+		public void setHashedPassword(String hashedPassword) {
+			this.mHashedPassword = hashedPassword;
+		}
+
+		public void setErrorCodes(String[] errorCodes) {
+			this.mErrorCodes = errorCodes;
+		}
+	}
+	
+	public static class UploadResponse {
 		private Result mResult;
 		private String[] mErrorCodes;
 		
-		public ServerResponse(Result result, String[] errorCodes) {
+		public UploadResponse(Result result, String[] errorCodes) {
 			mResult = result;
 			mErrorCodes = errorCodes;
 		}
@@ -91,90 +129,161 @@ public class AndWellnessApi {
 			this.mErrorCodes = errorCodes;
 		}
 	}
+	
+	public static class ReadResponse {
+		private Result mResult;
+		private JSONObject mData;
+		private JSONObject mMetadata;
+		private String[] mErrorCodes;
+		
+		public ReadResponse(Result result, JSONObject data, JSONObject metadata, String[] errorCodes) {
+			mResult = result;
+			mData = data;
+			mMetadata = metadata;
+			mErrorCodes = errorCodes;
+		}
+		
+		public Result getResult() {
+			return mResult;
+		}
+		
+		public JSONObject getData() {
+			return mData;
+		}
+		
+		public JSONObject getMetadata() {
+			return mMetadata;
+		}
+		
+		public String[] getErrorCodes() {
+			return mErrorCodes;
+		}
 
-	public ServerResponse authenticate(String username, String hashedPassword, String client) {
+		public void setResult(Result result) {
+			this.mResult = result;
+		}
+		
+		public void setData(JSONObject data) {
+			this.mData = data;
+		}
+		
+		public void setMetadata(JSONObject metadata) {
+			this.mMetadata = metadata;
+		}
+
+		public void setErrorCodes(String[] errorCodes) {
+			this.mErrorCodes = errorCodes;
+		}
+	}
+
+	public AuthenticateResponse authenticate(String serverUrl, String username, String password, String client) {
 
 		final boolean GZIP = false;
 		
-		String url = mServerUrl + AUTHENTICATE_PATH;
+		String url = serverUrl + AUTHENTICATE_PATH;
 		
 		try {
         	List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("u", username));
-            nameValuePairs.add(new BasicNameValuePair("p", hashedPassword));
-            nameValuePairs.add(new BasicNameValuePair("ci", client));
+            nameValuePairs.add(new BasicNameValuePair("user", username));
+            nameValuePairs.add(new BasicNameValuePair("password", password));
+            nameValuePairs.add(new BasicNameValuePair("client", client));
 			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return parseResponse(doHttpPost(url, formEntity, GZIP));
+			return parseAuthenticateResponse(doHttpPost(url, formEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
-			return new ServerResponse(Result.INTERNAL_ERROR, null);
+			return new AuthenticateResponse(Result.INTERNAL_ERROR, null, null);
 		}
 	}
 	
-	public ServerResponse mobilityUpload(String username, String hashedPassword, String client, String data) {
+	public UploadResponse mobilityUpload(String serverUrl, String username, String hashedPassword, String client, String data) {
 
 		final boolean GZIP = true;
 		
-		String url = mServerUrl + MOBILITY_UPLOAD_PATH;
+		String url = serverUrl + MOBILITY_UPLOAD_PATH;
 		
 		try {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-	        nameValuePairs.add(new BasicNameValuePair("u", username));
-	        nameValuePairs.add(new BasicNameValuePair("p", hashedPassword));
-	        nameValuePairs.add(new BasicNameValuePair("ci", client));
-	        nameValuePairs.add(new BasicNameValuePair("d", data));
+	        nameValuePairs.add(new BasicNameValuePair("user", username));
+	        nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+	        nameValuePairs.add(new BasicNameValuePair("client", client));
+	        nameValuePairs.add(new BasicNameValuePair("data", data));
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return parseResponse(doHttpPost(url, formEntity, GZIP));
+			return parseUploadResponse(doHttpPost(url, formEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
-			return new ServerResponse(Result.INTERNAL_ERROR, null);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
 		}
 	}
 	
-	public ServerResponse surveyUpload(String username, String hashedPassword, String client, String campaignName, String campaignVersion, String data) {
+	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String data) {
 		
 		final boolean GZIP = true;
 		
-		String url = mServerUrl + SURVEY_UPLOAD_PATH;
+		String url = serverUrl + SURVEY_UPLOAD_PATH;
 		
 		try {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-	        nameValuePairs.add(new BasicNameValuePair("c", campaignName));  
-	        nameValuePairs.add(new BasicNameValuePair("cv", campaignVersion));
-	        nameValuePairs.add(new BasicNameValuePair("u", username));
-	        nameValuePairs.add(new BasicNameValuePair("p", hashedPassword));
-	        nameValuePairs.add(new BasicNameValuePair("ci", client));
-	        nameValuePairs.add(new BasicNameValuePair("d", data));
+	        nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
+	        nameValuePairs.add(new BasicNameValuePair("campaign_creation_timestamp", campaignCreationTimestamp));  
+	        nameValuePairs.add(new BasicNameValuePair("user", username));
+	        nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+	        nameValuePairs.add(new BasicNameValuePair("client", client));
+	        nameValuePairs.add(new BasicNameValuePair("data", data));
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return parseResponse(doHttpPost(url, formEntity, GZIP));
+			return parseUploadResponse(doHttpPost(url, formEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
-			return new ServerResponse(Result.INTERNAL_ERROR, null);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
 		}
 	}
 	
-	public ServerResponse mediaUpload(String username, String hashedPassword, String client, String campaignName, String uuid, File data) {
+	public UploadResponse mediaUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String uuid, File data) {
 		
 		final boolean GZIP = false;
 		
-		String url = mServerUrl + IMAGE_UPLOAD_PATH;
+		String url = serverUrl + IMAGE_UPLOAD_PATH;
 		
 		try {
 			MultipartEntity multipartEntity = new MultipartEntity();
-	    	multipartEntity.addPart("c", new StringBody(campaignName));
-	    	multipartEntity.addPart("u", new StringBody(username));
-	    	multipartEntity.addPart("p", new StringBody(hashedPassword));
-	    	multipartEntity.addPart("ci", new StringBody(client));
-	    	multipartEntity.addPart("i", new StringBody(uuid));
-	    	multipartEntity.addPart("f", new FileBody(data, "image/jpeg"));
+	    	multipartEntity.addPart("campaign_urn", new StringBody(campaignUrn));
+	    	multipartEntity.addPart("campaign_creation_timestamp", new StringBody(campaignCreationTimestamp));
+	    	multipartEntity.addPart("user", new StringBody(username));
+	    	multipartEntity.addPart("password", new StringBody(hashedPassword));
+	    	multipartEntity.addPart("client", new StringBody(client));
+	    	multipartEntity.addPart("id", new StringBody(uuid));
+	    	multipartEntity.addPart("data", new FileBody(data, "image/jpeg"));
 			
-			return parseResponse(doHttpPost(url, multipartEntity, GZIP));
+			return parseUploadResponse(doHttpPost(url, multipartEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
-			return new ServerResponse(Result.INTERNAL_ERROR, null);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
+		}
+	}
+	
+	public ReadResponse campaignRead(String serverUrl, String username, String hashedPassword, String client, String outputFormat, String campaignUrnList) {
+		
+		final boolean GZIP = false;
+		
+		String url = serverUrl + CAMPAIGN_READ_PATH;
+		
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+	        nameValuePairs.add(new BasicNameValuePair("user", username));
+	        nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+	        nameValuePairs.add(new BasicNameValuePair("client", client));
+	        nameValuePairs.add(new BasicNameValuePair("output_format", outputFormat));
+	        if (campaignUrnList != null) {
+	        	nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrnList));
+	        }
+	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			
+			return parseReadResponse(doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new ReadResponse(Result.INTERNAL_ERROR, null, null, null);
 		}
 	}
 	
@@ -255,7 +364,64 @@ public class AndWellnessApi {
 		}
 	}
 	
-	private ServerResponse parseResponse(HttpResponse response) {
+	private AuthenticateResponse parseAuthenticateResponse(HttpResponse response) {
+		Result result = Result.HTTP_ERROR;
+		String hashedPassword = null;
+		String[] errorCodes = null;
+		
+		if (response != null) {
+        	Log.i(TAG, response.getStatusLine().toString());
+        	if (response.getStatusLine().getStatusCode() == 200) {
+        		HttpEntity responseEntity = response.getEntity();
+        		if (responseEntity != null) {
+        			try {
+	        			String content = EntityUtils.toString(responseEntity);
+	        			Log.i(TAG, content);
+	        			
+	        			JSONObject rootJson;
+					
+						rootJson = new JSONObject(content);
+						if (rootJson.getString("result").equals("success")) {
+							result = Result.SUCCESS;
+							if (rootJson.has("hashed_password")) {
+								hashedPassword = rootJson.getString("hashed_password");
+							}
+							
+						} else {
+							result = Result.FAILURE;
+							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+							int errorCount = errorsJsonArray.length();
+							errorCodes = new String[errorCount];
+							for (int i = 0; i < errorCount; i++) {
+								errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
+							}
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "Problem parsing response json", e);
+						result = Result.INTERNAL_ERROR;
+					} catch (IOException e) {
+						Log.e(TAG, "Problem reading response body", e);
+						result = Result.INTERNAL_ERROR;
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+        			result = Result.HTTP_ERROR;
+        		}
+        		
+        	} else {
+        		Log.e(TAG, "Returned status code: " + String.valueOf(response.getStatusLine().getStatusCode()));
+        		result = Result.HTTP_ERROR;
+        	}
+        	
+        } else {
+        	Log.e(TAG, "Response is null");
+        	result = Result.HTTP_ERROR;
+        }
+		
+		return new AuthenticateResponse(result, hashedPassword, errorCodes);
+	}
+	
+	private UploadResponse parseUploadResponse(HttpResponse response) {
 		Result result = Result.HTTP_ERROR;
 		String[] errorCodes = null;
 		
@@ -304,6 +470,67 @@ public class AndWellnessApi {
         	result = Result.HTTP_ERROR;
         }
 		
-		return new ServerResponse(result, errorCodes);
+		return new UploadResponse(result, errorCodes);
+	}
+	
+	private ReadResponse parseReadResponse(HttpResponse response) {
+		Result result = Result.HTTP_ERROR;
+		JSONObject data = null;
+		JSONObject metadata = null;
+		String[] errorCodes = null;
+		
+		if (response != null) {
+        	Log.i(TAG, response.getStatusLine().toString());
+        	if (response.getStatusLine().getStatusCode() == 200) {
+        		HttpEntity responseEntity = response.getEntity();
+        		if (responseEntity != null) {
+        			try {
+	        			String content = EntityUtils.toString(responseEntity);
+	        			Log.i(TAG, content);
+	        			
+	        			JSONObject rootJson;
+					
+						rootJson = new JSONObject(content);
+						if (rootJson.getString("result").equals("success")) {
+							result = Result.SUCCESS;
+							if (rootJson.has("data")) {
+								data = rootJson.getJSONObject("data");
+							}
+							if (rootJson.has("metadata")) {
+								metadata = rootJson.getJSONObject("metadata");
+							}
+							
+						} else {
+							result = Result.FAILURE;
+							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+							int errorCount = errorsJsonArray.length();
+							errorCodes = new String[errorCount];
+							for (int i = 0; i < errorCount; i++) {
+								errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
+							}
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "Problem parsing response json", e);
+						result = Result.INTERNAL_ERROR;
+					} catch (IOException e) {
+						Log.e(TAG, "Problem reading response body", e);
+						result = Result.INTERNAL_ERROR;
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+        			result = Result.HTTP_ERROR;
+        		}
+        		
+        	} else {
+        		Log.e(TAG, "Returned status code: " + String.valueOf(response.getStatusLine().getStatusCode()));
+        		result = Result.HTTP_ERROR;
+        	}
+        	
+        } else {
+        	Log.e(TAG, "Response is null");
+        	result = Result.HTTP_ERROR;
+        }
+		
+		return new ReadResponse(result, data, metadata, errorCodes);
 	}
 }

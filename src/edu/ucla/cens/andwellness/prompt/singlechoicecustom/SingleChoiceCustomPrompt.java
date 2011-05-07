@@ -121,7 +121,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-		String campaignId = prefs.getCampaignName();
+		String campaignId = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
 			Cursor c = dbAdapter.getCustomChoices(username, campaignId, surveyId, SingleChoiceCustomPrompt.this.getId());
@@ -160,7 +160,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 					SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-					String campaignId = prefs.getCampaignName();
+					String campaignId = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 					
 					int choiceId = 100;

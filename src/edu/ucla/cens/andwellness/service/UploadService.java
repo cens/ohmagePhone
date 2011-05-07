@@ -22,6 +22,7 @@ import edu.ucla.cens.andwellness.AndWellnessApi;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Utilities;
 import edu.ucla.cens.andwellness.activity.LoginActivity;
+import edu.ucla.cens.andwellness.campaign.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.db.Response;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
@@ -58,64 +59,71 @@ public class UploadService extends WakefulIntentService{
 	private void uploadSurveyResponses() {
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
-		String campaign = helper.getCampaignName();
-		String campaignVersion = helper.getCampaignVersion();
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
 		
 		DbHelper dbHelper = new DbHelper(this);
 
 		long cutoffTime = System.currentTimeMillis() - SurveyGeotagService.LOCATION_STALENESS_LIMIT;
-		
-		//List<Response> responseRows = dbHelper.getSurveyResponses();
-		List<Response> responseRows = dbHelper.getSurveyResponsesBefore(cutoffTime);
-		
-		if (responseRows.size() > 0) {
-		
-			JSONArray responsesJsonArray = new JSONArray(); 
-			
-			for (int i = 0; i < responseRows.size(); i++) {
-				JSONObject responseJson = new JSONObject();
+
+		for (Campaign campaign : dbHelper.getCampaigns()) {
 				
-				try {
-					responseJson.put("date", responseRows.get(i).date);
-					responseJson.put("time", responseRows.get(i).time);
-					responseJson.put("timezone", responseRows.get(i).timezone);
-					responseJson.put("location_status", responseRows.get(i).locationStatus);
-					if (! responseRows.get(i).locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
-						JSONObject locationJson = new JSONObject();
-						locationJson.put("latitude", responseRows.get(i).locationLatitude);
-						locationJson.put("longitude", responseRows.get(i).locationLongitude);
-						locationJson.put("provider", responseRows.get(i).locationProvider);
-						locationJson.put("accuracy", responseRows.get(i).locationAccuracy);
-						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						String locationTimestamp = dateFormat.format(new Date(responseRows.get(i).locationTime));
-						locationJson.put("timestamp", locationTimestamp);
-						responseJson.put("location", locationJson);
-					}
-					responseJson.put("survey_id", responseRows.get(i).surveyId);
-					responseJson.put("survey_launch_context", new JSONObject(responseRows.get(i).surveyLaunchContext));
-					responseJson.put("responses", new JSONArray(responseRows.get(i).response));
-				} catch (JSONException e) {
-					throw new RuntimeException(e);
-				}
-				
-				responsesJsonArray.put(responseJson);
-			}
+			Log.i(TAG, "Attempting to upload responses for " + campaign.mUrn);
 			
-			AndWellnessApi.ServerResponse response = mApi.surveyUpload(username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaign, campaignVersion, responsesJsonArray.toString());
-			
-			if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
-				Log.i(TAG, "Successfully uploaded survey responses.");
+			String serverUrl = SharedPreferencesHelper.DEFAULT_SERVER_URL; //campaign.serverUrl;
+        
+			//List<Response> responseRows = dbHelper.getSurveyResponses(campaign.mUrn);
+			List<Response> responseRows = dbHelper.getSurveyResponsesBefore(campaign.mUrn, cutoffTime);
+        
+			if (responseRows.size() > 0) {
+        
+				JSONArray responsesJsonArray = new JSONArray(); 
+          
 				for (int i = 0; i < responseRows.size(); i++) {
-					dbHelper.removeResponseRow(responseRows.get(i)._id);
+					JSONObject responseJson = new JSONObject();
+            
+					try {
+						responseJson.put("date", responseRows.get(i).date);
+						responseJson.put("time", responseRows.get(i).time);
+						responseJson.put("timezone", responseRows.get(i).timezone);
+						responseJson.put("location_status", responseRows.get(i).locationStatus);
+						if (! responseRows.get(i).locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
+							JSONObject locationJson = new JSONObject();
+							locationJson.put("latitude", responseRows.get(i).locationLatitude);
+							locationJson.put("longitude", responseRows.get(i).locationLongitude);
+							locationJson.put("provider", responseRows.get(i).locationProvider);
+							locationJson.put("accuracy", responseRows.get(i).locationAccuracy);
+							SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							String locationTimestamp = dateFormat.format(new Date(responseRows.get(i).locationTime));
+							locationJson.put("timestamp", locationTimestamp);
+							responseJson.put("location", locationJson);
+						}
+						responseJson.put("survey_id", responseRows.get(i).surveyId);
+						responseJson.put("survey_launch_context", new JSONObject(responseRows.get(i).surveyLaunchContext));
+						responseJson.put("responses", new JSONArray(responseRows.get(i).response));
+					} catch (JSONException e) {
+						throw new RuntimeException(e);
+					}
+					
+					responsesJsonArray.put(responseJson);
 				}
+				
+				AndWellnessApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaign.mUrn, campaign.mCreationTimestamp, responsesJsonArray.toString());
+			
+				if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
+					Log.i(TAG, "Successfully uploaded survey responses for " + campaign.mUrn);
+					for (int i = 0; i < responseRows.size(); i++) {
+						dbHelper.removeResponseRow(responseRows.get(i)._id);
+					}
+				} else {
+					Log.e(TAG, "Failed to upload survey responses for " + campaign.mUrn);
+
+					handleErrors(response);
+				}
+
 			} else {
-				Log.e(TAG, "Failed to upload survey responses.");
-				handleErrors(response);
+				Log.i(TAG, "No survey responses to upload for " + campaign.mUrn);
 			}
-		} else {
-			Log.i(TAG, "No survey responses to upload.");
 		}
 	}
 	
@@ -131,7 +139,7 @@ public class UploadService extends WakefulIntentService{
 		Long now = System.currentTimeMillis();
 		Cursor c = MobilityInterface.getMobilityCursor(this, lastMobilityUploadTimestamp);
 		
-		AndWellnessApi.ServerResponse response = new AndWellnessApi.ServerResponse(AndWellnessApi.Result.SUCCESS, null);
+		AndWellnessApi.UploadResponse response = new AndWellnessApi.UploadResponse(AndWellnessApi.Result.SUCCESS, null);
 		
 		if (c != null && c.getCount() > 0) {
 			
@@ -196,8 +204,8 @@ public class UploadService extends WakefulIntentService{
 					
 					c.moveToNext();
 				}
-				
-				response = mApi.mobilityUpload(username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
+				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+				response = mApi.mobilityUpload(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
@@ -221,40 +229,41 @@ public class UploadService extends WakefulIntentService{
 	private void uploadMedia() {
 
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
-		String campaign = helper.getCampaignName();
-		String campaignVersion = helper.getCampaignVersion();
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
 		
+		DbHelper dbHelper = new DbHelper(this);
 		
-		File [] files = new File(PhotoPrompt.IMAGE_PATH).listFiles();
-		
-		if (files != null) {
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].getName().contains("temp")) {
-					if (files[i].lastModified() < System.currentTimeMillis() - 24 * 60 * 60 * 1000) {
+		for (Campaign campaign : dbHelper.getCampaigns()) {
+			
+			String serverUrl = SharedPreferencesHelper.DEFAULT_SERVER_URL; //campaign.serverUrl;
+			
+			File [] files = new File(PhotoPrompt.IMAGE_PATH + "/" + campaign.mUrn.replace(':', '_')).listFiles();
+			
+			if (files != null) {
+				for (int i = 0; i < files.length; i++) {
+					if (files[i].getName().contains("temp")) {
 						Log.i(TAG, "Temporary image was discarded.");
 						files[i].delete();
-					}
-				} else {	
-					AndWellnessApi.ServerResponse response = mApi.mediaUpload(username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaign, files[i].getName().split("\\.")[0], files[i]);
-					
-					if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
-						Log.i(TAG, "Successfully uploaded an image.");
-						files[i].delete();
 					} else {
-						Log.e(TAG, "Failed to upload an image.");
-						handleErrors(response);
+						AndWellnessApi.UploadResponse response = mApi.mediaUpload(serverUrl, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaign.mUrn, campaign.mCreationTimestamp, files[i].getName().split("\\.")[0], files[i]);
+						
+						if (response.getResult().equals(AndWellnessApi.Result.SUCCESS)) {
+							Log.i(TAG, "Successfully uploaded an image.");
+							files[i].delete();
+						} else {
+							Log.e(TAG, "Failed to upload an image.");
+							handleErrors(response);
+						}
 					}
 				}
+			} else {
+				Log.e(TAG, PhotoPrompt.IMAGE_PATH + "/" + campaign.mUrn.replace(':', '_') + " does not exist.");
 			}
-		} else {
-			Log.e(TAG, PhotoPrompt.IMAGE_PATH + " does not exist.");
-		}
-		
+		}		
 	}	
 
-	private void handleErrors(AndWellnessApi.ServerResponse response) {
+	private void handleErrors(AndWellnessApi.UploadResponse response) {
 		switch (response.getResult()) {
 		case FAILURE:
 			Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
@@ -301,7 +310,7 @@ public class UploadService extends WakefulIntentService{
 		
 		Intent intentToLaunch = new Intent(this, LoginActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
-		String title = "AndWellness authentication failed!";
+		String title = "ohmage authentication failed!";
 		String body = "Tap here to re-enter password.";
 		note.icon = android.R.drawable.stat_notify_error;
 		note.tickerText = "Authentication failed!";

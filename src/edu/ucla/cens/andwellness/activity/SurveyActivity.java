@@ -70,6 +70,7 @@ public class SurveyActivity extends Activity {
 	private List<Prompt> mPrompts;
 	//private List<PromptResponse> mResponses;
 	private int mCurrentPosition;
+	private String mCampaignUrn;
 	private String mSurveyId;
 	private String mSurveyTitle;
 	private String mSurveySubmitText;
@@ -80,10 +81,15 @@ public class SurveyActivity extends Activity {
 		return mSurveyId;
 	}
 	
+	public String getCampaignUrn() {
+		return mCampaignUrn;
+	}
+	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        mCampaignUrn = getIntent().getStringExtra("campaign_urn");
         mSurveyId = getIntent().getStringExtra("survey_id");
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
@@ -111,7 +117,7 @@ public class SurveyActivity extends Activity {
         	mPrompts = null;
             
             try {
-    			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadDefaultCampaign(this), mSurveyId);
+    			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
     		} catch (NotFoundException e) {
     			Log.e(TAG, "Error parsing prompts from xml", e);
     		} catch (XmlPullParserException e) {
@@ -412,7 +418,7 @@ public class SurveyActivity extends Activity {
 				final String uuid = (String) photoPrompt.getResponseObject();
 				
 				if (photoPrompt.isDisplayed() && !photoPrompt.isSkipped()) {
-					File [] files = new File(PhotoPrompt.IMAGE_PATH).listFiles(new FilenameFilter() {
+					File [] files = new File(PhotoPrompt.IMAGE_PATH + "/" + mCampaignUrn.replace(':', '_')).listFiles(new FilenameFilter() {
 						
 						@Override
 						public boolean accept(File dir, String filename) {
@@ -425,15 +431,13 @@ public class SurveyActivity extends Activity {
 					});
 					
 					for (File f : files) {
-						f.renameTo(new File(PhotoPrompt.IMAGE_PATH + "/" + uuid + ".jpg"));;
+						f.renameTo(new File(PhotoPrompt.IMAGE_PATH + "/" + mCampaignUrn.replace(':', '_') + "/" + uuid + ".jpg"));;
 					}
 				}
 			}
 		}
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
-		String campaign = helper.getCampaignName();
-		String campaignVersion = helper.getCampaignVersion();
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
@@ -484,9 +488,9 @@ public class SurveyActivity extends Activity {
 		
 		DbHelper dbHelper = new DbHelper(this);
 		if (loc != null) {
-			dbHelper.addResponseRow(campaign, campaignVersion, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response);
+			dbHelper.addResponseRow(mCampaignUrn, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response);
 		} else {
-			dbHelper.addResponseRowWithoutLocation(campaign, campaignVersion, username, date, time, timezone, surveyId, surveyLaunchContext, response);
+			dbHelper.addResponseRowWithoutLocation(mCampaignUrn, username, date, time, timezone, surveyId, surveyLaunchContext, response);
 		}
 	}
 }

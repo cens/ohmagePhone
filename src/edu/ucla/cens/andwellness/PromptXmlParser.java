@@ -23,7 +23,7 @@ public class PromptXmlParser {
 	
 	//list of tags in our xml schema
 	private static final String CAMPAIGN_NAME = "campaignName";
-	private static final String CAMPAIGN_VERSION = "campaignVersion";
+	private static final String CAMPAIGN_URN = "campaignUrn";
 	private static final String SERVER_URL = "serverUrl";
 	private static final String SURVEYS = "surveys";
 	private static final String SURVEY = "survey";
@@ -77,7 +77,7 @@ public class PromptXmlParser {
 		int eventType = parser.getEventType();
 		while (eventType != XmlPullParser.END_DOCUMENT) {
 			
-			if (map != null && map.containsKey("campaign_name") && map.containsKey("campaign_version") && map.containsKey("server_url")) {
+			if (map != null && map.containsKey("campaign_name") && map.containsKey("campaign_urn") && map.containsKey("server_url")) {
 				return map;
 			}
 			
@@ -94,8 +94,8 @@ public class PromptXmlParser {
 				tagName = parser.getName();
 				if (tagName.equalsIgnoreCase(CAMPAIGN_NAME)) {
 					map.put("campaign_name", parser.nextText());
-				} else if (tagName.equalsIgnoreCase(CAMPAIGN_VERSION)) {
-					map.put("campaign_version", parser.nextText());
+				} else if (tagName.equalsIgnoreCase(CAMPAIGN_URN)) {
+					map.put("campaign_urn", parser.nextText());
 				} else if (tagName.equalsIgnoreCase(SERVER_URL)) {
 					map.put("server_url", parser.nextText());
 				} 

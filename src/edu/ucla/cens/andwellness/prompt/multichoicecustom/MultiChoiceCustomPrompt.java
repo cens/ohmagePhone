@@ -126,7 +126,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-		String campaignId = prefs.getCampaignName();
+		String campaignId = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
 			Cursor c = dbAdapter.getCustomChoices(username, campaignId, surveyId, MultiChoiceCustomPrompt.this.getId());
@@ -165,7 +165,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 					MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-					String campaignId = prefs.getCampaignName();
+					String campaignId = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 					
 					int choiceId = 100;
