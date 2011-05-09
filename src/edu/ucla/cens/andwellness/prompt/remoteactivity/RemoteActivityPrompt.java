@@ -7,10 +7,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -422,16 +422,15 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		if(callingActivity != null)
 		{
 			Intent activityToLaunch = new Intent(actionName);
-			Activity activityContext = (Activity) callingActivity;
-			PackageManager pm = callingActivity.getPackageManager();
-			
 			activityToLaunch.setComponent(new ComponentName(packageName, activityName));
+			
+			Activity activityContext = (Activity) callingActivity;
+			
 			try {
 				activityContext.startActivityForResult(activityToLaunch, 0);
 				launched = true;
-			} catch (Exception e) {
+			} catch (ActivityNotFoundException e) {
 				Toast.makeText(callingActivity, "Required component is not installed", Toast.LENGTH_SHORT).show();
-				launched = false;
 			}
 		}
 		else
