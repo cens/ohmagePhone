@@ -141,7 +141,8 @@ public class CampaignListActivity extends ListActivity {
 		} else {
 			//download campaign
 			CampaignDownloadTask task = new CampaignDownloadTask(CampaignListActivity.this);
-			task.execute("xerox.gimp", "mama.quanta", ((Campaign) getListView().getItemAtPosition(position)).mUrn);
+			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+			task.execute(prefs.getUsername(), prefs.getHashedPassword(), ((Campaign) getListView().getItemAtPosition(position)).mUrn);
 		}
 	}
 	
@@ -256,7 +257,8 @@ public class CampaignListActivity extends ListActivity {
 	private void updateCampaignList() {
 		
 		mTask = new CampaignListUpdateTask(CampaignListActivity.this);
-		mTask.execute("xerox.gimp", "mama.quanta");
+		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+		mTask.execute(prefs.getUsername(), prefs.getHashedPassword());
 	}
 	
 	@Override
@@ -471,8 +473,7 @@ public class CampaignListActivity extends ListActivity {
 		@Override
 		protected ReadResponse doInBackground(String... params) {
 			String username = params[0];
-			String password = params[1];
-			String hashedPassword = new SharedPreferencesHelper(mActivity).getHashedPassword();
+			String hashedPassword = params[1];
 			AndWellnessApi api = new AndWellnessApi(mActivity);
 			return api.campaignRead("https://dev1.andwellness.org/", username, hashedPassword, "android", "short", null);
 		}
@@ -522,9 +523,8 @@ public class CampaignListActivity extends ListActivity {
 		@Override
 		protected ReadResponse doInBackground(String... params) {
 			String username = params[0];
-			String password = params[1];
+			String hashedPassword = params[1];
 			mCampaignUrn = params[2];
-			String hashedPassword = new SharedPreferencesHelper(mActivity).getHashedPassword();
 			AndWellnessApi api = new AndWellnessApi(mActivity);
 			return api.campaignRead("https://dev1.andwellness.org/", username, hashedPassword, "android", "long", mCampaignUrn);
 		}

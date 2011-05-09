@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
 import edu.ucla.cens.systemlog.Log;
@@ -421,10 +423,16 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		{
 			Intent activityToLaunch = new Intent(actionName);
 			Activity activityContext = (Activity) callingActivity;
-			activityToLaunch.setComponent(new ComponentName(packageName, activityName));
-			activityContext.startActivityForResult(activityToLaunch, 0);
+			PackageManager pm = callingActivity.getPackageManager();
 			
-			launched = true;
+			activityToLaunch.setComponent(new ComponentName(packageName, activityName));
+			try {
+				activityContext.startActivityForResult(activityToLaunch, 0);
+				launched = true;
+			} catch (Exception e) {
+				Toast.makeText(callingActivity, "Required component is not installed", Toast.LENGTH_SHORT).show();
+				launched = false;
+			}
 		}
 		else
 		{
