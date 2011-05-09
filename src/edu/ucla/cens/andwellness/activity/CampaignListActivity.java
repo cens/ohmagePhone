@@ -475,7 +475,7 @@ public class CampaignListActivity extends ListActivity {
 			String username = params[0];
 			String hashedPassword = params[1];
 			AndWellnessApi api = new AndWellnessApi(mActivity);
-			return api.campaignRead("https://dev1.andwellness.org/", username, hashedPassword, "android", "short", null);
+			return api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "short", null);
 		}
 		
 		@Override
@@ -526,7 +526,7 @@ public class CampaignListActivity extends ListActivity {
 			String hashedPassword = params[1];
 			mCampaignUrn = params[2];
 			AndWellnessApi api = new AndWellnessApi(mActivity);
-			return api.campaignRead("https://dev1.andwellness.org/", username, hashedPassword, "android", "long", mCampaignUrn);
+			return api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "long", mCampaignUrn);
 		}
 		
 		@Override
