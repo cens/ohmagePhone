@@ -177,7 +177,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 					{
 						try
 						{
-							currResponse.put(nextKey, extras.get(nextKey).toString());
+							currResponse.put(nextKey, extras.get(nextKey));
 						}
 						catch(JSONException e)
 						{
