@@ -37,10 +37,28 @@ public class NumberPrompt extends AbstractPrompt {
 		}
 		
 	}
+	
+	/**
+	 * Returns true if the current value falls between the minimum and the
+	 * maximum.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return((mValue >= mMinimum) && (mValue <= mMaximum));
+	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
 		return Integer.valueOf(mValue);
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please choose a value between " + mMinimum + " and " + mMaximum + ".");
 	}
 	
 	@Override

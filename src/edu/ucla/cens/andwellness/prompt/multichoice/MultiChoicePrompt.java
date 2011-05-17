@@ -44,6 +44,14 @@ public class MultiChoicePrompt extends AbstractPrompt {
 			mSelectedIndexes.clear();
 		}
 	}
+	
+	/**
+	 * Always returns true as an number of selected items is valid.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return true;
+	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
@@ -53,6 +61,15 @@ public class MultiChoicePrompt extends AbstractPrompt {
 				jsonArray.put(Integer.decode(mChoices.get(index).key));
 		}
 		return jsonArray;
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please choose at least one of the items in the list.");
 	}
 	
 	@Override

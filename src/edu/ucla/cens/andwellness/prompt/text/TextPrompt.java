@@ -27,6 +27,15 @@ public class TextPrompt extends AbstractPrompt {
 			mText = "";
 		}
 	}
+	
+	/**
+	 * Returns true if the text for this prompt is not null nor an empty
+	 * String.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return((mText != null) && (! "".equals(mText)));
+	}
 
 	@Override
 	protected String getTypeSpecificResponseObject() {
@@ -36,6 +45,15 @@ public class TextPrompt extends AbstractPrompt {
 		else {
 			return mText;
 		}
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please enter any text before continuing.");
 	}
 	
 	@Override

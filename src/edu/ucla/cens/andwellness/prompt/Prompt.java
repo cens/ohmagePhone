@@ -12,6 +12,8 @@ public interface Prompt {
 	View getView(Context context);
 
 	String getResponseJson();
+	String getUnansweredPromptText();
+	boolean isPromptAnswered();
 
 	Object getResponseObject();
 	
