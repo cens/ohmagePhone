@@ -112,25 +112,25 @@ public class SurveyActivity extends Activity {
     			Log.i(TAG, "no credentials saved, so launch Login");
     			startActivity(new Intent(this, LoginActivity.class));
     			finish();
-    		}
-    		
-        	mPrompts = null;
-            
-            try {
-    			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
-    		} catch (NotFoundException e) {
-    			Log.e(TAG, "Error parsing prompts from xml", e);
-    		} catch (XmlPullParserException e) {
-    			Log.e(TAG, "Error parsing prompts from xml", e);
-    		} catch (IOException e) {
-    			Log.e(TAG, "Error parsing prompts from xml", e);
-    		}
-    		
-    		//mResponses = new ArrayList<PromptResponse>(mPrompts.size());
-			startService(new Intent(this, SurveyGeotagService.class));
+    		} else {
+    			mPrompts = null;
+                
+                try {
+        			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
+        		} catch (NotFoundException e) {
+        			Log.e(TAG, "Error parsing prompts from xml", e);
+        		} catch (XmlPullParserException e) {
+        			Log.e(TAG, "Error parsing prompts from xml", e);
+        		} catch (IOException e) {
+        			Log.e(TAG, "Error parsing prompts from xml", e);
+        		}
+        		
+        		//mResponses = new ArrayList<PromptResponse>(mPrompts.size());
+    			startService(new Intent(this, SurveyGeotagService.class));
 
-    		mCurrentPosition = 0;
-    		mReachedEnd = false;
+        		mCurrentPosition = 0;
+        		mReachedEnd = false;
+    		}
         } else {
         	mPrompts = instance.prompts;
         	mCurrentPosition = instance.index;

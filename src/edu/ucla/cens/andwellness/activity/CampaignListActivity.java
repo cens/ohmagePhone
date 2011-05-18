@@ -35,7 +35,7 @@ import android.widget.ListView;
 import edu.ucla.cens.andwellness.AndWellnessApi;
 import edu.ucla.cens.andwellness.AndWellnessApi.ReadResponse;
 import edu.ucla.cens.andwellness.AndWellnessApi.Result;
-import edu.ucla.cens.andwellness.campaign.Campaign;
+import edu.ucla.cens.andwellness.db.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
 import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
@@ -79,7 +79,6 @@ public class CampaignListActivity extends ListActivity {
 			Log.i(TAG, "no credentials saved, so launch Login");
 			startActivity(new Intent(this, LoginActivity.class));
 			finish();
-			
 		} else {
 			
 			String [] from = new String [] {"name", "urn"};
@@ -99,7 +98,7 @@ public class CampaignListActivity extends ListActivity {
 	        
 	        getListView().setOnItemLongClickListener(mItemLongClickListener);
 			
-			setListAdapter(new CampaignListAdapter(this, mAvailable, mUnavailable, R.layout.list_item_with_image, R.layout.list_header));
+			setListAdapter(new CampaignListAdapter(this, mAvailable, mUnavailable, R.layout.list_item_two_line_with_image, R.layout.list_header));
 			//setListAdapter(new SimpleAdapter(this, mData , android.R.layout.simple_list_item_2, from, to));
 			
 			Object retained = getLastNonConfigurationInstance();

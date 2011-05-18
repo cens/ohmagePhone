@@ -3,7 +3,7 @@ package edu.ucla.cens.andwellness.activity;
 import java.util.List;
 
 import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.campaign.Campaign;
+import edu.ucla.cens.andwellness.db.Campaign;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -150,7 +150,8 @@ public class CampaignListAdapter extends BaseAdapter {
 			if (convertView == null) {
 				convertView = mInflater.inflate(mItemsLayoutId, parent, false);
 				holder = new ItemViewHolder();
-				holder.titleText = (TextView) convertView.findViewById(R.id.text);
+				holder.titleText = (TextView) convertView.findViewById(R.id.text1);
+				holder.subText = (TextView) convertView.findViewById(R.id.text2);
 				holder.image = (ImageView) convertView.findViewById(R.id.image);
 				convertView.setTag(holder);
 			} else {
@@ -161,17 +162,19 @@ public class CampaignListAdapter extends BaseAdapter {
 
 			case GROUP_AVAILABLE:
 				//holder.titleText.setTextColor(Color.BLACK);
-				holder.image.setImageResource(R.drawable.arrow_right);
+				//holder.image.setImageResource(R.drawable.arrow_right);
+				holder.image.setVisibility(View.GONE);
 				break;
 				
 			case GROUP_UNAVAILABLE:
 				//holder.titleText.setTextColor(Color.GRAY);
 				holder.image.setImageResource(R.drawable.add_new);
+				holder.image.setVisibility(View.VISIBLE);
 				break;
 			}
 			
 			holder.titleText.setText(getItem(position).mName);
-			
+			holder.subText.setText(getItem(position).mUrn);
 
 		} else {
 			HeaderViewHolder holder;
@@ -204,6 +207,7 @@ public class CampaignListAdapter extends BaseAdapter {
 
 	static class ItemViewHolder {
 		TextView titleText;
+		TextView subText;
 		ImageView image;
 	}
 	

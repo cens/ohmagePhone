@@ -25,10 +25,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import edu.ucla.cens.andwellness.AndWellnessApi;
+import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Utilities;
-import edu.ucla.cens.andwellness.campaign.Campaign;
+import edu.ucla.cens.andwellness.db.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.db.Response;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
@@ -57,6 +58,7 @@ public class StatusActivity extends Activity {
 	private TextView mMobilityText;
 	private TextView mPhotosText;
 	private Button mPasswordButton;
+	private Button mClearUserButton;
 	private Button mUploadResponsesButton;
 	private Button mUploadMobilityButton;
 	private Button mUploadPhotosButton;
@@ -72,6 +74,7 @@ public class StatusActivity extends Activity {
 		mMobilityText = (TextView) findViewById(R.id.status_mobility_text);
 		mPhotosText = (TextView) findViewById(R.id.status_photos_text);
 		mPasswordButton = (Button) findViewById(R.id.status_password_button);
+		mClearUserButton = (Button) findViewById(R.id.status_clear_user_button);
 		mUploadResponsesButton = (Button) findViewById(R.id.status_upload_responses_button);
 		mUploadMobilityButton = (Button) findViewById(R.id.status_upload_mobility_button);
 		mUploadPhotosButton = (Button) findViewById(R.id.status_upload_photos_button);
@@ -85,6 +88,7 @@ public class StatusActivity extends Activity {
 		mPhotosText.setText(String.valueOf(getPhotosCount()));
 		
 		mPasswordButton.setOnClickListener(mClickListener);
+		mClearUserButton.setOnClickListener(mClickListener);
 		mUploadResponsesButton.setOnClickListener(mClickListener);
 		mUploadMobilityButton.setOnClickListener(mClickListener);
 		mUploadPhotosButton.setOnClickListener(mClickListener);
@@ -165,6 +169,11 @@ public class StatusActivity extends Activity {
 			switch (v.getId()) {
 			case R.id.status_password_button:
 				startActivity(new Intent(StatusActivity.this, LoginActivity.class));
+				setResult(123);
+				finish();
+				break;
+			case R.id.status_clear_user_button:
+				((AndWellnessApplication)getApplication()).resetAll();
 				setResult(123);
 				finish();
 				break;

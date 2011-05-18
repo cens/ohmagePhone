@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 
 import android.content.Context;
 import android.os.Environment;
-import edu.ucla.cens.andwellness.campaign.Campaign;
+import edu.ucla.cens.andwellness.db.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.systemlog.Log;
 

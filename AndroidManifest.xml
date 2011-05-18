@@ -28,8 +28,7 @@
             </intent-filter>
 		--></activity>
 		
-		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="ohmage"
-			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
+		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="ohmage">
 			<!-- <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

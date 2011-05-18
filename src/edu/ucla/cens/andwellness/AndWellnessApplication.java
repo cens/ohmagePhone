@@ -1,6 +1,7 @@
 package edu.ucla.cens.andwellness;
 
 import java.io.File;
+import java.io.IOException;
 
 import android.app.Application;
 import android.util.Log;
@@ -40,12 +41,10 @@ public class AndWellnessApplication extends Application {
 		TriggerFramework.resetAllTriggerSettings(this);
 		
 		//clear images
-		File [] files = new File(PhotoPrompt.IMAGE_PATH).listFiles();
-		
-		if (files != null) {
-			for (int i = 0; i < files.length; i++) {
-				files[i].delete();
-			}
+		try {
+			Utilities.delete(new File(PhotoPrompt.IMAGE_PATH));
+		} catch (IOException e) {
+			Log.e(TAG, "Error deleting images", e);
 		}
 	}
 }

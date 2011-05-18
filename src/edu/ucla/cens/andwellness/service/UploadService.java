@@ -22,7 +22,7 @@ import edu.ucla.cens.andwellness.AndWellnessApi;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Utilities;
 import edu.ucla.cens.andwellness.activity.LoginActivity;
-import edu.ucla.cens.andwellness.campaign.Campaign;
+import edu.ucla.cens.andwellness.db.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.db.Response;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;

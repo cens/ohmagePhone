@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import edu.ucla.cens.andwellness.campaign.Campaign;
 import edu.ucla.cens.andwellness.service.SurveyGeotagService;
 import edu.ucla.cens.systemlog.Log;
 

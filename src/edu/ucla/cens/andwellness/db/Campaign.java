@@ -1,4 +1,4 @@
-package edu.ucla.cens.andwellness.campaign;
+package edu.ucla.cens.andwellness.db;
 
 public class Campaign {
 	

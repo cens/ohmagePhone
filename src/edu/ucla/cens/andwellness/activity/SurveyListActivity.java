@@ -55,34 +55,35 @@ public class SurveyListActivity extends ListActivity {
 			Log.i(TAG, "no credentials saved, so launch Login");
 			startActivity(new Intent(this, LoginActivity.class));
 			finish();
-		}
-		
-		mSurveys = null; 
-		mActiveSurveyTitles = new ArrayList<String>();
-		
-		Intent intent = getIntent();
-		
-		if (intent != null) {
+			return;
+		} else {
+			mSurveys = null; 
+			mActiveSurveyTitles = new ArrayList<String>();
 			
-			mCampaignUrn = intent.getStringExtra("campaign_urn");
-			setTitle(intent.getStringExtra("campaign_name"));
+			Intent intent = getIntent();
+			
+			if (intent != null) {
+				
+				mCampaignUrn = intent.getStringExtra("campaign_urn");
+				setTitle(intent.getStringExtra("campaign_name"));
+			}
+			
+			
+			
+			try {
+				mSurveys = PromptXmlParser.parseSurveys(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn));
+			} catch (NotFoundException e) {
+				Log.e(TAG, "Error parsing surveys from xml", e);
+			} catch (XmlPullParserException e) {
+				Log.e(TAG, "Error parsing surveys from xml", e);
+			} catch (IOException e) {
+				Log.e(TAG, "Error parsing surveys from xml", e);
+			}
+			
+			adapter = new SurveyListAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
+			
+			setListAdapter(adapter);
 		}
-		
-		
-		
-		try {
-			mSurveys = PromptXmlParser.parseSurveys(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn));
-		} catch (NotFoundException e) {
-			Log.e(TAG, "Error parsing surveys from xml", e);
-		} catch (XmlPullParserException e) {
-			Log.e(TAG, "Error parsing surveys from xml", e);
-		} catch (IOException e) {
-			Log.e(TAG, "Error parsing surveys from xml", e);
-		}
-		
-		adapter = new SurveyListAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
-		
-		setListAdapter(adapter);
 	}	
 	
 	@Override
