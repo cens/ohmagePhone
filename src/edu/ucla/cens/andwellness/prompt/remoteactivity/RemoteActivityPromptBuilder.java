@@ -13,6 +13,8 @@ public class RemoteActivityPromptBuilder implements PromptBuilder
 	public static final String ACTION_ID = "action";
 	public static final String AUTOLAUNCH_ID = "autolaunch";
 	public static final String NUM_RETRIES_ID = "retries";
+	public static final String MIN_RUNS_ID = "min_runs";
+	public static final String INPUT_ID = "input";
 	
 	@Override
 	public void build(Prompt prompt, String id, String displayType,
@@ -53,6 +55,12 @@ public class RemoteActivityPromptBuilder implements PromptBuilder
 			else if(property.key.equals(NUM_RETRIES_ID))
 			{
 				remoteActivityPrompt.setRetries(Integer.parseInt(property.label));
+			}
+			else if(MIN_RUNS_ID.equals(property.key)) {
+				remoteActivityPrompt.setMinRuns(Integer.parseInt(property.label));
+			}
+			else if(INPUT_ID.equals(property.key)) {
+				remoteActivityPrompt.setInput(property.label);
 			}
 		}
 

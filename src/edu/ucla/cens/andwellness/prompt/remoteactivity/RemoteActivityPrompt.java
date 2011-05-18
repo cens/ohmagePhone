@@ -43,6 +43,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	private String packageName;
 	private String activityName;
 	private String actionName;
+	private String input;
 	private JSONArray responseArray;
 	
 	private TextView feedbackText;
@@ -52,6 +53,9 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	
 	private boolean launched;
 	private boolean autolaunch;
+	
+	private int runs;
+	private int minRuns;
 	private int retries;
 	
 	/**
@@ -62,6 +66,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		super();
 		
 		launched = false;
+		runs = 0;
 	}
 
 	/**
@@ -177,7 +182,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 					{
 						try
 						{
-							currResponse.put(nextKey, extras.get(nextKey).toString());
+							currResponse.put(nextKey, extras.get(nextKey));
 						}
 						catch(JSONException e)
 						{
@@ -216,10 +221,21 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		//
 		// One obvious possibility is some sort of "SKIPPED" return code.
 	}
+	
+	/**
+	 * Returns true if the number of runs is greater than the minimum required
+	 * number of runs.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return(runs >= minRuns);
+	}
 
 	/**
 	 * Returns the JSONObject that it has created from the values Bundled in
-	 * the return of the remote Activity.
+	 * the return of the remote Activity if the remote Activity has been run
+	 * at least the minimum number of times. If not, it returns null as an
+	 * indicator that the prompt isn't sufficiently "answered".
 	 */
 	@Override
 	protected Object getTypeSpecificResponseObject() 
@@ -234,6 +250,15 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	protected Object getTypeSpecificExtrasObject()
 	{
 		return null;
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please launch the remote Activity at least " + (minRuns - runs) + " more times.");
 	}
 
 	/**
@@ -265,16 +290,14 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	{
 		if(launched)
 		{
-			if(retries > 0)
-			{
-				retries--;
+			if((retries + 1 - runs) > 0)
+			{	
+				launchActivity();
 				
-				if(retries <= 0)
+				if((retries + 1 - runs) <= 0)
 				{
 					launchButton.setVisibility(View.GONE);
 				}
-				
-				launchActivity();
 			}
 			else
 			{
@@ -285,7 +308,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		{
 			launchButton.setText("Relaunch");
 			
-			if(retries <= 0)
+			if((retries + 1 - runs) <= 0)
 			{
 				launchButton.setVisibility(View.GONE);
 			}
@@ -295,6 +318,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		else
 		{
 			Log.e(TAG, "Autolaunch is turned on, but I received a click on the \"Replay\" button before ever launching the remote Activity.");
+			launchActivity();
 		}
 	}
 	
@@ -386,6 +410,18 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	}
 	
 	/**
+	 * Sets the minimum number of times the remote Activity must be run in
+	 * order to consider this prompt "answered".
+	 * 
+	 * @param minRuns The minimum number of times the remote Activity must be
+	 * 				  launched.
+	 */
+	public void setMinRuns(int minRuns)
+	{
+		this.minRuns = minRuns;
+	}
+	
+	/**
 	 * Sets whether or not the Activity will launch automatically when the
 	 * prompt is displayed. If it is not set to automatically launch then the
 	 * "Replay" button will be shown and have its text set to "Play". On
@@ -414,6 +450,17 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	}
 	
 	/**
+	 * Sets the input for the remote Activity that is being called.
+	 * 
+	 * @param input The input to be passed into the remote Activity when it is
+	 * 				launched.
+	 */
+	public void setInput(String input)
+	{
+		this.input = input;
+	}
+	
+	/**
 	 * Creates an Intent from the given 'activityName' and then launches the
 	 * Intent.
 	 */
@@ -423,12 +470,12 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		{
 			Intent activityToLaunch = new Intent(actionName);
 			activityToLaunch.setComponent(new ComponentName(packageName, activityName));
-			
-			Activity activityContext = (Activity) callingActivity;
+			activityToLaunch.putExtra("input", input);
 			
 			try {
-				activityContext.startActivityForResult(activityToLaunch, 0);
+				callingActivity.startActivityForResult(activityToLaunch, 0);
 				launched = true;
+				runs++;
 			} catch (ActivityNotFoundException e) {
 				Toast.makeText(callingActivity, "Required component is not installed", Toast.LENGTH_SHORT).show();
 			}

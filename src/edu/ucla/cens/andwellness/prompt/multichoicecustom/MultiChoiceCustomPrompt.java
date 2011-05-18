@@ -64,6 +64,14 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 			mSelectedIndexes.clear();
 		}
 	}
+	
+	/**
+	 * Always returns true as any selection of the items is considered valid.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return true;
+	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
@@ -76,6 +84,15 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 			}
 		}
 		return jsonArray;
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please choose at least one of the items in the list.");
 	}
 	
 	@Override

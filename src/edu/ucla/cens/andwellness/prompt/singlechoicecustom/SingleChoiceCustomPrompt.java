@@ -56,6 +56,16 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		mChoices = choices;
 	}
 	
+	/**
+	 * Returns true if the selected index falls within the range of possible
+	 * indices within either the preset list of items or the new list of items.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return((mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) ||
+			   (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()));
+	}
+	
 	@Override
 	protected Object getTypeSpecificResponseObject() {
 		
@@ -66,6 +76,15 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please select an item or add your own.");
 	}
 	
 	@Override

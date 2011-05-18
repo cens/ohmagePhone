@@ -47,6 +47,15 @@ public class SingleChoicePrompt extends AbstractPrompt {
 		//mSelectedKey = "RESPONSE_SKIPPED";
 		mSelectedIndex = -1;
 	}*/
+	
+	/**
+	 * Returns true if the selected index falls within the range of possible
+	 * indices.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return(mSelectedIndex >= 0 && mSelectedIndex < mChoices.size());
+	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
@@ -55,6 +64,15 @@ public class SingleChoicePrompt extends AbstractPrompt {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please select an item.");
 	}
 	
 	@Override

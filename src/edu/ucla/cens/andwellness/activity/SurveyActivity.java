@@ -193,7 +193,13 @@ public class SurveyActivity extends Activity {
 					prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
 					finish();
 				} else {
-					if (((AbstractPrompt)mPrompts.get(mCurrentPosition)).getResponseObject() == null) {
+					AbstractPrompt currPrompt = (AbstractPrompt) mPrompts.get(mCurrentPosition);
+					if(! currPrompt.isPromptAnswered()) {
+						Toast.makeText(SurveyActivity.this, currPrompt.getUnansweredPromptText(), Toast.LENGTH_LONG).show();
+					}
+					// This can probably be removed but is being kept for now
+					// as a fallback.
+					else if (currPrompt.getResponseObject() == null) {
 						Toast.makeText(SurveyActivity.this, "You must respond to this question before proceding.", Toast.LENGTH_SHORT).show();
 					} else {
 						Log.i(TAG, mPrompts.get(mCurrentPosition).getResponseJson());

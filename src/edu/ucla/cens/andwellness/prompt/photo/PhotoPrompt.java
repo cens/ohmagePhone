@@ -43,10 +43,28 @@ public class PhotoPrompt extends AbstractPrompt {
 		uuid = null;
 		//mBitmap = null;
 	}
+	
+	/**
+	 * Returns true if the UUID is not null meaning that we have at least some
+	 * image that we are referencing.
+	 */
+	@Override
+	public boolean isPromptAnswered() {
+		return(uuid != null);
+	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
 		return uuid;
+	}
+	
+	/**
+	 * The text to be displayed to the user if the prompt is considered
+	 * unanswered.
+	 */
+	@Override
+	public String getUnansweredPromptText() {
+		return("Please take a picture of something before continuing.");
 	}
 	
 	@Override
