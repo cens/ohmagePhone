@@ -19,8 +19,10 @@ import android.database.Cursor;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.andwellness.AndWellnessApi;
+import edu.ucla.cens.andwellness.CampaignManager;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Utilities;
+import edu.ucla.cens.andwellness.activity.CampaignListActivity;
 import edu.ucla.cens.andwellness.activity.LoginActivity;
 import edu.ucla.cens.andwellness.db.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
@@ -32,6 +34,9 @@ import edu.ucla.cens.systemlog.Log;
 public class UploadService extends WakefulIntentService{
 	
 	private static final String TAG = "UploadService";
+	
+	private static final int ERROR_AUTHENTICATION = 1;
+	private static final int ERROR_CAMPAIGN_REMOVED = 2;
 	
 	private AndWellnessApi mApi;
 
@@ -118,7 +123,7 @@ public class UploadService extends WakefulIntentService{
 				} else {
 					Log.e(TAG, "Failed to upload survey responses for " + campaign.mUrn);
 
-					handleErrors(response);
+					handleErrors(response, campaign);
 				}
 
 			} else {
@@ -214,7 +219,7 @@ public class UploadService extends WakefulIntentService{
 					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
 				} else {
 					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
-					handleErrors(response);
+					handleErrors(response, null);
 					break;						
 				}
 			}
@@ -253,7 +258,8 @@ public class UploadService extends WakefulIntentService{
 							files[i].delete();
 						} else {
 							Log.e(TAG, "Failed to upload an image.");
-							handleErrors(response);
+							handleErrors(response, campaign);
+							return;
 						}
 					}
 				}
@@ -263,13 +269,14 @@ public class UploadService extends WakefulIntentService{
 		}		
 	}	
 
-	private void handleErrors(AndWellnessApi.UploadResponse response) {
+	private void handleErrors(AndWellnessApi.UploadResponse response, Campaign problematicCampaign) {
 		switch (response.getResult()) {
 		case FAILURE:
 			Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
 			
 			boolean isAuthenticationError = false;
 			boolean isUserDisabled = false;
+			boolean removeCampaign = false;
 			
 			for (String code : response.getErrorCodes()) {
 				if (code.charAt(1) == '2') {
@@ -279,16 +286,23 @@ public class UploadService extends WakefulIntentService{
 						isUserDisabled = true;
 					}
 				}
+				
+				if (code.equals("0607") || code.equals("0608") || code.equals("0609")) {
+					removeCampaign = true;
+				}
 			}
 			
 			if (isUserDisabled) {
 				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 				prefs.setUserDisabled(true);
 				
-				showErrorNotification();
+				showErrorNotification(ERROR_AUTHENTICATION);
 			} else if (isAuthenticationError) {
 				//show auth notification
-				showErrorNotification();
+				showErrorNotification(ERROR_AUTHENTICATION);
+			} else if (removeCampaign){
+				CampaignManager.removeCampaign(this, problematicCampaign.mUrn);
+				showErrorNotification(ERROR_CAMPAIGN_REMOVED);
 			} else {
 				//show internal error notification? with error codes?
 			}
@@ -304,19 +318,32 @@ public class UploadService extends WakefulIntentService{
 		}
 	}
 	
-	private void showErrorNotification() {
+	private void showErrorNotification(int errorType) {
 		NotificationManager noteManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification note = new Notification();
 		
-		Intent intentToLaunch = new Intent(this, LoginActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
-		String title = "ohmage authentication failed!";
-		String body = "Tap here to re-enter password.";
-		note.icon = android.R.drawable.stat_notify_error;
-		note.tickerText = "Authentication failed!";
-		note.defaults |= Notification.DEFAULT_ALL;
-		note.when = System.currentTimeMillis();
-		note.setLatestEventInfo(this, title, body, pendingIntent);
-		noteManager.notify(1, note);
+		if (errorType == ERROR_AUTHENTICATION) {
+			Intent intentToLaunch = new Intent(this, LoginActivity.class);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+			String title = "ohmage authentication failed!";
+			String body = "Tap here to re-enter password.";
+			note.icon = android.R.drawable.stat_notify_error;
+			note.tickerText = "Authentication failed!";
+			note.defaults |= Notification.DEFAULT_ALL;
+			note.when = System.currentTimeMillis();
+			note.setLatestEventInfo(this, title, body, pendingIntent);
+			noteManager.notify(1, note);
+		} else if (errorType == ERROR_CAMPAIGN_REMOVED) {
+			Intent intentToLaunch = new Intent(this, CampaignListActivity.class);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+			String title = "Invalid campaign!";
+			String body = "An invalid campaign was removed from your phone.";
+			note.icon = android.R.drawable.stat_notify_error;
+			note.tickerText = "Invalid campaign!";
+			note.defaults |= Notification.DEFAULT_ALL;
+			note.when = System.currentTimeMillis();
+			note.setLatestEventInfo(this, title, body, pendingIntent);
+			noteManager.notify(1, note);
+		}
 	}
 }

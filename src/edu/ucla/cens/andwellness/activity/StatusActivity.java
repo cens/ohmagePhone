@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import edu.ucla.cens.andwellness.AndWellnessApi;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
+import edu.ucla.cens.andwellness.CampaignManager;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Utilities;
@@ -46,12 +47,14 @@ public class StatusActivity extends Activity {
 	private static final int DIALOG_INTERNAL_ERROR = 3;
 	private static final int DIALOG_AUTHENTICATION_ERROR = 4;
 	private static final int DIALOG_USER_DISABLED = 5;
+	private static final int DIALOG_CAMPAIGN_REMOVED = 6;
 	
 	private static final int UPLOAD_RESPONSES = 1;
 	private static final int UPLOAD_MOBILITY = 2;
 	private static final int UPLOAD_PHOTOS = 3;
 	
 	private UploadTask mTask;
+	private static Campaign problematicCampaign = null;
 	
 	private TextView mUsernameText;
 	private TextView mResponsesText;
@@ -220,6 +223,7 @@ public class StatusActivity extends Activity {
 			
 			boolean isAuthenticationError = false;
 			boolean isUserDisabled = false;
+			boolean removeCampaign = false;
 			
 			for (String code : response.getErrorCodes()) {
 				if (code.charAt(1) == '2') {
@@ -228,6 +232,10 @@ public class StatusActivity extends Activity {
 					if (code.equals("0201")) {
 						isUserDisabled = true;
 					}
+				}
+				
+				if (code.equals("0607") || code.equals("0608") || code.equals("0609")) {
+					removeCampaign = true;
 				}
 			}
 			
@@ -238,6 +246,9 @@ public class StatusActivity extends Activity {
 				showDialog(DIALOG_USER_DISABLED);				
 			} else if (isAuthenticationError) {
 				showDialog(DIALOG_AUTHENTICATION_ERROR);
+			} else if (removeCampaign){
+				CampaignManager.removeCampaign(this, problematicCampaign.mUrn);
+				showDialog(DIALOG_CAMPAIGN_REMOVED);
 			} else {
 				showDialog(DIALOG_INTERNAL_ERROR);
 				//add error codes to dialog?
@@ -306,6 +317,14 @@ public class StatusActivity extends Activity {
 						});
 			dialog = dialogBuilder.create();        	
 			break;
+			
+		case DIALOG_CAMPAIGN_REMOVED:
+        	dialogBuilder.setTitle("Error")
+        				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is no longer valid and has been removed from your phone.")
+        				.setCancelable(true)
+        				.setPositiveButton("OK", null);
+        	dialog = dialogBuilder.create();        	
+        	break;
         }
 		
 		return dialog;
@@ -390,6 +409,8 @@ public class StatusActivity extends Activity {
 			String username = helper.getUsername();
 			String hashedPassword = helper.getHashedPassword();
 			
+			problematicCampaign = null;
+			
 			DbHelper dbHelper = new DbHelper(mActivity);
 
 			//long cutoffTime = System.currentTimeMillis() - SurveyLocationService.LOCATION_STALENESS_LIMIT;
@@ -447,7 +468,8 @@ public class StatusActivity extends Activity {
 						}
 					} else {
 						Log.e(TAG, "Failed to upload survey responses for " + campaign.mUrn);
-						break;
+						problematicCampaign = campaign;
+						return response;
 					}
 					
 				} else {
@@ -600,6 +622,11 @@ public class StatusActivity extends Activity {
 					}
 				} else {
 					Log.e(TAG, PhotoPrompt.IMAGE_PATH + "/" + campaign.mUrn.replace(':', '_') + " does not exist.");
+				}
+				
+				if (response.getResult().equals(AndWellnessApi.Result.FAILURE)) {
+					problematicCampaign = campaign;
+					return response;
 				}
 			}
 			
