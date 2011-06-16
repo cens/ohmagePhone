@@ -287,7 +287,7 @@ public class UploadService extends WakefulIntentService{
 					}
 				}
 				
-				if (code.equals("0607") || code.equals("0608") || code.equals("0609")) {
+				if (code.equals("0604") || code.equals("0607") || code.equals("0608") || code.equals("0609")) {
 					removeCampaign = true;
 				}
 			}
