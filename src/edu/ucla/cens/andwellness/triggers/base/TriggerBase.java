@@ -61,9 +61,9 @@ public abstract class TriggerBase {
 	}
 	
 	/*
-	 * Get the ids of all the triggers of this type
+	 * Get the ids of all the triggers of this type for a specific campaign
 	 */
-	public LinkedList<Integer> getAllTriggerIds(Context context) {
+	public LinkedList<Integer> getAllTriggerIds(Context context, String campaignUrn) {
 	
 		Log.i(DEBUG_TAG, "TriggerBase: getAllTriggerIds()");
 		
@@ -71,7 +71,7 @@ public abstract class TriggerBase {
 		db.open();
 		
 		//Query the triggers of this type
-		Cursor c = db.getTriggers(this.getTriggerType());
+		Cursor c = db.getTriggers(campaignUrn, this.getTriggerType());
 		LinkedList<Integer> ids = new LinkedList<Integer>();
 		
 		//Populate the list
@@ -91,20 +91,20 @@ public abstract class TriggerBase {
 	}
 	
 	/*
-	 * Get the list of ids of all the active triggers. A trigger
+	 * Get the list of ids of all the active triggers for a specific campaign. A trigger
 	 * is active if it has at least one survey associated with it.
 	 * 
 	 * Note: This function can be optimized by storing the action
 	 * count separately in the db.
 	 */
-	public LinkedList<Integer> getAllActiveTriggerIds(Context context) {
+	public LinkedList<Integer> getAllActiveTriggerIds(Context context, String campaignUrn) {
 		Log.i(DEBUG_TAG, "TriggerBase: getAllActiveTriggerIds()");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
 		
 		//Get the triggers of this type
-		Cursor c = db.getTriggers(this.getTriggerType());
+		Cursor c = db.getTriggers(campaignUrn, this.getTriggerType());
 		LinkedList<Integer> ids =  new LinkedList<Integer>();
 		
 		//Iterate through the list of all triggers of this type
@@ -160,6 +160,14 @@ public abstract class TriggerBase {
 		return ret;
 	}
 	
+	public String getCampaignUrn(Context context, int trigId) {
+		TriggerDB db = new TriggerDB(context);
+		db.open();
+		String campaignUrn = db.getCampaignUrn(trigId); 
+		db.close();
+		return campaignUrn;
+	}
+	
 	/*
 	 * Get the latest time stamp (the time when the trigger went 
 	 * off the last time) of a specific trigger. 
@@ -211,10 +219,10 @@ public abstract class TriggerBase {
 				
 				//Stop trigger first
 				stopTrigger(context, trigId, db.getTriggerDescription(trigId));
-				//Delete from database
-				db.deleteTrigger(trigId);
 				//Now refresh the notification display
 				Notifier.removeTriggerNotification(context, trigId);
+				//Delete from database
+				db.deleteTrigger(trigId);
 			}
 		}
 		
@@ -225,7 +233,7 @@ public abstract class TriggerBase {
 	/*
 	 * Save a new trigger description to the database.
 	 */
-	public void addNewTrigger(Context context, String trigDesc) {
+	public void addNewTrigger(Context context, String campaignUrn, String trigDesc) {
 		Log.i(DEBUG_TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigDesc + ")");
 		
 		TriggerDB db = new TriggerDB(context);
@@ -233,7 +241,7 @@ public abstract class TriggerBase {
 		
 		//Save the trigger desc. Use default desc for notification, action
 		// and run time
-		int trigId = (int) db.addTrigger(this.getTriggerType(), trigDesc,
+		int trigId = (int) db.addTrigger(campaignUrn, this.getTriggerType(), trigDesc,
 					  			   		TriggerActionDesc.getDefaultDesc(),
 					  			   		NotifDesc.getDefaultDesc(context),
 					  			   		TriggerRunTimeDesc.getDefaultDesc());
@@ -353,7 +361,7 @@ public abstract class TriggerBase {
 	 * can save the trigger description to the db using the API addNewTrigger() 
 	 * provided by this class.
 	 */
-	public abstract void launchTriggerCreateActivity(Context context, boolean adminMode);
+	public abstract void launchTriggerCreateActivity(Context context, String campaingUrn, boolean adminMode);
 	
 	/*
 	 * Launch the activity to edit an existing trigger of this type. The activity

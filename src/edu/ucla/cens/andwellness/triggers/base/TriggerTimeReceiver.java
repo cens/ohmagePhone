@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
+import edu.ucla.cens.andwellness.db.Campaign;
+import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.triggers.notif.Notifier;
 
 /*
@@ -15,13 +17,13 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 
 	private static final String DEBUG_TAG = "TriggerFramework";
 	
-	private static void handleTimeChange(Context context) {
+	private static void handleTimeChange(Context context, String campaignUrn) {
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
 		
-		Cursor c = db.getAllTriggers();
+		Cursor c = db.getAllTriggers(campaignUrn);
 		
 		if(c.moveToFirst()) {
 			do {
@@ -49,7 +51,7 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 		db.close();
 		
 		//Finally, quietly refresh the notification
-		Notifier.refreshNotification(context,true);
+		Notifier.refreshNotification(context, campaignUrn, true);
 	}
 	
 	@Override
@@ -59,7 +61,10 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 			
 			Log.i(DEBUG_TAG, "TriggerTimeReceiver: " + i.getAction());
 			
-			handleTimeChange(context);
+			DbHelper dbHelper = new DbHelper(context);
+			for (Campaign c : dbHelper.getCampaigns()) {
+				handleTimeChange(context, c.mUrn);
+			}
 		}
 	}
 }

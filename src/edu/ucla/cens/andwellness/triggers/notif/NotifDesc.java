@@ -184,7 +184,7 @@ public class NotifDesc {
 		editor.putString(PREF_KEY_GLOBAL_NOTIF_DESC, desc);
 		editor.commit();
 		
-		TrigPrefManager.registerPreferenceFile(context, PREF_FILE_NAME);
+//		TrigPrefManager.registerPreferenceFile(context, PREF_FILE_NAME);
 	}
 	
 	/*

@@ -193,9 +193,11 @@
 	    	</intent-filter>
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.notif.Notifier.notification_deleted" />
+	    		<data android:scheme="notifier" />
 	    	</intent-filter>
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.notif.Notifier.notification_clicked" />
+	    		<data android:scheme="notifier" />
 	    	</intent-filter>
 		</receiver>
 		

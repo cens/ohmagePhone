@@ -35,6 +35,7 @@ public class TriggerDB {
 	
 	/* Columns */
 	public static final String KEY_ID = "_id";
+	public static final String KEY_CAMPAIGN_URN = "campaign_urn";
 	public static final String KEY_TRIG_TYPE = "trigger_type";
 	public static final String KEY_TRIG_DESCRIPT = "trig_descript";
 	public static final String KEY_TRIG_ACTION_DESCRIPT = "trig_action_descript";
@@ -78,19 +79,21 @@ public class TriggerDB {
 	/*
 	 * Add a new trigger to the db
 	 */
-	public long addTrigger(String trigType, 
+	public long addTrigger(String campaignUrn, String trigType, 
 						  String trigDescript,
 						  String trigActDesc,
 					      String notifDescript, 
 					      String rtDescript) {
 		
-		Log.i(DEBUG_TAG, "DB: addTrigger(" + trigType +
+		Log.i(DEBUG_TAG, "DB: addTrigger(" + campaignUrn +
+										 ", " + trigType  +
 										 ", " + trigDescript + 
 										 ", " + trigActDesc + 
 										 ", " + notifDescript + 
 										 ", " + rtDescript + ")");
 		
 		ContentValues values = new ContentValues();
+		values.put(KEY_CAMPAIGN_URN, campaignUrn);
 		values.put(KEY_TRIG_TYPE, trigType);
 		values.put(KEY_TRIG_DESCRIPT, trigDescript);
 		values.put(KEY_TRIG_ACTION_DESCRIPT, trigActDesc);
@@ -112,26 +115,50 @@ public class TriggerDB {
 	}
 	
 	/*
-	 * Get all the triggers corresponding to a type
+	 * Get all the triggers corresponding to a type for a campaign
 	 */
-	public Cursor getTriggers(String trigType) {
+	public Cursor getTriggers(String campaignUrn, String trigType) {
 		Log.i(DEBUG_TAG, "DB: getTriggers(" + trigType + ")");
 		
 		return mDb.query(TABLE_TRIGGERS, null, 
-						 KEY_TRIG_TYPE + "=?", 
-						 new String[] {String.valueOf(trigType)}, 
+						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_TYPE + "=?", 
+						 new String[] {campaignUrn, trigType}, 
 						 null, null, null);
 	}
 	
 	/*
-	 * Get all triggers in the system
+	 * Get all triggers in the system for a campaign
 	 */
-	public Cursor getAllTriggers() {
+	public Cursor getAllTriggers(String campaignUrn) {
 		Log.i(DEBUG_TAG, "DB: getAllTriggers");
 		
-		return mDb.query(TABLE_TRIGGERS, null, null, 
-				null, null, null, null);
+		return mDb.query(TABLE_TRIGGERS, null, 
+				KEY_CAMPAIGN_URN + "=?", 
+				new String [] {campaignUrn}, 
+				null, null, null);
 	}
+	
+//	/*
+//	 * Get all the triggers corresponding to a type
+//	 */
+//	public Cursor getTriggers(String trigType) {
+//		Log.i(DEBUG_TAG, "DB: getTriggers(" + trigType + ")");
+//		
+//		return mDb.query(TABLE_TRIGGERS, null, 
+//						 KEY_TRIG_TYPE + "=?", 
+//						 new String[] {String.valueOf(trigType)}, 
+//						 null, null, null);
+//	}
+//	
+//	/*
+//	 * Get all triggers in the system
+//	 */
+//	public Cursor getAllTriggers() {
+//		Log.i(DEBUG_TAG, "DB: getAllTriggers");
+//		
+//		return mDb.query(TABLE_TRIGGERS, null, null, 
+//				null, null, null, null);
+//	}
 	
 	/*
 	 * Get the notification description for a trigger
@@ -166,6 +193,25 @@ public class TriggerDB {
 		if(c.moveToFirst()) {
 			trigType = c.getString(
 								c.getColumnIndexOrThrow(KEY_TRIG_TYPE));
+		}
+		c.close();
+		return trigType;
+	}
+	
+	/*
+	 * Get the campaignUrn of a trigger
+	 */
+	public String getCampaignUrn(int trigId) {
+		Log.i(DEBUG_TAG, "DB: getCampaignUrn(" + trigId + ")");
+		
+		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_CAMPAIGN_URN}, 
+							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
+							 null, null, null);
+	
+		String trigType = null;
+		if(c.moveToFirst()) {
+			trigType = c.getString(
+								c.getColumnIndexOrThrow(KEY_CAMPAIGN_URN));
 		}
 		c.close();
 		return trigType;
@@ -285,8 +331,22 @@ public class TriggerDB {
 		return true;
 	}
 	
+//	/*
+//	 * Update the notification descriptions of all triggers with 
+//	 * a new one
+//	 */
+//	public boolean updateAllNotificationDescriptions(String newDesc) {
+//		Log.i(DEBUG_TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
+//		
+//		ContentValues values = new ContentValues();
+//		values.put(KEY_NOTIF_DESCRIPT, newDesc);
+//		
+//		mDb.update(TABLE_TRIGGERS, values, null, null);
+//		return true;
+//	}
+	
 	/*
-	 * Update the notification descriptions of all triggers with 
+	 * Update the notification descriptions of all triggers 
 	 * a new one
 	 */
 	public boolean updateAllNotificationDescriptions(String newDesc) {
@@ -326,6 +386,7 @@ public class TriggerDB {
 			final String QUERY_CREATE_TRIGGERS_TB = 
 				"create table " + TABLE_TRIGGERS + " ("
 				 + KEY_ID + " integer primary key autoincrement, "
+				 + KEY_CAMPAIGN_URN + " text not null, "
 				 + KEY_TRIG_TYPE + " text not null, "
 				 + KEY_TRIG_DESCRIPT + " text, "
 				 + KEY_TRIG_ACTION_DESCRIPT + " text, "

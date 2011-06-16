@@ -188,7 +188,7 @@ public class SurveyActivity extends Activity {
 			case R.id.next_button:
 				if (mReachedEnd) {
 					storeResponse();
-					TriggerFramework.notifySurveyTaken(SurveyActivity.this, mSurveyTitle);
+					TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
 					prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
 					finish();
@@ -465,7 +465,7 @@ public class SurveyActivity extends Activity {
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
 			surveyLaunchContextJson.put("launch_time", mLaunchTime);
-			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mSurveyTitle));
+			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mCampaignUrn, mSurveyTitle));
 		} catch (JSONException e) {
 			Log.e(TAG, "JSONException when trying to generate survey launch context json", e);
 			throw new RuntimeException(e);

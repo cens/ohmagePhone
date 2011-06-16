@@ -16,6 +16,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.db.Campaign;
+import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.triggers.base.TriggerBase;
+import edu.ucla.cens.andwellness.triggers.base.TriggerDB;
 import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 
 /*
@@ -70,6 +74,8 @@ public class Notifier {
 	private static final String KEY_NOTIF_VISIBILITY_PREF = 
 			"notif_visibility";
 	
+	public static final String KEY_CAMPAIGN_URN = "campaign_urn";
+	public static final String KEY_CAMPAIGN_NAME = "campaign_name";
 
 	/*
 	 * Utility function to save the status of the notification when it 
@@ -79,15 +85,16 @@ public class Notifier {
 	 * and it needs to be refreshed quietly (without alerting the user), no 
 	 * action is required.  
 	 */
-	private static void hideNotification(Context context) {
+	private static void hideNotification(Context context, String campaignUrn) {
 		NotificationManager notifMan = (NotificationManager)context.getSystemService(
 										Context.NOTIFICATION_SERVICE);
 		
-		notifMan.cancel(NOIF_ID);
-		saveNotifVisibility(context, false);
+		notifMan.cancel(campaignUrn.hashCode());
+		saveNotifVisibility(context, campaignUrn, false);
 	}
 	
 	private static void displayNotification(Context context,
+											String campaignUrn,
 											String title,
 											String summary,
 											boolean quiet) {
@@ -96,7 +103,7 @@ public class Notifier {
 		 * If the notification is to be refreshed quietly, and if it
 		 * is hidden, do nothing. 
 		 */
-		if(quiet && !getNotifVisibility(context)) {
+		if(quiet && !getNotifVisibility(context, campaignUrn)) {
 			return;
 		}
 		
@@ -117,19 +124,19 @@ public class Notifier {
 		
 		//Watch for notification cleared events
 		notif.deleteIntent = PendingIntent.getBroadcast(context, 0, 
-											new Intent(ACTION_NOTIF_DELETED),
+											new Intent(ACTION_NOTIF_DELETED).putExtra(KEY_CAMPAIGN_URN, campaignUrn).putExtra(KEY_CAMPAIGN_NAME, title).setData(Uri.parse(DATA_PREFIX_ALM + campaignUrn)),
 											PendingIntent.FLAG_CANCEL_CURRENT);
 		
 		//Watch for notification clicked events
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, 
-											new Intent(ACTION_NOTIF_CLICKED),
+											new Intent(ACTION_NOTIF_CLICKED).putExtra(KEY_CAMPAIGN_URN, campaignUrn).putExtra(KEY_CAMPAIGN_NAME, title).setData(Uri.parse(DATA_PREFIX_ALM + campaignUrn)),
 											PendingIntent.FLAG_CANCEL_CURRENT);
 		
 		notif.setLatestEventInfo(context, title, summary, pi);
-		notifMan.notify(NOIF_ID, notif);
+		notifMan.notify(campaignUrn.hashCode(), notif);
 		
 		//Save the current visibility
-		saveNotifVisibility(context, true);
+		saveNotifVisibility(context, campaignUrn, true);
 	}
 	
 	/*
@@ -159,32 +166,34 @@ public class Notifier {
 	 * reminder. The notification can be refreshed quietly when a trigger 
 	 * expires.
 	 */
-	public static void refreshNotification(Context context, boolean quiet) {
+	public static void refreshNotification(Context context, String campaignUrn, boolean quiet) {
 		
 		Log.i(DEBUG_TAG, "Notifier: Refreshing notification, quiet = " + quiet);
 		
 		//Get the list of all the surveys active at the moment
-		Set<String> actSurveys = NotifSurveyAdaptor.getAllActiveSurveys(context);
+		Set<String> actSurveys = NotifSurveyAdaptor.getAllActiveSurveys(context, campaignUrn);
 		
 		//Remove the notification if there are no active surveys
 		if(actSurveys.size() == 0) {
 			Log.i(DEBUG_TAG, "Notifier: No active surveys");
-			hideNotification(context);
+			hideNotification(context, campaignUrn);
 		}
 		else {
 			//Prepare the message and display the notification
 			
-			String title = "You have " + actSurveys.size() + 
+			String summary = "You have " + actSurveys.size() + 
 							" survey" + (actSurveys.size() != 1 ? "s" : "") +
 							" to take";
 			
-			displayNotification(context, title,
-								getSurveyDisplayList(actSurveys), quiet);
+			DbHelper dbHelper = new DbHelper(context);
+			
+			//displayNotification(context, campaignUrn, title, getSurveyDisplayList(actSurveys), quiet);
+			displayNotification(context, campaignUrn, dbHelper.getCampaign(campaignUrn).mName, summary, quiet);
 		}
 		
 		//Send the broadcast indicating a change in the notification survey
 		//list
-		context.sendBroadcast(new Intent(ACTION_ACTIVE_SURVEY_LIST_CHANGED));
+		context.sendBroadcast(new Intent(ACTION_ACTIVE_SURVEY_LIST_CHANGED).putExtra(KEY_CAMPAIGN_URN, campaignUrn));
 	}
 	
 	private static Intent getAlarmIntent(String action, int trigId) {
@@ -384,6 +393,11 @@ public class Notifier {
 	 */
 	private static void repeatReminder(Context context, int trigId, Intent intent) {
 		
+		TriggerDB db = new TriggerDB(context);
+		db.open();
+		String campaignUrn = db.getCampaignUrn(trigId); 
+		db.close();
+		
 		Set<String> actSurveys = NotifSurveyAdaptor.getActiveSurveysForTrigger(context, 
 																			   trigId);
 		
@@ -394,50 +408,52 @@ public class Notifier {
 		}
 		
 		//Trigger is still active, alert the user
-		refreshNotification(context, false);
+		refreshNotification(context, campaignUrn, false);
 		//Continue the remaining repeat reminders
 		int[] repeatDiffs = intent.getIntArrayExtra(KEY_REPEAT_LIST);
 		setRepeatAlarm(context, trigId, repeatDiffs);
 	}
 	
-	private static void handleNotifClicked(Context context) {
+	private static void handleNotifClicked(Context context, String campaignUrn) {
 		//Hide the notification window when the user clicks on it
-		hideNotification(context);
+		hideNotification(context, campaignUrn);
 		
 		//Broadcast to Andwellness
-		context.sendBroadcast(new Intent(ACTION_TRIGGER_NOTIFICATION));
+		Intent i = new Intent(ACTION_TRIGGER_NOTIFICATION);
+		i.putExtra(KEY_CAMPAIGN_URN, campaignUrn);
+		context.sendBroadcast(i);
 	}
 	
 	/*
 	 * Save the visibility of the notification to preferences
 	 */
-	private static void saveNotifVisibility(Context context, boolean visible) {
+	private static void saveNotifVisibility(Context context, String campaignUrn, boolean visible) {
 		SharedPreferences pref = context.getSharedPreferences(
-										 Notifier.class.getName(), 
+										 Notifier.class.getName() + "_" + campaignUrn, 
 										 Context.MODE_PRIVATE);
 		
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putBoolean(KEY_NOTIF_VISIBILITY_PREF, visible);
 		editor.commit();
 		
-		TrigPrefManager.registerPreferenceFile(context, 
-										Notifier.class.getName());
+		TrigPrefManager.registerPreferenceFile(context, campaignUrn,
+										Notifier.class.getName() + "_" + campaignUrn);
 	}
 	
 	/*
 	 * Get the current visibility of the notification
 	 */
-	private static boolean getNotifVisibility(Context context) {
+	private static boolean getNotifVisibility(Context context, String campaignUrn) {
 		SharedPreferences pref = context.getSharedPreferences(
-										 Notifier.class.getName(), 
+										 Notifier.class.getName() + "_" + campaignUrn, 
 										 Context.MODE_PRIVATE);
 		
 		return pref.getBoolean(KEY_NOTIF_VISIBILITY_PREF, false);
 	}
 	
 
-	private static void handleNotifDeleted(Context context) {
-		saveNotifVisibility(context, false);
+	private static void handleNotifDeleted(Context context, String campaignUrn) {
+		saveNotifVisibility(context, campaignUrn, false);
 	}
 	
 	private static void handleTriggerExpired(Context context, int trigId) {
@@ -448,8 +464,13 @@ public class Notifier {
 		//Log information related to expired triggers.
 		NotifSurveyAdaptor.handleExpiredTrigger(context, trigId);
 		
+		TriggerDB db = new TriggerDB(context);
+		db.open();
+		String campaignUrn = db.getCampaignUrn(trigId); 
+		db.close();
+		
 		//Quietly refresh the notification
-		Notifier.refreshNotification(context, true);
+		Notifier.refreshNotification(context, campaignUrn, true);
 	}
 	
 	/*
@@ -460,11 +481,15 @@ public class Notifier {
 	public static void notifyNewTrigger(Context context, 
 							  		 	int trigId, 
 							  		 	String notifDesc) {
-
+		TriggerDB db = new TriggerDB(context);
+		db.open();
+		String campaignUrn = db.getCampaignUrn(trigId); 
+		db.close();
+		
 		//Clear all existing alarms for this trigger if required
 		cancelAllAlarms(context, trigId);
 		//Update the notification with quite = false
-		refreshNotification(context, false);
+		refreshNotification(context, campaignUrn, false);
 		
 		NotifDesc desc = new NotifDesc();
 		if(!desc.loadString(notifDesc)) {	
@@ -483,22 +508,27 @@ public class Notifier {
 	}	
 
 	public static void removeTriggerNotification(Context context, int trigId) {
+		TriggerDB db = new TriggerDB(context);
+		db.open();
+		String campaignUrn = db.getCampaignUrn(trigId); 
+		db.close();
+		
 		//Clear all existing alarms for this trigger if required
 		cancelAllAlarms(context, trigId);
-		refreshNotification(context, true);
+		refreshNotification(context, campaignUrn, true);
 	}
 	
 	/* Receiver for all alarms */
 	public static class NotifReceiver extends BroadcastReceiver {
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			
 			if(intent.getAction().equals(ACTION_NOTIF_CLICKED)) {
-				Notifier.handleNotifClicked(context);
+				Notifier.handleNotifClicked(context, intent.getStringExtra(KEY_CAMPAIGN_URN));
 			}
 			else if(intent.getAction().equals(ACTION_NOTIF_DELETED)) {
-				Notifier.handleNotifDeleted(context);
+				Notifier.handleNotifDeleted(context, intent.getStringExtra(KEY_CAMPAIGN_URN));
 			}
 			else if(intent.getAction().equals(ACTION_EXPIRE_ALM)) {
 				

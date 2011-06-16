@@ -43,9 +43,10 @@ public class TriggerFramework {
 	 * is the entry point to the trigger framework. The list of all surveys 
 	 * for which any trigger is to be set must be passed as argument.
 	 */
-	public static void launchTriggersActivity(Context context, String[] surveys ) {
+	public static void launchTriggersActivity(Context context, String campaignUrn, String[] surveys ) {
 		
 		Intent i = new Intent(context, TriggerListActivity.class);
+		i.putExtra(TriggerListActivity.KEY_CAMPAIGN_URN, campaignUrn);
 		i.putExtra(TriggerListActivity.KEY_ACTIONS, surveys);
 		context.startActivity(i);
 	}
@@ -53,9 +54,9 @@ public class TriggerFramework {
 	/*
 	 * Get the list of all surveys which are active currently.
 	 */
-	public static String[] getActiveSurveys(Context context) {
+	public static String[] getActiveSurveys(Context context, String campaignUrn) {
 		
-		Set<String> actSurveys = NotifSurveyAdaptor.getAllActiveSurveys(context);
+		Set<String> actSurveys = NotifSurveyAdaptor.getAllActiveSurveys(context, campaignUrn);
 		
 		return actSurveys.toArray(new String[actSurveys.size()]);
 	}
@@ -66,21 +67,21 @@ public class TriggerFramework {
 	 * be used to decide whether a trigger notification for that survey must
 	 * be displayed or not.
 	 */
-	public static void notifySurveyTaken(Context context, String survey) {
+	public static void notifySurveyTaken(Context context, String campaignUrn, String survey) {
 		
-		NotifSurveyAdaptor.recordSurveyTaken(context, survey);
+		NotifSurveyAdaptor.recordSurveyTaken(context, campaignUrn, survey);
 		//Quietly refresh the notification to remove the taken 
 		//survey from the notification if applicable
-		Notifier.refreshNotification(context, true);
+		Notifier.refreshNotification(context, campaignUrn, true);
 	}
 	
 	/*
 	 * Get the JSON array of the details of all triggers which have 
 	 * activated a given survey currently. 
 	 */
-	public static JSONArray getActiveTriggerInfo(Context context, String survey) {
+	public static JSONArray getActiveTriggerInfo(Context context, String campaignUrn, String survey) {
 		
-		return NotifSurveyAdaptor.getActiveTriggerInfo(context, survey);
+		return NotifSurveyAdaptor.getActiveTriggerInfo(context, campaignUrn, survey);
 	}
 	
 	/*
@@ -93,6 +94,11 @@ public class TriggerFramework {
 	public static boolean resetAllTriggerSettings(Context context) {
 		
 		return TriggerInit.resetAllTriggersAndSettings(context);
+	}
+	
+	public static boolean resetTriggerSettings(Context context, String campaignUrn) {
+		
+		return TriggerInit.resetTriggersAndSettings(context, campaignUrn);
 	}
 }
 

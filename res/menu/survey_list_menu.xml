@@ -4,7 +4,7 @@
 	<item 
 		android:id="@+id/trigger_settings"
         android:title="Triggers"
-        android:enabled="false" />
+        android:enabled="true" />
         
     <item 
 		android:id="@+id/location_trace_settings"

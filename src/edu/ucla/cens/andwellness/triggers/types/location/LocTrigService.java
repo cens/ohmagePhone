@@ -46,6 +46,8 @@ import android.util.Log;
 import com.google.android.maps.GeoPoint;
 
 import edu.ucla.cens.accelservice.IAccelService;
+import edu.ucla.cens.andwellness.db.Campaign;
+import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.triggers.config.LocTrigConfig;
 import edu.ucla.cens.andwellness.triggers.utils.SimpleTime;
 import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
@@ -559,8 +561,14 @@ public class LocTrigService extends Service
 	}
 	
 	private void updateSamplingStatus() {
-		LinkedList<Integer> actTrigs = new LocationTrigger()
-										.getAllActiveTriggerIds(this);
+		LinkedList<Integer> actTrigs = new LinkedList<Integer>();
+		LocationTrigger lt = new LocationTrigger();
+		
+		DbHelper dbHelper = new DbHelper(this);
+		for (Campaign c : dbHelper.getCampaigns()) {
+			actTrigs.addAll(lt.getAllActiveTriggerIds(this, c.mUrn));
+		}
+		
 		
 		//Start sampling if there are active surveys 
 		//or if the location tracing is enabled.
@@ -1084,7 +1092,14 @@ public class LocTrigService extends Service
 		db.close();
 		
 		int minReentry = -1;
-		LinkedList<Integer> trigs = locTrig.getAllActiveTriggerIds(this);
+		
+		LinkedList<Integer> trigs = new LinkedList<Integer>();
+		
+		DbHelper dbHelper = new DbHelper(this);
+		for (Campaign c : dbHelper.getCampaigns()) {
+			trigs.addAll(locTrig.getAllActiveTriggerIds(this, c.mUrn));
+		}
+		
 		for(int trig : trigs) {
 			LocTrigDesc desc = new LocTrigDesc();
 			
@@ -1299,7 +1314,13 @@ public class LocTrigService extends Service
 		
 		LocationTrigger locTrig = new LocationTrigger();
 		
-		LinkedList<Integer> trigs = locTrig.getAllActiveTriggerIds(this);
+		LinkedList<Integer> trigs = new LinkedList<Integer>();
+		
+		DbHelper dbHelper = new DbHelper(this);
+		for (Campaign c : dbHelper.getCampaigns()) {
+			trigs.addAll(locTrig.getAllActiveTriggerIds(this, c.mUrn));
+		}
+		
 		for(int trigId : trigs) {			
 			LocTrigDesc desc = new LocTrigDesc();
 			

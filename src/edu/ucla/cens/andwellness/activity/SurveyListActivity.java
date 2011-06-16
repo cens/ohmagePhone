@@ -28,6 +28,7 @@ import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Survey;
 import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
+import edu.ucla.cens.andwellness.triggers.notif.Notifier;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
@@ -120,7 +121,7 @@ public class SurveyListActivity extends ListActivity {
 	private void updateList() {
 		mActiveSurveyTitles.clear();
 		
-		Collections.addAll(mActiveSurveyTitles, TriggerFramework.getActiveSurveys(this));
+		Collections.addAll(mActiveSurveyTitles, TriggerFramework.getActiveSurveys(this, mCampaignUrn));
 		
 		adapter.notifyDataSetChanged();
 	}
@@ -158,7 +159,7 @@ public class SurveyListActivity extends ListActivity {
 			for(Survey survey: mSurveys) {
 				surveyTitles.add(survey.getTitle());
 			}
-			TriggerFramework.launchTriggersActivity(this, surveyTitles.toArray(new String[surveyTitles.size()]));
+			TriggerFramework.launchTriggersActivity(this, mCampaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 			return true;
 			
 		case R.id.location_trace_settings:
@@ -190,7 +191,9 @@ public class SurveyListActivity extends ListActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(TriggerFramework.ACTION_ACTIVE_SURVEY_LIST_CHANGED)) {
-				updateList();
+				if (intent.getStringExtra(Notifier.KEY_CAMPAIGN_URN).equals(mCampaignUrn)) {
+					updateList();
+				}
 			}
 		}
 	};

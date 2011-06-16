@@ -3,9 +3,15 @@ package edu.ucla.cens.andwellness.triggers.base;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.util.Log;
+import edu.ucla.cens.andwellness.db.Campaign;
+import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.triggers.config.NotifConfig;
+import edu.ucla.cens.andwellness.triggers.notif.NotifDesc;
 import edu.ucla.cens.andwellness.triggers.notif.Notifier;
+import edu.ucla.cens.andwellness.triggers.types.location.LocTrigMapsActivity;
 import edu.ucla.cens.andwellness.triggers.utils.TrigPrefManager;
 
 /*
@@ -16,16 +22,16 @@ public class TriggerInit extends BroadcastReceiver {
 	
 	private static final String DEBUG_TAG = "TriggerFramework";
 	
-	private static void initTriggers(Context context) {
+	private static void initTriggers(Context context, String campaignUrn) {
 		
-		Log.i(DEBUG_TAG, "TriggerInit: Initializing triggers");
+		Log.i(DEBUG_TAG, "TriggerInit: Initializing triggers for " + campaignUrn);
 		
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
 		
-		Cursor c = db.getAllTriggers();
+		Cursor c = db.getAllTriggers(campaignUrn);
 				
 		if(c.moveToFirst()) {
 			do {
@@ -80,7 +86,7 @@ public class TriggerInit extends BroadcastReceiver {
 		db.close();
 		
 		//Refresh the notification display
-		Notifier.refreshNotification(context, true);
+		Notifier.refreshNotification(context, campaignUrn, true);
 	}
 	
 	@Override
@@ -89,7 +95,10 @@ public class TriggerInit extends BroadcastReceiver {
 		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
 			Log.i(DEBUG_TAG, "TriggerInit: Received boot completed intent");
 			
-			initTriggers(context);
+			DbHelper dbHelper = new DbHelper(context);
+			for (Campaign c : dbHelper.getCampaigns()) {
+				initTriggers(context, c.mUrn);
+			}
 		}
 	}
 	
@@ -97,15 +106,15 @@ public class TriggerInit extends BroadcastReceiver {
 	 * Resets all triggers, settings and preferences to its default.
 	 * Removes all triggers from the database after stopping them.
 	 */
-	public static boolean resetAllTriggersAndSettings(Context context) {
-		Log.i(DEBUG_TAG, "TriggerInit: Resetting all triggers");
+	public static boolean resetTriggersAndSettings(Context context, String campaignUrn) {
+		Log.i(DEBUG_TAG, "TriggerInit: Resetting all triggers for " + campaignUrn);
 		
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
 		
-		Cursor c = db.getAllTriggers();
+		Cursor c = db.getAllTriggers(campaignUrn);
 		
 		//Stop and delete all triggers
 		if(c.moveToFirst()) {
@@ -125,6 +134,27 @@ public class TriggerInit extends BroadcastReceiver {
 		c.close();
 		db.close();
 		
+		
+		
+		//Refresh the notification display
+		Notifier.refreshNotification(context, campaignUrn, true);
+		
+		//Clear all preference files registered with the preference manager
+		TrigPrefManager.clearPreferenceFiles(context, campaignUrn);
+		
+		return true;
+	}
+	
+	public static boolean resetAllTriggersAndSettings(Context context) {
+		Log.i(DEBUG_TAG, "TriggerInit: Resetting all triggers");
+		
+		DbHelper dbHelper = new DbHelper(context);
+		for (Campaign c : dbHelper.getCampaigns()) {
+			resetTriggersAndSettings(context, c.mUrn);
+		}
+		
+		TriggerTypeMap trigMap = new TriggerTypeMap();
+		
 		//Reset the settings of all trigger types
 		for(TriggerBase trig : trigMap.getAllTriggers()) {
 			
@@ -133,11 +163,13 @@ public class TriggerInit extends BroadcastReceiver {
 			}
 		}
 		
-		//Refresh the notification display
-		Notifier.refreshNotification(context, true);
+		SharedPreferences pref = context.getSharedPreferences(LocTrigMapsActivity.TOOL_TIP_PREF_NAME, Context.MODE_PRIVATE);
+
+		SharedPreferences.Editor editor = pref.edit();
+		editor.putBoolean(LocTrigMapsActivity.KEY_TOOL_TIP_DO_NT_SHOW, false);
+		editor.commit();
 		
-		//Clear all preference files registered with the preference manager
-		TrigPrefManager.clearAllPreferenceFiles(context);
+		NotifDesc.setGlobalDesc(context, NotifConfig.defaultConfig);
 		
 		return true;
 	}

@@ -30,6 +30,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import edu.ucla.cens.andwellness.R;
+import edu.ucla.cens.andwellness.db.Campaign;
+import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.triggers.config.TrigUserConfig;
 import edu.ucla.cens.andwellness.triggers.utils.TrigTextInput;
 
@@ -165,7 +167,12 @@ public class LocTrigSettingsActivity extends ListActivity
     }
     
     private void updateTriggerDescriptions(String oldName, String newName) {
-    	LinkedList<Integer> trigIds = mLocTrigger.getAllTriggerIds(this);
+    	LinkedList<Integer> trigIds = new LinkedList<Integer>();
+		
+		DbHelper dbHelper = new DbHelper(this);
+		for (Campaign c : dbHelper.getCampaigns()) {
+			trigIds.addAll(mLocTrigger.getAllActiveTriggerIds(this, c.mUrn));
+		}
     	
     	for(int trigId : trigIds) {
     		LocTrigDesc desc = new LocTrigDesc();
@@ -181,7 +188,12 @@ public class LocTrigSettingsActivity extends ListActivity
     }
     
     private void removeTriggers(String categName) {
-    	LinkedList<Integer> trigIds = mLocTrigger.getAllTriggerIds(this);
+    	LinkedList<Integer> trigIds = new LinkedList<Integer>();
+		
+		DbHelper dbHelper = new DbHelper(this);
+		for (Campaign c : dbHelper.getCampaigns()) {
+			trigIds.addAll(mLocTrigger.getAllActiveTriggerIds(this, c.mUrn));
+		}
     	
     	for(int trigId : trigIds) {
     		LocTrigDesc desc = new LocTrigDesc();

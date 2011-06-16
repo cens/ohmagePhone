@@ -105,7 +105,7 @@ public class LocationTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context, boolean adminMode) {
+	public void launchTriggerCreateActivity(Context context, final String campaignUrn, boolean adminMode) {
 
 		//Register a listener with the editor
 		//activity to listen for the 'done' event
@@ -117,7 +117,7 @@ public class LocationTrigger extends TriggerBase {
 							   String trigDesc) {
 				
 				//When done, save the trigger to the db
-				addNewTrigger(context, trigDesc);
+				addNewTrigger(context, campaignUrn, trigDesc);
 			}
 		});
 		

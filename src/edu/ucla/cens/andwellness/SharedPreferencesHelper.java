@@ -7,7 +7,7 @@ public class SharedPreferencesHelper {
 	
 	public static final String CLIENT_STRING = "android";
 //	public static final String DEFAULT_SERVER_URL = "https://dev1.andwellness.org/";
-	public static final String DEFAULT_SERVER_URL = "https://dev.mobilizingcs.org/";
+	public static final String DEFAULT_SERVER_URL = "https://dev1.mobilizingcs.org/";
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";

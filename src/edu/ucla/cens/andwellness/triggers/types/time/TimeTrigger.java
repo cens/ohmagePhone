@@ -63,7 +63,7 @@ public class TimeTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context, boolean adminMode) {
+	public void launchTriggerCreateActivity(Context context, final String campaignUrn, boolean adminMode) {
 		
 		TimeTrigEditActivity.setOnExitListener(
 					new TimeTrigEditActivity.ExitListener() {
@@ -73,7 +73,7 @@ public class TimeTrigger extends TriggerBase {
 							   String trigDesc) {
 				
 				Log.i(DEBUG_TAG, "TimeTrigger: Saving new trigger: " + trigDesc);
-				addNewTrigger(context, trigDesc);
+				addNewTrigger(context, campaignUrn, trigDesc);
 			}
 		});
 		

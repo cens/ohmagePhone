@@ -43,6 +43,8 @@ public class TriggerListActivity extends ListActivity
 	private static final String PREF_FILE_NAME = 
 		TriggerListActivity.class.getName();
 	
+	public static final String KEY_CAMPAIGN_URN = 
+		TriggerListActivity.class.getName() + ".campain_urn";
 	public static final String KEY_ACTIONS = 
 		TriggerListActivity.class.getName() + ".actions";
 	public static final String KEY_ADMIN_MODE = 
@@ -72,6 +74,7 @@ public class TriggerListActivity extends ListActivity
 	private TriggerDB mDb;
 	private TriggerTypeMap mTrigMap;
 	private String[] mActions;
+	private String mCampaignUrn;
 	private int mDialogTrigId = -1;
 	private String mDialogText = null; 
 	private boolean[] mActSelected = null;
@@ -103,6 +106,15 @@ public class TriggerListActivity extends ListActivity
 			return;
 		}
 		
+		if(i.hasExtra(KEY_CAMPAIGN_URN)) {
+			mCampaignUrn = i.getStringExtra(KEY_CAMPAIGN_URN);
+		}
+		else {
+			Log.e(DEBUG_TAG, "TriggerListActivity: Invoked with out passing campaign urn");
+			finish();
+			return;
+		}
+		
 		mDb = new TriggerDB(this);
         mDb.open();
         
@@ -118,7 +130,7 @@ public class TriggerListActivity extends ListActivity
 			finish();
 		}
 		
-		TrigPrefManager.registerPreferenceFile(this, PREF_FILE_NAME);
+		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME + "_" + mCampaignUrn);
     }
 	
 	public void onDestroy() {
@@ -292,7 +304,7 @@ public class TriggerListActivity extends ListActivity
 			}
         }
         
-        mCursor = mDb.getAllTriggers();
+        mCursor = mDb.getAllTriggers(mCampaignUrn);
         
     	mCursor.moveToFirst();
     	startManagingCursor(mCursor);
@@ -333,14 +345,14 @@ public class TriggerListActivity extends ListActivity
     }
 	
 	private boolean isAdminLoggedIn() {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME, 
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + mCampaignUrn, 
 														MODE_PRIVATE);
 		//Let the app be in admin mode the very first time
 		return pref.getBoolean(KEY_ADMIN_MODE, true);
 	}
 	
 	private void setAdminMode(boolean enable) {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME, 
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + mCampaignUrn, 
 														MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putBoolean(KEY_ADMIN_MODE, enable);
@@ -474,7 +486,7 @@ public class TriggerListActivity extends ListActivity
 			@Override
 			public void onClick(String trigType) {
 				mTrigMap.getTrigger(trigType)
-						.launchTriggerCreateActivity(TriggerListActivity.this, 
+						.launchTriggerCreateActivity(TriggerListActivity.this, mCampaignUrn,
 													 isAdminLoggedIn());
 			}
 		});
@@ -617,7 +629,7 @@ public class TriggerListActivity extends ListActivity
 				
 				
 				//Update any notification if required
-				Notifier.refreshNotification(this, true);
+				Notifier.refreshNotification(this, mCampaignUrn, true);
 			}
 		}
 		
@@ -665,7 +677,7 @@ public class TriggerListActivity extends ListActivity
 		mDb.updateActionDescription(trigId, desc.toString());
 		mCursor.requery();
 		
-		Notifier.refreshNotification(this, true);
+		Notifier.refreshNotification(this, mCampaignUrn, true);
 		
 		if(desc.getCount() == 0 && prevDesc.getCount() !=0) {
 			toggleTrigger(trigId, false);

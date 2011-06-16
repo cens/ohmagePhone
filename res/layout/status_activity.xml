@@ -39,7 +39,8 @@
 	  	android:layout_width="wrap_content"
 	  	android:layout_height="wrap_content"
 	  	android:layout_alignParentLeft="true"
-	  	android:layout_below="@id/status_username_text" />
+	  	android:layout_below="@id/status_username_text"
+	  	android:visibility="gone" />
 	  	
 	  <Button
 	  	android:id="@+id/status_clear_user_button"
@@ -48,7 +49,8 @@
 	  	android:layout_height="wrap_content"
 	  	android:layout_alignParentRight="true"
 	  	android:layout_below="@id/status_username_text"
-	  	android:layout_toRightOf="@id/status_password_button" />
+	  	android:layout_toRightOf="@id/status_password_button"
+	  	android:visibility="gone" />
   	
   </RelativeLayout>
   

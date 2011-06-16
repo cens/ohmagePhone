@@ -457,7 +457,7 @@ public class DbHelper extends SQLiteOpenHelper{
 			return null;
 		}
 		
-		Cursor cursor = db.query(TABLE_CAMPAIGNS, null, Campaign.URN + "= '" + urn + "'", null, null, null, null);
+		Cursor cursor = db.query(TABLE_CAMPAIGNS, null, Campaign.URN + "= ?", new String[] {urn}, null, null, null);
 		
 		cursor.moveToFirst();
 		

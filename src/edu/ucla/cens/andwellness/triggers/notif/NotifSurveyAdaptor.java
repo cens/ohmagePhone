@@ -46,6 +46,7 @@ public class NotifSurveyAdaptor {
 	private static final String KEY_TRIGER_PREF = "trigger_preferences";
 	private static final String KEY_SURVEY_LIST = "survey_list";
 	private static final String KEY_UNTAKEN_SURVEYS = "surveys_not_taken";
+	private static final String KEY_CAMPAIGN_URN = "campaign_urn";
 	
 	/*
 	 * Helper function to prepare the list of active surveys corresponding 
@@ -70,6 +71,9 @@ public class NotifSurveyAdaptor {
 		
 		String actions = trig.getString(
 						 trig.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_ACTION_DESCRIPT));
+		
+		String campaignUrn = trig.getString(
+				 trig.getColumnIndexOrThrow(TriggerDB.KEY_CAMPAIGN_URN));
 	
 		Log.i(DEBUG_TAG, "NotifSurveyAdaptor: Calculating active surveys for trigger");
 		
@@ -115,7 +119,7 @@ public class NotifSurveyAdaptor {
 			
 				//Has the survey been taken in within the 
 				//suppression window?
-				if(IsSurveyTaken(context, surveys[i], 
+				if(IsSurveyTaken(context, campaignUrn, surveys[i], 
 							     trigTS - suppressMS)) {
 					continue;
 				}
@@ -134,11 +138,12 @@ public class NotifSurveyAdaptor {
 	 * the time stamp of the survey stored in shared preferences.
 	 */
 	private static boolean IsSurveyTaken(Context context, 
+										 String campaignUrn,
 							      		 String survey, 
 							      		 long since) {
 		
 		SharedPreferences pref = context.getSharedPreferences(
-				 				NotifSurveyAdaptor.class.getName(), 
+				 				NotifSurveyAdaptor.class.getName() + "_" + campaignUrn, 
 				 				Context.MODE_PRIVATE);
 		
 		if(!pref.contains(survey)) {
@@ -160,13 +165,13 @@ public class NotifSurveyAdaptor {
 	 * This function is used by the Notifier to prepare the 
 	 * notification item.
 	 */
-	public static Set<String> getAllActiveSurveys(Context context) {
+	public static Set<String> getAllActiveSurveys(Context context, String campaignUrn) {
 		HashSet<String> actSurveys = new HashSet<String>();
 	
 		TriggerDB db = new TriggerDB(context);
 		db.open();
 		
-		Cursor c = db.getAllTriggers();
+		Cursor c = db.getAllTriggers(campaignUrn);
 		if(c.moveToFirst()) {
 			do {
 				
@@ -205,18 +210,17 @@ public class NotifSurveyAdaptor {
 	 * Saves the current time stamp against the given survey name.
 	 * This must be called whenever a survey is taken by the user.
 	 */
-	public static void recordSurveyTaken(Context context, String survey) {
+	public static void recordSurveyTaken(Context context, String campaignUrn, String survey) {
 			
 		SharedPreferences pref = context.getSharedPreferences(
-								 NotifSurveyAdaptor.class.getName(), 
+								 NotifSurveyAdaptor.class.getName() + "_" + campaignUrn, 
 								 Context.MODE_PRIVATE);
 		
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putLong(survey, System.currentTimeMillis());
 		editor.commit();
 		
-		TrigPrefManager.registerPreferenceFile(context, 
-							NotifSurveyAdaptor.class.getName());
+		TrigPrefManager.registerPreferenceFile(context, campaignUrn, NotifSurveyAdaptor.class.getName() + "_" + campaignUrn);
 	}
 	
 	/*
@@ -239,6 +243,9 @@ public class NotifSurveyAdaptor {
 		String trigType = trig.getString(
 						  trig.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_TYPE));
 		
+		String campaignUrn = trig.getString(
+				  trig.getColumnIndexOrThrow(TriggerDB.KEY_CAMPAIGN_URN));
+		
 		JSONObject jPref = new JSONObject();
 		TriggerBase trigBase = new TriggerTypeMap().getTrigger(trigType);
 		if(trigBase != null) {
@@ -253,7 +260,7 @@ public class NotifSurveyAdaptor {
 			jTrigInfo.put(KEY_NOTIF_DESC, new JSONObject(notifDesc));
 			jTrigInfo.put(KEY_RUNTIME_DESC, new JSONObject(desc.toHumanReadableString()));
 			jTrigInfo.put(KEY_TRIGER_PREF, jPref);
-
+			jTrigInfo.put(KEY_CAMPAIGN_URN, campaignUrn);
 		} catch (JSONException e) {
 			return;
 		}	
@@ -266,14 +273,15 @@ public class NotifSurveyAdaptor {
 	 * which have activated a given survey at the moment.
 	 */
 	public static JSONArray getActiveTriggerInfo(Context context, 
-												  String survey) {
+												 String campaignUrn,
+												 String survey) {
 		JSONObject jInfo = new JSONObject();
 		JSONArray jTrigs = new JSONArray();
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
 		
-		Cursor c = db.getAllTriggers();
+		Cursor c = db.getAllTriggers(campaignUrn);
 		if(c.moveToFirst()) {
 			do {
 				if(getActiveSurveys(context, c).contains(survey)) {
@@ -315,12 +323,14 @@ public class NotifSurveyAdaptor {
 		String sTrigDesc = db.getTriggerDescription(trigId);
 		String sTrigType = db.getTriggerType(trigId);
 		String sRTDesc = db.getRunTimeDescription(trigId);
+		String sCampaignUrn = db.getCampaignUrn(trigId);
 		
 		db.close();
 		
 		if(sActDesc == null || 
 		   sTrigDesc == null || 
 		   sTrigType == null || 
+		   sCampaignUrn == null ||
 		   sRTDesc == null) {
 			
 			return;
@@ -339,7 +349,7 @@ public class NotifSurveyAdaptor {
 		LinkedList<String> untakenList = new LinkedList<String>();
 		for(String survey: actDesc.getSurveys()) {
 			
-			if(!IsSurveyTaken(context, survey, 
+			if(!IsSurveyTaken(context, sCampaignUrn, survey, 
 					rtDesc.getTriggerTimeStamp())) {
 				
 				untakenList.add(survey);
@@ -367,6 +377,7 @@ public class NotifSurveyAdaptor {
 			jExpired.put(KEY_TRIGGER_DESC, new JSONObject(sTrigDesc));
 			jExpired.put(KEY_SURVEY_LIST, jSurveyList);
 			jExpired.put(KEY_UNTAKEN_SURVEYS, jUntakenSurveys);
+			jExpired.put(KEY_CAMPAIGN_URN, sCampaignUrn);
 		} catch (JSONException e) {
 			return;
 		}

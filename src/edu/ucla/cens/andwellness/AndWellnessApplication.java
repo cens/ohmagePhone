@@ -27,6 +27,9 @@ public class AndWellnessApplication extends Application {
 	public void resetAll() {
 		//clear everything?
 		
+		//clear triggers
+		TriggerFramework.resetAllTriggerSettings(this);
+		
 		//clear shared prefs
 		new SharedPreferencesHelper(this).clearAll();
 		
@@ -36,9 +39,6 @@ public class AndWellnessApplication extends Application {
 		//clear custom type dbs
 		new SingleChoiceCustomDbAdapter(this).clearAll();
 		new MultiChoiceCustomDbAdapter(this).clearAll();
-		
-		//clear triggers
-		TriggerFramework.resetAllTriggerSettings(this);
 		
 		//clear images
 		try {

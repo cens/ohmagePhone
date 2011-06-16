@@ -90,9 +90,9 @@ public class LocTrigMapsActivity extends MapActivity
 
 	private static final String DEBUG_TAG = "LocationTrigger";
 	
-	private static final String TOOL_TIP_PREF_NAME =
+	public static final String TOOL_TIP_PREF_NAME =
 		LocTrigMapsActivity.class.getName() + "tool_tip_pref";
-	private static final String KEY_TOOL_TIP_DO_NT_SHOW =
+	public static final String KEY_TOOL_TIP_DO_NT_SHOW =
 		LocTrigMapsActivity.class.getName() + "tool_tip_do_not_show";
 	
 	//The delay before showing the tool tip
@@ -262,8 +262,8 @@ public class LocTrigMapsActivity extends MapActivity
 			new Handler().postDelayed(runnable, TOOL_TIP_DELAY);
 		}
 		
-		TrigPrefManager.registerPreferenceFile(LocTrigMapsActivity.this, 
-				   								TOOL_TIP_PREF_NAME);
+//		TrigPrefManager.registerPreferenceFile(LocTrigMapsActivity.this, 
+//				   								TOOL_TIP_PREF_NAME);
     }
     
     private boolean shouldSkipToolTip() {

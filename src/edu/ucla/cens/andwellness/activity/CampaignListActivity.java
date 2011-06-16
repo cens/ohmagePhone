@@ -41,6 +41,7 @@ import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
 import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
+import edu.ucla.cens.andwellness.CampaignManager;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Survey;
@@ -175,35 +176,7 @@ public class CampaignListActivity extends ListActivity {
 	};
 	
 	private void removeCampaign(String urn) {
-		DbHelper dbHelper = new DbHelper(this);
-		
-		//remove campaign
-		dbHelper.removeCampaign(urn);
-		
-		//remove responses
-		dbHelper.removeResponseRows(urn);
-		
-		//remove images
-		File imageDir = new File(PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_'));
-		if (imageDir.exists()) {
-			File [] files = imageDir.listFiles();
-			
-			if (files != null) {
-				for (int i = 0; i < files.length; i++) {
-					files[i].delete();
-				}
-			}
-			
-			imageDir.delete();
-		} else {
-			Log.e(TAG, PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_') + " does not exist.");
-		}
-		
-		//clear custom type dbs
-		
-		//remove triggers
-		
-		//clear preferences
+		CampaignManager.removeCampaign(this, urn);
 	}
 	
 	@Override
