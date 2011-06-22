@@ -147,7 +147,7 @@ public class CampaignListActivity extends ListActivity {
 			intent.putExtra("campaign_urn", ((Campaign) getListView().getItemAtPosition(position)).mUrn);
 			intent.putExtra("campaign_name", ((Campaign) getListView().getItemAtPosition(position)).mName);
 			startActivity(intent);
-		} else {
+		} else if (((CampaignListAdapter)getListAdapter()).getItemGroup(position) == CampaignListAdapter.GROUP_UNAVAILABLE) {
 			//download campaign
 			CampaignDownloadTask task = new CampaignDownloadTask(CampaignListActivity.this);
 			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
