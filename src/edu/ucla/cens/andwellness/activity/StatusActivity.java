@@ -203,10 +203,6 @@ public class StatusActivity extends Activity {
 		
 		mTask = null;
 		
-		mResponsesText.setText(String.valueOf(getResponsesCount()));
-		mMobilityText.setText(String.valueOf(getMobilityCount()));
-		mPhotosText.setText(String.valueOf(getPhotosCount()));
-		
 		try {
 			dismissDialog(DIALOG_UPLOAD_PROGRESS);
 		} catch (IllegalArgumentException e) {
@@ -263,6 +259,10 @@ public class StatusActivity extends Activity {
 			showDialog(DIALOG_INTERNAL_ERROR);
 			break;
 		}
+		
+		mResponsesText.setText(String.valueOf(getResponsesCount()));
+		mMobilityText.setText(String.valueOf(getMobilityCount()));
+		mPhotosText.setText(String.valueOf(getPhotosCount()));
 	}
 	
 	@Override
@@ -296,7 +296,7 @@ public class StatusActivity extends Activity {
         	
 		case DIALOG_AUTHENTICATION_ERROR:
         	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to authenticate. Please check username and re-enter password.")
+        				.setMessage("Unable to authenticate. Please check username and update the password.")
         				.setCancelable(true)
         				.setPositiveButton("OK", null);
         	dialog = dialogBuilder.create();        	

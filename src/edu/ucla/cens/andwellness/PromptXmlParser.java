@@ -93,11 +93,11 @@ public class PromptXmlParser {
 				
 				tagName = parser.getName();
 				if (tagName.equalsIgnoreCase(CAMPAIGN_NAME)) {
-					map.put("campaign_name", parser.nextText());
+					map.put("campaign_name", parser.nextText().trim());
 				} else if (tagName.equalsIgnoreCase(CAMPAIGN_URN)) {
-					map.put("campaign_urn", parser.nextText());
+					map.put("campaign_urn", parser.nextText().trim());
 				} else if (tagName.equalsIgnoreCase(SERVER_URL)) {
-					map.put("server_url", parser.nextText());
+					map.put("server_url", parser.nextText().trim());
 				} 
 				break;
 				
@@ -157,23 +157,23 @@ public class PromptXmlParser {
 					
 				} else if (surveyInProgress && !contentListInProgress) {
 					if (tagName.equalsIgnoreCase(SURVEY_ID)) {
-						id = parser.nextText();
+						id = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_TITLE)) {
-						title = parser.nextText();
+						title = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_DESCRIPTION)) {
-						description = parser.nextText();
+						description = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_INTRO_TEXT)) {
-						introText = parser.nextText();
+						introText = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_SUBMIT_TEXT)) {
-						submitText = parser.nextText();
+						submitText = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_SHOW_SUMMARY)) {
-						showSummary = parser.nextText();
+						showSummary = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_EDIT_SUMMARY)) {
-						editSummary = parser.nextText();
+						editSummary = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_SUMMARY_TEXT)) {
-						summaryText = parser.nextText();
+						summaryText = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_ANYTIME)) {
-						anytime = parser.nextText();
+						anytime = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(SURVEY_CONTENT_LIST)) {
 						contentListInProgress = true;
 					} 
@@ -243,7 +243,7 @@ public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surv
 					surveyInProgress = true;
 				} else if (surveyInProgress) {
 					if (tagName.equalsIgnoreCase(SURVEY_ID) && !promptInProgress) {
-						if (parser.nextText().equals(surveyId)) {
+						if (parser.nextText().trim().equals(surveyId)) {
 							surveyFound = true;
 							prompts = new ArrayList<Prompt>();
 						}
@@ -267,29 +267,29 @@ public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surv
 							
 						} else if (promptInProgress) {
 							if (tagName.equalsIgnoreCase(PROMPT_ID)) {
-								id = parser.nextText();
+								id = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_TYPE)) {
-								displayType = parser.nextText();
+								displayType = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_LABEL)) {
-								displayLabel = parser.nextText();
+								displayLabel = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_UNIT)) {
-								unit = parser.nextText();
+								unit = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_TEXT)) {
-								promptText = parser.nextText();
+								promptText = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_ABBREVIATED_TEXT)) {
-								abbreviatedText = parser.nextText();
+								abbreviatedText = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_EXPLANATION_TEXT)) {
-								explanationText = parser.nextText();
+								explanationText = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_TYPE)) {
-								promptType = parser.nextText();
+								promptType = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_DEFAULT)) {
-								defaultValue = parser.nextText();
+								defaultValue = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_CONDITION)) {
-								condition = parser.nextText();
+								condition = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_SKIPPABLE)) {
-								skippable = parser.nextText();
+								skippable = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_SKIP_LABEL)) {
-								skipLabel = parser.nextText();
+								skipLabel = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTIES)) {
 								properties = new ArrayList<KVLTriplet>();
 							} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
@@ -297,11 +297,11 @@ public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surv
 								value = null;
 								label = null;
 							} else if (tagName.equalsIgnoreCase(PROPERTY_KEY)) {
-								key = parser.nextText();
+								key = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROPERTY_VALUE)) {
-								value = parser.nextText();
+								value = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROPERTY_LABEL)) {
-								label = parser.nextText();
+								label = parser.nextText().trim();
 							}
 						}
 					}
@@ -392,29 +392,29 @@ public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surv
 					
 				} else if (promptInProgress) {
 					if (tagName.equalsIgnoreCase(PROMPT_ID)) {
-						id = parser.nextText();
+						id = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_TYPE)) {
-						displayType = parser.nextText();
+						displayType = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_LABEL)) {
-						displayLabel = parser.nextText();
+						displayLabel = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_UNIT)) {
-						unit = parser.nextText();
+						unit = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_TEXT)) {
-						promptText = parser.nextText();
+						promptText = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_ABBREVIATED_TEXT)) {
-						abbreviatedText = parser.nextText();
+						abbreviatedText = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_EXPLANATION_TEXT)) {
-						explanationText = parser.nextText();
+						explanationText = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_TYPE)) {
-						promptType = parser.nextText();
+						promptType = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_DEFAULT)) {
-						defaultValue = parser.nextText();
+						defaultValue = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_CONDITION)) {
-						condition = parser.nextText();
+						condition = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_SKIPPABLE)) {
-						skippable = parser.nextText();
+						skippable = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_SKIP_LABEL)) {
-						skipLabel = parser.nextText();
+						skipLabel = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTIES)) {
 						properties = new ArrayList<KVLTriplet>();
 					} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
@@ -422,11 +422,11 @@ public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surv
 						value = null;
 						label = null;
 					} else if (tagName.equalsIgnoreCase(PROPERTY_KEY)) {
-						key = parser.nextText();
+						key = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROPERTY_VALUE)) {
-						value = parser.nextText();
+						value = parser.nextText().trim();
 					} else if (tagName.equalsIgnoreCase(PROPERTY_LABEL)) {
-						label = parser.nextText();
+						label = parser.nextText().trim();
 					}
 				}
 				break;

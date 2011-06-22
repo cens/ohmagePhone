@@ -198,7 +198,7 @@ public class LoginActivity extends Activity {
         	
 		case DIALOG_LOGIN_ERROR:
         	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to authenticate. Please check username and re-enter password.")
+        				.setMessage("Unable to authenticate. Please check username and update the password.")
         				.setCancelable(true)
         				.setPositiveButton("OK", null)
         				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {

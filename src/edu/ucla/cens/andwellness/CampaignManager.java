@@ -43,5 +43,6 @@ public class CampaignManager {
 		//clear custom type dbs
 		
 		//clear preferences
+		
 	}
 }

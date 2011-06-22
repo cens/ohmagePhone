@@ -32,6 +32,7 @@ import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 import edu.ucla.cens.andwellness.AndWellnessApi;
 import edu.ucla.cens.andwellness.AndWellnessApi.ReadResponse;
 import edu.ucla.cens.andwellness.AndWellnessApi.Result;
@@ -45,6 +46,7 @@ import edu.ucla.cens.andwellness.CampaignManager;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
 import edu.ucla.cens.andwellness.Survey;
+import edu.ucla.cens.andwellness.Utilities;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 public class CampaignListActivity extends ListActivity {
@@ -59,8 +61,8 @@ public class CampaignListActivity extends ListActivity {
 	
 	private CampaignListUpdateTask mTask;
 	//private List<HashMap<String, String>> mData;
-	private List<Campaign> mAvailable;
-	private List<Campaign> mUnavailable;
+	private List<Campaign> mLocalCampaigns;
+	private List<Campaign> mRemoteCampaigns;
 	private LayoutInflater mInflater;
 	private View mFooter;
 	
@@ -87,10 +89,8 @@ public class CampaignListActivity extends ListActivity {
 	        
 	        //mData = new ArrayList<HashMap<String,String>>();
 	        
-	        mAvailable = new ArrayList<Campaign>();
-	        mUnavailable = new ArrayList<Campaign>();
-	        
-	        loadCampaigns();
+	        mLocalCampaigns = new ArrayList<Campaign>();
+	        mRemoteCampaigns = new ArrayList<Campaign>();
 	        
 	        mInflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
 	        mFooter = mInflater.inflate(R.layout.campaign_list_footer, null);
@@ -99,7 +99,7 @@ public class CampaignListActivity extends ListActivity {
 	        
 	        getListView().setOnItemLongClickListener(mItemLongClickListener);
 			
-			setListAdapter(new CampaignListAdapter(this, mAvailable, mUnavailable, R.layout.list_item_two_line_with_image, R.layout.list_header));
+			setListAdapter(new CampaignListAdapter(this, mLocalCampaigns, mRemoteCampaigns, R.layout.list_item_two_line_with_image, R.layout.list_header));
 			//setListAdapter(new SimpleAdapter(this, mData , android.R.layout.simple_list_item_2, from, to));
 			
 			Object retained = getLastNonConfigurationInstance();
@@ -108,14 +108,23 @@ public class CampaignListActivity extends ListActivity {
 	        	Log.i(TAG, "creating after configuration changed, restored CampaignListUpdateTask instance");
 	        	mTask = (CampaignListUpdateTask) retained;
 	        	mTask.setActivity(this);
-	        } else {
+	        } /*else {
 	        	Log.i(TAG, "no tasks in progress");
 	        	
 	        	updateCampaignList();
-	        }
+	        }*/
 		}
 	}
 	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		loadCampaigns();
+		if (mTask == null) {
+			updateCampaignList();
+		}
+	}
+
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		Log.i(TAG, "configuration change");
@@ -162,7 +171,6 @@ public class CampaignListActivity extends ListActivity {
 						removeCampaign(((Campaign) getListView().getItemAtPosition(position)).mUrn);
 						loadCampaigns();
 						updateCampaignList();
-						((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
 					}
 
 				});
@@ -216,14 +224,16 @@ public class CampaignListActivity extends ListActivity {
 
 	private void loadCampaigns() {
 		
-		mAvailable.clear();
+		mLocalCampaigns.clear();
 		
 		DbHelper dbHelper = new DbHelper(this);
         List<Campaign> campaigns = dbHelper.getCampaigns();
         
         for (Campaign c : campaigns) {
-        	mAvailable.add(c);
+        	mLocalCampaigns.add(c);
         }
+        
+        ((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
 	}
 	
 	private void updateCampaignList() {
@@ -240,7 +250,7 @@ public class CampaignListActivity extends ListActivity {
 		switch (id) {
 		case DIALOG_AUTH_ERROR:
         	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to authenticate. Please check username and re-enter password.")
+        				.setMessage("Unable to authenticate. Please check username and update the password.")
         				.setCancelable(true)
         				.setPositiveButton("OK", null)
         				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
@@ -320,7 +330,7 @@ public class CampaignListActivity extends ListActivity {
 		
 		if (response.getResult() == Result.SUCCESS) {
 			//mData.clear();
-			mUnavailable.clear();
+			mRemoteCampaigns.clear();
 			
 			mFooter.setVisibility(View.GONE);
 			
@@ -333,33 +343,105 @@ public class CampaignListActivity extends ListActivity {
 					c.mName = response.getData().getJSONObject(c.mUrn).getString("name");
 					c.mCreationTimestamp = response.getData().getJSONObject(c.mUrn).getString("creation_timestamp");
 					
-//					HashMap<String, String> map = new HashMap<String, String>();
-//					map.put("name", name);
-//					map.put("urn", urn);
-//					mData.add(map);
-					boolean isAlreadyAvailable = false;
-					for (Campaign availableCampaign : mAvailable) {
-						if (c.mUrn.equals(availableCampaign.mUrn)) {
-							isAlreadyAvailable = true;
+					if (response.getData().getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running")) {
+						mRemoteCampaigns.add(c);
+					} else {
+						for (Campaign localCampaign : mLocalCampaigns) {
+							if (c.mUrn.equals(localCampaign.mUrn)) {
+								removeCampaign(c.mUrn);
+							}
 						}
 					}
 					
-					if (!isAlreadyAvailable) {
-						mUnavailable.add(c);
-					}
+//					boolean isAlreadyAvailable = false;
+//					for (Campaign availableCampaign : mLocalCampaigns) {
+//						if (c.mUrn.equals(availableCampaign.mUrn)) {
+//							isAlreadyAvailable = true;
+//						}
+//					}
+//					
+//					if (!isAlreadyAvailable) {
+//						mRemoteCampaigns.add(c);
+//					}
 				}
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing response json", e);
 			}
-			// update listview
-//			((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
-			((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
-		} else {
-			//show error
+			
+			for (Campaign localCampaign : mLocalCampaigns) {
+				
+				int remoteIndex = -1;
+				
+				for (int i = 0; i < mRemoteCampaigns.size(); i++) {
+					if (mRemoteCampaigns.get(i).mUrn.equals(localCampaign.mUrn)) {
+						remoteIndex = i;
+						break;
+					}
+				}
+				
+				if (remoteIndex != -1) {
+					mRemoteCampaigns.remove(remoteIndex);
+				} else {
+					removeCampaign(localCampaign.mUrn);
+				}
+			}
+			
+
+		} else if (response.getResult() == Result.FAILURE) {
+			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+			
+			boolean isAuthenticationError = false;
+			boolean isUserDisabled = false;
+			
+			for (String code : response.getErrorCodes()) {
+				if (code.charAt(1) == '2') {
+					isAuthenticationError = true;
+					
+					if (code.equals("0201")) {
+						isUserDisabled = true;
+					}
+				}
+			}
+			
+			if (isUserDisabled) {
+				new SharedPreferencesHelper(this).setUserDisabled(true);
+				mFooter.setVisibility(View.VISIBLE);
+				mFooter.findViewById(R.id.progress_bar).setVisibility(View.GONE);
+				mFooter.findViewById(R.id.error_text).setVisibility(View.VISIBLE);
+				((TextView)mFooter.findViewById(R.id.error_text)).setText("This user account has been disabled.");
+			} else if (isAuthenticationError) {
+				mFooter.setVisibility(View.VISIBLE);
+				mFooter.findViewById(R.id.progress_bar).setVisibility(View.GONE);
+				mFooter.findViewById(R.id.error_text).setVisibility(View.VISIBLE);
+				((TextView)mFooter.findViewById(R.id.error_text)).setText("Unable to authenticate. Please check username and update the password.");
+			} else {
+				mFooter.setVisibility(View.VISIBLE);
+				mFooter.findViewById(R.id.progress_bar).setVisibility(View.GONE);
+				mFooter.findViewById(R.id.error_text).setVisibility(View.VISIBLE);
+				((TextView)mFooter.findViewById(R.id.error_text)).setText("Internal error.");
+			}
+			
+		} else if (response.getResult() == Result.HTTP_ERROR) {
+			Log.e(TAG, "http error");
+			
 			mFooter.setVisibility(View.VISIBLE);
 			mFooter.findViewById(R.id.progress_bar).setVisibility(View.GONE);
 			mFooter.findViewById(R.id.error_text).setVisibility(View.VISIBLE);
-		}
+			((TextView)mFooter.findViewById(R.id.error_text)).setText("Unable to communicate with server at this time.");
+		} else {
+			Log.e(TAG, "internal error");
+			
+			mFooter.setVisibility(View.VISIBLE);
+			mFooter.findViewById(R.id.progress_bar).setVisibility(View.GONE);
+			mFooter.findViewById(R.id.error_text).setVisibility(View.VISIBLE);
+			((TextView)mFooter.findViewById(R.id.error_text)).setText("Internal server communication error.");
+		} 
+		
+		loadCampaigns();
+		
+		// update listview
+//		((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
+		((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
 	}
 	
 	private void onCampaignDownloaded(String campaignUrn, ReadResponse response) {
@@ -392,17 +474,28 @@ public class CampaignListActivity extends ListActivity {
 			updateCampaignList();
 			((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
 		} else if (response.getResult() == Result.FAILURE) {
-			Log.e(TAG, "auth failure");
+			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
 			
-			for (String s : response.getErrorCodes()) {
-				Log.e(TAG, "error code: " + s);
+			boolean isAuthenticationError = false;
+			boolean isUserDisabled = false;
+			
+			for (String code : response.getErrorCodes()) {
+				if (code.charAt(1) == '2') {
+					isAuthenticationError = true;
+					
+					if (code.equals("0201")) {
+						isUserDisabled = true;
+					}
+				}
 			}
 			
-			if (Arrays.asList(response.getErrorCodes()).contains("0201")) {
+			if (isUserDisabled) {
 				new SharedPreferencesHelper(this).setUserDisabled(true);
 				showDialog(DIALOG_USER_DISABLED);
-			} else {
+			} else if (isAuthenticationError) {
 				showDialog(DIALOG_AUTH_ERROR);
+			} else {
+				showDialog(DIALOG_INTERNAL_ERROR);
 			}
 			
 		} else if (response.getResult() == Result.HTTP_ERROR) {
