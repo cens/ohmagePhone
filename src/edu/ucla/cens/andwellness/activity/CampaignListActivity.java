@@ -448,9 +448,6 @@ public class CampaignListActivity extends ListActivity {
 		
 		mTask = null;
 		
-		//close progress dialog
-		dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
-		
 		if (response.getResult() == Result.SUCCESS) {
 			
 			// parse response
@@ -600,7 +597,10 @@ public class CampaignListActivity extends ListActivity {
 			
 			mResponse = response;
 			mIsDone = true;
-			notifyTaskDone();			
+			notifyTaskDone();
+			
+			//close progress dialog
+			mActivity.dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
 		}
 		
 		private void notifyTaskDone() {
