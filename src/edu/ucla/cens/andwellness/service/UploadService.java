@@ -331,6 +331,7 @@ public class UploadService extends WakefulIntentService{
 			note.tickerText = "Authentication failed!";
 			note.defaults |= Notification.DEFAULT_ALL;
 			note.when = System.currentTimeMillis();
+			note.flags = Notification.FLAG_AUTO_CANCEL;
 			note.setLatestEventInfo(this, title, body, pendingIntent);
 			noteManager.notify(1, note);
 		} else if (errorType == ERROR_CAMPAIGN_REMOVED) {
@@ -342,6 +343,7 @@ public class UploadService extends WakefulIntentService{
 			note.tickerText = "Invalid campaign!";
 			note.defaults |= Notification.DEFAULT_ALL;
 			note.when = System.currentTimeMillis();
+			note.flags = Notification.FLAG_AUTO_CANCEL;
 			note.setLatestEventInfo(this, title, body, pendingIntent);
 			noteManager.notify(1, note);
 		}
