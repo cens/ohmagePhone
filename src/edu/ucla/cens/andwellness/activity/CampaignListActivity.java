@@ -220,6 +220,9 @@ public class CampaignListActivity extends ListActivity {
 		if (requestCode == 1) {
 			if (resultCode == 123) {
 				finish();
+			} else if (resultCode == 125) {
+				finish();
+				startActivity(new Intent(CampaignListActivity.this, LoginActivity.class));
 			}
 		}
 	}

@@ -180,8 +180,9 @@ public class SurveyListActivity extends ListActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		
 		if (requestCode == 1) {
-			if (resultCode == 123) {
+			if (resultCode == 125) {
 				finish();
+				startActivity(new Intent(SurveyListActivity.this, LoginActivity.class));
 			}
 		}
 	}

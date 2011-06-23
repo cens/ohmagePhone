@@ -171,15 +171,13 @@ public class StatusActivity extends Activity {
 		public void onClick(View v) {
 			switch (v.getId()) {
 			case R.id.status_password_button:
-				startActivity(new Intent(StatusActivity.this, LoginActivity.class));
-				setResult(123);
+				setResult(125);
 				finish();
 				break;
 			case R.id.status_clear_user_button:
 				((AndWellnessApplication)getApplication()).resetAll();
-				setResult(123);
+				setResult(125);
 				finish();
-				startActivity(new Intent(StatusActivity.this, LoginActivity.class));
 				break;
 			case R.id.status_upload_responses_button:
 				doUpload(UPLOAD_RESPONSES);
@@ -311,8 +309,7 @@ public class StatusActivity extends Activity {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(StatusActivity.this, LoginActivity.class));
-								setResult(123);
+								setResult(125);
 								finish();		
 							}
 						});

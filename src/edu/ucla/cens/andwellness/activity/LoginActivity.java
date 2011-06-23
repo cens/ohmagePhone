@@ -302,11 +302,11 @@ public class LoginActivity extends Activity {
 			//register receivers
 			//BackgroundManager.initAuthComponents(this);
 			
-			//start main activity
-			startActivity(new Intent(LoginActivity.this, CampaignListActivity.class));
-			
 			//close this activity
 			finish();
+			
+			//start main activity
+			startActivity(new Intent(LoginActivity.this, CampaignListActivity.class));
 			break;
 		case FAILURE:
 			Log.e(TAG, "login failure");
