@@ -40,7 +40,8 @@
 			android:layout_gravity="right"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="#606060"
-			android:text="Last Taken Date" />
+			android:text="Last Taken Date"
+			android:visibility="invisible" />
 		
 		<TextView
 			android:id="@+id/survey_last_taken_time_text"
@@ -49,7 +50,8 @@
 			android:layout_gravity="right"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="#606060"
-			android:text="Last Taken Time" />
+			android:text="Last Taken Time"
+			android:visibility="invisible" />
 		
 	</LinearLayout>
 		
