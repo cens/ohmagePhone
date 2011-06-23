@@ -70,7 +70,9 @@ public class CampaignListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		//setContentView(R.layout.campaign_list);
+		Log.i(TAG, "onCreate()");
+		
+//		setContentView(R.layout.campaign_list);
 		
 		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
 		

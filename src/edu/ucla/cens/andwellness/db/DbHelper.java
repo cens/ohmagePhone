@@ -110,6 +110,8 @@ public class DbHelper extends SQLiteOpenHelper{
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESPONSES);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAMPAIGNS);
 		onCreate(db);
+		
+		closeDb(db);
 	}
 
 	public long addResponseRow(String campaignUrn, String username, String date, long time, String timezone, String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime, String surveyId, String surveyLaunchContext, String response) {

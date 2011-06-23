@@ -179,6 +179,7 @@ public class StatusActivity extends Activity {
 				((AndWellnessApplication)getApplication()).resetAll();
 				setResult(123);
 				finish();
+				startActivity(new Intent(StatusActivity.this, LoginActivity.class));
 				break;
 			case R.id.status_upload_responses_button:
 				doUpload(UPLOAD_RESPONSES);
