@@ -33,7 +33,7 @@ public class MultiChoiceCustomDbAdapter {
 	
 	public static final String KEY_ID = "_id";
 	public static final String KEY_USERNAME = "username";
-	public static final String KEY_CAMPAIGN_ID = "campaign_id";
+	public static final String KEY_CAMPAIGN_URN = "campaign_urn";
 	public static final String KEY_SURVEY_ID = "survey_id";
 	public static final String KEY_PROMPT_ID = "prompt_id";
 	public static final String KEY_CHOICE_ID = "choice_id";
@@ -84,7 +84,7 @@ public class MultiChoiceCustomDbAdapter {
 			db.execSQL("CREATE TABLE " + TABLE_CHOICES + " ("
 					+ KEY_ID + " INTEGER PRIMARY KEY, "					
 					+ KEY_USERNAME + " TEXT, "
-					+ KEY_CAMPAIGN_ID + " TEXT, "
+					+ KEY_CAMPAIGN_URN + " TEXT, "
 					+ KEY_SURVEY_ID + " TEXT, "
 					+ KEY_PROMPT_ID + " TEXT, "
 					+ KEY_CHOICE_ID + " INTEGER, "
@@ -99,7 +99,7 @@ public class MultiChoiceCustomDbAdapter {
 		}
 	}
 	
-	public long addCustomChoice(int choiceId, String choiceValue, String username, String campaignId, String surveyId, String promptId) {
+	public long addCustomChoice(int choiceId, String choiceValue, String username, String campaignUrn, String surveyId, String promptId) {
 		
 		if (mDb == null) {
 			return -1;
@@ -109,7 +109,7 @@ public class MultiChoiceCustomDbAdapter {
 		values.put(KEY_CHOICE_ID, choiceId);
 		values.put(KEY_CHOICE_VALUE, choiceValue);
 		values.put(KEY_USERNAME, username);
-		values.put(KEY_CAMPAIGN_ID, campaignId);
+		values.put(KEY_CAMPAIGN_URN, campaignUrn);
 		values.put(KEY_SURVEY_ID, surveyId);
 		values.put(KEY_PROMPT_ID, promptId);
 		
@@ -138,13 +138,21 @@ public class MultiChoiceCustomDbAdapter {
 		return mDb.update(TABLE_CHOICES, values, KEY_ID + "=?", new String [] {String.valueOf(_id)}) == 1 ? true : false;
 	}
 	
-	public Cursor getCustomChoices(String username, String campaignId, String surveyId, String promptId) {
+	public Cursor getCustomChoices(String username, String campaignUrn, String surveyId, String promptId) {
 		
 		if (mDb == null) {
 			return null;
 		}
 		
-		return mDb.query(TABLE_CHOICES, new String [] {KEY_ID, KEY_CHOICE_ID, KEY_CHOICE_VALUE}, KEY_USERNAME + "=? AND " + KEY_CAMPAIGN_ID + "=? AND " + KEY_SURVEY_ID + "=? AND " + KEY_PROMPT_ID + "=?" , new String [] {username, campaignId, surveyId, promptId}, null, null, null);
+		return mDb.query(TABLE_CHOICES, new String [] {KEY_ID, KEY_CHOICE_ID, KEY_CHOICE_VALUE}, KEY_USERNAME + "=? AND " + KEY_CAMPAIGN_URN + "=? AND " + KEY_SURVEY_ID + "=? AND " + KEY_PROMPT_ID + "=?" , new String [] {username, campaignUrn, surveyId, promptId}, null, null, null);
+	}
+	
+	public long clearCampaign(String campaignUrn) {
+		if (mDb == null) {
+			return -1;
+		}
+		
+		return mDb.delete(TABLE_CHOICES, KEY_CAMPAIGN_URN + "=?", new String [] {campaignUrn});
 	}
 	
 	public void clearAll() {
