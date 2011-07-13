@@ -20,7 +20,9 @@ import java.io.File;
 import android.content.Context;
 import android.util.Log;
 import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 
 public class CampaignManager {
@@ -56,6 +58,16 @@ public class CampaignManager {
 		}
 		
 		//clear custom type dbs
+		SingleChoiceCustomDbAdapter singleChoiceDbAdapter = new SingleChoiceCustomDbAdapter(context); 
+		if (singleChoiceDbAdapter.open()) {
+			singleChoiceDbAdapter.clearCampaign(urn);
+			singleChoiceDbAdapter.close();
+		}
+		MultiChoiceCustomDbAdapter multiChoiceDbAdapter = new MultiChoiceCustomDbAdapter(context); 
+		if (multiChoiceDbAdapter.open()) {
+			multiChoiceDbAdapter.clearCampaign(urn);
+			multiChoiceDbAdapter.close();
+		}
 		
 		//clear preferences
 		

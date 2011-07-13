@@ -158,10 +158,10 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-		String campaignId = ((SurveyActivity)context).getCampaignUrn();
+		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
-			Cursor c = dbAdapter.getCustomChoices(username, campaignId, surveyId, MultiChoiceCustomPrompt.this.getId());
+			Cursor c = dbAdapter.getCustomChoices(username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getId());
 			c.moveToFirst();
 			for (int i = 0; i < c.getCount(); i++) {
 				//c.getLong(c.getColumnIndex(MultiChoiceCustomDbAdapter.KEY_ID));
@@ -197,7 +197,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 					MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-					String campaignId = ((SurveyActivity)context).getCampaignUrn();
+					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 					
 					int choiceId = 100;
@@ -213,7 +213,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 					}
 					
 					if (dbAdapter.open()) {
-						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignId, surveyId, MultiChoiceCustomPrompt.this.getId());
+						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getId());
 						dbAdapter.close();
 					}
 					

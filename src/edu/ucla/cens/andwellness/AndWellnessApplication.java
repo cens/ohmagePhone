@@ -52,8 +52,16 @@ public class AndWellnessApplication extends Application {
 		new DbHelper(this).clearAll();
 		
 		//clear custom type dbs
-		new SingleChoiceCustomDbAdapter(this).clearAll();
-		new MultiChoiceCustomDbAdapter(this).clearAll();
+		SingleChoiceCustomDbAdapter singleChoiceDbAdapter = new SingleChoiceCustomDbAdapter(this); 
+		if (singleChoiceDbAdapter.open()) {
+			singleChoiceDbAdapter.clearAll();
+			singleChoiceDbAdapter.close();
+		}
+		MultiChoiceCustomDbAdapter multiChoiceDbAdapter = new MultiChoiceCustomDbAdapter(this); 
+		if (multiChoiceDbAdapter.open()) {
+			multiChoiceDbAdapter.clearAll();
+			multiChoiceDbAdapter.close();
+		}
 		
 		//clear images
 		try {

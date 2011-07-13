@@ -63,6 +63,7 @@ public class StatusActivity extends Activity {
 	private static final int DIALOG_AUTHENTICATION_ERROR = 4;
 	private static final int DIALOG_USER_DISABLED = 5;
 	private static final int DIALOG_CAMPAIGN_REMOVED = 6;
+	private static final int DIALOG_CLEAR_USER_CONFIRM = 7;
 	
 	private static final int UPLOAD_RESPONSES = 1;
 	private static final int UPLOAD_MOBILITY = 2;
@@ -190,9 +191,7 @@ public class StatusActivity extends Activity {
 				finish();
 				break;
 			case R.id.status_clear_user_button:
-				((AndWellnessApplication)getApplication()).resetAll();
-				setResult(125);
-				finish();
+				showDialog(DIALOG_CLEAR_USER_CONFIRM);
 				break;
 			case R.id.status_upload_responses_button:
 				doUpload(UPLOAD_RESPONSES);
@@ -336,6 +335,22 @@ public class StatusActivity extends Activity {
         				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is no longer valid and has been removed from your phone.")
         				.setCancelable(true)
         				.setPositiveButton("OK", null);
+        	dialog = dialogBuilder.create();        	
+        	break;
+		case DIALOG_CLEAR_USER_CONFIRM:			
+        	dialogBuilder.setTitle("Confirm")
+			.setMessage("Are you sure you wish to clear all user data? Any data that has not been uploaded will be lost, and the app will be restored to its initial state.")
+			.setNegativeButton("No", null)
+			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					((AndWellnessApplication)getApplication()).resetAll();
+					setResult(125);
+					finish();
+				}
+
+			});
         	dialog = dialogBuilder.create();        	
         	break;
         }
