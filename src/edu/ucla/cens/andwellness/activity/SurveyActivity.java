@@ -133,6 +133,7 @@ public class SurveyActivity extends Activity {
                 
                 try {
         			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
+        			Log.i(TAG, mPrompts.toString());
         		} catch (NotFoundException e) {
         			Log.e(TAG, "Error parsing prompts from xml", e);
         		} catch (XmlPullParserException e) {
@@ -475,7 +476,6 @@ public class SurveyActivity extends Activity {
 		}
 		
 		String surveyId = mSurveyId;
-		
 		
 		//get launch context from trigger glue
 		JSONObject surveyLaunchContextJson = new JSONObject();

@@ -231,9 +231,10 @@
         
         <!--
         ******************************************************
-        FEEDBACK collection service and receiver
+        Feedback: collection service and receiver
         ******************************************************
-        -->
+        -->       
+
 	    <service android:name=".feedback.FeedbackService" />
 	    
 	   	<receiver android:name=".feedback.FeedbackSyncReceiver">
@@ -261,7 +262,19 @@
             </intent-filter>
 			-->
 		</activity>
-	    
+
+		<!--
+		******************************************************
+		Feedback: activities
+		******************************************************
+		-->
+
+		<uses-library android:name="com.google.android.maps" />
+        <activity android:name="org.achartengine.GraphicalActivity" />
+        <activity android:name="edu.ucla.cens.andwellness.activity.PromptListActivity"/>
+        <activity android:name="edu.ucla.cens.andwellness.activity.FeedbackMapViewActivity" android:label="@string/app_name" 
+        android:theme="@android:style/Theme.NoTitleBar"/>
+
 	</application>
 	
     <uses-sdk android:minSdkVersion="4" />

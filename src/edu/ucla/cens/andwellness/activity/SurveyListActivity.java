@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.achartengine.chartdemo.demo.chart.AverageTemperatureChart;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.ListActivity;
@@ -33,6 +34,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
@@ -44,7 +47,6 @@ import edu.ucla.cens.andwellness.Survey;
 import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
 import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import edu.ucla.cens.andwellness.triggers.notif.Notifier;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
 public class SurveyListActivity extends ListActivity {
@@ -84,8 +86,6 @@ public class SurveyListActivity extends ListActivity {
 				setTitle(intent.getStringExtra("campaign_name"));
 			}
 			
-			
-			
 			try {
 				mSurveys = PromptXmlParser.parseSurveys(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn));
 			} catch (NotFoundException e) {
@@ -97,7 +97,7 @@ public class SurveyListActivity extends ListActivity {
 			}
 			
 			adapter = new SurveyListAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
-			
+			getListView().setOnItemLongClickListener(mItemLongClickListener);
 			setListAdapter(adapter);
 		}
 	}	
@@ -159,6 +159,22 @@ public class SurveyListActivity extends ListActivity {
 		}
 	}
 
+	OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
+
+		@Override
+		public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+			Survey survey = (Survey) getListView().getItemAtPosition(position);
+			Intent intent = new Intent(SurveyListActivity.this, PromptListActivity.class);
+			intent.putExtra("campaign_urn", mCampaignUrn);
+			intent.putExtra("survey_id", survey.getId());
+			intent.putExtra("survey_title", survey.getTitle());
+			intent.putExtra("survey_submit_text", survey.getSubmitText());
+			startActivity(intent);			
+			//Toast.makeText(SurveyListActivity.this, survey.getTitle(), Toast.LENGTH_SHORT).show();
+			return true;			
+		}
+	};
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -168,6 +184,7 @@ public class SurveyListActivity extends ListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent = null;
 		switch (item.getItemId()) {
 		case R.id.trigger_settings:
 			List<String> surveyTitles = new ArrayList<String>();
@@ -183,8 +200,13 @@ public class SurveyListActivity extends ListActivity {
 			
 		case R.id.status:
 			//WakefulIntentService.sendWakefulWork(this, UploadService.class);
-			Intent intent = new Intent(this, StatusActivity.class);
+			intent = new Intent(this, StatusActivity.class);
 			startActivityForResult(intent, 1);
+			return true;
+			
+		case R.id.mapview:
+			intent = new Intent(this, FeedbackMapViewActivity.class);
+			startActivityForResult(intent, 1);			
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -213,5 +235,4 @@ public class SurveyListActivity extends ListActivity {
 			}
 		}
 	};
-
 }
