@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
 import android.os.SystemClock;
 import android.widget.Toast;
+import edu.ucla.cens.andwellness.feedback.FeedbackSyncReceiver;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
 import edu.ucla.cens.andwellness.service.UploadReceiver;
 import edu.ucla.cens.andwellness.storagemonitor.StorageMonitorService;
@@ -82,6 +83,11 @@ public class BackgroundManager {
 		appContext.startService(new Intent(appContext, StorageMonitorService.class));
 		Log.i(TAG, "started storage monitor service");
 		
-		
+		// FAISAL: feedback service repeating alarm registered here
+		Intent fbServiceSyncIntent = new Intent(FeedbackSyncReceiver.ACTION_FBSYNC_ALARM);
+		PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
+		alarms.cancel(pendingIntent);
+		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);
+		Log.i(TAG, "Feedback sync repeating alarm set");
 	}
 }

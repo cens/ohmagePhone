@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout 
+  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:orientation="horizontal"
+    android:layout_width="fill_parent">
+
+    <Button
+        android:text="Query" 
+        android:id="@+id/button_queryfbcp"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true">
+    </Button>
+
+    <EditText
+        android:id="@+id/edittext_queryfbcp"
+        android:layout_height="wrap_content" 
+        android:layout_toLeftOf="@+id/button_queryfbcp"
+        android:layout_width="fill_parent" android:inputType="textUri">
+    </EditText>
+    
+    <TextView
+    	android:id="@+id/textview_queryresult"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/edittext_queryfbcp"
+    />
+    
+    <HorizontalScrollView
+    	android:layout_below="@+id/textview_queryresult"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content">
+	    <TableLayout
+	    	android:id="@+id/table_queryresult"
+	    	android:layout_height="wrap_content" android:layout_width="wrap_content"
+	    	>
+	    </TableLayout>
+    </HorizontalScrollView>
+</RelativeLayout>

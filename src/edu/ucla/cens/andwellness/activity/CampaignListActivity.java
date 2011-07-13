@@ -15,14 +15,10 @@
  ******************************************************************************/
 package edu.ucla.cens.andwellness.activity;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import jbcrypt.BCrypt;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,31 +32,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import edu.ucla.cens.andwellness.AndWellnessApi;
-import edu.ucla.cens.andwellness.AndWellnessApi.ReadResponse;
+import edu.ucla.cens.andwellness.AndWellnessApi.CampaignReadResponse;
 import edu.ucla.cens.andwellness.AndWellnessApi.Result;
 import edu.ucla.cens.andwellness.db.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
-import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
-import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
+import edu.ucla.cens.andwellness.feedback.FBTestActivity;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.CampaignManager;
 import edu.ucla.cens.andwellness.R;
 import edu.ucla.cens.andwellness.SharedPreferencesHelper;
-import edu.ucla.cens.andwellness.Survey;
 import edu.ucla.cens.andwellness.Utilities;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 
@@ -224,6 +215,13 @@ public class CampaignListActivity extends ListActivity {
 			Intent intent = new Intent(this, StatusActivity.class);
 			startActivityForResult(intent, 1);
 			return true;
+			
+		// FAISAL: testing, remove this later
+		case R.id.fbtest:
+			// start the feedback test activity
+			Intent i = new Intent(this, FBTestActivity.class);
+			startActivity(i);
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -344,7 +342,7 @@ public class CampaignListActivity extends ListActivity {
 		return dialog;
 	}
 	
-	private void onCampaignListUpdated(ReadResponse response) {
+	private void onCampaignListUpdated(CampaignReadResponse response) {
 		
 		mTask = null;
 		
@@ -359,11 +357,12 @@ public class CampaignListActivity extends ListActivity {
 				JSONArray jsonItems = response.getMetadata().getJSONArray("items");
 				for(int i = 0; i < jsonItems.length(); i++) {
 					Campaign c = new Campaign();
+					JSONObject data = response.getData();
 					c.mUrn = jsonItems.getString(i); 
-					c.mName = response.getData().getJSONObject(c.mUrn).getString("name");
-					c.mCreationTimestamp = response.getData().getJSONObject(c.mUrn).getString("creation_timestamp");
+					c.mName = data.getJSONObject(c.mUrn).getString("name");
+					c.mCreationTimestamp = data.getJSONObject(c.mUrn).getString("creation_timestamp");
 					
-					if (response.getData().getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running")) {
+					if (data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running")) {
 						mRemoteCampaigns.add(c);
 					} else {
 						for (Campaign localCampaign : mLocalCampaigns) {
@@ -464,7 +463,7 @@ public class CampaignListActivity extends ListActivity {
 		((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
 	}
 	
-	private void onCampaignDownloaded(String campaignUrn, ReadResponse response) {
+	private void onCampaignDownloaded(String campaignUrn, CampaignReadResponse response) {
 		
 		mTask = null;
 		
@@ -472,7 +471,7 @@ public class CampaignListActivity extends ListActivity {
 			
 			// parse response
 			try {
-				JSONObject campaignJson = response.getData().getJSONObject(campaignUrn);
+				JSONObject campaignJson = ((JSONObject)response.getData()).getJSONObject(campaignUrn);
 				String name = campaignJson.getString("name");
 				String creationTimestamp = campaignJson.getString("creation_timestamp");
 				String xml = campaignJson.getString("xml");
@@ -526,11 +525,11 @@ public class CampaignListActivity extends ListActivity {
 		}
 	}
 
-	private static class CampaignListUpdateTask extends AsyncTask<String, Void, ReadResponse>{
+	private static class CampaignListUpdateTask extends AsyncTask<String, Void, CampaignReadResponse>{
 		
 		private CampaignListActivity mActivity;
 		private boolean mIsDone = false;
-		private ReadResponse mResponse = null;
+		private CampaignReadResponse mResponse = null;
 		
 		private CampaignListUpdateTask(CampaignListActivity activity) {
 			this.mActivity = activity;
@@ -553,7 +552,7 @@ public class CampaignListActivity extends ListActivity {
 		}
 
 		@Override
-		protected ReadResponse doInBackground(String... params) {
+		protected CampaignReadResponse doInBackground(String... params) {
 			String username = params[0];
 			String hashedPassword = params[1];
 			AndWellnessApi api = new AndWellnessApi(mActivity);
@@ -561,7 +560,7 @@ public class CampaignListActivity extends ListActivity {
 		}
 		
 		@Override
-		protected void onPostExecute(ReadResponse response) {
+		protected void onPostExecute(CampaignReadResponse response) {
 			super.onPostExecute(response);
 			
 			mResponse = response;
@@ -576,11 +575,11 @@ public class CampaignListActivity extends ListActivity {
 		}
 	}
 	
-	private static class CampaignDownloadTask extends AsyncTask<String, Void, ReadResponse>{
+	private static class CampaignDownloadTask extends AsyncTask<String, Void, CampaignReadResponse>{
 		
 		private CampaignListActivity mActivity;
 		private boolean mIsDone = false;
-		private ReadResponse mResponse = null;
+		private CampaignReadResponse mResponse = null;
 		private String mCampaignUrn;
 		
 		private CampaignDownloadTask(CampaignListActivity activity) {
@@ -603,7 +602,7 @@ public class CampaignListActivity extends ListActivity {
 		}
 
 		@Override
-		protected ReadResponse doInBackground(String... params) {
+		protected CampaignReadResponse doInBackground(String... params) {
 			String username = params[0];
 			String hashedPassword = params[1];
 			mCampaignUrn = params[2];
@@ -612,7 +611,7 @@ public class CampaignListActivity extends ListActivity {
 		}
 		
 		@Override
-		protected void onPostExecute(ReadResponse response) {
+		protected void onPostExecute(CampaignReadResponse response) {
 			super.onPostExecute(response);
 			
 			mResponse = response;

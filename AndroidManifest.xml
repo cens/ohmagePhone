@@ -22,17 +22,21 @@
 
 		<activity android:name=".activity.SurveyActivity" android:launchMode="standard"
 			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
-			<!--<intent-filter>
+			<!--
+			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-		--></activity>
+			-->
+		</activity>
 		
 		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="ohmage">
-			<!-- <intent-filter>
+			<!--
+			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter> -->
+            </intent-filter>
+			-->
 		</activity>
 		
 		<activity android:name=".activity.CampaignListActivity" android:theme="@android:style/Theme.Light" android:label="ohmage"
@@ -49,88 +53,89 @@
         	</intent-filter>
     	</receiver>
     
-    <activity android:name=".activity.LoginActivity" android:label="ohmage login" android:theme="@android:style/Theme.Light">
-    </activity>
+	    <activity android:name=".activity.LoginActivity" android:label="ohmage login" android:theme="@android:style/Theme.Light">
+	    </activity>
     
-    <activity android:name=".activity.StatusActivity" android:label="ohmage status">
-    </activity>
-    
-    <receiver android:name=".service.BootReceiver">
-    	<intent-filter>
-    		<action android:name="android.intent.action.BOOT_COMPLETED"/>
-    	</intent-filter>
-    	<intent-filter>
-			<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
-			<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
-			<data android:scheme="package" android:host="edu.ucla.cens.andwellness"/>
-		</intent-filter>
-    </receiver>
-        
-    <service android:name=".service.UploadService"/>
+	    <activity android:name=".activity.StatusActivity" android:label="ohmage status">
+	    </activity>
+	    
+	    <receiver android:name=".service.BootReceiver">
+	    	<intent-filter>
+	    		<action android:name="android.intent.action.BOOT_COMPLETED"/>
+	    	</intent-filter>
+	    	<intent-filter>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
+				<data android:scheme="package" android:host="edu.ucla.cens.andwellness"/>
+			</intent-filter>
+	    </receiver>
+	        
+	    <service android:name=".service.UploadService"/>
     	
-	<receiver android:name=".service.UploadReceiver">
-		<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.service.ACTION_UPLOAD_ALARM"/>
-    	</intent-filter>
-    	<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.storagemonitor.ACTION_STORAGE_REPORT"/>
-    	</intent-filter>
-    </receiver>
+		<receiver android:name=".service.UploadReceiver">
+			<intent-filter>
+	    		<action android:name="edu.ucla.cens.andwellness.service.ACTION_UPLOAD_ALARM"/>
+	    	</intent-filter>
+	    	<intent-filter>
+	    		<action android:name="edu.ucla.cens.andwellness.storagemonitor.ACTION_STORAGE_REPORT"/>
+	    	</intent-filter>
+	    </receiver>
+	    
+	    <service android:name=".service.SurveyGeotagService"/>
+	    
+	 	<receiver android:name=".service.SurveyGeotagTimeoutReceiver">
+			<intent-filter>
+	    		<action android:name="edu.ucla.cens.andwellness.service.ACTION_GEOTAG_TIMEOUT_ALARM"/>
+	    	</intent-filter>
+	    </receiver>
     
-    <service android:name=".service.SurveyGeotagService"/>
+	    <!--
+	    <receiver android:name=".appwidget.AndWellnessAppWidgetProvider" >
+		    <intent-filter>
+		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+		    </intent-filter>
+		    <meta-data android:name="android.appwidget.provider"
+		               android:resource="@xml/andwellness_appwidget_info" />
+		</receiver>
+		-->
     
- 	<receiver android:name=".service.SurveyGeotagTimeoutReceiver">
-		<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.service.ACTION_GEOTAG_TIMEOUT_ALARM"/>
-    	</intent-filter>
-    </receiver>
-    
-    <!-- <receiver android:name=".appwidget.AndWellnessAppWidgetProvider" >
-	    <intent-filter>
-	        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-	    </intent-filter>
-	    <meta-data android:name="android.appwidget.provider"
-	               android:resource="@xml/andwellness_appwidget_info" />
-	</receiver> -->
-    
-    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
-                  android:label="Storage Monitor">
-    </activity>
-    
-    <service android:name=".appwidget.StressButtonService"/>
-    
-    <service android:name=".storagemonitor.StorageMonitorService"/>
-    
-    <receiver android:name=".storagemonitor.StorageMonitorAlarmReceiver">
-    	<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.storagemonitor.ACTION_STORAGE_MONITOR_ALARM"/>
-    	</intent-filter>
-    </receiver>
-        
-        
+	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
+	                  android:label="Storage Monitor">
+	    </activity>
+	    
+	    <service android:name=".appwidget.StressButtonService"/>
+	    
+	    <service android:name=".storagemonitor.StorageMonitorService"/>
+	    
+	    <receiver android:name=".storagemonitor.StorageMonitorAlarmReceiver">
+	    	<intent-filter>
+	    		<action android:name="edu.ucla.cens.andwellness.storagemonitor.ACTION_STORAGE_MONITOR_ALARM"/>
+	    	</intent-filter>
+	    </receiver>
+
+
         <!-- 
         ******************************************************
         TRIGGER STUFF START!!
         ******************************************************
         -->
         
-    <activity android:name=".triggers.ui.TriggerListActivity" />
-            
-    
-    <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
-    <activity android:name=".triggers.types.time.TimeTrigEditActivity"
+    	<activity android:name=".triggers.ui.TriggerListActivity" />
+
+    	<!-- Lock the orientation until the TimePicker rotate bug is fixed -->
+    	<activity android:name=".triggers.types.time.TimeTrigEditActivity"
     			  android:screenOrientation="portrait"/>
 		
-    <activity android:name=".triggers.notif.NotifEditActivity"/>
+    	<activity android:name=".triggers.notif.NotifEditActivity"/>
 		
-    <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
+	    <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
 		<activity android:name=".triggers.types.location.LocTrigEditActivity"
-				  android:screenOrientation="portrait"/>
+					  android:screenOrientation="portrait"/>
 		
-    <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
-	<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
-    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
-				  android:screenOrientation="portrait"/>
+	    <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
+		<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
+	    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
+					  android:screenOrientation="portrait"/>
 		
 		<receiver android:name=".triggers.base.TriggerInit">
 			<intent-filter>
@@ -154,7 +159,7 @@
 		
 		<service android:name=".triggers.types.time.TimeTrigService"/>
 		
-    <receiver android:name=".triggers.types.time.TimeTrigService$AlarmReceiver">
+    	<receiver android:name=".triggers.types.time.TimeTrigService$AlarmReceiver">
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.types.time.TimeTriggerAlarm" />
 	    		<data android:scheme="timetrigger" />
@@ -163,7 +168,7 @@
 		
 		<service android:name=".triggers.types.location.LocTrigService"/>
 		
-    <receiver android:name=".triggers.types.location.LocTrigService$AlarmReceiver">
+    	<receiver android:name=".triggers.types.location.LocTrigService$AlarmReceiver">
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.andwellness.triggers.types.location.LocTrigService.TRIGGER_ALWAYS" />
 	    		<data android:scheme="locationtrigger" />
@@ -210,7 +215,7 @@
         -->
 		
     
-    <!-- 
+    	<!-- 
         ******************************************************
         MOBILITY STUFF START!!
         ******************************************************
@@ -218,14 +223,47 @@
     
      
     
-    <!-- 
+    	<!-- 
         ******************************************************
         MOBILITY STUFF END!!
         ******************************************************
         -->
+        
+        <!--
+        ******************************************************
+        FEEDBACK collection service and receiver
+        ******************************************************
+        -->
+	    <service android:name=".feedback.FeedbackService" />
+	    
+	   	<receiver android:name=".feedback.FeedbackSyncReceiver">
+	    	<intent-filter>
+	    		<action android:name="edu.ucla.cens.andwellness.feedback.ACTION_FBSYNC_ALARM"/>
+	    	</intent-filter>
+	    </receiver>
+	    
+	    <receiver android:name=".feedback.SurveyCompleteReceiver">
+	    	<intent-filter>
+	    		<action android:name="edu.ucla.cens.andwellness.SURVEY_COMPLETE"/>
+	    	</intent-filter>
+	    </receiver>
+	    
+	    <provider android:name=".feedback.FeedbackProvider"
+	    	android:authorities="edu.ucla.cens.andwellness.feedback">
+	    </provider>
+	    
+ 		<activity android:name=".feedback.FBTestActivity" android:label="ohmage"
+			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light">
+			<!--
+			<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+			-->
+		</activity>
+	    
 	</application>
 	
     <uses-sdk android:minSdkVersion="4" />
 
-	
 </manifest> 

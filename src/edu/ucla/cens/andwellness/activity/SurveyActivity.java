@@ -56,6 +56,7 @@ import edu.ucla.cens.andwellness.conditionevaluator.DataPoint;
 import edu.ucla.cens.andwellness.conditionevaluator.DataPoint.PromptType;
 import edu.ucla.cens.andwellness.conditionevaluator.DataPointConditionEvaluator;
 import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.db.Response;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
 import edu.ucla.cens.andwellness.prompt.Prompt;
 import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPrompt;
@@ -513,5 +514,33 @@ public class SurveyActivity extends Activity {
 		} else {
 			dbHelper.addResponseRowWithoutLocation(mCampaignUrn, username, date, time, timezone, surveyId, surveyLaunchContext, response);
 		}
+		
+		// create an intent and broadcast it to any interested receivers
+		Intent i = new Intent("edu.ucla.cens.andwellness.SURVEY_COMPLETE");
+		
+		i.putExtra(Response.CAMPAIGN_URN, mCampaignUrn);
+		i.putExtra(Response.USERNAME, username);
+		i.putExtra(Response.DATE, date);
+		i.putExtra(Response.TIME, time);
+		i.putExtra(Response.TIMEZONE, timezone);
+		
+		if (loc != null) {
+			i.putExtra(Response.LOCATION_STATUS, SurveyGeotagService.LOCATION_VALID);
+			i.putExtra(Response.LOCATION_LATITUDE, loc.getLatitude());
+			i.putExtra(Response.LOCATION_LONGITUDE, loc.getLongitude());
+			i.putExtra(Response.LOCATION_PROVIDER, loc.getProvider());
+			i.putExtra(Response.LOCATION_ACCURACY, loc.getAccuracy());
+			i.putExtra(Response.LOCATION_TIME, loc.getTime());
+		}
+		else
+		{
+			i.putExtra(Response.LOCATION_STATUS, SurveyGeotagService.LOCATION_UNAVAILABLE);
+		}
+
+		i.putExtra(Response.SURVEY_ID, surveyId);
+		i.putExtra(Response.SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
+		i.putExtra(Response.RESPONSE, response);
+
+		this.sendBroadcast(i);
 	}
 }

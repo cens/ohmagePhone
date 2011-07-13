@@ -8,4 +8,5 @@
     <item 
 		android:id="@+id/status"
         android:title="Status" />
+    <item android:id="@+id/fbtest" android:title="Feedback Test"></item>
 </menu>
