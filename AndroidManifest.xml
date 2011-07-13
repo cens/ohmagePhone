@@ -223,6 +223,25 @@
         MOBILITY STUFF END!!
         ******************************************************
         -->
+        
+        
+    <!-- 
+        ******************************************************
+        FEEDBACK STUFF START!!
+        ******************************************************
+        -->    
+        <uses-library android:name="com.google.android.maps" />
+        <activity android:name="org.achartengine.GraphicalActivity" />
+        <activity android:name="edu.ucla.cens.andwellness.activity.PromptListActivity"/>
+        <activity android:name="edu.ucla.cens.andwellness.activity.FeedbackMapViewActivity" android:label="@string/app_name" 
+        android:theme="@android:style/Theme.NoTitleBar"/>
+        
+    <!-- 
+        ******************************************************
+        FEEDBACK STUFF END!!
+        ******************************************************
+        -->    
+        
 	</application>
 	
     <uses-sdk android:minSdkVersion="4" />

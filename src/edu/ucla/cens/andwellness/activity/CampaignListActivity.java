@@ -24,6 +24,11 @@ import java.util.List;
 
 import jbcrypt.BCrypt;
 
+import org.achartengine.ChartFactory;
+import org.achartengine.chart.PointStyle;
+import org.achartengine.chartdemo.demo.chart.AverageTemperatureChart;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +39,8 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint.Align;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -213,6 +220,7 @@ public class CampaignListActivity extends ListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent = null;
 		switch (item.getItemId()) {
 		case R.id.mobility_settings:
 			MobilityInterface.showMobilityOptions(this);
@@ -221,7 +229,7 @@ public class CampaignListActivity extends ListActivity {
 			
 		case R.id.status:
 			//WakefulIntentService.sendWakefulWork(this, UploadService.class);
-			Intent intent = new Intent(this, StatusActivity.class);
+			intent = new Intent(this, StatusActivity.class);
 			startActivityForResult(intent, 1);
 			return true;
 		}
