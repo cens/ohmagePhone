@@ -56,7 +56,7 @@ public class PromptListActivity extends ListActivity{
 	private String mSurveyId;
 	private String mSurveyTitle;
 	private String mSurveySubmitText;
-	private ArrayList<String> arPromptsTitle;
+	private ArrayList<PromptListElement> arPromptsTitle;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -77,14 +77,18 @@ public class PromptListActivity extends ListActivity{
 		} catch (IOException e) {
 			Log.e(TAG, "Error parsing prompts from xml", e);
 		}
-		arPromptsTitle = new ArrayList<String>();
-		Iterator<Prompt> ite = mPrompts.iterator(); 
+		
+		arPromptsTitle = new ArrayList<PromptListElement>();
+		Iterator<Prompt> ite = mPrompts.iterator();
+		
 		while(ite.hasNext()){
-			arPromptsTitle.add(((AbstractPrompt)ite.next()).getPromptText());
+			AbstractPrompt prompt = (AbstractPrompt)ite.next();
+			arPromptsTitle.add(new PromptListElement(prompt.getPromptText(), prompt.getId()));
 		}
-		ArrayAdapter<String> Adapter;
-		Adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arPromptsTitle);
-		setListAdapter(Adapter);
+		
+		ArrayAdapter<PromptListElement> adapter;
+		adapter = new ArrayAdapter<PromptListElement>(this, android.R.layout.simple_list_item_1, arPromptsTitle);
+		setListAdapter(adapter);
 		
 		setTitle("Feedback");
 	}
@@ -92,10 +96,11 @@ public class PromptListActivity extends ListActivity{
 	@Override
 	public void onListItemClick(ListView list, View view, int position, long id){
 		
-		Intent intent = null; 
+		Intent intent = null;
+		PromptListElement curPrompt = arPromptsTitle.get(position);
 		
 		if (mPrompts.get(position) instanceof SingleChoicePrompt) {
-			FeedbackTimeChart chart = new FeedbackTimeChart(arPromptsTitle.get(position));
+			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID());
 			intent = chart.execute(this);
 		} else if (mPrompts.get(position) instanceof MultiChoicePrompt) {
 			BudgetDoughnutChart chart = new BudgetDoughnutChart();
@@ -107,7 +112,7 @@ public class PromptListActivity extends ListActivity{
 			ProjectStatusBubbleChart chart = new ProjectStatusBubbleChart();
 			intent = chart.execute(this);
 		} else if (mPrompts.get(position) instanceof NumberPrompt) {
-			FeedbackTimeChart chart = new FeedbackTimeChart(arPromptsTitle.get(position));
+			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID());
 			intent = chart.execute(this);			
 		} else if (mPrompts.get(position) instanceof HoursBeforeNowPrompt) {
 			SalesComparisonChart chart = new SalesComparisonChart();
@@ -122,7 +127,7 @@ public class PromptListActivity extends ListActivity{
 			TrigonometricFunctionsChart chart = new TrigonometricFunctionsChart();
 			intent = chart.execute(this);			
 		}
-				
+		
 		startActivity(intent);
 	}
 	
@@ -142,11 +147,42 @@ public class PromptListActivity extends ListActivity{
 			startActivityForResult(intent, 1);			
 			return true;
 		case R.id.participationstat:
-			FeedbackTimeChart chart = new FeedbackTimeChart("Participation Stats");
+			FeedbackTimeChart chart = new FeedbackTimeChart("Participation Stats", mCampaignUrn, mSurveyId, null);
 			intent = chart.execute(this);		
 			startActivityForResult(intent, 1);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	// utility class to store the ID along with the title of the prompts
+	private class PromptListElement {
+		private String mTitle;
+		private String mID;
+
+		public PromptListElement(String title, String id) {
+			setTitle(title);
+			setID(id);
+		}
+		
+		private void setTitle(String mTitle) {
+			this.mTitle = mTitle;
+		}
+
+		private String getTitle() {
+			return mTitle;
+		}
+
+		private void setID(String mID) {
+			this.mID = mID;
+		}
+
+		private String getID() {
+			return mID;
+		}
+
+		public String toString() {
+			return getTitle();
+		}
 	}
 }

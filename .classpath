@@ -8,6 +8,10 @@
 	<classpathentry kind="lib" path="lib/httpmime-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jbcrypt-0.3.jar"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="lib/achartengine-0.7.0.r225.jar"/>
+	<classpathentry kind="lib" path="lib/achartengine-0.7.0.r225.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/home/faisal/Downloads/achartengine-0.6.0-javadocs.zip!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

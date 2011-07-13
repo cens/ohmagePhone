@@ -13,6 +13,10 @@ public class FeedbackContract {
 	public static final String CONTENT_AUTHORITY = "edu.ucla.cens.andwellness.feedback";
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 	
+	public static Uri getBaseUri() {
+		return BASE_CONTENT_URI;
+	}
+	
 	// ===================================
 	// === feedback responses schema
 	// ===================================
