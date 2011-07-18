@@ -33,7 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class FBTestActivity extends Activity {
-	private static final int CONTEXT_COPY = 0;
+	private static final int CONTEXT_COPY = 1;
 	private Button mQueryButton;
 	private EditText mQueryTextBox;
 	private TextView mResultTextBox;
@@ -145,15 +145,16 @@ public class FBTestActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	private int targetTextViewID = -1;
+	private TextView myTargetTextView = null;
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if (v instanceof TextView) {
 		    //user has long pressed your TextView
 		    menu.add(0, CONTEXT_COPY, 0, "Copy");
-		    targetTextViewID = v.getId();
-		    v.setBackgroundColor(Color.YELLOW);
+		    TextView txView = (TextView)v;
+		    myTargetTextView = txView;
+		    txView.setBackgroundColor(Color.YELLOW);
 		}
 	}
 	
@@ -162,14 +163,15 @@ public class FBTestActivity extends Activity {
 		switch (item.getItemId()) {
 			case CONTEXT_COPY:
 				// first check if there's anything there
-				if (targetTextViewID == -1)
+				if (myTargetTextView == null)
 					return false;
 				
 			    //place your TextView's text in clipboard
-				TextView txView = (TextView)findViewById(targetTextViewID);
-			    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE); 
-			    clipboard.setText(txView.getText());
-			    txView.setBackgroundColor(Color.TRANSPARENT);
+			    ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE); 
+			    clipboard.setText(myTargetTextView.getText());
+			    myTargetTextView.setBackgroundColor(Color.TRANSPARENT);
+			    			    
+			    return true;
 		}
 		
 		return false;
@@ -177,25 +179,11 @@ public class FBTestActivity extends Activity {
 	
 	@Override
 	public void onContextMenuClosed(Menu menu) {
-		if (targetTextViewID != -1) {
+		if (myTargetTextView != null) {
 			// remove the yellow background when the menu closes
-			TextView txView = (TextView)findViewById(targetTextViewID);
-			txView.setBackgroundColor(Color.TRANSPARENT);
-			targetTextViewID = -1;
+			myTargetTextView.setBackgroundColor(Color.TRANSPARENT);
+			myTargetTextView = null;
 		}
 		
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
