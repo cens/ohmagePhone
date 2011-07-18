@@ -76,8 +76,37 @@ public class FeedbackContract {
         public static final String CONTENT_ITEM_TYPE =
         	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".prompt";
         
+        public enum AggregateTypes {
+        	AVG,
+        	COUNT,
+        	MAX,
+        	MIN,
+        	TOTAL
+        }
+        
         public static Uri getPromptUri(long insertID) {
         	return CONTENT_URI.buildUpon().appendPath(Long.toString(insertID)).build();
+        }
+        
+        public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID) {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath(campaignUrn)
+				.appendPath(surveyID)
+				.appendPath("responses")
+				.appendPath("prompts")
+				.appendPath(promptID)
+				.build();
+        }
+        
+        public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID, AggregateTypes aggregate) {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath(campaignUrn)
+				.appendPath(surveyID)
+				.appendPath("responses")
+				.appendPath("prompts")
+				.appendPath(promptID)
+				.appendPath(aggregate.toString())
+				.build();
         }
 	}
 	

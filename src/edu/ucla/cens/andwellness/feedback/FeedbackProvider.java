@@ -2,6 +2,7 @@ package edu.ucla.cens.andwellness.feedback;
 
 import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackResponses;
 import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackPromptResponses;
+import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackPromptResponses.AggregateTypes;
 import edu.ucla.cens.andwellness.feedback.FeedbackDatabase.Tables;
 import edu.ucla.cens.andwellness.feedback.utils.SelectionBuilder;
 import android.content.ContentProvider;
@@ -10,6 +11,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 public class FeedbackProvider extends ContentProvider {		
 	private static UriMatcher sUriMatcher = buildUriMatcher();
@@ -24,6 +26,7 @@ public class FeedbackProvider extends ContentProvider {
 		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID = 5;
 		int PROMPTS = 6;
 		int PROMPT_BY_PID = 7;
+		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE = 8;
 	}
 
 	@Override
@@ -44,6 +47,8 @@ public class FeedbackProvider extends ContentProvider {
             	
             case MatcherTypes.PROMPTS:
             case MatcherTypes.RESPONSE_PROMPTS:
+            case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
+            case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
             	return FeedbackPromptResponses.CONTENT_TYPE;
             case MatcherTypes.PROMPT_BY_PID:
             	return FeedbackPromptResponses.CONTENT_ITEM_TYPE;
@@ -134,7 +139,7 @@ public class FeedbackProvider extends ContentProvider {
         matcher.addURI(FeedbackContract.CONTENT_AUTHORITY, "prompts/#", MatcherTypes.PROMPT_BY_PID);
         matcher.addURI(FeedbackContract.CONTENT_AUTHORITY, "*/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
         matcher.addURI(FeedbackContract.CONTENT_AUTHORITY, "*/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
-        
+        matcher.addURI(FeedbackContract.CONTENT_AUTHORITY, "*/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
         return matcher;
     }
 	
@@ -181,6 +186,30 @@ public class FeedbackProvider extends ContentProvider {
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
 					.mapToTable(FeedbackPromptResponses._ID, Tables.PROMPTS)
 					.mapToTable(FeedbackPromptResponses.RESPONSE_ID, Tables.PROMPTS)
+					.where(Tables.PROMPTS + "." + FeedbackPromptResponses.PROMPT_ID + "=?", promptID);
+				
+			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
+				campaignUrn = uri.getPathSegments().get(0);
+				surveyID = uri.getPathSegments().get(1);
+				promptID = uri.getPathSegments().get(4);
+				String aggregate = uri.getPathSegments().get(5);
+				
+				String toClause;
+				
+				switch (AggregateTypes.valueOf(aggregate)) {
+					case AVG: toClause = "avg(" + FeedbackPromptResponses.PROMPT_VALUE + ")"; break;
+					case COUNT: toClause = "count(" + FeedbackPromptResponses.PROMPT_VALUE + ")"; break;
+					case MAX: toClause = "max(" + FeedbackPromptResponses.PROMPT_VALUE + ")"; break;
+					case MIN: toClause = "min(" + FeedbackPromptResponses.PROMPT_VALUE + ")"; break;
+					case TOTAL: toClause = "total(" + FeedbackPromptResponses.PROMPT_VALUE + ")"; break;
+					default:
+						throw new IllegalArgumentException("Specified aggregate was not one of AggregateTypes");
+				}
+				
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
+					.mapToTable(FeedbackPromptResponses._ID, Tables.PROMPTS)
+					.mapToTable(FeedbackPromptResponses.RESPONSE_ID, Tables.PROMPTS)
+					.map("aggregate", toClause)
 					.where(Tables.PROMPTS + "." + FeedbackPromptResponses.PROMPT_ID + "=?", promptID);
 				
 			case MatcherTypes.PROMPTS:
