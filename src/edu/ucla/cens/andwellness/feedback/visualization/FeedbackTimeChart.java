@@ -133,13 +133,7 @@ public class FeedbackTimeChart extends AbstractChart {
 		// we should get a series of prompt values for the survey that we can plot
 		ContentResolver cr = context.getContentResolver();
 		// URI to match "<campaignUrn>/<surveyID>/responses/prompts/<promptID>"
-		Uri queryUri = FeedbackContract.getBaseUri().buildUpon()
-			.appendPath(mCampaignUrn)
-			.appendPath(mSurveyID)
-			.appendPath("responses")
-			.appendPath("prompts")
-			.appendPath(mPromptID)
-			.build();
+		Uri queryUri = FeedbackPromptResponses.getPromptsByCampaignAndSurvey(mCampaignUrn, mSurveyID, mPromptID);
 		// columns to return; in this case, we just need the date and the value at that date point
 		String[] projection = new String[] { FeedbackResponses.TIME, FeedbackPromptResponses.PROMPT_VALUE };
 		
@@ -154,6 +148,9 @@ public class FeedbackTimeChart extends AbstractChart {
 		double maxValue = 0;
 
 		while (cursor.moveToNext()) {
+			// extract date/value from each row and put it in our series
+			// 0: time field, as a long
+			// 1: prompt value, as text
 			singleDates.add(new Date(cursor.getLong(0)));
 			singleValues.add(cursor.getDouble(1));
 			
