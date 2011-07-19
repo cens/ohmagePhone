@@ -39,25 +39,15 @@ import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackResponses;
 import edu.ucla.cens.andwellness.feedback.visualization.MapViewItemizedOverlay;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
 import edu.ucla.cens.andwellness.prompt.Prompt;
-import edu.ucla.cens.andwellness.prompt.PromptBuilderFactory;
 import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPrompt;
-import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePrompt;
-import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePromptBuilder;
 import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPrompt;
-import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.number.NumberPrompt;
-import edu.ucla.cens.andwellness.prompt.number.NumberPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.prompt.photo.PhotoPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPrompt;
-import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePrompt;
-import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePromptBuilder;
 import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
-import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
-import edu.ucla.cens.andwellness.prompt.text.TextPromptBuilder;
 import edu.ucla.cens.systemlog.Log;
 
 public class FeedbackMapViewActivity extends MapActivity {
