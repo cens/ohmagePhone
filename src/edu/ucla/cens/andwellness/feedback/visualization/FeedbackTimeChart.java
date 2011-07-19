@@ -137,9 +137,10 @@ public class FeedbackTimeChart extends AbstractChart {
 			.appendPath(mCampaignUrn)
 			.appendPath(mSurveyID)
 			.appendPath("responses")
-			.appendPath("prompts")
+			.appendPath("prompts") 
 			.appendPath(mPromptID)
 			.build();
+			
 		// columns to return; in this case, we just need the date and the value at that date point
 		String[] projection = new String[] { FeedbackResponses.TIME, FeedbackPromptResponses.PROMPT_VALUE };
 		

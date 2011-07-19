@@ -34,6 +34,10 @@ public class TextPrompt extends AbstractPrompt {
 		mText = "";
 	}
 	
+	public String getText(){
+		return mText;
+	}
+	
 	@Override
 	protected void clearTypeSpecificResponseData() {
 		if (mDefaultValue != null) {

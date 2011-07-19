@@ -42,6 +42,10 @@ public class NumberPrompt extends AbstractPrompt {
 	void setMaximum(int value) {
 		mMaximum = value;
 	}
+	
+	public int getValue(){
+		return mValue;
+	}
 
 	@Override
 	protected void clearTypeSpecificResponseData() {

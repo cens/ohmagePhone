@@ -69,7 +69,7 @@ public class PromptListActivity extends ListActivity{
 
         try {
 			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
-			Log.i(TAG, mPrompts.toString());
+			Log.i(TAG, "Parsed XML: " + mPrompts.toString());
 		} catch (NotFoundException e) {
 			Log.e(TAG, "Error parsing prompts from xml", e);
 		} catch (XmlPullParserException e) {
@@ -144,7 +144,9 @@ public class PromptListActivity extends ListActivity{
 		switch (item.getItemId()) {
 		case R.id.mapview:
 			intent = new Intent(this, FeedbackMapViewActivity.class);
-			startActivityForResult(intent, 1);			
+			intent.putExtra("campaign_urn", mCampaignUrn);
+			intent.putExtra("survey_id", mSurveyId);
+			startActivityForResult(intent, 1);
 			return true;
 		case R.id.participationstat:
 			FeedbackTimeChart chart = new FeedbackTimeChart("Participation Stats", mCampaignUrn, mSurveyId, null);
