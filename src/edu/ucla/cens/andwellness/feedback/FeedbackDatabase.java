@@ -200,7 +200,15 @@ public class FeedbackDatabase extends SQLiteOpenHelper
 			values.put(FeedbackResponses.SOURCE, source);
 			
 			// do the actual insert into feedback responses
-			long rowId = db.insert(Tables.RESPONSES, null, values);
+			long rowId = -1;
+			
+			try {
+				rowId = db.insert(Tables.RESPONSES, null, values);
+			}
+			catch (Exception e) {
+				// just ignore it; we don't want the exceptions cluttering up the logs
+				rowId = -1;
+			}
 			
 			// check if it succeeded; if not, we can't do anything
 			if (rowId == -1)
