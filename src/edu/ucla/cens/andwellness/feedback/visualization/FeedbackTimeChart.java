@@ -15,7 +15,6 @@
  */
 package edu.ucla.cens.andwellness.feedback.visualization;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -25,36 +24,21 @@ import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.json.JSONArray;
-import org.xmlpull.v1.XmlPullParserException;
 
-import edu.ucla.cens.andwellness.CampaignXmlHelper;
-import edu.ucla.cens.andwellness.PromptXmlParser;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Paint.Align;
+import android.net.Uri;
 import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
 import edu.ucla.cens.andwellness.feedback.FeedbackContract;
 import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackPromptResponses;
 import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackResponses;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
 import edu.ucla.cens.andwellness.prompt.Prompt;
-import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPrompt;
-import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePrompt;
-import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPrompt;
-import edu.ucla.cens.andwellness.prompt.number.NumberPrompt;
-import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
-import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPrompt;
 import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePrompt;
-import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
-import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
-import edu.ucla.cens.systemlog.Log;
-
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources.NotFoundException;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.Paint.Align;
-import android.net.Uri;
 
 /**
  * Project status demo chart.
