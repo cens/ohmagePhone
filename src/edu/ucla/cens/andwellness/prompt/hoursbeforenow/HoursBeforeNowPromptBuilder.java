@@ -40,6 +40,7 @@ public class HoursBeforeNowPromptBuilder implements PromptBuilder {
 		hoursBeforeNowPrompt.setCondition(condition);
 		hoursBeforeNowPrompt.setSkippable(skippable);
 		hoursBeforeNowPrompt.setSkipLabel(skipLabel);
+		hoursBeforeNowPrompt.setProperties(properties);
 		
 		for (KVLTriplet property : properties) {
 			if (property.key.equals("min")) {

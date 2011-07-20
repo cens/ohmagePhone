@@ -27,15 +27,15 @@ import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
 
 public class PromptFactory {
 
-	private static final String SINGLE_CHOICE = "single_choice";
-	private static final String SINGLE_CHOICE_CUSTOM = "single_choice_custom";
-	private static final String MULTI_CHOICE = "multi_choice";
-	private static final String MULTI_CHOICE_CUSTOM = "multi_choice_custom";
-	private static final String NUMBER = "number";
-	private static final String HOURS_BEFORE_NOW = "hours_before_now";
-	private static final String TEXT = "text";
-	private static final String PHOTO = "photo";
-	private static final String REMOTE_ACTIVITY = "remote_activity";
+	public static final String SINGLE_CHOICE = "single_choice";
+	public static final String SINGLE_CHOICE_CUSTOM = "single_choice_custom";
+	public static final String MULTI_CHOICE = "multi_choice";
+	public static final String MULTI_CHOICE_CUSTOM = "multi_choice_custom";
+	public static final String NUMBER = "number";
+	public static final String HOURS_BEFORE_NOW = "hours_before_now";
+	public static final String TEXT = "text";
+	public static final String PHOTO = "photo";
+	public static final String REMOTE_ACTIVITY = "remote_activity";
 	
 	private PromptFactory() {};
 	

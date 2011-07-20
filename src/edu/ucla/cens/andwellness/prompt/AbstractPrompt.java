@@ -21,6 +21,24 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
+import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPrompt;
+import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePrompt;
+import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePromptBuilder;
+import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPrompt;
+import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.number.NumberPrompt;
+import edu.ucla.cens.andwellness.prompt.number.NumberPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompt.photo.PhotoPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPrompt;
+import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePrompt;
+import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePromptBuilder;
+import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
+import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
+import edu.ucla.cens.andwellness.prompt.text.TextPromptBuilder;
 
 public abstract class AbstractPrompt implements Prompt {
 
@@ -163,6 +181,10 @@ public abstract class AbstractPrompt implements Prompt {
 		return mSkipLabel;
 	}
 	
+	public ArrayList<KVLTriplet> getProperties() {
+		return mProperties;
+	}
+	
 	public void setId(String id) {
 		this.mId = id;
 	}
@@ -203,9 +225,44 @@ public abstract class AbstractPrompt implements Prompt {
 		this.mSkipLabel = skipLabel;
 	}
 	
+	public void setProperties(ArrayList<KVLTriplet> properties) {
+		this.mProperties = properties;
+	}
+	
 	public Prompt getCopy() {
-		Prompt prompt = PromptFactory.createPrompt(mPromptType);
-		PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(mPromptType);
+
+		Prompt prompt = null;
+		PromptBuilder builder = null;
+		
+		if (this instanceof SingleChoicePrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.SINGLE_CHOICE);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.SINGLE_CHOICE);
+		} else if (this instanceof SingleChoiceCustomPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.SINGLE_CHOICE_CUSTOM);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.SINGLE_CHOICE_CUSTOM);
+		} else if (this instanceof MultiChoicePrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.MULTI_CHOICE);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.MULTI_CHOICE);
+		} else if (this instanceof MultiChoiceCustomPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.MULTI_CHOICE_CUSTOM);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.MULTI_CHOICE_CUSTOM);
+		} else if (this instanceof NumberPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.NUMBER);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.NUMBER);
+		} else if (this instanceof HoursBeforeNowPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.HOURS_BEFORE_NOW);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.HOURS_BEFORE_NOW);
+		} else if (this instanceof TextPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.TEXT);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.TEXT);
+		} else if (this instanceof PhotoPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.PHOTO);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.PHOTO);
+		} else if (this instanceof RemoteActivityPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.REMOTE_ACTIVITY);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.REMOTE_ACTIVITY);
+		}
+
 		builder.build(prompt, mId, mDisplayType, mDisplayLabel, mPromptText, mAbbreviatedText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
 		return prompt;
 	}

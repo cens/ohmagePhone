@@ -42,6 +42,7 @@ public class MultiChoiceCustomPromptBuilder implements PromptBuilder {
 		multiChoiceCustomPrompt.setCondition(condition);
 		multiChoiceCustomPrompt.setSkippable(skippable);
 		multiChoiceCustomPrompt.setSkipLabel(skipLabel);
+		multiChoiceCustomPrompt.setProperties(properties);
 		
 		//add entries from db to properties
 		

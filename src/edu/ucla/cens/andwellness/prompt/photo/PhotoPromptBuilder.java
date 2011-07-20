@@ -40,6 +40,7 @@ public class PhotoPromptBuilder implements PromptBuilder {
 		photoPrompt.setCondition(condition);
 		photoPrompt.setSkippable(skippable);
 		photoPrompt.setSkipLabel(skipLabel);
+		photoPrompt.setProperties(properties);
 		
 		for (KVLTriplet property : properties) {
 			if (property.key.equals("res")) {
