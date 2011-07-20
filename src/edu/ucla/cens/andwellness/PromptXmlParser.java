@@ -33,6 +33,9 @@ import edu.ucla.cens.andwellness.prompt.Prompt;
 import edu.ucla.cens.andwellness.prompt.PromptBuilder;
 import edu.ucla.cens.andwellness.prompt.PromptBuilderFactory;
 import edu.ucla.cens.andwellness.prompt.PromptFactory;
+import edu.ucla.cens.andwellness.prompt.RepeatableSetHeader;
+import edu.ucla.cens.andwellness.prompt.RepeatableSetTerminator;
+import edu.ucla.cens.andwellness.prompt.SurveyElement;
 
 public class PromptXmlParser {
 	
@@ -211,6 +214,190 @@ public class PromptXmlParser {
 		}
 		
 		return surveys;
+	}
+
+	public static List<SurveyElement> parseSurveyElements(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
+		
+		XmlPullParser parser = Xml.newPullParser();
+		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
+		
+		List<SurveyElement> surveyElements = null;
+		boolean promptInProgress = false;
+		boolean repeatableSetInProgress = false;
+		boolean surveyInProgress = false;
+		boolean surveyFound = false;
+		
+		String id = null;
+		String displayType = null;
+		String displayLabel = null;
+		String unit = null;
+		String promptText = null;
+		String abbreviatedText = null;
+		String explanationText = null;
+		String promptType = null;
+		String defaultValue = null;
+		String condition = null;
+		String skippable = null;
+		String skipLabel = null;
+		//ArrayList<String[]> properties = null;
+		ArrayList<KVLTriplet> properties = null;
+		String key = null;
+		String value = null;
+		String label = null;
+		
+		String repeatableSetId = null;
+		String terminationQuestion = null;
+		String terminationTrueLabel = null;
+		String terminationFalseLabel = null;
+		String terminationSkipEnabled = null;
+		String terminationSkipLabel = null;
+		String repeatableSetCondition = null;
+		List<Prompt> repeatableSetPrompts = null;
+		
+		// TODO deal with optional tags
+		
+		int eventType = parser.getEventType();
+		while (eventType != XmlPullParser.END_DOCUMENT) {
+			
+			String tagName = null;
+			
+			switch (eventType) {
+			case XmlPullParser.START_DOCUMENT:
+				
+				break;
+			case XmlPullParser.START_TAG:
+				tagName = parser.getName();
+				if (tagName.equalsIgnoreCase(SURVEY)) {
+					surveyInProgress = true;
+				} else if (surveyInProgress) {
+					if (tagName.equalsIgnoreCase(SURVEY_ID) && !promptInProgress) {
+						if (parser.nextText().trim().equals(surveyId)) {
+							surveyFound = true;
+							surveyElements = new ArrayList<SurveyElement>();
+						}
+					} else if (surveyFound) {
+						if (tagName.equalsIgnoreCase(REPEATABLE_SET)) {
+							repeatableSetInProgress = true;
+							
+							repeatableSetId = null;
+							terminationQuestion = null;
+							terminationFalseLabel = null;
+							terminationTrueLabel = null;
+							terminationSkipLabel = null;
+							terminationSkipEnabled = null;
+							repeatableSetCondition = null;
+							
+							repeatableSetPrompts = new ArrayList<Prompt>();
+							
+						} else if (tagName.equalsIgnoreCase(PROMPT)) {
+							promptInProgress = true;
+							
+							id  = null;
+							displayType = null;
+							displayLabel = null;
+							unit = null;
+							promptText = null;
+							abbreviatedText = null;
+							explanationText = null;
+							promptType = null;
+							defaultValue = null;
+							condition = null;
+							skippable = null;
+							skipLabel = null;
+							properties = null;
+							
+						} else if (promptInProgress) {
+							if (tagName.equalsIgnoreCase(PROMPT_ID)) {
+								id = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_TYPE)) {
+								displayType = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_LABEL)) {
+								displayLabel = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_UNIT)) {
+								unit = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_TEXT)) {
+								promptText = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_ABBREVIATED_TEXT)) {
+								abbreviatedText = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_EXPLANATION_TEXT)) {
+								explanationText = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_TYPE)) {
+								promptType = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_DEFAULT)) {
+								defaultValue = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_CONDITION)) {
+								condition = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_SKIPPABLE)) {
+								skippable = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_SKIP_LABEL)) {
+								skipLabel = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTIES)) {
+								properties = new ArrayList<KVLTriplet>();
+							} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
+								key = null;
+								value = null;
+								label = null;
+							} else if (tagName.equalsIgnoreCase(PROPERTY_KEY)) {
+								key = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROPERTY_VALUE)) {
+								value = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(PROPERTY_LABEL)) {
+								label = parser.nextText().trim();
+							}
+						} else if (repeatableSetInProgress) {
+							if (tagName.equalsIgnoreCase(REPEATABLE_SET_ID)) {
+								repeatableSetId = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_CONDITION)) {
+								repeatableSetCondition = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_FALSE_LABEL)) {
+								terminationFalseLabel = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_TRUE_LABEL)) {
+								terminationTrueLabel = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_SKIP_LABEL)) {
+								terminationSkipLabel = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_SKIP_ENABLED)) {
+								terminationSkipEnabled = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_QUESTION)) {
+								terminationQuestion = parser.nextText().trim();
+							}
+						}
+					}
+				}
+				
+				break;
+			case XmlPullParser.END_TAG:
+				tagName = parser.getName();
+				if (tagName.equalsIgnoreCase(SURVEY)) {
+					surveyInProgress = false;
+					surveyFound = false;
+				} else if (surveyFound) {
+					if (tagName.equalsIgnoreCase(PROMPT)) {
+						Prompt prompt = PromptFactory.createPrompt(promptType);
+						PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
+						builder.build(prompt, id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+						if (repeatableSetInProgress) {
+							repeatableSetPrompts.add(prompt);
+						} else {
+							surveyElements.add(prompt);
+						}
+						promptInProgress = false;
+					} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
+						if (promptInProgress) {
+							properties.add(new KVLTriplet(key, value, label));
+						}
+					} else if (tagName.equalsIgnoreCase(REPEATABLE_SET)) {
+						surveyElements.add(new RepeatableSetHeader(repeatableSetId, repeatableSetCondition, repeatableSetPrompts.size()));
+						surveyElements.addAll(repeatableSetPrompts);
+						surveyElements.add(new RepeatableSetTerminator(repeatableSetId, repeatableSetCondition, terminationQuestion, terminationTrueLabel, terminationFalseLabel, terminationSkipLabel, terminationSkipEnabled, repeatableSetPrompts.size()));
+						repeatableSetInProgress = false;
+					}
+				}
+				break;
+			}
+			eventType = parser.next();
+		}
+		
+		return surveyElements;
 	}
 
 public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
