@@ -400,7 +400,10 @@ public class PromptXmlParser {
 		return surveyElements;
 	}
 
-/*public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
+	// TODO: figure out how to get parsePrompts() in all its forms working with repeatable sets
+	// we're including it for now b/c jin's viz code relies on it
+	
+	public static List<Prompt> parsePrompts(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
 		
 		XmlPullParser parser = Xml.newPullParser();
 		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
@@ -534,9 +537,9 @@ public class PromptXmlParser {
 		}
 		
 		return prompts;
-	}*/
+	}
 
-	/*public static List<Prompt> parsePrompts(InputStream promptXmlStream) throws XmlPullParserException, IOException {
+	public static List<Prompt> parsePrompts(InputStream promptXmlStream) throws XmlPullParserException, IOException {
 		
 		XmlPullParser parser = Xml.newPullParser();
 		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
@@ -651,6 +654,5 @@ public class PromptXmlParser {
 		}
 		
 		return prompts;
-	}*/
-	
+	}
 }
