@@ -87,7 +87,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 	    mMapView.setBuiltInZoomControls(true);
 	    
 	    mControl = mMapView.getController();
-	    mControl.setZoom(15);
+	    mControl.setZoom(11);
 	    
 	    
 	    //Retrieve data from CP
@@ -112,6 +112,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 	    }
 	    cursor.close();
 	    
+	    //Init the map center to current location
 	    setMapCenterToCurrentLocation();
 	    	    	
 	    //Add overlays to the map
@@ -126,6 +127,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 	    }
 	    if(itemizedoverlay.size() > 0){
 		    mapOverlays.add(itemizedoverlay);
+		    mControl.setCenter(itemizedoverlay.getCenter());
 	    }
 	    Toast.makeText(this, "Displaying " + itemizedoverlay.size() + " points", Toast.LENGTH_LONG).show();
 	}
@@ -172,7 +174,6 @@ public class FeedbackMapViewActivity extends MapActivity {
 		while(ite.hasNext()){
 			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();
 			
-			//CFind 
 			if(promptId.equals(allPromptList.getId())){
 				
 				if(allPromptList instanceof SingleChoicePrompt){

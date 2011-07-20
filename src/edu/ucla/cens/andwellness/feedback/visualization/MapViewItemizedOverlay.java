@@ -54,8 +54,10 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		responseDialog.setContentView(R.layout.mapview_custom_dialog);
 		responseDialog.setTitle(item.getTitle());
 		
-		ImageView image = (ImageView)responseDialog.findViewById(R.id.mapview_dialog_image);
-		image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.apple_logo));
+		
+		//TODO Add image if there image files
+		//ImageView image = (ImageView)responseDialog.findViewById(R.id.mapview_dialog_image);
+		//image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.apple_logo));
 		
 		TextView text = (TextView)responseDialog.findViewById(R.id.mapview_dialog_text);
 		text.setText(item.getSnippet());

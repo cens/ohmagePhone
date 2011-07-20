@@ -15,39 +15,63 @@
  */
 package edu.ucla.cens.andwellness.feedback.visualization;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.json.JSONArray;
+import org.xmlpull.v1.XmlPullParserException;
 
+import edu.ucla.cens.andwellness.CampaignXmlHelper;
+import edu.ucla.cens.andwellness.PromptXmlParser;
+import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
 import edu.ucla.cens.andwellness.feedback.FeedbackContract;
 import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackPromptResponses;
 import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackResponses;
+import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
+import edu.ucla.cens.andwellness.prompt.Prompt;
+import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPrompt;
+import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePrompt;
+import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPrompt;
+import edu.ucla.cens.andwellness.prompt.number.NumberPrompt;
+import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPrompt;
+import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePrompt;
+import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
+import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
+import edu.ucla.cens.systemlog.Log;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Paint.Align;
 import android.net.Uri;
 
 /**
  * Project status demo chart.
  */
 public class FeedbackTimeChart extends AbstractChart {
+	static final String TAG = "FeedbackTimeChartLog"; 
 	protected String mPromptID;
 	protected String mCampaignUrn;
 	protected String mSurveyID;
+	protected List<Prompt> mPrompts;
 
-	public FeedbackTimeChart(String title, String campaignUrn, String surveyID, String promptID) {
+	public FeedbackTimeChart(String title, String campaignUrn, String surveyID, String promptID, List<Prompt> prompts) {
 		super(title);
 		mCampaignUrn = campaignUrn;
 		mSurveyID = surveyID;
 		mPromptID = promptID;
+		mPrompts = prompts;
 	}
 
 	/**
@@ -76,51 +100,6 @@ public class FeedbackTimeChart extends AbstractChart {
 	 * @return the built intent
 	 */
 	public Intent execute(Context context) {
-		/*
-	    //String[] titles = new String[] { "New tickets", "Fixed tickets"};
-	    String[] titles = new String[] { ""};
-	    List<Date[]> dates = new ArrayList<Date[]>();
-	    List<double[]> values = new ArrayList<double[]>();
-	    int length = titles.length;
-	    for (int i = 0; i < length; i++) {
-	      dates.add(new Date[12]);
-	      dates.get(i)[0] = new Date(111, 5, 30);
-	      dates.get(i)[1] = new Date(111, 6, 1);
-	      dates.get(i)[2] = new Date(111, 6, 2);
-	      dates.get(i)[3] = new Date(111, 6, 3);
-	      dates.get(i)[4] = new Date(111, 6, 4);
-	      dates.get(i)[5] = new Date(111, 6, 5);
-	      dates.get(i)[6] = new Date(111, 6, 6);
-	      dates.get(i)[7] = new Date(111, 6, 7);
-	      dates.get(i)[8] = new Date(111, 6, 8);
-	      dates.get(i)[9] = new Date(111, 6, 9);
-	      dates.get(i)[10] = new Date(111, 6, 10);
-	      dates.get(i)[11] = new Date(111, 6, 11);
-	    }
-	    values.add(new double[] { 3, 4, 4, 6, 5, 5, 4, 2, 1, 5, 3, 5});
-	    //values.add(new double[] { 102, 90, 112, 105, 125, 112, 125, 112, 105, 115, 116, 135 });
-	    length = values.get(0).length;
-	    
-	    
-	    //int[] colors = new int[] { Color.BLUE, Color.GREEN };
-	    int[] colors = new int[] { Color.RED };
-	    PointStyle[] styles = new PointStyle[] { PointStyle.X};
-	    XYMultipleSeriesRenderer renderer = buildRenderer(colors, styles);
-	    //renderer.setXLabels(5);
-	    //renderer.setYLabels(10);
-	    renderer.setShowGrid(true);
-
-	    setChartSettings(renderer, "", "Date", "# of participation", dates.get(0)[0].getTime(),
-	        dates.get(0)[11].getTime(), 0, 8, Color.GRAY, Color.LTGRAY);
-
-	    length = renderer.getSeriesRendererCount();
-	    for (int i = 0; i < length; i++) {
-	      SimpleSeriesRenderer seriesRenderer = renderer.getSeriesRendererAt(i);
-	      seriesRenderer.setDisplayChartValues(true);
-	    }
-	    return ChartFactory.getTimeChartIntent(context, buildDateDataset(titles, dates, values),
-	        renderer, "MM/dd/yyyy",mChartTitle);
-	        */
 		
 		// titles for each of the series (in this case we have only one)
 		String[] titles = new String[] { "" };
@@ -146,6 +125,9 @@ public class FeedbackTimeChart extends AbstractChart {
 		
 		// nab that data!
 		Cursor cursor = cr.query(queryUri, projection, null, null, null);
+		if(cursor.getCount() == 0){
+			return null;
+		}
 		
 		// now we iterate through the cursor and insert each column of each row
 		// into the appropriate list
@@ -153,7 +135,6 @@ public class FeedbackTimeChart extends AbstractChart {
 		ArrayList<Double> singleValues = new ArrayList<Double>();
 		
 		double maxValue = 0;
-
 		while (cursor.moveToNext()) {
 			singleDates.add(new Date(cursor.getLong(0)));
 			singleValues.add(cursor.getDouble(1));
@@ -178,19 +159,74 @@ public class FeedbackTimeChart extends AbstractChart {
 		PointStyle[] styles = new PointStyle[] { PointStyle.X };
 		XYMultipleSeriesRenderer renderer = buildRenderer(colors, styles);
 		renderer.setShowGrid(true);
-
-		setChartSettings(renderer,
-				"", "Date", mChartTitle,
-				dates.get(0)[0].getTime(), dates.get(0)[dates.get(0).length-1].getTime(), 0, maxValue,
-				Color.GRAY, Color.LTGRAY);
+		
+		int topMargin = 0;
+		int bottomMargin = 100;
+		int leftMargin = 10;
+		int rightMargin = 0;
+		int margins[] = {topMargin, leftMargin, bottomMargin, rightMargin};
+		renderer.setMargins(margins);
+		
+		renderer.setAxisTitleTextSize(23);
+		renderer.setLabelsTextSize(20);
+		renderer.setXLabelsAlign(Align.LEFT);
+		renderer.setShowLegend(false);
+		renderer.setLegendTextSize(20);
+		renderer.setPointSize(10);
+		renderer.setXLabelsAngle(330);
+		renderer.setZoomButtonsVisible(true);
+		renderer.setShowAxes(true);
+		
+		//Set Y Label
+		//TODO Need to organize all prompt types instead of handling this with NULL 
+		renderer.setYLabelsAlign(Align.LEFT);
+		List<KVLTriplet> propertiesList = getPropertiesList(mPromptID);
+		if(propertiesList != null){
+			for(KVLTriplet i : propertiesList){
+				renderer.addYTextLabel(Double.valueOf(i.key).doubleValue(), i.label);
+			}
+		}
+		
+		//Set Chart
+		setChartSettings(
+				renderer,
+				"", 
+				"Date", 
+				"",
+				dates.get(0)[0].getTime() - 86400000, 
+				dates.get(0)[dates.get(0).length-1].getTime() + 86400000, 
+				0, 
+				maxValue+1,
+				Color.GRAY, 
+				Color.LTGRAY
+		);
 
 		int length = renderer.getSeriesRendererCount();
 		for (int i = 0; i < length; i++) {
 			SimpleSeriesRenderer seriesRenderer = renderer.getSeriesRendererAt(i);
 			seriesRenderer.setDisplayChartValues(true);
 		}
-		return ChartFactory.getTimeChartIntent(context, buildDateDataset(
-				titles, dates, values), renderer, "MM/dd/yy hh:mma", mChartTitle);
+		return ChartFactory.getTimeChartIntent(
+				context, 
+				buildDateDataset(titles, dates, values), 
+				renderer, 
+				"MM/dd hha", 
+				mChartTitle
+				);
 	}
-
+	
+	private List<KVLTriplet> getPropertiesList(String promptId){		
+		Iterator<Prompt> ite = mPrompts.iterator();
+		while(ite.hasNext()){
+			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();			
+			if(promptId.equals(allPromptList.getId())){
+				if(allPromptList instanceof SingleChoicePrompt){
+					SingleChoicePrompt prompt = (SingleChoicePrompt)allPromptList;
+					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
+					return choiceKVLTriplet;
+				}
+			}
+		}
+		return null;
+	}
 }
