@@ -21,6 +21,7 @@ import java.io.IOException;
 import android.app.Application;
 import android.util.Log;
 import edu.ucla.cens.andwellness.db.DbHelper;
+import edu.ucla.cens.andwellness.feedback.FeedbackDatabase;
 import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
 import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -50,6 +51,9 @@ public class AndWellnessApplication extends Application {
 		
 		//clear db
 		new DbHelper(this).clearAll();
+		
+		// clear feedback db as well
+		new FeedbackDatabase(this).clearAll();
 		
 		//clear custom type dbs
 		SingleChoiceCustomDbAdapter singleChoiceDbAdapter = new SingleChoiceCustomDbAdapter(this); 

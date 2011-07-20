@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
@@ -106,6 +107,20 @@ public class FeedbackDatabase extends SQLiteOpenHelper
 		onCreate(db);
 	}
 	
+	public void clearAll() {
+		SQLiteDatabase db = getWritableDatabase();
+		
+		if (db == null) {
+			return;
+		}
+		
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.RESPONSES);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.PROMPTS);
+		onCreate(db);
+		
+		db.close();
+	}
+	
 	// =========================================
 	// === legacy data access and insertion
 	// =========================================
@@ -189,7 +204,7 @@ public class FeedbackDatabase extends SQLiteOpenHelper
 			
 			// check if it succeeded; if not, we can't do anything
 			if (rowId == -1)
-				throw new Exception("Unable to insert record into responses table");
+				return -1;
 			
 			// more bookkeeping: parse the responses and add those to the prompt responses table one by one
 			JSONArray responseData = new JSONArray(response);
@@ -215,8 +230,12 @@ public class FeedbackDatabase extends SQLiteOpenHelper
 			// return the inserted feedback response row
 			return rowId;
 		}
-		catch (Exception e) {
-			Log.e(TAG, e.getMessage(), e);
+		catch (JSONException e) {
+			Log.e(TAG, "Unable to parse response data in insert", e);
+			return -1;
+		}
+		catch (NoSuchAlgorithmException e) {
+			Log.e(TAG, "Unable to produce hashcode -- is SHA-1 supported?", e);
 			return -1;
 		}
 		finally {
