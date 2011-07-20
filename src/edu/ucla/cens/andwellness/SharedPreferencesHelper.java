@@ -21,8 +21,8 @@ import android.content.SharedPreferences;
 public class SharedPreferencesHelper {
 	
 	public static final String CLIENT_STRING = "android";
-//	public static final String DEFAULT_SERVER_URL = "https://dev1.andwellness.org/";
-	public static final String DEFAULT_SERVER_URL = "https://dev1.mobilizingcs.org/";
+	public static final String DEFAULT_SERVER_URL = "https://dev1.andwellness.org/";
+//	public static final String DEFAULT_SERVER_URL = "https://dev1.mobilizingcs.org/";
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
@@ -36,6 +36,7 @@ public class SharedPreferencesHelper {
 	private static final String KEY_IS_DISABLED = "is_disabled";
 	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
+	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 //	private static final String KEY_CAMPAIGN_NAME = "campaign_name";
 //	private static final String KEY_CAMPAIGN_URN = "campaign_version";
 //	private static final String KEY_SERVER_URL = "server_url";
@@ -96,6 +97,14 @@ public class SharedPreferencesHelper {
 	
 	public boolean putLastSurveyTimestamp(String surveyId, Long timestamp) {
 		return mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
+	}
+	
+	public Long getLastFeedbackRefreshTimestamp() {
+		return mPreferences.getLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP, 0);
+	}
+	
+	public boolean putLastFeedbackRefreshTimestamp(Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP, timestamp).commit();
 	}
 	
 //	public String getCampaignName() {
