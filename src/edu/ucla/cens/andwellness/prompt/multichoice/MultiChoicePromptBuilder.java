@@ -42,6 +42,7 @@ public class MultiChoicePromptBuilder implements PromptBuilder {
 		multiChoicePrompt.setCondition(condition);
 		multiChoicePrompt.setSkippable(skippable);
 		multiChoicePrompt.setSkipLabel(skipLabel);
+		multiChoicePrompt.setProperties(properties);
 		multiChoicePrompt.setChoices(properties);
 	}
 

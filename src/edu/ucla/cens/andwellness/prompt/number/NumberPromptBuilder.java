@@ -40,6 +40,7 @@ public class NumberPromptBuilder implements PromptBuilder {
 		numberPrompt.setCondition(condition);
 		numberPrompt.setSkippable(skippable);
 		numberPrompt.setSkipLabel(skipLabel);
+		numberPrompt.setProperties(properties);
 		
 		for (KVLTriplet property : properties) {
 			if (property.key.equals("min")) {

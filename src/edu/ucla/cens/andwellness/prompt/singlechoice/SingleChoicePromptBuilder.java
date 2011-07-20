@@ -42,6 +42,7 @@ public class SingleChoicePromptBuilder implements PromptBuilder {
 		singleChoicePrompt.setCondition(condition);
 		singleChoicePrompt.setSkippable(skippable);
 		singleChoicePrompt.setSkipLabel(skipLabel);
+		singleChoicePrompt.setProperties(properties);
 		singleChoicePrompt.setChoices(properties);
 	}
 

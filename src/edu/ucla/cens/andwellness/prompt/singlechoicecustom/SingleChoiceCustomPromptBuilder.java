@@ -42,7 +42,7 @@ public class SingleChoiceCustomPromptBuilder implements PromptBuilder {
 		singleChoiceCustomPrompt.setCondition(condition);
 		singleChoiceCustomPrompt.setSkippable(skippable);
 		singleChoiceCustomPrompt.setSkipLabel(skipLabel);
-		
+		singleChoiceCustomPrompt.setProperties(properties);
 		//add entries from db to properties
 		
 		singleChoiceCustomPrompt.setChoices(properties);

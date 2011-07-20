@@ -48,6 +48,7 @@ public class RemoteActivityPromptBuilder implements PromptBuilder
 		remoteActivityPrompt.setCondition(condition);
 		remoteActivityPrompt.setSkippable(skippable);
 		remoteActivityPrompt.setSkipLabel(skipLabel);
+		remoteActivityPrompt.setProperties(properties);
 		
 		for(KVLTriplet property : properties)
 		{

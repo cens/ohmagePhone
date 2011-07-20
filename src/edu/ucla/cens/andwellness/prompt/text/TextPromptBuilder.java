@@ -40,7 +40,7 @@ public class TextPromptBuilder implements PromptBuilder {
 		textPrompt.setCondition(condition);
 		textPrompt.setSkippable(skippable);
 		textPrompt.setSkipLabel(skipLabel);
-		
+		textPrompt.setProperties(properties);
 		textPrompt.clearTypeSpecificResponseData();
 		
 	}
