@@ -15,13 +15,18 @@
  ******************************************************************************/
 package edu.ucla.cens.andwellness.prompt;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
 
 public abstract class AbstractPrompt implements Prompt {
 
 	// TODO change private to protected
 	protected String mId;
+	protected String mPromptType;
 	protected String mDisplayType;
 	protected String mDisplayLabel;
 	protected String mPromptText;
@@ -31,6 +36,7 @@ public abstract class AbstractPrompt implements Prompt {
 	protected String mCondition;
 	protected String mSkippable;
 	protected String mSkipLabel;
+	protected ArrayList<KVLTriplet> mProperties;
 	
 	// should these be here?
 	protected boolean mDisplayed;
@@ -197,4 +203,10 @@ public abstract class AbstractPrompt implements Prompt {
 		this.mSkipLabel = skipLabel;
 	}
 	
+	public Prompt getCopy() {
+		Prompt prompt = PromptFactory.createPrompt(mPromptType);
+		PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(mPromptType);
+		builder.build(prompt, mId, mDisplayType, mDisplayLabel, mPromptText, mAbbreviatedText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
+		return prompt;
+	}
 }

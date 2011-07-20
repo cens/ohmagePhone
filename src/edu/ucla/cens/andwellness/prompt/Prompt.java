@@ -19,12 +19,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
-public interface Prompt {
+public interface Prompt extends SurveyElement, Displayable{
 
 	// TODO document these!
 	// move getters into interface?
-	
-	View getView(Context context);
 
 	String getResponseJson();
 	String getUnansweredPromptText();

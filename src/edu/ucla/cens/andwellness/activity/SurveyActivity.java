@@ -59,6 +59,9 @@ import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.db.Response;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
 import edu.ucla.cens.andwellness.prompt.Prompt;
+import edu.ucla.cens.andwellness.prompt.RepeatableSetHeader;
+import edu.ucla.cens.andwellness.prompt.RepeatableSetTerminator;
+import edu.ucla.cens.andwellness.prompt.SurveyElement;
 import edu.ucla.cens.andwellness.prompt.hoursbeforenow.HoursBeforeNowPrompt;
 import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePrompt;
 import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPrompt;
@@ -83,7 +86,7 @@ public class SurveyActivity extends Activity {
 	private Button mSkipButton;
 	private Button mNextButton;
 	
-	private List<Prompt> mPrompts;
+	private List<SurveyElement> mSurveyElements;
 	//private List<PromptResponse> mResponses;
 	private int mCurrentPosition;
 	private String mCampaignUrn;
@@ -92,6 +95,8 @@ public class SurveyActivity extends Activity {
 	private String mSurveySubmitText;
 	private String mLaunchTime;
 	private boolean mReachedEnd;
+	
+	private String mLastSeenRepeatableSetId;
 	
 	public String getSurveyId() {
 		return mSurveyId;
@@ -129,11 +134,10 @@ public class SurveyActivity extends Activity {
     			startActivity(new Intent(this, LoginActivity.class));
     			finish();
     		} else {
-    			mPrompts = null;
+    			mSurveyElements = null;
                 
                 try {
-        			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
-        			Log.i(TAG, mPrompts.toString());
+        			mSurveyElements = PromptXmlParser.parseSurveyElements(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
         		} catch (NotFoundException e) {
         			Log.e(TAG, "Error parsing prompts from xml", e);
         		} catch (XmlPullParserException e) {
@@ -147,12 +151,14 @@ public class SurveyActivity extends Activity {
 
         		mCurrentPosition = 0;
         		mReachedEnd = false;
+        		mLastSeenRepeatableSetId = "";
     		}
         } else {
-        	mPrompts = instance.prompts;
+        	mSurveyElements = instance.surveyElements;
         	mCurrentPosition = instance.index;
         	mLaunchTime = instance.launchTime;
         	mReachedEnd = instance.reachedEnd;
+        	mLastSeenRepeatableSetId = instance.lastSeenRepeatableSetId;
         }
         
         setContentView(R.layout.survey_activity);
@@ -179,20 +185,22 @@ public class SurveyActivity extends Activity {
 	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return new NonConfigurationInstance(mPrompts, mCurrentPosition, mLaunchTime, mReachedEnd);
+		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId);
 	}
 
 	private class NonConfigurationInstance {
-		List<Prompt> prompts;
+		List<SurveyElement> surveyElements;
 		int index;
 		String launchTime;
 		boolean reachedEnd;
+		String lastSeenRepeatableSetId;
 		
-		public NonConfigurationInstance(List<Prompt> prompts, int index, String launchTime, boolean reachedEnd) {
-			this.prompts = prompts;
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, String launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
+			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
 			this.reachedEnd = reachedEnd;
+			this.lastSeenRepeatableSetId = lastSeenRepeatableSetId;
 		}
 	}
 
@@ -210,78 +218,299 @@ public class SurveyActivity extends Activity {
 					prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
 					finish();
 				} else {
-					AbstractPrompt currPrompt = (AbstractPrompt) mPrompts.get(mCurrentPosition);
-					if(! currPrompt.isPromptAnswered()) {
-						Toast.makeText(SurveyActivity.this, currPrompt.getUnansweredPromptText(), Toast.LENGTH_LONG).show();
-					}
-					// This can probably be removed but is being kept for now
-					// as a fallback.
-					else if (currPrompt.getResponseObject() == null) {
-						Toast.makeText(SurveyActivity.this, "You must respond to this question before proceding.", Toast.LENGTH_SHORT).show();
-					} else {
-						Log.i(TAG, mPrompts.get(mCurrentPosition).getResponseJson());
-						
-						while (mCurrentPosition < mPrompts.size()) {
+					if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+						//show toast if not answered
+						AbstractPrompt currPrompt = (AbstractPrompt) mSurveyElements.get(mCurrentPosition);
+						if(! currPrompt.isPromptAnswered()) {
+							Toast.makeText(SurveyActivity.this, currPrompt.getUnansweredPromptText(), Toast.LENGTH_LONG).show();
+						} else {
+							while (mCurrentPosition < mSurveyElements.size()) {
+								//increment position
+								mCurrentPosition++;
+								
+								//if survey end reached, show submit screen
+								if (mCurrentPosition == mSurveyElements.size()) {
+									mReachedEnd = true;
+									showSubmitScreen();
+									
+								} else {
+									if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+										//if new position is prompt, check condition
+										String condition = ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).getCondition();
+										if (condition == null)
+											condition = "";
+										if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+											//if true, show new prompt
+											showPrompt(mCurrentPosition);
+											break;
+										} else {
+											//if false, loop up and increment
+											((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+										}
+									} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
+										//if new position is repeat header, check condition
+										String condition = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getCondition();
+										if (condition == null)
+											condition = "";
+										if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+											//if true, increment position, show prompt
+											continue;
+										} else {
+											//if false, increment past repeat set prompts and terminator
+											int promptCount = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getPromptCount();
+											mCurrentPosition += promptCount + 1;
+											//if new position is header with same id, remove items from list ???
+											//set repeatable set to NOT_DISPLAYED
+											((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+											continue;
+										}
+									} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+										//if new position is a repeat terminator, show terminator
+										showTerminator(mCurrentPosition);
+										break;
+									} else {
+										//something is wrong!
+									}									
+								}
+							}
+						}
+					} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+						//"next" maps to "terminate"
+						while (mCurrentPosition < mSurveyElements.size()) {
+							//increment position
 							mCurrentPosition++;
-							if (mCurrentPosition == mPrompts.size()) {
+							//if survey end reached, show submit screen
+							if (mCurrentPosition == mSurveyElements.size()) {
 								mReachedEnd = true;
 								showSubmitScreen();
 								
 							} else {
-								String condition = ((AbstractPrompt)mPrompts.get(mCurrentPosition)).getCondition();
-								if (condition == null)
-									condition = "";
-								if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
-									showPrompt(mCurrentPosition);
+								//if element is repeat header with same repeat set id, remove header, prompts, and terminator
+								while (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader 
+										&& ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getId().equals(((RepeatableSetTerminator)mSurveyElements.get(mCurrentPosition-1)).getId())) {
+									int count = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getPromptCount();
+									mSurveyElements.remove(mCurrentPosition); //remove header
+									for (int i = 0; i < count; i++) {
+										mSurveyElements.remove(mCurrentPosition); //remove prompts
+									}
+									mSurveyElements.remove(mCurrentPosition); //remove terminator
+								} //repeat until above is not true
+								
+								if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+									//if new position is prompt, check condition
+									String condition = ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).getCondition();
+									if (condition == null)
+										condition = "";
+									if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+										//if true, show new prompt
+										showPrompt(mCurrentPosition);
+										break;
+									} else {
+										//if false, loop up and increment
+										((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+									}
+								} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
+									//if new position is repeat header, check condition
+									String condition = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getCondition();
+									if (condition == null)
+										condition = "";
+									if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+										//if true, increment position, show prompt
+										continue;
+									} else {
+										//if false, increment past repeat set prompts and terminator
+										int promptCount = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getPromptCount();
+										mCurrentPosition += promptCount + 1;
+										//if new position is header with same id, remove items from list ???
+										//set repeatable set to NOT_DISPLAYED
+										((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+										continue;
+									}
+								} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+									//if new position is a repeat terminator, show terminator
+									showTerminator(mCurrentPosition);
 									break;
 								} else {
-									((AbstractPrompt)mPrompts.get(mCurrentPosition)).setDisplayed(false);
+									//something is wrong!
 								}
 							}
 						}
-					}
+					} 
 				}
 				
 				break;
 			
 			case R.id.skip_button:
-				((AbstractPrompt)mPrompts.get(mCurrentPosition)).setSkipped(true);
-				Log.i(TAG, mPrompts.get(mCurrentPosition).getResponseJson());
-				
-				while (mCurrentPosition < mPrompts.size()) {
-					mCurrentPosition++;
-					if (mCurrentPosition == mPrompts.size()) {
-						mReachedEnd = true;
-						showSubmitScreen();
+				if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+					((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setSkipped(true);
+					//Log.i(TAG, mSurveyElements.get(mCurrentPosition).getResponseJson());
+					
+					while (mCurrentPosition < mSurveyElements.size()) {
+						//increment position
+						mCurrentPosition++;
 						
-					} else {
-						String condition = ((AbstractPrompt)mPrompts.get(mCurrentPosition)).getCondition();
-						if (condition == null)
-							condition = "";
-						if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
-							showPrompt(mCurrentPosition);
-							break;
+						//if survey end reached, show submit screen
+						if (mCurrentPosition == mSurveyElements.size()) {
+							mReachedEnd = true;
+							showSubmitScreen();
+							
 						} else {
-							((AbstractPrompt)mPrompts.get(mCurrentPosition)).setDisplayed(false);
+							if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+								//if new position is prompt, check condition
+								String condition = ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).getCondition();
+								if (condition == null)
+									condition = "";
+								if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+									//if true, show new prompt
+									showPrompt(mCurrentPosition);
+									break;
+								} else {
+									//if false, loop up and increment
+									((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+								}
+							} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
+								//if new position is repeat header, check condition
+								String condition = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getCondition();
+								if (condition == null)
+									condition = "";
+								if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+									//if true, increment position, show prompt
+									((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).setDisplayed(true);
+									continue;
+								} else {
+									//if false, increment past repeat set prompts and terminator
+									int promptCount = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getPromptCount();
+									mCurrentPosition += promptCount + 1;
+									//if new position is header with same id, remove items from list ???
+									//set repeatable set to NOT_DISPLAYED
+									((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+									continue;
+								}
+							} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+								//if new position is a repeat terminator, show terminator
+								showTerminator(mCurrentPosition);
+								break;
+							} else {
+								//something is wrong!
+							}									
 						}
 					}
+				} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+					//handle skip for repeatable sets
 				}
 				break;
 				
 			case R.id.prev_button:
 				mReachedEnd = false;
-				while (mCurrentPosition > 0) {
-					mCurrentPosition--;
-					String condition = ((AbstractPrompt)mPrompts.get(mCurrentPosition)).getCondition();
-					if (condition == null)
-						condition = "";
-					if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
-						showPrompt(mCurrentPosition);
-						break;
-					} else {
-						((AbstractPrompt)mPrompts.get(mCurrentPosition)).setDisplayed(false);
+				if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+					while (mCurrentPosition > 0) {
+						//decrement position
+						mCurrentPosition--;
+						
+						if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+							//if element is prompt, check condition
+							String condition = ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).getCondition();
+							if (condition == null)
+								condition = "";
+							if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+								//if true, show prompt
+								showPrompt(mCurrentPosition);
+								break;
+							} else {
+								//if false, decrement again and loop
+								((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+							}
+						} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
+							//if element is a repeat header, decrement position and loop
+							continue;
+						} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+							//if element is repeat terminator, check condition
+							String condition = ((RepeatableSetTerminator)mSurveyElements.get(mCurrentPosition)).getCondition();
+							if (condition == null)
+								condition = "";
+							if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+								//if true, decrement position, show prompt
+								continue;
+							} else {
+								//if false, decrement past all prompts in set and header
+								int promptCount = ((RepeatableSetTerminator)mSurveyElements.get(mCurrentPosition)).getPromptCount();
+								mCurrentPosition -= promptCount + 1;
+								continue;
+							}
+						}						
 					}
-				}
+				} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+					//"previous" maps to "repeat"
+					int promptCount = ((RepeatableSetTerminator)mSurveyElements.get(mCurrentPosition)).getPromptCount();
+					
+					mCurrentPosition++;
+					
+					if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader 
+							&& ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getId().equals(((RepeatableSetTerminator)mSurveyElements.get(mCurrentPosition-1)).getId())) {
+						//if next position is header with same repeat set id, increment position
+						
+						mCurrentPosition++;
+						
+						if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+							//if new position is prompt, check condition
+							String condition = ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).getCondition();
+							if (condition == null)
+								condition = "";
+							if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+								//if true, show new prompt
+								showPrompt(mCurrentPosition);
+								break;
+							} else {
+								//if false, loop up and increment
+								((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+							}
+						} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+							//if new position is a repeat terminator, show terminator
+							showTerminator(mCurrentPosition);
+							break;
+						} else {
+							//something is wrong!
+						}
+						
+					} else {
+						//else, after current position in list, add repeat header, prompts, and terminator, then increment position
+						RepeatableSetHeader newHeader = ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition - 1 - promptCount - 1)).getCopy();
+						List<Prompt> newPrompts = new ArrayList<Prompt>();
+						for (int i = promptCount; i > 0; i--) {
+							Prompt newPrompt = ((AbstractPrompt)mSurveyElements.get(mCurrentPosition - i - 1)).getCopy();
+							newPrompts.add(newPrompt);
+						}
+						RepeatableSetTerminator newTerminator = ((RepeatableSetTerminator)mSurveyElements.get(mCurrentPosition - 1)).getCopy();
+						mSurveyElements.add(mCurrentPosition, newTerminator);
+						mSurveyElements.addAll(mCurrentPosition, newPrompts);
+						mSurveyElements.add(mCurrentPosition, newHeader);
+						
+						mCurrentPosition++;
+						
+						if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+							//if new position is prompt, check condition
+							String condition = ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).getCondition();
+							if (condition == null)
+								condition = "";
+							if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+								//if true, show new prompt
+								showPrompt(mCurrentPosition);
+								break;
+							} else {
+								//if false, loop up and increment
+								((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setDisplayed(false);
+							}
+						} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
+							//if new position is a repeat terminator, show terminator
+							showTerminator(mCurrentPosition);
+							break;
+						} else {
+							//something is wrong!
+						}
+						
+					}
+					
+				} 
 				break;
 			}
 		}
@@ -290,7 +519,9 @@ public class SurveyActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		mPrompts.get(mCurrentPosition).handleActivityResult(this, requestCode, resultCode, data);
+		if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, requestCode, resultCode, data);
+		}
 	}
 
 	public void reloadCurrentPrompt() {
@@ -320,36 +551,83 @@ public class SurveyActivity extends Activity {
 
 	private void showPrompt(int index) {
 		
-		mNextButton.setText("Next");
-		
-		if (index == 0) {
-			mPrevButton.setVisibility(View.INVISIBLE);
+		if (mSurveyElements.get(index) instanceof AbstractPrompt) {
+			
+			AbstractPrompt prompt = (AbstractPrompt)mSurveyElements.get(index);
+			
+			mNextButton.setText("Next");
+			mPrevButton.setText("Previous");
+			
+			if (index == 0) {
+				mPrevButton.setVisibility(View.INVISIBLE);
+			} else {
+				mPrevButton.setVisibility(View.VISIBLE);
+			}
+			
+			// someone needs to check condition before showing prompt
+			
+			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
+			
+			prompt.setDisplayed(true);
+			prompt.setSkipped(false);
+			
+			// TODO for now I'm casting, but maybe I should move getters/setters to interface?
+			// or just use a list of AbstractPrompt
+			mPromptText.setText(prompt.getPromptText());
+			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
+			
+			if (prompt.getSkippable().equals("true")) {
+				mSkipButton.setVisibility(View.VISIBLE);
+			} else {
+				mSkipButton.setVisibility(View.INVISIBLE);
+			}
+			
+			mPromptFrame.removeAllViews();
+			mPromptFrame.addView(prompt.getView(this));
+			//mPromptFrame.invalidate();
 		} else {
-			mPrevButton.setVisibility(View.VISIBLE);
+			Log.e(TAG, "trying to showPrompt for element that is not a prompt!");
 		}
+	}
+	
+	private void showTerminator(int index) {
 		
-		// someone needs to check condition before showing prompt
-		
-		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
-		
-		((AbstractPrompt)mPrompts.get(index)).setDisplayed(true);
-		((AbstractPrompt)mPrompts.get(index)).setSkipped(false);
-		
-		// TODO for now I'm casting, but maybe I should move getters/setters to interface?
-		// or just use a list of AbstractPrompt
-		mPromptText.setText(((AbstractPrompt)mPrompts.get(index)).getPromptText());
-		mProgressBar.setProgress(index * mProgressBar.getMax() / mPrompts.size());
-		
-		if (((AbstractPrompt)mPrompts.get(index)).getSkippable().equals("true")) {
-			mSkipButton.setVisibility(View.VISIBLE);
-		} else {
+		if (mSurveyElements.get(index) instanceof RepeatableSetTerminator) {
+			
+			RepeatableSetTerminator terminator = (RepeatableSetTerminator)mSurveyElements.get(index);
+			
+			mNextButton.setText("Terminate");
+			mPrevButton.setText("Repeat");
 			mSkipButton.setVisibility(View.INVISIBLE);
+			
+			if (index == 0) {
+				//this could(should) never happen
+			}
+			
+			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
+			
+			//terminator.setDisplayed(true);
+			//terminator.setSkipped(false);
+			
+			// TODO for now I'm casting, but maybe I should move getters/setters to interface?
+			// or just use a list of AbstractPrompt
+			mPromptText.setText("End of repeatable set");
+			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
+			
+//			if (terminator.getSkippable().equals("true")) {
+//				mSkipButton.setVisibility(View.VISIBLE);
+//			} else {
+//				mSkipButton.setVisibility(View.INVISIBLE);
+//			}
+			
+			mPromptFrame.removeAllViews();
+			mPromptFrame.addView(terminator.getView(this));
+			//mPromptFrame.invalidate();
+		} else {
+			Log.e(TAG, "trying to showTerminator for element that is not a RepeatableSetTerminator!");
 		}
-		
-		mPromptFrame.removeAllViews();
-		mPromptFrame.addView(mPrompts.get(index).getView(this));
-		//mPromptFrame.invalidate();
 	}
 	
 	/*public void setResponse(int index, String id, String value) {
@@ -360,74 +638,78 @@ public class SurveyActivity extends Activity {
 	private List<DataPoint> getPreviousResponses() {
 		ArrayList<DataPoint> previousResponses = new ArrayList<DataPoint>();
 		for (int i = 0; i < mCurrentPosition; i++) {
-			DataPoint dataPoint = new DataPoint(((AbstractPrompt)mPrompts.get(i)).getId());
-			dataPoint.setDisplayType(((AbstractPrompt)mPrompts.get(i)).getDisplayType());
-			
-			if (mPrompts.get(i) instanceof SingleChoicePrompt) {
-				dataPoint.setPromptType("single_choice");
-			} else if (mPrompts.get(i) instanceof MultiChoicePrompt) {
-				dataPoint.setPromptType("multi_choice");
-			} else if (mPrompts.get(i) instanceof MultiChoiceCustomPrompt) {
-				dataPoint.setPromptType("multi_choice_custom");
-			} else if (mPrompts.get(i) instanceof SingleChoiceCustomPrompt) {
-				dataPoint.setPromptType("single_choice_custom");
-			} else if (mPrompts.get(i) instanceof NumberPrompt) {
-				dataPoint.setPromptType("number");
-			} else if (mPrompts.get(i) instanceof HoursBeforeNowPrompt) {
-				dataPoint.setPromptType("hours_before_now");
-			} else if (mPrompts.get(i) instanceof TextPrompt) {
-				dataPoint.setPromptType("text");
-			} else if (mPrompts.get(i) instanceof PhotoPrompt) {
-				dataPoint.setPromptType("photo");
-			} 
-			
-			if (((AbstractPrompt)mPrompts.get(i)).isSkipped()) {
-				dataPoint.setSkipped();
-			} else if (!((AbstractPrompt)mPrompts.get(i)).isDisplayed()) { 
-				dataPoint.setNotDisplayed();
-			} else {
-				if (PromptType.single_choice.equals(dataPoint.getPromptType())) {
-					dataPoint.setValue((Integer)mPrompts.get(i).getResponseObject());
-				} else if (PromptType.single_choice_custom.equals(dataPoint.getPromptType())) {
-					dataPoint.setValue((Integer)mPrompts.get(i).getResponseObject());
-				} else if (PromptType.multi_choice.equals(dataPoint.getPromptType())) {
-					JSONArray jsonArray;
-					ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
-					try {
-						jsonArray = (JSONArray)mPrompts.get(i).getResponseObject();
-						for (int j = 0; j < jsonArray.length(); j++) {
-							dataPointValue.add((Integer)jsonArray.get(j));
+			if (mSurveyElements.get(i) instanceof AbstractPrompt) {
+				AbstractPrompt prompt = ((AbstractPrompt)mSurveyElements.get(i));
+				
+				DataPoint dataPoint = new DataPoint(prompt.getId());
+				dataPoint.setDisplayType(prompt.getDisplayType());
+				
+				if (prompt instanceof SingleChoicePrompt) {
+					dataPoint.setPromptType("single_choice");
+				} else if (prompt instanceof MultiChoicePrompt) {
+					dataPoint.setPromptType("multi_choice");
+				} else if (prompt instanceof MultiChoiceCustomPrompt) {
+					dataPoint.setPromptType("multi_choice_custom");
+				} else if (prompt instanceof SingleChoiceCustomPrompt) {
+					dataPoint.setPromptType("single_choice_custom");
+				} else if (prompt instanceof NumberPrompt) {
+					dataPoint.setPromptType("number");
+				} else if (prompt instanceof HoursBeforeNowPrompt) {
+					dataPoint.setPromptType("hours_before_now");
+				} else if (prompt instanceof TextPrompt) {
+					dataPoint.setPromptType("text");
+				} else if (prompt instanceof PhotoPrompt) {
+					dataPoint.setPromptType("photo");
+				} 
+				
+				if (prompt.isSkipped()) {
+					dataPoint.setSkipped();
+				} else if (!prompt.isDisplayed()) { 
+					dataPoint.setNotDisplayed();
+				} else {
+					if (PromptType.single_choice.equals(dataPoint.getPromptType())) {
+						dataPoint.setValue((Integer)prompt.getResponseObject());
+					} else if (PromptType.single_choice_custom.equals(dataPoint.getPromptType())) {
+						dataPoint.setValue((Integer)prompt.getResponseObject());
+					} else if (PromptType.multi_choice.equals(dataPoint.getPromptType())) {
+						JSONArray jsonArray;
+						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
+						try {
+							jsonArray = (JSONArray)prompt.getResponseObject();
+							for (int j = 0; j < jsonArray.length(); j++) {
+								dataPointValue.add((Integer)jsonArray.get(j));
+							}
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					dataPoint.setValue(dataPointValue);
-				} else if (PromptType.multi_choice_custom.equals(dataPoint.getPromptType())) {
-					JSONArray jsonArray;
-					ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
-					try {
-						jsonArray = (JSONArray)mPrompts.get(i).getResponseObject();
-						for (int j = 0; j < jsonArray.length(); j++) {
-							dataPointValue.add((Integer)jsonArray.get(j));
+						dataPoint.setValue(dataPointValue);
+					} else if (PromptType.multi_choice_custom.equals(dataPoint.getPromptType())) {
+						JSONArray jsonArray;
+						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
+						try {
+							jsonArray = (JSONArray)prompt.getResponseObject();
+							for (int j = 0; j < jsonArray.length(); j++) {
+								dataPointValue.add((Integer)jsonArray.get(j));
+							}
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						dataPoint.setValue(dataPointValue);
+					} else if (PromptType.number.equals(dataPoint.getPromptType())) {
+						dataPoint.setValue((Integer)prompt.getResponseObject());
+					} else if (PromptType.hours_before_now.equals(dataPoint.getPromptType())) {
+						dataPoint.setValue((Integer)prompt.getResponseObject());
+					} else if (PromptType.text.equals(dataPoint.getPromptType())) {
+						dataPoint.setValue((String)prompt.getResponseObject());
+					} else if (PromptType.photo.equals(dataPoint.getPromptType())) {
+						dataPoint.setValue((String)prompt.getResponseObject());
 					}
-					dataPoint.setValue(dataPointValue);
-				} else if (PromptType.number.equals(dataPoint.getPromptType())) {
-					dataPoint.setValue((Integer)mPrompts.get(i).getResponseObject());
-				} else if (PromptType.hours_before_now.equals(dataPoint.getPromptType())) {
-					dataPoint.setValue((Integer)mPrompts.get(i).getResponseObject());
-				} else if (PromptType.text.equals(dataPoint.getPromptType())) {
-					dataPoint.setValue((String)mPrompts.get(i).getResponseObject());
-				} else if (PromptType.photo.equals(dataPoint.getPromptType())) {
-					dataPoint.setValue((String)mPrompts.get(i).getResponseObject());
 				}
+				
+				previousResponses.add(dataPoint);
 			}
-			
-			previousResponses.add(dataPoint);
 		}
 		return previousResponses;
 	}
@@ -435,9 +717,9 @@ public class SurveyActivity extends Activity {
 	private void storeResponse() {
 		
 		//finalize photos
-		for (int i = 0; i < mPrompts.size(); i++) {
-			if (mPrompts.get(i) instanceof PhotoPrompt) {
-				PhotoPrompt photoPrompt = (PhotoPrompt)mPrompts.get(i);
+		for (int i = 0; i < mSurveyElements.size(); i++) {
+			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
+				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
 				final String uuid = (String) photoPrompt.getResponseObject();
 				
 				if (photoPrompt.isDisplayed() && !photoPrompt.isSkipped()) {
@@ -489,22 +771,122 @@ public class SurveyActivity extends Activity {
 		String surveyLaunchContext = surveyLaunchContextJson.toString();
 		
 		JSONArray responseJson = new JSONArray();
-		for (int i = 0; i < mPrompts.size(); i++) {
-			JSONObject itemJson = new JSONObject();
-			try {
-				itemJson.put("prompt_id", ((AbstractPrompt)mPrompts.get(i)).getId());
-				itemJson.put("value", ((AbstractPrompt)mPrompts.get(i)).getResponseObject());
-				Object extras = ((AbstractPrompt)mPrompts.get(i)).getExtrasObject();
-				if (extras != null) {
-					// as of now we don't actually have "extras" we only have "custom_choices" for the custom types
-					// so this is currently only used by single_choice_custom and multi_choice_custom
-					itemJson.put("custom_choices", extras);
+		JSONArray repeatableSetResponseJson = new JSONArray();
+		JSONArray iterationResponseJson = new JSONArray();
+		JSONObject itemJson = null;
+		boolean inRepeatableSet = false;
+		
+		for (int i = 0; i < mSurveyElements.size(); i++) {
+			if (mSurveyElements.get(i) instanceof Prompt) {
+				if (!inRepeatableSet) {
+					itemJson = new JSONObject();
+					try {
+						itemJson.put("prompt_id", ((AbstractPrompt)mSurveyElements.get(i)).getId());
+						itemJson.put("value", ((AbstractPrompt)mSurveyElements.get(i)).getResponseObject());
+						Object extras = ((AbstractPrompt)mSurveyElements.get(i)).getExtrasObject();
+						if (extras != null) {
+							// as of now we don't actually have "extras" we only have "custom_choices" for the custom types
+							// so this is currently only used by single_choice_custom and multi_choice_custom
+							itemJson.put("custom_choices", extras);
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "JSONException when trying to generate response json", e);
+						throw new RuntimeException(e);
+					}
+					responseJson.put(itemJson);
+				} else {
+					JSONObject subItemJson = new JSONObject();
+					try {
+						subItemJson.put("prompt_id", ((AbstractPrompt)mSurveyElements.get(i)).getId());
+						subItemJson.put("value", ((AbstractPrompt)mSurveyElements.get(i)).getResponseObject());
+						Object extras = ((AbstractPrompt)mSurveyElements.get(i)).getExtrasObject();
+						if (extras != null) {
+							// as of now we don't actually have "extras" we only have "custom_choices" for the custom types
+							// so this is currently only used by single_choice_custom and multi_choice_custom
+							subItemJson.put("custom_choices", extras);
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "JSONException when trying to generate response json", e);
+						throw new RuntimeException(e);
+					}
+					iterationResponseJson.put(subItemJson);
 				}
-			} catch (JSONException e) {
-				Log.e(TAG, "JSONException when trying to generate response json", e);
-				throw new RuntimeException(e);
+			} else if (mSurveyElements.get(i) instanceof RepeatableSetHeader) {
+				inRepeatableSet = true;
+				if (mCurrentPosition != 0 && (mSurveyElements.get(mCurrentPosition-1) instanceof RepeatableSetTerminator) && ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getId().equals(((RepeatableSetTerminator)mSurveyElements.get(mCurrentPosition-1)).getId())) {
+					//continue existing set
+					iterationResponseJson = new JSONArray();
+				} else {
+					//start new set
+					itemJson = new JSONObject();
+					try {
+						itemJson.put("repeatable_set_id", ((RepeatableSetHeader)mSurveyElements.get(i)).getId());
+						itemJson.put("skipped", "false");
+						itemJson.put("not_displayed", ((RepeatableSetHeader)mSurveyElements.get(i)).isDisplayed() ? "false" : "true");
+						repeatableSetResponseJson = new JSONArray();
+						iterationResponseJson = new JSONArray();
+					} catch (JSONException e) {
+						Log.e(TAG, "JSONException when trying to generate response json", e);
+						throw new RuntimeException(e);
+					}
+				}
+//				itemJson = new JSONObject();
+//				try {
+//					itemJson.put("repeatable_set_id", ((RepeatableSetHeader)mSurveyElements.get(i)).getId());
+//					itemJson.put("skipped", "false");
+//					itemJson.put("not_displayed", ((RepeatableSetHeader)mSurveyElements.get(i)).isDisplayed() ? "false" : "true");
+//					JSONArray subResponseJson = new JSONArray();
+//					boolean doneWithThisSet = false;
+//					while (! doneWithThisSet) {
+//						JSONArray iterationResponseJson = new JSONArray();
+//						i++;
+//						while ((mSurveyElements.get(i) instanceof Prompt)) {
+//							JSONObject subItemJson = new JSONObject();
+//							try {
+//								subItemJson.put("prompt_id", ((AbstractPrompt)mSurveyElements.get(i)).getId());
+//								subItemJson.put("value", ((AbstractPrompt)mSurveyElements.get(i)).getResponseObject());
+//								Object extras = ((AbstractPrompt)mSurveyElements.get(i)).getExtrasObject();
+//								if (extras != null) {
+//									// as of now we don't actually have "extras" we only have "custom_choices" for the custom types
+//									// so this is currently only used by single_choice_custom and multi_choice_custom
+//									subItemJson.put("custom_choices", extras);
+//								}
+//							} catch (JSONException e) {
+//								Log.e(TAG, "JSONException when trying to generate response json", e);
+//								throw new RuntimeException(e);
+//							}
+//							iterationResponseJson.put(subItemJson);
+//							i++;
+//						}
+//						subResponseJson.put(iterationResponseJson);
+//						i++;
+//						if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader 
+//								&& ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getId().equals("")) {
+//							doneWithThisSet = false;
+//						} else {
+//							doneWithThisSet = true;
+//						}
+//					}
+//					itemJson.put("responses", subResponseJson);
+//				} catch (JSONException e) {
+//					Log.e(TAG, "JSONException when trying to generate response json", e);
+//					throw new RuntimeException(e);
+//				}
+//				responseJson.put(itemJson);
+			} else if (mSurveyElements.get(i) instanceof RepeatableSetTerminator) {
+				inRepeatableSet = false;
+				repeatableSetResponseJson.put(iterationResponseJson);
+				try {
+					itemJson.put("responses", repeatableSetResponseJson);
+				} catch (JSONException e) {
+					Log.e(TAG, "JSONException when trying to generate response json", e);
+					throw new RuntimeException(e);
+				}
+				if (!(mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader 
+						&& ((RepeatableSetHeader)mSurveyElements.get(mCurrentPosition)).getId().equals(""))) {
+					responseJson.put(itemJson);
+				}
 			}
-			responseJson.put(itemJson);
 		}
 		String response = responseJson.toString();
 		
