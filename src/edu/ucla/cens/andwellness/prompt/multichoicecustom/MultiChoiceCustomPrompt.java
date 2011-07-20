@@ -70,6 +70,10 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 	public void setChoices(List<KVLTriplet> choices) {
 		mChoices = choices;
 	}
+	
+	public List<KVLTriplet> getChoices(){
+		return mChoices;
+	}
 
 	@Override
 	protected void clearTypeSpecificResponseData() {

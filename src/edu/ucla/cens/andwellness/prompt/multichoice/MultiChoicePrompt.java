@@ -50,6 +50,10 @@ public class MultiChoicePrompt extends AbstractPrompt {
 	public void setChoices(List<KVLTriplet> choices) {
 		mChoices = choices;
 	}
+	
+	public List<KVLTriplet> getChoices(){
+		return mChoices;
+	}
 
 	@Override
 	protected void clearTypeSpecificResponseData() {

@@ -138,7 +138,7 @@ public abstract class AbstractPrompt implements Prompt {
 	public String getPromptText() {
 		return mPromptText;
 	}
-	
+		
 	public String getAbbreviatedText() {
 		return mAbbreviatedText;
 	}
@@ -202,7 +202,7 @@ public abstract class AbstractPrompt implements Prompt {
 	public void setSkipLabel(String skipLabel) {
 		this.mSkipLabel = skipLabel;
 	}
-	
+
 	public Prompt getCopy() {
 		Prompt prompt = PromptFactory.createPrompt(mPromptType);
 		PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(mPromptType);

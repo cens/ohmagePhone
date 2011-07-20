@@ -41,6 +41,10 @@ public class SingleChoicePrompt extends AbstractPrompt {
 	//private String mSelectedKey;
 	private int mSelectedIndex;
 	
+	public List<KVLTriplet> getChoices(){
+		return mChoices;
+	}
+	
 	public SingleChoicePrompt() {
 		super();
 		mSelectedIndex = -1;

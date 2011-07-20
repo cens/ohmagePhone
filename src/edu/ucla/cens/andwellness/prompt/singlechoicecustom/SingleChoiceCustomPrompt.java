@@ -71,6 +71,10 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		mChoices = choices;
 	}
 	
+	public List<KVLTriplet> getChoices() {
+		return mChoices;
+	}
+	
 	/**
 	 * Returns true if the selected index falls within the range of possible
 	 * indices within either the preset list of items or the new list of items.

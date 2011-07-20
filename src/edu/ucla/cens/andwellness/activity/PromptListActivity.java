@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.achartengine.chart.LineChart;
-import org.achartengine.chart.ScatterChart;
-import org.achartengine.chartdemo.demo.chart.AverageTemperatureChart;
 import org.achartengine.chartdemo.demo.chart.BudgetDoughnutChart;
 import org.achartengine.chartdemo.demo.chart.CombinedTemperatureChart;
-import org.achartengine.chartdemo.demo.chart.MultipleTemperatureChart;
 import org.achartengine.chartdemo.demo.chart.ProjectStatusBubbleChart;
 import org.achartengine.chartdemo.demo.chart.SalesComparisonChart;
 import org.achartengine.chartdemo.demo.chart.SensorValuesChart;
@@ -27,12 +23,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 import edu.ucla.cens.andwellness.CampaignXmlHelper;
 import edu.ucla.cens.andwellness.PromptXmlParser;
 import edu.ucla.cens.andwellness.R;
-import edu.ucla.cens.andwellness.Survey;
-import edu.ucla.cens.andwellness.feedback.visualization.AbstractChart;
-import edu.ucla.cens.andwellness.feedback.visualization.FeedbackLineChart;
+import edu.ucla.cens.andwellness.feedback.visualization.FeedbackTextChart;
 import edu.ucla.cens.andwellness.feedback.visualization.FeedbackTimeChart;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
 import edu.ucla.cens.andwellness.prompt.Prompt;
@@ -41,11 +36,10 @@ import edu.ucla.cens.andwellness.prompt.multichoice.MultiChoicePrompt;
 import edu.ucla.cens.andwellness.prompt.multichoicecustom.MultiChoiceCustomPrompt;
 import edu.ucla.cens.andwellness.prompt.number.NumberPrompt;
 import edu.ucla.cens.andwellness.prompt.photo.PhotoPrompt;
+import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPrompt;
 import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePrompt;
 import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
-import edu.ucla.cens.andwellness.triggers.glue.LocationTriggerAPI;
-import edu.ucla.cens.andwellness.triggers.glue.TriggerFramework;
 import edu.ucla.cens.systemlog.Log;
 
 public class PromptListActivity extends ListActivity{
@@ -69,7 +63,7 @@ public class PromptListActivity extends ListActivity{
 
         try {
 			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
-			Log.i(TAG, mPrompts.toString());
+			Log.i(TAG, "Parsed XML: " + mPrompts.toString());
 		} catch (NotFoundException e) {
 			Log.e(TAG, "Error parsing prompts from xml", e);
 		} catch (XmlPullParserException e) {
@@ -100,35 +94,50 @@ public class PromptListActivity extends ListActivity{
 		PromptListElement curPrompt = arPromptsTitle.get(position);
 		
 		if (mPrompts.get(position) instanceof SingleChoicePrompt) {
-			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID());
+			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
+			if(intent == null){
+				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+			}
 		} else if (mPrompts.get(position) instanceof MultiChoicePrompt) {
-			BudgetDoughnutChart chart = new BudgetDoughnutChart();
-			intent = chart.execute(this);			
+			Toast.makeText(this, "MultiChoicePrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof MultiChoiceCustomPrompt) {
-			CombinedTemperatureChart chart = new CombinedTemperatureChart();
-			intent = chart.execute(this);		
+			Toast.makeText(this, "MultiChoiceCustomPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof SingleChoiceCustomPrompt) {
-			ProjectStatusBubbleChart chart = new ProjectStatusBubbleChart();
+			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
+			if(intent == null){
+				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+			}
 		} else if (mPrompts.get(position) instanceof NumberPrompt) {
-			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID());
-			intent = chart.execute(this);			
+			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
+			intent = chart.execute(this);
+			if(intent == null){
+				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+			}
 		} else if (mPrompts.get(position) instanceof HoursBeforeNowPrompt) {
-			SalesComparisonChart chart = new SalesComparisonChart();
-			intent = chart.execute(this);
+			Toast.makeText(this, "HoursBeforeNowPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof TextPrompt) {
-			SensorValuesChart chart = new SensorValuesChart();
-			intent = chart.execute(this);
+			intent = new Intent(this, FeedbackTextChart.class);
+			intent.putExtra("campaign_urn", mCampaignUrn);
+			intent.putExtra("survey_id", mSurveyId);
+			intent.putExtra("prompt_id", curPrompt.getID());			
 		} else if (mPrompts.get(position) instanceof PhotoPrompt) {
-			TrigonometricFunctionsChart chart = new TrigonometricFunctionsChart();
+			Toast.makeText(this, "PhotoPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
+		} else if (mPrompts.get(position) instanceof RemoteActivityPrompt){
+			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
-		} else{
-			TrigonometricFunctionsChart chart = new TrigonometricFunctionsChart();
-			intent = chart.execute(this);			
+			if(intent == null){
+				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+			}			
+		}
+		else{
+			Toast.makeText(this, "It is not supported yet.", Toast.LENGTH_SHORT).show();
 		}
 		
-		startActivity(intent);
+		if(intent != null){
+			startActivity(intent);
+		}
 	}
 	
 	@Override
@@ -144,10 +153,12 @@ public class PromptListActivity extends ListActivity{
 		switch (item.getItemId()) {
 		case R.id.mapview:
 			intent = new Intent(this, FeedbackMapViewActivity.class);
-			startActivityForResult(intent, 1);			
+			intent.putExtra("campaign_urn", mCampaignUrn);
+			intent.putExtra("survey_id", mSurveyId);
+			startActivityForResult(intent, 1);
 			return true;
 		case R.id.participationstat:
-			FeedbackTimeChart chart = new FeedbackTimeChart("Participation Stats", mCampaignUrn, mSurveyId, null);
+			FeedbackTimeChart chart = new FeedbackTimeChart("Participation Stats", mCampaignUrn, mSurveyId, null, mPrompts);
 			intent = chart.execute(this);		
 			startActivityForResult(intent, 1);
 			return true;
