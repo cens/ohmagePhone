@@ -54,7 +54,6 @@ import android.content.Context;
 import edu.ucla.cens.systemlog.Log;
 
 public class AndWellnessApi {
-	
 	private static final String TAG = "AndWellnessApi";
 	
 	//private static final String SERVER_URL = "https://dev.andwellness.org/";
@@ -68,6 +67,7 @@ public class AndWellnessApi {
 	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
 	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
 	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
+	private static final String IMAGE_READ_PATH = "app/image/read";
 	
 	public AndWellnessApi(Context context) {
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
@@ -224,6 +224,23 @@ public class AndWellnessApi {
 				mData = rootJson.getJSONArray("data");
 			if (rootJson.has("metadata"))
 				mMetadata = rootJson.getJSONObject("metadata");
+		}
+	}
+	
+	public class ImageReadResponse extends Response {
+		private byte[] data;
+		
+		@Override
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			// do nothing, b/c there's no json data
+		}
+
+		public void setData(byte[] data) {
+			this.data = data;
+		}
+
+		public byte[] getData() {
+			return data;
 		}
 	}
 
@@ -435,6 +452,53 @@ public class AndWellnessApi {
 		return surveyResponseRead(serverUrl, username, hashedPassword, client, campaignUrn, null, null, columnList, outputFormat, null, null);
 	}
 	
+	/**
+	 * Returns the image data associated with a given image id.
+	 * 
+	 * @param serverUrl the url of the server to contact for the image data
+	 * @param username username of a valid user; will constrain the result in keeping with the user's permissions
+	 * @param hashedPassword hashed password of the aforementioned user
+	 * @param client the client used to retrieve the results, generally "android"
+	 * @param campaignUrn the urn of the campaign for which to retrieve survey results
+	 * @param owner the owner of the image for which we want the data
+	 * @param id the UUID of the image
+	 * @param size optional; if specified, must be "small" (if null, not passed)
+	 * @return
+	 */
+	public ImageReadResponse imageRead(String serverUrl,
+			String username,
+			String hashedPassword,
+			String client,
+			String campaignUrn,
+			String owner,
+			String id,
+			String size) {
+		
+		final boolean GZIP = false;
+		
+		String url = serverUrl + IMAGE_READ_PATH;
+		
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+	        nameValuePairs.add(new BasicNameValuePair("user", username));
+	        nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+	        nameValuePairs.add(new BasicNameValuePair("client", client));
+	        nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
+	        nameValuePairs.add(new BasicNameValuePair("owner", owner));
+	        nameValuePairs.add(new BasicNameValuePair("id", id));
+	        if (size != null) nameValuePairs.add(new BasicNameValuePair("size", size));
+	        
+	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			
+			return parseImageReadResponse(doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			ImageReadResponse candidate = new ImageReadResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
+	}
+
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
 		
 		HttpParams params = new BasicHttpParams();
@@ -672,6 +736,70 @@ public class AndWellnessApi {
 					} catch (JSONException e) {
 						Log.e(TAG, "Problem parsing response json", e);
 						result = Result.INTERNAL_ERROR;
+					} catch (IOException e) {
+						Log.e(TAG, "Problem reading response body", e);
+						result = Result.INTERNAL_ERROR;
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+        			result = Result.HTTP_ERROR;
+        		}
+        		
+        	} else {
+        		Log.e(TAG, "Returned status code: " + String.valueOf(response.getStatusLine().getStatusCode()));
+        		result = Result.HTTP_ERROR;
+        	}
+        	
+        } else {
+        	Log.e(TAG, "Response is null");
+        	result = Result.HTTP_ERROR;
+        }
+		
+		candidate.setResponseStatus(result, errorCodes);
+
+		return candidate;
+	}
+	
+	private ImageReadResponse parseImageReadResponse(HttpResponse response) {
+		Result result = Result.HTTP_ERROR;
+		String[] errorCodes = null;
+		
+		ImageReadResponse candidate = new ImageReadResponse();
+		
+		if (response != null) {
+        	Log.i(TAG, response.getStatusLine().toString());
+        	if (response.getStatusLine().getStatusCode() == 200) {
+        		HttpEntity responseEntity = response.getEntity();
+        		if (responseEntity != null) {
+        			try {
+        				if (true) {
+        					// it's the image data!
+        					result = Result.SUCCESS;
+            				
+            				// dealing with raw image data here. hmm.
+    	        			byte[] content = EntityUtils.toByteArray(responseEntity);
+    	        			candidate.setData(content);
+        				}
+        				else
+        				{
+        					// it was a JSON error instead
+        					result = Result.FAILURE;
+
+							try {
+								JSONObject rootJson = new JSONObject(EntityUtils.toString(responseEntity));								
+								JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+								
+								int errorCount = errorsJsonArray.length();
+								errorCodes = new String[errorCount];
+								for (int i = 0; i < errorCount; i++) {
+									errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
+								}
+							}
+							catch (JSONException e) {
+								Log.e(TAG, "Problem parsing response json", e);
+								result = Result.INTERNAL_ERROR;
+							}
+        				}
 					} catch (IOException e) {
 						Log.e(TAG, "Problem reading response body", e);
 						result = Result.INTERNAL_ERROR;
