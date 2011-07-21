@@ -227,6 +227,7 @@ public class FeedbackService extends WakefulIntentService {
 			
 			// now that we're done inserting all that data from the server
 			// let's see if we already have all the photos that were mentioned in the responses
+			/*
 			if (photoUUIDs.size() > 0) {
 				// get the image directory for this campaign and ensure it exists
 				File photoDir = new File(PhotoPrompt.IMAGE_PATH + "/" + c.mUrn.replace(':', '_'));
@@ -264,6 +265,7 @@ public class FeedbackService extends WakefulIntentService {
 						Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
 				}
 			}
+			*/
 			
 			// done with this campaign! on to the next one...
 		}
