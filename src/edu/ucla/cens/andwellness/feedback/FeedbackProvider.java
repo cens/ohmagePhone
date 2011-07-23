@@ -186,6 +186,8 @@ public class FeedbackProvider extends ContentProvider {
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
 					.mapToTable(FeedbackPromptResponses._ID, Tables.PROMPTS)
 					.mapToTable(FeedbackPromptResponses.RESPONSE_ID, Tables.PROMPTS)
+					.where(FeedbackResponses.CAMPAIGN_URN + "=?", campaignUrn)
+					.where(FeedbackResponses.SURVEY_ID + "=?", surveyID)
 					.where(Tables.PROMPTS + "." + FeedbackPromptResponses.PROMPT_ID + "=?", promptID);
 				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
@@ -210,6 +212,8 @@ public class FeedbackProvider extends ContentProvider {
 					.mapToTable(FeedbackPromptResponses._ID, Tables.PROMPTS)
 					.mapToTable(FeedbackPromptResponses.RESPONSE_ID, Tables.PROMPTS)
 					.map("aggregate", toClause)
+					.where(FeedbackResponses.CAMPAIGN_URN + "=?", campaignUrn)
+					.where(FeedbackResponses.SURVEY_ID + "=?", surveyID)
 					.where(Tables.PROMPTS + "." + FeedbackPromptResponses.PROMPT_ID + "=?", promptID);
 				
 			case MatcherTypes.PROMPTS:
