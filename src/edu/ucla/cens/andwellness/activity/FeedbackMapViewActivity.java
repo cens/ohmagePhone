@@ -243,8 +243,8 @@ public class FeedbackMapViewActivity extends MapActivity {
 					return String.valueOf(prompt.getValue());
 				} 
 				else if(allPromptList instanceof TextPrompt){
-					TextPrompt prompt = (TextPrompt)allPromptList;
-					return prompt.getText();
+					//TextPrompt prompt = (TextPrompt)allPromptList;
+					return value;
 				} 
 				else if(allPromptList instanceof PhotoPrompt){
 					PhotoPrompt prompt = (PhotoPrompt)allPromptList;

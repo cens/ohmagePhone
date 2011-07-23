@@ -59,9 +59,4 @@ public class FeedbackTextChart extends ListActivity {
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arTextAnswers);
 		setListAdapter(adapter);
 	}
-	
-	private class textAnswers{
-		
-		String text[];
-	}
 }

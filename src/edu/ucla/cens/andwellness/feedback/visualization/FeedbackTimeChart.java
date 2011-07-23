@@ -102,7 +102,7 @@ public class FeedbackTimeChart extends AbstractChart {
 		String[] projection = new String[] { FeedbackResponses.TIME, FeedbackPromptResponses.PROMPT_VALUE };
 		
 		// nab that data!
-		Cursor cursor = cr.query(queryUri, projection, null, null, null);
+		Cursor cursor = cr.query(queryUri, projection, null, null, FeedbackResponses.TIME);
 		if(cursor.getCount() == 0){
 			return null;
 		}
