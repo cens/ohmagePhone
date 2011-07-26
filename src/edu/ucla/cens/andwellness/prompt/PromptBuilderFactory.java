@@ -61,6 +61,6 @@ public class PromptBuilderFactory {
 			return new RemoteActivityPromptBuilder();
 		}
 		
-		return null;
+		throw new IllegalArgumentException("Unsupported prompt type: " + promptType);
 	}
 }
