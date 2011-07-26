@@ -68,7 +68,11 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 	}
 	
 	public void setChoices(List<KVLTriplet> choices) {
-		mChoices = choices;
+		if (choices != null) {
+			mChoices = choices;
+		} else {
+			mChoices = new ArrayList<KVLTriplet>();
+		}
 	}
 	
 	public List<KVLTriplet> getChoices() {

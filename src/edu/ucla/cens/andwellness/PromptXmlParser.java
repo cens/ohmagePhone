@@ -36,8 +36,11 @@ import edu.ucla.cens.andwellness.prompt.PromptFactory;
 import edu.ucla.cens.andwellness.prompt.RepeatableSetHeader;
 import edu.ucla.cens.andwellness.prompt.RepeatableSetTerminator;
 import edu.ucla.cens.andwellness.prompt.SurveyElement;
+import edu.ucla.cens.systemlog.Log;
 
 public class PromptXmlParser {
+	
+	private static final String TAG = "PromptXmlParser";
 	
 	//list of tags in our xml schema
 	private static final String CAMPAIGN_NAME = "campaignName";
@@ -372,14 +375,19 @@ public class PromptXmlParser {
 					surveyFound = false;
 				} else if (surveyFound) {
 					if (tagName.equalsIgnoreCase(PROMPT)) {
-						Prompt prompt = PromptFactory.createPrompt(promptType);
-						PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
-						builder.build(prompt, id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
-						if (repeatableSetInProgress) {
-							repeatableSetPrompts.add(prompt);
-						} else {
-							surveyElements.add(prompt);
+						try {
+							Prompt prompt = PromptFactory.createPrompt(promptType);
+							PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
+							builder.build(prompt, id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+							if (repeatableSetInProgress) {
+								repeatableSetPrompts.add(prompt);
+							} else {
+								surveyElements.add(prompt);
+							}
+						} catch (Exception e) {
+							Log.e(TAG, "Error building prompt", e);
 						}
+						
 						promptInProgress = false;
 					} else if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
 						if (promptInProgress) {
