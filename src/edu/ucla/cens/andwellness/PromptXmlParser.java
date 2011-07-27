@@ -528,10 +528,14 @@ public class PromptXmlParser {
 					surveyFound = false;
 				} else if (surveyFound) {
 					if (tagName.equalsIgnoreCase(PROMPT)) {
-						Prompt prompt = PromptFactory.createPrompt(promptType);
-						PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
-						builder.build(prompt, id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
-						prompts.add(prompt);
+						try {
+							Prompt prompt = PromptFactory.createPrompt(promptType);
+							PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
+							builder.build(prompt, id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+							prompts.add(prompt);
+						} catch (Exception e) {
+							Log.e(TAG, "Error building prompt", e);
+						}
 						promptInProgress = false;
 					} else if (promptInProgress) {
 						if (tagName.equalsIgnoreCase(PROMPT_PROPERTY)) {
@@ -547,7 +551,7 @@ public class PromptXmlParser {
 		return prompts;
 	}
 
-	public static List<Prompt> parsePrompts(InputStream promptXmlStream) throws XmlPullParserException, IOException {
+	/*public static List<Prompt> parsePrompts(InputStream promptXmlStream) throws XmlPullParserException, IOException {
 		
 		XmlPullParser parser = Xml.newPullParser();
 		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
@@ -662,5 +666,5 @@ public class PromptXmlParser {
 		}
 		
 		return prompts;
-	}
+	}*/
 }
