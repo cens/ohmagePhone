@@ -34,9 +34,9 @@ public class TimestampPrompt extends AbstractPrompt {
 		// TODO Auto-generated method stub
 		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.submit, null);
-		TextView submitText = (TextView) layout.findViewById(R.id.submit_text);
-		submitText.setText("Timestamp prompt type is not supported in this version. Response value will be set to NOT_DISPLAYED.");
+		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.message, null);
+		TextView messageText = (TextView) layout.findViewById(R.id.message_text);
+		messageText.setText("Timestamp prompt type is not supported in this version. Response value will be set to NOT_DISPLAYED.");
 		
 		return layout;
 	}

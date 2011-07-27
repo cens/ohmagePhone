@@ -58,6 +58,7 @@ import edu.ucla.cens.andwellness.conditionevaluator.DataPointConditionEvaluator;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.db.Response;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
+import edu.ucla.cens.andwellness.prompt.Message;
 import edu.ucla.cens.andwellness.prompt.Prompt;
 import edu.ucla.cens.andwellness.prompt.RepeatableSetHeader;
 import edu.ucla.cens.andwellness.prompt.RepeatableSetTerminator;
@@ -218,12 +219,9 @@ public class SurveyActivity extends Activity {
 					prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
 					finish();
 				} else {
-					if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+					if (mSurveyElements.get(mCurrentPosition) instanceof Prompt || mSurveyElements.get(mCurrentPosition) instanceof Message) {
 						//show toast if not answered
-						AbstractPrompt currPrompt = (AbstractPrompt) mSurveyElements.get(mCurrentPosition);
-						if(! currPrompt.isPromptAnswered()) {
-							Toast.makeText(SurveyActivity.this, currPrompt.getUnansweredPromptText(), Toast.LENGTH_LONG).show();
-						} else {
+						if (mSurveyElements.get(mCurrentPosition) instanceof Message || ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).isPromptAnswered()) {
 							while (mCurrentPosition < mSurveyElements.size()) {
 								//increment position
 								mCurrentPosition++;
@@ -269,11 +267,22 @@ public class SurveyActivity extends Activity {
 										//if new position is a repeat terminator, show terminator
 										showTerminator(mCurrentPosition);
 										break;
+									} else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
+										String condition = ((Message)mSurveyElements.get(mCurrentPosition)).getCondition();
+										if (condition == null)
+											condition = "";
+										if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+											//if true, show message
+											showMessage(mCurrentPosition);
+											break;
+										}
 									} else {
 										//something is wrong!
 									}									
 								}
 							}
+						} else {
+							Toast.makeText(SurveyActivity.this, ((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).getUnansweredPromptText(), Toast.LENGTH_LONG).show();
 						}
 					} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
 						//"next" maps to "terminate"
@@ -337,6 +346,15 @@ public class SurveyActivity extends Activity {
 									//if new position is a repeat terminator, show terminator
 									showTerminator(mCurrentPosition);
 									break;
+								} else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
+									String condition = ((Message)mSurveyElements.get(mCurrentPosition)).getCondition();
+									if (condition == null)
+										condition = "";
+									if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+										//if true, show message
+										showMessage(mCurrentPosition);
+										break;
+									}
 								} else {
 									//something is wrong!
 								}
@@ -397,6 +415,15 @@ public class SurveyActivity extends Activity {
 								//if new position is a repeat terminator, show terminator
 								showTerminator(mCurrentPosition);
 								break;
+							} else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
+								String condition = ((Message)mSurveyElements.get(mCurrentPosition)).getCondition();
+								if (condition == null)
+									condition = "";
+								if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+									//if true, show message
+									showMessage(mCurrentPosition);
+									break;
+								}
 							} else {
 								//something is wrong!
 							}									
@@ -408,7 +435,7 @@ public class SurveyActivity extends Activity {
 				break;
 				
 			case R.id.prev_button:
-				if (mReachedEnd || mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+				if (mReachedEnd || mSurveyElements.get(mCurrentPosition) instanceof Prompt || mSurveyElements.get(mCurrentPosition) instanceof Message) {
 					mReachedEnd = false;
 					while (mCurrentPosition > 0) {
 						//decrement position
@@ -444,6 +471,15 @@ public class SurveyActivity extends Activity {
 								mCurrentPosition -= promptCount + 1;
 								continue;
 							}
+						} else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
+							String condition = ((Message)mSurveyElements.get(mCurrentPosition)).getCondition();
+							if (condition == null)
+								condition = "";
+							if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+								//if true, show message
+								showMessage(mCurrentPosition);
+								break;
+							}
 						}						
 					}
 				} else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
@@ -475,6 +511,15 @@ public class SurveyActivity extends Activity {
 							//if new position is a repeat terminator, show terminator
 							showTerminator(mCurrentPosition);
 							break;
+						} else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
+							String condition = ((Message)mSurveyElements.get(mCurrentPosition)).getCondition();
+							if (condition == null)
+								condition = "";
+							if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+								//if true, show message
+								showMessage(mCurrentPosition);
+								break;
+							}
 						} else {
 							//something is wrong!
 						}
@@ -511,6 +556,15 @@ public class SurveyActivity extends Activity {
 							//if new position is a repeat terminator, show terminator
 							showTerminator(mCurrentPosition);
 							break;
+						} else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
+							String condition = ((Message)mSurveyElements.get(mCurrentPosition)).getCondition();
+							if (condition == null)
+								condition = "";
+							if (DataPointConditionEvaluator.evaluateCondition(condition, getPreviousResponses())) {
+								//if true, show message
+								showMessage(mCurrentPosition);
+								break;
+							}
 						} else {
 							//something is wrong!
 						}
@@ -556,6 +610,33 @@ public class SurveyActivity extends Activity {
 		mPromptFrame.removeAllViews();
 		mPromptFrame.addView(layout);
 	}
+	
+	private void showMessage(int index) {
+		if (mSurveyElements.get(index) instanceof Message) {
+			Message message = (Message)mSurveyElements.get(index);
+			
+			mNextButton.setText("Next");
+			mPrevButton.setText("Previous");
+			mSkipButton.setVisibility(View.INVISIBLE);
+			
+			if (index == 0) {
+				mPrevButton.setVisibility(View.INVISIBLE);
+			} else {
+				mPrevButton.setVisibility(View.VISIBLE);
+			}
+			
+			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
+			
+			mPromptText.setText("Message");
+			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
+			
+			mPromptFrame.removeAllViews();
+			mPromptFrame.addView(message.getView(this));
+		} else {
+			Log.e(TAG, "trying to showMessage for element that is not a message!");
+		}
+	}
 
 	private void showPrompt(int index) {
 		
@@ -565,7 +646,7 @@ public class SurveyActivity extends Activity {
 			
 			mNextButton.setText("Next");
 			mPrevButton.setText("Previous");
-			
+						
 			if (index == 0) {
 				mPrevButton.setVisibility(View.INVISIBLE);
 			} else {

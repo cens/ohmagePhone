@@ -29,6 +29,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.util.Xml;
 import edu.ucla.cens.andwellness.Utilities.KVLTriplet;
+import edu.ucla.cens.andwellness.prompt.Message;
 import edu.ucla.cens.andwellness.prompt.Prompt;
 import edu.ucla.cens.andwellness.prompt.PromptBuilder;
 import edu.ucla.cens.andwellness.prompt.PromptBuilderFactory;
@@ -227,6 +228,7 @@ public class PromptXmlParser {
 		List<SurveyElement> surveyElements = null;
 		boolean promptInProgress = false;
 		boolean repeatableSetInProgress = false;
+		boolean messageInProgress = false;
 		boolean surveyInProgress = false;
 		boolean surveyFound = false;
 		
@@ -257,6 +259,9 @@ public class PromptXmlParser {
 		String repeatableSetCondition = null;
 		List<Prompt> repeatableSetPrompts = null;
 		
+		String messageText = null;
+		String messageCondition = null;
+		
 		// TODO deal with optional tags
 		
 		int eventType = parser.getEventType();
@@ -273,7 +278,7 @@ public class PromptXmlParser {
 				if (tagName.equalsIgnoreCase(SURVEY)) {
 					surveyInProgress = true;
 				} else if (surveyInProgress) {
-					if (tagName.equalsIgnoreCase(SURVEY_ID) && !promptInProgress && !repeatableSetInProgress) {
+					if (tagName.equalsIgnoreCase(SURVEY_ID) && !promptInProgress && !repeatableSetInProgress && !messageInProgress) {
 						if (parser.nextText().trim().equals(surveyId)) {
 							surveyFound = true;
 							surveyElements = new ArrayList<SurveyElement>();
@@ -308,6 +313,11 @@ public class PromptXmlParser {
 							skippable = null;
 							skipLabel = null;
 							properties = null;
+						} else if (tagName.equalsIgnoreCase(MESSAGE)) {
+							messageInProgress = true;
+							
+							messageText = null;
+							messageCondition = null;
 							
 						} else if (promptInProgress) {
 							if (tagName.equalsIgnoreCase(PROMPT_ID)) {
@@ -363,6 +373,12 @@ public class PromptXmlParser {
 							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_QUESTION)) {
 								terminationQuestion = parser.nextText().trim();
 							}
+						} else if (messageInProgress) {
+							if (tagName.equalsIgnoreCase(MESSAGE_TEXT)) {
+								messageText = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(MESSAGE_CONDITION)) {
+								messageCondition = parser.nextText().trim();
+							}
 						}
 					}
 				}
@@ -398,6 +414,9 @@ public class PromptXmlParser {
 						surveyElements.addAll(repeatableSetPrompts);
 						surveyElements.add(new RepeatableSetTerminator(repeatableSetId, repeatableSetCondition, terminationQuestion, terminationTrueLabel, terminationFalseLabel, terminationSkipLabel, terminationSkipEnabled, repeatableSetPrompts.size()));
 						repeatableSetInProgress = false;
+					} else if (tagName.equalsIgnoreCase(MESSAGE)) {
+						surveyElements.add(new Message(messageText, messageCondition));
+						messageInProgress = false;
 					}
 				}
 				break;
