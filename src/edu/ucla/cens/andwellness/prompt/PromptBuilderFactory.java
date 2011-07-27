@@ -24,40 +24,33 @@ import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPromptBuild
 import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePromptBuilder;
 import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.text.TextPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.timestamp.TimestampPromptBuilder;
 
 public class PromptBuilderFactory {
-
-	public static final String SINGLE_CHOICE = "single_choice";
-	public static final String SINGLE_CHOICE_CUSTOM = "single_choice_custom";
-	public static final String MULTI_CHOICE = "multi_choice";
-	public static final String MULTI_CHOICE_CUSTOM = "multi_choice_custom";
-	public static final String NUMBER = "number";
-	public static final String HOURS_BEFORE_NOW = "hours_before_now";
-	public static final String TEXT = "text";
-	public static final String PHOTO = "photo";
-	public static final String REMOTE_ACTIVITY = "remote_activity";
 	
 	private PromptBuilderFactory() {};
 	
 	public static PromptBuilder createPromptBuilder(String promptType ) {
 		
-		if (promptType.equals(SINGLE_CHOICE)) {
+		if (promptType.equals(PromptFactory.SINGLE_CHOICE)) {
 			return new SingleChoicePromptBuilder();//id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
-		} else if (promptType.equals(SINGLE_CHOICE_CUSTOM)) {
+		} else if (promptType.equals(PromptFactory.SINGLE_CHOICE_CUSTOM)) {
 			return new SingleChoiceCustomPromptBuilder();
-		} else if (promptType.equals(MULTI_CHOICE)) {
+		} else if (promptType.equals(PromptFactory.MULTI_CHOICE)) {
 			return new MultiChoicePromptBuilder();
-		} else if (promptType.equals(MULTI_CHOICE_CUSTOM)) {
+		} else if (promptType.equals(PromptFactory.MULTI_CHOICE_CUSTOM)) {
 			return new MultiChoiceCustomPromptBuilder();
-		} else if (promptType.equals(NUMBER)) {
+		} else if (promptType.equals(PromptFactory.NUMBER)) {
 			return new NumberPromptBuilder();
-		} else if (promptType.equals(HOURS_BEFORE_NOW)) {
+		} else if (promptType.equals(PromptFactory.HOURS_BEFORE_NOW)) {
 			return new HoursBeforeNowPromptBuilder();
-		} else if (promptType.equals(TEXT)) {
+		} else if (promptType.equals(PromptFactory.TIMESTAMP)) {
+			return new TimestampPromptBuilder();
+		} else if (promptType.equals(PromptFactory.TEXT)) {
 			return new TextPromptBuilder();
-		} else if (promptType.equals(PHOTO)) {
+		} else if (promptType.equals(PromptFactory.PHOTO)) {
 			return new PhotoPromptBuilder();
-		} else if (promptType.equals(REMOTE_ACTIVITY)) {
+		} else if (promptType.equals(PromptFactory.REMOTE_ACTIVITY)) {
 			return new RemoteActivityPromptBuilder();
 		}
 		

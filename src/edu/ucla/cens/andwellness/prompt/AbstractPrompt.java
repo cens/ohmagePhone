@@ -39,6 +39,7 @@ import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPro
 import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPromptBuilder;
 import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
 import edu.ucla.cens.andwellness.prompt.text.TextPromptBuilder;
+import edu.ucla.cens.andwellness.prompt.timestamp.TimestampPrompt;
 
 public abstract class AbstractPrompt implements Prompt {
 
@@ -236,31 +237,34 @@ public abstract class AbstractPrompt implements Prompt {
 		
 		if (this instanceof SingleChoicePrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.SINGLE_CHOICE);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.SINGLE_CHOICE);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.SINGLE_CHOICE);
 		} else if (this instanceof SingleChoiceCustomPrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.SINGLE_CHOICE_CUSTOM);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.SINGLE_CHOICE_CUSTOM);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.SINGLE_CHOICE_CUSTOM);
 		} else if (this instanceof MultiChoicePrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.MULTI_CHOICE);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.MULTI_CHOICE);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.MULTI_CHOICE);
 		} else if (this instanceof MultiChoiceCustomPrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.MULTI_CHOICE_CUSTOM);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.MULTI_CHOICE_CUSTOM);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.MULTI_CHOICE_CUSTOM);
 		} else if (this instanceof NumberPrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.NUMBER);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.NUMBER);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.NUMBER);
 		} else if (this instanceof HoursBeforeNowPrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.HOURS_BEFORE_NOW);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.HOURS_BEFORE_NOW);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.HOURS_BEFORE_NOW);
+		} else if (this instanceof TimestampPrompt) {
+			prompt = PromptFactory.createPrompt(PromptFactory.TIMESTAMP);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.TIMESTAMP);
 		} else if (this instanceof TextPrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.TEXT);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.TEXT);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.TEXT);
 		} else if (this instanceof PhotoPrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.PHOTO);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.PHOTO);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.PHOTO);
 		} else if (this instanceof RemoteActivityPrompt) {
 			prompt = PromptFactory.createPrompt(PromptFactory.REMOTE_ACTIVITY);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptBuilderFactory.REMOTE_ACTIVITY);
+			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.REMOTE_ACTIVITY);
 		}
 
 		builder.build(prompt, mId, mDisplayType, mDisplayLabel, mPromptText, mAbbreviatedText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);

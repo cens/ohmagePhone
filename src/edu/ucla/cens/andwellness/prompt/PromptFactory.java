@@ -24,6 +24,7 @@ import edu.ucla.cens.andwellness.prompt.remoteactivity.RemoteActivityPrompt;
 import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePrompt;
 import edu.ucla.cens.andwellness.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import edu.ucla.cens.andwellness.prompt.text.TextPrompt;
+import edu.ucla.cens.andwellness.prompt.timestamp.TimestampPrompt;
 
 public class PromptFactory {
 
@@ -33,6 +34,7 @@ public class PromptFactory {
 	public static final String MULTI_CHOICE_CUSTOM = "multi_choice_custom";
 	public static final String NUMBER = "number";
 	public static final String HOURS_BEFORE_NOW = "hours_before_now";
+	public static final String TIMESTAMP = "timestamp";
 	public static final String TEXT = "text";
 	public static final String PHOTO = "photo";
 	public static final String REMOTE_ACTIVITY = "remote_activity";
@@ -53,6 +55,8 @@ public class PromptFactory {
 			return new NumberPrompt();
 		} else if (promptType.equals(HOURS_BEFORE_NOW)) {
 			return new HoursBeforeNowPrompt();
+		} else if (promptType.equals(TIMESTAMP)) {
+			return new TimestampPrompt();
 		} else if (promptType.equals(TEXT)) {
 			return new TextPrompt();
 		} else if (promptType.equals(PHOTO)) {
