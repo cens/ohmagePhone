@@ -172,21 +172,29 @@ public class FeedbackService extends WakefulIntentService {
 						// FIXME: ignoring the "custom_fields" field for now, since it's unused
 						String key = keys.next();
 						JSONObject curItem = inputResponses.getJSONObject(key);
-						JSONObject newItem = new JSONObject();
-						try {
-							String value = curItem.getString("prompt_response");
-							newItem.put("prompt_id", key);
-							newItem.put("value", value);
+						
+						// FIXME: deal with repeatable sets here someday, although i'm not sure how
+						// how do we visualize them on a line graph along with regular points? scatter chart?
+						
+						if (curItem.has("prompt_response")) {
+							JSONObject newItem = new JSONObject();
 							
-							// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
-							if (curItem.getString("prompt_type").equalsIgnoreCase("photo") && !value.equalsIgnoreCase("NOT_DISPLAYED")) {
-								photoUUIDs.add(value);
+							try {
+								String value = curItem.getString("prompt_response");
+								newItem.put("prompt_id", key);
+								newItem.put("value", value);
+								
+								// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
+								if (curItem.getString("prompt_type").equalsIgnoreCase("photo") && !value.equalsIgnoreCase("NOT_DISPLAYED")) {
+									photoUUIDs.add(value);
+								}
+							} catch (JSONException e) {
+								Log.e(TAG, "JSONException when trying to generate response json", e);
+								throw new RuntimeException(e);
 							}
-						} catch (JSONException e) {
-							Log.e(TAG, "JSONException when trying to generate response json", e);
-							throw new RuntimeException(e);
+							
+							responseJson.put(newItem);
 						}
-						responseJson.put(newItem);
 					}
 					// render it to a string for storage into our db
 					String response = responseJson.toString();
