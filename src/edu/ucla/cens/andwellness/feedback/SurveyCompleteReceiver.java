@@ -56,6 +56,9 @@ public class SurveyCompleteReceiver extends BroadcastReceiver {
 						"local");
 			}
 			
+			/*
+			// TODO: can we ever get this toast to display something useful?
+			
 			// let's attempt to use a content resolver, too
 			ContentResolver cr = context.getContentResolver();
 			
@@ -67,6 +70,7 @@ public class SurveyCompleteReceiver extends BroadcastReceiver {
 			Toast.makeText(context, "total saved responses: " + result.getCount(), Toast.LENGTH_SHORT).show();
 			
 			result.close();
+			*/
 		}
 	}
 }
