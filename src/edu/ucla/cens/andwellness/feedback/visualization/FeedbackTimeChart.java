@@ -166,6 +166,10 @@ public class FeedbackTimeChart extends AbstractChart {
 			for(KVLTriplet i : propertiesList){
 				renderer.addYTextLabel(Double.valueOf(i.key).doubleValue(), i.label);
 			}
+			
+			// disables interpolated values from being added between text labels
+			// i assume we want this if we're providing specific labels for enumerations
+			renderer.setYLabels(0);
 		}
 		
 		//Set Chart
