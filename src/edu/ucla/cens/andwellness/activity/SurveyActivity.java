@@ -686,8 +686,19 @@ public class SurveyActivity extends Activity {
 			
 			RepeatableSetTerminator terminator = (RepeatableSetTerminator)mSurveyElements.get(index);
 			
-			mNextButton.setText("Terminate");
-			mPrevButton.setText("Repeat");
+			String terminateText = terminator.getTrueLabel();
+			String repeatText = terminator.getFalseLabel();
+			
+			if (terminateText == null || terminateText.equals("")) {
+				terminateText = "Terminate";
+			}
+			
+			if (repeatText == null || repeatText.equals("")) {
+				repeatText = "Repeat";
+			}
+			
+			mNextButton.setText(terminateText);
+			mPrevButton.setText(repeatText);
 			mSkipButton.setVisibility(View.INVISIBLE);
 			
 			if (index == 0) {

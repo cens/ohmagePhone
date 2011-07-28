@@ -35,10 +35,15 @@ public class RepeatableSetTerminator implements SurveyElement, Displayable {
 	public View getView(Context context) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.submit, null);
-		TextView questionText = (TextView) layout.findViewById(R.id.submit_text);
+		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.message, null);
+		TextView questionText = (TextView) layout.findViewById(R.id.message_text);
 		//submitText.setText("Thank you for completing the survey!");
-		questionText.setText(terminationQuestion);
+		
+		if (terminationQuestion == null || terminationQuestion.equals("")) {
+			questionText.setText("Would you like to repeat the set?");
+		} else {
+			questionText.setText(terminationQuestion);
+		}
 		
 		return layout;
 	}
@@ -47,6 +52,18 @@ public class RepeatableSetTerminator implements SurveyElement, Displayable {
 		return id;
 	}
 	
+	public String getTerminationQuestion() {
+		return terminationQuestion;
+	}
+
+	public String getTrueLabel() {
+		return trueLabel;
+	}
+
+	public String getFalseLabel() {
+		return falseLabel;
+	}
+
 	public String getCondition() {
 		return condition;
 	}
