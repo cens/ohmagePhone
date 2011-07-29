@@ -30,7 +30,7 @@
     	android:layout_below="@id/text1"
     	android:layout_marginLeft="10dp"
     	android:textAppearance="?android:attr/textAppearanceSmall"
-    	android:visibility="gone" />
+    	android:visibility="visible" />
     
 </RelativeLayout>
 

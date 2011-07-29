@@ -197,8 +197,16 @@ public class UploadService extends WakefulIntentService{
 							JSONObject dataJson = new JSONObject();
 							dataJson.put("mode", c.getString(c.getColumnIndex(MobilityInterface.KEY_MODE)));
 							dataJson.put("speed", Float.parseFloat(c.getString(c.getColumnIndex(MobilityInterface.KEY_SPEED))));
-							dataJson.put("accel_data", new JSONArray(c.getString(c.getColumnIndex(MobilityInterface.KEY_ACCELDATA))));
-							dataJson.put("wifi_data", new JSONObject(c.getString(c.getColumnIndex(MobilityInterface.KEY_WIFIDATA))));
+							String accelDataString = c.getString(c.getColumnIndex(MobilityInterface.KEY_ACCELDATA));
+							if (accelDataString == null || accelDataString.equals("")) {
+								accelDataString = "[]";
+							}
+							dataJson.put("accel_data", new JSONArray(accelDataString));
+							String wifiDataString = c.getString(c.getColumnIndex(MobilityInterface.KEY_WIFIDATA));
+							if (wifiDataString == null || wifiDataString.equals("")) {
+								wifiDataString = "{}";
+							}
+							dataJson.put("wifi_data", new JSONObject(wifiDataString));
 							mobilityPointJson.put("data", dataJson);
 						} else {
 							mobilityPointJson.put("subtype", "mode_only");
