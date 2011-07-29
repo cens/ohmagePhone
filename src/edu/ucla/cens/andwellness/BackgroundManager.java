@@ -86,7 +86,7 @@ public class BackgroundManager {
 		// FAISAL: feedback service repeating alarm registered here
 		Intent fbServiceSyncIntent = new Intent(FeedbackSyncReceiver.ACTION_FBSYNC_ALARM);
 		PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
-		alarms.cancel(pendingIntent);
+		alarms.cancel(fbServiceSyncPendingIntent);
 		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);
 		Log.i(TAG, "Feedback sync repeating alarm set");
 	}
