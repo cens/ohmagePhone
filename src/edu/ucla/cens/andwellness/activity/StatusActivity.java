@@ -63,7 +63,11 @@ public class StatusActivity extends Activity {
 	private static final int DIALOG_AUTHENTICATION_ERROR = 4;
 	private static final int DIALOG_USER_DISABLED = 5;
 	private static final int DIALOG_CAMPAIGN_REMOVED = 6;
-	private static final int DIALOG_CLEAR_USER_CONFIRM = 7;
+	private static final int DIALOG_CAMPAIGN_REMOVED_INVALID_URN = 7;
+	private static final int DIALOG_CAMPAIGN_REMOVED_INVALID_ROLE = 8;
+	private static final int DIALOG_CAMPAIGN_REMOVED_NOT_RUNNING = 9;
+	private static final int DIALOG_CAMPAIGN_REMOVED_OUT_OF_DATE = 10;
+	private static final int DIALOG_CLEAR_USER_CONFIRM = 11;
 	
 	private static final int UPLOAD_RESPONSES = 1;
 	private static final int UPLOAD_MOBILITY = 2;
@@ -234,6 +238,8 @@ public class StatusActivity extends Activity {
 			boolean isUserDisabled = false;
 			boolean removeCampaign = false;
 			
+			String errorCode = null;
+			
 			for (String code : response.getErrorCodes()) {
 				if (code.charAt(1) == '2') {
 					isAuthenticationError = true;
@@ -245,6 +251,8 @@ public class StatusActivity extends Activity {
 				
 				if (code.equals("0604") || code.equals("0607") || code.equals("0608") || code.equals("0609")) {
 					removeCampaign = true;
+					errorCode = code;
+					break;
 				}
 			}
 			
@@ -257,7 +265,17 @@ public class StatusActivity extends Activity {
 				showDialog(DIALOG_AUTHENTICATION_ERROR);
 			} else if (removeCampaign){
 				CampaignManager.removeCampaign(this, problematicCampaign.mUrn);
-				showDialog(DIALOG_CAMPAIGN_REMOVED);
+				if (errorCode.equals("0604")) {
+					showDialog(DIALOG_CAMPAIGN_REMOVED_INVALID_URN);
+				} else if (errorCode.equals("0607")) {
+					showDialog(DIALOG_CAMPAIGN_REMOVED_INVALID_ROLE);
+				} else if (errorCode.equals("0608")) {
+					showDialog(DIALOG_CAMPAIGN_REMOVED_NOT_RUNNING);
+				} else if (errorCode.equals("0609")) {
+					showDialog(DIALOG_CAMPAIGN_REMOVED_OUT_OF_DATE);
+				} else {
+					showDialog(DIALOG_CAMPAIGN_REMOVED);
+				}
 			} else {
 				showDialog(DIALOG_INTERNAL_ERROR);
 				//add error codes to dialog?
@@ -333,6 +351,34 @@ public class StatusActivity extends Activity {
 		case DIALOG_CAMPAIGN_REMOVED:
         	dialogBuilder.setTitle("Error")
         				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is no longer valid and has been removed from your phone.")
+        				.setCancelable(true)
+        				.setPositiveButton("OK", null);
+        	dialog = dialogBuilder.create();        	
+        	break;
+		case DIALOG_CAMPAIGN_REMOVED_INVALID_URN:
+        	dialogBuilder.setTitle("Error")
+        				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is not valid and has been removed from your phone.")
+        				.setCancelable(true)
+        				.setPositiveButton("OK", null);
+        	dialog = dialogBuilder.create();        	
+        	break;
+		case DIALOG_CAMPAIGN_REMOVED_INVALID_ROLE:
+        	dialogBuilder.setTitle("Error")
+        				.setMessage("Due to an invalid user role, campaign (" + problematicCampaign.mUrn + ") has been removed from your phone.")
+        				.setCancelable(true)
+        				.setPositiveButton("OK", null);
+        	dialog = dialogBuilder.create();        	
+        	break;
+		case DIALOG_CAMPAIGN_REMOVED_NOT_RUNNING:
+        	dialogBuilder.setTitle("Error")
+        				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is no longer running and has been removed from your phone.")
+        				.setCancelable(true)
+        				.setPositiveButton("OK", null);
+        	dialog = dialogBuilder.create();        	
+        	break;
+		case DIALOG_CAMPAIGN_REMOVED_OUT_OF_DATE:
+        	dialogBuilder.setTitle("Error")
+        				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is out of date and has been removed from your phone.")
         				.setCancelable(true)
         				.setPositiveButton("OK", null);
         	dialog = dialogBuilder.create();        	

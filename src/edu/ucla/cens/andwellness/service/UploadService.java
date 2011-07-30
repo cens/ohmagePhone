@@ -52,6 +52,10 @@ public class UploadService extends WakefulIntentService{
 	
 	private static final int ERROR_AUTHENTICATION = 1;
 	private static final int ERROR_CAMPAIGN_REMOVED = 2;
+	private static final int ERROR_CAMPAIGN_REMOVED_INVALID_URN = 3;
+	private static final int ERROR_CAMPAIGN_REMOVED_INVALID_ROLE = 4;
+	private static final int ERROR_CAMPAIGN_REMOVED_NOT_RUNNING = 5;
+	private static final int ERROR_CAMPAIGN_REMOVED_OUT_OF_DATE = 6;
 	
 	private AndWellnessApi mApi;
 
@@ -301,6 +305,8 @@ public class UploadService extends WakefulIntentService{
 			boolean isUserDisabled = false;
 			boolean removeCampaign = false;
 			
+			String errorCode = null;
+			
 			for (String code : response.getErrorCodes()) {
 				if (code.charAt(1) == '2') {
 					isAuthenticationError = true;
@@ -312,6 +318,8 @@ public class UploadService extends WakefulIntentService{
 				
 				if (code.equals("0604") || code.equals("0607") || code.equals("0608") || code.equals("0609")) {
 					removeCampaign = true;
+					errorCode = code;
+					break;
 				}
 			}
 			
@@ -319,13 +327,23 @@ public class UploadService extends WakefulIntentService{
 				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 				prefs.setUserDisabled(true);
 				
-				showErrorNotification(ERROR_AUTHENTICATION);
+				showErrorNotification(ERROR_AUTHENTICATION, "");
 			} else if (isAuthenticationError) {
 				//show auth notification
-				showErrorNotification(ERROR_AUTHENTICATION);
+				showErrorNotification(ERROR_AUTHENTICATION, "");
 			} else if (removeCampaign){
 				CampaignManager.removeCampaign(this, problematicCampaign.mUrn);
-				showErrorNotification(ERROR_CAMPAIGN_REMOVED);
+				if (errorCode.equals("0604")) {
+					showErrorNotification(ERROR_CAMPAIGN_REMOVED_INVALID_URN, problematicCampaign.mUrn);
+				} else if (errorCode.equals("0607")) {
+					showErrorNotification(ERROR_CAMPAIGN_REMOVED_INVALID_ROLE, problematicCampaign.mUrn);
+				} else if (errorCode.equals("0608")) {
+					showErrorNotification(ERROR_CAMPAIGN_REMOVED_NOT_RUNNING, problematicCampaign.mUrn);
+				} else if (errorCode.equals("0609")) {
+					showErrorNotification(ERROR_CAMPAIGN_REMOVED_OUT_OF_DATE, problematicCampaign.mUrn);
+				} else {
+					showErrorNotification(ERROR_CAMPAIGN_REMOVED, problematicCampaign.mUrn);
+				}
 			} else {
 				//show internal error notification? with error codes?
 			}
@@ -341,7 +359,7 @@ public class UploadService extends WakefulIntentService{
 		}
 	}
 	
-	private void showErrorNotification(int errorType) {
+	private void showErrorNotification(int errorType, String urn) {
 		NotificationManager noteManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification note = new Notification();
 		
@@ -357,11 +375,59 @@ public class UploadService extends WakefulIntentService{
 			note.flags = Notification.FLAG_AUTO_CANCEL;
 			note.setLatestEventInfo(this, title, body, pendingIntent);
 			noteManager.notify(1, note);
+		} else if (errorType == ERROR_CAMPAIGN_REMOVED_INVALID_URN) {
+			Intent intentToLaunch = new Intent(this, CampaignListActivity.class);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+			String title = "Upload error!";
+			String body = "A campaign with an invalid URN was removed from your phone. (" + urn + ")";
+			note.icon = android.R.drawable.stat_notify_error;
+			note.tickerText = "Invalid campaign!";
+			note.defaults |= Notification.DEFAULT_ALL;
+			note.when = System.currentTimeMillis();
+			note.flags = Notification.FLAG_AUTO_CANCEL;
+			note.setLatestEventInfo(this, title, body, pendingIntent);
+			noteManager.notify(1, note);
+		} else if (errorType == ERROR_CAMPAIGN_REMOVED_INVALID_ROLE) {
+			Intent intentToLaunch = new Intent(this, CampaignListActivity.class);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+			String title = "Upload error!";
+			String body = "Due to an invalid user role, a campaign was removed from your phone. (" + urn + ")";
+			note.icon = android.R.drawable.stat_notify_error;
+			note.tickerText = "Invalid campaign!";
+			note.defaults |= Notification.DEFAULT_ALL;
+			note.when = System.currentTimeMillis();
+			note.flags = Notification.FLAG_AUTO_CANCEL;
+			note.setLatestEventInfo(this, title, body, pendingIntent);
+			noteManager.notify(1, note);
+		} else if (errorType == ERROR_CAMPAIGN_REMOVED_NOT_RUNNING) {
+			Intent intentToLaunch = new Intent(this, CampaignListActivity.class);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+			String title = "Upload error!";
+			String body = "A stopped campaign was removed from your phone. (" + urn + ")";
+			note.icon = android.R.drawable.stat_notify_error;
+			note.tickerText = "Invalid campaign!";
+			note.defaults |= Notification.DEFAULT_ALL;
+			note.when = System.currentTimeMillis();
+			note.flags = Notification.FLAG_AUTO_CANCEL;
+			note.setLatestEventInfo(this, title, body, pendingIntent);
+			noteManager.notify(1, note);
+		} else if (errorType == ERROR_CAMPAIGN_REMOVED_OUT_OF_DATE) {
+			Intent intentToLaunch = new Intent(this, CampaignListActivity.class);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+			String title = "Upload error!";
+			String body = "An out-of-date campaign was removed from your phone. (" + urn + ")";
+			note.icon = android.R.drawable.stat_notify_error;
+			note.tickerText = "Invalid campaign!";
+			note.defaults |= Notification.DEFAULT_ALL;
+			note.when = System.currentTimeMillis();
+			note.flags = Notification.FLAG_AUTO_CANCEL;
+			note.setLatestEventInfo(this, title, body, pendingIntent);
+			noteManager.notify(1, note);
 		} else if (errorType == ERROR_CAMPAIGN_REMOVED) {
 			Intent intentToLaunch = new Intent(this, CampaignListActivity.class);
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
-			String title = "Invalid campaign!";
-			String body = "An invalid campaign was removed from your phone.";
+			String title = "Upload error!";
+			String body = "An invalid campaign was removed from your phone. (" + urn + ")";
 			note.icon = android.R.drawable.stat_notify_error;
 			note.tickerText = "Invalid campaign!";
 			note.defaults |= Notification.DEFAULT_ALL;
