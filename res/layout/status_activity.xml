@@ -35,7 +35,7 @@
 	  	
 	  <Button
 	  	android:id="@+id/status_password_button"
-	  	android:text="Update Password"
+	  	android:text="Update password"
 	  	android:layout_width="wrap_content"
 	  	android:layout_height="wrap_content"
 	  	android:layout_alignParentLeft="true"
@@ -44,7 +44,7 @@
 	  	
 	  <Button
 	  	android:id="@+id/status_clear_user_button"
-	  	android:text="Clear User Data"
+	  	android:text="Logout and wipe all data"
 	  	android:layout_width="wrap_content"
 	  	android:layout_height="wrap_content"
 	  	android:layout_alignParentRight="true"

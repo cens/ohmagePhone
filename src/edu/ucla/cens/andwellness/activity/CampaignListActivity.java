@@ -136,6 +136,10 @@ public class CampaignListActivity extends ListActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		refreshCampaigns();
+	}
+
+	private void refreshCampaigns() {
 		loadCampaigns();
 		if (mTask == null) {
 			updateCampaignList();
@@ -215,6 +219,10 @@ public class CampaignListActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent intent = null;
 		switch (item.getItemId()) {
+		case R.id.refresh_campaigns:
+			refreshCampaigns();
+			return true;
+			
 		case R.id.mobility_settings:
 			MobilityInterface.showMobilityOptions(this);
 			//Toast.makeText(this, "Mobility is not available.", Toast.LENGTH_SHORT).show();
