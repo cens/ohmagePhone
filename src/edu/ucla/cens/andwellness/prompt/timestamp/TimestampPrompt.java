@@ -4,12 +4,19 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -62,14 +69,14 @@ public class TimestampPrompt extends AbstractPrompt {
 	}
 
 	@Override
-	public View getView(Context context) {
+	public View getView(final Context context) {
 		// TODO Auto-generated method stub
 		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.prompt_timestamp, null);
 		
 		TimePicker timePicker = (TimePicker) layout.findViewById(R.id.time_picker);
-		DatePicker datePicker = (DatePicker) layout.findViewById(R.id.date_picker);
+		final Button dateButton = (Button) layout.findViewById(R.id.date_button);
 		
 		if (mTime == null) {
 			mTime = Calendar.getInstance();
@@ -78,15 +85,8 @@ public class TimestampPrompt extends AbstractPrompt {
 		timePicker.setCurrentHour(mTime.get(Calendar.HOUR_OF_DAY));
 		timePicker.setCurrentMinute(mTime.get(Calendar.MINUTE));
 		
-		datePicker.init(mTime.get(Calendar.YEAR), mTime.get(Calendar.MONTH), mTime.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
-			
-			@Override
-			public void onDateChanged(DatePicker view, int year, int monthOfYear,
-					int dayOfMonth) {
-				// TODO Auto-generated method stub
-				mTime.set(year, monthOfYear, dayOfMonth);
-			}
-		});
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
+		dateButton.setText(dateFormat.format(mTime.getTime()));
 		
 		timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
 			
@@ -99,7 +99,24 @@ public class TimestampPrompt extends AbstractPrompt {
 			}
 		});
 		
+		final OnDateSetListener listener = new OnDateSetListener() {
+
+			@Override
+			public void onDateSet(DatePicker view, int year, int monthOfYear,
+					int dayOfMonth) {
+				// TODO Auto-generated method stub
+				mTime.set(year, monthOfYear, dayOfMonth);
+				dateButton.setText(dateFormat.format(mTime.getTime()));
+			}
+		};
 		
+		dateButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				new DatePickerDialog(context, listener, mTime.get(Calendar.YEAR), mTime.get(Calendar.MONTH), mTime.get(Calendar.DAY_OF_MONTH)).show();
+			}
+		});
 		
 		return layout;
 	}
