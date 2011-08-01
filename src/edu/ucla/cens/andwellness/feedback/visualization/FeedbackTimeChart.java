@@ -101,7 +101,7 @@ public class FeedbackTimeChart extends AbstractChart {
 		// columns to return; in this case, we just need the date and the value at that date point
 		String[] projection = new String[] { FeedbackResponses.TIME, FeedbackPromptResponses.PROMPT_VALUE };
 		
-		// nab that data!
+		// nab that data! data is sorted by FeedbackResponses.TIME
 		Cursor cursor = cr.query(queryUri, projection, null, null, FeedbackResponses.TIME);
 		if(cursor.getCount() == 0){
 			return null;
@@ -134,20 +134,38 @@ public class FeedbackTimeChart extends AbstractChart {
 		// and add our date/value series to the respective containers
 		dates.add(singleDates.toArray(new Date[singleDates.size()]));
 		values.add(singleValuesArray);
+		
+		//Get startdate and enddate
+		long startDate = dates.get(0)[0].getTime()  - (100 * 60 * 60 * 24 * 3);
+		long endDate = dates.get(0)[dates.get(0).length-1].getTime()  + (100 * 60 * 60 * 24 * 3);
 
-		// int[] colors = new int[] { Color.BLUE, Color.GREEN };
 		int[] colors = new int[] { Color.RED };
 		PointStyle[] styles = new PointStyle[] { PointStyle.X };
 		XYMultipleSeriesRenderer renderer = buildRenderer(colors, styles);
-		renderer.setShowGrid(true);
 		
+		//Set Chart
+		setChartSettings(
+				renderer,
+				"", 
+				"Date", 
+				"",
+				startDate, 
+				endDate, 
+				0, 
+				maxValue+1,
+				Color.GRAY, 
+				Color.LTGRAY
+		);
+		
+		renderer.setShowGrid(true);
+
+		//Set chart layout
 		int topMargin = 0;
 		int bottomMargin = 100;
 		int leftMargin = 10;
 		int rightMargin = 0;
 		int margins[] = {topMargin, leftMargin, bottomMargin, rightMargin};
-		renderer.setMargins(margins);
-		
+		renderer.setMargins(margins);		
 		renderer.setAxisTitleTextSize(23);
 		renderer.setLabelsTextSize(20);
 		renderer.setXLabelsAlign(Align.LEFT);
@@ -158,6 +176,14 @@ public class FeedbackTimeChart extends AbstractChart {
 		renderer.setZoomButtonsVisible(true);
 		renderer.setShowAxes(true);
 		
+		//Set pan limit from startData-3days to endDate+3days
+		renderer.setPanEnabled(true, true);
+		renderer.setPanLimits(new double[]{startDate, endDate, -1, maxValue+1});
+		
+		//Set zoom
+		renderer.setZoomEnabled(true, false);
+		renderer.setZoomLimits(new double[]{startDate, endDate, -1, maxValue+1});
+			
 		//Set Y Label
 		//TODO Need to organize all prompt types instead of handling this with NULL 
 		renderer.setYLabelsAlign(Align.LEFT);
@@ -171,20 +197,6 @@ public class FeedbackTimeChart extends AbstractChart {
 			// i assume we want this if we're providing specific labels for enumerations
 			renderer.setYLabels(0);
 		}
-		
-		//Set Chart
-		setChartSettings(
-				renderer,
-				"", 
-				"Date", 
-				"",
-				dates.get(0)[0].getTime() - 86400000, 
-				dates.get(0)[dates.get(0).length-1].getTime() + 86400000, 
-				0, 
-				maxValue+1,
-				Color.GRAY, 
-				Color.LTGRAY
-		);
 
 		int length = renderer.getSeriesRendererCount();
 		for (int i = 0; i < length; i++) {
