@@ -95,7 +95,7 @@ public class PromptListActivity extends ListActivity{
 		
 		if (mPrompts.get(position) instanceof SingleChoicePrompt) {
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
-			intent = chart.execute(this);
+			intent = chart.execute(this); //If there is no response, it returns NULL
 			if(intent == null){
 				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
 			}
@@ -105,11 +105,6 @@ public class PromptListActivity extends ListActivity{
 			Toast.makeText(this, "MultiChoiceCustomPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof SingleChoiceCustomPrompt) {
 			Toast.makeText(this, "SingleChoiceCustomPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
-//			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
-//			intent = chart.execute(this);
-//			if(intent == null){
-//				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
-//			}
 		} else if (mPrompts.get(position) instanceof NumberPrompt) {
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
