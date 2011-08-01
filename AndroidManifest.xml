@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="edu.ucla.cens.andwellness"
-	android:versionName="2.5" android:versionCode="11072900">
+	android:versionName="2.6 beta" android:versionCode="11080100">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
