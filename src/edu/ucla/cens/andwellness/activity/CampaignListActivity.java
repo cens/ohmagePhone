@@ -31,6 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -57,6 +59,7 @@ import edu.ucla.cens.andwellness.AndWellnessApi.Result;
 import edu.ucla.cens.andwellness.db.Campaign;
 import edu.ucla.cens.andwellness.db.DbHelper;
 import edu.ucla.cens.andwellness.feedback.FBTestActivity;
+import edu.ucla.cens.andwellness.feedback.FeedbackService;
 import edu.ucla.cens.andwellness.AndWellnessApplication;
 import edu.ucla.cens.andwellness.CampaignManager;
 import edu.ucla.cens.andwellness.R;
@@ -173,6 +176,10 @@ public class CampaignListActivity extends ListActivity {
 			CampaignDownloadTask task = new CampaignDownloadTask(CampaignListActivity.this);
 			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 			task.execute(prefs.getUsername(), prefs.getHashedPassword(), ((Campaign) getListView().getItemAtPosition(position)).mUrn);
+			
+			// fire off the feedback service to update any stored responses
+			// note that the service will exit immediately if it's already running
+			WakefulIntentService.sendWakefulWork(this, FeedbackService.class);
 		}
 	}
 	
