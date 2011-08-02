@@ -2,7 +2,7 @@
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
          
-	<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+	<org.ohmage.triggers.utils.TimePickerPreference
 	    android:key="trigger_time"
 	    android:persistent="false"
 	    android:title="Trigger Time"
@@ -20,14 +20,14 @@
         android:persistent="false"
         android:summary="Enforce a range for the trigger time" />
   
-		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+		<org.ohmage.triggers.utils.TimePickerPreference
 		    android:key="interval_start_time"
 		    android:dependency="enable_time_range"
 		    android:persistent="false"
 		    android:title="Start Time"
 		    android:summary="Not selected" />
 		    
-		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+		<org.ohmage.triggers.utils.TimePickerPreference
 		    android:key="interval_end_time"
 		    android:dependency="enable_time_range"
 		    android:persistent="false"

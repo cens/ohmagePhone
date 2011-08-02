@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="304dp"
+  android:layout_height="155dp"
+  android:background="@drawable/widget_background"
+  android:orientation="vertical">
+  
+  <TextView
+  	android:id="@+id/widget_top_bar"
+  	android:layout_width="fill_parent"
+  	android:layout_height="32dp"
+  	android:gravity="center"
+  	android:textColor="#595959"
+  	android:textStyle="bold"
+  	android:textSize="15dp"
+  	android:text="A N D W E L L N E S S" />
+  	
+  <ImageView
+  	android:layout_width="fill_parent"
+  	android:layout_height="1dp"
+  	android:background="#A6A6A6" />
+  	
+  <LinearLayout
+  	android:id="@+id/widget_button_bar"
+  	android:layout_width="fill_parent"
+  	android:layout_height="122dp"
+  	android:orientation="horizontal" >
+  
+	  <Button android:id="@+id/widget_aw_button"
+	  	android:layout_width="101dp"
+	  	android:layout_height="fill_parent"
+	  	android:gravity="bottom|center_horizontal"
+	  	android:paddingBottom="10dp"
+	  	android:background="@drawable/widget_left_button"
+	  	android:drawableTop="@drawable/survey"
+	  	android:paddingTop="6dp"
+	  	android:textColor="@drawable/widget_left_button_text_color"
+	  	android:textStyle="bold"
+  		android:textSize="15dp"
+	  	android:text="SURVEYS" />
+  	
+	  <ImageView
+	  	android:layout_width="1dp"
+	  	android:layout_height="fill_parent"
+	  	android:background="#A6A6A6" />
+  	
+  	  <Button android:id="@+id/widget_food_button"
+	  	android:layout_width="100dp"
+	  	android:layout_height="fill_parent"
+	  	android:gravity="bottom|center_horizontal"
+	  	android:paddingBottom="10dp"
+	  	android:background="@drawable/widget_middle_button"
+	  	android:drawableTop="@drawable/apple2"
+	  	android:paddingTop="14dp"
+	  	android:textColor="@drawable/widget_middle_button_text_color"
+	  	android:textStyle="bold"
+  		android:textSize="15dp"
+	  	android:text="FOOD" />
+	  	
+	  <ImageView
+	  	android:layout_width="1dp"
+	  	android:layout_height="fill_parent"
+	  	android:background="#A6A6A6" />
+	  	
+	  <Button android:id="@+id/widget_stress_button"
+	  	android:layout_width="101dp"
+	  	android:layout_height="fill_parent"
+	  	android:gravity="bottom|center_horizontal"
+	  	android:paddingBottom="10dp"
+	  	android:background="@drawable/widget_right_button"
+	  	android:drawableTop="@drawable/redbutton"
+	  	android:paddingTop="22dp"
+	  	android:textColor="@drawable/widget_right_button_text_color"
+	  	android:textStyle="bold"
+  		android:textSize="15dp"
+	  	android:text="STRESS" />
+  
+  </LinearLayout>
+  
+</LinearLayout>
