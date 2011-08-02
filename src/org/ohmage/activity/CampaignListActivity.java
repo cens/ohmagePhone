@@ -173,13 +173,18 @@ public class CampaignListActivity extends ListActivity {
 			startActivity(intent);
 		} else if (((CampaignListAdapter)getListAdapter()).getItemGroup(position) == CampaignListAdapter.GROUP_UNAVAILABLE) {
 			//download campaign
+			String campaignUrn = ((Campaign) getListView().getItemAtPosition(position)).mUrn;
+			
 			CampaignDownloadTask task = new CampaignDownloadTask(CampaignListActivity.this);
 			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-			task.execute(prefs.getUsername(), prefs.getHashedPassword(), ((Campaign) getListView().getItemAtPosition(position)).mUrn);
+			task.execute(prefs.getUsername(), prefs.getHashedPassword(), campaignUrn);
 			
-			// fire off the feedback service to update any stored responses
-			// note that the service will exit immediately if it's already running
-			WakefulIntentService.sendWakefulWork(this, FeedbackService.class);
+			// create an intent to fire off the feedback service
+			Intent fbIntent = new Intent(this, FeedbackService.class);
+			// annotate the request with the current campaign's URN
+			fbIntent.putExtra("campaign_urn", campaignUrn);
+			// and go!
+			WakefulIntentService.sendWakefulWork(this, fbIntent);
 		}
 	}
 	

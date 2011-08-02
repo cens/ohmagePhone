@@ -2,18 +2,13 @@ package org.ohmage.feedback;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,7 +19,6 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
 import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
-import org.ohmage.feedback.utils.ISO8601Utilities;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -77,6 +71,16 @@ public class FeedbackService extends WakefulIntentService {
         List<Campaign> campaigns = dbHelper.getCampaigns();
         // ...and the feedback database into which we'll be inserting their responses (if necessary)
         FeedbackDatabase fbDB = new FeedbackDatabase(this);
+
+        if (intent.hasExtra("campaign_urn")) {
+        	// if we received a campaign_urn in the intent, only download the data for that one
+        	campaigns = new ArrayList<Campaign>(1);
+        	campaigns.add(dbHelper.getCampaign(intent.getStringExtra("campaign_urn")));
+        }
+        else {
+        	// otherwise, do all the campaigns
+        	campaigns = dbHelper.getCampaigns();
+        }
 
 		// we'll have to iterate through all the campaigns in which this user
 		// is participating in order to gather all of their data
