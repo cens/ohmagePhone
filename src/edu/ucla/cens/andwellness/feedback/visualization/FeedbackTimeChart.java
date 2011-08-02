@@ -38,6 +38,7 @@ import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackPromptRespons
 import edu.ucla.cens.andwellness.feedback.FeedbackContract.FeedbackResponses;
 import edu.ucla.cens.andwellness.prompt.AbstractPrompt;
 import edu.ucla.cens.andwellness.prompt.Prompt;
+import edu.ucla.cens.andwellness.prompt.number.NumberPrompt;
 import edu.ucla.cens.andwellness.prompt.singlechoice.SingleChoicePrompt;
 
 /**
@@ -189,14 +190,15 @@ public class FeedbackTimeChart extends AbstractChart {
 		renderer.setYLabelsAlign(Align.LEFT);
 		List<KVLTriplet> propertiesList = getPropertiesList(mPromptID);
 		if(propertiesList != null){
+			//Prompts that have properties (SingleChoice, MultiChoice, etc)
 			for(KVLTriplet i : propertiesList){
 				renderer.addYTextLabel(Double.valueOf(i.key).doubleValue(), i.label);
 			}
-			
-			// disables interpolated values from being added between text labels
-			// i assume we want this if we're providing specific labels for enumerations
-			renderer.setYLabels(0);
 		}
+
+		// disables interpolated values from being added between text labels
+		// i assume we want this if we're providing specific labels for enumerations
+		renderer.setYLabels(0);
 
 		int length = renderer.getSeriesRendererCount();
 		for (int i = 0; i < length; i++) {
@@ -220,6 +222,14 @@ public class FeedbackTimeChart extends AbstractChart {
 				if(allPromptList instanceof SingleChoicePrompt){
 					SingleChoicePrompt prompt = (SingleChoicePrompt)allPromptList;
 					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
+					return choiceKVLTriplet;
+				}
+				else if(allPromptList instanceof NumberPrompt){
+					NumberPrompt prompt = (NumberPrompt)allPromptList;					
+					List<KVLTriplet> choiceKVLTriplet = new ArrayList<KVLTriplet>();
+					for(int i=prompt.getMinimum(); i<=prompt.getMaximum(); i++){
+						choiceKVLTriplet.add(new KVLTriplet(String.valueOf(i), String.valueOf(i), String.valueOf(i)));	
+					}
 					return choiceKVLTriplet;
 				}
 			}

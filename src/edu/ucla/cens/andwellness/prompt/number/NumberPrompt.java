@@ -43,6 +43,14 @@ public class NumberPrompt extends AbstractPrompt {
 		mMaximum = value;
 	}
 	
+	public int getMinimum(){
+		return mMinimum;
+	}
+	
+	public int getMaximum(){
+		return mMaximum;
+	}
+	
 	public int getValue(){
 		return mValue;
 	}
