@@ -105,6 +105,7 @@ public class FeedbackTimeChart extends AbstractChart {
 		// nab that data! data is sorted by FeedbackResponses.TIME
 		Cursor cursor = cr.query(queryUri, projection, null, null, FeedbackResponses.TIME);
 		if(cursor.getCount() == 0){
+			cursor.close();
 			return null;
 		}
 		
