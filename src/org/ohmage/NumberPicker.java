@@ -97,7 +97,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
     protected int mPrevious;
     private OnChangedListener mListener;
     private Formatter mFormatter;
-    private long mSpeed = 300;
+    private long mSpeed = 100;
 
     private boolean mIncrement;
     private boolean mDecrement;
@@ -222,16 +222,26 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
     protected void changeCurrent(int current) {
 
         // Wrap around the values if we go past the start or end
-        if (current > mEnd) {
-            current = mStart;
-        } else if (current < mStart) {
-            current = mEnd;
-        }
-        mPrevious = mCurrent;
-        mCurrent = current;
+//        if (current > mEnd) {
+//            current = mStart;
+//        } else if (current < mStart) {
+//            current = mEnd;
+//        }
+    	
+    	// Stop at the start or end
+//        if (current > mEnd) {
+//            current = mEnd;
+//        } else if (current < mStart) {
+//            current = mStart;
+//        }
+        
+        if (current <= mEnd && current >= mStart) {
+        	mPrevious = mCurrent;
+            mCurrent = current;
 
-        notifyChange();
-        updateView();
+            notifyChange();
+            updateView();
+        }
     }
 
     protected void notifyChange() {
@@ -319,7 +329,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
     }
 
     private static final char[] DIGIT_CHARACTERS = new char[] {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+        '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
     };
 
     private NumberPickerButton mIncrementButton;
