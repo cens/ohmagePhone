@@ -668,6 +668,7 @@ public class SurveyActivity extends Activity {
 			
 			if (prompt.getSkippable().equals("true")) {
 				mSkipButton.setVisibility(View.VISIBLE);
+				mSkipButton.setText(prompt.getSkipLabel());
 			} else {
 				mSkipButton.setVisibility(View.INVISIBLE);
 			}
