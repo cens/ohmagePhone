@@ -78,6 +78,7 @@ public class CampaignListActivity extends ListActivity {
 	private static final int DIALOG_AUTH_ERROR = 4;
 	
 	private CampaignListUpdateTask mTask;
+	private boolean mShowingProgressDialog = false;
 	//private List<HashMap<String, String>> mData;
 	private List<Campaign> mLocalCampaigns;
 	private List<Campaign> mRemoteCampaigns;
@@ -178,13 +179,6 @@ public class CampaignListActivity extends ListActivity {
 			CampaignDownloadTask task = new CampaignDownloadTask(CampaignListActivity.this);
 			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 			task.execute(prefs.getUsername(), prefs.getHashedPassword(), campaignUrn);
-			
-			// create an intent to fire off the feedback service
-			Intent fbIntent = new Intent(this, FeedbackService.class);
-			// annotate the request with the current campaign's URN
-			fbIntent.putExtra("campaign_urn", campaignUrn);
-			// and go!
-			WakefulIntentService.sendWakefulWork(this, fbIntent);
 		}
 	}
 	
@@ -512,6 +506,13 @@ public class CampaignListActivity extends ListActivity {
 				DbHelper dbHelper = new DbHelper(this);
 				dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
 				
+				// create an intent to fire off the feedback service
+				Intent fbIntent = new Intent(this, FeedbackService.class);
+				// annotate the request with the current campaign's URN
+				fbIntent.putExtra("campaign_urn", campaignUrn);
+				// and go!
+				WakefulIntentService.sendWakefulWork(this, fbIntent);
+				
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing response json", e);
 			}
@@ -595,7 +596,13 @@ public class CampaignListActivity extends ListActivity {
 			
 			mResponse = response;
 			mIsDone = true;
-			notifyTaskDone();			
+			notifyTaskDone();		
+			
+			// dismissing dialog from other task!!!
+			if (mActivity.mShowingProgressDialog) {
+				mActivity.dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+				mActivity.mShowingProgressDialog = false;
+			}			
 		}
 		
 		private void notifyTaskDone() {
@@ -628,6 +635,7 @@ public class CampaignListActivity extends ListActivity {
 			super.onPreExecute();
 			
 			//show progress dialog
+			mActivity.mShowingProgressDialog = true;
 			mActivity.showDialog(DIALOG_DOWNLOAD_PROGRESS);
 		}
 
@@ -649,7 +657,7 @@ public class CampaignListActivity extends ListActivity {
 			notifyTaskDone();
 			
 			//close progress dialog
-			mActivity.dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+//			mActivity.dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
 		}
 		
 		private void notifyTaskDone() {
