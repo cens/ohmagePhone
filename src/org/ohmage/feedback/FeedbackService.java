@@ -74,8 +74,11 @@ public class FeedbackService extends WakefulIntentService {
 
         if (intent.hasExtra("campaign_urn")) {
         	// if we received a campaign_urn in the intent, only download the data for that one
-        	campaigns = new ArrayList<Campaign>(1);
-        	campaigns.add(dbHelper.getCampaign(intent.getStringExtra("campaign_urn")));
+        	// the campaign object we create only inclues the mUrn field since we don't have anything else
+        	campaigns = new ArrayList<Campaign>();
+        	Campaign candidate = new Campaign();
+        	candidate.mUrn = intent.getStringExtra("campaign_urn");
+        	campaigns.add(candidate);
         }
         else {
         	// otherwise, do all the campaigns
