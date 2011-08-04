@@ -16,12 +16,12 @@
 package org.ohmage.triggers.types.time;
 
 import org.json.JSONObject;
+import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerBase;
 
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import org.ohmage.R;
 
 
 public class TimeTrigger extends TriggerBase {

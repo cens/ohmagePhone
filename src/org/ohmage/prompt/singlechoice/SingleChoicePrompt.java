@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.ohmage.R;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.AbstractPrompt;
 
@@ -27,12 +28,11 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter.ViewBinder;
-import org.ohmage.R;
 
 public class SingleChoicePrompt extends AbstractPrompt {
 	

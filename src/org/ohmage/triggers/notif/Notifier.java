@@ -19,9 +19,8 @@ package org.ohmage.triggers.notif;
 import java.util.List;
 import java.util.Set;
 
-import org.ohmage.db.Campaign;
+import org.ohmage.R;
 import org.ohmage.db.DbHelper;
-import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.utils.TrigPrefManager;
 
@@ -36,7 +35,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import org.ohmage.R;
 
 /*
  * The trigger notification manager. The logic which displays, repeats and

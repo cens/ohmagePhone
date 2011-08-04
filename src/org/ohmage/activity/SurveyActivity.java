@@ -28,15 +28,16 @@ import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.OhmageApplication;
 import org.ohmage.CampaignXmlHelper;
+import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.Response;
+import org.ohmage.db.DbContract.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
@@ -72,7 +73,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 public class SurveyActivity extends Activity {
@@ -948,9 +948,9 @@ public class SurveyActivity extends Activity {
 		
 		DbHelper dbHelper = new DbHelper(this);
 		if (loc != null) {
-			dbHelper.addResponseRow(mCampaignUrn, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response);
+			dbHelper.addResponseRow(mCampaignUrn, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response, "local");
 		} else {
-			dbHelper.addResponseRowWithoutLocation(mCampaignUrn, username, date, time, timezone, surveyId, surveyLaunchContext, response);
+			dbHelper.addResponseRowWithoutLocation(mCampaignUrn, username, date, time, timezone, surveyId, surveyLaunchContext, response, "local");
 		}
 		
 		// create an intent and broadcast it to any interested receivers

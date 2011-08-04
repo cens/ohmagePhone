@@ -5,14 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.achartengine.chartdemo.demo.chart.BudgetDoughnutChart;
-import org.achartengine.chartdemo.demo.chart.CombinedTemperatureChart;
-import org.achartengine.chartdemo.demo.chart.ProjectStatusBubbleChart;
-import org.achartengine.chartdemo.demo.chart.SalesComparisonChart;
-import org.achartengine.chartdemo.demo.chart.SensorValuesChart;
-import org.achartengine.chartdemo.demo.chart.TrigonometricFunctionsChart;
 import org.ohmage.CampaignXmlHelper;
 import org.ohmage.PromptXmlParser;
+import org.ohmage.R;
 import org.ohmage.feedback.visualization.FeedbackTextChart;
 import org.ohmage.feedback.visualization.FeedbackTimeChart;
 import org.ohmage.prompt.AbstractPrompt;
@@ -39,7 +34,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 public class PromptListActivity extends ListActivity{

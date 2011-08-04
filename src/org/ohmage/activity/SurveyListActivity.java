@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.achartengine.chartdemo.demo.chart.AverageTemperatureChart;
-import org.ohmage.OhmageApplication;
 import org.ohmage.CampaignXmlHelper;
+import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Survey;
 import org.ohmage.triggers.glue.LocationTriggerAPI;
@@ -43,10 +43,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
-import org.ohmage.R;
+import android.widget.AdapterView.OnItemLongClickListener;
 import edu.ucla.cens.systemlog.Log;
 
 public class SurveyListActivity extends ListActivity {

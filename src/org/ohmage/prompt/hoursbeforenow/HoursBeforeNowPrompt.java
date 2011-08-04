@@ -16,6 +16,7 @@
 package org.ohmage.prompt.hoursbeforenow;
 
 import org.ohmage.NumberPicker;
+import org.ohmage.R;
 import org.ohmage.NumberPicker.OnChangedListener;
 import org.ohmage.prompt.AbstractPrompt;
 
@@ -24,7 +25,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import org.ohmage.R;
 
 public class HoursBeforeNowPrompt extends AbstractPrompt {
 

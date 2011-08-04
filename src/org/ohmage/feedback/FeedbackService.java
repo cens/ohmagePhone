@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,17 +18,17 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.OhmageApi.ImageReadResponse;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.prompt.photo.PhotoPrompt;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.systemlog.Log;
 
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.systemlog.Log;
 
 public class FeedbackService extends WakefulIntentService {
 	private static final String TAG = "FeedbackService";
@@ -69,8 +70,6 @@ public class FeedbackService extends WakefulIntentService {
 		// the standard db which lists the users' campaigns...
 		DbHelper dbHelper = new DbHelper(this);
         List<Campaign> campaigns = dbHelper.getCampaigns();
-        // ...and the feedback database into which we'll be inserting their responses (if necessary)
-        FeedbackDatabase fbDB = new FeedbackDatabase(this);
 
         if (intent.hasExtra("campaign_urn")) {
         	// if we received a campaign_urn in the intent, only download the data for that one
@@ -211,7 +210,7 @@ public class FeedbackService extends WakefulIntentService {
 					// ok, gathered everything; time to insert into the feedback DB
 					// note that we mark this entry as "remote", meaning it came from the server
 					
-					fbDB.addResponseRow(
+					dbHelper.addResponseRow(
 							c.mUrn,
 							username,
 							date,

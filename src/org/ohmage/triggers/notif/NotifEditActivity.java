@@ -18,6 +18,7 @@ package org.ohmage.triggers.notif;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.ohmage.R;
 import org.ohmage.triggers.config.NotifConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
 
@@ -29,14 +30,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import org.ohmage.R;
 
 /*
  * Activity to edit the notification description visually. 

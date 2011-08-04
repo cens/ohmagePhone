@@ -17,11 +17,10 @@ package org.ohmage.activity;
 
 import java.util.List;
 
-import org.ohmage.db.Campaign;
-
 import org.ohmage.R;
+import org.ohmage.db.DbContract.Campaign;
+
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

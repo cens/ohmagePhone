@@ -20,8 +20,9 @@ package org.ohmage.triggers.types.location;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import org.ohmage.db.Campaign;
+import org.ohmage.R;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
 
@@ -37,19 +38,18 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import org.ohmage.R;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /*
  * Location triggers settings activity.

@@ -15,17 +15,18 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.location;
 
+import org.ohmage.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import org.ohmage.R;
+import android.preference.Preference.OnPreferenceChangeListener;
 
 /*
  * Preference activity to manage the settings of location tracing.

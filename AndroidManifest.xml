@@ -249,8 +249,8 @@
 	    	</intent-filter>
 	    </receiver>
 	    
-	    <provider android:name=".feedback.FeedbackProvider"
-	    	android:authorities="org.ohmage.feedback">
+	    <provider android:name=".db.DbProvider"
+	    	android:authorities="org.ohmage.db">
 	    </provider>
 	    
  		<activity android:name=".feedback.FBTestActivity" android:label="ohmage"

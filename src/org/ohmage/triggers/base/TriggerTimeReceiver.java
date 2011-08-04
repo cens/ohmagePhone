@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.triggers.notif.Notifier;
 
 import android.content.BroadcastReceiver;

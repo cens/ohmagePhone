@@ -16,7 +16,6 @@
 
 package org.ohmage;
 
-import org.ohmage.R;
 import android.content.Context;
 import android.os.Handler;
 import android.text.InputFilter;

@@ -22,14 +22,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Campaign;
 
 import android.content.Context;
 import android.os.Environment;
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 public class CampaignXmlHelper {

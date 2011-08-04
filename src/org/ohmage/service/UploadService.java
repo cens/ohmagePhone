@@ -23,15 +23,15 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.OhmageApi;
 import org.ohmage.CampaignManager;
+import org.ohmage.OhmageApi;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.activity.CampaignListActivity;
 import org.ohmage.activity.LoginActivity;
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.Response;
+import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.app.Notification;
@@ -137,7 +137,7 @@ public class UploadService extends WakefulIntentService{
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded survey responses for " + campaign.mUrn);
 					for (int i = 0; i < responseRows.size(); i++) {
-						dbHelper.removeResponseRow(responseRows.get(i)._id);
+						dbHelper.setResponseRowUploaded(responseRows.get(i)._id);
 					}
 				} else {
 					Log.e(TAG, "Failed to upload survey responses for " + campaign.mUrn);

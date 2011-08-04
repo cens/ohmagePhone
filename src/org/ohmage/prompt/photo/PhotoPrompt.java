@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.UUID;
 
+import org.ohmage.R;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.prompt.AbstractPrompt;
 
@@ -34,7 +35,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import org.ohmage.R;
 
 public class PhotoPrompt extends AbstractPrompt {
 	

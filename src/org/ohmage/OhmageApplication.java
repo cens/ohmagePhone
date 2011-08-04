@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.ohmage.db.DbHelper;
-import org.ohmage.feedback.FeedbackDatabase;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -52,9 +51,6 @@ public class OhmageApplication extends Application {
 		
 		//clear db
 		new DbHelper(this).clearAll();
-		
-		// clear feedback db as well
-		new FeedbackDatabase(this).clearAll();
 		
 		//clear custom type dbs
 		SingleChoiceCustomDbAdapter singleChoiceDbAdapter = new SingleChoiceCustomDbAdapter(this); 

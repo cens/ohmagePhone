@@ -18,6 +18,7 @@ package org.ohmage.triggers.ui;
 
 import java.util.Collection;
 
+import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerTypeMap;
 
 import android.app.Dialog;
@@ -30,7 +31,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import org.ohmage.R;
 
 public class TriggerTypeSelector extends Dialog {
 

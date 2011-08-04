@@ -16,6 +16,8 @@
 package org.ohmage.triggers.utils;
 
 
+import org.ohmage.R;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -26,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import org.ohmage.R;
 
 public class TrigTextInput 
 			implements View.OnClickListener {

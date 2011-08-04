@@ -4,9 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.ohmage.feedback.FeedbackContract;
-import org.ohmage.feedback.FeedbackContract.FeedbackPromptResponses;
-import org.ohmage.feedback.FeedbackContract.FeedbackResponses;
+import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.PromptResponse;
+import org.ohmage.db.DbContract.Response;
 
 import android.app.ListActivity;
 import android.content.ContentResolver;
@@ -32,7 +32,7 @@ public class FeedbackTextChart extends ListActivity {
 		mPromptID = getIntent().getStringExtra("prompt_id");
 		
 		ContentResolver cr = this.getContentResolver();
-		Uri queryUri = FeedbackContract.getBaseUri().buildUpon()
+		Uri queryUri = DbContract.getBaseUri().buildUpon()
 			.appendPath(mCampaignUrn)
 			.appendPath(mSurveyID)
 			.appendPath("responses")
@@ -40,7 +40,7 @@ public class FeedbackTextChart extends ListActivity {
 			.appendPath(mPromptID)
 			.build();
 		
-		String[] projection = new String[] { FeedbackResponses.TIME, FeedbackPromptResponses.PROMPT_VALUE };
+		String[] projection = new String[] { Response.TIME, PromptResponse.PROMPT_VALUE };
 		
 		Cursor cursor = cr.query(queryUri, projection, null, null, null);
 		if(cursor.getCount() == 0){

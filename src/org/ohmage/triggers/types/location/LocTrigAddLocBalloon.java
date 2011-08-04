@@ -18,12 +18,14 @@ package org.ohmage.triggers.types.location;
 import java.util.List;
 import java.util.Locale;
 
+import org.ohmage.R;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Style;
 import android.graphics.Path;
+import android.graphics.Paint.Style;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -38,8 +40,6 @@ import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
-
-import org.ohmage.R;
 
 /*
  * Class which draws and manages the 'add this location' 

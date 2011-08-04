@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.location;
 
+import org.ohmage.R;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TimePickerPreference;
 import org.ohmage.triggers.utils.TrigListPreference;
@@ -29,15 +30,14 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
-import org.ohmage.R;
 
 /*
  * Editor activity for location based trigger. This activity is

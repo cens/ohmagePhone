@@ -25,9 +25,8 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.ohmage.Utilities.KVLTriplet;
-import org.ohmage.feedback.FeedbackContract;
-import org.ohmage.feedback.FeedbackContract.FeedbackPromptResponses;
-import org.ohmage.feedback.FeedbackContract.FeedbackResponses;
+import org.ohmage.db.DbContract.PromptResponse;
+import org.ohmage.db.DbContract.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.number.NumberPrompt;
@@ -97,13 +96,13 @@ public class FeedbackTimeChart extends AbstractChart {
 		// we should get a series of prompt values for the survey that we can plot
 		ContentResolver cr = context.getContentResolver();
 		// URI to match "<campaignUrn>/<surveyID>/responses/prompts/<promptID>"
-		Uri queryUri = FeedbackPromptResponses.getPromptsByCampaignAndSurvey(mCampaignUrn, mSurveyID, mPromptID);
+		Uri queryUri = PromptResponse.getPromptsByCampaignAndSurvey(mCampaignUrn, mSurveyID, mPromptID);
 
 		// columns to return; in this case, we just need the date and the value at that date point
-		String[] projection = new String[] { FeedbackResponses.TIME, FeedbackPromptResponses.PROMPT_VALUE };
+		String[] projection = new String[] { Response.TIME, PromptResponse.PROMPT_VALUE };
 		
 		// nab that data! data is sorted by FeedbackResponses.TIME
-		Cursor cursor = cr.query(queryUri, projection, null, null, FeedbackResponses.TIME);
+		Cursor cursor = cr.query(queryUri, projection, null, null, Response.TIME);
 		if(cursor.getCount() == 0){
 			cursor.close();
 			return null;

@@ -85,7 +85,7 @@ public class OhmageApi {
 		
 	}
 	
-	public static abstract class Response {
+	protected static abstract class Response {
 		protected Result mResult;
 		protected String[] mErrorCodes;
 		
@@ -772,7 +772,7 @@ public class OhmageApi {
         		HttpEntity responseEntity = response.getEntity();
         		if (responseEntity != null) {
         			try {
-        				if (true) {
+        				if (responseEntity.getContentType().getValue().equalsIgnoreCase("image/jpeg")) {
         					// it's the image data!
         					result = Result.SUCCESS;
             				

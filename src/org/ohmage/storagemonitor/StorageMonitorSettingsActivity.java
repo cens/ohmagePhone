@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage.storagemonitor;
 
+import org.ohmage.R;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,7 +24,6 @@ import android.os.Bundle;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 public class StorageMonitorSettingsActivity extends Activity {

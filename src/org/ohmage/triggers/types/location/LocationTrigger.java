@@ -18,13 +18,13 @@ package org.ohmage.triggers.types.location;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerBase;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
-import org.ohmage.R;
 
 /*
  * The concrete instance of the location based triggers class. 

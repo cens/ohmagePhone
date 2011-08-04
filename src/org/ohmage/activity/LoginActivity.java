@@ -17,13 +17,12 @@ package org.ohmage.activity;
 
 import java.util.Arrays;
 
+import org.ohmage.BackgroundManager;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
-import org.ohmage.BackgroundManager;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.AuthenticateResponse;
 
-import jbcrypt.BCrypt;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -37,7 +36,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 public class LoginActivity extends Activity {
