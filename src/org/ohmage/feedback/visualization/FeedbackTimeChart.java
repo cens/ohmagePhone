@@ -45,7 +45,7 @@ import android.net.Uri;
  * Project status demo chart.
  */
 public class FeedbackTimeChart extends AbstractChart {
-	static final String TAG = "FeedbackTimeChartLog"; 
+	static final String TAG = "FeedbackTimeChart"; 
 	protected String mPromptID;
 	protected String mCampaignUrn;
 	protected String mSurveyID;
