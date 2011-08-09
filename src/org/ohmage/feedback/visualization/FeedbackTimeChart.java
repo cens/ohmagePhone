@@ -24,6 +24,7 @@ import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.feedback.FeedbackContract;
 import org.ohmage.feedback.FeedbackContract.FeedbackPromptResponses;
@@ -142,8 +143,9 @@ public class FeedbackTimeChart extends AbstractChart {
 		long endDate = dates.get(0)[dates.get(0).length-1].getTime()  + (100 * 60 * 60 * 24 * 3);
 
 		int[] colors = new int[] { Color.RED };
-		PointStyle[] styles = new PointStyle[] { PointStyle.X };
+		PointStyle[] styles = new PointStyle[] { PointStyle.CIRCLE };
 		XYMultipleSeriesRenderer renderer = buildRenderer(colors, styles);
+		((XYSeriesRenderer) renderer.getSeriesRendererAt(0)).setFillPoints(true);
 		
 		//Set Chart
 		setChartSettings(
@@ -163,20 +165,22 @@ public class FeedbackTimeChart extends AbstractChart {
 
 		//Set chart layout
 		int topMargin = 0;
-		int bottomMargin = 100;
-		int leftMargin = 10;
-		int rightMargin = 0;
+		int bottomMargin = 50;
+		int leftMargin = 2;
+		int rightMargin = 2;
 		int margins[] = {topMargin, leftMargin, bottomMargin, rightMargin};
-		renderer.setMargins(margins);		
+				
 		renderer.setAxisTitleTextSize(23);
 		renderer.setLabelsTextSize(20);
-		renderer.setXLabelsAlign(Align.LEFT);
-		renderer.setShowLegend(false);
-		renderer.setLegendTextSize(20);
+		
+		renderer.setMargins(margins);
 		renderer.setPointSize(10);
+		renderer.setShowLegend(false);
+		renderer.setShowAxes(true);
+		renderer.setXLabelsAlign(Align.LEFT);
 		renderer.setXLabelsAngle(330);
 		renderer.setZoomButtonsVisible(true);
-		renderer.setShowAxes(true);
+		
 		
 		//Set pan limit from startData-3days to endDate+3days
 		renderer.setPanEnabled(true, true);
@@ -204,8 +208,9 @@ public class FeedbackTimeChart extends AbstractChart {
 		int length = renderer.getSeriesRendererCount();
 		for (int i = 0; i < length; i++) {
 			SimpleSeriesRenderer seriesRenderer = renderer.getSeriesRendererAt(i);
-			seriesRenderer.setDisplayChartValues(true);
+			seriesRenderer.setDisplayChartValues(false);
 		}
+		
 		return ChartFactory.getTimeChartIntent(
 				context, 
 				buildDateDataset(titles, dates, values), 
