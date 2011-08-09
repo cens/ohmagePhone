@@ -59,7 +59,6 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	public DbHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
@@ -82,7 +81,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.SURVEY_LAUNCH_CONTEXT + " TEXT, "
 				+ Response.RESPONSE + " TEXT, "
 				+ Response.UPLOADED + " INTEGER DEFAULT 0, "
-				+ Response.SOURCE + " TEXT"
+				+ Response.SOURCE + " TEXT, "
+				+ Response.HASHCODE + " TEXT"
 				+ ");");
 		
 		db.execSQL("CREATE TABLE " + Tables.CAMPAIGNS + " ("
@@ -106,6 +106,14 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.TIME + "_idx ON "
 				+ Tables.RESPONSES + " (" + Response.TIME + ");");
 		
+		// finally, to prevent duplicates, add a unique key on the
+		// 'hashcode' column, which is just a hash of the concatentation
+		// of the campaign urn + survey ID + username + time of the response,
+		// computed and maintained by us, unfortunately :\
+		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS "
+			+ Response.HASHCODE + "_idx ON "
+			+ Tables.RESPONSES + " (" + Response.HASHCODE + ");");
+		
 		// create a "flat" table of prompt responses so we
 		// can easily compute aggregates across multiple
 		// survey responses (and potentially prompts)
@@ -127,9 +135,8 @@ public class DbHelper extends SQLiteOpenHelper {
  
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.RESPONSES);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMPAIGNS);
-		onCreate(db);
+		// TODO: create an actual upgrade plan rather than just dumping and recreating everything
+		clearAll();
 	}
 	
 	private SQLiteDatabase openDb() {
@@ -172,6 +179,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		}
 		
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.RESPONSES);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.PROMPTS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMPAIGNS);
 		onCreate(db);
 		
@@ -346,6 +354,12 @@ public class DbHelper extends SQLiteOpenHelper {
 		return count > 0;
 	}
 	
+	/**
+	 * Removes survey responses (and their associated prompts) for the given campaign.
+	 * 
+	 * @param campaignUrn the campaign URN for which to remove the survey responses
+	 * @return
+	 */
 	public boolean removeResponseRows(String campaignUrn) {
 		SQLiteDatabase db = openDb();
 		
@@ -354,12 +368,59 @@ public class DbHelper extends SQLiteOpenHelper {
 		}
 		
 		// clear the prompt responses for this campaign first
+		String query = "delete from " + Tables.PROMPTS +
+						" where " + PromptResponse._ID + " in (" +
+							" select " + Tables.PROMPTS + "." + PromptResponse._ID +
+							" from " + Tables.PROMPTS +
+							" inner join " + Tables.RESPONSES + " on " + Tables.RESPONSES + "." + Response._ID + "=" + Tables.PROMPTS + "." + PromptResponse.RESPONSE_ID +
+							" where " + Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "='" + campaignUrn + "'" +
+						")";
+		db.rawQuery(query, null);
 		
-		int count = db.delete(Tables.RESPONSES, Response.CAMPAIGN_URN + "='" + campaignUrn + "'", null);
+		int count = db.delete(
+				Tables.RESPONSES,
+				Response.CAMPAIGN_URN + "='" + campaignUrn + "'",
+				null);
 		
 		closeDb(db);
 		
 		return count > 0;
+	}
+	
+	/**
+	 * Removes survey responses that are "stale".
+	 * 
+	 * Staleness is defined as a survey response whose source field is "remote", or a response
+	 * whose source field is "local" and uploaded field is 1.
+	 * 
+	 * @return
+	 */
+	public int removeStaleResponseRows() {
+		SQLiteDatabase db = openDb();
+		
+		if (db == null) {
+			return -1;
+		}
+		
+		// clear the prompt responses for this campaign first
+		String query =	"delete from " + Tables.PROMPTS +
+						" where " + Tables.PROMPTS + "." + PromptResponse._ID + " in (" +
+							" select " + Tables.PROMPTS + "." + PromptResponse._ID +
+							" from " + Tables.PROMPTS +
+							" inner join " + Tables.RESPONSES + " on " + Tables.RESPONSES + "." + Response._ID + "=" + Tables.PROMPTS + "." + PromptResponse.RESPONSE_ID +
+							" where " + Tables.RESPONSES + "." + Response.SOURCE + "='remote'" +
+							" or (" + Tables.RESPONSES + "." + Response.SOURCE + "='local' and " + Tables.RESPONSES + "." + Response.UPLOADED + "=1)" +
+						")";
+		db.rawQuery(query, null);
+		
+		int count = db.delete(
+				Tables.RESPONSES,
+				Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1)",
+				null);
+		
+		closeDb(db);
+		
+		return count;
 	}
 	
 	public void getResponseRow() {
@@ -374,7 +435,10 @@ public class DbHelper extends SQLiteOpenHelper {
 			return null;
 		}
 		
-		Cursor cursor = db.query(Tables.RESPONSES, null, Response.CAMPAIGN_URN + "='" + campaignUrn + "'", null, null, null, null);
+		Cursor cursor = db.query(Tables.RESPONSES, null,
+				Response.CAMPAIGN_URN + "='" + campaignUrn + "' AND "+
+				Response.SOURCE + "='local' AND " +
+				Response.UPLOADED + "=0", null, null, null, null);
 		
 		List<Response> responses = readResponseRows(cursor); 
 			
@@ -400,6 +464,15 @@ public class DbHelper extends SQLiteOpenHelper {
 //		return responses;
 //	}
 	
+	
+	/**
+	 * Returns survey responses for the given campaign that were stored before the given cutoff value.
+	 * Note: this only returns *local* survey responses that have not already been uploaded.
+	 * 
+	 * @param campaignUrn the campaign for which to retrieve survey responses
+	 * @param cutoffTime the time before which survey responses should be returned
+	 * @return a List<{@link Response}> of survey responses
+	 */
 	public List<Response> getSurveyResponsesBefore(String campaignUrn, long cutoffTime) {
 		
 		SQLiteDatabase db = openDb();
@@ -408,7 +481,11 @@ public class DbHelper extends SQLiteOpenHelper {
 			return null;
 		}
 		
-		Cursor cursor = db.query(Tables.RESPONSES, null, Response.CAMPAIGN_URN + "='" + campaignUrn + "' AND " + Response.TIME + " < " + Long.toString(cutoffTime), null, null, null, null);
+		Cursor cursor = db.query(Tables.RESPONSES, null,
+				Response.CAMPAIGN_URN + "='" + campaignUrn + "' AND "+
+				Response.TIME + " < " + Long.toString(cutoffTime) + " AND " +
+				Response.SOURCE + "='local' AND " +
+				Response.UPLOADED + "=0", null, null, null, null);
 		
 		List<Response> responses = readResponseRows(cursor); 
 		
@@ -455,53 +532,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		return responses; 
 	}
-	
-	/*public List<Response> getResponseRows() {
-		SQLiteDatabase db = openDb();
-		
-		if (db == null) {
-			return null;
-		}
-		
-		ArrayList<Response> responses = new ArrayList<Response>();
-		
-		Cursor cursor = db.query(Tables.RESPONSES, null, null, null, null, null, null);
-		
-		cursor.moveToFirst();
-		
-		for (int i = 0; i < cursor.getCount(); i++) {
-			
-			Response r = new Response();
-			r._id = cursor.getLong(cursor.getColumnIndex(Response._ID));
-			r.campaign = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN));
-			r.campaignVersion = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_VERSION));
-			r.username = cursor.getString(cursor.getColumnIndex(Response.USERNAME));
-			r.date = cursor.getString(cursor.getColumnIndex(Response.DATE));
-			r.time = cursor.getLong(cursor.getColumnIndex(Response.TIME));
-			r.timezone = cursor.getString(cursor.getColumnIndex(Response.TIMEZONE));
-			r.locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
-			if (! r.locationStatus.equals(SurveyLocationService.LOCATION_UNAVAILABLE)) {
-				
-				r.locationLatitude = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
-				r.locationLongitude = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
-				r.locationProvider = cursor.getString(cursor.getColumnIndex(Response.LOCATION_PROVIDER));
-				r.locationAccuracy = cursor.getFloat(cursor.getColumnIndex(Response.LOCATION_ACCURACY));
-				r.locationTime = cursor.getLong(cursor.getColumnIndex(Response.LOCATION_TIME));
-			}
-			r.surveyId = cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID));
-			r.surveyLaunchContext = cursor.getString(cursor.getColumnIndex(Response.SURVEY_LAUNCH_CONTEXT));
-			r.response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
-			responses.add(r);
-			
-			cursor.moveToNext();
-		}
-		
-		cursor.close();
-		
-		closeDb(db);
-		
-		return responses;
-	}*/
 	
 	public void updateResponseRow() {
 		

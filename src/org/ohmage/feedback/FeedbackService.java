@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
@@ -20,6 +22,7 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.feedback.utils.ISO8601DateParser;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.content.Context;
@@ -52,28 +55,28 @@ public class FeedbackService extends WakefulIntentService {
 		
 		Log.v(TAG, "Feedback service starting");
 		
+		// ==================================================================
+		// === 1. acquire handles to api and database, build campaign list
+		// ==================================================================
+		
+		// grab an instance of the api connector so we can do calls to the server for responses
 		OhmageApi api = new OhmageApi(this);
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
-
-		// helper instance for parsing utc timestamps
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		sdf.setLenient(false);
 		
-		// get the time since the last refresh so we can retrieve entries only since then.
-		// also save the time of this refresh, but only put it into the prefs at the end
-		long lastRefresh = prefs.getLastFeedbackRefreshTimestamp();
-		long thisRefresh = System.currentTimeMillis();
-		
-		// opening two databases here:
-		// the standard db which lists the users' campaigns...
+		// open the db so we can read which campaigns we're in and populate the response cache for them
 		DbHelper dbHelper = new DbHelper(this);
         List<Campaign> campaigns = dbHelper.getCampaigns();
+        
+		// helper instance for parsing utc timestamps
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd");
+		sdf.setLenient(false);
 
+        // if we received a campaign_urn in the intent, only download the data for that one campaign.
+    	// the campaign object we create only inclues the mUrn field since we don't use anything else.
         if (intent.hasExtra("campaign_urn")) {
-        	// if we received a campaign_urn in the intent, only download the data for that one
-        	// the campaign object we create only inclues the mUrn field since we don't have anything else
         	campaigns = new ArrayList<Campaign>();
         	Campaign candidate = new Campaign();
         	candidate.mUrn = intent.getStringExtra("campaign_urn");
@@ -84,27 +87,52 @@ public class FeedbackService extends WakefulIntentService {
         	campaigns = dbHelper.getCampaigns();
         }
 
+		// ==================================================================
+		// === 2. determine time range on which to query
+		// ==================================================================
+        
+        // dump all remote and local uploaded records before we start.
+        // they'll be replaced with fresh copies from the server.
+        // it's not critical if this fails, since duplicates will never be
+        // inserted into the db thanks to the hashcode unique index.
+        int staleResponses = dbHelper.removeStaleResponseRows();
+        if (staleResponses >= 0)
+        	Log.v(TAG, "Removed " + staleResponses + " stale response(s) prior to downloading");
+        else
+        	Log.e(TAG, "Error occurred when removing stale responses");
+		
+		// get the time since the last refresh so we can retrieve entries only since then.
+		// also save the time of this refresh, but only put it into the prefs at the end
+		// long lastRefresh = prefs.getLastFeedbackRefreshTimestamp();
+		long thisRefresh = System.currentTimeMillis();
+        
+		// attempt to construct a date range on which to query, if one exists
+		// this will be from two weeks ago to tomorrow
+		String startDate = null;
+		String endDate = null;
+		
+		Calendar twoWeeksAgo = new GregorianCalendar();
+		twoWeeksAgo.add(Calendar.WEEK_OF_YEAR, -2);
+		
+		Calendar tomorrow = new GregorianCalendar();
+		tomorrow.add(Calendar.DAY_OF_MONTH, 1);
+		
+		// and convert times to timestamps we can feed to the api
+		/*
+		startDate = ISO8601Utilities.formatDateTime(twoWeeksAgo.getTime());
+		endDate = ISO8601Utilities.formatDateTime(tomorrow.getTime());
+		*/
+		startDate = inputSDF.format(twoWeeksAgo.getTime());
+		endDate = inputSDF.format(tomorrow.getTime());
+		
+		// ==================================================================
+		// === 3. download responses for each campaign and insert into fbdb
+		// ==================================================================
+
 		// we'll have to iterate through all the campaigns in which this user
 		// is participating in order to gather all of their data
 		for (Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responsese for campaign " + c.mUrn + "...");
-			
-			// attempt to construct a date range on which to query, if one exists
-			// this will be from the last refresh to next year, in order to get everything
-			String startDate = null;
-			String endDate = null;
-			
-			// disabled for now b/c it's going to be hard to test
-			
-			/*
-			if (lastRefresh > 0) {
-				Date future = new Date();
-				future.setYear(future.getYear()+1);
-				
-				startDate = ISO8601Utilities.formatDateTime(new Date(lastRefresh));
-				endDate = ISO8601Utilities.formatDateTime(future);
-			}
-			*/
 			
 			SurveyReadResponse apiResponse = api.surveyResponseRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", startDate, endDate);
 			
@@ -118,8 +146,7 @@ public class FeedbackService extends WakefulIntentService {
 			
 			if (error != null) {
 				Log.e(TAG, error);
-				Toast.makeText(this, error, Toast.LENGTH_LONG).show();
-				return;
+				continue;
 			}
 			
 			Log.v(TAG, "Request for campaign " + c.mUrn + " complete!");
@@ -135,7 +162,7 @@ public class FeedbackService extends WakefulIntentService {
 			// if that's the case, don't do anything
 			if (data == null) {
 				Log.v(TAG, "No data to process, continuing feedback service");
-				return;
+				continue;
 			}
 			
 			// for each survey, insert a record into our feedback db
@@ -198,7 +225,7 @@ public class FeedbackService extends WakefulIntentService {
 								}
 							} catch (JSONException e) {
 								Log.e(TAG, "JSONException when trying to generate response json", e);
-								throw new RuntimeException(e);
+								throw new JSONException("error generating response json");
 							}
 							
 							responseJson.put(newItem);
@@ -233,13 +260,17 @@ public class FeedbackService extends WakefulIntentService {
 				catch(ParseException e) {
 					// this is a date parse exception, likely thrown from where we parse the utc timestamp
 					Log.e(TAG, "Problem parsing survey response timestamp", e);
-					return;
+					continue;
 				}
 		        catch (JSONException e) {
-					Log.e(TAG, "Problem parsing response json", e);
-					return;
+					Log.e(TAG, "Problem parsing response json: " + e.getMessage(), e);
+					continue;
 				}
 			}
+
+			// ==================================================================
+			// === 3b. download image data mentioned in responses (disabled for now)
+			// ==================================================================
 			
 			// now that we're done inserting all that data from the server
 			// let's see if we already have all the photos that were mentioned in the responses
@@ -285,6 +316,10 @@ public class FeedbackService extends WakefulIntentService {
 			
 			// done with this campaign! on to the next one...
 		}
+		
+		// ==================================================================
+		// === 4. complete! save finish time and exit
+		// ==================================================================
 		
 		// once we're completely done, it's safe to store the time at which this refresh happened.
 		// this is to ensure that we don't incorrectly flag the range between the last and current

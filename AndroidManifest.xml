@@ -243,12 +243,6 @@
 	    	</intent-filter>
 	    </receiver>
 	    
-	    <receiver android:name=".feedback.SurveyCompleteReceiver">
-	    	<intent-filter>
-	    		<action android:name="org.ohmage.SURVEY_COMPLETE"/>
-	    	</intent-filter>
-	    </receiver>
-	    
 	    <provider android:name=".db.DbProvider"
 	    	android:authorities="org.ohmage.db">
 	    </provider>

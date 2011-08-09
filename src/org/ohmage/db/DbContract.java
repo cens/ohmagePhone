@@ -17,6 +17,17 @@ public class DbContract {
 		return BASE_CONTENT_URI;
 	}
 	
+	/**
+	 * Represents a survey response.
+	 * 
+	 * The 'source' field indicates how the survey response was added to the database. If it's "local", that
+	 * means that the survey was filled out by the user and is awaiting upload. If it's "remote", it means
+	 * that it was downloaded by the feedback sync service. Both "local" and "remote" surveys are used for
+	 * generating feedback visualizations.
+	 *
+	 * The 'uploaded' field indicates whether or not the survey has been uploaded by the {@link UploadService}
+	 * yet. This field is valid only for records where 'source' is "local".
+	 */
 	public static final class Response implements BaseColumns {
 		public static final String CAMPAIGN_URN = "campaign_urn";
 		public static final String USERNAME = "username";
