@@ -22,13 +22,17 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Survey;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import org.ohmage.R;
 
 public class SurveyListAdapter extends BaseAdapter {
@@ -43,6 +47,7 @@ public class SurveyListAdapter extends BaseAdapter {
 	private List<Survey> mUnavailable;
 	private LayoutInflater mInflater;
 	private SharedPreferencesHelper mPreferencesHelper;
+	private String mCampaignUrn;
 	
 	private static final int VIEW_SURVEY = 0;
 	private static final int VIEW_HEADER = 1;
@@ -51,7 +56,8 @@ public class SurveyListAdapter extends BaseAdapter {
 	public static final int GROUP_AVAILABLE = 1;
 	public static final int GROUP_UNAVAILABLE = 2;
 	
-	public SurveyListAdapter(Context context, List<Survey> surveys, List<String> activeSurveyTitles, int surveyLayoutResource, int headerLayoutResource) {
+	public SurveyListAdapter(Context context, List<Survey> surveys, List<String> activeSurveyTitles, int surveyLayoutResource, int headerLayoutResource, String campaignUrn) {
+		mCampaignUrn = campaignUrn;
 		mContext = context;
 		mSurveyLayoutId = surveyLayoutResource;
 		mHeaderLayoutId = headerLayoutResource;
@@ -218,7 +224,7 @@ public class SurveyListAdapter extends BaseAdapter {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		
+		final int pos = position;
 		if (getItemViewType(position) == VIEW_SURVEY) {
 			SurveyViewHolder holder;
 			
@@ -229,6 +235,7 @@ public class SurveyListAdapter extends BaseAdapter {
 				holder.titleText = (TextView) convertView.findViewById(R.id.survey_title_text);
 				holder.lastTakenDateText = (TextView) convertView.findViewById(R.id.survey_last_taken_date_text);
 				holder.lastTakenTimeText = (TextView) convertView.findViewById(R.id.survey_last_taken_time_text);
+				holder.feedbackButton = (Button)convertView.findViewById(R.id.feedback_button);
 				convertView.setTag(holder);
 			} else {
 				holder = (SurveyViewHolder) convertView.getTag();
@@ -283,6 +290,18 @@ public class SurveyListAdapter extends BaseAdapter {
 				}
 			}
 			
+			holder.feedbackButton.setOnClickListener(new Button.OnClickListener(){
+				public void onClick(View v){
+					Survey survey = (Survey)getItem(pos);
+					Intent intent = new Intent(mContext, PromptListActivity.class);
+					intent.putExtra("campaign_urn", mCampaignUrn);
+					intent.putExtra("survey_id", survey.getId());
+					intent.putExtra("survey_title", survey.getTitle());
+					intent.putExtra("survey_submit_text", survey.getSubmitText());
+					mContext.startActivity(intent);	
+				}
+			});
+			
 		} else {
 			HeaderViewHolder holder;
 			
@@ -312,7 +331,7 @@ public class SurveyListAdapter extends BaseAdapter {
 				break;
 			}
 		}
-		
+				
 		return convertView;
 	}
 
@@ -321,6 +340,7 @@ public class SurveyListAdapter extends BaseAdapter {
 		TextView titleText;
 		TextView lastTakenDateText;
 		TextView lastTakenTimeText;
+		Button feedbackButton;
 	}
 	
 	static class HeaderViewHolder {

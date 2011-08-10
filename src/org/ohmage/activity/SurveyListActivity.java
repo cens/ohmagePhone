@@ -96,11 +96,11 @@ public class SurveyListActivity extends ListActivity {
 				Log.e(TAG, "Error parsing surveys from xml", e);
 			}
 			
-			adapter = new SurveyListAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
-			getListView().setOnItemLongClickListener(mItemLongClickListener);
+			adapter = new SurveyListAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header, mCampaignUrn);
 			setListAdapter(adapter);
 		}
 	}	
+	
 	
 	@Override
 	protected void onStart() {
@@ -159,22 +159,6 @@ public class SurveyListActivity extends ListActivity {
 		}
 	}
 
-	OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
-
-		@Override
-		public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-			Survey survey = (Survey) getListView().getItemAtPosition(position);
-			Intent intent = new Intent(SurveyListActivity.this, PromptListActivity.class);
-			intent.putExtra("campaign_urn", mCampaignUrn);
-			intent.putExtra("survey_id", survey.getId());
-			intent.putExtra("survey_title", survey.getTitle());
-			intent.putExtra("survey_submit_text", survey.getSubmitText());
-			startActivity(intent);			
-			//Toast.makeText(SurveyListActivity.this, survey.getTitle(), Toast.LENGTH_SHORT).show();
-			return true;			
-		}
-	};
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();

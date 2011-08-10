@@ -46,7 +46,8 @@ import android.net.Uri;
  * Project status demo chart.
  */
 public class FeedbackTimeChart extends AbstractChart {
-	static final String TAG = "FeedbackTimeChart"; 
+	static final String TAG = "FeedbackTimeChart";
+	static final int aDayInMilliseconds = 84600000;
 	protected String mPromptID;
 	protected String mCampaignUrn;
 	protected String mSurveyID;
@@ -115,7 +116,9 @@ public class FeedbackTimeChart extends AbstractChart {
 		ArrayList<Date> singleDates = new ArrayList<Date>();
 		ArrayList<Double> singleValues = new ArrayList<Double>();
 		
-		double maxValue = 0;
+		double maxResponseValue = 0;
+		double maxYLableValue = 0;
+		double minYLableValue = 0;
 		while (cursor.moveToNext()) {
 			// extract date/value from each row and put it in our series
 			// 0: time field, as a long
@@ -123,8 +126,8 @@ public class FeedbackTimeChart extends AbstractChart {
 			singleDates.add(new Date(cursor.getLong(0)));
 			singleValues.add(cursor.getDouble(1));
 			
-			if (cursor.getDouble(1) > maxValue)
-				maxValue = cursor.getDouble(1);
+			if (cursor.getDouble(1) > maxResponseValue)
+				maxResponseValue = cursor.getDouble(1);
 		}
 		
 		cursor.close();
@@ -142,7 +145,7 @@ public class FeedbackTimeChart extends AbstractChart {
 		long startDate = dates.get(0)[0].getTime()  - (100 * 60 * 60 * 24 * 3);
 		long endDate = dates.get(0)[dates.get(0).length-1].getTime()  + (100 * 60 * 60 * 24 * 3);
 
-		int[] colors = new int[] { Color.RED };
+		int[] colors = new int[] { Color.rgb(198, 226, 255) };
 		PointStyle[] styles = new PointStyle[] { PointStyle.CIRCLE };
 		XYMultipleSeriesRenderer renderer = buildRenderer(colors, styles);
 		((XYSeriesRenderer) renderer.getSeriesRendererAt(0)).setFillPoints(true);
@@ -156,7 +159,7 @@ public class FeedbackTimeChart extends AbstractChart {
 				startDate, 
 				endDate, 
 				0, 
-				maxValue+1,
+				maxResponseValue+1,
 				Color.GRAY, 
 				Color.LTGRAY
 		);
@@ -174,22 +177,15 @@ public class FeedbackTimeChart extends AbstractChart {
 		renderer.setLabelsTextSize(20);
 		
 		renderer.setMargins(margins);
-		renderer.setPointSize(10);
+		renderer.setPointSize(8);
 		renderer.setShowLegend(false);
 		renderer.setShowAxes(true);
 		renderer.setXLabelsAlign(Align.LEFT);
 		renderer.setXLabelsAngle(330);
 		renderer.setZoomButtonsVisible(true);
-		
-		
-		//Set pan limit from startData-3days to endDate+3days
-		renderer.setPanEnabled(true, true);
-		renderer.setPanLimits(new double[]{startDate, endDate, -1, maxValue+1});
-		
-		//Set zoom
-		renderer.setZoomEnabled(true, false);
-		renderer.setZoomLimits(new double[]{startDate, endDate, -1, maxValue+1});
-			
+		renderer.setApplyBackgroundColor(true);
+		renderer.setBackgroundColor(Color.DKGRAY);
+					
 		//Set Y Label
 		//TODO Need to organize all prompt types instead of handling this with NULL 
 		renderer.setYLabelsAlign(Align.LEFT);
@@ -197,13 +193,28 @@ public class FeedbackTimeChart extends AbstractChart {
 		if(propertiesList != null){
 			//Prompts that have properties (SingleChoice, MultiChoice, etc)
 			for(KVLTriplet i : propertiesList){
-				renderer.addYTextLabel(Double.valueOf(i.key).doubleValue(), i.label);
+				double iValue = Double.valueOf(i.key).doubleValue();
+				renderer.addYTextLabel(iValue, i.label);
+				if(maxYLableValue < iValue){
+					maxYLableValue = iValue;
+				}
+				if(minYLableValue > iValue){
+					minYLableValue = iValue;
+				}
 			}
 		}
 
 		// disables interpolated values from being added between text labels
 		// i assume we want this if we're providing specific labels for enumerations
 		renderer.setYLabels(0);
+
+		//Set pan limit from startData-3days to endDate+3days
+		renderer.setPanEnabled(true, true);
+		renderer.setPanLimits(new double[]{startDate-(aDayInMilliseconds*4), endDate+(aDayInMilliseconds*3), minYLableValue-1, maxYLableValue+1});
+		
+		//Set zoom
+		renderer.setZoomEnabled(true, false);
+		renderer.setZoomLimits(new double[]{startDate, endDate, minYLableValue-1, maxYLableValue+1});
 
 		int length = renderer.getSeriesRendererCount();
 		for (int i = 0; i < length; i++) {
