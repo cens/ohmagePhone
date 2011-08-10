@@ -59,7 +59,7 @@
   		
   	<LinearLayout
   		android:layout_width="fill_parent"
-  		android:layout_height="48dp"
+  		android:layout_height="wrap_content"
   		android:paddingTop="2dp"
   		android:paddingBottom="2dp"
   		android:background="#777777">
@@ -67,21 +67,21 @@
   		<Button
   			android:id="@+id/prev_button"
   			android:layout_width="0dp"
-  			android:layout_height="wrap_content"
+  			android:layout_height="fill_parent"
   			android:layout_weight="2"
   			android:text="Previous" />
   			
   		<Button
   			android:id="@+id/skip_button"
   			android:layout_width="0dp"
-  			android:layout_height="wrap_content"
+  			android:layout_height="fill_parent"
   			android:layout_weight="2"
   			android:text="Skip" />
   			
   		<Button
   			android:id="@+id/next_button"
   			android:layout_width="0dp"
-  			android:layout_height="wrap_content"
+  			android:layout_height="fill_parent"
   			android:layout_weight="2"
   			android:text="Next" />
   			

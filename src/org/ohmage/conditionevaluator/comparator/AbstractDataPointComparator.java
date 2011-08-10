@@ -50,6 +50,17 @@ public abstract class AbstractDataPointComparator implements DataPointComparator
 	        }
 	    }
 	    
+	    if (value.equalsIgnoreCase("SKIPPED")) {
+	    	if ("==".equals(condition)) {
+	    		return dataPoint.isSkipped();
+	    	} else if ("!=".equals(condition)) {
+	    		return !dataPoint.isSkipped();
+	    	} else {
+	    		//this is an invalid condition
+	    		return false;
+	    	}
+	    } 
+	    
 	    // Do the standard comparisons
 		if ("==".equals(condition)) {
 			return equals(dataPoint, value);
