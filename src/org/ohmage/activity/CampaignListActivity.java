@@ -503,12 +503,14 @@ public class CampaignListActivity extends ListActivity {
 				DbHelper dbHelper = new DbHelper(this);
 				dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
 				
-				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(this, FeedbackService.class);
-				// annotate the request with the current campaign's URN
-				fbIntent.putExtra("campaign_urn", campaignUrn);
-				// and go!
-				WakefulIntentService.sendWakefulWork(this, fbIntent);
+				if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+					// create an intent to fire off the feedback service
+					Intent fbIntent = new Intent(this, FeedbackService.class);
+					// annotate the request with the current campaign's URN
+					fbIntent.putExtra("campaign_urn", campaignUrn);
+					// and go!
+					WakefulIntentService.sendWakefulWork(this, fbIntent);
+				}
 				
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing response json", e);

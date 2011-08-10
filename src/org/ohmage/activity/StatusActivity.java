@@ -550,6 +550,12 @@ public class StatusActivity extends Activity {
 				}
 			}
 			
+			// if feedback is not enabled, then those marked-uploaded rows will never
+			// be removed. we run the pruning process here manually in order to get rid of them.
+			if (!SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+				dbHelper.removeStaleResponseRows();
+			}
+			
 			return response;
 		}
 		

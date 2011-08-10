@@ -17,6 +17,9 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.feedback.FeedbackService;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -269,12 +272,14 @@ public class LauncherActivity extends Activity {
 							DbHelper dbHelper = new DbHelper(mActivity);
 							dbHelper.addCampaign(defaultCampaign.mUrn, name, creationTimestamp, downloadTimestamp, xml);
 							
-//							// create an intent to fire off the feedback service
-//							Intent fbIntent = new Intent(this, FeedbackService.class);
-//							// annotate the request with the current campaign's URN
-//							fbIntent.putExtra("campaign_urn", campaignUrn);
-//							// and go!
-//							WakefulIntentService.sendWakefulWork(this, fbIntent);
+							if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+								// create an intent to fire off the feedback service
+								Intent fbIntent = new Intent(mActivity, FeedbackService.class);
+								// annotate the request with the current campaign's URN
+								fbIntent.putExtra("campaign_urn", defaultCampaign.mUrn);
+								// and go!
+								WakefulIntentService.sendWakefulWork(mActivity, fbIntent);
+							}
 							
 							return CampaignLoadResult.SUCCESS;
 							

@@ -149,6 +149,12 @@ public class UploadService extends WakefulIntentService{
 				Log.i(TAG, "No survey responses to upload for " + campaign.mUrn);
 			}
 		}
+		
+		// if feedback is not enabled, then those marked-uploaded rows will never
+		// be removed. we run the pruning process here manually in order to get rid of them.
+		if (!SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+			dbHelper.removeStaleResponseRows();
+		}
 	}
 	
 	private void uploadMobilityData() {

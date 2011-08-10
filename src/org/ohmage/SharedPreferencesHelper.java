@@ -24,6 +24,7 @@ public class SharedPreferencesHelper {
 	public static final String DEFAULT_SERVER_URL = "https://dev1.andwellness.org/";
 //	public static final String DEFAULT_SERVER_URL = "https://dev1.mobilizingcs.org/";
 	public static final boolean IS_SINGLE_CAMPAIGN = true;
+	public static final boolean ALLOWS_FEEDBACK = true;
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";

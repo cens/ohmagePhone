@@ -97,7 +97,11 @@ public class SurveyListActivity extends ListActivity {
 			}
 			
 			adapter = new SurveyListAdapter(this, mSurveys, mActiveSurveyTitles, R.layout.survey_list_item, R.layout.survey_list_header);
-			getListView().setOnItemLongClickListener(mItemLongClickListener);
+			
+			// TODO: if the long-click handler is ever used for anything other than feedback, this "if" should be removed
+			if (SharedPreferencesHelper.ALLOWS_FEEDBACK)
+				getListView().setOnItemLongClickListener(mItemLongClickListener);
+			
 			setListAdapter(adapter);
 		}
 	}	

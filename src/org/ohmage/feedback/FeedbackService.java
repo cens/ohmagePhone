@@ -53,6 +53,11 @@ public class FeedbackService extends WakefulIntentService {
 		
 		Log.v(TAG, "Feedback service starting");
 		
+		if (!SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+			Log.e(TAG, "Feedback service aborted, because feedback is not allowed in the preferences");
+			return;
+		}
+		
 		// ==================================================================
 		// === 1. acquire handles to api and database, build campaign list
 		// ==================================================================

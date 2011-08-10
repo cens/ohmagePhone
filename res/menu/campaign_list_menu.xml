@@ -12,5 +12,5 @@
         android:title="Status" />
     <item 
     	android:id="@+id/fbtest" 
-    	android:title="Feedback Test" android:visible="true"/>
+    	android:title="Feedback Test" android:visible="false"/>
 </menu>
