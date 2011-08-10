@@ -64,6 +64,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import org.ohmage.R;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 
@@ -102,6 +104,10 @@ public class CampaignListActivity extends ListActivity {
 		if (!preferencesHelper.isAuthenticated()) {
 			Log.i(TAG, "no credentials saved, so launch Login");
 			startActivity(new Intent(this, LoginActivity.class));
+			finish();
+		} else if (SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			Log.e(TAG, "Attempting to start CampaignListActivity when in SINGLE_CAMPAIGN mode. Aborting!");
+			Toast.makeText(this, "Attempting to start CampaignListActivity when in SINGLE_CAMPAIGN mode. Aborting!", Toast.LENGTH_LONG).show();
 			finish();
 		} else {
 			

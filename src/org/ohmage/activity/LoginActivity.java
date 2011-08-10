@@ -89,24 +89,7 @@ public class LoginActivity extends Activity {
         } else {
         	Log.i(TAG, "creating from scratch");
         	
-        	boolean isFirstRun = mPreferencesHelper.isFirstRun();
-            
-            if (isFirstRun) {
-            	Log.i(TAG, "this is the first run");
-            	
-            	BackgroundManager.initComponents(this);
-            	
-            	//cancel get started notification. this works regardless of how we start the app (notification or launcher)
-            	//NotificationHelper.cancel(this, NotificationHelper.NOTIFY_GET_STARTED, null);
-            	
-            	//show intro dialog
-            	//showDialog(DIALOG_FIRST_RUN);
-            	mPreferencesHelper.setFirstRun(false);
-            } else {
-            	Log.i(TAG, "this is not the first run");
-            }
-            
-            //clear login fail notification (if such notification existed) 
+        	//clear login fail notification (if such notification existed) 
         	//NotificationHelper.cancel(this, NotificationHelper.NOTIFY_LOGIN_FAIL, null);
         	//move this down so notification is only cleared if login is successful???
         	
@@ -318,11 +301,32 @@ public class LoginActivity extends Activity {
 			//register receivers
 			//BackgroundManager.initAuthComponents(this);
 			
+			
+			
+			boolean isFirstRun = mPreferencesHelper.isFirstRun();
+            
+			if (isFirstRun) {
+            	Log.i(TAG, "this is the first run");
+            	
+            	BackgroundManager.initComponents(this);
+            	
+            	//cancel get started notification. this works regardless of how we start the app (notification or launcher)
+            	//NotificationHelper.cancel(this, NotificationHelper.NOTIFY_GET_STARTED, null);
+            	
+            	//show intro dialog
+            	//showDialog(DIALOG_FIRST_RUN);
+            	mPreferencesHelper.setFirstRun(false);
+            } else {
+            	Log.i(TAG, "this is not the first run");
+            }
+			
+            //start main activity
+			Intent intent = new Intent(LoginActivity.this, LauncherActivity.class);
+			startActivity(intent);
+			
 			//close this activity
 			finish();
 			
-			//start main activity
-			startActivity(new Intent(LoginActivity.this, CampaignListActivity.class));
 			break;
 		case FAILURE:
 			Log.e(TAG, "login failure");

@@ -7,6 +7,11 @@
         android:enabled="true" />
         
     <item 
+		android:id="@+id/mobility_settings"
+        android:title="Mobility"
+        android:visible="false" />
+        
+    <item 
 		android:id="@+id/location_trace_settings"
         android:title="Location tracing"
         android:visible="false" />
