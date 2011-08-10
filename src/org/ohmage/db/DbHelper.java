@@ -447,24 +447,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		return responses;
 	}
 	
-//	public List<Response> getSurveyResponsesBefore(long cutoffTime) {
-//		
-//		SQLiteDatabase db = openDb();
-//		
-//		if (db == null) {
-//			return null;
-//		}
-//		
-//		Cursor cursor = db.query(Tables.RESPONSES, null, Response.TIME + " < " + Long.toString(cutoffTime), null, null, null, null);
-//		
-//		List<Response> responses = readResponseRows(cursor); 
-//		
-//		closeDb(db);
-//		
-//		return responses;
-//	}
-	
-	
 	/**
 	 * Returns survey responses for the given campaign that were stored before the given cutoff value.
 	 * Note: this only returns *local* survey responses that have not already been uploaded.
@@ -531,10 +513,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		cursor.close();
 		
 		return responses; 
-	}
-	
-	public void updateResponseRow() {
-		
 	}
 
 	public int updateRecentRowLocations(String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime) {
