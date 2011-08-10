@@ -22,12 +22,10 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.feedback.utils.ISO8601DateParser;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 

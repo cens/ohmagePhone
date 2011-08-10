@@ -1,5 +1,7 @@
 package org.ohmage.db;
 
+import org.ohmage.service.UploadService;
+
 import android.net.Uri;
 import android.provider.BaseColumns;
 

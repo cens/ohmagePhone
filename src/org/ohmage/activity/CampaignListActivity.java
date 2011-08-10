@@ -53,10 +53,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 import android.widget.Toast;
-import org.ohmage.R;
+import android.widget.AdapterView.OnItemLongClickListener;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 public class CampaignListActivity extends ListActivity {

@@ -15,11 +15,8 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
-import org.ohmage.feedback.FeedbackService;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
+import org.ohmage.db.DbContract.Campaign;
 
 import android.app.Activity;
 import android.content.Intent;
