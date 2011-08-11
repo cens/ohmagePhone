@@ -9,9 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ohmage.CampaignXmlHelper;
 import org.ohmage.PromptXmlParser;
+import org.ohmage.R;
 import org.ohmage.Utilities.KVLTriplet;
-import org.ohmage.feedback.FeedbackContract;
-import org.ohmage.feedback.FeedbackContract.FeedbackResponses;
+import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.Response;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
@@ -47,7 +48,6 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 public class FeedbackMapViewActivity extends MapActivity {
@@ -92,7 +92,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 	    
 	    //Retrieve data from CP
 	    ContentResolver cr = this.getContentResolver();
-	    Uri queryUri = FeedbackContract.getBaseUri().buildUpon()
+	    Uri queryUri = DbContract.getBaseUri().buildUpon()
 	    .appendPath(mCampaignUrn)
 	    .appendPath(mSurveyId)
 	    .appendPath("responses")
@@ -102,11 +102,11 @@ public class FeedbackMapViewActivity extends MapActivity {
     
 	    List<Responses> listResponses = new ArrayList<Responses>();
 	    while(cursor.moveToNext()){
-	    	String hashcode = cursor.getString(cursor.getColumnIndex(FeedbackResponses.HASHCODE));
-	    	String locationStatus = cursor.getString(cursor.getColumnIndex(FeedbackResponses.LOCATION_STATUS));
-	    	String latitude = cursor.getString(cursor.getColumnIndex(FeedbackResponses.LOCATION_LATITUDE));
-	    	String longitude = cursor.getString(cursor.getColumnIndex(FeedbackResponses.LOCATION_LONGITUDE));
-	    	String response = cursor.getString(cursor.getColumnIndex(FeedbackResponses.RESPONSE));
+	    	String hashcode = cursor.getString(cursor.getColumnIndex(Response.HASHCODE));
+	    	String locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
+	    	String latitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
+	    	String longitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
+	    	String response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
 	    	
 	    	listResponses.add(new Responses(hashcode, locationStatus, latitude, longitude, response));	    	
 	    }

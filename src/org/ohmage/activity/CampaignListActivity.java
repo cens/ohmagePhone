@@ -20,29 +20,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import jbcrypt.BCrypt;
-
-import org.achartengine.ChartFactory;
-import org.achartengine.chart.PointStyle;
-import org.achartengine.chartdemo.demo.chart.AverageTemperatureChart;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.CampaignManager;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
-import org.ohmage.CampaignManager;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.feedback.FBTestActivity;
 import org.ohmage.feedback.FeedbackService;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -50,8 +42,6 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Paint.Align;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -61,10 +51,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
-import org.ohmage.R;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemLongClickListener;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 public class CampaignListActivity extends ListActivity {
@@ -102,6 +95,10 @@ public class CampaignListActivity extends ListActivity {
 		if (!preferencesHelper.isAuthenticated()) {
 			Log.i(TAG, "no credentials saved, so launch Login");
 			startActivity(new Intent(this, LoginActivity.class));
+			finish();
+		} else if (SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			Log.e(TAG, "Attempting to start CampaignListActivity when in SINGLE_CAMPAIGN mode. Aborting!");
+			Toast.makeText(this, "Attempting to start CampaignListActivity when in SINGLE_CAMPAIGN mode. Aborting!", Toast.LENGTH_LONG).show();
 			finish();
 		} else {
 			
@@ -506,12 +503,14 @@ public class CampaignListActivity extends ListActivity {
 				DbHelper dbHelper = new DbHelper(this);
 				dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
 				
-				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(this, FeedbackService.class);
-				// annotate the request with the current campaign's URN
-				fbIntent.putExtra("campaign_urn", campaignUrn);
-				// and go!
-				WakefulIntentService.sendWakefulWork(this, fbIntent);
+				if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+					// create an intent to fire off the feedback service
+					Intent fbIntent = new Intent(this, FeedbackService.class);
+					// annotate the request with the current campaign's URN
+					fbIntent.putExtra("campaign_urn", campaignUrn);
+					// and go!
+					WakefulIntentService.sendWakefulWork(this, fbIntent);
+				}
 				
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing response json", e);

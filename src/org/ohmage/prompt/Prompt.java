@@ -17,7 +17,6 @@ package org.ohmage.prompt;
 
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
 
 public interface Prompt extends SurveyElement, Displayable{
 

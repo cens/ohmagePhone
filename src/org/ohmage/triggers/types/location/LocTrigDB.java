@@ -16,6 +16,8 @@
 package org.ohmage.triggers.types.location;
 
 
+import org.ohmage.R;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -25,8 +27,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
-
-import org.ohmage.R;
 
 /*
  * Database to store the location triggers settings. 

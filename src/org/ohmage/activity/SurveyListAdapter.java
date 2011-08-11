@@ -18,6 +18,7 @@ package org.ohmage.activity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Survey;
 
@@ -236,6 +237,11 @@ public class SurveyListAdapter extends BaseAdapter {
 				holder.lastTakenDateText = (TextView) convertView.findViewById(R.id.survey_last_taken_date_text);
 				holder.lastTakenTimeText = (TextView) convertView.findViewById(R.id.survey_last_taken_time_text);
 				holder.feedbackButton = (Button)convertView.findViewById(R.id.feedback_button);
+				
+				// hide the feedback button if we disallow feedback in the prefs and
+				// show it if we do allow feedback
+				holder.feedbackButton.setVisibility((SharedPreferencesHelper.ALLOWS_FEEDBACK)?(View.VISIBLE):(View.INVISIBLE));
+				
 				convertView.setTag(holder);
 			} else {
 				holder = (SurveyViewHolder) convertView.getTag();

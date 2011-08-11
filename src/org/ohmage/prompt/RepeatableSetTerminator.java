@@ -1,6 +1,7 @@
 package org.ohmage.prompt;
 
 import org.ohmage.R;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

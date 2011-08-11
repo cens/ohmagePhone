@@ -16,8 +16,6 @@
 package org.ohmage.service;
 
 import org.ohmage.activity.SurveyListActivity;
-import org.ohmage.db.Campaign;
-import org.ohmage.db.DbHelper;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.triggers.notif.Notifier;
 

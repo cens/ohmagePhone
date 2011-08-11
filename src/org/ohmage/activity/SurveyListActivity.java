@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.achartengine.chartdemo.demo.chart.AverageTemperatureChart;
-import org.ohmage.OhmageApplication;
 import org.ohmage.CampaignXmlHelper;
+import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Survey;
 import org.ohmage.triggers.glue.LocationTriggerAPI;
@@ -43,10 +43,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
-import org.ohmage.R;
+import android.widget.AdapterView.OnItemLongClickListener;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
 public class SurveyListActivity extends ListActivity {
@@ -163,6 +163,13 @@ public class SurveyListActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.survey_list_menu, menu);
+	    if (SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+	    	menu.findItem(R.id.status).setVisible(true);
+	    	menu.findItem(R.id.mobility_settings).setVisible(true);
+	    } else {
+	    	menu.findItem(R.id.status).setVisible(false);
+	    	menu.findItem(R.id.mobility_settings).setVisible(false);
+	    }
 	  	return super.onCreateOptionsMenu(menu);
 	}
 
@@ -176,6 +183,11 @@ public class SurveyListActivity extends ListActivity {
 				surveyTitles.add(survey.getTitle());
 			}
 			TriggerFramework.launchTriggersActivity(this, mCampaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
+			return true;
+			
+		case R.id.mobility_settings:
+			MobilityInterface.showMobilityOptions(this);
+			//Toast.makeText(this, "Mobility is not available.", Toast.LENGTH_SHORT).show();
 			return true;
 			
 		case R.id.location_trace_settings:

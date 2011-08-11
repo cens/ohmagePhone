@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.R;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.app.Activity;
@@ -35,7 +36,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 /**

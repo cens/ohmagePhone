@@ -1,18 +1,10 @@
 package org.ohmage.feedback;
 
-import java.util.List;
-
-import org.ohmage.Survey;
-import org.ohmage.activity.StatusActivity;
-import org.ohmage.triggers.glue.LocationTriggerAPI;
-import org.ohmage.triggers.glue.TriggerFramework;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
 import org.ohmage.R;
+import org.ohmage.db.DbContract;
+
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -32,6 +24,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class FBTestActivity extends Activity {
 	private static final int CONTEXT_COPY = 1;
@@ -75,7 +69,7 @@ public class FBTestActivity extends Activity {
 					try {
 						ContentResolver cr = me.getContentResolver();
 						
-						result = cr.query(Uri.parse("content://" + FeedbackContract.CONTENT_AUTHORITY + "/" + query), null, null, null, null);						
+						result = cr.query(Uri.parse("content://" + DbContract.CONTENT_AUTHORITY + "/" + query), null, null, null, null);						
 						result.moveToFirst();
 						
 						// first print out the column names

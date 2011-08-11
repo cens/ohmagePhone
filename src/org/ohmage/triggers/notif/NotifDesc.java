@@ -24,7 +24,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.triggers.config.NotifConfig;
-import org.ohmage.triggers.utils.TrigPrefManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -32,8 +32,8 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.triggers.config.LocTrigConfig;
 import org.ohmage.triggers.utils.SimpleTime;
 

@@ -2,19 +2,17 @@ package org.ohmage.feedback.visualization;
 
 import java.util.ArrayList;
 
-import android.content.Context;
+import org.ohmage.R;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
-
-import org.ohmage.R;
 
 public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 

@@ -1,17 +1,14 @@
 package org.ohmage.feedback;
 
-import org.ohmage.service.UploadReceiver;
-import org.ohmage.service.UploadService;
-import org.ohmage.storagemonitor.StorageMonitorService;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.systemlog.Log;
 import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.systemlog.Log;
 
 public class FeedbackSyncReceiver extends BroadcastReceiver {
 	

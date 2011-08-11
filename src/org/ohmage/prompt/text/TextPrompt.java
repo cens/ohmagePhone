@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage.prompt.text;
 
+import org.ohmage.R;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.content.Context;
@@ -24,7 +25,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import org.ohmage.R;
 
 public class TextPrompt extends AbstractPrompt {
 	

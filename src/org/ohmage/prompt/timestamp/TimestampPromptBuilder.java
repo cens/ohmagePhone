@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
-import org.ohmage.prompt.number.NumberPrompt;
 
 
 public class TimestampPromptBuilder implements PromptBuilder {

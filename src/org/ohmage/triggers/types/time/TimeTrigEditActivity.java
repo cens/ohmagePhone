@@ -17,6 +17,7 @@ package org.ohmage.triggers.types.time;
 
 import java.util.LinkedHashMap;
 
+import org.ohmage.R;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TimePickerPreference;
 
@@ -27,14 +28,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-import org.ohmage.R;
 
 public class TimeTrigEditActivity extends PreferenceActivity 
 							implements View.OnClickListener, 

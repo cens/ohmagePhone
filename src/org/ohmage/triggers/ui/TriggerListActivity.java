@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage.triggers.ui;
 
+import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.base.TriggerDB;
@@ -36,12 +37,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -49,7 +49,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.ohmage.R;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class TriggerListActivity extends ListActivity 
 			implements OnClickListener {

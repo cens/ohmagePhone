@@ -15,23 +15,15 @@
  ******************************************************************************/
 package org.ohmage;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
 import org.ohmage.feedback.FeedbackSyncReceiver;
-import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.service.UploadReceiver;
 import org.ohmage.storagemonitor.StorageMonitorService;
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.NotFoundException;
 import android.os.SystemClock;
-import android.widget.Toast;
 import edu.ucla.cens.systemlog.Log;
 
 public class BackgroundManager {
@@ -84,10 +76,12 @@ public class BackgroundManager {
 		Log.i(TAG, "started storage monitor service");
 		
 		// FAISAL: feedback service repeating alarm registered here
-		Intent fbServiceSyncIntent = new Intent(FeedbackSyncReceiver.ACTION_FBSYNC_ALARM);
-		PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
-		alarms.cancel(fbServiceSyncPendingIntent);
-		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);
-		Log.i(TAG, "Feedback sync repeating alarm set");
+		if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+			Intent fbServiceSyncIntent = new Intent(FeedbackSyncReceiver.ACTION_FBSYNC_ALARM);
+			PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
+			alarms.cancel(fbServiceSyncPendingIntent);
+			alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);
+			Log.i(TAG, "Feedback sync repeating alarm set");
+		}
 	}
 }

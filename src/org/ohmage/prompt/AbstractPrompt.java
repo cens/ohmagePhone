@@ -21,23 +21,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
-import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPromptBuilder;
 import org.ohmage.prompt.multichoice.MultiChoicePrompt;
-import org.ohmage.prompt.multichoice.MultiChoicePromptBuilder;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
-import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPromptBuilder;
 import org.ohmage.prompt.number.NumberPrompt;
-import org.ohmage.prompt.number.NumberPromptBuilder;
 import org.ohmage.prompt.photo.PhotoPrompt;
-import org.ohmage.prompt.photo.PhotoPromptBuilder;
 import org.ohmage.prompt.remoteactivity.RemoteActivityPrompt;
-import org.ohmage.prompt.remoteactivity.RemoteActivityPromptBuilder;
 import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
-import org.ohmage.prompt.singlechoice.SingleChoicePromptBuilder;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
-import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPromptBuilder;
 import org.ohmage.prompt.text.TextPrompt;
-import org.ohmage.prompt.text.TextPromptBuilder;
 import org.ohmage.prompt.timestamp.TimestampPrompt;
 
 

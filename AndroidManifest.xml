@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.ohmage"
-	android:versionName="2.6 beta" android:versionCode="11080301">
+	android:versionName="2.6 beta" android:versionCode="11080900">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -40,6 +40,10 @@
 		</activity>
 		
 		<activity android:name=".activity.CampaignListActivity" android:theme="@android:style/Theme.Light" android:label="ohmage"
+			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
+		</activity>
+		
+		<activity android:name=".activity.LauncherActivity" android:theme="@android:style/Theme.Light" android:label="ohmage"
 			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -243,14 +247,8 @@
 	    	</intent-filter>
 	    </receiver>
 	    
-	    <receiver android:name=".feedback.SurveyCompleteReceiver">
-	    	<intent-filter>
-	    		<action android:name="org.ohmage.SURVEY_COMPLETE"/>
-	    	</intent-filter>
-	    </receiver>
-	    
-	    <provider android:name=".feedback.FeedbackProvider"
-	    	android:authorities="org.ohmage.feedback">
+	    <provider android:name=".db.DbProvider"
+	    	android:authorities="org.ohmage.db">
 	    </provider>
 	    
  		<activity android:name=".feedback.FBTestActivity" android:label="ohmage"

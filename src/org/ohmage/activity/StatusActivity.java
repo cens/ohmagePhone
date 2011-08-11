@@ -24,14 +24,15 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.CampaignManager;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
-import org.ohmage.CampaignManager;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
-import org.ohmage.db.Campaign;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.Response;
+import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.service.SurveyGeotagService;
 
@@ -40,7 +41,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -49,7 +49,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import org.ohmage.R;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
@@ -538,7 +537,7 @@ public class StatusActivity extends Activity {
 					if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 						Log.i(TAG, "Successfully uploaded survey responses for " + campaign.mUrn);
 						for (int i = 0; i < responseRows.size(); i++) {
-							dbHelper.removeResponseRow(responseRows.get(i)._id);
+							dbHelper.setResponseRowUploaded(responseRows.get(i)._id);
 						}
 					} else {
 						Log.e(TAG, "Failed to upload survey responses for " + campaign.mUrn);
@@ -549,6 +548,12 @@ public class StatusActivity extends Activity {
 				} else {
 					Log.i(TAG, "No survey responses to upload for " + campaign.mUrn);
 				}
+			}
+			
+			// if feedback is not enabled, then those marked-uploaded rows will never
+			// be removed. we run the pruning process here manually in order to get rid of them.
+			if (!SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+				dbHelper.removeStaleResponseRows();
 			}
 			
 			return response;
