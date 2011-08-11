@@ -118,7 +118,8 @@ public class PromptListActivity extends ListActivity{
 			intent = new Intent(this, FeedbackTextChart.class);
 			intent.putExtra("campaign_urn", mCampaignUrn);
 			intent.putExtra("survey_id", mSurveyId);
-			intent.putExtra("prompt_id", curPrompt.getID());			
+			intent.putExtra("prompt_id", curPrompt.getID());
+			intent.putExtra("prompt_title", curPrompt.getTitle());
 		} else if (mPrompts.get(position) instanceof PhotoPrompt) {
 			Toast.makeText(this, "PhotoPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof RemoteActivityPrompt){
