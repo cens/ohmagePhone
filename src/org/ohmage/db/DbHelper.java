@@ -388,14 +388,14 @@ public class DbHelper extends SQLiteOpenHelper {
 	}
 	
 	/**
-	 * Removes survey responses that are "stale".
+	 * Removes survey responses that are "stale" for the given campaignUrn.
 	 * 
 	 * Staleness is defined as a survey response whose source field is "remote", or a response
 	 * whose source field is "local" and uploaded field is 1.
 	 * 
 	 * @return
 	 */
-	public int removeStaleResponseRows() {
+	public int removeStaleResponseRows(String campaignUrn) {
 		SQLiteDatabase db = openDb();
 		
 		if (db == null) {
@@ -409,18 +409,43 @@ public class DbHelper extends SQLiteOpenHelper {
 							" from " + Tables.PROMPTS +
 							" inner join " + Tables.RESPONSES + " on " + Tables.RESPONSES + "." + Response._ID + "=" + Tables.PROMPTS + "." + PromptResponse.RESPONSE_ID +
 							" where " + Tables.RESPONSES + "." + Response.SOURCE + "='remote'" +
-							" or (" + Tables.RESPONSES + "." + Response.SOURCE + "='local' and " + Tables.RESPONSES + "." + Response.UPLOADED + "=1)" +
-						")";
+							" or (" + Tables.RESPONSES + "." + Response.SOURCE + "='local' and " + Tables.RESPONSES + "." + Response.UPLOADED + "=1)";
+		
+		// add the campaign clause to the inner response select query if it's available
+		if (campaignUrn != null)
+			query += " and " + Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "='" + campaignUrn + "'";
+		
+		// and finally add the closing paren for the inner response select query
+		query += ")";
+		
 		db.rawQuery(query, null);
+		
+		// also build and execute the delete on the response table
+		String whereClause = Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1)";
+		
+		if (campaignUrn != null)
+			whereClause += " and " + Response.CAMPAIGN_URN + "='" + campaignUrn + "'";
 		
 		int count = db.delete(
 				Tables.RESPONSES,
-				Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1)",
+				whereClause,
 				null);
 		
 		closeDb(db);
 		
 		return count;
+	}
+	
+	/**
+	 * Removes survey responses that are "stale" for all campaigns.
+	 * 
+	 * Staleness is defined as a survey response whose source field is "remote", or a response
+	 * whose source field is "local" and uploaded field is 1.
+	 * 
+	 * @return
+	 */
+	public int removeStaleResponseRows() {
+		return removeStaleResponseRows(null);
 	}
 	
 	public void getResponseRow() {
