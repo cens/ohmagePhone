@@ -27,6 +27,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -79,8 +80,11 @@ public class PromptListActivity extends ListActivity{
 		}
 		
 		ArrayAdapter<PromptListElement> adapter;
-		adapter = new ArrayAdapter<PromptListElement>(this, android.R.layout.simple_list_item_1, arPromptsTitle);
+		adapter = new ArrayAdapter<PromptListElement>(this, R.layout.prompt_list, arPromptsTitle);
 		setListAdapter(adapter);
+		getListView().setBackgroundColor(Color.WHITE);
+		getListView().setCacheColorHint(Color.WHITE);
+		
 		setTitle("Feedback");
 	}
 	
@@ -94,7 +98,7 @@ public class PromptListActivity extends ListActivity{
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this); //If there is no response, it returns NULL
 			if(intent == null){
-				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
 			}
 		} else if (mPrompts.get(position) instanceof MultiChoicePrompt) {
 			Toast.makeText(this, "MultiChoicePrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
@@ -106,7 +110,7 @@ public class PromptListActivity extends ListActivity{
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
 			if(intent == null){
-				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
 			}
 		} else if (mPrompts.get(position) instanceof HoursBeforeNowPrompt) {
 			Toast.makeText(this, "HoursBeforeNowPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
@@ -121,7 +125,7 @@ public class PromptListActivity extends ListActivity{
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
 			if(intent == null){
-				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
 			}			
 		}
 		else{

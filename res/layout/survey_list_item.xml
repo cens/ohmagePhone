@@ -57,12 +57,12 @@
 		
 	</LinearLayout>
 		
-	<Button android:id="@+id/feedback_button"
+	<Button 
+		android:id="@+id/feedback_button"
 		android:focusable="false"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:text="Feed\nback"
-        android:layout_margin="5dp"
-        android:layout_gravity="center"
-        android:gravity="center"/>
+        android:layout_marginTop="2dp"
+        android:layout_gravity="center_vertical"
+        android:text="Feed\nback"/>
 </LinearLayout>
