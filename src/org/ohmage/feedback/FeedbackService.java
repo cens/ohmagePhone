@@ -99,8 +99,8 @@ public class FeedbackService extends WakefulIntentService {
         // it's not critical if this fails, since duplicates will never be
         // inserted into the db thanks to the hashcode unique index.
         
-        // for now, only do this if we're running over all the campaigns
         if (intent.hasExtra("campaign_urn")) {
+        	// if we're running over a single campaign, only delete stale responses for that campaign
         	String campaignUrn = intent.getStringExtra("campaign_urn");
             int staleResponses = dbHelper.removeStaleResponseRows(campaignUrn);
             if (staleResponses >= 0)
@@ -109,6 +109,7 @@ public class FeedbackService extends WakefulIntentService {
             	Log.e(TAG, "Error occurred when removing stale responses");
         }
         else {
+        	// otherwise, let's delete stale responses for all campaigns
             int staleResponses = dbHelper.removeStaleResponseRows();
             if (staleResponses >= 0)
             	Log.v(TAG, "Removed " + staleResponses + " stale response(s) for all campaigns prior to downloading");

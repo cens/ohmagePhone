@@ -420,9 +420,15 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		db.rawQuery(query, null);
 		
+		// also build and execute the delete on the response table
+		String whereClause = Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1)";
+		
+		if (campaignUrn != null)
+			whereClause += " and " + Response.CAMPAIGN_URN + "='" + campaignUrn + "'";
+		
 		int count = db.delete(
 				Tables.RESPONSES,
-				Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1)",
+				whereClause,
 				null);
 		
 		closeDb(db);
