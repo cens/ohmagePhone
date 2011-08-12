@@ -238,12 +238,12 @@ public class TriggerListActivity extends ListActivity
 		c.close();
 	}
 
-	private void editTrigger(String trigType, int trigId, String trigDesc) {
+	private void editTrigger(String trigType, int trigId, String trigDesc, String actDesc) {
 		
 		TriggerBase trig = mTrigMap.getTrigger(trigType);
 		
 		if(trig != null) {
-			trig.launchTriggerEditActivity(this,trigId, trigDesc, isAdminLoggedIn());
+			trig.launchTriggerEditActivity(this,trigId, trigDesc, actDesc, mActions, isAdminLoggedIn());
 		}
 	}
 	
@@ -357,7 +357,9 @@ public class TriggerListActivity extends ListActivity
 		String trigType = mCursor.getString(
 				  		  mCursor.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_TYPE));
 		
-		editTrigger(trigType, trigId, trigDesc);
+		String actDesc = mCursor.getString(mCursor.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_ACTION_DESCRIPT));
+		
+		editTrigger(trigType, trigId, trigDesc, actDesc);
     }
 	
 	private boolean isAdminLoggedIn() {
@@ -502,7 +504,7 @@ public class TriggerListActivity extends ListActivity
 			@Override
 			public void onClick(String trigType) {
 				mTrigMap.getTrigger(trigType)
-						.launchTriggerCreateActivity(TriggerListActivity.this, mCampaignUrn,
+						.launchTriggerCreateActivity(TriggerListActivity.this, mCampaignUrn, mActions,
 													 isAdminLoggedIn());
 			}
 		});

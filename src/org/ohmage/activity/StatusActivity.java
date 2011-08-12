@@ -223,8 +223,7 @@ public class StatusActivity extends Activity {
 		try {
 			dismissDialog(DIALOG_UPLOAD_PROGRESS);
 		} catch (IllegalArgumentException e) {
-			Log.e(TAG, "Attempting to dismiss dialog that had not been shown.");
-			e.printStackTrace();
+			Log.e(TAG, "Attempting to dismiss dialog that had not been shown.", e);
 		}
 		
 		switch (response.getResult()) {
