@@ -5,14 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.achartengine.chartdemo.demo.chart.BudgetDoughnutChart;
-import org.achartengine.chartdemo.demo.chart.CombinedTemperatureChart;
-import org.achartengine.chartdemo.demo.chart.ProjectStatusBubbleChart;
-import org.achartengine.chartdemo.demo.chart.SalesComparisonChart;
-import org.achartengine.chartdemo.demo.chart.SensorValuesChart;
-import org.achartengine.chartdemo.demo.chart.TrigonometricFunctionsChart;
 import org.ohmage.CampaignXmlHelper;
 import org.ohmage.PromptXmlParser;
+import org.ohmage.R;
 import org.ohmage.feedback.visualization.FeedbackTextChart;
 import org.ohmage.feedback.visualization.FeedbackTimeChart;
 import org.ohmage.prompt.AbstractPrompt;
@@ -29,17 +24,21 @@ import org.ohmage.prompt.text.TextPrompt;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import org.ohmage.R;
 import edu.ucla.cens.systemlog.Log;
 
 public class PromptListActivity extends ListActivity{
@@ -81,8 +80,10 @@ public class PromptListActivity extends ListActivity{
 		}
 		
 		ArrayAdapter<PromptListElement> adapter;
-		adapter = new ArrayAdapter<PromptListElement>(this, android.R.layout.simple_list_item_1, arPromptsTitle);
+		adapter = new ArrayAdapter<PromptListElement>(this, R.layout.prompt_list, arPromptsTitle);
 		setListAdapter(adapter);
+		getListView().setBackgroundColor(Color.WHITE);
+		getListView().setCacheColorHint(Color.WHITE);
 		
 		setTitle("Feedback");
 	}
@@ -97,7 +98,7 @@ public class PromptListActivity extends ListActivity{
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this); //If there is no response, it returns NULL
 			if(intent == null){
-				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
 			}
 		} else if (mPrompts.get(position) instanceof MultiChoicePrompt) {
 			Toast.makeText(this, "MultiChoicePrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
@@ -109,7 +110,7 @@ public class PromptListActivity extends ListActivity{
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
 			if(intent == null){
-				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
 			}
 		} else if (mPrompts.get(position) instanceof HoursBeforeNowPrompt) {
 			Toast.makeText(this, "HoursBeforeNowPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
@@ -124,7 +125,7 @@ public class PromptListActivity extends ListActivity{
 			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
 			if(intent == null){
-				Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT).show();	
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
 			}			
 		}
 		else{
@@ -191,5 +192,44 @@ public class PromptListActivity extends ListActivity{
 		public String toString() {
 			return getTitle();
 		}
+	}
+	
+	private class promptListAdapter extends BaseAdapter{
+		Context mContext;
+		LayoutInflater mInflater;
+		ArrayList<PromptListElement> arPrompts;
+		int mLayout;
+
+		public promptListAdapter(Context context, int alayout, ArrayList<PromptListElement> aarPrompts){
+			mContext = context;
+			mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			arPrompts = aarPrompts;
+			mLayout = alayout;
+		}
+		
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return arPrompts.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			return arPrompts.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 	}
 }

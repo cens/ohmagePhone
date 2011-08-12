@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.ohmage.R;
 import org.ohmage.feedback.FeedbackContract;
 import org.ohmage.feedback.FeedbackContract.FeedbackPromptResponses;
 import org.ohmage.feedback.FeedbackContract.FeedbackResponses;
@@ -11,6 +12,7 @@ import org.ohmage.feedback.FeedbackContract.FeedbackResponses;
 import android.app.ListActivity;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -44,12 +46,12 @@ public class FeedbackTextChart extends ListActivity {
 		
 		Cursor cursor = cr.query(queryUri, projection, null, null, null);
 		if(cursor.getCount() == 0){
-			Toast.makeText(this, "No responses have been made.", Toast.LENGTH_SHORT);
+			Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT);
 			finish();
 		}
 		
 		arTextAnswers = new ArrayList<String>();
-		SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/yyyy HH:mm");
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
 		while(cursor.moveToNext()){
 			Date date = new Date(cursor.getLong(0));
 			arTextAnswers.add("Date: " + sdf.format(date).toString() + "\n" + "Answer: " + cursor.getString(1));
@@ -57,7 +59,10 @@ public class FeedbackTextChart extends ListActivity {
 		cursor.close();
 		
 		ArrayAdapter<String> adapter;
-		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arTextAnswers);
+		adapter = new ArrayAdapter<String>(this, R.layout.feedback_text_chart_list, arTextAnswers);
 		setListAdapter(adapter);
+		
+		getListView().setCacheColorHint(Color.WHITE);
+		getListView().setBackgroundColor(Color.WHITE);
 	}
 }
