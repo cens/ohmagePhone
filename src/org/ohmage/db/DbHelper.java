@@ -408,8 +408,8 @@ public class DbHelper extends SQLiteOpenHelper {
 							" select " + Tables.PROMPTS + "." + PromptResponse._ID +
 							" from " + Tables.PROMPTS +
 							" inner join " + Tables.RESPONSES + " on " + Tables.RESPONSES + "." + Response._ID + "=" + Tables.PROMPTS + "." + PromptResponse.RESPONSE_ID +
-							" where " + Tables.RESPONSES + "." + Response.SOURCE + "='remote'" +
-							" or (" + Tables.RESPONSES + "." + Response.SOURCE + "='local' and " + Tables.RESPONSES + "." + Response.UPLOADED + "=1)";
+							" where (" + Tables.RESPONSES + "." + Response.SOURCE + "='remote'" +
+							" or (" + Tables.RESPONSES + "." + Response.SOURCE + "='local' and " + Tables.RESPONSES + "." + Response.UPLOADED + "=1))";
 		
 		// add the campaign clause to the inner response select query if it's available
 		if (campaignUrn != null)
@@ -421,7 +421,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.rawQuery(query, null);
 		
 		// also build and execute the delete on the response table
-		String whereClause = Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1)";
+		String whereClause = "(" + Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1))";
 		
 		if (campaignUrn != null)
 			whereClause += " and " + Response.CAMPAIGN_URN + "='" + campaignUrn + "'";
