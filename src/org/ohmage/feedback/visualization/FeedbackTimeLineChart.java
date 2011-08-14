@@ -44,7 +44,7 @@ import android.net.Uri;
 /**
  * Project status demo chart.
  */
-public class FeedbackTimeChart extends AbstractChart {
+public class FeedbackTimeLineChart extends AbstractChart {
 	static final String TAG = "FeedbackTimeChart";
 	static final int aDayInMilliseconds = 84600000;
 	protected String mPromptID;
@@ -52,7 +52,7 @@ public class FeedbackTimeChart extends AbstractChart {
 	protected String mSurveyID;
 	protected List<Prompt> mPrompts;
 
-	public FeedbackTimeChart(String title, String campaignUrn, String surveyID, String promptID, List<Prompt> prompts) {
+	public FeedbackTimeLineChart(String title, String campaignUrn, String surveyID, String promptID, List<Prompt> prompts) {
 		super(title);
 		mCampaignUrn = campaignUrn;
 		mSurveyID = surveyID;
@@ -163,7 +163,7 @@ public class FeedbackTimeChart extends AbstractChart {
 				Color.LTGRAY
 		);
 		
-		renderer.setShowGrid(true);
+
 
 		//Set chart layout
 		int topMargin = 0;
@@ -174,7 +174,7 @@ public class FeedbackTimeChart extends AbstractChart {
 				
 		renderer.setAxisTitleTextSize(23);
 		renderer.setLabelsTextSize(20);
-		
+		renderer.setShowGrid(true);		
 		renderer.setMargins(margins);
 		renderer.setPointSize(8);
 		renderer.setShowLegend(false);
@@ -221,7 +221,7 @@ public class FeedbackTimeChart extends AbstractChart {
 			seriesRenderer.setDisplayChartValues(false);
 		}
 		
-		return ChartFactory.getTimeChartIntent(
+		return ChartFactory.getTimeLineChartIntent(
 				context, 
 				buildDateDataset(titles, dates, values), 
 				renderer, 

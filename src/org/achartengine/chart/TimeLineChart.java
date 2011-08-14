@@ -29,7 +29,7 @@ import android.graphics.Paint;
 /**
  * The time chart rendering class.
  */
-public class TimeChart extends LineChart {
+public class TimeLineChart extends LineChart {
   /** The constant to identify this chart type. */
   public static final String TYPE = "Time";
   /** The number of milliseconds in a day. */
@@ -37,7 +37,7 @@ public class TimeChart extends LineChart {
   /** The date format pattern to be used in formatting the X axis labels. */
   private String mDateFormat;
 
-  TimeChart() {
+  TimeLineChart() {
   }
 
   /**
@@ -46,7 +46,7 @@ public class TimeChart extends LineChart {
    * @param dataset the multiple series dataset
    * @param renderer the multiple series renderer
    */
-  public TimeChart(XYMultipleSeriesDataset dataset, XYMultipleSeriesRenderer renderer) {
+  public TimeLineChart(XYMultipleSeriesDataset dataset, XYMultipleSeriesRenderer renderer) {
     super(dataset, renderer);
   }
 
