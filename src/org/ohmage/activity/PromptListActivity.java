@@ -9,7 +9,8 @@ import org.ohmage.CampaignXmlHelper;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
 import org.ohmage.feedback.visualization.FeedbackTextChart;
-import org.ohmage.feedback.visualization.FeedbackTimeChart;
+import org.ohmage.feedback.visualization.FeedbackTimeLineChart;
+import org.ohmage.feedback.visualization.FeedbackTimeScatterChart;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
@@ -95,7 +96,7 @@ public class PromptListActivity extends ListActivity{
 		PromptListElement curPrompt = arPromptsTitle.get(position);
 		
 		if (mPrompts.get(position) instanceof SingleChoicePrompt) {
-			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
+			FeedbackTimeLineChart chart = new FeedbackTimeLineChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this); //If there is no response, it returns NULL
 			if(intent == null){
 				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
@@ -107,7 +108,7 @@ public class PromptListActivity extends ListActivity{
 		} else if (mPrompts.get(position) instanceof SingleChoiceCustomPrompt) {
 			Toast.makeText(this, "SingleChoiceCustomPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof NumberPrompt) {
-			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
+			FeedbackTimeLineChart chart = new FeedbackTimeLineChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
 			if(intent == null){
 				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
@@ -123,7 +124,7 @@ public class PromptListActivity extends ListActivity{
 		} else if (mPrompts.get(position) instanceof PhotoPrompt) {
 			Toast.makeText(this, "PhotoPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof RemoteActivityPrompt){
-			FeedbackTimeChart chart = new FeedbackTimeChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
+			FeedbackTimeLineChart chart = new FeedbackTimeLineChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
 			intent = chart.execute(this);
 			if(intent == null){
 				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
@@ -156,7 +157,7 @@ public class PromptListActivity extends ListActivity{
 			startActivityForResult(intent, 1);
 			return true;
 		case R.id.participationstat:
-			FeedbackTimeChart chart = new FeedbackTimeChart("Participation Stats", mCampaignUrn, mSurveyId, null, mPrompts);
+			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Stats", mCampaignUrn, mSurveyId, this);
 			intent = chart.execute(this);		
 			startActivityForResult(intent, 1);
 			return true;

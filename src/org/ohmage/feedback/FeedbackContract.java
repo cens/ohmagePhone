@@ -87,7 +87,7 @@ public class FeedbackContract {
         public static Uri getPromptUri(long insertID) {
         	return CONTENT_URI.buildUpon().appendPath(Long.toString(insertID)).build();
         }
-        
+         
         public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID) {
     		return BASE_CONTENT_URI.buildUpon()
 				.appendPath(campaignUrn)

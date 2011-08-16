@@ -26,7 +26,6 @@ import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.ohmage.Utilities.KVLTriplet;
-import org.ohmage.feedback.FeedbackContract;
 import org.ohmage.feedback.FeedbackContract.FeedbackPromptResponses;
 import org.ohmage.feedback.FeedbackContract.FeedbackResponses;
 import org.ohmage.prompt.AbstractPrompt;
@@ -45,15 +44,15 @@ import android.net.Uri;
 /**
  * Project status demo chart.
  */
-public class FeedbackTimeChart extends AbstractChart {
-	static final String TAG = "FeedbackTimeChart";
+public class FeedbackTimeLineChart extends AbstractChart {
+	static final String TAG = "FeedbackTimeLineChart";
 	static final int aDayInMilliseconds = 84600000;
 	protected String mPromptID;
 	protected String mCampaignUrn;
 	protected String mSurveyID;
 	protected List<Prompt> mPrompts;
 
-	public FeedbackTimeChart(String title, String campaignUrn, String surveyID, String promptID, List<Prompt> prompts) {
+	public FeedbackTimeLineChart(String title, String campaignUrn, String surveyID, String promptID, List<Prompt> prompts) {
 		super(title);
 		mCampaignUrn = campaignUrn;
 		mSurveyID = surveyID;
@@ -222,7 +221,7 @@ public class FeedbackTimeChart extends AbstractChart {
 			seriesRenderer.setDisplayChartValues(false);
 		}
 		
-		return ChartFactory.getTimeChartIntent(
+		return ChartFactory.getTimeLineChartIntent(
 				context, 
 				buildDateDataset(titles, dates, values), 
 				renderer, 
