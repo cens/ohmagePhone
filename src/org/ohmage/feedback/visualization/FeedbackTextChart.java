@@ -23,6 +23,7 @@ public class FeedbackTextChart extends ListActivity {
 	private String mCampaignUrn;
 	private String mSurveyID;
 	private String mPromptID;
+	private String mPromptTitle;
 	private ArrayList<String> arTextAnswers;
 	
 	@Override 
@@ -32,6 +33,9 @@ public class FeedbackTextChart extends ListActivity {
 		mCampaignUrn = getIntent().getStringExtra("campaign_urn");
 		mSurveyID = getIntent().getStringExtra("survey_id");
 		mPromptID = getIntent().getStringExtra("prompt_id");
+		mPromptTitle = getIntent().getStringExtra("prompt_title");
+		
+		setTitle(mPromptTitle);
 		
 		ContentResolver cr = this.getContentResolver();
 		Uri queryUri = DbContract.getBaseUri().buildUpon()

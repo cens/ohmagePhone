@@ -11,6 +11,7 @@
 	android:layout_marginRight="10dp"
 	android:layout_marginBottom="5dp"
 	android:layout_marginTop="5dp"
+	android:paddingLeft="2dip"
 	android:paddingTop="2dip"
 	android:paddingBottom="3dip"
 	android:textColor="@drawable/darkgray"

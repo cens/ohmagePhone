@@ -25,7 +25,8 @@ import org.achartengine.chart.LineChart;
 import org.achartengine.chart.PieChart;
 import org.achartengine.chart.RangeBarChart;
 import org.achartengine.chart.ScatterChart;
-import org.achartengine.chart.TimeChart;
+import org.achartengine.chart.TimeLineChart;
+import org.achartengine.chart.TimeScatterChart;
 import org.achartengine.chart.XYChart;
 import org.achartengine.chart.BarChart.Type;
 import org.achartengine.model.CategorySeries;
@@ -140,7 +141,7 @@ public class ChartFactory {
   public static final GraphicalView getTimeChartView(Context context,
       XYMultipleSeriesDataset dataset, XYMultipleSeriesRenderer renderer, String format) {
     checkParameters(dataset, renderer);
-    TimeChart chart = new TimeChart(dataset, renderer);
+    TimeLineChart chart = new TimeLineChart(dataset, renderer);
     chart.setDateFormat(format);
     return new GraphicalView(context, chart);
   }
@@ -350,7 +351,7 @@ public class ChartFactory {
    */
   public static final Intent getTimeChartIntent(Context context, XYMultipleSeriesDataset dataset,
       XYMultipleSeriesRenderer renderer, String format) {
-    return getTimeChartIntent(context, dataset, renderer, format, "");
+    return getTimeLineChartIntent(context, dataset, renderer, format, "");
   }
 
   /**
@@ -485,16 +486,42 @@ public class ChartFactory {
    *           if the dataset and the renderer don't include the same number of
    *           series
    */
-  public static final Intent getTimeChartIntent(Context context, XYMultipleSeriesDataset dataset,
+  public static final Intent getTimeLineChartIntent(Context context, XYMultipleSeriesDataset dataset,
       XYMultipleSeriesRenderer renderer, String format, String activityTitle) {
     checkParameters(dataset, renderer);
     Intent intent = new Intent(context, GraphicalActivity.class);
-    TimeChart chart = new TimeChart(dataset, renderer);
+    TimeLineChart chart = new TimeLineChart(dataset, renderer);
     chart.setDateFormat(format);
     intent.putExtra(CHART, chart);
     intent.putExtra(TITLE, activityTitle);
     return intent;
   }
+  
+  /**
+   * Creates a time chart intent that can be used to start the graphical view
+   * activity.
+   * 
+   * @param context the context
+   * @param dataset the multiple series dataset (cannot be null)
+   * @param renderer the multiple series renderer (cannot be null)
+   * @param format the date format pattern to be used for displaying the X axis
+   *          date labels. If null, a default appropriate format will be used
+   * @param activityTitle the graphical chart activity title
+   * @return a time chart intent
+   * @throws IllegalArgumentException if dataset is null or renderer is null or
+   *           if the dataset and the renderer don't include the same number of
+   *           series
+   */
+  public static final Intent getTimeScatterChartIntent(Context context, XYMultipleSeriesDataset dataset,
+      XYMultipleSeriesRenderer renderer, String format, String activityTitle) {
+    checkParameters(dataset, renderer);
+    Intent intent = new Intent(context, GraphicalActivity.class);
+    TimeScatterChart chart = new TimeScatterChart(dataset, renderer);
+    chart.setDateFormat(format);
+    intent.putExtra(CHART, chart);
+    intent.putExtra(TITLE, activityTitle);
+    return intent;
+  }  
 
   /**
    * Creates a bar chart intent that can be used to start the graphical view
