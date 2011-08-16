@@ -33,6 +33,7 @@ import edu.ucla.cens.systemlog.Log;
 
 public class FeedbackService extends WakefulIntentService {
 	private static final String TAG = "FeedbackService";
+	private static final int MAX_RESPONSES_PER_CAMPAIGN = 20;
 
 	public FeedbackService() {
 		super(TAG);
@@ -128,19 +129,15 @@ public class FeedbackService extends WakefulIntentService {
 		String startDate = null;
 		String endDate = null;
 		
-		Calendar twoWeeksAgo = new GregorianCalendar();
+/*		Calendar twoWeeksAgo = new GregorianCalendar();
 		twoWeeksAgo.add(Calendar.WEEK_OF_YEAR, -2);
 		
 		Calendar tomorrow = new GregorianCalendar();
 		tomorrow.add(Calendar.DAY_OF_MONTH, 1);
 		
 		// and convert times to timestamps we can feed to the api
-		/*
-		startDate = ISO8601Utilities.formatDateTime(twoWeeksAgo.getTime());
-		endDate = ISO8601Utilities.formatDateTime(tomorrow.getTime());
-		*/
 		startDate = inputSDF.format(twoWeeksAgo.getTime());
-		endDate = inputSDF.format(tomorrow.getTime());
+		endDate = inputSDF.format(tomorrow.getTime());*/
 		
 		// ==================================================================
 		// === 3. download responses for each campaign and insert into fbdb
@@ -185,7 +182,7 @@ public class FeedbackService extends WakefulIntentService {
 			// for each survey, insert a record into our feedback db
 			// if we're unable to insert, just continue (likely a duplicate)
 			// also, note the schema follows the definition in the documentation
-			for (int i = 0; i < data.length(); ++i) {
+			for (int i = 0; i < data.length() && i < MAX_RESPONSES_PER_CAMPAIGN; ++i) {
 				Log.v(TAG, "Processing record " + (i+1) + "/" + data.length());
 				
 				try {
