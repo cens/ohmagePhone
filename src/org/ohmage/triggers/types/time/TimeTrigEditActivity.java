@@ -17,10 +17,9 @@ package org.ohmage.triggers.types.time;
 
 import java.util.LinkedHashMap;
 
+import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
-import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.config.TrigUserConfig;
-import org.ohmage.triggers.notif.Notifier;
 import org.ohmage.triggers.ui.TriggerListActivity;
 import org.ohmage.triggers.utils.TimePickerPreference;
 
@@ -33,6 +32,8 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;

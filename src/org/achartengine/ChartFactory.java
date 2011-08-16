@@ -16,7 +16,6 @@
 package org.achartengine;
 
 import org.achartengine.chart.BarChart;
-import org.achartengine.chart.BarChart.Type;
 import org.achartengine.chart.BubbleChart;
 import org.achartengine.chart.CombinedXYChart;
 import org.achartengine.chart.CubicLineChart;
@@ -28,6 +27,7 @@ import org.achartengine.chart.RangeBarChart;
 import org.achartengine.chart.ScatterChart;
 import org.achartengine.chart.TimeChart;
 import org.achartengine.chart.XYChart;
+import org.achartengine.chart.BarChart.Type;
 import org.achartengine.model.CategorySeries;
 import org.achartengine.model.MultipleCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;

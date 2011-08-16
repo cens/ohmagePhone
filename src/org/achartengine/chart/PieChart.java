@@ -23,8 +23,8 @@ import org.achartengine.renderer.DefaultRenderer;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Paint.Style;
 import android.graphics.RectF;
+import android.graphics.Paint.Style;
 
 /**
  * The pie chart rendering class.

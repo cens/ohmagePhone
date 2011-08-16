@@ -20,7 +20,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerBase;
-import org.ohmage.triggers.types.time.TimeTrigEditActivity;
 import org.ohmage.triggers.ui.TriggerListActivity;
 
 import android.content.Context;
