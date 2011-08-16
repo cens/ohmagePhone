@@ -10,8 +10,8 @@ import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
-import org.ohmage.feedback.FeedbackContract;
-import org.ohmage.feedback.FeedbackContract.FeedbackResponses;
+import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.Response;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -62,10 +62,10 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 		ContentResolver cr = context.getContentResolver();
 
 		// columns to return; in this case, we just need the date and the value at that date point
-		String[] projection = new String[] { FeedbackResponses.TIME, FeedbackResponses.CAMPAIGN_URN, FeedbackResponses.SURVEY_ID };
+		String[] projection = new String[] { Response.TIME, Response.CAMPAIGN_URN, Response.SURVEY_ID };
 		
 		// nab that data! data is sorted by FeedbackResponses.TIME
-		Cursor cursor = cr.query(Uri.parse("content://" + FeedbackContract.CONTENT_AUTHORITY + "/" + "responses"), projection, null, null, FeedbackResponses.TIME);
+		Cursor cursor = cr.query(Uri.parse("content://" + DbContract.CONTENT_AUTHORITY + "/" + "responses"), projection, null, null, Response.TIME);
 		
 		if(cursor.getCount() == 0){
 			cursor.close();
