@@ -8,8 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -33,7 +35,7 @@ import edu.ucla.cens.systemlog.Log;
 
 public class FeedbackService extends WakefulIntentService {
 	private static final String TAG = "FeedbackService";
-	private static final int MAX_RESPONSES_PER_CAMPAIGN = 20;
+	private static final int MAX_RESPONSES_PER_SURVEY = 20;
 
 	public FeedbackService() {
 		super(TAG);
@@ -179,14 +181,38 @@ public class FeedbackService extends WakefulIntentService {
 				continue;
 			}
 			
+			// create a little histogram to add up number of responses for each survey
+			Map<String,Integer> responsesPerSurvey = new HashMap<String,Integer>();
+			
 			// for each survey, insert a record into our feedback db
 			// if we're unable to insert, just continue (likely a duplicate)
 			// also, note the schema follows the definition in the documentation
-			for (int i = 0; i < data.length() && i < MAX_RESPONSES_PER_CAMPAIGN; ++i) {
+			for (int i = 0; i < data.length(); ++i) {
 				Log.v(TAG, "Processing record " + (i+1) + "/" + data.length());
 				
 				try {
 					JSONObject survey = data.getJSONObject(i);
+					String surveyId = survey.getString("survey_id");
+					
+					// get the count for this time, creating it if it doesn't exist already
+					int currentSurveyCount;
+					
+					if (responsesPerSurvey.containsKey(surveyId)) {
+						currentSurveyCount = responsesPerSurvey.get(surveyId);
+					}
+					else
+					{
+						responsesPerSurvey.put(surveyId, 0);
+						currentSurveyCount = 0;
+					}
+					
+					// ensure that we haven't exceeded the limit for responses of this survey type
+					// if we have, continue, since the next response may not be a response of this survey type
+					if (currentSurveyCount >= MAX_RESPONSES_PER_SURVEY)
+						break;
+					
+					// update the count for next times
+					responsesPerSurvey.put(surveyId, currentSurveyCount+1);
 					
 					// first we need to gather all of the appropriate data
 					// from the survey response. some of this data needs to
@@ -206,7 +232,6 @@ public class FeedbackService extends WakefulIntentService {
 					float locationAccuracy = (float)survey.optDouble("location_accuracy");
 					long locationTime = survey.optLong("location_timestamp");
 					
-					String surveyId = survey.getString("survey_id");
 					String surveyLaunchContext = survey.getString("launch_context_long").toString();
 					
 					// we need to parse out the responses and put them in
