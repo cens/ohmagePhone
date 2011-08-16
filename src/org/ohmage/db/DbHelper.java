@@ -32,6 +32,7 @@ import org.ohmage.service.SurveyGeotagService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -227,12 +228,14 @@ public class DbHelper extends SQLiteOpenHelper {
 			return -1;
 		}
 		
-		// start a transaction involving the following operations:
-		// 1) insert feedback response row
-		// 2) parse json-encoded responses and insert one row into prompts per entry
-		db.beginTransaction();
+		long rowId = -1;
 		
 		try {
+			// start a transaction involving the following operations:
+			// 1) insert feedback response row
+			// 2) parse json-encoded responses and insert one row into prompts per entry
+			db.beginTransaction();
+			
 			ContentValues values = new ContentValues();
 			values.put(Response.CAMPAIGN_URN, campaignUrn);
 			values.put(Response.USERNAME, username);
@@ -261,15 +264,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			values.put(Response.HASHCODE, hashcode);
 			
 			// do the actual insert into feedback responses
-			long rowId = -1;
-			
-			try {
-				rowId = db.insert(Tables.RESPONSES, null, values);
-			}
-			catch (Exception e) {
-				// just ignore it; we don't want the exceptions cluttering up the logs
-				rowId = -1;
-			}
+			rowId = db.insertWithOnConflict(Tables.RESPONSES, null, values, SQLiteDatabase.CONFLICT_ABORT);
 			
 			// check if it succeeded; if not, we can't do anything
 			if (rowId == -1)
@@ -284,6 +279,10 @@ public class DbHelper extends SQLiteOpenHelper {
 				// and possibly "custom_choices", but we're not storing that for now
 				JSONObject item = responseData.getJSONObject(i);
 				
+				// if the entry we're looking at doesn't include prompt_id or value, continue
+				if (!item.has("prompt_id") || !item.has("value"))
+					continue;
+				
 				// and insert this into prompts
 				ContentValues promptValues = new ContentValues();
 				promptValues.put(PromptResponse.RESPONSE_ID, rowId);
@@ -297,7 +296,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			db.setTransactionSuccessful();
 			
 			// return the inserted feedback response row
-			return rowId;
+			// return rowId;
 		}
 		catch (JSONException e) {
 			Log.e(TAG, "Unable to parse response data in insert", e);
@@ -307,10 +306,21 @@ public class DbHelper extends SQLiteOpenHelper {
 			Log.e(TAG, "Unable to produce hashcode -- is SHA-1 supported?", e);
 			return -1;
 		}
+		catch (SQLiteConstraintException e) {
+			Log.e(TAG, "Attempted to insert record that violated a SQL constraint (likely the hashcode)");
+			return -1;
+		}
+		catch (Exception e)
+		{
+			Log.e(TAG, "Generic exception thrown from db insert", e);
+			return -1;
+		}
 		finally {
 			db.endTransaction();
 			db.close();
 		}
+			
+		return rowId;
 	}
 	
 	/**

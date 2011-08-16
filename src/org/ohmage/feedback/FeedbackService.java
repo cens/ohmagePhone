@@ -149,7 +149,7 @@ public class FeedbackService extends WakefulIntentService {
 		// we'll have to iterate through all the campaigns in which this user
 		// is participating in order to gather all of their data
 		for (Campaign c : campaigns) {
-			Log.v(TAG, "Requesting responsese for campaign " + c.mUrn + "...");
+			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 			
 			SurveyReadResponse apiResponse = api.surveyResponseRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", startDate, endDate);
 			
@@ -254,7 +254,7 @@ public class FeedbackService extends WakefulIntentService {
 					// ok, gathered everything; time to insert into the feedback DB
 					// note that we mark this entry as "remote", meaning it came from the server
 					
-					dbHelper.addResponseRow(
+					if (dbHelper.addResponseRow(
 							c.mUrn,
 							username,
 							date,
@@ -269,7 +269,10 @@ public class FeedbackService extends WakefulIntentService {
 							surveyId,
 							surveyLaunchContext,
 							response,
-							"remote");
+							"remote") == -1) {
+						// display some note in the log that this failed
+						Log.v(TAG, "Record " + (i+1) + "/" + data.length() + " was not inserted (insertion returned -1)");
+					}
 					
 					// it's possible that the above will fail, in which case it silently returns -1
 					// we don't do anything differently in that case, so there's no need to check
