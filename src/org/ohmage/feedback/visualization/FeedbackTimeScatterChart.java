@@ -99,7 +99,7 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 			if(startDate > time){
 				startDate = time;
 			}
-			if(endDate > time){
+			if(endDate < time){
 				endDate = time;
 			}
 		}
