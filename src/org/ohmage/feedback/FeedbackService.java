@@ -163,7 +163,7 @@ public class FeedbackService extends WakefulIntentService {
 			
 			if (error != null) {
 				Log.e(TAG, error);
-				continue;
+				return;
 			}
 			
 			Log.v(TAG, "Request for campaign " + c.mUrn + " complete!");

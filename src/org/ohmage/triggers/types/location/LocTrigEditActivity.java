@@ -15,8 +15,9 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.location;
 
-import org.ohmage.R;
+import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.ui.TriggerListActivity;
 import org.ohmage.triggers.utils.TimePickerPreference;
 import org.ohmage.triggers.utils.TrigListPreference;
 
@@ -32,8 +33,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.Preference.OnPreferenceClickListener;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -48,6 +48,8 @@ public class LocTrigEditActivity extends PreferenceActivity
 								implements OnPreferenceClickListener, 
 								OnPreferenceChangeListener, 
 								OnClickListener {
+	
+	private static final String DEBUG_TAG = "LocTrigEditActivity"; 
 
 	public static final String KEY_TRIG_DESC = 
 			LocTrigEditActivity.class.getName() + ".trigger_descriptor";
@@ -55,6 +57,8 @@ public class LocTrigEditActivity extends PreferenceActivity
 			LocTrigEditActivity.class.getName() + ".trigger_id";
 	public static final String KEY_ADMIN_MODE = 
 			LocTrigEditActivity.class.getName() + ".admin_mode";
+	public static final String KEY_ACT_DESC = 
+			LocTrigEditActivity.class.getName() + ".act_desc";
 	
 	private static final String PREF_KEY_LOCATION = "trigger_location";
 	private static final String PREF_KEY_ENABLE_RANGE = "enable_time_range";
@@ -62,9 +66,11 @@ public class LocTrigEditActivity extends PreferenceActivity
 	private static final String PREF_KEY_END_TIME = "interval_end_time";
 	private static final String PREF_KEY_TRIGGER_ALWAYS = "trigger_always";
 	private static final String PREF_KEY_RENETRY_INTERVAL = "minimum_reentry";
+	private static final String PREF_KEY_ACTIONS = "actions";
 	
 	private static final int DIALOG_ID_INVALID_TIME_ALERT = 0;
 	private static final int DIALOG_ID_DEFINE_LOC_PROMPT = 1;
+	private static final int DIALOG_ID_ACTION_SEL = 2;
 	
 	private boolean mAdminMode = false;
 	
@@ -74,13 +80,16 @@ public class LocTrigEditActivity extends PreferenceActivity
 	 */
 	public interface ExitListener {
 		
-		public void onDone(Context context, int trigId, String trigDesc);
+		public void onDone(Context context, int trigId, String trigDesc, String actDesc);
 	}
 	
 	private LocTrigDesc mTrigDesc;
+	private TriggerActionDesc mActDesc;
 	private static ExitListener mExitListener = null;
 	private int mTrigId = 0;
 	private String[] mCategories;
+	private String[] mActions;
+	private boolean[] mActSelected = null;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +99,16 @@ public class LocTrigEditActivity extends PreferenceActivity
 		setContentView(R.layout.trigger_editor);
 		
 		mTrigDesc = new LocTrigDesc();
+		mActDesc = new TriggerActionDesc();
+		
+		if(getIntent().hasExtra(TriggerListActivity.KEY_ACTIONS)) {
+			mActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_ACTIONS);
+		}
+		else {
+			Log.e(DEBUG_TAG, "LocTrigEditActivity: Invoked with out passing surveys");
+			finish();
+			return;
+		}
 		
 		initializeCategories();
 		TrigListPreference locPref = (TrigListPreference) getPreferenceScreen()
@@ -143,18 +162,21 @@ public class LocTrigEditActivity extends PreferenceActivity
 		mAdminMode = getIntent().getBooleanExtra(KEY_ADMIN_MODE, false);
 		
 		String config = null;
+		String action = null;
 		
 		if(savedInstanceState == null) {
 			config = getIntent().getStringExtra(KEY_TRIG_DESC);
+			action = getIntent().getStringExtra(KEY_ACT_DESC);
 		}
 		else {
 			config = savedInstanceState.getString(KEY_TRIG_DESC);
+			action = savedInstanceState.getString(KEY_ACT_DESC);
 		}
 		
 		if(config != null) {	
 			mTrigId = getIntent().getIntExtra(KEY_TRIG_ID, 0);
 			
-			if(mTrigDesc.loadString(config)) {
+			if(mTrigDesc.loadString(config) && mActDesc.loadString(action)) {
 				initializeGUI();
 			}
 			else {
@@ -171,11 +193,14 @@ public class LocTrigEditActivity extends PreferenceActivity
 		
 		updateTriggerDesc();
 		outState.putString(KEY_TRIG_DESC, mTrigDesc.toString());
+		outState.putString(KEY_ACT_DESC, mActDesc.toString());
 	}
 	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch(id) {
+		case DIALOG_ID_ACTION_SEL:
+			return createEditActionDialog();
 		
 		case DIALOG_ID_INVALID_TIME_ALERT: 
 			final String msgErr = 
@@ -282,6 +307,15 @@ public class LocTrigEditActivity extends PreferenceActivity
 		TimePickerPreference endPref = (TimePickerPreference) getPreferenceScreen()
 							.findPreference(PREF_KEY_END_TIME);
 		
+		Preference actionsPref = getPreferenceScreen().findPreference(PREF_KEY_ACTIONS);
+
+		if(!mAdminMode && !TrigUserConfig.editTriggerActions) {
+		
+			actionsPref.setEnabled(false);
+		}
+		
+		updateActionsPrefStatus();
+		
 		locPref.setValue(mTrigDesc.getLocation());
 		locPref.setSummary(mTrigDesc.getLocation());
 		
@@ -306,7 +340,12 @@ public class LocTrigEditActivity extends PreferenceActivity
 	}
 
 	@Override
-	public boolean onPreferenceClick(Preference preference) {
+	public boolean onPreferenceClick(Preference pref) {
+		if(pref.getKey().equals(PREF_KEY_ACTIONS)) {
+			removeDialog(DIALOG_ID_ACTION_SEL);
+			showDialog(DIALOG_ID_ACTION_SEL);
+		} 
+		
 		return false;
 	}
 
@@ -351,6 +390,28 @@ public class LocTrigEditActivity extends PreferenceActivity
 			mTrigDesc.setTriggerAlways(false);
 		}
 	}
+	
+	private void updateActionsPrefStatus() {
+		Preference actionsPref = getPreferenceScreen()
+		 						  	.findPreference(PREF_KEY_ACTIONS);
+		if (mActDesc.getSurveys().length > 0) {
+			actionsPref.setSummary(stringArrayToString(mActDesc.getSurveys()));
+		} else {
+			actionsPref.setSummary("None");
+		}
+		
+	}
+	
+	private String stringArrayToString(String [] strings) {
+		if (strings.length == 0) {
+			return "";
+		}
+		String string = "";
+		for (String s : strings) {
+			string = string.concat(s).concat(", ");
+		}
+		return string.substring(0, string.length() - 2);
+	}
 
 	private void launchMapsActivity(String categName) {
 		
@@ -379,7 +440,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 				
 				if(mTrigDesc.validate()) {
 					
-					mExitListener.onDone(this, mTrigId, mTrigDesc.toString());
+					mExitListener.onDone(this, mTrigId, mTrigDesc.toString(), mActDesc.toString());
 					
 					//If the location is not defined yet, prompt the
 					//user to do so
@@ -399,4 +460,51 @@ public class LocTrigEditActivity extends PreferenceActivity
 		finish();
 	}
 
+private Dialog createEditActionDialog() {
+		
+		if(mActSelected == null) {
+			mActSelected = new boolean[mActions.length];
+			for(int i = 0; i < mActSelected.length; i++) {
+				mActSelected[i] = mActDesc.hasSurvey(mActions[i]);
+			}
+		}
+		
+		AlertDialog.Builder builder = 
+	 			new AlertDialog.Builder(this)
+			   .setTitle("Select surveys")
+			   .setNegativeButton("Cancel", null)
+			   .setMultiChoiceItems(mActions, mActSelected, 
+					   new DialogInterface.OnMultiChoiceClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which, 
+										boolean isChecked) {
+					
+					mActSelected[which] = isChecked;
+				}
+			});
+
+		if(mAdminMode || TrigUserConfig.editTriggerActions) {
+			 builder.setPositiveButton("Done", 
+					 new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mActDesc.clearAllSurveys();
+					
+					for(int i = 0; i < mActSelected.length; i++) {
+						if(mActSelected[i]) {
+							mActDesc.addSurvey(mActions[i]);
+						}
+					}
+					dialog.dismiss();
+					updateActionsPrefStatus();
+//					handleActionSelection(mDialogTrigId, desc);
+				}
+			});
+		}
+
+	
+		return builder.create();
+	}
 }

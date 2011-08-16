@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
-         
+
+	<Preference
+        android:key="actions"
+        android:title="Surveys"
+        android:persistent="false"
+        android:summary="None"/>
+                 
 	<org.ohmage.triggers.utils.TrigListPreference
 	    android:key="trigger_location"
 	    android:persistent="false"

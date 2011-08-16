@@ -157,7 +157,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 				String promptId = jobjectResponse.get("prompt_id").toString();
 				String value = jobjectResponse.get("value").toString();
 				resultResponse += getPromptLabel(promptId)+ "\n";
-				resultResponse += ": " + getPropertiesLabel(promptId, value) + "\n";
+				resultResponse += "   :" + getPropertiesLabel(promptId, value) + "\n";
 			}
 		}
 		catch(Exception e){

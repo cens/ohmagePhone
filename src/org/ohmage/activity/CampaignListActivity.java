@@ -71,7 +71,8 @@ public class CampaignListActivity extends ListActivity {
 	private static final int DIALOG_AUTH_ERROR = 4;
 	
 	private CampaignListUpdateTask mTask;
-	private boolean mShowingProgressDialog = false;
+	private CampaignDownloadTask mTask2;
+//	private boolean mShowingProgressDialog = false;
 	//private List<HashMap<String, String>> mData;
 	private List<Campaign> mLocalCampaigns;
 	private List<Campaign> mRemoteCampaigns;
@@ -126,6 +127,10 @@ public class CampaignListActivity extends ListActivity {
 	        	Log.i(TAG, "creating after configuration changed, restored CampaignListUpdateTask instance");
 	        	mTask = (CampaignListUpdateTask) retained;
 	        	mTask.setActivity(this);
+	        } else if (retained instanceof CampaignDownloadTask) {
+	        	Log.i(TAG, "creating after configuration changed, restored CampaignDownloadTask instance");
+	        	mTask2 = (CampaignDownloadTask) retained;
+	        	mTask2.setActivity(this);
 	        } /*else {
 	        	Log.i(TAG, "no tasks in progress");
 	        	
@@ -154,6 +159,10 @@ public class CampaignListActivity extends ListActivity {
 			Log.i(TAG, "retaining AsyncTask instance");
 			mTask.setActivity(null);
 			return mTask;
+		} else if (mTask2 != null) {
+			Log.i(TAG, "retaining AsyncTask instance");
+			mTask2.setActivity(null);
+			return mTask2;
 		}
 		return null;
 	}
@@ -171,11 +180,14 @@ public class CampaignListActivity extends ListActivity {
 			startActivity(intent);
 		} else if (((CampaignListAdapter)getListAdapter()).getItemGroup(position) == CampaignListAdapter.GROUP_UNAVAILABLE) {
 			//download campaign
-			String campaignUrn = ((Campaign) getListView().getItemAtPosition(position)).mUrn;
-			
-			CampaignDownloadTask task = new CampaignDownloadTask(CampaignListActivity.this);
-			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-			task.execute(prefs.getUsername(), prefs.getHashedPassword(), campaignUrn);
+			try {
+				String campaignUrn = ((Campaign) getListView().getItemAtPosition(position)).mUrn;
+				mTask2 = new CampaignDownloadTask(CampaignListActivity.this);
+				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+				mTask2.execute(prefs.getUsername(), prefs.getHashedPassword(), campaignUrn);
+			} catch (Exception e) {
+				Log.e(TAG, "Should be NullPointer exception occuring because of delayed update of list view after rotation", e);
+			}
 		}
 	}
 	
@@ -367,6 +379,7 @@ public class CampaignListActivity extends ListActivity {
 		
 		mTask = null;
 		
+		
 		if (response.getResult() == Result.SUCCESS) {
 			//mData.clear();
 			mRemoteCampaigns.clear();
@@ -482,11 +495,17 @@ public class CampaignListActivity extends ListActivity {
 		// update listview
 //		((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
 		((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
+		
+		try {
+			dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, "Attempting to dismiss dialog that had not been shown.");
+		}
 	}
 	
 	private void onCampaignDownloaded(String campaignUrn, CampaignReadResponse response) {
 		
-		mTask = null;
+		mTask2 = null;
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
@@ -501,7 +520,14 @@ public class CampaignListActivity extends ListActivity {
 				//String downloadTimestamp = DateFormat.format("yyyy-MM-dd kk:mm:ss", System.currentTimeMillis());
 				
 				DbHelper dbHelper = new DbHelper(this);
-				dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
+				if (dbHelper.getCampaign(campaignUrn) == null) {
+					dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
+				} else {
+					Log.w(TAG, "Campaign already exists. This should never happen. Replacing previous entry with new one.");
+					dbHelper.removeCampaign(campaignUrn);
+					dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
+				}
+				
 				
 				if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
 					// create an intent to fire off the feedback service
@@ -519,39 +545,48 @@ public class CampaignListActivity extends ListActivity {
 			loadCampaigns();
 			updateCampaignList();
 			((CampaignListAdapter) getListAdapter()).notifyDataSetChanged();
-		} else if (response.getResult() == Result.FAILURE) {
-			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+		} else { 
 			
-			boolean isAuthenticationError = false;
-			boolean isUserDisabled = false;
+			try {
+				dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+			} catch (IllegalArgumentException e) {
+				Log.e(TAG, "Attempting to dismiss dialog that had not been shown.", e);
+			}
 			
-			for (String code : response.getErrorCodes()) {
-				if (code.charAt(1) == '2') {
-					isAuthenticationError = true;
-					
-					if (code.equals("0201")) {
-						isUserDisabled = true;
+			if (response.getResult() == Result.FAILURE) {
+				Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+				
+				boolean isAuthenticationError = false;
+				boolean isUserDisabled = false;
+				
+				for (String code : response.getErrorCodes()) {
+					if (code.charAt(1) == '2') {
+						isAuthenticationError = true;
+						
+						if (code.equals("0201")) {
+							isUserDisabled = true;
+						}
 					}
 				}
-			}
-			
-			if (isUserDisabled) {
-				new SharedPreferencesHelper(this).setUserDisabled(true);
-				showDialog(DIALOG_USER_DISABLED);
-			} else if (isAuthenticationError) {
-				showDialog(DIALOG_AUTH_ERROR);
+				
+				if (isUserDisabled) {
+					new SharedPreferencesHelper(this).setUserDisabled(true);
+					showDialog(DIALOG_USER_DISABLED);
+				} else if (isAuthenticationError) {
+					showDialog(DIALOG_AUTH_ERROR);
+				} else {
+					showDialog(DIALOG_INTERNAL_ERROR);
+				}
+				
+			} else if (response.getResult() == Result.HTTP_ERROR) {
+				Log.e(TAG, "http error");
+				
+				showDialog(DIALOG_NETWORK_ERROR);
 			} else {
+				Log.e(TAG, "internal error");
+				
 				showDialog(DIALOG_INTERNAL_ERROR);
 			}
-			
-		} else if (response.getResult() == Result.HTTP_ERROR) {
-			Log.e(TAG, "http error");
-			
-			showDialog(DIALOG_NETWORK_ERROR);
-		} else {
-			Log.e(TAG, "internal error");
-			
-			showDialog(DIALOG_INTERNAL_ERROR);
 		}
 	}
 
@@ -598,10 +633,10 @@ public class CampaignListActivity extends ListActivity {
 			notifyTaskDone();		
 			
 			// dismissing dialog from other task!!!
-			if (mActivity.mShowingProgressDialog) {
-				mActivity.dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
-				mActivity.mShowingProgressDialog = false;
-			}			
+//			if (mActivity.mShowingProgressDialog) {
+//				mActivity.dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+//				mActivity.mShowingProgressDialog = false;
+//			}			
 		}
 		
 		private void notifyTaskDone() {
@@ -634,7 +669,7 @@ public class CampaignListActivity extends ListActivity {
 			super.onPreExecute();
 			
 			//show progress dialog
-			mActivity.mShowingProgressDialog = true;
+//			mActivity.mShowingProgressDialog = true;
 			mActivity.showDialog(DIALOG_DOWNLOAD_PROGRESS);
 		}
 
