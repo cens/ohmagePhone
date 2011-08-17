@@ -157,7 +157,7 @@ public class PromptListActivity extends ListActivity{
 			startActivityForResult(intent, 1);
 			return true;
 		case R.id.participationstat:
-			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Stats", mCampaignUrn, mSurveyId, this);
+			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Summary", mCampaignUrn, mSurveyId, this);
 			intent = chart.execute(this);		
 			startActivityForResult(intent, 1);
 			return true;

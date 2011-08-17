@@ -24,8 +24,8 @@ import android.net.Uri;
 public class FeedbackTimeScatterChart extends AbstractChart {
 
 	static final String TAG = "FeedbackScatterChart";
+	static final int aDayInMilliseconds = 84600000;
 	protected String mCampaignUrn;
-	protected String mChartTitle;
 	protected String mSurveyID;
 	protected Context mContext;
 
@@ -72,9 +72,8 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 			return null;
 		}
 		
-		
 		//Key: SurveyID 
-		//Value:Date
+		//Value: Date
 		Map<String, ArrayList<Date>> dataMap = new HashMap<String, ArrayList<Date>>();
 		Long startDate = new Long(Long.MAX_VALUE); 
 		Long endDate = new Long(Long.MIN_VALUE);
@@ -123,9 +122,8 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 		
 		ArrayList<Integer> colorsArrayList = new ArrayList<Integer>();
 		for(int k=0; k<titles.length; k++){
-			colorsArrayList.add(new Integer(Color.rgb(198, 226, 255)));
+			colorsArrayList.add(new Integer(Color.rgb((198+k*30)%256, 226, (255+k*30)%256)));
 		}
-		
 		
 		//Set color array
 		int[] colors = new int[colorsArrayList.size()];
@@ -133,15 +131,12 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 			colors[i] = colorsArrayList.get(i).intValue();
 		}
 		
-		//int[] colors = new int[] { Color.rgb(198, 226, 255), Color.rgb(198, 226, 255), Color.rgb(198, 226, 255)};
-		
 		//Set styles
 		List<PointStyle> stylesArrayList = new ArrayList<PointStyle>();
 		for(int i=0; i<colorsArrayList.size(); i++){
-			stylesArrayList.add(PointStyle.SQUARE);
+			stylesArrayList.add(PointStyle.DIAMOND);
 		}
 		
-		//PointStyle[] styles = new PointStyle[] { PointStyle.SQUARE, PointStyle.SQUARE, PointStyle.SQUARE};
 		XYMultipleSeriesRenderer renderer = buildRenderer(colors, stylesArrayList.toArray(new PointStyle[stylesArrayList.size()]));
 		
 		//Set Chart
@@ -150,21 +145,36 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 				"", 
 				"Date", 
 				"",
-				startDate.doubleValue(), 
-				endDate.doubleValue(), 
-				0, 
-				titles.length+1,
+				startDate.doubleValue()-(aDayInMilliseconds*6),
+				endDate.doubleValue()+(aDayInMilliseconds*6), 
+				-1,
+				titles.length,
 				Color.GRAY, 
 				Color.LTGRAY
 		);
 		
 		renderer.setXLabels(10);
-		renderer.setYLabels(10);
+		renderer.setYLabels(0);
 
+		//Set Y labels
+		for(int k=0; k<titles.length ; k++){
+			renderer.addYTextLabel(k, titles[k]);
+		}
+		
+		//Set pan limit from startData-3days to endDate+3days
+		renderer.setPanEnabled(true, true);
+		renderer.setPanLimits(new double[]{startDate-(aDayInMilliseconds*6), endDate+(aDayInMilliseconds*6), -1, titles.length});
+		
+		//Set zoom
+		renderer.setZoomEnabled(true, false);
+		renderer.setZoomLimits(new double[]{startDate-(aDayInMilliseconds*6), endDate+(aDayInMilliseconds*6), -1, titles.length});
+		
+		renderer.setZoomRate(2);
+		
 		//Set chart layout
 		int topMargin = 0;
 		int bottomMargin = 50;
-		int leftMargin = 2;
+		int leftMargin = 4;
 		int rightMargin = 2;
 		int margins[] = {topMargin, leftMargin, bottomMargin, rightMargin};
 
@@ -172,12 +182,13 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 		renderer.setLabelsTextSize(20);
 		renderer.setShowGrid(true);
 		renderer.setMargins(margins);
-		renderer.setPointSize(10);
+		renderer.setPointSize(14);
 		renderer.setShowLegend(false);
 		renderer.setShowAxes(true);
 		renderer.setXLabelsAlign(Align.LEFT);
 		renderer.setYLabelsAlign(Align.LEFT);
 		renderer.setXLabelsAngle(330);
+		renderer.setYLabelsAngle(330);
 		renderer.setZoomButtonsVisible(true);
 		renderer.setApplyBackgroundColor(true);
 		renderer.setBackgroundColor(Color.DKGRAY);
@@ -187,8 +198,6 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 			((XYSeriesRenderer) renderer.getSeriesRendererAt(i)).setFillPoints(true);
 		}
 
-		return ChartFactory.getTimeScatterChartIntent(context,buildDateDataset(titles, xValues, yValues), renderer, "MM/dd hha", mChartTitle);
+		return ChartFactory.getTimeScatterChartIntent(context,buildDateDataset(titles, xValues, yValues), renderer, "MM/dd", mChartTitle);
 	}
-
-
 }

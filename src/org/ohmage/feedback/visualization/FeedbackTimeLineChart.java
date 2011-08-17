@@ -168,7 +168,7 @@ public class FeedbackTimeLineChart extends AbstractChart {
 		//Set chart layout
 		int topMargin = 0;
 		int bottomMargin = 50;
-		int leftMargin = 2;
+		int leftMargin = 4;
 		int rightMargin = 2;
 		int margins[] = {topMargin, leftMargin, bottomMargin, rightMargin};
 				
@@ -180,6 +180,7 @@ public class FeedbackTimeLineChart extends AbstractChart {
 		renderer.setShowLegend(false);
 		renderer.setShowAxes(true);
 		renderer.setXLabelsAlign(Align.LEFT);
+		renderer.setYLabelsAngle(330);
 		renderer.setXLabelsAngle(330);
 		renderer.setZoomButtonsVisible(true);
 		renderer.setApplyBackgroundColor(true);
@@ -213,8 +214,10 @@ public class FeedbackTimeLineChart extends AbstractChart {
 		
 		//Set zoom
 		renderer.setZoomEnabled(true, false);
-		renderer.setZoomLimits(new double[]{startDate, endDate, minYLableValue-1, maxYLableValue+1});
-
+		renderer.setZoomLimits(new double[]{startDate-(aDayInMilliseconds*4), endDate+(aDayInMilliseconds*3), minYLableValue-1, maxYLableValue+1});
+		
+		renderer.setZoomRate(2);
+		
 		int length = renderer.getSeriesRendererCount();
 		for (int i = 0; i < length; i++) {
 			SimpleSeriesRenderer seriesRenderer = renderer.getSeriesRendererAt(i);

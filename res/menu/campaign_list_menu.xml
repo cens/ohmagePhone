@@ -3,7 +3,6 @@
     <item 
 		android:id="@+id/refresh_campaigns"
         android:title="Refresh" />
-        
     <item 
 		android:id="@+id/mobility_settings"
         android:title="Mobility" />
