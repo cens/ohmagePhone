@@ -8,8 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -33,6 +35,7 @@ import edu.ucla.cens.systemlog.Log;
 
 public class FeedbackService extends WakefulIntentService {
 	private static final String TAG = "FeedbackService";
+	private static final int MAX_RESPONSES_PER_SURVEY = 20;
 
 	public FeedbackService() {
 		super(TAG);
@@ -128,19 +131,15 @@ public class FeedbackService extends WakefulIntentService {
 		String startDate = null;
 		String endDate = null;
 		
-		Calendar twoWeeksAgo = new GregorianCalendar();
+/*		Calendar twoWeeksAgo = new GregorianCalendar();
 		twoWeeksAgo.add(Calendar.WEEK_OF_YEAR, -2);
 		
 		Calendar tomorrow = new GregorianCalendar();
 		tomorrow.add(Calendar.DAY_OF_MONTH, 1);
 		
 		// and convert times to timestamps we can feed to the api
-		/*
-		startDate = ISO8601Utilities.formatDateTime(twoWeeksAgo.getTime());
-		endDate = ISO8601Utilities.formatDateTime(tomorrow.getTime());
-		*/
 		startDate = inputSDF.format(twoWeeksAgo.getTime());
-		endDate = inputSDF.format(tomorrow.getTime());
+		endDate = inputSDF.format(tomorrow.getTime());*/
 		
 		// ==================================================================
 		// === 3. download responses for each campaign and insert into fbdb
@@ -149,7 +148,7 @@ public class FeedbackService extends WakefulIntentService {
 		// we'll have to iterate through all the campaigns in which this user
 		// is participating in order to gather all of their data
 		for (Campaign c : campaigns) {
-			Log.v(TAG, "Requesting responsese for campaign " + c.mUrn + "...");
+			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 			
 			SurveyReadResponse apiResponse = api.surveyResponseRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", startDate, endDate);
 			
@@ -163,7 +162,7 @@ public class FeedbackService extends WakefulIntentService {
 			
 			if (error != null) {
 				Log.e(TAG, error);
-				continue;
+				return;
 			}
 			
 			Log.v(TAG, "Request for campaign " + c.mUrn + " complete!");
@@ -182,6 +181,9 @@ public class FeedbackService extends WakefulIntentService {
 				continue;
 			}
 			
+			// create a little histogram to add up number of responses for each survey
+			Map<String,Integer> responsesPerSurvey = new HashMap<String,Integer>();
+			
 			// for each survey, insert a record into our feedback db
 			// if we're unable to insert, just continue (likely a duplicate)
 			// also, note the schema follows the definition in the documentation
@@ -190,6 +192,27 @@ public class FeedbackService extends WakefulIntentService {
 				
 				try {
 					JSONObject survey = data.getJSONObject(i);
+					String surveyId = survey.getString("survey_id");
+					
+					// get the count for this time, creating it if it doesn't exist already
+					int currentSurveyCount;
+					
+					if (responsesPerSurvey.containsKey(surveyId)) {
+						currentSurveyCount = responsesPerSurvey.get(surveyId);
+					}
+					else
+					{
+						responsesPerSurvey.put(surveyId, 0);
+						currentSurveyCount = 0;
+					}
+					
+					// ensure that we haven't exceeded the limit for responses of this survey type
+					// if we have, continue, since the next response may not be a response of this survey type
+					if (currentSurveyCount >= MAX_RESPONSES_PER_SURVEY)
+						break;
+					
+					// update the count for next times
+					responsesPerSurvey.put(surveyId, currentSurveyCount+1);
 					
 					// first we need to gather all of the appropriate data
 					// from the survey response. some of this data needs to
@@ -209,7 +232,6 @@ public class FeedbackService extends WakefulIntentService {
 					float locationAccuracy = (float)survey.optDouble("location_accuracy");
 					long locationTime = survey.optLong("location_timestamp");
 					
-					String surveyId = survey.getString("survey_id");
 					String surveyLaunchContext = survey.getString("launch_context_long").toString();
 					
 					// we need to parse out the responses and put them in
@@ -254,7 +276,7 @@ public class FeedbackService extends WakefulIntentService {
 					// ok, gathered everything; time to insert into the feedback DB
 					// note that we mark this entry as "remote", meaning it came from the server
 					
-					dbHelper.addResponseRow(
+					if (dbHelper.addResponseRow(
 							c.mUrn,
 							username,
 							date,
@@ -269,7 +291,10 @@ public class FeedbackService extends WakefulIntentService {
 							surveyId,
 							surveyLaunchContext,
 							response,
-							"remote");
+							"remote") == -1) {
+						// display some note in the log that this failed
+						Log.v(TAG, "Record " + (i+1) + "/" + data.length() + " was not inserted (insertion returned -1)");
+					}
 					
 					// it's possible that the above will fail, in which case it silently returns -1
 					// we don't do anything differently in that case, so there's no need to check

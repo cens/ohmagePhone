@@ -28,10 +28,10 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer.Orientation;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Align;
-import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Paint.Align;
+import android.graphics.Paint.Style;
 
 /**
  * An abstract class to be implemented by the chart rendering classes.

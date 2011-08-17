@@ -32,9 +32,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.ohmage.R;
 
 public class SurveyListAdapter extends BaseAdapter {
 	

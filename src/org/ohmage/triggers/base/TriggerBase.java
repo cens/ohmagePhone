@@ -248,7 +248,7 @@ public abstract class TriggerBase {
 	/*
 	 * Save a new trigger description to the database.
 	 */
-	public void addNewTrigger(Context context, String campaignUrn, String trigDesc) {
+	public void addNewTrigger(Context context, String campaignUrn, String trigDesc, String actDesc) {
 		Log.i(DEBUG_TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigDesc + ")");
 		
 		TriggerDB db = new TriggerDB(context);
@@ -257,11 +257,11 @@ public abstract class TriggerBase {
 		//Save the trigger desc. Use default desc for notification, action
 		// and run time
 		int trigId = (int) db.addTrigger(campaignUrn, this.getTriggerType(), trigDesc,
-					  			   		TriggerActionDesc.getDefaultDesc(),
+					  			   		actDesc,
 					  			   		NotifDesc.getDefaultDesc(context),
 					  			   		TriggerRunTimeDesc.getDefaultDesc());
 		
-		String actDesc = db.getActionDescription(trigId);
+//		String actDesc = db.getActionDescription(trigId);
 		db.close();
 	
 		//If the action has a positive number of surveys, 
@@ -275,6 +275,26 @@ public abstract class TriggerBase {
 	/*
 	 * Update the description of an existing trigger
 	 */
+	public void updateTrigger(Context context, int trigId, String trigDesc, String actDesc) {
+		Log.i(DEBUG_TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId 
+										+ ", " + trigDesc + ")");
+		
+		TriggerDB db = new TriggerDB(context);
+		db.open();
+		db.updateTriggerDescription(trigId, trigDesc);
+		
+//		String actDesc = db.getActionDescription(trigId);
+		db.updateActionDescription(trigId, actDesc);
+		db.close();
+		
+		//If the action has a positive number of surveys, 
+		//restart the trigger. 
+		TriggerActionDesc desc = new TriggerActionDesc();
+		if(desc.loadString(actDesc) && desc.getCount() > 0) {
+			resetTrigger(context, trigId, trigDesc);
+		}
+	}	
+	
 	public void updateTrigger(Context context, int trigId, String trigDesc) {
 		Log.i(DEBUG_TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId 
 										+ ", " + trigDesc + ")");
@@ -376,7 +396,7 @@ public abstract class TriggerBase {
 	 * can save the trigger description to the db using the API addNewTrigger() 
 	 * provided by this class.
 	 */
-	public abstract void launchTriggerCreateActivity(Context context, String campaingUrn, boolean adminMode);
+	public abstract void launchTriggerCreateActivity(Context context, String campaingUrn, String[] mActions, boolean adminMode);
 	
 	/*
 	 * Launch the activity to edit an existing trigger of this type. The activity
@@ -384,7 +404,7 @@ public abstract class TriggerBase {
 	 * provided by this class.
 	 */
 	public abstract void launchTriggerEditActivity(Context context, int trigId, 
-													String trigDesc, boolean adminMode);
+													String trigDesc, String actDesc, String[] mActions, boolean adminMode);
 	
 	/*
 	 * Check if this trigger type has its own settings.

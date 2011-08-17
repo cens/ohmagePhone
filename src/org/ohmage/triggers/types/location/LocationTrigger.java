@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerBase;
+import org.ohmage.triggers.ui.TriggerListActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -120,7 +121,7 @@ public class LocationTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context, final String campaignUrn, boolean adminMode) {
+	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String [] actions, boolean adminMode) {
 
 		//Register a listener with the editor
 		//activity to listen for the 'done' event
@@ -129,16 +130,17 @@ public class LocationTrigger extends TriggerBase {
 			
 			@Override
 			public void onDone(Context context, int trigId, 
-							   String trigDesc) {
+							   String trigDesc, String actDesc) {
 				
 				//When done, save the trigger to the db
-				addNewTrigger(context, campaignUrn, trigDesc);
+				addNewTrigger(context, campaignUrn, trigDesc, actDesc);
 			}
 		});
 		
 		
 		Intent i = new Intent(context, LocTrigEditActivity.class);
 		i.putExtra(LocTrigEditActivity.KEY_ADMIN_MODE, adminMode);
+		i.putExtra(TriggerListActivity.KEY_ACTIONS, actions);
 		context.startActivity(i);
 	}
 
@@ -157,7 +159,7 @@ public class LocationTrigger extends TriggerBase {
 
 	@Override
 	public void launchTriggerEditActivity(Context context, int trigId, 
-										  String trigDesc, boolean adminMode) {
+										  String trigDesc, String actDesc, String[] mActions, boolean adminMode) {
 		
 		//Register a listener with the editor
 		//activity to listen for the 'done' event
@@ -166,10 +168,10 @@ public class LocationTrigger extends TriggerBase {
 		
 			@Override
 			public void onDone(Context context, int trigId, 
-							   String trigDesc) {
+							   String trigDesc, String actDesc) {
 				
 				//Update the trigger in db when done
-				updateTrigger(context, trigId, trigDesc);
+				updateTrigger(context, trigId, trigDesc, actDesc);
 			}
 		});
 	
@@ -178,7 +180,9 @@ public class LocationTrigger extends TriggerBase {
 		Intent i = new Intent(context, LocTrigEditActivity.class);
 		i.putExtra(LocTrigEditActivity.KEY_TRIG_ID, trigId);
 		i.putExtra(LocTrigEditActivity.KEY_TRIG_DESC, trigDesc);
+		i.putExtra(LocTrigEditActivity.KEY_ACT_DESC, actDesc);
 		i.putExtra(LocTrigEditActivity.KEY_ADMIN_MODE, adminMode);
+		i.putExtra(TriggerListActivity.KEY_ACTIONS, mActions);
 		context.startActivity(i);	
 	}
 

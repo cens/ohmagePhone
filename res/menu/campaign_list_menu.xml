@@ -3,7 +3,6 @@
     <item 
 		android:id="@+id/refresh_campaigns"
         android:title="Refresh" />
-        
     <item 
 		android:id="@+id/mobility_settings"
         android:title="Mobility" />
@@ -12,5 +11,10 @@
         android:title="Status" />
     <item 
     	android:id="@+id/fbtest" 
+<<<<<<< HEAD
     	android:title="Feedback Test" android:visible="true"/>
+=======
+    	android:title="Feedback Test" 
+    	android:visible="true"/>
+>>>>>>> ohmage-2.6-fbdb_merge
 </menu>

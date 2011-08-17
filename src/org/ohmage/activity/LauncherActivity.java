@@ -19,8 +19,6 @@ import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.feedback.FeedbackService;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -32,6 +30,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class LauncherActivity extends Activity {
 	

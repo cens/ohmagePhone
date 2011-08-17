@@ -18,6 +18,7 @@ package org.ohmage.triggers.types.time;
 import org.json.JSONObject;
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerBase;
+import org.ohmage.triggers.ui.TriggerListActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -78,27 +79,28 @@ public class TimeTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context, final String campaignUrn, boolean adminMode) {
+	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String[] actions, boolean adminMode) {
 		
 		TimeTrigEditActivity.setOnExitListener(
 					new TimeTrigEditActivity.ExitListener() {
 			
 			@Override
 			public void onDone(Context context, int trigId, 
-							   String trigDesc) {
+							   String trigDesc, String actDesc) {
 				
 				Log.i(DEBUG_TAG, "TimeTrigger: Saving new trigger: " + trigDesc);
-				addNewTrigger(context, campaignUrn, trigDesc);
+				addNewTrigger(context, campaignUrn, trigDesc, actDesc);
 			}
 		});
 		
-		
-		context.startActivity(new Intent(context, 
-							  TimeTrigEditActivity.class));
+		Intent i = new Intent(context, TimeTrigEditActivity.class);
+		i.putExtra(TriggerListActivity.KEY_ACTIONS, actions);
+		i.putExtra(TimeTrigEditActivity.KEY_ADMIN_MODE, adminMode);
+		context.startActivity(i);
 	}
 
 	@Override
-	public void launchTriggerEditActivity(Context context, int trigId, String trigDesc,
+	public void launchTriggerEditActivity(Context context, int trigId, String trigDesc, String actDesc, String[] mActions,
 										  boolean adminMode) {
 		
 		TimeTrigEditActivity.setOnExitListener(
@@ -106,9 +108,9 @@ public class TimeTrigger extends TriggerBase {
 		
 			@Override
 			public void onDone(Context context, int trigId, 
-							   String trigDesc) {
+							   String trigDesc, String actDesc) {
 				
-				updateTrigger(context, trigId, trigDesc);
+				updateTrigger(context, trigId, trigDesc, actDesc);
 			}
 		});
 	
@@ -116,7 +118,9 @@ public class TimeTrigger extends TriggerBase {
 		Intent i = new Intent(context, TimeTrigEditActivity.class);
 		i.putExtra(TimeTrigEditActivity.KEY_TRIG_ID, trigId);
 		i.putExtra(TimeTrigEditActivity.KEY_TRIG_DESC, trigDesc);
+		i.putExtra(TimeTrigEditActivity.KEY_ACT_DESC, actDesc);
 		i.putExtra(TimeTrigEditActivity.KEY_ADMIN_MODE, adminMode);
+		i.putExtra(TriggerListActivity.KEY_ACTIONS, mActions);
 		context.startActivity(i);
 	}
 

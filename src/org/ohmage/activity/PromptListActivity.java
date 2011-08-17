@@ -8,9 +8,9 @@ import java.util.List;
 import org.ohmage.CampaignXmlHelper;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
-import org.ohmage.feedback.visualization.FeedbackTimeScatterChart;
 import org.ohmage.feedback.visualization.FeedbackTextChart;
 import org.ohmage.feedback.visualization.FeedbackTimeLineChart;
+import org.ohmage.feedback.visualization.FeedbackTimeScatterChart;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
@@ -157,8 +157,7 @@ public class PromptListActivity extends ListActivity{
 			startActivityForResult(intent, 1);
 			return true;
 		case R.id.participationstat:
-			//FeedbackTimeChart chart = new FeedbackTimeChart("Participation Stats", mCampaignUrn, mSurveyId, null, mPrompts);
-			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Stat");
+			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Summary", mCampaignUrn, mSurveyId, this);
 			intent = chart.execute(this);		
 			startActivityForResult(intent, 1);
 			return true;
