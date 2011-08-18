@@ -25,6 +25,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -195,6 +196,23 @@ public class OhmageApi {
 				mData = rootJson.getJSONObject("data");
 			if (rootJson.has("metadata"))
 				mMetadata = rootJson.getJSONObject("metadata");
+		}
+	}
+	
+	public static class CampaignXmlResponse extends Response {
+		protected String mXml;
+		
+		public String getXml() {
+			return mXml;
+		}
+		
+		public void setXml(String xml) {
+			this.mXml = xml;
+		}
+
+		@Override
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			// do nothing, b/c there's no json data
 		}
 	}
 	
@@ -377,6 +395,104 @@ public class OhmageApi {
 		}
 	}
 	
+	public CampaignXmlResponse campaignXmlRead(String serverUrl, String username, String hashedPassword, String client, String campaignUrn) {
+		
+		final boolean GZIP = false;
+		
+		String url = serverUrl + CAMPAIGN_READ_PATH;
+		
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+	        nameValuePairs.add(new BasicNameValuePair("user", username));
+	        nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+	        nameValuePairs.add(new BasicNameValuePair("client", client));
+	        nameValuePairs.add(new BasicNameValuePair("output_format", "xml"));
+	        nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrn));
+	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			
+			return (CampaignXmlResponse)parseXmlResponse(doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			CampaignXmlResponse candidate = new CampaignXmlResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
+	}
+	
+	private CampaignXmlResponse parseXmlResponse(HttpResponse response) {
+		Result result = Result.HTTP_ERROR;
+		String[] errorCodes = null;
+		
+		CampaignXmlResponse candidate = new CampaignXmlResponse();
+		
+		if (response != null) {
+        	Log.i(TAG, response.getStatusLine().toString());
+        	if (response.getStatusLine().getStatusCode() == 200) {
+        		HttpEntity responseEntity = response.getEntity();
+        		if (responseEntity != null) {
+        			if (responseEntity.getContentType().getValue().equals("text/xml")) {
+						try {
+							String xml = EntityUtils.toString(responseEntity);
+							result = Result.SUCCESS;
+	        				candidate.setXml(xml);
+						} catch (ParseException e) {
+							Log.e(TAG, "Problem reading response body", e);
+							result = Result.INTERNAL_ERROR;
+						} catch (IOException e) {
+							Log.e(TAG, "Problem reading response body", e);
+							result = Result.INTERNAL_ERROR;
+						}
+        			} else if (responseEntity.getContentType().getValue().equals("text/html")) {
+        				try {
+    	        			String content = EntityUtils.toString(responseEntity);
+    	        			Log.i(TAG, content);
+    	        			
+    	        			JSONObject rootJson;
+    					
+    						rootJson = new JSONObject(content);
+    						if (rootJson.getString("result").equals("success")) {
+    							result = Result.INTERNAL_ERROR;
+    							Log.e(TAG, "CampaignReadXml should never return json with SUCCESS!");
+    						} else {
+    							result = Result.FAILURE;
+    							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+    							int errorCount = errorsJsonArray.length();
+    							errorCodes = new String[errorCount];
+    							for (int i = 0; i < errorCount; i++) {
+    								errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
+    							}
+    						}
+    					} catch (JSONException e) {
+    						Log.e(TAG, "Problem parsing response json", e);
+    						result = Result.INTERNAL_ERROR;
+    					} catch (IOException e) {
+    						Log.e(TAG, "Problem reading response body", e);
+    						result = Result.INTERNAL_ERROR;
+    					}
+        			} else {
+        				result = Result.INTERNAL_ERROR;
+						Log.e(TAG, "Unexpected content type returned for CampaignXmlRead.");
+        			}
+				} else {
+					Log.e(TAG, "No response entity in response");
+        			result = Result.HTTP_ERROR;
+        		}
+        		
+        	} else {
+        		Log.e(TAG, "Returned status code: " + String.valueOf(response.getStatusLine().getStatusCode()));
+        		result = Result.HTTP_ERROR;
+        	}
+        	
+        } else {
+        	Log.e(TAG, "Response is null");
+        	result = Result.HTTP_ERROR;
+        }
+		
+		candidate.setResponseStatus(result, errorCodes);
+
+		return candidate;
+	}
+
 	/**
 	 * Returns survey responses for the specified campaign, with a number of parameters to filter the result.<br><br>
 	 * 

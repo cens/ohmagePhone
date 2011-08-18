@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApplication;
 import org.ohmage.CampaignManager;
 import org.ohmage.SharedPreferencesHelper;
@@ -190,10 +191,11 @@ public class CampaignListActivity extends ListActivity {
 		} else if (((CampaignListAdapter)getListAdapter()).getItemGroup(position) == CampaignListAdapter.GROUP_UNAVAILABLE) {
 			//download campaign
 			try {
-				String campaignUrn = ((Campaign) getListView().getItemAtPosition(position)).mUrn;
+//				String campaignUrn = ((Campaign) getListView().getItemAtPosition(position)).mUrn;
+				Campaign campaign = (Campaign) getListView().getItemAtPosition(position);
 				mTask2 = new CampaignDownloadTask(CampaignListActivity.this);
 				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-				mTask2.execute(prefs.getUsername(), prefs.getHashedPassword(), campaignUrn);
+				mTask2.execute(prefs.getUsername(), prefs.getHashedPassword(), campaign);
 			} catch (Exception e) {
 				Log.e(TAG, "Should be NullPointer exception occuring because of delayed update of list view after rotation", e);
 			}
@@ -403,6 +405,7 @@ public class CampaignListActivity extends ListActivity {
 					JSONObject data = response.getData();
 					c.mUrn = jsonItems.getString(i); 
 					c.mName = data.getJSONObject(c.mUrn).getString("name");
+					c.mDescription = data.getJSONObject(c.mUrn).getString("description");
 					c.mCreationTimestamp = data.getJSONObject(c.mUrn).getString("creation_timestamp");
 					
 					if (data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running")) {
@@ -512,42 +515,32 @@ public class CampaignListActivity extends ListActivity {
 		}
 	}
 	
-	private void onCampaignDownloaded(String campaignUrn, CampaignReadResponse response) {
+	private void onCampaignDownloaded(Campaign campaign, CampaignXmlResponse response) {
 		
 		mTask2 = null;
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
-			// parse response
-			try {
-				JSONObject campaignJson = ((JSONObject)response.getData()).getJSONObject(campaignUrn);
-				String name = campaignJson.getString("name");
-				String creationTimestamp = campaignJson.getString("creation_timestamp");
-				String xml = campaignJson.getString("xml");
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				String downloadTimestamp = dateFormat.format(new Date());
-				//String downloadTimestamp = DateFormat.format("yyyy-MM-dd kk:mm:ss", System.currentTimeMillis());
-				
-				DbHelper dbHelper = new DbHelper(this);
-				if (dbHelper.getCampaign(campaignUrn) == null) {
-					dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
-				} else {
-					Log.w(TAG, "Campaign already exists. This should never happen. Replacing previous entry with new one.");
-					dbHelper.removeCampaign(campaignUrn);
-					dbHelper.addCampaign(campaignUrn, name, creationTimestamp, downloadTimestamp, xml);
-				}
-				
-				
-				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(this, FeedbackService.class);
-				// annotate the request with the current campaign's URN
-				fbIntent.putExtra("campaign_urn", campaignUrn);
-				// and go!
-				WakefulIntentService.sendWakefulWork(this, fbIntent);
-				
-			} catch (JSONException e) {
-				Log.e(TAG, "Error parsing response json", e);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String downloadTimestamp = dateFormat.format(new Date());
+			//String downloadTimestamp = DateFormat.format("yyyy-MM-dd kk:mm:ss", System.currentTimeMillis());
+			
+			DbHelper dbHelper = new DbHelper(this);
+			if (dbHelper.getCampaign(campaign.mUrn) == null) {
+				dbHelper.addCampaign(campaign.mUrn, campaign.mName, campaign.mDescription, campaign.mCreationTimestamp, downloadTimestamp, response.getXml());
+			} else {
+				Log.w(TAG, "Campaign already exists. This should never happen. Replacing previous entry with new one.");
+				dbHelper.removeCampaign(campaign.mUrn);
+				dbHelper.addCampaign(campaign.mUrn, campaign.mName, campaign.mDescription, campaign.mCreationTimestamp, downloadTimestamp, response.getXml());
 			}
+			
+			// create an intent to fire off the feedback service
+			Intent fbIntent = new Intent(this, FeedbackService.class);
+			// annotate the request with the current campaign's URN
+			fbIntent.putExtra("campaign_urn", campaign.mUrn);
+			// and go!
+			WakefulIntentService.sendWakefulWork(this, fbIntent);
+			
 			// update listview
 			loadCampaigns();
 			updateCampaignList();
@@ -653,12 +646,13 @@ public class CampaignListActivity extends ListActivity {
 		}
 	}
 	
-	private static class CampaignDownloadTask extends AsyncTask<String, Void, CampaignReadResponse>{
+	private static class CampaignDownloadTask extends AsyncTask<Object, Void, CampaignXmlResponse>{
 		
 		private CampaignListActivity mActivity;
 		private boolean mIsDone = false;
-		private CampaignReadResponse mResponse = null;
-		private String mCampaignUrn;
+		private CampaignXmlResponse mResponse = null;
+//		private String mCampaignUrn;
+		private Campaign mCampaign;
 		
 		private CampaignDownloadTask(CampaignListActivity activity) {
 			this.mActivity = activity;
@@ -681,16 +675,16 @@ public class CampaignListActivity extends ListActivity {
 		}
 
 		@Override
-		protected CampaignReadResponse doInBackground(String... params) {
-			String username = params[0];
-			String hashedPassword = params[1];
-			mCampaignUrn = params[2];
+		protected CampaignXmlResponse doInBackground(Object... params) {
+			String username = (String) params[0];
+			String hashedPassword = (String) params[1];
+			mCampaign = (Campaign) params[2];
 			OhmageApi api = new OhmageApi(mActivity);
-			return api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "long", mCampaignUrn);
+			return api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaign.mUrn);
 		}
 		
 		@Override
-		protected void onPostExecute(CampaignReadResponse response) {
+		protected void onPostExecute(CampaignXmlResponse response) {
 			super.onPostExecute(response);
 			
 			mResponse = response;
@@ -703,7 +697,7 @@ public class CampaignListActivity extends ListActivity {
 		
 		private void notifyTaskDone() {
 			if (mActivity != null) {
-				mActivity.onCampaignDownloaded(mCampaignUrn, mResponse);
+				mActivity.onCampaignDownloaded(mCampaign, mResponse);
 			}
 		}
 	}
