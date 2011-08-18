@@ -182,7 +182,7 @@ public class FeedbackService extends WakefulIntentService {
 			}
 			
 			// create a little histogram to add up number of responses for each survey
-			Map<String,Integer> responsesPerSurvey = new HashMap<String,Integer>();
+			/*Map<String,Integer> responsesPerSurvey = new HashMap<String,Integer>();*/
 			
 			// for each survey, insert a record into our feedback db
 			// if we're unable to insert, just continue (likely a duplicate)
@@ -194,7 +194,7 @@ public class FeedbackService extends WakefulIntentService {
 					JSONObject survey = data.getJSONObject(i);
 					String surveyId = survey.getString("survey_id");
 					
-					// get the count for this time, creating it if it doesn't exist already
+					/*// get the count for this time, creating it if it doesn't exist already
 					int currentSurveyCount;
 					
 					if (responsesPerSurvey.containsKey(surveyId)) {
@@ -212,7 +212,7 @@ public class FeedbackService extends WakefulIntentService {
 						break;
 					
 					// update the count for next times
-					responsesPerSurvey.put(surveyId, currentSurveyCount+1);
+					responsesPerSurvey.put(surveyId, currentSurveyCount+1);*/
 					
 					// first we need to gather all of the appropriate data
 					// from the survey response. some of this data needs to
