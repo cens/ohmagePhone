@@ -68,6 +68,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
+	    setTitle("Response Map Summary");
 	    
 	    mCampaignUrn = getIntent().getStringExtra("campaign_urn");
 	    mSurveyId = getIntent().getStringExtra("survey_id");

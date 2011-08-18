@@ -296,7 +296,8 @@ public class SurveyListAdapter extends BaseAdapter {
 			holder.feedbackButton.setOnClickListener(new Button.OnClickListener(){
 				public void onClick(View v){
 					Survey survey = (Survey)getItem(pos);
-					Intent intent = new Intent(mContext, PromptListActivity.class);
+					//Intent intent = new Intent(mContext, PromptListActivity.class);
+					Intent intent = new Intent(mContext, FeedbackMenuActivity.class);
 					intent.putExtra("campaign_urn", mCampaignUrn);
 					intent.putExtra("survey_id", survey.getId());
 					intent.putExtra("survey_title", survey.getTitle());
