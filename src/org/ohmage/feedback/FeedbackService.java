@@ -119,7 +119,6 @@ public class FeedbackService extends WakefulIntentService {
 			
 			if (error != null) {
 				Log.e(TAG, error);
-				Toast.makeText(this, error, Toast.LENGTH_LONG).show();
 				return;
 			}
 			
@@ -136,7 +135,7 @@ public class FeedbackService extends WakefulIntentService {
 			// if that's the case, don't do anything
 			if (data == null) {
 				Log.v(TAG, "No data to process, continuing feedback service");
-				return;
+				continue;
 			}
 			
 			// for each survey, insert a record into our feedback db
@@ -234,11 +233,11 @@ public class FeedbackService extends WakefulIntentService {
 				catch(ParseException e) {
 					// this is a date parse exception, likely thrown from where we parse the utc timestamp
 					Log.e(TAG, "Problem parsing survey response timestamp", e);
-					return;
+					continue;
 				}
 		        catch (JSONException e) {
 					Log.e(TAG, "Problem parsing response json", e);
-					return;
+					continue;
 				}
 			}
 			
