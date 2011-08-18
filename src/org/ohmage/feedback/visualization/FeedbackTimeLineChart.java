@@ -45,7 +45,7 @@ import android.net.Uri;
  * Project status demo chart.
  */
 public class FeedbackTimeLineChart extends AbstractChart {
-	static final String TAG = "FeedbackTimeLineChart";
+	static final String TAG = "FeedbackTimeChart";
 	static final int aDayInMilliseconds = 84600000;
 	protected String mPromptID;
 	protected String mCampaignUrn;
@@ -163,7 +163,7 @@ public class FeedbackTimeLineChart extends AbstractChart {
 				Color.LTGRAY
 		);
 		
-		renderer.setShowGrid(true);
+
 
 		//Set chart layout
 		int topMargin = 0;
@@ -174,7 +174,7 @@ public class FeedbackTimeLineChart extends AbstractChart {
 				
 		renderer.setAxisTitleTextSize(23);
 		renderer.setLabelsTextSize(20);
-		
+		renderer.setShowGrid(true);		
 		renderer.setMargins(margins);
 		renderer.setPointSize(8);
 		renderer.setShowLegend(false);
