@@ -5,11 +5,24 @@
     android:layout_height="fill_parent"
     >
     
-    <ListView android:id="@+id/android:list"
-   		android:layout_width="fill_parent"
+    <ListView android:id="@+id/ringtone_list"
+   		android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_above="@+id/layout_buttons"
+	/>
+	
+	<View
+		android:id="@+id/separator"
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:layout_below="@id/ringtone_list"
+		android:background="#aaaaaa" />
+    
+    <ListView android:id="@+id/android:list"
+   		android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/separator"
+        android:layout_above="@+id/LinearLayout01"
         android:layout_marginBottom="10px"
 	/>
 		

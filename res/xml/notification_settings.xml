@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  
+  	<RingtonePreference
+  		android:ringtoneType="notification"
+  		android:showDefault="false"
+  		android:showSilent="false"
+  		android:key="notification_ringtone"
+  		android:title="Trigger Sound" />
+  		
+  	<ListPreference
+  		android:entries="@array/notification_vibration_entries"
+  		android:entryValues="@array/notification_vibration_values"
+  		android:title="Vibration Duration"
+  		android:key="notification_vibration"
+  		android:defaultValue="2000" />
+  		
+</PreferenceScreen>

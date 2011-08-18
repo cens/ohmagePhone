@@ -33,8 +33,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import org.ohmage.R;
 
@@ -130,12 +132,17 @@ public class Notifier {
 		Notification notif = new Notification(R.drawable.survey_notification,
 											  title, System.currentTimeMillis());
 
-		if(!quiet) {
-			notif.defaults = Notification.DEFAULT_ALL;
-		}
-		else {
+		if(quiet) {
 			// If it is a quiet update, disable the ticker as well
 			notif.tickerText = null;
+		}
+		
+		SharedPreferences ringtonePrefs = PreferenceManager.getDefaultSharedPreferences(context);
+		notif.defaults = Notification.DEFAULT_LIGHTS;
+		notif.sound = Uri.parse(ringtonePrefs.getString("notification_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString()));
+		long duration = Long.parseLong(ringtonePrefs.getString("notification_vibration", "2000"));
+		if (duration > 0) {
+			notif.vibrate = new long [] {0, 200, 200, duration - 800, 200, 200};
 		}
 		
 		//Watch for notification cleared events
