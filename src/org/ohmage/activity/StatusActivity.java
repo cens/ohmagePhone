@@ -247,7 +247,7 @@ public class StatusActivity extends Activity {
 					}
 				}
 				
-				if (code.equals("0604") || code.equals("0607") || code.equals("0608") || code.equals("0609")) {
+				if (code.equals("0700") || code.equals("0707") || code.equals("0703") || code.equals("0710")) {
 					removeCampaign = true;
 					errorCode = code;
 					break;
@@ -263,13 +263,13 @@ public class StatusActivity extends Activity {
 				showDialog(DIALOG_AUTHENTICATION_ERROR);
 			} else if (removeCampaign){
 				CampaignManager.removeCampaign(this, problematicCampaign.mUrn);
-				if (errorCode.equals("0604")) {
+				if (errorCode.equals("0700")) {
 					showDialog(DIALOG_CAMPAIGN_REMOVED_INVALID_URN);
-				} else if (errorCode.equals("0607")) {
+				} else if (errorCode.equals("0707")) {
 					showDialog(DIALOG_CAMPAIGN_REMOVED_INVALID_ROLE);
-				} else if (errorCode.equals("0608")) {
+				} else if (errorCode.equals("0703")) {
 					showDialog(DIALOG_CAMPAIGN_REMOVED_NOT_RUNNING);
-				} else if (errorCode.equals("0609")) {
+				} else if (errorCode.equals("0710")) {
 					showDialog(DIALOG_CAMPAIGN_REMOVED_OUT_OF_DATE);
 				} else {
 					showDialog(DIALOG_CAMPAIGN_REMOVED);

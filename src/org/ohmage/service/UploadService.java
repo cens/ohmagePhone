@@ -322,7 +322,7 @@ public class UploadService extends WakefulIntentService{
 					}
 				}
 				
-				if (code.equals("0604") || code.equals("0607") || code.equals("0608") || code.equals("0609")) {
+				if (code.equals("0700") || code.equals("0707") || code.equals("0703") || code.equals("0710")) {
 					removeCampaign = true;
 					errorCode = code;
 					break;
@@ -339,13 +339,13 @@ public class UploadService extends WakefulIntentService{
 				showErrorNotification(ERROR_AUTHENTICATION, "");
 			} else if (removeCampaign){
 				CampaignManager.removeCampaign(this, problematicCampaign.mUrn);
-				if (errorCode.equals("0604")) {
+				if (errorCode.equals("0700")) {
 					showErrorNotification(ERROR_CAMPAIGN_REMOVED_INVALID_URN, problematicCampaign.mUrn);
-				} else if (errorCode.equals("0607")) {
+				} else if (errorCode.equals("0707")) {
 					showErrorNotification(ERROR_CAMPAIGN_REMOVED_INVALID_ROLE, problematicCampaign.mUrn);
-				} else if (errorCode.equals("0608")) {
+				} else if (errorCode.equals("0703")) {
 					showErrorNotification(ERROR_CAMPAIGN_REMOVED_NOT_RUNNING, problematicCampaign.mUrn);
-				} else if (errorCode.equals("0609")) {
+				} else if (errorCode.equals("0710")) {
 					showErrorNotification(ERROR_CAMPAIGN_REMOVED_OUT_OF_DATE, problematicCampaign.mUrn);
 				} else {
 					showErrorNotification(ERROR_CAMPAIGN_REMOVED, problematicCampaign.mUrn);

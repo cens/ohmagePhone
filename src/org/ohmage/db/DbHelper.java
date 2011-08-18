@@ -43,7 +43,9 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 1;
+	private static final int DB_VERSION = 2;
+	private static final String TABLE_RESPONSES = "responses";
+	private static final String TABLE_CAMPAIGNS = "campaigns";
 	
 	interface Tables {
 		static final String RESPONSES = "responses";
@@ -90,6 +92,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Campaign._ID + " INTEGER PRIMARY KEY, "
 				+ Campaign.URN + " TEXT, "
 				+ Campaign.NAME + " TEXT, "
+				+ Campaign.DESCRIPTION + " TEXT, "
 				+ Campaign.CREATION_TIMESTAMP + " TEXT, "
 				+ Campaign.DOWNLOAD_TIMESTAMP + " TEXT, "
 				+ Campaign.CONFIGURATION_XML + " TEXT "
@@ -577,7 +580,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		return count;
 	}
 	
-	public long addCampaign(String campaignUrn, String campaignName, String creationTimestamp, String downloadTimestamp, String configurationXml) {
+	public long addCampaign(String campaignUrn, String campaignName, String campaignDescription, String creationTimestamp, String downloadTimestamp, String configurationXml) {
 		
 		SQLiteDatabase db = openDb();
 		
@@ -588,6 +591,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(Campaign.URN, campaignUrn);
 		values.put(Campaign.NAME, campaignName);
+		values.put(Campaign.DESCRIPTION, campaignDescription);
 		values.put(Campaign.CREATION_TIMESTAMP, creationTimestamp);
 		values.put(Campaign.DOWNLOAD_TIMESTAMP, downloadTimestamp);
 		values.put(Campaign.CONFIGURATION_XML, configurationXml);
@@ -645,6 +649,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
 		c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
 		c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
+		c.mDescription = cursor.getString(cursor.getColumnIndex(Campaign.DESCRIPTION));
 		c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
 		c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
 		c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
@@ -678,6 +683,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
 		c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
 		c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
+		c.mDescription = cursor.getString(cursor.getColumnIndex(Campaign.DESCRIPTION));
 		c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
 		c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
 		c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
@@ -709,6 +715,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
 			c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
 			c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
+			c.mDescription = cursor.getString(cursor.getColumnIndex(Campaign.DESCRIPTION));
 			c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
 			c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
 			c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));

@@ -9,11 +9,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
@@ -255,41 +257,35 @@ public class LauncherActivity extends Activity {
 					}
 					
 					Campaign defaultCampaign = campaigns.get(0);
-					response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "long", defaultCampaign.mUrn);
+					CampaignXmlResponse xmlResponse = api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", defaultCampaign.mUrn);
 					
-					if (response.getResult() == Result.SUCCESS) {
+					if (xmlResponse.getResult() == Result.SUCCESS) {
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						String downloadTimestamp = dateFormat.format(new Date());
+						//String downloadTimestamp = DateFormat.format("yyyy-MM-dd kk:mm:ss", System.currentTimeMillis());
 						
-						// parse response
-						try {
-							JSONObject campaignJson = ((JSONObject)response.getData()).getJSONObject(defaultCampaign.mUrn);
-							String name = campaignJson.getString("name");
-							String creationTimestamp = campaignJson.getString("creation_timestamp");
-							String xml = campaignJson.getString("xml");
-							SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-							String downloadTimestamp = dateFormat.format(new Date());
-							//String downloadTimestamp = DateFormat.format("yyyy-MM-dd kk:mm:ss", System.currentTimeMillis());
-							
-							DbHelper dbHelper = new DbHelper(mActivity);
-							dbHelper.addCampaign(defaultCampaign.mUrn, name, creationTimestamp, downloadTimestamp, xml);
-							
-							if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
-								// create an intent to fire off the feedback service
-								Intent fbIntent = new Intent(mActivity, FeedbackService.class);
-								// annotate the request with the current campaign's URN
-								fbIntent.putExtra("campaign_urn", defaultCampaign.mUrn);
-								// and go!
-								WakefulIntentService.sendWakefulWork(mActivity, fbIntent);
-							}
-							
-							return CampaignLoadResult.SUCCESS;
-							
-						} catch (JSONException e) {
-							Log.e(TAG, "Error parsing response json", e);
-							return CampaignLoadResult.JSON_ERROR;
-						}						
-					} else if (response.getResult() == Result.FAILURE) {
-						return handleErrors(response);
-					} else if (response.getResult() == Result.HTTP_ERROR) {
+						DbHelper dbHelper = new DbHelper(mActivity);
+						if (dbHelper.getCampaign(defaultCampaign.mUrn) == null) {
+							dbHelper.addCampaign(defaultCampaign.mUrn, defaultCampaign.mName, defaultCampaign.mDescription, defaultCampaign.mCreationTimestamp, downloadTimestamp, xmlResponse.getXml());
+						} else {
+							Log.w(TAG, "Campaign already exists. This should never happen. Replacing previous entry with new one.");
+							dbHelper.removeCampaign(defaultCampaign.mUrn);
+							dbHelper.addCampaign(defaultCampaign.mUrn, defaultCampaign.mName, defaultCampaign.mDescription, defaultCampaign.mCreationTimestamp, downloadTimestamp, xmlResponse.getXml());
+						}
+						
+						if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+							// create an intent to fire off the feedback service
+							Intent fbIntent = new Intent(mActivity, FeedbackService.class);
+							// annotate the request with the current campaign's URN
+							fbIntent.putExtra("campaign_urn", defaultCampaign.mUrn);
+							// and go!
+							WakefulIntentService.sendWakefulWork(mActivity, fbIntent);
+						}
+						
+						return CampaignLoadResult.SUCCESS;
+					} else if (xmlResponse.getResult() == Result.FAILURE) {
+						return handleErrors(xmlResponse);
+					} else if (xmlResponse.getResult() == Result.HTTP_ERROR) {
 						return CampaignLoadResult.HTTP_ERROR;
 					} else {
 						return CampaignLoadResult.INTERNAL_ERROR;
@@ -320,7 +316,7 @@ public class LauncherActivity extends Activity {
 			}
 		}
 		
-		private CampaignLoadResult handleErrors(CampaignReadResponse response) {
+		private CampaignLoadResult handleErrors(Response response) {
 			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
 			
 			boolean isAuthenticationError = false;
