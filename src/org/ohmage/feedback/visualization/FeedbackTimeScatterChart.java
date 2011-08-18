@@ -155,6 +155,7 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 		
 		renderer.setXLabels(10);
 		renderer.setYLabels(0);
+		renderer.setLabelsTextSize(25);
 
 		//Set Y labels
 		for(int k=0; k<titles.length ; k++){
@@ -198,6 +199,6 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 			((XYSeriesRenderer) renderer.getSeriesRendererAt(i)).setFillPoints(true);
 		}
 
-		return ChartFactory.getTimeScatterChartIntent(context,buildDateDataset(titles, xValues, yValues), renderer, "MM/dd", mChartTitle);
+		return ChartFactory.getTimeScatterChartIntent(context,buildDateDataset(titles, xValues, yValues), renderer, "MM/dd hh aa", mChartTitle);
 	}
 }

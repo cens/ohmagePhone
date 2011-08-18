@@ -86,7 +86,7 @@ public class PromptListActivity extends ListActivity{
 		getListView().setBackgroundColor(Color.WHITE);
 		getListView().setCacheColorHint(Color.WHITE);
 		
-		setTitle("Feedback");
+		setTitle("Response Chart Summary - Choose a prompt.");
 	}
 	
 	@Override

@@ -5,11 +5,11 @@
     <item
     	android:id="@+id/participationstat"
     	android:title="Participation Statistics"
-    	android:visible="true" />
+    	android:visible="false" />
 
     <item
     	android:id="@+id/mapview"
     	android:title="Map View"
-    	android:visible="true" />
+    	android:visible="false" />
 
 </menu>

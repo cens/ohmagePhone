@@ -157,7 +157,7 @@ public class FeedbackTimeLineChart extends AbstractChart {
 				"",
 				startDate, 
 				endDate, 
-				0, 
+				-1, 
 				maxResponseValue+1,
 				Color.GRAY, 
 				Color.LTGRAY
@@ -168,15 +168,15 @@ public class FeedbackTimeLineChart extends AbstractChart {
 		//Set chart layout
 		int topMargin = 0;
 		int bottomMargin = 50;
-		int leftMargin = 4;
+		int leftMargin = 6;
 		int rightMargin = 2;
 		int margins[] = {topMargin, leftMargin, bottomMargin, rightMargin};
 				
 		renderer.setAxisTitleTextSize(23);
-		renderer.setLabelsTextSize(20);
+		renderer.setLabelsTextSize(25);
 		renderer.setShowGrid(true);		
 		renderer.setMargins(margins);
-		renderer.setPointSize(8);
+		renderer.setPointSize(12);
 		renderer.setShowLegend(false);
 		renderer.setShowAxes(true);
 		renderer.setXLabelsAlign(Align.LEFT);
@@ -207,6 +207,7 @@ public class FeedbackTimeLineChart extends AbstractChart {
 		// disables interpolated values from being added between text labels
 		// i assume we want this if we're providing specific labels for enumerations
 		renderer.setYLabels(0);
+		renderer.setLabelsTextSize(25);
 
 		//Set pan limit from startData-3days to endDate+3days
 		renderer.setPanEnabled(true, true);
