@@ -22,7 +22,7 @@ import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.net.Uri;
 
-public class FeedbackTimeScatterChart extends AbstractChart {
+public class FeedbackParticipationSummaryChart extends AbstractChart {
 
 	static final String TAG = "FeedbackScatterChart";
 	static final int aDayInMilliseconds = 84600000;
@@ -30,7 +30,7 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 	protected String mSurveyID;
 	protected Context mContext;
 
-	public FeedbackTimeScatterChart( String title, String campaignUrn, String surveyID, Context context){
+	public FeedbackParticipationSummaryChart( String title, String campaignUrn, String surveyID, Context context){
 		super(title);
 		mContext = context;
 		mCampaignUrn = campaignUrn;

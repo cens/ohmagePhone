@@ -3,7 +3,7 @@ package org.ohmage.activity;
 import java.util.ArrayList;
 
 import org.ohmage.R;
-import org.ohmage.feedback.visualization.FeedbackTimeScatterChart;
+import org.ohmage.feedback.visualization.FeedbackParticipationSummaryChart;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -54,7 +54,7 @@ public class FeedbackMenuActivity extends ListActivity {
 		
 		Intent intent = null;
 		if(mMenus.get(position).equals(MENU_1)){
-			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Summary", mCampaignUrn, mSurveyId, this);
+			FeedbackParticipationSummaryChart chart = new FeedbackParticipationSummaryChart("Participation Summary", mCampaignUrn, mSurveyId, this);
 			intent = chart.execute(this);		
 			startActivityForResult(intent, 1);
 		}

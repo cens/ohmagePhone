@@ -11,7 +11,7 @@ import org.ohmage.R;
 import org.ohmage.feedback.visualization.FeedbackTextChart;
 import org.ohmage.feedback.visualization.FeedbackTimeLineChart;
 
-import org.ohmage.feedback.visualization.FeedbackTimeScatterChart;
+import org.ohmage.feedback.visualization.FeedbackParticipationSummaryChart;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
@@ -158,7 +158,7 @@ public class PromptListActivity extends ListActivity{
 			startActivityForResult(intent, 1);
 			return true;
 		case R.id.participationstat:
-			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Summary", mCampaignUrn, mSurveyId, this);
+			FeedbackParticipationSummaryChart chart = new FeedbackParticipationSummaryChart("Participation Summary", mCampaignUrn, mSurveyId, this);
 			intent = chart.execute(this);		
 			startActivityForResult(intent, 1);
 			return true;
