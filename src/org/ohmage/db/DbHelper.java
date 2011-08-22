@@ -44,8 +44,6 @@ public class DbHelper extends SQLiteOpenHelper {
 	
 	private static final String DB_NAME = "ohmage.db";
 	private static final int DB_VERSION = 3;
-	private static final String TABLE_RESPONSES = "responses";
-	private static final String TABLE_CAMPAIGNS = "campaigns";
 	
 	interface Tables {
 		static final String RESPONSES = "responses";
@@ -144,40 +142,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		clearAll();
 	}
 	
-	private SQLiteDatabase openDb() {
-		synchronized(dbLock)
-		{
-			while (isDbOpen)
-			{
-				try
-				{
-					dbLock.wait();
-				}
-				catch (InterruptedException e){}
-
-			}
-			isDbOpen = true;
-			try {
-				return getWritableDatabase();
-			} catch (SQLiteException e) {
-				Log.e(TAG, "Error opening database: " + DB_NAME);
-				isDbOpen = false;
-				return null;
-			}
-		}
-	}
-	
-	private void closeDb(SQLiteDatabase db) {
-		synchronized(dbLock)
-		{
-			db.close();
-			isDbOpen = false;
-			dbLock.notify();
-		}		
-	}
-	
 	public void clearAll() {
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return;
@@ -188,7 +154,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMPAIGNS);
 		onCreate(db);
 		
-		closeDb(db);
+		db.close();
 	}
 	
 	// helper method that returns a hex-formatted string for some given input
@@ -363,7 +329,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 * @return true if the operation succeeded, false otherwise
 	 */
 	public boolean setResponseRowUploaded(long _id) {
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return false;
@@ -373,7 +339,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		values.put("uploaded", 1);
 		int count = db.update(Tables.RESPONSES, values, Response._ID + "=" + _id, null);
 		
-		closeDb(db);
+		db.close();
 		
 		return count > 0;
 	}
@@ -385,7 +351,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 * @return
 	 */
 	public boolean removeResponseRows(String campaignUrn) {
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return false;
@@ -406,7 +372,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				Response.CAMPAIGN_URN + "='" + campaignUrn + "'",
 				null);
 		
-		closeDb(db);
+		db.close();
 		
 		return count > 0;
 	}
@@ -420,7 +386,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 * @return
 	 */
 	public int removeStaleResponseRows(String campaignUrn) {
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return -1;
@@ -455,7 +421,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				whereClause,
 				null);
 		
-		closeDb(db);
+		db.close();
 		
 		return count;
 	}
@@ -478,7 +444,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	
 	public List<Response> getSurveyResponses(String campaignUrn) {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getReadableDatabase();
 		
 		if (db == null) {
 			return null;
@@ -491,7 +457,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		List<Response> responses = readResponseRows(cursor); 
 			
-		closeDb(db);
+		db.close();
 		
 		return responses;
 	}
@@ -506,7 +472,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 */
 	public List<Response> getSurveyResponsesBefore(String campaignUrn, long cutoffTime) {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getReadableDatabase();
 		
 		if (db == null) {
 			return null;
@@ -520,7 +486,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		List<Response> responses = readResponseRows(cursor); 
 		
-		closeDb(db);
+		db.close();
 		
 		return responses;
 	}
@@ -567,7 +533,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	public int updateRecentRowLocations(String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime) {
 		if (locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) return -1;
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return -1;
@@ -586,14 +552,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		int count = db.update(Tables.RESPONSES, vals, Response.LOCATION_STATUS + " = '" + SurveyGeotagService.LOCATION_UNAVAILABLE + "' AND " + Response.TIME + " > " + earliestTimestampToUpdate + " AND " + Response.SOURCE + " = 'local' AND " + Response.UPLOADED + " = 0", null);
 		
-		closeDb(db);
+		db.close();
 		
 		return count;
 	}
 	
 	public long addCampaign(String campaignUrn, String campaignName, String campaignDescription, String creationTimestamp, String downloadTimestamp, String configurationXml) {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return -1;
@@ -609,14 +575,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		long rowId = db.insert(Tables.CAMPAIGNS, null, values);
 		
-		closeDb(db);
+		db.close();
 		
 		return rowId;
 	}
 	
 	public boolean removeCampaign(long _id) {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return false;
@@ -624,14 +590,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		int count = db.delete(Tables.CAMPAIGNS, Campaign._ID + "=" + _id, null);
 		
-		closeDb(db);
+		db.close();
 		
 		return count > 0;
 	}
 	
 	public boolean removeCampaign(String urn) {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getWritableDatabase();
 		
 		if (db == null) {
 			return false;
@@ -639,14 +605,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		int count = db.delete(Tables.CAMPAIGNS, Campaign.URN + "='" + urn +"'", null);
 		
-		closeDb(db);
+		db.close();
 		
 		return count > 0;
 	}
 	
 	public Campaign getCampaign(long _id) {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getReadableDatabase();
 		
 		if (db == null) {
 			return null;
@@ -667,14 +633,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		cursor.close();
 		
-		closeDb(db);
+		db.close();
 		
 		return c;
 	}
 	
 	public Campaign getCampaign(String urn) {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getReadableDatabase();
 		
 		if (db == null) {
 			return null;
@@ -684,7 +650,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		if (cursor.getCount() != 1) {
 			cursor.close();
-			closeDb(db);
+			db.close();
 			return null;
 		}
 		
@@ -701,14 +667,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		cursor.close();
 		
-		closeDb(db);
+		db.close();
 		
 		return c;
 	}
 	
 	public List<Campaign> getCampaigns() {
 		
-		SQLiteDatabase db = openDb();
+		SQLiteDatabase db = getReadableDatabase();
 		
 		if (db == null) {
 			return null;
@@ -737,7 +703,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		cursor.close();
 		
-		closeDb(db);
+		db.close();
 		
 		return campaigns; 
 	}
