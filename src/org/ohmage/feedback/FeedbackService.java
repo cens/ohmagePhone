@@ -6,12 +6,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -243,7 +239,6 @@ public class FeedbackService extends WakefulIntentService {
 					Iterator<String> keys = inputResponses.keys();
 					while (keys.hasNext()) {
 						// for each prompt response, create an object with a prompt_id/value pair
-						// FIXME: ignoring the "custom_fields" field for now, since it's unused
 						String key = keys.next();
 						JSONObject curItem = inputResponses.getJSONObject(key);
 						

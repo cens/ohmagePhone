@@ -20,12 +20,13 @@ public class DbProvider extends ContentProvider {
 	private interface MatcherTypes {
 		int RESPONSES = 1;
 		int RESPONSE_BY_PID = 2;
-		int CAMPAIGN_SURVEY_RESPONSES = 3;
-		int RESPONSE_PROMPTS = 4;
-		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID = 5;
-		int PROMPTS = 6;
-		int PROMPT_BY_PID = 7;
-		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE = 8;
+		int CAMPAIGN_RESPONSES = 3;
+		int CAMPAIGN_SURVEY_RESPONSES = 4;
+		int RESPONSE_PROMPTS = 5;
+		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID = 6;
+		int PROMPTS = 7;
+		int PROMPT_BY_PID = 8;
+		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE = 9;
 	}
 
 	@Override
@@ -39,6 +40,7 @@ public class DbProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
         	
             case MatcherTypes.RESPONSES:
+            case MatcherTypes.CAMPAIGN_RESPONSES:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
             	return Response.CONTENT_TYPE;
             case MatcherTypes.RESPONSE_BY_PID:
@@ -136,6 +138,7 @@ public class DbProvider extends ContentProvider {
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#/prompts", MatcherTypes.RESPONSE_PROMPTS);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts", MatcherTypes.PROMPTS);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts/#", MatcherTypes.PROMPT_BY_PID);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/responses", MatcherTypes.CAMPAIGN_RESPONSES);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
@@ -160,7 +163,13 @@ public class DbProvider extends ContentProvider {
 				
 				return builder.table(Tables.RESPONSES)
 					.where(Response._ID + "=?", responseID);
-
+				
+			case MatcherTypes.CAMPAIGN_RESPONSES:
+				campaignUrn = uri.getPathSegments().get(0);
+				
+				return builder.table(Tables.RESPONSES)
+					.where(Response.CAMPAIGN_URN + "=?", campaignUrn);
+				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
 				campaignUrn = uri.getPathSegments().get(0);
 				surveyID = uri.getPathSegments().get(1);
