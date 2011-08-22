@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class FeedbackMenuActivity extends ListActivity {
 	
@@ -55,7 +56,11 @@ public class FeedbackMenuActivity extends ListActivity {
 		Intent intent = null;
 		if(mMenus.get(position).equals(MENU_1)){
 			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Summary", mCampaignUrn, mSurveyId, this);
-			intent = chart.execute(this);		
+			intent = chart.execute(this);
+			if(intent == null){
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();
+				return;
+			}
 			startActivityForResult(intent, 1);
 		}
 		else if(mMenus.get(position).equals(MENU_2)){
