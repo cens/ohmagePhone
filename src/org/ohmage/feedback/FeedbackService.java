@@ -232,7 +232,7 @@ public class FeedbackService extends WakefulIntentService {
 					float locationAccuracy = (float)survey.optDouble("location_accuracy");
 					long locationTime = survey.optLong("location_timestamp");
 					
-					String surveyLaunchContext = survey.getString("launch_context_long").toString();
+					String surveyLaunchContext = survey.getString("launch_context_long");
 					
 					// we need to parse out the responses and put them in
 					// the same format as what we collect from the local activity
@@ -255,8 +255,44 @@ public class FeedbackService extends WakefulIntentService {
 							
 							try {
 								String value = curItem.getString("prompt_response");
+								String type = curItem.getString("prompt_type");
 								newItem.put("prompt_id", key);
 								newItem.put("value", value);
+								
+								// also enter the custom_choices data if the type supports custom choices
+								// and if the custom choice data is actually there (e.g. in the glossary for the prompt)
+								if ((type.equals("single_choice_custom") || type.equals("multi_choice_custom"))
+									&& curItem.has("prompt_choice_glossary"))
+								{
+									// unfortunately, the glossary is in a totally different format than
+									// what the survey returns; we can't just store it directly.
+									// we have to reformat the glossary entries to be of the following form:
+									// [{"choice_value": "Exercise", "choice_id": 1}, etc.]
+									
+									JSONArray customChoiceArray = new JSONArray();
+									JSONObject glossary = curItem.getJSONObject("prompt_choice_glossary");
+									
+									// create an iterator over the glossary so we can extract the keys + "label" value
+									Iterator<String> glossaryKeys = glossary.keys();
+									
+									while (glossaryKeys.hasNext()) {
+										// grab the glossary key and its corresponding element
+										String glossaryKey = glossaryKeys.next();
+										JSONObject curGlossaryItem = glossary.getJSONObject(glossaryKey);
+										
+										// create a new object that remaps the values from the glossary
+										// to the custom choices format
+										JSONObject newChoiceItem = new JSONObject();
+										newChoiceItem.put("choice_value", curGlossaryItem.getString("label"));
+										newChoiceItem.put("choice_id", glossaryKey);
+										
+										// and add it to our custom choices array
+										customChoiceArray.put(newChoiceItem);
+									}
+									
+									// put our newly reformatted custom choices array into the object, too
+									newItem.put("custom_choices", customChoiceArray);
+								}
 								
 								// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
 								if (curItem.getString("prompt_type").equalsIgnoreCase("photo") && !value.equalsIgnoreCase("NOT_DISPLAYED")) {
@@ -270,6 +306,7 @@ public class FeedbackService extends WakefulIntentService {
 							responseJson.put(newItem);
 						}
 					}
+					
 					// render it to a string for storage into our db
 					String response = responseJson.toString();
 					

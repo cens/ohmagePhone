@@ -43,7 +43,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 2;
+	private static final int DB_VERSION = 3;
 	private static final String TABLE_RESPONSES = "responses";
 	private static final String TABLE_CAMPAIGNS = "campaigns";
 	
@@ -128,7 +128,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ PromptResponse._ID + " INTEGER PRIMARY KEY, "
 				+ PromptResponse.RESPONSE_ID + " INTEGER, " // foreign key to TABLE_RESPONSES
 				+ PromptResponse.PROMPT_ID + " TEXT, "
-				+ PromptResponse.PROMPT_VALUE + " TEXT"
+				+ PromptResponse.PROMPT_VALUE + " TEXT, "
+				+ PromptResponse.CUSTOM_CHOICES + " TEXT"
 				+ ");");
 		
 		// and index on the response id for fast lookups
@@ -279,7 +280,6 @@ public class DbHelper extends SQLiteOpenHelper {
 			// iterate through the responses and add them to the prompt table one by one
 			for (int i = 0; i < responseData.length(); ++i) {
 				// nab the jsonobject, which contains "prompt_id" and "value"
-				// and possibly "custom_choices", but we're not storing that for now
 				JSONObject item = responseData.getJSONObject(i);
 				
 				// if the entry we're looking at doesn't include prompt_id or value, continue
@@ -291,6 +291,17 @@ public class DbHelper extends SQLiteOpenHelper {
 				promptValues.put(PromptResponse.RESPONSE_ID, rowId);
 				promptValues.put(PromptResponse.PROMPT_ID, item.getString("prompt_id"));
 				promptValues.put(PromptResponse.PROMPT_VALUE, item.getString("value"));
+				
+				if (item.has("custom_choices")) {
+					try {
+						// store custom_choices as-is and expect whoever's reading this to parse it as a JSON array
+						promptValues.put(PromptResponse.CUSTOM_CHOICES, item.getJSONArray("custom_choices").toString());
+					}
+					catch (JSONException e) {
+						// we can't read custom_choices for some reason,
+						// so just ignore the exception and don't store custom_choices for this prompt response
+					}
+				}
 				
 				db.insert(Tables.PROMPTS, null, promptValues);
 			}

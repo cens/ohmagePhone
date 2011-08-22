@@ -48,7 +48,9 @@ public class DbContract {
 		public static final String UPLOADED = "uploaded";
 		public static final String SOURCE = "source";
 		public static final String HASHCODE = "hashcode";
-		
+
+		// data fields here to support use of the Response class as a data holder (and not just a schema definer)
+		// this should be reconciled by some kind of real ORM someday
 		public long _id;
 		public String campaignUrn;
 		public String username;
@@ -88,6 +90,8 @@ public class DbContract {
 		public static final String DOWNLOAD_TIMESTAMP = "downloadTimestamp";
 		public static final String CONFIGURATION_XML = "configuration_xml";
 
+		// data fields here to support use of the Campaign class as a data holder (and not just a schema definer)
+		// this should be reconciled by some kind of real ORM someday
 		public long _id;
 		public String mUrn;
 		public String mName;
@@ -113,6 +117,7 @@ public class DbContract {
 		public static final String RESPONSE_ID = "response_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_VALUE = "prompt_value";
+		public static final String CUSTOM_CHOICES = "custom_choices";
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("prompts").build();
