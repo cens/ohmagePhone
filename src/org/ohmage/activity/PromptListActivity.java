@@ -103,7 +103,13 @@ public class PromptListActivity extends ListActivity{
 				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();	
 			}
 		} else if (mPrompts.get(position) instanceof MultiChoicePrompt) {
-			Toast.makeText(this, "MultiChoicePrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
+			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart(curPrompt.getTitle(), mCampaignUrn, mSurveyId, curPrompt.getID(), mPrompts);
+			intent = chart.execute(this);
+			if(intent == null){
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();
+			}
+			
+			//Toast.makeText(this, "MultiChoicePrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof MultiChoiceCustomPrompt) {
 			Toast.makeText(this, "MultiChoiceCustomPrompt type is not supported yet.", Toast.LENGTH_SHORT).show();
 		} else if (mPrompts.get(position) instanceof SingleChoiceCustomPrompt) {

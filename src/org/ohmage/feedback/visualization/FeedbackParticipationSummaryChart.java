@@ -26,8 +26,6 @@ public class FeedbackParticipationSummaryChart extends AbstractChart {
 
 	static final String TAG = "FeedbackScatterChart";
 	static final int aDayInMilliseconds = 84600000;
-	protected String mCampaignUrn;
-	protected String mSurveyID;
 	protected Context mContext;
 
 	public FeedbackParticipationSummaryChart( String title, String campaignUrn, String surveyID, Context context){

@@ -15,7 +15,9 @@
  */
 package org.ohmage.feedback.visualization;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.achartengine.chart.PointStyle;
@@ -28,13 +30,22 @@ import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.ohmage.Utilities.KVLTriplet;
+import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.Prompt;
+import org.ohmage.prompt.number.NumberPrompt;
+import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
 
 /**
  * An abstract class for the demo charts to extend.
  */
 public abstract class AbstractChart implements IChart {
 
-	String mChartTitle;
+	protected String mChartTitle;
+	protected String mPromptID;
+	protected String mCampaignUrn;
+	protected String mSurveyID;
+	protected List<Prompt> mPrompts;
 	
 	public AbstractChart(String title) {
 		if(title == null)
@@ -251,5 +262,33 @@ public abstract class AbstractChart implements IChart {
     }
     return renderer;
   }
-
+  
+	/**
+	 * Return Prompt Choices 
+	 * 
+	 * @param promptId
+	 * @return the Prompt Choices
+	*/
+	protected List<KVLTriplet> getPropertiesList(String promptId){		
+		Iterator<Prompt> ite = mPrompts.iterator();
+		while(ite.hasNext()){
+			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();			
+			if(promptId.equals(allPromptList.getId())){
+				if(allPromptList instanceof SingleChoicePrompt){
+					SingleChoicePrompt prompt = (SingleChoicePrompt)allPromptList;
+					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
+					return choiceKVLTriplet;
+				}
+				else if(allPromptList instanceof NumberPrompt){
+					NumberPrompt prompt = (NumberPrompt)allPromptList;					
+					List<KVLTriplet> choiceKVLTriplet = new ArrayList<KVLTriplet>();
+					for(int i=prompt.getMinimum(); i<=prompt.getMaximum(); i++){
+						choiceKVLTriplet.add(new KVLTriplet(String.valueOf(i), String.valueOf(i), String.valueOf(i)));	
+					}
+					return choiceKVLTriplet;
+				}
+			}
+		}
+		return null;
+	}
 }

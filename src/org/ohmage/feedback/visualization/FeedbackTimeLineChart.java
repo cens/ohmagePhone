@@ -47,10 +47,6 @@ import android.net.Uri;
 public class FeedbackTimeLineChart extends AbstractChart {
 	static final String TAG = "FeedbackTimeLineChart";
 	static final int aDayInMilliseconds = 84600000;
-	protected String mPromptID;
-	protected String mCampaignUrn;
-	protected String mSurveyID;
-	protected List<Prompt> mPrompts;
 
 	public FeedbackTimeLineChart(String title, String campaignUrn, String surveyID, String promptID, List<Prompt> prompts) {
 		super(title);
@@ -60,31 +56,14 @@ public class FeedbackTimeLineChart extends AbstractChart {
 		mPrompts = prompts;
 	}
 
-	/**
-	 * Returns the chart name.
-	 * 
-	 * @return the chart name
-	 */
 	public String getName() {
 		return "FeedbackTimeChart";
 	}
 
-	/**
-	 * Returns the chart description.
-	 * 
-	 * @return the chart description
-	 */
 	public String getDesc() {
-		return "Feedback Time Chart Description";
+		return "Feedback Time Line Chart Description";
 	}
 
-	/**
-	 * Executes the chart demo.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return the built intent
-	 */
 	public Intent execute(Context context) {
 		
 		// titles for each of the series (in this case we have only one)
@@ -234,26 +213,4 @@ public class FeedbackTimeLineChart extends AbstractChart {
 				);
 	}
 	
-	private List<KVLTriplet> getPropertiesList(String promptId){		
-		Iterator<Prompt> ite = mPrompts.iterator();
-		while(ite.hasNext()){
-			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();			
-			if(promptId.equals(allPromptList.getId())){
-				if(allPromptList instanceof SingleChoicePrompt){
-					SingleChoicePrompt prompt = (SingleChoicePrompt)allPromptList;
-					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
-					return choiceKVLTriplet;
-				}
-				else if(allPromptList instanceof NumberPrompt){
-					NumberPrompt prompt = (NumberPrompt)allPromptList;					
-					List<KVLTriplet> choiceKVLTriplet = new ArrayList<KVLTriplet>();
-					for(int i=prompt.getMinimum(); i<=prompt.getMaximum(); i++){
-						choiceKVLTriplet.add(new KVLTriplet(String.valueOf(i), String.valueOf(i), String.valueOf(i)));	
-					}
-					return choiceKVLTriplet;
-				}
-			}
-		}
-		return null;
-	}
 }
