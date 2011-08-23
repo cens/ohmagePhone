@@ -80,6 +80,34 @@ public class DbContract {
         public static Uri getResponseUri(long insertID) {
         	return CONTENT_URI.buildUpon().appendPath(Long.toString(insertID)).build();
         }
+        
+        public static Uri getResponses() {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath("responses")
+				.build();
+        }
+        
+        public static Uri getResponsesByID(int responseID) {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath("responses")
+				.appendPath(Integer.toString(responseID))
+				.build();
+        }
+        
+        public static Uri getResponsesByCampaign(String campaignUrn) {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath(campaignUrn)
+				.appendPath("responses")
+				.build();
+        }
+        
+        public static Uri getResponsesByCampaignAndSurvey(String campaignUrn, String surveyID) {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath(campaignUrn)
+				.appendPath(surveyID)
+				.appendPath("responses")
+				.build();
+        }
 	}
 	
 	public static final class Campaign implements BaseColumns {
@@ -136,6 +164,20 @@ public class DbContract {
         
         public static Uri getPromptUri(long insertID) {
         	return CONTENT_URI.buildUpon().appendPath(Long.toString(insertID)).build();
+        }
+        
+        public static Uri getPrompts() {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath("prompts")
+				.build();
+        }
+        
+        public static Uri getPromptsByResponseID(int responseID) {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath("responses")
+				.appendPath(Integer.toString(responseID))
+				.appendPath("prompts")
+				.build();
         }
         
         public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID) {
