@@ -143,10 +143,6 @@ public class DbHelper extends SQLiteOpenHelper {
 	}
 	
 	public void clearAll(SQLiteDatabase db) {
-		if (db == null) {
-			return;
-		}
-		
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.RESPONSES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.PROMPTS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMPAIGNS);
