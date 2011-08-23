@@ -139,21 +139,22 @@ public class DbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO: create an actual upgrade plan rather than just dumping and recreating everything
-		clearAll();
+		clearAll(db);
 	}
 	
-	public void clearAll() {
-		SQLiteDatabase db = getWritableDatabase();
-		
-		if (db == null) {
-			return;
-		}
-		
+	public void clearAll(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.RESPONSES);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.PROMPTS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMPAIGNS);
 		onCreate(db);
-		
+	}
+	
+	public void clearAll() {
+		// this is for allowing non onUpgrade calls to clear the db.
+		// we acquire the handle manually here and then invoke clearAll(db) as we normally do.
+		SQLiteDatabase db = getWritableDatabase();
+		clearAll(db);
+		// we also have to close it, since it's not a managed reference as with onUpgrade's db handle.
 		db.close();
 	}
 	
