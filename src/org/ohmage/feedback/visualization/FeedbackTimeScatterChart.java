@@ -54,7 +54,7 @@ public class FeedbackTimeScatterChart extends AbstractChart {
 		
 		ContentResolver cr = context.getContentResolver();
 		Uri queryUri = PromptResponse.getPromptsByCampaignAndSurvey(mCampaignUrn, mSurveyID, mPromptID);
-		//String[] projection = new String[] { Response.TIME, PromptResponse.PROMPT_VALUE, PromptResponse.PROMPT_CUSTOM_CHOICES};
+
 		String[] projection = new String[] { Response.TIME, PromptResponse.PROMPT_VALUE};
 		
 		Cursor cursor = cr.query(queryUri, projection, null, null, Response.TIME);

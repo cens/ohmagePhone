@@ -57,7 +57,7 @@ public class FeedbackMenuActivity extends ListActivity {
 			FeedbackParticipationSummaryChart chart = new FeedbackParticipationSummaryChart("Participation Summary", mCampaignUrn, mSurveyId, this);
 			intent = chart.execute(this);
 			if(intent == null){
-				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "No response in this campaign has been made.", Toast.LENGTH_SHORT).show();
 				return;
 			}
 			startActivityForResult(intent, 1);

@@ -12,6 +12,7 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 
 import android.content.ContentResolver;
@@ -57,13 +58,14 @@ public class FeedbackParticipationSummaryChart extends AbstractChart {
 	 * @return the built intent
 	 */
 	public Intent execute(Context context) {
+
 		ContentResolver cr = context.getContentResolver();
+		Uri queryUri = Response.getResponsesByCampaign(mCampaignUrn);
 
 		// columns to return; in this case, we just need the date and the value at that date point
-		String[] projection = new String[] { Response.TIME, Response.CAMPAIGN_URN, Response.SURVEY_ID };
+		String[] projection = new String[] { Response.TIME, Response.SURVEY_ID};
 		
-		// nab that data! data is sorted by FeedbackResponses.TIME
-		Cursor cursor = cr.query(Uri.parse("content://" + DbContract.CONTENT_AUTHORITY + "/" + "responses"), projection, null, null, Response.TIME);
+		Cursor cursor = cr.query(queryUri, projection, null, null, Response.TIME);
 		
 		if(cursor.getCount() == 0){
 			cursor.close();
@@ -78,8 +80,8 @@ public class FeedbackParticipationSummaryChart extends AbstractChart {
 
 		while (cursor.moveToNext()) {
 			Long time = cursor.getLong(0);
-			String campaignUrn = cursor.getString(1);
-			String surveyId = cursor.getString(2);
+			//String campaignUrn = cursor.getString(1);
+			String surveyId = cursor.getString(1);
 			//Toast.makeText(mContext, String.valueOf(time) + surveyId, Toast.LENGTH_SHORT).show();
 			
 			//Build dataMap to draw charts
