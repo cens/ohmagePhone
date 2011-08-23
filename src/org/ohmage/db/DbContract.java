@@ -134,6 +134,19 @@ public class DbContract {
         	"vnd.android.cursor.dir/vnd." + CONTENT_AUTHORITY + ".campaign";
         public static final String CONTENT_ITEM_TYPE =
         	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".campaign";
+       
+        public static Uri getCampaigns() {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath("campaigns")
+				.build();
+        }
+        
+        public static Uri getCampaignByURN(String campaignUrn) {
+    		return BASE_CONTENT_URI.buildUpon()
+				.appendPath("campaigns")
+				.appendPath(campaignUrn)
+				.build();
+        }
 	}
 	
 	// ===================================
