@@ -3,7 +3,7 @@ package org.ohmage.activity;
 import java.util.ArrayList;
 
 import org.ohmage.R;
-import org.ohmage.feedback.visualization.FeedbackParticipationSummaryChart;
+import org.ohmage.feedback.visualization.FeedbackTimeScatterChart;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class FeedbackMenuActivity extends ListActivity {
 	
@@ -54,8 +55,12 @@ public class FeedbackMenuActivity extends ListActivity {
 		
 		Intent intent = null;
 		if(mMenus.get(position).equals(MENU_1)){
-			FeedbackParticipationSummaryChart chart = new FeedbackParticipationSummaryChart("Participation Summary", mCampaignUrn, mSurveyId, this);
-			intent = chart.execute(this);		
+			FeedbackTimeScatterChart chart = new FeedbackTimeScatterChart("Participation Summary", mCampaignUrn, mSurveyId, this);
+			intent = chart.execute(this);
+			if(intent == null){
+				Toast.makeText(this, "No response has been made.", Toast.LENGTH_SHORT).show();
+				return;
+			}
 			startActivityForResult(intent, 1);
 		}
 		else if(mMenus.get(position).equals(MENU_2)){
