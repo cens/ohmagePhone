@@ -235,7 +235,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			values.put(Response.HASHCODE, hashcode);
 			
 			// do the actual insert into feedback responses
-			rowId = db.insertWithOnConflict(Tables.RESPONSES, null, values, SQLiteDatabase.CONFLICT_ABORT);
+			rowId = db.insert(Tables.RESPONSES, null, values);
 			
 			// check if it succeeded; if not, we can't do anything
 			if (rowId == -1)

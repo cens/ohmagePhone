@@ -1,5 +1,8 @@
 package org.ohmage.db;
 
+import java.util.regex.Matcher;
+
+import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbHelper.Tables;
@@ -27,6 +30,8 @@ public class DbProvider extends ContentProvider {
 		int PROMPTS = 7;
 		int PROMPT_BY_PID = 8;
 		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE = 9;
+		int CAMPAIGNS = 10;
+		int CAMPAIGN_BY_URN = 11;
 	}
 
 	@Override
@@ -39,13 +44,21 @@ public class DbProvider extends ContentProvider {
 	public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
         	
+        	// CAMPAIGNS
+        	case MatcherTypes.CAMPAIGNS:
+        		return Campaign.CONTENT_TYPE;
+        	case MatcherTypes.CAMPAIGN_BY_URN:
+        		return Campaign.CONTENT_ITEM_TYPE;
+        	
+        	// RESPONSES
             case MatcherTypes.RESPONSES:
             case MatcherTypes.CAMPAIGN_RESPONSES:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
             	return Response.CONTENT_TYPE;
             case MatcherTypes.RESPONSE_BY_PID:
             	return Response.CONTENT_ITEM_TYPE;
-            	
+            
+            // PROMPTS
             case MatcherTypes.PROMPTS:
             case MatcherTypes.RESPONSE_PROMPTS:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
@@ -133,6 +146,8 @@ public class DbProvider extends ContentProvider {
 	private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns", MatcherTypes.CAMPAIGNS);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*", MatcherTypes.CAMPAIGN_BY_URN);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#", MatcherTypes.RESPONSE_BY_PID);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#/prompts", MatcherTypes.RESPONSE_PROMPTS);
@@ -155,6 +170,15 @@ public class DbProvider extends ContentProvider {
 		final int match = sUriMatcher.match(uri);
 		
 		switch (match) {
+			case MatcherTypes.CAMPAIGNS:
+				return builder.table(Tables.CAMPAIGNS);
+				
+			case MatcherTypes.CAMPAIGN_BY_URN:
+				campaignUrn = uri.getPathSegments().get(0);
+				
+				return builder.table(Tables.CAMPAIGNS)
+					.where(Campaign.URN + "=?", campaignUrn);
+				
 			case MatcherTypes.RESPONSES:
 				return builder.table(Tables.RESPONSES);
 				
