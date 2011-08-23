@@ -139,12 +139,10 @@ public class DbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO: create an actual upgrade plan rather than just dumping and recreating everything
-		clearAll();
+		clearAll(db);
 	}
 	
-	public void clearAll() {
-		SQLiteDatabase db = getWritableDatabase();
-		
+	public void clearAll(SQLiteDatabase db) {
 		if (db == null) {
 			return;
 		}
@@ -153,8 +151,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.PROMPTS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMPAIGNS);
 		onCreate(db);
-		
-		db.close();
 	}
 	
 	// helper method that returns a hex-formatted string for some given input
