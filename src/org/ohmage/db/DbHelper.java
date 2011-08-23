@@ -149,6 +149,15 @@ public class DbHelper extends SQLiteOpenHelper {
 		onCreate(db);
 	}
 	
+	public void clearAll() {
+		// this is for allowing non onUpgrade calls to clear the db.
+		// we acquire the handle manually here and then invoke clearAll(db) as we normally do.
+		SQLiteDatabase db = getWritableDatabase();
+		clearAll(db);
+		// we also have to close it, since it's not a managed reference as with onUpgrade's db handle.
+		db.close();
+	}
+	
 	// helper method that returns a hex-formatted string for some given input
 	private static String getSHA1Hash(String input) throws NoSuchAlgorithmException {
 		Formatter formatter = new Formatter();
