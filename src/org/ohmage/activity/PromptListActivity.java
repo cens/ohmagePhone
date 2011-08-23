@@ -10,6 +10,7 @@ import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
 import org.ohmage.feedback.visualization.FeedbackTextChart;
 import org.ohmage.feedback.visualization.FeedbackTimeLineChart;
+import org.ohmage.feedback.visualization.FeedbackTimeScatterChart;
 
 import org.ohmage.feedback.visualization.FeedbackParticipationSummaryChart;
 import org.ohmage.prompt.AbstractPrompt;

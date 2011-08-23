@@ -197,7 +197,8 @@ public class FeedbackParticipationSummaryChart extends AbstractChart {
 		for (int i = 0; i < length; i++) {
 			((XYSeriesRenderer) renderer.getSeriesRendererAt(i)).setFillPoints(true);
 		}
-
+		
+		cursor.close();
 		return ChartFactory.getTimeScatterChartIntent(context,buildDateDataset(titles, xValues, yValues), renderer, "MM/dd hh aa", mChartTitle);
 	}
 }

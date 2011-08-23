@@ -17,7 +17,6 @@ package org.ohmage.feedback.visualization;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.achartengine.ChartFactory;
@@ -28,10 +27,7 @@ import org.achartengine.renderer.XYSeriesRenderer;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
-import org.ohmage.prompt.number.NumberPrompt;
-import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
 
 import android.content.ContentResolver;
 import android.content.Context;

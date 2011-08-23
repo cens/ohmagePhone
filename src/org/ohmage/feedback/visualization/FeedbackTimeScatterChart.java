@@ -1,4 +1,4 @@
-package org.ohmage.activity;
+package org.ohmage.feedback.visualization;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,7 +12,6 @@ import org.achartengine.renderer.XYSeriesRenderer;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.feedback.visualization.AbstractChart;
 import org.ohmage.prompt.Prompt;
 
 import android.content.ContentResolver;
