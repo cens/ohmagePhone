@@ -90,6 +90,7 @@ public class StatusActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.status_activity);
+		setTitle(getTitle() + " status");
 		
 		mUsernameText = (TextView) findViewById(R.id.status_username_text);
 		mResponsesText = (TextView) findViewById(R.id.status_responses_text);

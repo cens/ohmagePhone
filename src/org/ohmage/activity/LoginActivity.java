@@ -61,6 +61,7 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.login);
+		setTitle(getTitle() + " login");
 		
 		mLoginButton = (Button) findViewById(R.id.login);
         mUsernameEdit = (EditText) findViewById(R.id.user_input); 
