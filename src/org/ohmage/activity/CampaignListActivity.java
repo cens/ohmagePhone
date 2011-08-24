@@ -229,6 +229,14 @@ public class CampaignListActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.campaign_list_menu, menu);
+	    
+	    // if feedback is disabled, make sure that the feedback test item doesn't appear
+	    if (!SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+	    	MenuItem fbtestItem = menu.findItem(R.id.fbtest);
+	    	fbtestItem.setEnabled(false);
+	    	fbtestItem.setVisible(false);
+	    }
+	    
 	  	return super.onCreateOptionsMenu(menu);
 	}
 
