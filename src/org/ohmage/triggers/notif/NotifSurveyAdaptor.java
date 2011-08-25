@@ -235,7 +235,7 @@ public class NotifSurveyAdaptor {
 		editor.putLong(survey, System.currentTimeMillis());
 		editor.commit();
 		
-		TrigPrefManager.registerPreferenceFile(context, campaignUrn, NotifSurveyAdaptor.class.getName() + "_" + campaignUrn);
+		TrigPrefManager.registerPreferenceFile(context, campaignUrn, NotifSurveyAdaptor.class.getName());
 	}
 	
 	/*

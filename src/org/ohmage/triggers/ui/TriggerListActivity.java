@@ -108,8 +108,6 @@ public class TriggerListActivity extends ListActivity
 		
 		ImageButton bAdd = (ImageButton) findViewById(R.id.button_add_new);
 		bAdd.setOnClickListener(this);
-		
-		updateGUIWithAdminStatus(isAdminLoggedIn());
 
 		getListView().setHeaderDividersEnabled(true);
 		Intent i = getIntent();
@@ -137,6 +135,8 @@ public class TriggerListActivity extends ListActivity
 		populateTriggerList();
 		registerForContextMenu(getListView());
 		
+		updateGUIWithAdminStatus(isAdminLoggedIn());
+		
 		//Display message and exit if there are no supported 
 		//trigger types
 		if(mTrigMap.getAllTriggers().size() == 0) {
@@ -146,7 +146,8 @@ public class TriggerListActivity extends ListActivity
 			finish();
 		}
 		
-		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME + "_" + mCampaignUrn);
+		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME);
+		TrigPrefManager.registerPreferenceFile(this, "GLOBAL", PREF_FILE_NAME);
     }
 	
 	public void onDestroy() {
@@ -363,14 +364,14 @@ public class TriggerListActivity extends ListActivity
     }
 	
 	private boolean isAdminLoggedIn() {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + mCampaignUrn, 
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
 														MODE_PRIVATE);
 		//Let the app be in admin mode the very first time
 		return pref.getBoolean(KEY_ADMIN_MODE, true);
 	}
 	
 	private void setAdminMode(boolean enable) {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + mCampaignUrn, 
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
 														MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putBoolean(KEY_ADMIN_MODE, enable);

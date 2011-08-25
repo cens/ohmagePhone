@@ -458,8 +458,7 @@ public class Notifier {
 		editor.putBoolean(KEY_NOTIF_VISIBILITY_PREF, visible);
 		editor.commit();
 		
-		TrigPrefManager.registerPreferenceFile(context, campaignUrn,
-										Notifier.class.getName() + "_" + campaignUrn);
+		TrigPrefManager.registerPreferenceFile(context, campaignUrn, Notifier.class.getName());
 	}
 	
 	/*

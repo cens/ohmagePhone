@@ -26,12 +26,12 @@ public class TrigPrefManager {
 	private static final String PREF_FILE_NAME
 								= TrigPrefManager.class.getName();
 	
-	public static void registerPreferenceFile(Context context, String campaignUrn, String fileName) {
+	public static void registerPreferenceFile(Context context, String campaignUrn, String filePrefix) {
 		SharedPreferences prefs = context.getSharedPreferences(
 									PREF_FILE_NAME + "_" + campaignUrn, Context.MODE_PRIVATE);
 
 		Editor editor = prefs.edit();
-		editor.putBoolean(fileName, true);
+		editor.putBoolean(filePrefix + "_" + campaignUrn, true);
 		editor.commit();
 	}
 	
