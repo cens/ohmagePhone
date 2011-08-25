@@ -4,8 +4,8 @@
   
   	<RingtonePreference
   		android:ringtoneType="notification"
-  		android:showDefault="false"
-  		android:showSilent="false"
+  		android:showDefault="true"
+  		android:showSilent="true"
   		android:key="notification_ringtone"
   		android:title="Trigger Sound" />
   		

@@ -158,7 +158,6 @@ public class DbContract {
 		public static final String RESPONSE_ID = "response_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_VALUE = "prompt_value";
-		public static final String CUSTOM_CHOICES = "custom_choices";
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("prompts").build();

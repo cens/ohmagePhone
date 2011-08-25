@@ -128,7 +128,7 @@ public class FeedbackTimeLineChart extends AbstractChart {
 		setChartSettings(
 				renderer,
 				"", 
-				"Date", 
+				"", 
 				"",
 				startDate, 
 				endDate, 

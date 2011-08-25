@@ -19,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -34,7 +35,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import edu.ucla.cens.systemlog.Log;
 
@@ -43,7 +43,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 3;
+	private static final int DB_VERSION = 5;
 	
 	interface Tables {
 		static final String RESPONSES = "responses";
@@ -54,9 +54,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		String PROMPTS_JOIN_RESPONSES = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
 				PROMPTS, RESPONSES, PromptResponse.RESPONSE_ID, Response._ID);
 	}
-	
-	private static boolean isDbOpen = false;
-	private static Object dbLock = new Object();
 
 	public DbHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
@@ -126,8 +123,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ PromptResponse._ID + " INTEGER PRIMARY KEY, "
 				+ PromptResponse.RESPONSE_ID + " INTEGER, " // foreign key to TABLE_RESPONSES
 				+ PromptResponse.PROMPT_ID + " TEXT, "
-				+ PromptResponse.PROMPT_VALUE + " TEXT, "
-				+ PromptResponse.CUSTOM_CHOICES + " TEXT"
+				+ PromptResponse.PROMPT_VALUE + " TEXT"
 				+ ");");
 		
 		// and index on the response id for fast lookups
@@ -253,22 +249,45 @@ public class DbHelper extends SQLiteOpenHelper {
 				if (!item.has("prompt_id") || !item.has("value"))
 					continue;
 				
+				// keep the final value that we're going to insert here
+				String value;
+				
+				// determine too if we have to remap the value from a number to text
+				// if custom_choices is included, then we do
+				if (item.has("custom_choices")) {
+					// build a hashmap of ID->label so we can do the remapping
+					JSONArray choicesArray = item.getJSONArray("custom_choices");
+					HashMap<String,String> glossary = new HashMap<String, String>();
+					
+					for (int iv = 0; iv < choicesArray.length(); ++iv) {
+						JSONObject choiceObject = choicesArray.getJSONObject(iv);
+						glossary.put(choiceObject.getString("choice_id"), choiceObject.getString("choice_value"));
+					}
+					
+					// determine if the value is singular or an array
+					// if it's an array, we need to remap each element
+					try {
+						JSONArray remapper = item.getJSONArray("value");
+						
+						for (int ir = 0; ir < remapper.length(); ++ir)
+							remapper.put(ir, glossary.get(remapper.getString(ir)));
+						
+						value = remapper.toString();
+					}
+					catch (JSONException e) {
+						// it wasn't a json array, so just remap the single value
+						value = glossary.get(item.getString("value"));
+					}
+				}
+				else {
+					value = item.getString("value");
+				}
+				
 				// and insert this into prompts
 				ContentValues promptValues = new ContentValues();
 				promptValues.put(PromptResponse.RESPONSE_ID, rowId);
 				promptValues.put(PromptResponse.PROMPT_ID, item.getString("prompt_id"));
-				promptValues.put(PromptResponse.PROMPT_VALUE, item.getString("value"));
-				
-				if (item.has("custom_choices")) {
-					try {
-						// store custom_choices as-is and expect whoever's reading this to parse it as a JSON array
-						promptValues.put(PromptResponse.CUSTOM_CHOICES, item.getJSONArray("custom_choices").toString());
-					}
-					catch (JSONException e) {
-						// we can't read custom_choices for some reason,
-						// so just ignore the exception and don't store custom_choices for this prompt response
-					}
-				}
+				promptValues.put(PromptResponse.PROMPT_VALUE, value);
 				
 				db.insert(Tables.PROMPTS, null, promptValues);
 			}
