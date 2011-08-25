@@ -130,17 +130,18 @@ public class Notifier {
 		Notification notif = new Notification(R.drawable.survey_notification,
 											  title, System.currentTimeMillis());
 
-		if(quiet) {
+		if(!quiet) {
+			SharedPreferences ringtonePrefs = PreferenceManager.getDefaultSharedPreferences(context);
+			notif.defaults = Notification.DEFAULT_LIGHTS;
+			notif.sound = Uri.parse(ringtonePrefs.getString("notification_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString()));
+			long duration = Long.parseLong(ringtonePrefs.getString("notification_vibration", "2000"));
+			if (duration > 0) {
+				notif.vibrate = new long [] {0, 200, 200, duration - 800, 200, 200};
+			}
+		}
+		else {
 			// If it is a quiet update, disable the ticker as well
 			notif.tickerText = null;
-		}
-		
-		SharedPreferences ringtonePrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		notif.defaults = Notification.DEFAULT_LIGHTS;
-		notif.sound = Uri.parse(ringtonePrefs.getString("notification_ringtone", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString()));
-		long duration = Long.parseLong(ringtonePrefs.getString("notification_vibration", "2000"));
-		if (duration > 0) {
-			notif.vibrate = new long [] {0, 200, 200, duration - 800, 200, 200};
 		}
 		
 		//Watch for notification cleared events
@@ -528,12 +529,7 @@ public class Notifier {
 		setRepeatAlarm(context, trigId, repeatDiffs);
 	}	
 
-	public static void removeTriggerNotification(Context context, int trigId) {
-		TriggerDB db = new TriggerDB(context);
-		db.open();
-		String campaignUrn = db.getCampaignUrn(trigId); 
-		db.close();
-		
+	public static void removeTriggerNotification(Context context, int trigId, String campaignUrn) {		
 		//Clear all existing alarms for this trigger if required
 		cancelAllAlarms(context, trigId);
 		refreshNotification(context, campaignUrn, true);
