@@ -92,31 +92,7 @@ public class FeedbackService extends WakefulIntentService {
 		// ==================================================================
 		// === 2. determine time range on which to query
 		// ==================================================================
-        
-        // dump all remote and local uploaded records before we start.
-        // they'll be replaced with fresh copies from the server.
-        // it's not critical if this fails, since duplicates will never be
-        // inserted into the db thanks to the hashcode unique index.
-        
-        if (intent.hasExtra("campaign_urn")) {
-        	// if we're running over a single campaign, only delete stale responses for that campaign
-        	String campaignUrn = intent.getStringExtra("campaign_urn");
-            int staleResponses = dbHelper.removeStaleResponseRows(campaignUrn);
-            if (staleResponses >= 0)
-            	Log.v(TAG, "Removed " + staleResponses + " stale response(s) for campaign " + campaignUrn + " prior to downloading");
-            else
-            	Log.e(TAG, "Error occurred when removing stale responses");
-        }
-        else {
-        	// otherwise, let's delete stale responses for all campaigns
-            int staleResponses = dbHelper.removeStaleResponseRows();
-            if (staleResponses >= 0)
-            	Log.v(TAG, "Removed " + staleResponses + " stale response(s) for all campaigns prior to downloading");
-            else
-            	Log.e(TAG, "Error occurred when removing stale responses");
-        }
 
-		
 		// get the time since the last refresh so we can retrieve entries only since then.
 		// also save the time of this refresh, but only put it into the prefs at the end
 		// long lastRefresh = prefs.getLastFeedbackRefreshTimestamp();
@@ -162,6 +138,16 @@ public class FeedbackService extends WakefulIntentService {
 			}
 			
 			Log.v(TAG, "Request for campaign " + c.mUrn + " complete!");
+			
+	        // dump all remote and local uploaded records before we start.
+	        // they'll be replaced with fresh copies from the server.
+	        // it's not critical if this fails, since duplicates will never be
+	        // inserted into the db thanks to the hashcode unique index.
+            int staleResponses = dbHelper.removeStaleResponseRows(c.mUrn);
+            if (staleResponses >= 0)
+            	Log.v(TAG, "Removed " + staleResponses + " stale response(s) for campaign " + c.mUrn + " prior to downloading");
+            else
+            	Log.e(TAG, "Error occurred when removing stale responses");
 		
 			// gather our survey response array from the response
 			JSONArray data = apiResponse.getData();
