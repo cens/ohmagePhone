@@ -67,6 +67,11 @@ public class FeedbackService extends WakefulIntentService {
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
 		
+		if (username == null || username.equals("")) {
+			Log.e(TAG, "User isn't logged in, FeedbackService terminating");
+			return;
+		}
+		
 		// open the db so we can read which campaigns we're in and populate the response cache for them
 		DbHelper dbHelper = new DbHelper(this);
         List<Campaign> campaigns = dbHelper.getCampaigns();
