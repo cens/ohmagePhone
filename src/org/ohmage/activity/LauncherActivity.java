@@ -51,23 +51,6 @@ public class LauncherActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.launcher_activity);
-		
-		mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-		mMessageText = (TextView) findViewById(R.id.message_text);
-		mRetryButton = (Button) findViewById(R.id.retry_button);
-		mLogoutButton = (Button) findViewById(R.id.logout_button);
-		
-		mRetryButton.setOnClickListener(mClickListener);
-		mLogoutButton.setOnClickListener(mClickListener);
-		
-		mProgressBar.setVisibility(View.VISIBLE);
-		mMessageText.setVisibility(View.VISIBLE);
-		mRetryButton.setVisibility(View.GONE);
-		mLogoutButton.setVisibility(View.GONE);
-		
-		mMessageText.setText("Downloading campaign configuration...");
-		
 		preferencesHelper = new SharedPreferencesHelper(this);
 		
 		if (preferencesHelper.isUserDisabled()) {
@@ -79,7 +62,26 @@ public class LauncherActivity extends Activity {
 			startActivity(new Intent(this, LoginActivity.class));
 			finish();
 		} else {
-	        if (SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			if (SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		
+				setContentView(R.layout.launcher_activity);
+			
+				mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+				mMessageText = (TextView) findViewById(R.id.message_text);
+				mRetryButton = (Button) findViewById(R.id.retry_button);
+				mLogoutButton = (Button) findViewById(R.id.logout_button);
+				
+				mRetryButton.setOnClickListener(mClickListener);
+				mLogoutButton.setOnClickListener(mClickListener);
+				
+				mProgressBar.setVisibility(View.VISIBLE);
+				mMessageText.setVisibility(View.VISIBLE);
+				mRetryButton.setVisibility(View.GONE);
+				mLogoutButton.setVisibility(View.GONE);
+				
+				mMessageText.setText("Downloading campaign configuration...");
+			
+		        
 	        	DbHelper dbHelper = new DbHelper(this);
 				List<Campaign> campaigns = dbHelper.getCampaigns();
 				if (campaigns.size() < 1) {

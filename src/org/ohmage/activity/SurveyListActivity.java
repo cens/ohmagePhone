@@ -213,7 +213,7 @@ public class SurveyListActivity extends ListActivity {
 		if (requestCode == 1) {
 			if (resultCode == 125) {
 				finish();
-				startActivity(new Intent(SurveyListActivity.this, LoginActivity.class));
+				startActivity(new Intent(SurveyListActivity.this, LauncherActivity.class));
 			}
 		}
 	}

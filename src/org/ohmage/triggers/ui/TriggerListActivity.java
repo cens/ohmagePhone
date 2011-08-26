@@ -600,7 +600,7 @@ public class TriggerListActivity extends ListActivity
 			.setEnabled(adminMode || TrigUserConfig.editNotificationSettings);
 		
 		menu.add(0, MENU_ID_RINGTONE_SETTINGS, 0, "Ringtone settings")
-		.setIcon(android.R.drawable.ic_menu_more)
+		.setIcon(R.drawable.ic_menu_ringtone)
 		.setEnabled(true);
 	    
      	return ret;
