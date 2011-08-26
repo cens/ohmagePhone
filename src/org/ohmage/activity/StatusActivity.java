@@ -35,6 +35,9 @@ import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.ui.TriggerListActivity;
+import org.ohmage.triggers.utils.TrigTextInput;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,6 +52,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
@@ -67,6 +71,7 @@ public class StatusActivity extends Activity {
 	private static final int DIALOG_CAMPAIGN_REMOVED_NOT_RUNNING = 9;
 	private static final int DIALOG_CAMPAIGN_REMOVED_OUT_OF_DATE = 10;
 	private static final int DIALOG_CLEAR_USER_CONFIRM = 11;
+	private static final int DIALOG_CLEAR_USER_PINCODE = 12;
 	
 	private static final int UPLOAD_RESPONSES = 1;
 	private static final int UPLOAD_MOBILITY = 2;
@@ -390,14 +395,18 @@ public class StatusActivity extends Activity {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					((OhmageApplication)getApplication()).resetAll();
-					setResult(125);
-					finish();
+//					((OhmageApplication)getApplication()).resetAll();
+//					setResult(125);
+//					finish();
+					showDialog(DIALOG_CLEAR_USER_PINCODE);
 				}
 
 			});
         	dialog = dialogBuilder.create();        	
         	break;
+		case DIALOG_CLEAR_USER_PINCODE:
+			dialog = createClearUserPincodeDialog();
+			break;
         }
 		
 		return dialog;
@@ -414,6 +423,53 @@ public class StatusActivity extends Activity {
 		}
 
 	};
+	
+	private Dialog createClearUserPincodeDialog() {
+		TrigTextInput ti = new TrigTextInput(this);
+		ti.setNumberMode(true);
+		ti.setPasswordMode(true);
+		ti.setAllowEmptyText(false);
+		ti.setPositiveButtonText("Ok");
+		ti.setNegativeButtonText("Cancel");
+		ti.setTitle("Enter pin code:");
+		
+		ti.setText("");
+		
+//		if(mDialogText != null) {
+//			ti.setText(mDialogText);
+//		}
+//		
+//		ti.setOnTextChangedListener(new TrigTextInput.onTextChangedListener() {
+//			@Override
+//			public boolean onTextChanged(TrigTextInput textInput, String text) {
+//				mDialogText = text;
+//				return true;
+//			}
+//		});
+		
+		ti.setOnClickListener(new TrigTextInput.onClickListener() {
+			
+			@Override
+			public void onClick(TrigTextInput ti, int which) {
+				if(which == TrigTextInput.BUTTON_POSITIVE) {
+					
+					if(ti.getText().equals(TrigUserConfig.adminPass)) {
+						((OhmageApplication)getApplication()).resetAll();
+						setResult(125);
+						finish();
+					}
+					else {
+						removeDialog(DIALOG_CLEAR_USER_PINCODE);
+						Toast.makeText(StatusActivity.this, "Wrong pin code.", Toast.LENGTH_SHORT).show();
+					}
+				} else {
+					removeDialog(DIALOG_CLEAR_USER_PINCODE);
+				}
+			}
+		});
+		
+		return ti.createDialog();
+	}
 	
 	private static class UploadTask extends AsyncTask<Integer, Void, OhmageApi.UploadResponse> {
 		
