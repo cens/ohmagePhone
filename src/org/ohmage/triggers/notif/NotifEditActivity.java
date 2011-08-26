@@ -26,9 +26,6 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.NotFoundException;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -100,16 +97,6 @@ public class NotifEditActivity extends ListActivity
 		}
 		
 		setContentView(R.layout.trigger_notif_editor);
-		
-		ListView ringtoneList = (ListView) findViewById(R.id.ringtone_list);
-		ringtoneList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, new String [] {"Ringtone and Vibration Settings"}));
-		ringtoneList.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
-				startActivity(new Intent(NotifEditActivity.this, NotifSettingsActivity.class));
-			}
-		});
 		
 		Button b = (Button) findViewById(R.id.notif_edit_done);
 		b.setOnClickListener(this);

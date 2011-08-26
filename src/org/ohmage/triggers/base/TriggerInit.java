@@ -169,6 +169,8 @@ public class TriggerInit extends BroadcastReceiver {
 			resetTriggersAndSettings(context, c.mUrn);
 		}
 		
+		TrigPrefManager.clearPreferenceFiles(context, "GLOBAL");
+		
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
 		//Reset the settings of all trigger types

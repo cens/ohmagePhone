@@ -225,6 +225,8 @@ public abstract class TriggerBase {
 		TriggerDB db = new TriggerDB(context);
 		db.open();
 		
+		String campaignUrn = db.getCampaignUrn(trigId);
+		
 		Cursor c = db.getTrigger(trigId);
 		if(c.moveToFirst()) {
 			String trigType = c.getString(
@@ -234,10 +236,10 @@ public abstract class TriggerBase {
 				
 				//Stop trigger first
 				stopTrigger(context, trigId, db.getTriggerDescription(trigId));
-				//Now refresh the notification display
-				Notifier.removeTriggerNotification(context, trigId);
 				//Delete from database
 				db.deleteTrigger(trigId);
+				//Now refresh the notification display
+				Notifier.removeTriggerNotification(context, trigId, campaignUrn);
 			}
 		}
 		

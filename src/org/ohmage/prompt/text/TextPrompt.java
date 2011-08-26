@@ -42,7 +42,7 @@ public class TextPrompt extends AbstractPrompt {
 	@Override
 	protected void clearTypeSpecificResponseData() {
 		if (mDefaultValue != null) {
-			mText = getDefaultValue();
+			mText = getDefaultValue().trim();
 		} else {
 			mText = "";
 		}
@@ -108,7 +108,7 @@ public class TextPrompt extends AbstractPrompt {
 			
 			@Override
 			public void afterTextChanged(Editable s) {
-				mText = s.toString();
+				mText = s.toString().trim();
 			}
 		});
 		

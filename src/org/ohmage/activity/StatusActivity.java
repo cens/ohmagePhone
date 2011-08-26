@@ -90,6 +90,7 @@ public class StatusActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.status_activity);
+		setTitle(getTitle() + " status");
 		
 		mUsernameText = (TextView) findViewById(R.id.status_username_text);
 		mResponsesText = (TextView) findViewById(R.id.status_responses_text);
@@ -349,36 +350,36 @@ public class StatusActivity extends Activity {
 		case DIALOG_CAMPAIGN_REMOVED:
         	dialogBuilder.setTitle("Error")
         				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is no longer valid and has been removed from your phone.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
+        				.setCancelable(false)
+        				.setPositiveButton("OK", dialogClickListener);
         	dialog = dialogBuilder.create();        	
         	break;
 		case DIALOG_CAMPAIGN_REMOVED_INVALID_URN:
         	dialogBuilder.setTitle("Error")
         				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is not valid and has been removed from your phone.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
+        				.setCancelable(false)
+        				.setPositiveButton("OK", dialogClickListener);
         	dialog = dialogBuilder.create();        	
         	break;
 		case DIALOG_CAMPAIGN_REMOVED_INVALID_ROLE:
         	dialogBuilder.setTitle("Error")
         				.setMessage("Due to an invalid user role, campaign (" + problematicCampaign.mUrn + ") has been removed from your phone.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
+        				.setCancelable(false)
+        				.setPositiveButton("OK", dialogClickListener);
         	dialog = dialogBuilder.create();        	
         	break;
 		case DIALOG_CAMPAIGN_REMOVED_NOT_RUNNING:
         	dialogBuilder.setTitle("Error")
         				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is no longer running and has been removed from your phone.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
+        				.setCancelable(false)
+        				.setPositiveButton("OK", dialogClickListener);
         	dialog = dialogBuilder.create();        	
         	break;
 		case DIALOG_CAMPAIGN_REMOVED_OUT_OF_DATE:
         	dialogBuilder.setTitle("Error")
         				.setMessage("Campaign (" + problematicCampaign.mUrn + ") is out of date and has been removed from your phone.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null);
+        				.setCancelable(false)
+        				.setPositiveButton("OK", dialogClickListener);
         	dialog = dialogBuilder.create();        	
         	break;
 		case DIALOG_CLEAR_USER_CONFIRM:			
@@ -401,6 +402,18 @@ public class StatusActivity extends Activity {
 		
 		return dialog;
 	}
+	
+	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+		
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			if (SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+				setResult(125);
+				finish();
+			}
+		}
+
+	};
 	
 	private static class UploadTask extends AsyncTask<Integer, Void, OhmageApi.UploadResponse> {
 		

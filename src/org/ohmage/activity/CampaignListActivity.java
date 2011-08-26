@@ -278,7 +278,7 @@ public class CampaignListActivity extends ListActivity {
 				finish();
 			} else if (resultCode == 125) {
 				finish();
-				startActivity(new Intent(CampaignListActivity.this, LoginActivity.class));
+				startActivity(new Intent(CampaignListActivity.this, LauncherActivity.class));
 			}
 		}
 	}

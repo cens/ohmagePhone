@@ -23,6 +23,7 @@ import org.ohmage.triggers.base.TriggerTypeMap;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.notif.NotifDesc;
 import org.ohmage.triggers.notif.NotifEditActivity;
+import org.ohmage.triggers.notif.NotifSettingsActivity;
 import org.ohmage.triggers.notif.Notifier;
 import org.ohmage.triggers.utils.TrigPrefManager;
 import org.ohmage.triggers.utils.TrigTextInput;
@@ -77,6 +78,7 @@ public class TriggerListActivity extends ListActivity
 	private static final int MENU_ID_SETTINGS = Menu.FIRST + 2;
 	private static final int MENU_ID_ADMIN_LOGIN = Menu.FIRST + 3;
 	private static final int MENU_ID_ADMIN_LOGOFF = Menu.FIRST + 4;
+	private static final int MENU_ID_RINGTONE_SETTINGS = Menu.FIRST + 5;
 	
 	private static final int DIALOG_ID_ADD_NEW = 0;
 	private static final int DIALOG_ID_PREFERENCES = 1;
@@ -108,8 +110,6 @@ public class TriggerListActivity extends ListActivity
 		
 		ImageButton bAdd = (ImageButton) findViewById(R.id.button_add_new);
 		bAdd.setOnClickListener(this);
-		
-		updateGUIWithAdminStatus(isAdminLoggedIn());
 
 		getListView().setHeaderDividersEnabled(true);
 		Intent i = getIntent();
@@ -137,6 +137,8 @@ public class TriggerListActivity extends ListActivity
 		populateTriggerList();
 		registerForContextMenu(getListView());
 		
+		updateGUIWithAdminStatus(isAdminLoggedIn());
+		
 		//Display message and exit if there are no supported 
 		//trigger types
 		if(mTrigMap.getAllTriggers().size() == 0) {
@@ -146,7 +148,8 @@ public class TriggerListActivity extends ListActivity
 			finish();
 		}
 		
-		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME + "_" + mCampaignUrn);
+		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME);
+		TrigPrefManager.registerPreferenceFile(this, "GLOBAL", PREF_FILE_NAME);
     }
 	
 	public void onDestroy() {
@@ -363,14 +366,14 @@ public class TriggerListActivity extends ListActivity
     }
 	
 	private boolean isAdminLoggedIn() {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + mCampaignUrn, 
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
 														MODE_PRIVATE);
 		//Let the app be in admin mode the very first time
 		return pref.getBoolean(KEY_ADMIN_MODE, true);
 	}
 	
 	private void setAdminMode(boolean enable) {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + mCampaignUrn, 
+		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
 														MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 		editor.putBoolean(KEY_ADMIN_MODE, enable);
@@ -566,6 +569,7 @@ public class TriggerListActivity extends ListActivity
 		menu.removeItem(MENU_ID_ADMIN_LOGOFF);
 		menu.removeItem(MENU_ID_ADMIN_LOGIN);
 		menu.removeItem(MENU_ID_NOTIF_SETTINGS);
+		menu.removeItem(MENU_ID_RINGTONE_SETTINGS);
 		menu.removeItem(MENU_ID_SETTINGS);
 		
 		boolean adminMode = isAdminLoggedIn();
@@ -577,10 +581,6 @@ public class TriggerListActivity extends ListActivity
 			menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, "Logoff admin")
 		 		.setIcon(R.drawable.ic_menu_login);
 		}
-	    
-		menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, "Notification settings")
-			.setIcon(R.drawable.ic_menu_notification)
-			.setEnabled(adminMode || TrigUserConfig.editNotificationSettings);
 		
 		//Add 'preferences' menu item only if there is at least
 		//one trigger type registered which has settings
@@ -594,6 +594,14 @@ public class TriggerListActivity extends ListActivity
 				break;
 			}
 		}
+	    
+		menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, "Notification settings")
+			.setIcon(R.drawable.ic_menu_notification)
+			.setEnabled(adminMode || TrigUserConfig.editNotificationSettings);
+		
+		menu.add(0, MENU_ID_RINGTONE_SETTINGS, 0, "Ringtone settings")
+		.setIcon(R.drawable.ic_menu_ringtone)
+		.setEnabled(true);
 	    
      	return ret;
 	}
@@ -610,6 +618,10 @@ public class TriggerListActivity extends ListActivity
 	    		i.putExtra(NotifEditActivity.KEY_NOTIF_CONFIG, 
 	    				   NotifDesc.getGlobalDesc(this));
 	    		startActivityForResult(i, REQ_EDIT_NOTIF);
+	    		return true;
+	    		
+	    	case MENU_ID_RINGTONE_SETTINGS:
+	    		startActivity(new Intent(TriggerListActivity.this, NotifSettingsActivity.class));
 	    		return true;
 	    		
 	    	case MENU_ID_SETTINGS:
