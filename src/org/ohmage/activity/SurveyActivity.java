@@ -178,7 +178,7 @@ public class SurveyActivity extends Activity {
         
         mSurveyTitleText.setText(mSurveyTitle);
         if (mReachedEnd == false) {
-        	showPrompt(mCurrentPosition);
+        	showElement(mCurrentPosition);
         } else {
         	showSubmitScreen();
         }
@@ -609,6 +609,14 @@ public class SurveyActivity extends Activity {
 				
 		mPromptFrame.removeAllViews();
 		mPromptFrame.addView(layout);
+	}
+	
+	private void showElement(int index) {
+		if (mSurveyElements.get(index) instanceof AbstractPrompt) {
+			showPrompt(index);
+		} else if (mSurveyElements.get(index) instanceof Message) {
+			showMessage(index);
+		}
 	}
 	
 	private void showMessage(int index) {

@@ -27,6 +27,7 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.CustomChoiceListView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +38,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
@@ -183,7 +185,10 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		}
 		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mListView = (ListView) inflater.inflate(R.layout.prompt_multi_choice_custom, null);
+//		mListView = (ListView) inflater.inflate(R.layout.prompt_single_choice_custom, null);
+		mListView = new CustomChoiceListView(context);
+		mListView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		mListView.setTextFilterEnabled(false);
 		
 		mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		mListView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
