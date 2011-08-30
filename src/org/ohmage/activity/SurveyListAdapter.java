@@ -237,7 +237,7 @@ public class SurveyListAdapter extends BaseAdapter {
 				
 				// hide the feedback button if we disallow feedback in the prefs and
 				// show it if we do allow feedback
-				holder.feedbackButton.setVisibility((SharedPreferencesHelper.ALLOWS_FEEDBACK)?(View.VISIBLE):(View.INVISIBLE));
+				holder.feedbackButton.setVisibility((SharedPreferencesHelper.ALLOWS_FEEDBACK)?(View.VISIBLE):(View.GONE));
 				
 				convertView.setTag(holder);
 			} else {

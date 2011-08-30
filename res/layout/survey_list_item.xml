@@ -33,7 +33,8 @@
 		android:layout_gravity="right|center_vertical"
 		android:layout_marginRight="10dp"
 		android:gravity="right"
-		android:orientation="vertical">
+		android:orientation="vertical"
+		android:visibility="gone">
 		
 		<TextView
 			android:id="@+id/survey_last_taken_date_text"
@@ -42,8 +43,7 @@
 			android:layout_gravity="right"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="#606060"
-			android:text="Last Taken Date"
-			android:visibility="invisible" />
+			android:text="Last Taken Date" />
 		
 		<TextView
 			android:id="@+id/survey_last_taken_time_text"
@@ -52,8 +52,7 @@
 			android:layout_gravity="right"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="#606060"
-			android:text="Last Taken Time"
-			android:visibility="invisible" />
+			android:text="Last Taken Time" />
 		
 	</LinearLayout>
 		
@@ -64,5 +63,6 @@
         android:layout_height="60dp"
         android:layout_marginTop="2dp"
         android:layout_gravity="center_vertical"
-        android:text="Feed\nback"/>
+        android:text="Feed\nback"
+        android:visibility="gone" />
 </LinearLayout>

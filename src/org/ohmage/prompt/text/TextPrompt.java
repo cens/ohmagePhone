@@ -29,6 +29,8 @@ import android.widget.EditText;
 public class TextPrompt extends AbstractPrompt {
 	
 	private String mText;
+	private int mMinLength;
+	private int mMaxLength;
 
 	public TextPrompt() {
 		super();
@@ -37,6 +39,22 @@ public class TextPrompt extends AbstractPrompt {
 	
 	public String getText(){
 		return mText;
+	}
+	
+	void setMinLength(int value) {
+		mMinLength = value;
+	}
+	
+	void setMaxLength(int value) {
+		mMaxLength = value;
+	}
+	
+	public int getMinLength(){
+		return mMinLength;
+	}
+	
+	public int getMaxLength(){
+		return mMaxLength;
 	}
 	
 	@Override
@@ -54,7 +72,7 @@ public class TextPrompt extends AbstractPrompt {
 	 */
 	@Override
 	public boolean isPromptAnswered() {
-		return((mText != null) && (! "".equals(mText)));
+		return((mText != null) && (! "".equals(mText)) && (mText.length() >= mMinLength) && (mText.length() <= mMaxLength));
 	}
 
 	@Override
@@ -73,7 +91,11 @@ public class TextPrompt extends AbstractPrompt {
 	 */
 	@Override
 	public String getUnansweredPromptText() {
-		return("Please enter any text before continuing.");
+		if (mMinLength == mMaxLength) {
+			return("You must provide a response that is exactly " + mMinLength + " characters long.");
+		} else {
+			return("You must provide a response that is between " + mMinLength + " and " + mMaxLength + " characters long.");
+		}
 	}
 	
 	@Override
