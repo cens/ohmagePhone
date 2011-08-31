@@ -247,7 +247,8 @@ public class OhmageApi {
 	
 	public class ImageReadResponse extends Response {
 		private byte[] data;
-		
+		private String type;
+
 		@Override
 		public void populateFromJSON(JSONObject rootJson) throws JSONException {
 			// do nothing, b/c there's no json data
@@ -259,6 +260,14 @@ public class OhmageApi {
 
 		public byte[] getData() {
 			return data;
+		}
+		
+		public String getType() {
+			return type;
+		}
+
+		public void setType(String type) {
+			this.type = type;
 		}
 	}
 
@@ -888,13 +897,14 @@ public class OhmageApi {
         		HttpEntity responseEntity = response.getEntity();
         		if (responseEntity != null) {
         			try {
-        				if (responseEntity.getContentType().getValue().equalsIgnoreCase("image/jpeg")) {
+        				if (responseEntity.getContentType().getValue().startsWith("image/")) {
         					// it's the image data!
         					result = Result.SUCCESS;
             				
             				// dealing with raw image data here. hmm.
     	        			byte[] content = EntityUtils.toByteArray(responseEntity);
     	        			candidate.setData(content);
+    	        			candidate.setType(responseEntity.getContentType().getValue());
         				}
         				else
         				{

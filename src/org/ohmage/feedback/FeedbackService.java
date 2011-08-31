@@ -78,7 +78,6 @@ public class FeedbackService extends WakefulIntentService {
         
 		// helper instance for parsing utc timestamps
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd");
 		sdf.setLenient(false);
 
         // if we received a campaign_urn in the intent, only download the data for that one campaign.
@@ -108,7 +107,9 @@ public class FeedbackService extends WakefulIntentService {
 		String startDate = null;
 		String endDate = null;
 		
-/*		Calendar twoWeeksAgo = new GregorianCalendar();
+		/*		
+		SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar twoWeeksAgo = new GregorianCalendar();
 		twoWeeksAgo.add(Calendar.WEEK_OF_YEAR, -2);
 		
 		Calendar tomorrow = new GregorianCalendar();
@@ -116,7 +117,8 @@ public class FeedbackService extends WakefulIntentService {
 		
 		// and convert times to timestamps we can feed to the api
 		startDate = inputSDF.format(twoWeeksAgo.getTime());
-		endDate = inputSDF.format(tomorrow.getTime());*/
+		endDate = inputSDF.format(tomorrow.getTime());
+		*/
 		
 		// ==================================================================
 		// === 3. download responses for each campaign and insert into fbdb
@@ -181,7 +183,8 @@ public class FeedbackService extends WakefulIntentService {
 					JSONObject survey = data.getJSONObject(i);
 					String surveyId = survey.getString("survey_id");
 					
-					/*// get the count for this time, creating it if it doesn't exist already
+					/*
+					// get the count for this time, creating it if it doesn't exist already
 					int currentSurveyCount;
 					
 					if (responsesPerSurvey.containsKey(surveyId)) {
@@ -199,7 +202,8 @@ public class FeedbackService extends WakefulIntentService {
 						break;
 					
 					// update the count for next times
-					responsesPerSurvey.put(surveyId, currentSurveyCount+1);*/
+					responsesPerSurvey.put(surveyId, currentSurveyCount+1);
+					*/
 					
 					// first we need to gather all of the appropriate data
 					// from the survey response. some of this data needs to
@@ -334,26 +338,27 @@ public class FeedbackService extends WakefulIntentService {
 			}
 
 			// ==================================================================
-			// === 3b. download image data mentioned in responses (disabled for now)
+			// === 3b. download image data mentioned in responses
 			// ==================================================================
 			
 			// now that we're done inserting all that data from the server
 			// let's see if we already have all the photos that were mentioned in the responses
-			/*
 			if (photoUUIDs.size() > 0) {
 				// get the image directory for this campaign and ensure it exists
-				File photoDir = new File(PhotoPrompt.IMAGE_PATH + "/" + c.mUrn.replace(':', '_'));
+				File photoDir = new File(PhotoPrompt.IMAGE_PATH + "_cache/" + c.mUrn.replace(':', '_'));
 				photoDir.mkdirs();
 				
 				for (String photoUUID : photoUUIDs) {
 					// check if it doesn't already exist in our photos directory
-					File photo = new File(photoDir, photoUUID + ".jpg");
+					// FIXME: figure out how to tell if it's a jpg or a png!
+					// we only seem to be able to do that after we do the call :\
+					File photo = new File(photoDir, photoUUID + ".png");
 					
 					Log.v(TAG, "Checking photo w/UUID " + photoUUID + "...");
 					
 					if (!photo.exists()) {
 						// it doesn't exist, so we have to download it :(
-						ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, null);
+						ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, "small");
 					
 						// if it succeeded, it contains data that we should save as the photo file above
 						try {
@@ -377,7 +382,6 @@ public class FeedbackService extends WakefulIntentService {
 						Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
 				}
 			}
-			*/
 			
 			// done with this campaign! on to the next one...
 		}
