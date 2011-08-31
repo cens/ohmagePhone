@@ -400,11 +400,12 @@ public class FeedbackService extends WakefulIntentService {
 	
 	public static boolean ensurePhotoExists(Context context, String campaignUrn, String photoUUID) {
 		// get the image directory for this campaign and ensure it exists
-		File photoDir = new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_'));
+		File photoDir = new File(PhotoPrompt.IMAGE_PATH + "_cache/" + campaignUrn.replace(':', '_'));
 		photoDir.mkdirs();
 
 		// check if it doesn't already exist in our photos directory
-		File photo = new File(photoDir, photoUUID + ".jpg");
+		// FIXME: same issue with the photo possibly not being a png as mentioned above
+		File photo = new File(photoDir, photoUUID + ".png");
 		
 		if (!photo.exists()) {
 			// it doesn't exist, so we have to download it :(
