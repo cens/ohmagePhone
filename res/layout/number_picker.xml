@@ -21,7 +21,7 @@
 
     <org.ohmage.NumberPickerButton android:id="@+id/increment"
         android:layout_width="fill_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:background="@drawable/timepicker_up_btn" />
 
     <TextView android:id="@+id/timepicker_text"
@@ -35,7 +35,7 @@
 
     <org.ohmage.NumberPickerButton android:id="@+id/decrement"
         android:layout_width="fill_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:background="@drawable/timepicker_down_btn" />
 
 </merge>

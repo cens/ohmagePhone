@@ -42,6 +42,15 @@ public class TextPromptBuilder implements PromptBuilder {
 		textPrompt.setSkippable(skippable);
 		textPrompt.setSkipLabel(skipLabel);
 		textPrompt.setProperties(properties);
+		
+		for (KVLTriplet property : properties) {
+			if (property.key.equals("min")) {
+				textPrompt.setMinLength(Integer.parseInt(property.label));
+			} else if (property.key.equals("max")) {
+				textPrompt.setMaxLength(Integer.parseInt(property.label));
+			}
+		}
+		
 		textPrompt.clearTypeSpecificResponseData();
 		
 	}
