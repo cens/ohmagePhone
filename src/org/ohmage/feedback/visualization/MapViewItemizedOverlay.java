@@ -3,12 +3,15 @@ package org.ohmage.feedback.visualization;
 import java.util.ArrayList;
 
 import org.ohmage.R;
+import org.ohmage.activity.FeedbackMapViewActivity;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.maps.ItemizedOverlay;
@@ -16,7 +19,7 @@ import com.google.android.maps.OverlayItem;
 
 public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 
-	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
+	private ArrayList<FeedbackMapViewActivity.FeedbackMapOverlayItems> mOverlays = new ArrayList<FeedbackMapViewActivity.FeedbackMapOverlayItems>();
 	private Context mContext;
 	
 	public MapViewItemizedOverlay(Drawable defaultMarker){
@@ -28,13 +31,13 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		  mContext = context;
 	}
 
-	public void addOverlay(OverlayItem overlay){
+	public void addOverlay(FeedbackMapViewActivity.FeedbackMapOverlayItems overlay){
 		mOverlays.add(overlay);
 		populate();
 	}
 	
 	@Override
-	protected OverlayItem createItem(int i) {
+	protected FeedbackMapViewActivity.FeedbackMapOverlayItems createItem(int i) {
 		return mOverlays.get(i);
 	}
 
@@ -45,7 +48,7 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	@Override
 	protected boolean onTap(int index){
-		OverlayItem item = mOverlays.get(index);
+		FeedbackMapViewActivity.FeedbackMapOverlayItems item = mOverlays.get(index);
 		//AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
 		final Dialog responseDialog = new Dialog(mContext);
 		
@@ -54,8 +57,12 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		
 		
 		//TODO Add image if there image files
-		//ImageView image = (ImageView)responseDialog.findViewById(R.id.mapview_dialog_image);
-		//image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.apple_logo));
+		Bitmap img = item.getImage();
+		if(img != null){
+			ImageView image = (ImageView)responseDialog.findViewById(R.id.mapview_dialog_image);		
+			//image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.apple_logo));
+			image.setImageBitmap(img);
+		}
 		
 		TextView text = (TextView)responseDialog.findViewById(R.id.mapview_dialog_text);
 		text.setText(item.getSnippet());

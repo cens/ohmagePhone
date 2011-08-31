@@ -8,10 +8,14 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ohmage.CampaignXmlHelper;
+import org.ohmage.OhmageApi;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.OhmageApi.ImageReadResponse;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.prompt.AbstractPrompt;
@@ -31,6 +35,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
@@ -147,6 +153,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 	
 	private void addNewItemToMap(int lat, int lon, String title, String jsonResponse){
 		GeoPoint point = new GeoPoint(lat, lon);
+		String photoUUID = null;
 		
 		//Build propt text
 		String resultResponse = "";
@@ -159,14 +166,43 @@ public class FeedbackMapViewActivity extends MapActivity {
 				String value = jobjectResponse.get("value").toString();
 				resultResponse += getPromptLabel(promptId)+ "\n";
 				resultResponse += "   :" + getPropertiesLabel(promptId, value) + "\n";
+				if(isPhotoPrompt(promptId)==true){
+					photoUUID = value;
+				}
 			}
 		}
 		catch(Exception e){
 			resultResponse = jsonResponse;
 		}
 		
-		OverlayItem overlayitem = new OverlayItem(point, title, resultResponse);
+		Bitmap img = null;
+		if(photoUUID != null){
+			OhmageApi api = new OhmageApi(this);
+			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+			String username = prefs.getUsername();
+			String hashedPassword = prefs.getHashedPassword();		
+			ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaignUrn, username, photoUUID, null);
+			byte[] imgByte = ir.getData();
+			if(imgByte!=null){
+				img = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);	
+			}
+		} 
+		
+		FeedbackMapOverlayItems overlayitem = new FeedbackMapOverlayItems(point, title, resultResponse, img);
 		itemizedoverlay.addOverlay(overlayitem);
+	}	
+	
+	private boolean isPhotoPrompt(String promptId){
+		Iterator<Prompt> ite = mPrompts.iterator();
+		while(ite.hasNext()){
+			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();
+			if(promptId.equals(allPromptList.getId())){
+				if(allPromptList instanceof PhotoPrompt){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private String getPropertiesLabel(String promptId, String value){
@@ -249,7 +285,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 				} 
 				else if(allPromptList instanceof PhotoPrompt){
 					PhotoPrompt prompt = (PhotoPrompt)allPromptList;
-					//TODO Add a feature to display Photo
+					//TODO Add a feature to display Photo 
 					return "";
 				} 
 				else if(allPromptList instanceof RemoteActivityPrompt){
@@ -293,6 +329,17 @@ public class FeedbackMapViewActivity extends MapActivity {
 		return false;
 	}
 	
+	public class FeedbackMapOverlayItems extends OverlayItem{
+		Bitmap mImage;
+		public FeedbackMapOverlayItems(GeoPoint point, String title, String snippet, Bitmap img){
+			super(point, title, snippet);
+			mImage = img;
+		}
+		
+		public Bitmap getImage(){
+			return mImage;
+		}
+	}
 	
 	//Class to store responses
 	private class Responses{
