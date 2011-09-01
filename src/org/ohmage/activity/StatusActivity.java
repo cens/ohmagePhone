@@ -395,10 +395,13 @@ public class StatusActivity extends Activity {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-//					((OhmageApplication)getApplication()).resetAll();
-//					setResult(125);
-//					finish();
-					showDialog(DIALOG_CLEAR_USER_PINCODE);
+					if (SharedPreferencesHelper.REQUIRE_PIN_ON_CLEAR_USER) {
+						showDialog(DIALOG_CLEAR_USER_PINCODE);
+					} else {
+						((OhmageApplication)getApplication()).resetAll();
+						setResult(125);
+						finish();
+					}
 				}
 
 			});
