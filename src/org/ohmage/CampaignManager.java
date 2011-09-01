@@ -18,6 +18,7 @@ package org.ohmage;
 import java.io.File;
 
 import org.ohmage.db.DbHelper;
+import org.ohmage.feedback.FeedbackService;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -56,6 +57,21 @@ public class CampaignManager {
 			imageDir.delete();
 		} else {
 			Log.e(TAG, PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_') + " does not exist.");
+		}
+		
+		// remove image cache as well
+		File imageCacheDir = new File(FeedbackService.IMAGE_CACHE_PATH + "/" + urn.replace(':', '_'));
+		if (imageCacheDir.exists()) {
+			File [] files = imageCacheDir.listFiles();
+			
+			if (files != null) {
+				for (int i = 0; i < files.length; i++)
+					files[i].delete();
+			}
+			
+			imageCacheDir.delete();
+		} else {
+			Log.e(TAG, imageCacheDir.toString() + " does not exist.");
 		}
 		
 		//clear custom type dbs
