@@ -1,5 +1,6 @@
 package org.ohmage.activity;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,6 +18,7 @@ import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
+import org.ohmage.feedback.FeedbackService;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
@@ -114,8 +116,9 @@ public class FeedbackMapViewActivity extends MapActivity {
 	    	String latitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
 	    	String longitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
 	    	String response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
+	    	String date = cursor.getString(cursor.getColumnIndex(Response.DATE));
 	    	
-	    	listResponses.add(new Responses(hashcode, locationStatus, latitude, longitude, response));	    	
+	    	listResponses.add(new Responses(hashcode, locationStatus, latitude, longitude, response, date));	    	
 	    }
 	    cursor.close();
 	    
@@ -129,7 +132,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 	    
 	    for(Responses i : listResponses){
 	    	if(i.getLocationStatus().equalsIgnoreCase("valid")){
-	    		addNewItemToMap(i.getLatitude(), i.getLongitude(), "Response", i.getResponses());
+	    		addNewItemToMap(i.getLatitude(), i.getLongitude(), "Response from "+ i.getDate().substring(5, i.getDate().length()), i.getResponses());
 	    	}
 	    }
 	    if(itemizedoverlay.size() > 0){
@@ -176,16 +179,12 @@ public class FeedbackMapViewActivity extends MapActivity {
 		}
 		
 		Bitmap img = null;
-		if(photoUUID != null){
-			OhmageApi api = new OhmageApi(this);
-			SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-			String username = prefs.getUsername();
-			String hashedPassword = prefs.getHashedPassword();		
-			ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaignUrn, username, photoUUID, null);
-			byte[] imgByte = ir.getData();
-			if(imgByte!=null){
-				img = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);	
-			}
+		if(photoUUID != null
+				&& !photoUUID.equalsIgnoreCase("NOT_DISPLAYED")
+				&& FeedbackService.ensurePhotoExists(this, mCampaignUrn, photoUUID)){
+			File photoDir = new File(PhotoPrompt.IMAGE_PATH + "_cache/" + mCampaignUrn.replace(':', '_'));
+			File photo = new File(photoDir, photoUUID + ".png");
+			img = BitmapFactory.decodeFile(photo.getAbsolutePath());
 		} 
 		
 		FeedbackMapOverlayItems overlayitem = new FeedbackMapOverlayItems(point, title, resultResponse, img);
@@ -333,7 +332,9 @@ public class FeedbackMapViewActivity extends MapActivity {
 		Bitmap mImage;
 		public FeedbackMapOverlayItems(GeoPoint point, String title, String snippet, Bitmap img){
 			super(point, title, snippet);
-			mImage = img;
+			if(img != null){
+				mImage = Bitmap.createBitmap(img);
+			}
 		}
 		
 		public Bitmap getImage(){
@@ -346,14 +347,17 @@ public class FeedbackMapViewActivity extends MapActivity {
 		private String mHashcode; 
 		private String mLocation_status;
 		private String mResponses;
+		private String mDate;
 		
 		//latitude and longitude are multuplied by 1e6
 		private int mLocation_latitude;
 		private int mLocation_longitude;
 		
-		public Responses(String hashcode, String locationStatus, String latitude, String longitude, String responses){
+		public Responses(String hashcode, String locationStatus, String latitude, String longitude, String responses
+				, String date){
 			this.mHashcode = hashcode;
 			this.mLocation_status = locationStatus;
+			this.mDate = date;
 			
 			if(mLocation_status.equalsIgnoreCase("valid")){
 				this.mLocation_latitude = locationStringToInteger(latitude);
@@ -366,6 +370,10 @@ public class FeedbackMapViewActivity extends MapActivity {
 			//Multiplies coordinates by 1e6 and return it 
 			double dblCoordinate = Double.valueOf(strCoordinate).doubleValue();
 			return (int)(dblCoordinate*1e6);
+		}
+		
+		public String getDate(){
+			return mDate;
 		}
 		
 		public String getHashcode(){

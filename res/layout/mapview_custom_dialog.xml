@@ -9,25 +9,30 @@
 	  android:orientation="vertical"
 	  android:layout_width="fill_parent"
 	  android:layout_height="fill_parent"
-	  android:padding="10dp">
+	  android:padding="3dp"
+	  android:background="#FFFFFF">
 	  <ImageView 
 	  android:id="@+id/mapview_dialog_image"
+	  android:layout_marginTop="4dp"
 	  android:layout_width="fill_parent"
-	  android:layout_height="wrap_content"
-	  android:layout_marginRight="10dp"
+	  android:layout_height="150dp"
+	  android:visibility="gone"
 	  />
 	  <TextView
 	  android:id="@+id/mapview_dialog_text"
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
-	  android:textColor="#FFF"
-	  android:layout_marginBottom="10dp"
+	  android:textColor="@android:color/black"
+	  android:layout_marginTop="5dp"
+	  android:layout_marginBottom="3dp"
+	  android:layout_marginLeft="6dp"
 	  />
 	  <Button
 	  android:id="@+id/mapview_dialog_button"
 	  android:layout_width="fill_parent"
-	  android:layout_height="wrap_content"
-	  android:textColor="#FFF"
+	  android:layout_height="30dp"
+	  android:background="@android:color/darker_gray"
+	  android:textColor="@android:color/white"
 	  android:text="Close"
 	  />
 	</LinearLayout>
