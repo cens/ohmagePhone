@@ -32,6 +32,8 @@ import edu.ucla.cens.systemlog.Log;
 public class FeedbackService extends WakefulIntentService {
 	private static final String TAG = "FeedbackService";
 	private static final int MAX_RESPONSES_PER_SURVEY = 20;
+	
+	public static final String IMAGE_CACHE_PATH = "/sdcard/aw_images_cache";
 
 	public FeedbackService() {
 		super(TAG);
@@ -341,46 +343,44 @@ public class FeedbackService extends WakefulIntentService {
 			// === 3b. download image data mentioned in responses
 			// ==================================================================
 			
+			// get the image cache directory for this campaign and ensure it exists
+			File photoDir = new File(IMAGE_CACHE_PATH + "/" + c.mUrn.replace(':', '_'));
+			photoDir.mkdirs();
+			
 			// now that we're done inserting all that data from the server
 			// let's see if we already have all the photos that were mentioned in the responses
-			if (photoUUIDs.size() > 0) {
-				// get the image directory for this campaign and ensure it exists
-				File photoDir = new File(PhotoPrompt.IMAGE_PATH + "_cache/" + c.mUrn.replace(':', '_'));
-				photoDir.mkdirs();
+			for (String photoUUID : photoUUIDs) {
+				// check if it doesn't already exist in our photos directory
+				// FIXME: figure out how to tell if it's a jpg or a png!
+				// we only seem to be able to do that after we do the call :\
+				File photo = new File(photoDir, photoUUID + ".png");
 				
-				for (String photoUUID : photoUUIDs) {
-					// check if it doesn't already exist in our photos directory
-					// FIXME: figure out how to tell if it's a jpg or a png!
-					// we only seem to be able to do that after we do the call :\
-					File photo = new File(photoDir, photoUUID + ".png");
-					
-					Log.v(TAG, "Checking photo w/UUID " + photoUUID + "...");
-					
-					if (!photo.exists()) {
-						// it doesn't exist, so we have to download it :(
-						ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, "small");
-					
-						// if it succeeded, it contains data that we should save as the photo file above
-						try {
-							if (ir != null && ir.getResult() == Result.SUCCESS) {
-								photo.createNewFile();
-								FileOutputStream photoWriter = new FileOutputStream(photo);
-								photoWriter.write(ir.getData());
-								photoWriter.close();
-								
-								Log.v(TAG, "Downloaded photo w/UUID " + photoUUID);
-							}
-							else
-								Log.e(TAG, "Unable to save photo w/UUID " + photoUUID + ": " + ir.getResult().toString());
+				Log.v(TAG, "Checking photo w/UUID " + photoUUID + "...");
+				
+				if (!photo.exists()) {
+					// it doesn't exist, so we have to download it :(
+					ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, "small");
+				
+					// if it succeeded, it contains data that we should save as the photo file above
+					try {
+						if (ir != null && ir.getResult() == Result.SUCCESS) {
+							photo.createNewFile();
+							FileOutputStream photoWriter = new FileOutputStream(photo);
+							photoWriter.write(ir.getData());
+							photoWriter.close();
+							
+							Log.v(TAG, "Downloaded photo w/UUID " + photoUUID);
 						}
-						catch (IOException e) {
-							Log.e(TAG, "Unable to save photo w/UUID " + photoUUID, e);
-							return;
-						}	
+						else
+							Log.e(TAG, "Unable to save photo w/UUID " + photoUUID + ": " + ir.getResult().toString());
 					}
-					else
-						Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
+					catch (IOException e) {
+						Log.e(TAG, "Unable to save photo w/UUID " + photoUUID, e);
+						return;
+					}	
 				}
+				else
+					Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
 			}
 			
 			// done with this campaign! on to the next one...

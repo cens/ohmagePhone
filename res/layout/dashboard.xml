@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<org.ohmage.controls.ActionBarControl
+		android:id="@+id/action_bar"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1" android:padding="8dip">
+
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+			<Button style="@style/HomeButton" android:drawableTop="@drawable/campaigns"
+				android:text="Campaigns" />
+
+			<Button style="@style/HomeButton" android:drawableTop="@drawable/surveys"
+				android:text="Surveys" />
+		</LinearLayout>
+
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+			<Button style="@style/HomeButton" android:drawableTop="@drawable/feedback"
+				android:text="Feedback" />
+
+			<Button style="@style/HomeButton" android:drawableTop="@drawable/status"
+				android:text="Status" />
+		</LinearLayout>
+
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+			<Button style="@style/HomeButton" android:drawableTop="@drawable/profile"
+				android:text="Profile" />
+
+			<Button style="@style/HomeButton" android:drawableTop="@drawable/settings"
+				android:text="Settings" />
+		</LinearLayout>
+	</LinearLayout>
+
+</LinearLayout>

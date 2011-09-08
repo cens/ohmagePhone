@@ -292,20 +292,6 @@ public class SurveyListAdapter extends BaseAdapter {
 					holder.lastTakenTimeText.setText(relativeTime);
 				}
 			}
-			
-			holder.feedbackButton.setOnClickListener(new Button.OnClickListener(){
-				public void onClick(View v){
-					Survey survey = (Survey)getItem(pos);
-					//Intent intent = new Intent(mContext, PromptListActivity.class);
-					Intent intent = new Intent(mContext, FeedbackMenuActivity.class);
-					intent.putExtra("campaign_urn", mCampaignUrn);
-					intent.putExtra("survey_id", survey.getId());
-					intent.putExtra("survey_title", survey.getTitle());
-					intent.putExtra("survey_submit_text", survey.getSubmitText());
-					mContext.startActivity(intent);	
-				}
-			});
-			
 		} else {
 			HeaderViewHolder holder;
 			
