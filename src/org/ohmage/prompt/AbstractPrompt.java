@@ -16,7 +16,9 @@
 package org.ohmage.prompt;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.KVLTriplet;
@@ -260,5 +262,89 @@ public abstract class AbstractPrompt implements Prompt {
 
 		builder.build(prompt, mId, mDisplayType, mDisplayLabel, mPromptText, mAbbreviatedText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
 		return prompt;
+	}
+	
+	public static String getDisplayValue(AbstractPrompt allPromptList, String value) {
+		if(allPromptList instanceof SingleChoicePrompt){
+			SingleChoicePrompt prompt = (SingleChoicePrompt)allPromptList;
+			List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
+			for(KVLTriplet i : choiceKVLTriplet){
+				if(i.key.equals(value)){
+					return i.label;
+				}
+			}
+		} 
+		else if(allPromptList instanceof SingleChoiceCustomPrompt){
+			SingleChoiceCustomPrompt prompt = (SingleChoiceCustomPrompt)allPromptList;
+			List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
+			for(KVLTriplet i : choiceKVLTriplet){
+				if(i.key.equals(value)){
+					return i.label;
+				}
+			}
+		} 
+		else if(allPromptList instanceof MultiChoicePrompt){
+			MultiChoicePrompt prompt = (MultiChoicePrompt)allPromptList;
+			List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
+			String result = "";
+			try{
+				JSONArray jsonValue = new JSONArray(value);
+				for(int k=0; k<jsonValue.length(); k++){
+					String answer = jsonValue.get(k).toString(); 
+					for(KVLTriplet i : choiceKVLTriplet){
+						if(i.key.equals(answer)){
+							result += i.label + "  ";
+						}
+					}
+				}
+			}
+			catch(Exception e){
+				result = value;
+			}
+			return result;
+		} 
+		else if(allPromptList instanceof MultiChoiceCustomPrompt){
+			MultiChoiceCustomPrompt prompt = (MultiChoiceCustomPrompt)allPromptList;
+			List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
+			String result = "";
+			try{
+				JSONArray jsonValue = new JSONArray(value);
+				for(int k=0; k<jsonValue.length(); k++){
+					String answer = jsonValue.get(k).toString(); 
+					for(KVLTriplet i : choiceKVLTriplet){
+						if(i.key.equals(answer)){
+							result += i.label + "  ";
+						}
+					}
+				}
+			}
+			catch(Exception e){
+				result = value;
+			}
+			return result;
+		} 
+		else if(allPromptList instanceof NumberPrompt){
+			NumberPrompt prompt = (NumberPrompt)allPromptList;
+			return String.valueOf(prompt.getValue());
+		} 
+		else if(allPromptList instanceof HoursBeforeNowPrompt){
+			HoursBeforeNowPrompt prompt = (HoursBeforeNowPrompt)allPromptList;
+			return String.valueOf(prompt.getValue());
+		} 
+		else if(allPromptList instanceof TextPrompt){
+			//TextPrompt prompt = (TextPrompt)allPromptList;
+			return value;
+		} 
+		else if(allPromptList instanceof PhotoPrompt){
+			PhotoPrompt prompt = (PhotoPrompt)allPromptList;
+			//TODO Add a feature to display Photo
+			return "";
+		} 
+		else if(allPromptList instanceof RemoteActivityPrompt){
+			RemoteActivityPrompt prompt = (RemoteActivityPrompt)allPromptList;
+			//TODO Add a feature to handle remote activity prompt
+			return value;
+		}
+		return value;
 	}
 }
