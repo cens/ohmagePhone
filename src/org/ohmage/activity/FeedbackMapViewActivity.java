@@ -9,28 +9,15 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ohmage.CampaignXmlHelper;
-import org.ohmage.OhmageApi;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.ImageReadResponse;
-import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.feedback.FeedbackService;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
-import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
-import org.ohmage.prompt.multichoice.MultiChoicePrompt;
-import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
-import org.ohmage.prompt.number.NumberPrompt;
 import org.ohmage.prompt.photo.PhotoPrompt;
-import org.ohmage.prompt.remoteactivity.RemoteActivityPrompt;
-import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
-import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
-import org.ohmage.prompt.text.TextPrompt;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
@@ -211,87 +198,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();
 			
 			if(promptId.equals(allPromptList.getId())){
-				
-				if(allPromptList instanceof SingleChoicePrompt){
-					SingleChoicePrompt prompt = (SingleChoicePrompt)allPromptList;
-					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
-					for(KVLTriplet i : choiceKVLTriplet){
-						if(i.key.equals(value)){
-							return i.label;
-						}
-					}
-				} 
-				else if(allPromptList instanceof SingleChoiceCustomPrompt){
-					SingleChoiceCustomPrompt prompt = (SingleChoiceCustomPrompt)allPromptList;
-					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
-					for(KVLTriplet i : choiceKVLTriplet){
-						if(i.key.equals(value)){
-							return i.label;
-						}
-					}
-				} 
-				else if(allPromptList instanceof MultiChoicePrompt){
-					MultiChoicePrompt prompt = (MultiChoicePrompt)allPromptList;
-					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
-					String result = "";
-					try{
-						JSONArray jsonValue = new JSONArray(value);
-						for(int k=0; k<jsonValue.length(); k++){
-							String answer = jsonValue.get(k).toString(); 
-							for(KVLTriplet i : choiceKVLTriplet){
-								if(i.key.equals(answer)){
-									result += i.label + "  ";
-								}
-							}
-						}
-					}
-					catch(Exception e){
-						result = value;
-					}
-					return result;
-				} 
-				else if(allPromptList instanceof MultiChoiceCustomPrompt){
-					MultiChoiceCustomPrompt prompt = (MultiChoiceCustomPrompt)allPromptList;
-					List<KVLTriplet> choiceKVLTriplet = prompt.getChoices();
-					String result = "";
-					try{
-						JSONArray jsonValue = new JSONArray(value);
-						for(int k=0; k<jsonValue.length(); k++){
-							String answer = jsonValue.get(k).toString(); 
-							for(KVLTriplet i : choiceKVLTriplet){
-								if(i.key.equals(answer)){
-									result += i.label + "  ";
-								}
-							}
-						}
-					}
-					catch(Exception e){
-						result = value;
-					}
-					return result;
-				} 
-				else if(allPromptList instanceof NumberPrompt){
-					NumberPrompt prompt = (NumberPrompt)allPromptList;
-					return String.valueOf(prompt.getValue());
-				} 
-				else if(allPromptList instanceof HoursBeforeNowPrompt){
-					HoursBeforeNowPrompt prompt = (HoursBeforeNowPrompt)allPromptList;
-					return String.valueOf(prompt.getValue());
-				} 
-				else if(allPromptList instanceof TextPrompt){
-					//TextPrompt prompt = (TextPrompt)allPromptList;
-					return value;
-				} 
-				else if(allPromptList instanceof PhotoPrompt){
-					PhotoPrompt prompt = (PhotoPrompt)allPromptList;
-					//TODO Add a feature to display Photo 
-					return "";
-				} 
-				else if(allPromptList instanceof RemoteActivityPrompt){
-					RemoteActivityPrompt prompt = (RemoteActivityPrompt)allPromptList;
-					//TODO Add a feature to handle remote activity prompt
-					return value;
-				}
+				return AbstractPrompt.getDisplayValue(allPromptList, value);
 			}
 		}
 		return value;
@@ -309,6 +216,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 		return searchedLable;
 	}
 	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
 		super.onCreateOptionsMenu(menu);
 		menu.add(0,1,0,"Map");
@@ -316,6 +224,7 @@ public class FeedbackMapViewActivity extends MapActivity {
 		return true;
 	}
 	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch (item.getItemId()){
 		case 1:

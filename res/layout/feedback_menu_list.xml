@@ -15,5 +15,5 @@
 	android:paddingLeft="2dip"
 	android:paddingTop="2dip"
 	android:paddingBottom="3dip"
-	android:textColor="@drawable/darkgray"
+	android:textColor="@color/darkgray"
 />

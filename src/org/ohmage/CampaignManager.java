@@ -40,9 +40,6 @@ public class CampaignManager {
 		//remove campaign
 		dbHelper.removeCampaign(urn);
 		
-		//remove responses
-		dbHelper.removeResponseRows(urn);
-		
 		//remove images
 		File imageDir = new File(PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_'));
 		if (imageDir.exists()) {
