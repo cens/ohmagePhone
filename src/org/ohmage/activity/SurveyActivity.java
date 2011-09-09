@@ -846,7 +846,9 @@ public class SurveyActivity extends Activity {
 					});
 					
 					for (File f : files) {
-						f.renameTo(new File(PhotoPrompt.IMAGE_PATH + "/" + mCampaignUrn.replace(':', '_') + "/" + uuid + ".jpg"));;
+						f.renameTo(new File(PhotoPrompt.IMAGE_PATH + "/" + mCampaignUrn.replace(':', '_') + "/" + uuid + ".jpg"));
+						
+						// TODO: add thumbnail generation, oddly enough as a png
 					}
 				}
 			}
