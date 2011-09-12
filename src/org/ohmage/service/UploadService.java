@@ -40,6 +40,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.text.format.DateFormat;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -281,8 +282,14 @@ public class UploadService extends WakefulIntentService{
 			if (files != null) {
 				for (int i = 0; i < files.length; i++) {
 					if (files[i].getName().contains("temp")) {
-						Log.i(TAG, "Temporary image was discarded.");
-						files[i].delete();
+						Log.i(TAG, "Temp image found with last modified date of: " + DateFormat.format("MM/dd/yy h:mmaa (z)", files[i].lastModified()));
+						if (files[i].lastModified() < System.currentTimeMillis() - 24 * 60 * 60 * 1000) {
+							Log.i(TAG, "Temporary image was discarded.");
+							files[i].delete();
+						} else {
+							Log.i(TAG, "Temporary image found but not discarded due to being less than a day old.");
+						}
+						
 					} else {
 						OhmageApi.UploadResponse response = mApi.mediaUpload(serverUrl, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaign.mUrn, campaign.mCreationTimestamp, files[i].getName().split("\\.")[0], files[i]);
 						
