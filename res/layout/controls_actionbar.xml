@@ -6,11 +6,14 @@
 		android:contentDescription="@string/description_logo_home"
 		android:src="@drawable/dashboard_title_home"
 		android:visibility="gone" />
+	<ImageView style="@style/TitleBarSeparator"
+		android:id="@+id/HomeButtonSeparator"
+		android:visibility="gone" />
+	
 	<ImageView style="@style/TitleBarLogo"
 		android:contentDescription="@string/description_logo"
 		android:src="@drawable/dashboard_title_logo" />
 	
-	<ImageView style="@style/TitleBarSeparator" />
 	<TextView style="@style/TitleBarText" />
 	<ImageView style="@style/TitleBarSeparator" />
 

@@ -14,7 +14,7 @@ public class ActionBarControl extends LinearLayout {
 	public ActionBarControl(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
-		LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, 66);
+		LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, 50);
 		this.setLayoutParams(params);
 		this.setBackgroundResource(R.drawable.title_bkgnd);
 		

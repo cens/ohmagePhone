@@ -20,7 +20,7 @@
 	
     <application android:name="OhmageApplication" android:icon="@drawable/icon" android:label="@string/app_name">
     
-		<activity android:name=".activity.DashboardActivity" android:theme="@android:style/Theme.Light" android:label="@string/app_name"
+		<activity android:name=".activity.DashboardActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name"
 			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />

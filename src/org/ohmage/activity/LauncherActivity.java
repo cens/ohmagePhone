@@ -102,7 +102,7 @@ public class LauncherActivity extends Activity {
 					finish();
 				}
 			} else {
-				Intent intent = new Intent(this, CampaignListActivity.class);
+				Intent intent = new Intent(this, DashboardActivity.class);
 				startActivity(intent);
 				finish();
 			}
