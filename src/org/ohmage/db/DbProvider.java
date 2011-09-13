@@ -337,6 +337,15 @@ public class DbProvider extends ContentProvider {
 					.where(Response.SURVEY_ID + "=?", surveyID);
 			
 			// PROMPTS
+			case MatcherTypes.PROMPTS:
+				return builder.table(Tables.PROMPT_RESPONSES);
+				
+			case MatcherTypes.PROMPT_BY_PID:
+				promptID = uri.getPathSegments().get(1);
+				
+				return builder.table(Tables.PROMPT_RESPONSES)
+					.where(PromptResponse._ID + "=?", promptID);
+				
 			case MatcherTypes.RESPONSE_PROMPTS:
 				responseID = uri.getPathSegments().get(1);
 				
@@ -382,15 +391,6 @@ public class DbProvider extends ContentProvider {
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Response.SURVEY_ID + "=?", surveyID)
 					.where(Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID + "=?", promptID);
-				
-			case MatcherTypes.PROMPTS:
-				return builder.table(Tables.PROMPT_RESPONSES);
-				
-			case MatcherTypes.PROMPT_BY_PID:
-				promptID = uri.getPathSegments().get(1);
-				
-				return builder.table(Tables.PROMPT_RESPONSES)
-					.where(PromptResponse._ID + "=?", promptID);
 				
 			default:
 				throw new UnsupportedOperationException("buildSelection(): Unknown URI: " + uri);

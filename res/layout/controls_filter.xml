@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+	<Button
+		android:id="@+id/controls_filter_prev"
+		android:text="&lt;"
+		android:textSize="28dp"
+		android:textColor="@color/dkgray"
+		android:background="@drawable/calendar_button_selector"
+		android:layout_gravity="center_vertical"
+		android:layout_width="55dp"
+		android:layout_height="40dp"
+		/>
+	
+	<Button
+		android:id="@+id/controls_filter_current"
+		android:layout_weight="0.6"
+		android:textColor="@color/dkgray"
+		android:background="#FFFFFF"
+		android:textSize="20dp"
+		android:gravity="center"
+		android:layout_gravity="center_vertical"
+		android:layout_width="wrap_content"
+		android:layout_height="40dp"
+		/>
+	
+	<Button
+		android:id="@+id/controls_filter_next"
+		android:text="&gt;"
+		android:textSize="28dp"
+		android:textColor="@color/dkgray"
+		android:background="@drawable/calendar_button_selector"
+		android:layout_gravity="center_vertical"
+		android:layout_width="55dp"
+		android:layout_height="40dp"
+		/>
+</merge>

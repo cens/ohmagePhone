@@ -55,7 +55,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 7;
+	private static final int DB_VERSION = 9;
 	
 	interface Tables {
 		static final String RESPONSES = "responses";
@@ -101,6 +101,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEY_PROMPTS + " ("
 				+ SurveyPrompt._ID + " INTEGER PRIMARY KEY, "
+				+ SurveyPrompt.SURVEY_PID + " INTEGER, " // cascade delete from surveys
 				+ SurveyPrompt.SURVEY_ID + " TEXT, " // cascade delete from surveys
 				+ SurveyPrompt.PROMPT_ID + " TEXT, "
 				+ SurveyPrompt.PROMPT_TEXT + " TEXT, "
@@ -127,6 +128,11 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.SOURCE + " TEXT, "
 				+ Response.HASHCODE + " TEXT"
 				+ ");");
+		
+		// make campaign URN unique in the campaigns table
+		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS "
+				+ Campaign.URN + "_idx ON "
+				+ Tables.CAMPAIGNS + " (" + Campaign.URN + ");");
 		
 		// create a "flat" table of prompt responses so we can easily compute aggregates
 		// across multiple survey responses (and potentially prompts)
@@ -180,7 +186,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ "DELETE from " + Tables.SURVEY_PROMPTS
 				+ " WHERE " + SurveyPrompt._ID + " IN ("
 					+ " SELECT " + Tables.SURVEY_PROMPTS + "." + SurveyPrompt._ID + " FROM " + Tables.SURVEY_PROMPTS + " SP"
-					+ " INNER JOIN " + Tables.SURVEYS + " S ON S." + Survey.SURVEY_ID + "=SP." + SurveyPrompt.SURVEY_ID
+					+ " INNER JOIN " + Tables.SURVEYS + " S ON S." + Survey._ID + "=SP." + SurveyPrompt.SURVEY_PID
 					+ " WHERE S." + Survey.CAMPAIGN_URN + "=old." + Campaign.URN
 				+ "); "
 				
@@ -199,7 +205,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Tables.SURVEYS + "_cascade_del AFTER DELETE ON "
 				+ Tables.SURVEYS
 				+ " BEGIN "
-				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE " + SurveyPrompt.SURVEY_ID + "=old." + Survey.SURVEY_ID + "; "
+				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE " + SurveyPrompt.SURVEY_PID + "=old." + Survey._ID + "; "
 				+ "END;");
 		
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS "
@@ -641,7 +647,7 @@ public class DbHelper extends SQLiteOpenHelper {
 					}
 					else if (tagName.equalsIgnoreCase("prompt")) {
 						SurveyPrompt sp = new SurveyPrompt();
-						sp.mSurveyID = curSurvey.mSurveyID;
+						// FIXME: add the campaign + survey ID to make lookups easier?
 						prompts.add(sp);
 					}
 				}
@@ -678,11 +684,14 @@ public class DbHelper extends SQLiteOpenHelper {
 					
 					if (tagName.equalsIgnoreCase("survey")) {
 						// store the current survey to the database
-						db.insert(Tables.SURVEYS, null, curSurvey.toCV());
+						long surveyPID = db.insert(Tables.SURVEYS, null, curSurvey.toCV());
 						
 						// also store all the prompts we accumulated for it
-						for (SurveyPrompt sp : prompts)
+						for (SurveyPrompt sp : prompts) {
+							sp.mSurveyID = curSurvey.mSurveyID;
+							sp.mSurveyPID = surveyPID;
 							db.insert(Tables.SURVEY_PROMPTS, null, sp.toCV());
+						}
 						
 						// flush the prompts we've stored up so far
 						prompts.clear();

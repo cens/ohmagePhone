@@ -147,10 +147,12 @@ public class DbContract {
 				.build();
         }
 
-        public static Uri getSurveyByID(String id) {
+        public static Uri getSurveyByID(String campaignUrn, String surveyId) {
     		return BASE_CONTENT_URI.buildUpon()
+    			.appendPath("campaigns")
+    			.appendPath(campaignUrn)
 				.appendPath("surveys")
-				.appendPath(id)
+				.appendPath(surveyId)
 				.build();
         }
         
@@ -195,7 +197,6 @@ public class DbContract {
         public ContentValues toCV() {
         	ContentValues values = new ContentValues();
         	
-        	values.put(Survey._ID, _id);
         	values.put(Survey.SURVEY_ID, mSurveyID);
         	values.put(Survey.CAMPAIGN_URN, mCampaignUrn);
         	values.put(Survey.TITLE, mTitle);
@@ -210,6 +211,7 @@ public class DbContract {
 	 * Represents a prompt within a survey, again as extracted from the campaign XML.
 	 */
 	public static final class SurveyPrompt implements BaseColumns {
+		public static final String SURVEY_PID = "survey_pid";
 		public static final String SURVEY_ID = "survey_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_TEXT = "prompt_text";
@@ -218,6 +220,7 @@ public class DbContract {
 		// data fields here to support use of the Survey class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
 		public long _id;
+		public long mSurveyPID;
 		public String mSurveyID;
 		public String mPromptID;
 		public String mPromptText;
@@ -262,6 +265,7 @@ public class DbContract {
     			
     			SurveyPrompt temp = new SurveyPrompt();
     			temp._id = cursor.getLong(cursor.getColumnIndex(SurveyPrompt._ID));
+    			temp.mSurveyPID = cursor.getLong(cursor.getColumnIndex(SurveyPrompt.SURVEY_PID));
     			temp.mSurveyID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.SURVEY_ID));
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_ID));
     			temp.mPromptText = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TEXT));
@@ -279,7 +283,7 @@ public class DbContract {
         public ContentValues toCV() {
         	ContentValues values = new ContentValues();
         	
-        	values.put(SurveyPrompt._ID, _id);
+        	values.put(SurveyPrompt.SURVEY_PID, mSurveyPID);
         	values.put(SurveyPrompt.SURVEY_ID, mSurveyID);
         	values.put(SurveyPrompt.PROMPT_ID, mPromptID);
         	values.put(SurveyPrompt.PROMPT_TEXT, mPromptText);
@@ -573,5 +577,15 @@ public class DbContract {
     		
     		return prompts; 
     	}
+        
+        public ContentValues toCV() {
+        	ContentValues values = new ContentValues();
+        	
+        	values.put(PromptResponse.RESPONSE_ID, mResponseID);
+        	values.put(PromptResponse.PROMPT_ID, mPromptID);
+        	values.put(PromptResponse.PROMPT_VALUE, mValue);
+        	
+        	return values;
+        }
 	}
 }
