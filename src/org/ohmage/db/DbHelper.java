@@ -15,20 +15,31 @@
  ******************************************************************************/
 package org.ohmage.db;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
+import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.CampaignXmlHelper;
+import org.ohmage.PromptXmlParser;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.SurveyPrompt;
 import org.ohmage.service.SurveyGeotagService;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -36,6 +47,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Xml;
 import edu.ucla.cens.systemlog.Log;
 
 public class DbHelper extends SQLiteOpenHelper {
@@ -43,16 +55,22 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 5;
+	private static final int DB_VERSION = 7;
 	
 	interface Tables {
 		static final String RESPONSES = "responses";
 		static final String CAMPAIGNS = "campaigns";
-		static final String PROMPTS = "prompts";
+		static final String PROMPT_RESPONSES = "prompt_responses";
+		static final String SURVEYS = "surveys";
+		static final String SURVEY_PROMPTS = "survey_prompts";
 		
 		// joins declared here
+		String RESPONSES_JOIN_CAMPAIGNS = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
+				RESPONSES, CAMPAIGNS, Response.CAMPAIGN_URN, Campaign.URN);
 		String PROMPTS_JOIN_RESPONSES = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
-				PROMPTS, RESPONSES, PromptResponse.RESPONSE_ID, Response._ID);
+				PROMPT_RESPONSES, RESPONSES, PromptResponse.RESPONSE_ID, Response._ID);
+		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
+				SURVEY_PROMPTS, SURVEYS, SurveyPrompt.SURVEY_ID, Survey.SURVEY_ID);
 	}
 
 	public DbHelper(Context context) {
@@ -62,9 +80,36 @@ public class DbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 
-		db.execSQL("CREATE TABLE " + Tables.RESPONSES + " ("
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.CAMPAIGNS + " ("
+				+ Campaign._ID + " INTEGER PRIMARY KEY, "
+				+ Campaign.URN + " TEXT, "
+				+ Campaign.NAME + " TEXT, "
+				+ Campaign.DESCRIPTION + " TEXT, "
+				+ Campaign.CREATION_TIMESTAMP + " TEXT, "
+				+ Campaign.DOWNLOAD_TIMESTAMP + " TEXT, "
+				+ Campaign.CONFIGURATION_XML + " TEXT "
+				+ ");");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEYS + " ("
+				+ Survey._ID + " INTEGER PRIMARY KEY, "
+				+ Survey.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
+				+ Survey.SURVEY_ID + " TEXT, "
+				+ Survey.TITLE + " TEXT, "
+				+ Survey.DESCRIPTION + " TEXT, "
+				+ Survey.SUMMARY + " TEXT"
+				+ ");");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEY_PROMPTS + " ("
+				+ SurveyPrompt._ID + " INTEGER PRIMARY KEY, "
+				+ SurveyPrompt.SURVEY_ID + " TEXT, " // cascade delete from surveys
+				+ SurveyPrompt.PROMPT_ID + " TEXT, "
+				+ SurveyPrompt.PROMPT_TEXT + " TEXT, "
+				+ SurveyPrompt.PROMPT_TYPE + " TEXT"
+				+ ");");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.RESPONSES + " ("
 				+ Response._ID + " INTEGER PRIMARY KEY, "
-				+ Response.CAMPAIGN_URN + " TEXT, "
+				+ Response.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
 				+ Response.USERNAME + " TEXT, "
 				+ Response.DATE + " TEXT, "
 				+ Response.TIME + " INTEGER, "
@@ -83,17 +128,16 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.HASHCODE + " TEXT"
 				+ ");");
 		
-		db.execSQL("CREATE TABLE " + Tables.CAMPAIGNS + " ("
-				+ Campaign._ID + " INTEGER PRIMARY KEY, "
-				+ Campaign.URN + " TEXT, "
-				+ Campaign.NAME + " TEXT, "
-				+ Campaign.DESCRIPTION + " TEXT, "
-				+ Campaign.CREATION_TIMESTAMP + " TEXT, "
-				+ Campaign.DOWNLOAD_TIMESTAMP + " TEXT, "
-				+ Campaign.CONFIGURATION_XML + " TEXT "
+		// create a "flat" table of prompt responses so we can easily compute aggregates
+		// across multiple survey responses (and potentially prompts)
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.PROMPT_RESPONSES + " ("
+				+ PromptResponse._ID + " INTEGER PRIMARY KEY, "
+				+ PromptResponse.RESPONSE_ID + " INTEGER, " // cascade delete from responses
+				+ PromptResponse.PROMPT_ID + " TEXT, "
+				+ PromptResponse.PROMPT_VALUE + " TEXT"
 				+ ");");
 		
-		// index the campaign and survey ID columns, as we'll be selecting on them
+		// for responses, index the campaign and survey ID columns, as we'll be selecting on them
 		db.execSQL("CREATE INDEX IF NOT EXISTS "
 				+ Response.CAMPAIGN_URN + "_idx ON "
 				+ Tables.RESPONSES + " (" + Response.CAMPAIGN_URN + ");");
@@ -105,31 +149,65 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.TIME + "_idx ON "
 				+ Tables.RESPONSES + " (" + Response.TIME + ");");
 		
-		// finally, to prevent duplicates, add a unique key on the
+		//  for responses, to prevent duplicates, add a unique key on the
 		// 'hashcode' column, which is just a hash of the concatentation
 		// of the campaign urn + survey ID + username + time of the response,
 		// computed and maintained by us, unfortunately :\
 		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS "
-			+ Response.HASHCODE + "_idx ON "
-			+ Tables.RESPONSES + " (" + Response.HASHCODE + ");");
+				+ Response.HASHCODE + "_idx ON "
+				+ Tables.RESPONSES + " (" + Response.HASHCODE + ");");
 		
-		// create a "flat" table of prompt responses so we
-		// can easily compute aggregates across multiple
-		// survey responses (and potentially prompts)
-		// NOTE: be sure to delete all entries from this table
-		// whose "response_id" matches the Response._id column when
-		// deleting from the TABLE_RESPONSES table
-		db.execSQL("CREATE TABLE " + Tables.PROMPTS + " ("
-				+ PromptResponse._ID + " INTEGER PRIMARY KEY, "
-				+ PromptResponse.RESPONSE_ID + " INTEGER, " // foreign key to TABLE_RESPONSES
-				+ PromptResponse.PROMPT_ID + " TEXT, "
-				+ PromptResponse.PROMPT_VALUE + " TEXT"
-				+ ");");
-		
-		// and index on the response id for fast lookups
+		// for prompt values, index on the response id for fast lookups
 		db.execSQL("CREATE INDEX IF NOT EXISTS "
 				+ PromptResponse.RESPONSE_ID + "_idx ON "
-				+ Tables.PROMPTS + " (" + PromptResponse.RESPONSE_ID + ");");
+				+ Tables.PROMPT_RESPONSES + " (" + PromptResponse.RESPONSE_ID + ");");
+		
+		// --------
+		// --- set up the triggers to implement cascading deletes, too
+		// --------
+		
+		// annoyingly, sqlite 3.5.9 doesn't support recursive triggers.
+		// we must first disable them before running these statements,
+		// and each trigger has to delete everything associated w/the entity in question
+		db.execSQL("PRAGMA recursive_triggers = off");
+		
+		// delete everything associated with a campaign when it's removed
+		db.execSQL("CREATE TRIGGER IF NOT EXISTS "
+				+ Tables.CAMPAIGNS + "_cascade_del AFTER DELETE ON "
+				+ Tables.CAMPAIGNS
+				+ " BEGIN "
+				
+				+ "DELETE from " + Tables.SURVEY_PROMPTS
+				+ " WHERE " + SurveyPrompt._ID + " IN ("
+					+ " SELECT " + Tables.SURVEY_PROMPTS + "." + SurveyPrompt._ID + " FROM " + Tables.SURVEY_PROMPTS + " SP"
+					+ " INNER JOIN " + Tables.SURVEYS + " S ON S." + Survey.SURVEY_ID + "=SP." + SurveyPrompt.SURVEY_ID
+					+ " WHERE S." + Survey.CAMPAIGN_URN + "=old." + Campaign.URN
+				+ "); "
+				
+				+ "DELETE from " + Tables.PROMPT_RESPONSES
+				+ " WHERE " + PromptResponse._ID + " IN ("
+					+ " SELECT " + Tables.PROMPT_RESPONSES + "." + PromptResponse._ID + " FROM " + Tables.PROMPT_RESPONSES + " PR"
+					+ " INNER JOIN " + Tables.RESPONSES + " R ON R." + Response._ID + "=PR." + PromptResponse.RESPONSE_ID
+					+ " WHERE R." + Response.CAMPAIGN_URN + "=old." + Campaign.URN
+				+ "); "
+			
+				+ "DELETE from " + Tables.SURVEYS + " WHERE " + Survey.CAMPAIGN_URN + "=old." + Campaign.URN + "; "
+				+ "DELETE from " + Tables.RESPONSES + " WHERE " + Response.CAMPAIGN_URN + "=old." + Campaign.URN + "; "
+				+ "END;");
+		
+		db.execSQL("CREATE TRIGGER IF NOT EXISTS "
+				+ Tables.SURVEYS + "_cascade_del AFTER DELETE ON "
+				+ Tables.SURVEYS
+				+ " BEGIN "
+				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE " + SurveyPrompt.SURVEY_ID + "=old." + Survey.SURVEY_ID + "; "
+				+ "END;");
+		
+		db.execSQL("CREATE TRIGGER IF NOT EXISTS "
+				+ Tables.RESPONSES + "_cascade_del AFTER DELETE ON "
+				+ Tables.RESPONSES
+				+ " BEGIN "
+				+ "DELETE from " + Tables.PROMPT_RESPONSES + " WHERE " + PromptResponse.RESPONSE_ID + "=old." + Response._ID + "; "
+				+ "END;");
 	}
  
 	@Override
@@ -139,9 +217,11 @@ public class DbHelper extends SQLiteOpenHelper {
 	}
 	
 	public void clearAll(SQLiteDatabase db) {
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.RESPONSES);
-		db.execSQL("DROP TABLE IF EXISTS " + Tables.PROMPTS);
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.CAMPAIGNS);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.SURVEYS);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.SURVEY_PROMPTS);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.RESPONSES);
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.PROMPT_RESPONSES);
 		onCreate(db);
 	}
 	
@@ -155,7 +235,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	}
 	
 	// helper method that returns a hex-formatted string for some given input
-	private static String getSHA1Hash(String input) throws NoSuchAlgorithmException {
+	public static String getSHA1Hash(String input) throws NoSuchAlgorithmException {
 		Formatter formatter = new Formatter();
 		MessageDigest md = MessageDigest.getInstance("SHA1");
 		byte[] hash = md.digest(input.getBytes());
@@ -289,7 +369,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				promptValues.put(PromptResponse.PROMPT_ID, item.getString("prompt_id"));
 				promptValues.put(PromptResponse.PROMPT_VALUE, value);
 				
-				db.insert(Tables.PROMPTS, null, promptValues);
+				db.insert(Tables.PROMPT_RESPONSES, null, promptValues);
 			}
 			
 			// and we're done; finalize the transaction
@@ -377,16 +457,6 @@ public class DbHelper extends SQLiteOpenHelper {
 			return false;
 		}
 		
-		// clear the prompt responses for this campaign first
-		String query = "delete from " + Tables.PROMPTS +
-						" where " + PromptResponse._ID + " in (" +
-							" select " + Tables.PROMPTS + "." + PromptResponse._ID +
-							" from " + Tables.PROMPTS +
-							" inner join " + Tables.RESPONSES + " on " + Tables.RESPONSES + "." + Response._ID + "=" + Tables.PROMPTS + "." + PromptResponse.RESPONSE_ID +
-							" where " + Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "='" + campaignUrn + "'" +
-						")";
-		db.rawQuery(query, null);
-		
 		int count = db.delete(
 				Tables.RESPONSES,
 				Response.CAMPAIGN_URN + "='" + campaignUrn + "'",
@@ -411,26 +481,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		if (db == null) {
 			return -1;
 		}
-		
-		// clear the prompt responses for this campaign first
-		String query =	"delete from " + Tables.PROMPTS +
-						" where " + Tables.PROMPTS + "." + PromptResponse._ID + " in (" +
-							" select " + Tables.PROMPTS + "." + PromptResponse._ID +
-							" from " + Tables.PROMPTS +
-							" inner join " + Tables.RESPONSES + " on " + Tables.RESPONSES + "." + Response._ID + "=" + Tables.PROMPTS + "." + PromptResponse.RESPONSE_ID +
-							" where (" + Tables.RESPONSES + "." + Response.SOURCE + "='remote'" +
-							" or (" + Tables.RESPONSES + "." + Response.SOURCE + "='local' and " + Tables.RESPONSES + "." + Response.UPLOADED + "=1))";
-		
-		// add the campaign clause to the inner response select query if it's available
-		if (campaignUrn != null)
-			query += " and " + Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "='" + campaignUrn + "'";
-		
-		// and finally add the closing paren for the inner response select query
-		query += ")";
-		
-		db.rawQuery(query, null);
-		
-		// also build and execute the delete on the response table
+
+		// build and execute the delete on the response table
 		String whereClause = "(" + Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1))";
 		
 		if (campaignUrn != null)
@@ -458,10 +510,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		return removeStaleResponseRows(null);
 	}
 	
-	public void getResponseRow() {
-		
-	}
-	
 	public List<Response> getSurveyResponses(String campaignUrn) {
 		
 		SQLiteDatabase db = getReadableDatabase();
@@ -475,7 +523,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				Response.SOURCE + "='local' AND " +
 				Response.UPLOADED + "=0", null, null, null, null);
 		
-		List<Response> responses = readResponseRows(cursor); 
+		List<Response> responses = Response.fromCursor(cursor); 
 			
 		db.close();
 		
@@ -504,50 +552,11 @@ public class DbHelper extends SQLiteOpenHelper {
 				Response.SOURCE + "='local' AND " +
 				Response.UPLOADED + "=0", null, null, null, null);
 		
-		List<Response> responses = readResponseRows(cursor); 
+		List<Response> responses = Response.fromCursor(cursor); 
 		
 		db.close();
 		
 		return responses;
-	}
-	
-	private List<Response> readResponseRows(Cursor cursor) {
-		
-		ArrayList<Response> responses = new ArrayList<Response>();
-		
-		cursor.moveToFirst();
-		
-		for (int i = 0; i < cursor.getCount(); i++) {
-			
-			Response r = new Response();
-			r._id = cursor.getLong(cursor.getColumnIndex(Response._ID));
-			r.campaignUrn = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN));
-			r.username = cursor.getString(cursor.getColumnIndex(Response.USERNAME));
-			r.date = cursor.getString(cursor.getColumnIndex(Response.DATE));
-			r.time = cursor.getLong(cursor.getColumnIndex(Response.TIME));
-			r.timezone = cursor.getString(cursor.getColumnIndex(Response.TIMEZONE));
-			r.locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
-			if (! r.locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
-				
-				r.locationLatitude = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
-				r.locationLongitude = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
-				r.locationProvider = cursor.getString(cursor.getColumnIndex(Response.LOCATION_PROVIDER));
-				r.locationAccuracy = cursor.getFloat(cursor.getColumnIndex(Response.LOCATION_ACCURACY));
-				r.locationTime = cursor.getLong(cursor.getColumnIndex(Response.LOCATION_TIME));
-			}
-			r.surveyId = cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID));
-			r.surveyLaunchContext = cursor.getString(cursor.getColumnIndex(Response.SURVEY_LAUNCH_CONTEXT));
-			r.response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
-			r.source = cursor.getString(cursor.getColumnIndex(Response.SOURCE));
-			r.uploaded = cursor.getInt(cursor.getColumnIndex(Response.UPLOADED));
-			responses.add(r);
-			
-			cursor.moveToNext();
-		}
-		
-		cursor.close();
-		
-		return responses; 
 	}
 
 	public int updateRecentRowLocations(String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime) {
@@ -585,34 +594,128 @@ public class DbHelper extends SQLiteOpenHelper {
 			return -1;
 		}
 		
-		ContentValues values = new ContentValues();
-		values.put(Campaign.URN, campaignUrn);
-		values.put(Campaign.NAME, campaignName);
-		values.put(Campaign.DESCRIPTION, campaignDescription);
-		values.put(Campaign.CREATION_TIMESTAMP, creationTimestamp);
-		values.put(Campaign.DOWNLOAD_TIMESTAMP, downloadTimestamp);
-		values.put(Campaign.CONFIGURATION_XML, configurationXml);
-		
-		long rowId = db.insert(Tables.CAMPAIGNS, null, values);
-		
-		db.close();
-		
-		return rowId;
-	}
-	
-	public boolean removeCampaign(long _id) {
-		
-		SQLiteDatabase db = getWritableDatabase();
-		
-		if (db == null) {
-			return false;
+		long rowId = -1; // the row ID for the campaign that we'll eventually be returning
+				
+		try {
+			// start the transaction that will include inserting the campaign + surveys + survey prompts
+			db.beginTransaction();
+			
+			// construct data that we're going to insert for the campaign
+			ContentValues values = new ContentValues();
+			values.put(Campaign.URN, campaignUrn);
+			values.put(Campaign.NAME, campaignName);
+			values.put(Campaign.DESCRIPTION, campaignDescription);
+			values.put(Campaign.CREATION_TIMESTAMP, creationTimestamp);
+			values.put(Campaign.DOWNLOAD_TIMESTAMP, downloadTimestamp);
+			values.put(Campaign.CONFIGURATION_XML, configurationXml);
+			
+			// actually insert the campaign
+			rowId = db.insert(Tables.CAMPAIGNS, null, values);
+			
+			// do a pass over the XML to gather surveys and survey prompts
+			// List<org.ohmage.Survey> surveys = PromptXmlParser.parseSurveys(new ByteArrayInputStream(configurationXml.getBytes("UTF-8")));
+
+			XmlPullParser xpp = Xml.newPullParser();
+			xpp.setInput(new ByteArrayInputStream(configurationXml.getBytes("UTF-8")), "UTF-8");
+			int eventType = xpp.getEventType();
+			String tagName;
+			
+			// various stacks to maintain state while walking through the xml tree
+			Stack<String> tagStack = new Stack<String>();
+			Survey curSurvey = null; // valid only within a survey, null otherwise
+			Vector<SurveyPrompt> prompts = new Vector<SurveyPrompt>(); // valid only within a survey, empty otherwise
+
+			// iterate through the xml, paying attention only to surveys and prompts
+			// note that this does no validation outside of preventing itself from crashing catastrophically
+			while (eventType != XmlPullParser.END_DOCUMENT) {
+				if (eventType == XmlPullParser.START_TAG) {
+					tagName = xpp.getName();
+					tagStack.push(tagName);
+					
+					if (tagName.equalsIgnoreCase("survey")) {
+						if (curSurvey != null)
+							throw new XmlPullParserException("encountered a survey tag inside another survey tag");
+						
+						curSurvey = new Survey();
+						curSurvey.mCampaignUrn = campaignUrn;
+					}
+					else if (tagName.equalsIgnoreCase("prompt")) {
+						SurveyPrompt sp = new SurveyPrompt();
+						sp.mSurveyID = curSurvey.mSurveyID;
+						prompts.add(sp);
+					}
+				}
+				else if (eventType == XmlPullParser.TEXT) {
+					if (tagStack.size() >= 2) {
+						// we may be in an entity>property situation, so check and assign accordingly
+						if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("survey")) {				
+							// populating the current survey object with its properties here
+							if (tagStack.peek().equalsIgnoreCase("id"))
+								curSurvey.mSurveyID = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("title"))
+								curSurvey.mTitle = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("description"))
+								curSurvey.mDescription = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("summaryText"))
+								curSurvey.mSummary = xpp.getText();
+						}
+						else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("prompt")) {
+							SurveyPrompt sp = prompts.lastElement();
+							
+							// populating the last encountered survey prompt with its properties here
+							if (tagStack.peek().equalsIgnoreCase("id"))
+								sp.mPromptID = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("promptText"))
+								sp.mPromptText = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("promptType"))
+								sp.mPromptType = xpp.getText();
+						}
+					}
+				}
+				else if (eventType == XmlPullParser.END_TAG) {
+					tagName = xpp.getName();
+					tagStack.pop();
+					
+					if (tagName.equalsIgnoreCase("survey")) {
+						// store the current survey to the database
+						db.insert(Tables.SURVEYS, null, curSurvey.toCV());
+						
+						// also store all the prompts we accumulated for it
+						for (SurveyPrompt sp : prompts)
+							db.insert(Tables.SURVEY_PROMPTS, null, sp.toCV());
+						
+						// flush the prompts we've stored up so far
+						prompts.clear();
+						
+						// and clear us from being in any survey
+						curSurvey = null;
+					}
+				}
+				
+				eventType = xpp.next();
+			}
+			
+			// i think we're done at this point; close the transaction, etc.
+			db.setTransactionSuccessful();
 		}
-		
-		int count = db.delete(Tables.CAMPAIGNS, Campaign._ID + "=" + _id, null);
-		
-		db.close();
-		
-		return count > 0;
+		catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (XmlPullParserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+
+		return rowId;
 	}
 	
 	public boolean removeCampaign(String urn) {
@@ -630,34 +733,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		return count > 0;
 	}
 	
-	public Campaign getCampaign(long _id) {
-		
-		SQLiteDatabase db = getReadableDatabase();
-		
-		if (db == null) {
-			return null;
-		}
-		
-		Cursor cursor = db.query(Tables.CAMPAIGNS, null, Campaign._ID + "=" + _id, null, null, null, null);
-		
-		cursor.moveToFirst();
-		
-		Campaign c = new Campaign();
-		c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
-		c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
-		c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
-		c.mDescription = cursor.getString(cursor.getColumnIndex(Campaign.DESCRIPTION));
-		c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
-		c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
-		c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
-		
-		cursor.close();
-		
-		db.close();
-		
-		return c;
-	}
-	
 	public Campaign getCampaign(String urn) {
 		
 		SQLiteDatabase db = getReadableDatabase();
@@ -668,28 +743,19 @@ public class DbHelper extends SQLiteOpenHelper {
 		
 		Cursor cursor = db.query(Tables.CAMPAIGNS, null, Campaign.URN + "= ?", new String[] {urn}, null, null, null);
 		
+		// ensure that only one record is returned
 		if (cursor.getCount() != 1) {
 			cursor.close();
 			db.close();
 			return null;
 		}
 		
-		cursor.moveToFirst();
-		
-		Campaign c = new Campaign();
-		c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
-		c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
-		c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
-		c.mDescription = cursor.getString(cursor.getColumnIndex(Campaign.DESCRIPTION));
-		c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
-		c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
-		c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
-		
-		cursor.close();
+		// since we know we have one record, we know index 0 will exist
+		Campaign result = Campaign.fromCursor(cursor).get(0);
 		
 		db.close();
 		
-		return c;
+		return result;
 	}
 	
 	public List<Campaign> getCampaigns() {
@@ -699,32 +765,12 @@ public class DbHelper extends SQLiteOpenHelper {
 		if (db == null) {
 			return null;
 		}
-		
-		List<Campaign> campaigns = new ArrayList<Campaign>();
-		
-		Cursor cursor = db.query(Tables.CAMPAIGNS, null, null, null, null, null, null);
-		
-		cursor.moveToFirst();
-		
-		for (int i = 0; i < cursor.getCount(); i++) {
-			
-			Campaign c = new Campaign();
-			c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
-			c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
-			c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
-			c.mDescription = cursor.getString(cursor.getColumnIndex(Campaign.DESCRIPTION));
-			c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
-			c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
-			c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
-			campaigns.add(c);
-			
-			cursor.moveToNext();
-		}
-		
-		cursor.close();
+
+		Cursor cursor = db.query(Tables.CAMPAIGNS, null, null, null, null, null, null);		
+		List<Campaign> campaigns = Campaign.fromCursor(cursor);
 		
 		db.close();
 		
-		return campaigns; 
+		return campaigns;
 	}
 }

@@ -1,20 +1,85 @@
 package org.ohmage.db;
 
-import java.util.regex.Matcher;
-
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.SurveyPrompt;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.feedback.utils.SelectionBuilder;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
+/**
+ * A ContentProvider which makes the contents of the campaign, survey, and response
+ * database available to other parts of the application. If you intend to modify the database,
+ * you should do so through this class or else ContentObservers and CursorLoaders won't automatically
+ * update to reflect your changes.
+ * 
+ * A list of URIs which the content provider supports is below, along with the operations that
+ * are supported for each (i.e. query, insert, update, delete):
+ * 
+ * campaigns
+ * -- query: returns all campaigns
+ * -- insert: adds a campaign (populates surveys and survey prompts accordingly)
+ * 
+ * campaigns/{urn}
+ * -- query: returns the campaign with the URN specified by {urn}
+ * -- delete: removes the campaign with URN {urn} (and deletes from surveys, survey prompts, responses, and prompt responses accordingly)
+ * 
+ * surveys
+ * -- query: returns all surveys
+ * 
+ * campaigns/{urn}/surveys
+ * -- query: returns all surveys for the campaign specified by {urn}
+ * 
+ * campaigns/{urn}/surveys/{id}
+ * -- query: returns the survey with the ID specified by {id}, belonging to campaign with urn {urn}
+ * 
+ * campaigns/{urn}/surveys/{id}/prompts
+ * -- query: returns all survey prompts associated with the survey having id {id}, belonging to campaign with urn {urn}
+ * 
+ *  surveys/prompts
+ * -- query: returns all survey prompts, irrespective of survey (mostly for testing)
+ * 
+ * responses
+ * -- query: returns all responses
+ * -- insert: adds a response (populates prompt responses, too)
+ * 
+ * responses/#
+ * -- query: returns the response specified by the primary key "#"
+ * 
+ * responses/#/prompts
+ * -- query: returns all prompt responses for the response having the primary key "#"
+ * 
+ * prompts
+ * -- query: returns all prompt responses (mostly for testing)
+ * 
+ * prompts/#
+ * -- query: returns the prompt response specified by the primary key "#"
+ * 
+ * campaigns/{urn}/responses
+ * -- query: returns all responses for the campaign specified by {urn}
+ * 
+ * campaigns/{urn}/surveys/{sid}/responses
+ * -- query: returns all responses for the survey specified by {sid} within the campaign specified by {urn}
+ * 
+ * campaigns/{urn}/surveys/{sid}/responses/prompts/{pid}
+ * -- query: returns all prompts of the given {pid} for the survey specified by {sid} within the campaign specified by {urn}
+ * 
+ * campaigns/{urn}/surveys/{sid}/responses/prompts/{pid}/{agg}
+ * -- query: returns an aggregate function {agg} (one of "avg", "count", "max", "min, "total") for
+ * -- the prompts of the given {pid} for the survey specified by {sid} within the campaign specified by {urn}
+ * 
+ * @author faisal
+ *
+ */
 public class DbProvider extends ContentProvider {		
 	private static UriMatcher sUriMatcher = buildUriMatcher();
 	private DbHelper dbHelper;
@@ -25,13 +90,18 @@ public class DbProvider extends ContentProvider {
 		int RESPONSE_BY_PID = 2;
 		int CAMPAIGN_RESPONSES = 3;
 		int CAMPAIGN_SURVEY_RESPONSES = 4;
-		int RESPONSE_PROMPTS = 5;
-		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID = 6;
-		int PROMPTS = 7;
-		int PROMPT_BY_PID = 8;
-		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE = 9;
-		int CAMPAIGNS = 10;
-		int CAMPAIGN_BY_URN = 11;
+		int SURVEYS = 5;
+		int CAMPAIGN_SURVEYS = 6;
+		int SURVEY_BY_ID = 7;
+		int RESPONSE_PROMPTS = 8;
+		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID = 9;
+		int PROMPTS = 10;
+		int PROMPT_BY_PID = 11;
+		int CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE = 12;
+		int CAMPAIGNS = 13;
+		int CAMPAIGN_BY_URN = 14;
+		int SURVEY_SURVEYPROMPTS = 15;
+		int SURVEYPROMPTS = 16;
 	}
 
 	@Override
@@ -49,6 +119,17 @@ public class DbProvider extends ContentProvider {
         		return Campaign.CONTENT_TYPE;
         	case MatcherTypes.CAMPAIGN_BY_URN:
         		return Campaign.CONTENT_ITEM_TYPE;
+        		
+        	// SURVEYS
+        	case MatcherTypes.SURVEYS:
+        	case MatcherTypes.CAMPAIGN_SURVEYS:
+        		return Survey.CONTENT_TYPE;
+        	case MatcherTypes.SURVEY_BY_ID:
+        		return Survey.CONTENT_ITEM_TYPE;
+        		
+        	// SURVEY PROMPTS
+        	case MatcherTypes.SURVEY_SURVEYPROMPTS:
+        		return SurveyPrompt.CONTENT_TYPE;
         	
         	// RESPONSES
             case MatcherTypes.RESPONSES:
@@ -90,12 +171,27 @@ public class DbProvider extends ContentProvider {
 	
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		// insertion is limited to responses, so we just check for that directly and do the insert ourselves
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		long insertID = -1;
+		Uri resultingUri = null;
+		
+		ContentResolver cr = getContext().getContentResolver();
 		
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.RESPONSES:
+				insertID = db.insert(Tables.RESPONSES, null, values);
+				resultingUri = Response.getResponseUri(insertID);
+				
+				// notify all possible URIs that responses and prompt values have changed
+				cr.notifyChange(resultingUri, null);
+				cr.notifyChange(Response.getResponsesByCampaign(values.getAsString(Response.CAMPAIGN_URN)), null);
+				cr.notifyChange(Response.getResponsesByCampaignAndSurvey(values.getAsString(Response.CAMPAIGN_URN), values.getAsString(Response.SURVEY_ID)), null);
+				cr.notifyChange(Response.getResponsesByID(insertID), null);
+				
+				break;
+			case MatcherTypes.CAMPAIGNS:
+				insertID = db.insert(Tables.CAMPAIGNS, null, values);
+				resultingUri = Response.getResponseUri(insertID);
 				break;
 			default:
 				throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
@@ -103,10 +199,8 @@ public class DbProvider extends ContentProvider {
 		
 		db.close();
 		
-		getContext().getContentResolver().notifyChange(uri, null);
-		
 		// return the path to our new URI
-		return Response.getResponseUri(insertID);
+		return resultingUri;
 	}
 
 	@Override
@@ -148,15 +242,21 @@ public class DbProvider extends ContentProvider {
         
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns", MatcherTypes.CAMPAIGNS);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*", MatcherTypes.CAMPAIGN_BY_URN);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys", MatcherTypes.CAMPAIGN_SURVEYS);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*", MatcherTypes.SURVEY_BY_ID);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/prompts", MatcherTypes.SURVEY_SURVEYPROMPTS);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#", MatcherTypes.RESPONSE_BY_PID);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#/prompts", MatcherTypes.RESPONSE_PROMPTS);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts", MatcherTypes.PROMPTS);
         matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts/#", MatcherTypes.PROMPT_BY_PID);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/responses", MatcherTypes.CAMPAIGN_RESPONSES);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "*/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses", MatcherTypes.CAMPAIGN_RESPONSES);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
+        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
+        
         return matcher;
     }
 	
@@ -170,17 +270,51 @@ public class DbProvider extends ContentProvider {
 		final int match = sUriMatcher.match(uri);
 		
 		switch (match) {
+			// CAMPAIGNS
 			case MatcherTypes.CAMPAIGNS:
 				return builder.table(Tables.CAMPAIGNS);
 				
 			case MatcherTypes.CAMPAIGN_BY_URN:
-				campaignUrn = uri.getPathSegments().get(0);
+				campaignUrn = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.CAMPAIGNS)
 					.where(Campaign.URN + "=?", campaignUrn);
 				
+			// SURVEYS
+			case MatcherTypes.SURVEYS:
+				return builder.table(Tables.SURVEYS);
+				
+			case MatcherTypes.SURVEY_BY_ID:
+				campaignUrn = uri.getPathSegments().get(1);
+				surveyID = uri.getPathSegments().get(3);
+				
+				return builder.table(Tables.SURVEYS)
+					.where(Survey.CAMPAIGN_URN + "=?", campaignUrn)
+					.where(Survey.SURVEY_ID + "=?", surveyID);
+				
+			case MatcherTypes.CAMPAIGN_SURVEYS:
+				campaignUrn = uri.getPathSegments().get(1);
+				
+				return builder.table(Tables.SURVEYS)
+					.where(Survey.CAMPAIGN_URN + "=?", campaignUrn);
+				
+			// SURVEY PROMPTS
+			case MatcherTypes.SURVEYPROMPTS:
+				return builder.table(Tables.SURVEY_PROMPTS);
+				
+			case MatcherTypes.SURVEY_SURVEYPROMPTS:
+				campaignUrn = uri.getPathSegments().get(1);
+				surveyID = uri.getPathSegments().get(3);
+				
+				return builder.table(Tables.SURVEY_PROMPTS_JOIN_SURVEYS)
+					.mapToTable(Survey.CAMPAIGN_URN, Tables.SURVEYS)
+					.where(Tables.SURVEYS + "." + Survey.CAMPAIGN_URN + "=?", campaignUrn)
+					.where(Tables.SURVEY_PROMPTS + "." + SurveyPrompt.SURVEY_ID + "=?", surveyID);
+				
+			// RESPONSES
 			case MatcherTypes.RESPONSES:
-				return builder.table(Tables.RESPONSES);
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS)
+					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS);
 				
 			case MatcherTypes.RESPONSE_BY_PID:
 				responseID = uri.getPathSegments().get(1);
@@ -189,44 +323,45 @@ public class DbProvider extends ContentProvider {
 					.where(Response._ID + "=?", responseID);
 				
 			case MatcherTypes.CAMPAIGN_RESPONSES:
-				campaignUrn = uri.getPathSegments().get(0);
+				campaignUrn = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.RESPONSES)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn);
 				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
-				campaignUrn = uri.getPathSegments().get(0);
-				surveyID = uri.getPathSegments().get(1);
+				campaignUrn = uri.getPathSegments().get(1);
+				surveyID = uri.getPathSegments().get(3);
 				
 				return builder.table(Tables.RESPONSES)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Response.SURVEY_ID + "=?", surveyID);
-				
+			
+			// PROMPTS
 			case MatcherTypes.RESPONSE_PROMPTS:
 				responseID = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
-					.mapToTable(PromptResponse._ID, Tables.PROMPTS)
-					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPTS)
+					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
+					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
 				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
-				campaignUrn = uri.getPathSegments().get(0);
-				surveyID = uri.getPathSegments().get(1);
-				promptID = uri.getPathSegments().get(4);
+				campaignUrn = uri.getPathSegments().get(1);
+				surveyID = uri.getPathSegments().get(3);
+				promptID = uri.getPathSegments().get(6);
 				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
-					.mapToTable(PromptResponse._ID, Tables.PROMPTS)
-					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPTS)
+					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
+					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Response.SURVEY_ID + "=?", surveyID)
-					.where(Tables.PROMPTS + "." + PromptResponse.PROMPT_ID + "=?", promptID);
+					.where(Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID + "=?", promptID);
 				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
-				campaignUrn = uri.getPathSegments().get(0);
-				surveyID = uri.getPathSegments().get(1);
-				promptID = uri.getPathSegments().get(4);
-				String aggregate = uri.getPathSegments().get(5);
+				campaignUrn = uri.getPathSegments().get(1);
+				surveyID = uri.getPathSegments().get(3);
+				promptID = uri.getPathSegments().get(6);
+				String aggregate = uri.getPathSegments().get(7);
 				
 				String toClause;
 				
@@ -241,20 +376,20 @@ public class DbProvider extends ContentProvider {
 				}
 				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
-					.mapToTable(PromptResponse._ID, Tables.PROMPTS)
-					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPTS)
+					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
+					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.map("aggregate", toClause)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Response.SURVEY_ID + "=?", surveyID)
-					.where(Tables.PROMPTS + "." + PromptResponse.PROMPT_ID + "=?", promptID);
+					.where(Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID + "=?", promptID);
 				
 			case MatcherTypes.PROMPTS:
-				return builder.table(Tables.PROMPTS);
+				return builder.table(Tables.PROMPT_RESPONSES);
 				
 			case MatcherTypes.PROMPT_BY_PID:
 				promptID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.PROMPTS)
+				return builder.table(Tables.PROMPT_RESPONSES)
 					.where(PromptResponse._ID + "=?", promptID);
 				
 			default:
