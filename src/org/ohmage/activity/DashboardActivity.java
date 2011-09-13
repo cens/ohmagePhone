@@ -66,7 +66,7 @@ public class DashboardActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			Context c = v.getContext();
-			
+			Intent intent;;
 			switch (v.getId()) {
 				case R.id.dash_campaigns_btn:
 					startActivity(new Intent(c, CampaignListActivity.class));
@@ -76,6 +76,8 @@ public class DashboardActivity extends Activity {
 					break;
 					
 				case R.id.dash_feedback_btn:
+					intent = new Intent(DashboardActivity.this, ResponseHistoryTabHost.class);
+					startActivity(intent);
 					break;
 					
 				case R.id.dash_uploadqueue_btn:

@@ -29,7 +29,7 @@
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 			<Button android:id="@+id/dash_feedback_btn" style="@style/HomeButton" android:drawableTop="@drawable/feedback"
-				android:text="Feedback" />
+				android:text="Response History" />
 
 			<Button android:id="@+id/dash_uploadqueue_btn" style="@style/HomeButton" android:drawableTop="@drawable/status"
 				android:text="Upload Queue" />

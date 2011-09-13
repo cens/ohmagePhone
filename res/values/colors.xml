@@ -7,6 +7,8 @@
 	<color name="darkgray">#636363</color>
 	<color name="gray">#A3A3A3</color>
 	<color name="lightgray">#C3C3C3</color>
+	<color name="dkgray">#444444</color>
+	<color name="transparent">#00000000</color>
 
 	<color name="body_text_1">#ff000000</color>
 	<color name="body_text_2">#99000000</color>
@@ -14,4 +16,8 @@
 	<color name="accent_1">#ff29549f</color>
 	<color name="hyperlink">#ffff549f</color>
 	<color name="background_1">#ffffffff</color>
+	
+	<drawable name="calendar_focused">#FCBA1E</drawable>
+	<drawable name="calendar_pressed">#FCBA1E</drawable>
+	<drawable name="normal">#FFFFFF</drawable>
 </resources>
