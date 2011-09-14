@@ -81,6 +81,8 @@ public class FilterControl extends LinearLayout {
 		mPrevBtn.setOnClickListener(handler);
 		mCurrentBtn.setOnClickListener(handler);
 		mNextBtn.setOnClickListener(handler);
+		
+		mCurrentBtn.setSelected(true);
 	}
 	
 	/**
