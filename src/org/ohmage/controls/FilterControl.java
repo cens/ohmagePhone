@@ -4,7 +4,10 @@ import java.util.ArrayList;
 
 import org.ohmage.R;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.util.Pair;
 import android.content.res.TypedArray;
@@ -28,9 +31,13 @@ public class FilterControl extends LinearLayout {
 	private Button mCurrentBtn;
 	private Button mPrevBtn;
 	private Button mNextBtn;
+	private Activity mActivity; // stores a reference to our calling activity
+	private AlertDialog mItemListDialog; // stores a dialog containing a list of items, updated by populate() and add()
 	
 	public FilterControl(Context context) {
 		super(context);
+		
+		mActivity = (Activity)context;
 		
 		// just construct the base control
 		initControl(context);
@@ -55,6 +62,7 @@ public class FilterControl extends LinearLayout {
 		this.setLayoutParams(params);
 		this.setOrientation(HORIZONTAL);
 		this.setPadding(0, 0, 0, dpToPixels(1));
+		this.setBackgroundResource(R.drawable.controls_filter_bkgnd);
 		
 		// load up the elements of the actionbar from controls_filter.xml
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -105,6 +113,7 @@ public class FilterControl extends LinearLayout {
 		data.close();
 		
 		// and do a final sync
+		updateListDialog();
 		syncState();
 	}
 	
@@ -118,7 +127,8 @@ public class FilterControl extends LinearLayout {
 		mItemList = itemList;
 		mSelectionIndex = 0;
 		
-		// and do a final sync
+		// update the list dialog and do a final sync
+		updateListDialog();
 		syncState();
 	}
 	
@@ -136,6 +146,7 @@ public class FilterControl extends LinearLayout {
 			mSelectionIndex += 1;
 		
 		// and make sure we're displaying the right thing
+		updateListDialog();
 		syncState();
 	}
 	
@@ -144,6 +155,7 @@ public class FilterControl extends LinearLayout {
 	 */
 	public void add(Pair<String,String> item) {
 		mItemList.add(item);
+		updateListDialog();
 		syncState();
 	}
 	
@@ -193,6 +205,7 @@ public class FilterControl extends LinearLayout {
 					}
 					break;
 				case R.id.controls_filter_current:
+					mItemListDialog.show();
 					break;
 				case R.id.controls_filter_next:
 					if (mSelectionIndex < mItemList.size()-1) {
@@ -206,21 +219,47 @@ public class FilterControl extends LinearLayout {
 	
 	// keeps the middle text button in sync with the current index
 	private void syncState() {
+		// depending on where we are in the list, dim or disable the controls
+		mPrevBtn.setTextColor((mSelectionIndex <= 0)?Color.LTGRAY:Color.BLACK);
+		mNextBtn.setTextColor((mSelectionIndex >= mItemList.size() - 1)?Color.LTGRAY:Color.BLACK);
+		mCurrentBtn.setEnabled(mItemList.size() > 0);
+		
+		// if there's nothing in the list, display some default text and exit
 		if (mItemList.size() <= 0) {
 			mCurrentBtn.setText("");
 			return;
 		}
 		
-		// depending on where we are in the list, dim the controls
-		mPrevBtn.setTextColor((mSelectionIndex == 0)?Color.LTGRAY:Color.BLACK);
-		mNextBtn.setTextColor((mSelectionIndex == mItemList.size() - 1)?Color.LTGRAY:Color.BLACK);
-		
+		// grab the selection so we can populate the middle button and fire a callback
 		Pair<String,String> curItem = mItemList.get(mSelectionIndex);
 		
 		mCurrentBtn.setText(curItem.first);
 		
+		// check to see if the text overflows the button, then resize if necessary
+		
 		if (mFilterChangeListener != null)
 			mFilterChangeListener.onFilterChanged(curItem.second);
+	}
+	
+	// helper method for constructing a list dialog based on the current item list
+	private void updateListDialog() {
+		// build a list of items for us to choose from
+		CharSequence[] items = new CharSequence[mItemList.size()];
+		int i = 0;
+		for (Pair<String,String> pair : mItemList)
+			items[i++] = pair.first;
+
+		// and construct a dialog that displays the list
+		AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+		builder.setTitle("Choose an item");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int item) {
+		        mSelectionIndex = item;
+		        syncState();
+		    }
+		});
+		
+		mItemListDialog = builder.create();
 	}
 	
 	// utility method for converting dp to pixels, since the setters only take pixel values :\
