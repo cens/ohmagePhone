@@ -161,24 +161,49 @@ public class FilterControl extends LinearLayout {
 		syncState();
 	}
 	
+	/**
+	 * Gets the index of the currently selected item, from 0 to list size -1.
+	 * @return a numeric index for the currently selected item
+	 */
 	public int getIndex() {
 		return mSelectionIndex;
 	}
 	
+	/**
+	 * Sets the currently selected item by its index, which should be between 0 and list size - 1 inclusive.
+	 * @param index the index to set, between 0 and list size - 1 inclusive
+	 */
+	public void setIndex(int index) {
+		mSelectionIndex = index;
+		syncState();
+	}
+	
+	/**
+	 * Returns the number of items in the list.
+	 * @return the number of items in the list
+	 */
 	public int size() {
 		return mItemList.size();
 	}
 	
+	/**
+	 * Gets the displayed text for the currently selected item (i.e. the first element of the Pair)
+	 * @return the displayed text as a string
+	 */
 	public String getText() {
 		return mItemList.get(mSelectionIndex).first;
 	}
 	
+	/**
+	 * Gets the defined value for the currently selected item (i.e. the second element of the Pair)
+	 * @return the value as a string
+	 */
 	public String getValue() {
 		return mItemList.get(mSelectionIndex).second;
 	}
 	
 	/**
-	 * Attaches a {@link FilterChangeListener} to the filter which will be called when the user navigates between items.
+	 * Attaches a {@link FilterChangeListener} to the filter which will be called when the user navigates between items or when the list is changed.
 	 * 
 	 * @param listener an object implementing {@link FilterChangeListener} which will be called when the list index is changed.
 	 */
@@ -186,6 +211,9 @@ public class FilterControl extends LinearLayout {
 		mFilterChangeListener = listener;
 	}
 	
+	/**
+	 * Exposes a callback to allow custom processing to occur when the filter is changed (either by navigation or population).
+	 */
 	public static interface FilterChangeListener {
 		public void onFilterChanged(String curValue);
 	}
@@ -193,7 +221,6 @@ public class FilterControl extends LinearLayout {
 	/**
 	 * Handles the next, previous, and current buttons in the view.
 	 * 
-	 * Done here so that it has access to the private lists, current index, etc.
 	 * @param v the view which generated the click; this method uses the id of the view to determine what to do
 	 */
 	private class FilterClickHandler implements OnClickListener {
