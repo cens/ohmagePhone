@@ -13,92 +13,18 @@
 		android:layout_height="50dp"
 		android:background="@color/gray">	
 	</LinearLayout>
-
-	<LinearLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="horizontal"
+	
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/campaign_filter"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:paddingTop="0dp"
-		android:paddingBottom="1dp">
-
-		<Button
-			android:id="@+id/prevCampaign"
-			android:text="&lt;"
-			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
-			android:layout_gravity="center_vertical"
-			android:layout_width="55dp"
-			android:layout_height="40dp"
-			>
-		</Button>
-		<Button
-			android:id="@+id/currentCampaign"
-			android:layout_weight="0.6"
-			android:textColor="@color/dkgray"
-			android:background="#FFFFFF"
-			android:textSize="20dp"
-			android:gravity="center"
-			android:layout_gravity="center_vertical"
-			android:layout_width="wrap_content"
-			android:layout_height="40dp"
-			android:text="Campaign">
-		</Button>
-		<Button
-			android:id="@+id/nextCampaign"
-			android:text="&gt;"
-			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
-			android:layout_gravity="center_vertical"
-			android:layout_width="55dp"
-			android:layout_height="40dp">
-		</Button>
-	</LinearLayout>
-
-	<LinearLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="horizontal"
+	/>
+	
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/survey_filter"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:paddingTop="0dp"
-		android:paddingBottom="1dp">
-
-		<Button
-			android:id="@+id/prevSurvey"
-			android:text="&lt;"
-			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
-			android:layout_gravity="center_vertical"
-			android:layout_width="55dp"
-			android:layout_height="40dp"
-			>
-		</Button>
-		<Button
-			android:id="@+id/currentSurvey"
-			android:layout_weight="0.6"
-			android:textColor="@color/dkgray"
-			android:background="#FFFFFF"
-			android:textSize="20dp"
-			android:gravity="center"
-			android:layout_gravity="center_vertical"
-			android:layout_width="wrap_content"
-			android:layout_height="40dp"
-			android:text="Survey">
-		</Button>
-		<Button
-			android:id="@+id/nextSurvey"
-			android:text="&gt;"
-			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
-			android:layout_gravity="center_vertical"
-			android:layout_width="55dp"
-			android:layout_height="40dp">
-		</Button>
-	</LinearLayout>
+	/>
 
 	<LinearLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"

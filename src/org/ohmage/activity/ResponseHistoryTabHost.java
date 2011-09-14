@@ -28,7 +28,7 @@ public class ResponseHistoryTabHost extends TabActivity {
 		intent = new Intent().setClass(this, CalendarViewActivity.class);
 		setupTab(intent, "Calendar");
 		
-		intent = new Intent().setClass(this, FeedbackMapViewActivity.class);
+		intent = new Intent().setClass(this, MapViewActivity.class);
 		setupTab(intent, "Map");
 		mTabHost.setCurrentTab(0);
 	}

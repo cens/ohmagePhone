@@ -11,7 +11,11 @@ import java.util.List;
 import java.util.Locale;
 
 import org.ohmage.R;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.controls.FilterControl;
+import org.ohmage.controls.FilterControl.FilterChangeListener;
+import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Survey;
+import org.ohmage.feedback.visualization.ResponseHistory;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -22,6 +26,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,7 +37,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CalendarViewActivity extends Activity implements OnClickListener
+public class CalendarViewActivity extends ResponseHistory implements OnClickListener
 {
 	private static final String tag = "CalendarViewActivity";
 
@@ -45,10 +50,6 @@ public class CalendarViewActivity extends Activity implements OnClickListener
 	private int mSelectedMonth, mSelectedYear;
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
-	private String mCampaignUrn;
-	private String mSurveyID;
-	private Filter mSurveyFilter;
-	private Filter mCampaignFilter;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -56,18 +57,20 @@ public class CalendarViewActivity extends Activity implements OnClickListener
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.calendar_view);
 
+		setupFilters();
+		
+		//Calendar
 		_calendar = Calendar.getInstance(Locale.getDefault());
 		mSelectedMonth = _calendar.get(Calendar.MONTH) + 1;
 		mSelectedYear = _calendar.get(Calendar.YEAR);
 		Log.d(tag, "Calendar Instance:= " + "Month: " + mSelectedMonth + " " + "Year: " + mSelectedYear);
 
 		mPrevMonthButton = (Button) this.findViewById(R.id.prevMonth);
-		mPrevMonthButton.setOnClickListener(this);
-
 		mCurrentMonthButton = (Button) this.findViewById(R.id.currentMonth);
-		mCurrentMonthButton.setText(DateFormat.format(dateTemplate, _calendar.getTime()));
-
 		mNextMonthButton = (Button) this.findViewById(R.id.nextMonth);
+		
+		mPrevMonthButton.setOnClickListener(this);
+		mCurrentMonthButton.setText(DateFormat.format(dateTemplate, _calendar.getTime()));
 		mNextMonthButton.setOnClickListener(this);
 
 		calendarView = (GridView) this.findViewById(R.id.calendar);
@@ -75,60 +78,8 @@ public class CalendarViewActivity extends Activity implements OnClickListener
 		adapter = new GridCellAdapter(getApplicationContext(), R.id.calendar_gridcell_num_responses, mSelectedMonth, mSelectedYear);
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
-		
-		
-		//Campaign Filter
-		ArrayList<String> temp = getCampaignList();
-		Log.d(tag, temp.toString());
-		Button previousCampaignButton = (Button)this.findViewById(R.id.prevCampaign);
-		previousCampaignButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(CalendarViewActivity.this, "previous Campaign", Toast.LENGTH_SHORT).show();
-			}
-		});		
-		
-		Button nextCampaignButton = (Button)this.findViewById(R.id.nextCampaign);
-		nextCampaignButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(CalendarViewActivity.this, "next Campaign", Toast.LENGTH_SHORT).show();			}
-		});
-		
-		//Survey Filter
-		Button previousSurveyButton = (Button)this.findViewById(R.id.prevSurvey);
-		previousSurveyButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(CalendarViewActivity.this, "previous Survey", Toast.LENGTH_SHORT).show();			}
-		});
-		
-		Button nextSurveyButton = (Button)this.findViewById(R.id.nextSurvey);
-		nextSurveyButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(CalendarViewActivity.this, "next Survey", Toast.LENGTH_SHORT).show();			}
-		});
 	}
-
-	
-	private ArrayList<String> getCampaignList(){
-	    ArrayList<String> itemList = new ArrayList<String>();
 		
-		ContentResolver cr = this.getContentResolver();
-	    Uri queryUri = Response.getResponses();
-	    String[] projection = new String[]{
-	    		Response.CAMPAIGN_URN
-	    };
-	    //String selection = "GROUP BY (" + Response.CAMPAIGN_URN + ")";
-	    Cursor cursor = cr.query(queryUri, projection, null, null, null);
-	    for(cursor.moveToFirst();cursor.moveToNext();cursor.isAfterLast()){
-	    	itemList.add(cursor.getString(0));
-	    }
-	    return itemList;
-	}
-	
 	/**
 	 * 
 	 * @param month
@@ -446,8 +397,8 @@ public class CalendarViewActivity extends Activity implements OnClickListener
 					if (day_color[1].equals("TODAY"))
 						{
 							dateDisplay.setTextColor(Color.WHITE);
-							dateDisplay.setBackgroundColor(Color.rgb(22, 150, 88));
-							//dateDisplay.setTextColor(Color.rgb(22, 201, 88));
+							dateDisplay.setBackgroundColor(Color.DKGRAY);
+							numOfResponsesDisplay.setBackgroundColor(Color.rgb(250, 229, 192));
 						}
 					return row;
 				}
@@ -485,49 +436,6 @@ public class CalendarViewActivity extends Activity implements OnClickListener
 					return currentWeekDay;
 				}
 		}
-	
-	public class Filter{
-
-		int mCurrentSelectionIdx = 0;
-		ArrayList<String> mItems;
-		
-		public Filter(ArrayList<String> items, String titleTag){
-			this.mItems = items;
-			mItems.add(0, "All "+ titleTag);
-		}
-		
-		public void selectNext(){
-			if(mCurrentSelectionIdx == mItems.size()){
-				//THE LAST ITEM
-				//DO NOTHING
-			}
-			else{
-				mCurrentSelectionIdx++;	
-			}
-		}
-		
-		public void selectPrevious(){
-			if(mCurrentSelectionIdx == 0){
-				//THE FIRST ITEM
-				//DO NOTHING
-			}
-			else{
-				mCurrentSelectionIdx--;
-			}
-		}
-		
-		public void select(String selectedItem){
-			int selectedIdx = mItems.indexOf(selectedItem);
-			if(selectedIdx != -1){
-				mCurrentSelectionIdx = mItems.indexOf(selectedItem);	
-			}
-			else{
-				Log.d(tag, "Wrong selection.");
-			}
-		}
-		
-		public String getCurrentSelction(){
-			return mItems.get(mCurrentSelectionIdx);
-		}
-	}
 }
+
+

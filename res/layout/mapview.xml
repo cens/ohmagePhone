@@ -1,9 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.maps.MapView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mapview"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:clickable="true"
-    android:apiKey="0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA"
-/>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:background="@color/dkgray">
+	
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical"
+		android:layout_width="fill_parent"
+		android:layout_height="50dp"
+		android:background="@color/gray">	
+	</LinearLayout>
+
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/campaign_filter"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+	/>
+	
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/survey_filter"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+	/>
+	
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/date_filter"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+	/>	
+		
+	<com.google.android.maps.MapView
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/mapview"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:clickable="true"
+	    android:apiKey="0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA"
+	/>
+	</LinearLayout>
+	

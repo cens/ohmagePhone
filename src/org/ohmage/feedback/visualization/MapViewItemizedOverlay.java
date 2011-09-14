@@ -3,7 +3,7 @@ package org.ohmage.feedback.visualization;
 import java.util.ArrayList;
 
 import org.ohmage.R;
-import org.ohmage.activity.FeedbackMapViewActivity;
+import org.ohmage.activity.MapViewActivity;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -19,7 +19,7 @@ import com.google.android.maps.OverlayItem;
 
 public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 
-	private ArrayList<FeedbackMapViewActivity.FeedbackMapOverlayItems> mOverlays = new ArrayList<FeedbackMapViewActivity.FeedbackMapOverlayItems>();
+	private ArrayList<MapViewActivity.FeedbackMapOverlayItems> mOverlays = new ArrayList<MapViewActivity.FeedbackMapOverlayItems>();
 	private Context mContext;
 	
 	public MapViewItemizedOverlay(Drawable defaultMarker){
@@ -31,13 +31,13 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		  mContext = context;
 	}
 
-	public void addOverlay(FeedbackMapViewActivity.FeedbackMapOverlayItems overlay){
+	public void addOverlay(MapViewActivity.FeedbackMapOverlayItems overlay){
 		mOverlays.add(overlay);
 		populate();
 	}
 	
 	@Override
-	protected FeedbackMapViewActivity.FeedbackMapOverlayItems createItem(int i) {
+	protected MapViewActivity.FeedbackMapOverlayItems createItem(int i) {
 		return mOverlays.get(i);
 	}
 
@@ -48,7 +48,7 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	@Override
 	protected boolean onTap(int index){
-		FeedbackMapViewActivity.FeedbackMapOverlayItems item = mOverlays.get(index);
+		MapViewActivity.FeedbackMapOverlayItems item = mOverlays.get(index);
 		//AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
 		final Dialog responseDialog = new Dialog(mContext);
 		
