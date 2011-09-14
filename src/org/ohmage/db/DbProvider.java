@@ -174,24 +174,32 @@ public class DbProvider extends ContentProvider {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		long insertID = -1;
 		Uri resultingUri = null;
+		String campaignUrn, surveyID;
 		
 		ContentResolver cr = getContext().getContentResolver();
 		
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.RESPONSES:
+				campaignUrn = values.getAsString(Response.CAMPAIGN_URN);
+				surveyID = values.getAsString(Response.SURVEY_ID);
 				insertID = db.insert(Tables.RESPONSES, null, values);
-				resultingUri = Response.getResponseUri(insertID);
+				resultingUri = Response.getResponseByID(insertID);
 				
-				// notify all possible URIs that responses and prompt values have changed
-				cr.notifyChange(resultingUri, null);
-				cr.notifyChange(Response.getResponsesByCampaign(values.getAsString(Response.CAMPAIGN_URN)), null);
-				cr.notifyChange(Response.getResponsesByCampaignAndSurvey(values.getAsString(Response.CAMPAIGN_URN), values.getAsString(Response.SURVEY_ID)), null);
-				cr.notifyChange(Response.getResponsesByID(insertID), null);
+				// notify on the related entity URIs
+				cr.notifyChange(Response.CONTENT_URI, null);
+				cr.notifyChange(PromptResponse.CONTENT_URI, null);
 				
 				break;
 			case MatcherTypes.CAMPAIGNS:
-				insertID = db.insert(Tables.CAMPAIGNS, null, values);
-				resultingUri = Response.getResponseUri(insertID);
+				insertID = dbHelper.addCampaign(values);
+				campaignUrn = values.getAsString(Campaign.URN);
+				resultingUri = Campaign.getCampaignByURN(campaignUrn);
+
+				// notify on the related entity URIs
+				cr.notifyChange(Campaign.CONTENT_URI, null);
+				cr.notifyChange(Survey.CONTENT_URI, null);
+				cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+				
 				break;
 			default:
 				throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
@@ -205,8 +213,52 @@ public class DbProvider extends ContentProvider {
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		// we don't support updating for now
-		return 0;
+		// get a handle to our db
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		int count = 0;
+		
+		// TODO: should we reject entities that shouldn't be updated?
+		
+		// feed the uri to our selection builder, which will
+		// nab the appropriate rows from the right table.
+		SelectionBuilder builder = buildSelection(uri);
+		
+		// we should also add on the client's selection
+		builder.where(selection, selectionArgs);
+		
+		// we assume we've matched it correctly, so proceed with the delete
+		count = builder.update(db, values);
+		
+		db.close();
+		
+		if (count > 0) {
+			ContentResolver cr = getContext().getContentResolver();
+			
+			// depending on the type of the thing deleted, we have to notify potentially many URIs
+			switch (sUriMatcher.match(uri)) {
+				case MatcherTypes.RESPONSE_BY_PID:
+				case MatcherTypes.RESPONSES:
+					// notify on the related entity URIs
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+					
+				case MatcherTypes.CAMPAIGN_BY_URN:
+				case MatcherTypes.CAMPAIGNS:			
+					// notify on the related entity URIs
+					cr.notifyChange(Campaign.CONTENT_URI, null);
+					cr.notifyChange(Survey.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+			}
+			
+			// we should always notify on our own uri regardless
+			cr.notifyChange(uri, null);
+		}
+		
+		return count;
 	}
 	
 	@Override
@@ -215,21 +267,47 @@ public class DbProvider extends ContentProvider {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;
 		
+		// TODO: should we reject entities that shouldn't be deleted?
+		
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
 		SelectionBuilder builder = buildSelection(uri);
 		
-		// we should also add on the client's selection, perhaps?
+		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
-		
-		// TODO: possibly filter out deletions that shouldn't be performed?
 		
 		// we assume we've matched it correctly, so proceed with the delete
 		count = builder.delete(db);
 		
 		db.close();
 		
-		getContext().getContentResolver().notifyChange(uri, null);
+		if (count > 0) {
+			ContentResolver cr = getContext().getContentResolver();
+			
+			// depending on the type of the thing deleted, we have to notify potentially many URIs
+			switch (sUriMatcher.match(uri)) {
+				case MatcherTypes.RESPONSE_BY_PID:
+				case MatcherTypes.RESPONSES:
+					// notify on the related entity URIs
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+					
+				case MatcherTypes.CAMPAIGN_BY_URN:
+				case MatcherTypes.CAMPAIGNS:			
+					// notify on the related entity URIs
+					cr.notifyChange(Campaign.CONTENT_URI, null);
+					cr.notifyChange(Survey.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+			}
+			
+			// we should always notify on our own uri regardless
+			cr.notifyChange(uri, null);
+		}
+		
 		return count;
 	}
 

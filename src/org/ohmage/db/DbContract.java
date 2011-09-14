@@ -351,17 +351,13 @@ public class DbContract {
         public static final String CONTENT_ITEM_TYPE =
         	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".response";
         
-        public static Uri getResponseUri(long insertID) {
-        	return CONTENT_URI.buildUpon().appendPath(Long.toString(insertID)).build();
-        }
-        
         public static Uri getResponses() {
     		return BASE_CONTENT_URI.buildUpon()
 				.appendPath("responses")
 				.build();
         }
         
-        public static Uri getResponsesByID(long responseID) {
+        public static Uri getResponseByID(long responseID) {
     		return BASE_CONTENT_URI.buildUpon()
 				.appendPath("responses")
 				.appendPath(Long.toString(responseID))
@@ -516,10 +512,10 @@ public class DbContract {
 				.build();
         }
         
-        public static Uri getPromptsByResponseID(int responseID) {
+        public static Uri getPromptsByResponseID(long responseID) {
     		return BASE_CONTENT_URI.buildUpon()
 				.appendPath("responses")
-				.appendPath(Integer.toString(responseID))
+				.appendPath(Long.toString(responseID))
 				.appendPath("prompts")
 				.build();
         }

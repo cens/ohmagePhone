@@ -41,6 +41,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -524,13 +525,20 @@ public class CampaignListActivity extends ListActivity {
 			String downloadTimestamp = dateFormat.format(new Date());
 			//String downloadTimestamp = DateFormat.format("yyyy-MM-dd kk:mm:ss", System.currentTimeMillis());
 			
+			// decorate campaign object with extra data before insertion
+			campaign.mDownloadTimestamp = downloadTimestamp;
+			campaign.mXml = response.getXml();
+			
+			// also get a contentresolver so we can insert this campaign
+			ContentResolver cr = getContentResolver();
+			
 			DbHelper dbHelper = new DbHelper(this);
 			if (dbHelper.getCampaign(campaign.mUrn) == null) {
-				dbHelper.addCampaign(campaign.mUrn, campaign.mName, campaign.mDescription, campaign.mCreationTimestamp, downloadTimestamp, response.getXml());
+				cr.insert(Campaign.CONTENT_URI, campaign.toCV());
 			} else {
 				Log.w(TAG, "Campaign already exists. This should never happen. Replacing previous entry with new one.");
-				dbHelper.removeCampaign(campaign.mUrn);
-				dbHelper.addCampaign(campaign.mUrn, campaign.mName, campaign.mDescription, campaign.mCreationTimestamp, downloadTimestamp, response.getXml());
+				cr.delete(Campaign.getCampaignByURN(campaign.mUrn), null, null);
+				cr.insert(Campaign.CONTENT_URI, campaign.toCV());
 			}
 			
 			if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
