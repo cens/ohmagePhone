@@ -213,6 +213,7 @@ public class DbContract {
 	public static final class SurveyPrompt implements BaseColumns {
 		public static final String SURVEY_PID = "survey_pid";
 		public static final String SURVEY_ID = "survey_id";
+		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_TEXT = "prompt_text";
 		public static final String PROMPT_TYPE = "prompt_type";
@@ -222,6 +223,7 @@ public class DbContract {
 		public long _id;
 		public long mSurveyPID;
 		public String mSurveyID;
+		public String mCompositeID;
 		public String mPromptID;
 		public String mPromptText;
 		public String mPromptType;
@@ -267,6 +269,7 @@ public class DbContract {
     			temp._id = cursor.getLong(cursor.getColumnIndex(SurveyPrompt._ID));
     			temp.mSurveyPID = cursor.getLong(cursor.getColumnIndex(SurveyPrompt.SURVEY_PID));
     			temp.mSurveyID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.SURVEY_ID));
+    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.COMPOSITE_ID));
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_ID));
     			temp.mPromptText = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TEXT));
     			temp.mPromptType = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TYPE));
@@ -285,6 +288,7 @@ public class DbContract {
         	
         	values.put(SurveyPrompt.SURVEY_PID, mSurveyPID);
         	values.put(SurveyPrompt.SURVEY_ID, mSurveyID);
+        	values.put(SurveyPrompt.COMPOSITE_ID, mCompositeID);
         	values.put(SurveyPrompt.PROMPT_ID, mPromptID);
         	values.put(SurveyPrompt.PROMPT_TEXT, mPromptText);
         	values.put(SurveyPrompt.PROMPT_TYPE, mPromptType);
@@ -477,6 +481,7 @@ public class DbContract {
 	public static final class PromptResponse implements BaseColumns
 	{
 		public static final String RESPONSE_ID = "response_id";
+		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_VALUE = "prompt_value";
 		
@@ -484,6 +489,7 @@ public class DbContract {
 		// this should be reconciled by some kind of real ORM someday
 		public long _id;
 		public long mResponseID;
+		public String mCompositeID;
 		public String mPromptID;
 		public String mValue;
 		
@@ -562,6 +568,7 @@ public class DbContract {
     			PromptResponse temp = new PromptResponse();
     			temp._id = cursor.getLong(cursor.getColumnIndex(PromptResponse._ID));
     			temp.mResponseID = cursor.getLong(cursor.getColumnIndex(PromptResponse.RESPONSE_ID));
+    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponse.COMPOSITE_ID));
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_ID));
     			temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_VALUE));
     			prompts.add(temp);
@@ -578,6 +585,7 @@ public class DbContract {
         	ContentValues values = new ContentValues();
         	
         	values.put(PromptResponse.RESPONSE_ID, mResponseID);
+        	values.put(PromptResponse.COMPOSITE_ID, mCompositeID);
         	values.put(PromptResponse.PROMPT_ID, mPromptID);
         	values.put(PromptResponse.PROMPT_VALUE, mValue);
         	

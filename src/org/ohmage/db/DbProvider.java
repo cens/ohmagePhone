@@ -5,6 +5,7 @@ import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.feedback.utils.SelectionBuilder;
 
@@ -160,7 +161,7 @@ public class DbProvider extends ContentProvider {
 
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
-		SelectionBuilder builder = buildSelection(uri);
+		SelectionBuilder builder = buildSelection(uri, false);
 
 		builder.where(selection, selectionArgs);
 		
@@ -221,7 +222,7 @@ public class DbProvider extends ContentProvider {
 		
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
-		SelectionBuilder builder = buildSelection(uri);
+		SelectionBuilder builder = buildSelection(uri, true);
 		
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
@@ -271,7 +272,7 @@ public class DbProvider extends ContentProvider {
 		
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
-		SelectionBuilder builder = buildSelection(uri);
+		SelectionBuilder builder = buildSelection(uri, true);
 		
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
@@ -338,7 +339,7 @@ public class DbProvider extends ContentProvider {
         return matcher;
     }
 	
-	private SelectionBuilder buildSelection(Uri uri) {
+	private SelectionBuilder buildSelection(Uri uri, boolean nonQuery) {
 		final SelectionBuilder builder = new SelectionBuilder();
 		
 		// vars used below
@@ -391,6 +392,8 @@ public class DbProvider extends ContentProvider {
 				
 			// RESPONSES
 			case MatcherTypes.RESPONSES:
+				if (nonQuery)
+					return builder.table(Tables.RESPONSES);
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS)
 					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS);
 				
@@ -416,18 +419,23 @@ public class DbProvider extends ContentProvider {
 			
 			// PROMPTS
 			case MatcherTypes.PROMPTS:
-				return builder.table(Tables.PROMPT_RESPONSES);
+				if (nonQuery)
+					return builder.table(Tables.PROMPT_RESPONSES);
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID);
 				
 			case MatcherTypes.PROMPT_BY_PID:
 				promptID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.PROMPT_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.where(PromptResponse._ID + "=?", promptID);
 				
 			case MatcherTypes.RESPONSE_PROMPTS:
 				responseID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
@@ -437,7 +445,8 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				promptID = uri.getPathSegments().get(6);
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
@@ -462,7 +471,8 @@ public class DbProvider extends ContentProvider {
 						throw new IllegalArgumentException("Specified aggregate was not one of AggregateTypes");
 				}
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.map("aggregate", toClause)
