@@ -1,5 +1,8 @@
 package org.ohmage.feedback.visualization;
 
+import java.util.Calendar;
+import java.util.HashMap;
+
 import org.ohmage.R;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
@@ -14,8 +17,8 @@ import android.util.Pair;
 import com.google.android.maps.MapActivity;
 
 public class ResponseHistory extends MapActivity {
-	FilterControl mCampaignFilter;
-	FilterControl mSurveyFilter;
+	public FilterControl mCampaignFilter;
+	public FilterControl mSurveyFilter;
 	
 	/**
 	 * Initialize Campaign filter and Survey filter for mapview and calendarview
@@ -29,15 +32,26 @@ public class ResponseHistory extends MapActivity {
 		final ContentResolver cr = getContentResolver();
 		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
 			@Override
-			public void onFilterChanged(String curValue) {
-				Cursor surveys;
-				if(curValue.equals("all")){
-					surveys = cr.query(Survey.getSurveys(), null, null, null, Survey.TITLE);
-					mSurveyFilter.populate(surveys, Survey.TITLE, Survey.SURVEY_ID);
+			public void onFilterChanged(String curCampaignValue) {
+				Cursor surveyCursor;
+				if(curCampaignValue.equals("all")){
+					surveyCursor = cr.query(Survey.getSurveys(), null, null, null, Survey.TITLE);
+
+					//When Campaign is All, we concatenate Campain_URN and Survey_ID with a colon
+					for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
+						mSurveyFilter.add(new Pair<String, String>(
+								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID)),
+								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
+								":" +
+								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE))
+								));
+					}
+					mSurveyFilter.add(0, new Pair<String, String>("All Surveys", "all"));
 				}
 				else{
-					surveys = cr.query(Survey.getSurveysByCampaignURN(curValue), null, null, null, null);
-					mSurveyFilter.populate(surveys, Survey.TITLE, Survey.SURVEY_ID) ;					
+					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), null, null, null, null);
+					mSurveyFilter.populate(surveyCursor, Survey.TITLE, Survey.SURVEY_ID) ;
+					mSurveyFilter.add(0, new Pair<String, String>("All Surveys", "all"));
 				}
 			}
 		});
@@ -45,13 +59,42 @@ public class ResponseHistory extends MapActivity {
 		Cursor campaigns = cr.query(Campaign.getCampaigns(), null, null, null, null);
 		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));
-		mSurveyFilter.add(0, new Pair<String, String>("All Surveys", "all"));
 	}
 
+	/**
+	 * Generates a HashMap having day(key) and the number of responses(value)
+	 * 
+	 * @param cursor Response cursor
+	 * @return
+	 */
+	
+	public HashMap<String, Integer> getResponseMap(Cursor cursor){
+
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		Calendar cal = Calendar.getInstance();
+		
+		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
+			Long time = cursor.getLong(cursor.getColumnIndex(Response.DATE));
+			
+			cal.setTimeInMillis(time);
+			Integer day = new Integer(cal.get(Calendar.DAY_OF_MONTH));
+			if(map.containsKey(day)){
+				Integer value = map.get(day) + 1;
+				map.put(day.toString(), value);
+			}
+			else{
+				map.put(day.toString(),1);
+			}
+		}
+		return map;
+	}
+	
 	@Override
 	protected boolean isRouteDisplayed() {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	
 }
 
