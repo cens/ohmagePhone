@@ -82,7 +82,7 @@ public class DashboardActivity extends Activity {
 					break;
 					
 				case R.id.dash_uploadqueue_btn:
-					startActivity(new Intent(c, TestActivity.class));
+					startActivity(new Intent(c, UploadQueueActivity.class));
 					break;
 					
 				case R.id.dash_profile_btn:
