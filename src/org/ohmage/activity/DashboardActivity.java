@@ -69,7 +69,7 @@ public class DashboardActivity extends Activity {
 			Intent intent;;
 			switch (v.getId()) {
 				case R.id.dash_campaigns_btn:
-					startActivity(new Intent(c, CampaignListActivity.class));
+					startActivity(new Intent(c, CampaignAddActivity.class));
 					break;
 					
 				case R.id.dash_surveys_btn:

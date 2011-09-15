@@ -39,6 +39,15 @@ public class DbContract {
 		public static final String CREATION_TIMESTAMP = "creationTimestamp";
 		public static final String DOWNLOAD_TIMESTAMP = "downloadTimestamp";
 		public static final String CONFIGURATION_XML = "configuration_xml";
+		public static final String STATUS = "status";
+		public static final String ICON = "icon";
+		
+		public static final int STATUS_READY = 0;
+		public static final int STATUS_REMOTE = 1;
+		public static final int STATUS_STOPPED = 2;
+		public static final int STATUS_OUT_OF_DATE = 3;
+		public static final int STATUS_INVALID_USER_ROLE = 4;
+		public static final int STATUS_REMOVED = 5;
 
 		// data fields here to support use of the Campaign class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
@@ -49,6 +58,8 @@ public class DbContract {
 		public String mCreationTimestamp;
 		public String mDownloadTimestamp;
 		public String mXml;
+		public int mStatus;
+		public String mIcon;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("campaigns").build();
@@ -91,6 +102,8 @@ public class DbContract {
     			c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
     			c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
     			c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
+    			c.mStatus = cursor.getInt(cursor.getColumnIndex(Campaign.STATUS));
+    			c.mIcon = cursor.getString(cursor.getColumnIndex(Campaign.ICON));
     			campaigns.add(c);
     			
     			cursor.moveToNext();
@@ -110,7 +123,8 @@ public class DbContract {
     		values.put(Campaign.CREATION_TIMESTAMP, mCreationTimestamp);
     		values.put(Campaign.DOWNLOAD_TIMESTAMP, mDownloadTimestamp);
     		values.put(Campaign.CONFIGURATION_XML, mXml);
-    		
+    		values.put(Campaign.STATUS, mStatus);
+    		values.put(Campaign.ICON, mIcon);
         	return values;
         }
 	}

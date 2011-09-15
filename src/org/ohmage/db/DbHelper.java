@@ -101,7 +101,9 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Campaign.DESCRIPTION + " TEXT, "
 				+ Campaign.CREATION_TIMESTAMP + " TEXT, "
 				+ Campaign.DOWNLOAD_TIMESTAMP + " TEXT, "
-				+ Campaign.CONFIGURATION_XML + " TEXT "
+				+ Campaign.CONFIGURATION_XML + " TEXT, "
+				+ Campaign.STATUS + " INTEGER, "
+				+ Campaign.ICON + " TEXT "
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEYS + " ("
@@ -587,90 +589,92 @@ public class DbHelper extends SQLiteOpenHelper {
 			// === xml parsing section below, inserts into Surveys and SurveyPrompts
 			// ==========================================================================
 			
-			// do a pass over the XML to gather surveys and survey prompts
-			XmlPullParser xpp = Xml.newPullParser();
-			xpp.setInput(new ByteArrayInputStream(configurationXml.getBytes("UTF-8")), "UTF-8");
-			int eventType = xpp.getEventType();
-			String tagName;
-			
-			// various stacks to maintain state while walking through the xml tree
-			Stack<String> tagStack = new Stack<String>();
-			Survey curSurvey = null; // valid only within a survey, null otherwise
-			Vector<SurveyPrompt> prompts = new Vector<SurveyPrompt>(); // valid only within a survey, empty otherwise
-
-			// iterate through the xml, paying attention only to surveys and prompts
-			// note that this does no validation outside of preventing itself from crashing catastrophically
-			while (eventType != XmlPullParser.END_DOCUMENT) {
-				if (eventType == XmlPullParser.START_TAG) {
-					tagName = xpp.getName();
-					tagStack.push(tagName);
-					
-					if (tagName.equalsIgnoreCase("survey")) {
-						if (curSurvey != null)
-							throw new XmlPullParserException("encountered a survey tag inside another survey tag");
-						
-						curSurvey = new Survey();
-						curSurvey.mCampaignUrn = campaignUrn;
-					}
-					else if (tagName.equalsIgnoreCase("prompt")) {
-						SurveyPrompt sp = new SurveyPrompt();
-						// FIXME: add the campaign + survey ID to make lookups easier?
-						prompts.add(sp);
-					}
-				}
-				else if (eventType == XmlPullParser.TEXT) {
-					if (tagStack.size() >= 2) {
-						// we may be in an entity>property situation, so check and assign accordingly
-						if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("survey")) {				
-							// populating the current survey object with its properties here
-							if (tagStack.peek().equalsIgnoreCase("id"))
-								curSurvey.mSurveyID = xpp.getText();
-							else if (tagStack.peek().equalsIgnoreCase("title"))
-								curSurvey.mTitle = xpp.getText();
-							else if (tagStack.peek().equalsIgnoreCase("description"))
-								curSurvey.mDescription = xpp.getText();
-							else if (tagStack.peek().equalsIgnoreCase("summaryText"))
-								curSurvey.mSummary = xpp.getText();
-						}
-						else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("prompt")) {
-							SurveyPrompt sp = prompts.lastElement();
-							
-							// populating the last encountered survey prompt with its properties here
-							if (tagStack.peek().equalsIgnoreCase("id"))
-								sp.mPromptID = xpp.getText();
-							else if (tagStack.peek().equalsIgnoreCase("promptText"))
-								sp.mPromptText = xpp.getText();
-							else if (tagStack.peek().equalsIgnoreCase("promptType"))
-								sp.mPromptType = xpp.getText();
-						}
-					}
-				}
-				else if (eventType == XmlPullParser.END_TAG) {
-					tagName = xpp.getName();
-					tagStack.pop();
-					
-					if (tagName.equalsIgnoreCase("survey")) {
-						// store the current survey to the database
-						long surveyPID = db.insert(Tables.SURVEYS, null, curSurvey.toCV());
-						
-						// also store all the prompts we accumulated for it
-						for (SurveyPrompt sp : prompts) {
-							sp.mSurveyID = curSurvey.mSurveyID;
-							sp.mSurveyPID = surveyPID;
-							sp.mCompositeID = curSurvey.mCampaignUrn + ":" + curSurvey.mSurveyID;
-							db.insert(Tables.SURVEY_PROMPTS, null, sp.toCV());
-						}
-						
-						// flush the prompts we've stored up so far
-						prompts.clear();
-						
-						// and clear us from being in any survey
-						curSurvey = null;
-					}
-				}
+			if (configurationXml != null) {
+				// do a pass over the XML to gather surveys and survey prompts
+				XmlPullParser xpp = Xml.newPullParser();
+				xpp.setInput(new ByteArrayInputStream(configurationXml.getBytes("UTF-8")), "UTF-8");
+				int eventType = xpp.getEventType();
+				String tagName;
 				
-				eventType = xpp.next();
-			}
+				// various stacks to maintain state while walking through the xml tree
+				Stack<String> tagStack = new Stack<String>();
+				Survey curSurvey = null; // valid only within a survey, null otherwise
+				Vector<SurveyPrompt> prompts = new Vector<SurveyPrompt>(); // valid only within a survey, empty otherwise
+
+				// iterate through the xml, paying attention only to surveys and prompts
+				// note that this does no validation outside of preventing itself from crashing catastrophically
+				while (eventType != XmlPullParser.END_DOCUMENT) {
+					if (eventType == XmlPullParser.START_TAG) {
+						tagName = xpp.getName();
+						tagStack.push(tagName);
+						
+						if (tagName.equalsIgnoreCase("survey")) {
+							if (curSurvey != null)
+								throw new XmlPullParserException("encountered a survey tag inside another survey tag");
+							
+							curSurvey = new Survey();
+							curSurvey.mCampaignUrn = campaignUrn;
+						}
+						else if (tagName.equalsIgnoreCase("prompt")) {
+							SurveyPrompt sp = new SurveyPrompt();
+							// FIXME: add the campaign + survey ID to make lookups easier?
+							prompts.add(sp);
+						}
+					}
+					else if (eventType == XmlPullParser.TEXT) {
+						if (tagStack.size() >= 2) {
+							// we may be in an entity>property situation, so check and assign accordingly
+							if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("survey")) {				
+								// populating the current survey object with its properties here
+								if (tagStack.peek().equalsIgnoreCase("id"))
+									curSurvey.mSurveyID = xpp.getText();
+								else if (tagStack.peek().equalsIgnoreCase("title"))
+									curSurvey.mTitle = xpp.getText();
+								else if (tagStack.peek().equalsIgnoreCase("description"))
+									curSurvey.mDescription = xpp.getText();
+								else if (tagStack.peek().equalsIgnoreCase("summaryText"))
+									curSurvey.mSummary = xpp.getText();
+							}
+							else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("prompt")) {
+								SurveyPrompt sp = prompts.lastElement();
+								
+								// populating the last encountered survey prompt with its properties here
+								if (tagStack.peek().equalsIgnoreCase("id"))
+									sp.mPromptID = xpp.getText();
+								else if (tagStack.peek().equalsIgnoreCase("promptText"))
+									sp.mPromptText = xpp.getText();
+								else if (tagStack.peek().equalsIgnoreCase("promptType"))
+									sp.mPromptType = xpp.getText();
+							}
+						}
+					}
+					else if (eventType == XmlPullParser.END_TAG) {
+						tagName = xpp.getName();
+						tagStack.pop();
+						
+						if (tagName.equalsIgnoreCase("survey")) {
+							// store the current survey to the database
+							long surveyPID = db.insert(Tables.SURVEYS, null, curSurvey.toCV());
+							
+							// also store all the prompts we accumulated for it
+							for (SurveyPrompt sp : prompts) {
+								sp.mSurveyID = curSurvey.mSurveyID;
+								sp.mSurveyPID = surveyPID;
+								sp.mCompositeID = curSurvey.mCampaignUrn + ":" + curSurvey.mSurveyID;
+								db.insert(Tables.SURVEY_PROMPTS, null, sp.toCV());
+							}
+							
+							// flush the prompts we've stored up so far
+							prompts.clear();
+							
+							// and clear us from being in any survey
+							curSurvey = null;
+						}
+					}
+					
+					eventType = xpp.next();
+				}
+			}			
 			
 			// i think we're done at this point; close the transaction, etc.
 			db.setTransactionSuccessful();
