@@ -99,10 +99,10 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 					//When Campaign is All, we concatenate Campain_URN and Survey_ID with a colon
 					for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
 						mSurveyFilter.add(new Pair<String, String>(
-								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID)),
+								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE)),
 								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
 								":" +
-								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE))
+								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID))
 								));
 					}
 					mSurveyFilter.add(0, new Pair<String, String>("All Surveys", "all"));
@@ -361,7 +361,7 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 				else{
 					//All campaigns and all surveys
 					//Parse the current survey value to get the campaign urn
-					String campaignUrn = curSurveyValue.substring(0, curSurveyValue.indexOf(":")+1);
+					String campaignUrn = curSurveyValue.substring(0, curSurveyValue.lastIndexOf(":")+1);
 					String surveyID = curSurveyValue.substring(
 							curSurveyValue.indexOf(":")+1);
 
