@@ -143,10 +143,6 @@ public class FilterControl extends LinearLayout {
 	public void add(int index, Pair<String,String> item) {
 		mItemList.add(index, item);
 		
-		// shift the current index up if we're inserting before
-		if (index <= mSelectionIndex)
-			mSelectionIndex += 1;
-		
 		// and make sure we're displaying the right thing
 		updateListDialog();
 		syncState();
@@ -258,6 +254,10 @@ public class FilterControl extends LinearLayout {
 			mCurrentBtn.setText("");
 			return;
 		}
+		
+		// check if the selection is within bounds; reset it if it's not
+		if (mSelectionIndex < 0 || mSelectionIndex >= mItemList.size())
+			mSelectionIndex = 0;
 		
 		// grab the selection so we can populate the middle button and fire a callback
 		Pair<String,String> curItem = mItemList.get(mSelectionIndex);
