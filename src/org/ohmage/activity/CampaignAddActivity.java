@@ -75,7 +75,7 @@ public class CampaignAddActivity extends FragmentActivity {
 			
 			if (response.getResult() == Result.SUCCESS) {
 				ContentResolver cr = mContext.getContentResolver();
-				
+
 				// parse response
 				try {
 					JSONArray jsonItems = response.getMetadata().getJSONArray("items");

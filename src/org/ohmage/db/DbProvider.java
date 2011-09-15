@@ -155,7 +155,7 @@ public class DbProvider extends ContentProvider {
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public synchronized Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -166,12 +166,13 @@ public class DbProvider extends ContentProvider {
 		builder.where(selection, selectionArgs);
 		
 		Cursor result = builder.query(db, projection, sortOrder);
+		result.setNotificationUri(getContext().getContentResolver(), uri);
 		
 		return result;
 	}
 	
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
+	public synchronized Uri insert(Uri uri, ContentValues values) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		long insertID = -1;
 		Uri resultingUri = null;
@@ -213,7 +214,7 @@ public class DbProvider extends ContentProvider {
 	}
 
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public synchronized int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;
@@ -263,7 +264,7 @@ public class DbProvider extends ContentProvider {
 	}
 	
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public synchronized int delete(Uri uri, String selection, String[] selectionArgs) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;

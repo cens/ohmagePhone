@@ -56,7 +56,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 10;
+	private static final int DB_VERSION = 11;
 	
 	private Context mContext;
 	
@@ -399,6 +399,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			db.setTransactionSuccessful();
 			
 			// notify all relevant URIs that a change occurred
+			// TODO: remove these when this method is indirectly called from the provider's insert()
 			ContentResolver cr = mContext.getContentResolver();
 			cr.notifyChange(Response.CONTENT_URI, null);
 			cr.notifyChange(PromptResponse.CONTENT_URI, null);

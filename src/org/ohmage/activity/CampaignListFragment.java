@@ -11,10 +11,12 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
 public class CampaignListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+	final private String TAG = "CampaignListFragment";
 	
 	SimpleCursorAdapter mAdapter;
 	
@@ -31,7 +33,7 @@ public class CampaignListFragment extends ListFragment implements LoaderCallback
                 new int[] { R.id.name_text, R.id.urn_text }, 0);
 		setListAdapter(mAdapter);
 		
-		getLoaderManager().initLoader(0, null, this);		
+		getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
@@ -44,21 +46,18 @@ public class CampaignListFragment extends ListFragment implements LoaderCallback
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		
 		Uri baseUri = Campaign.CONTENT_URI;
-		
+
 		String select = Campaign.STATUS + " = " + Campaign.STATUS_REMOTE;
 		return new CursorLoader(getActivity(), baseUri, new String [] {Campaign._ID, Campaign.URN, Campaign.NAME, Campaign.STATUS, Campaign.ICON}, select, null, Campaign.NAME);
-		
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		
-		 mAdapter.swapCursor(data);
+		mAdapter.swapCursor(data);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-
 		mAdapter.swapCursor(null);
 	}
 
