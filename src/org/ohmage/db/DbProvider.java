@@ -5,6 +5,7 @@ import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.feedback.utils.SelectionBuilder;
 
@@ -154,44 +155,53 @@ public class DbProvider extends ContentProvider {
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public synchronized Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
-		SelectionBuilder builder = buildSelection(uri);
+		SelectionBuilder builder = buildSelection(uri, false);
 
 		builder.where(selection, selectionArgs);
 		
 		Cursor result = builder.query(db, projection, sortOrder);
+		result.setNotificationUri(getContext().getContentResolver(), uri);
 		
 		return result;
 	}
 	
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
+	public synchronized Uri insert(Uri uri, ContentValues values) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		long insertID = -1;
 		Uri resultingUri = null;
+		String campaignUrn, surveyID;
 		
 		ContentResolver cr = getContext().getContentResolver();
 		
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.RESPONSES:
+				campaignUrn = values.getAsString(Response.CAMPAIGN_URN);
+				surveyID = values.getAsString(Response.SURVEY_ID);
 				insertID = db.insert(Tables.RESPONSES, null, values);
-				resultingUri = Response.getResponseUri(insertID);
+				resultingUri = Response.getResponseByID(insertID);
 				
-				// notify all possible URIs that responses and prompt values have changed
-				cr.notifyChange(resultingUri, null);
-				cr.notifyChange(Response.getResponsesByCampaign(values.getAsString(Response.CAMPAIGN_URN)), null);
-				cr.notifyChange(Response.getResponsesByCampaignAndSurvey(values.getAsString(Response.CAMPAIGN_URN), values.getAsString(Response.SURVEY_ID)), null);
-				cr.notifyChange(Response.getResponsesByID(insertID), null);
+				// notify on the related entity URIs
+				cr.notifyChange(Response.CONTENT_URI, null);
+				cr.notifyChange(PromptResponse.CONTENT_URI, null);
 				
 				break;
 			case MatcherTypes.CAMPAIGNS:
-				insertID = db.insert(Tables.CAMPAIGNS, null, values);
-				resultingUri = Response.getResponseUri(insertID);
+				insertID = dbHelper.addCampaign(values);
+				campaignUrn = values.getAsString(Campaign.URN);
+				resultingUri = Campaign.getCampaignByURN(campaignUrn);
+
+				// notify on the related entity URIs
+				cr.notifyChange(Campaign.CONTENT_URI, null);
+				cr.notifyChange(Survey.CONTENT_URI, null);
+				cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+				
 				break;
 			default:
 				throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
@@ -204,32 +214,102 @@ public class DbProvider extends ContentProvider {
 	}
 
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		// we don't support updating for now
-		return 0;
-	}
-	
-	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public synchronized int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;
 		
+		// TODO: should we reject entities that shouldn't be updated?
+		
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
-		SelectionBuilder builder = buildSelection(uri);
+		SelectionBuilder builder = buildSelection(uri, true);
 		
-		// we should also add on the client's selection, perhaps?
+		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
-		// TODO: possibly filter out deletions that shouldn't be performed?
+		// we assume we've matched it correctly, so proceed with the delete
+		count = builder.update(db, values);
+		
+		db.close();
+		
+		if (count > 0) {
+			ContentResolver cr = getContext().getContentResolver();
+			
+			// depending on the type of the thing deleted, we have to notify potentially many URIs
+			switch (sUriMatcher.match(uri)) {
+				case MatcherTypes.RESPONSE_BY_PID:
+				case MatcherTypes.RESPONSES:
+					// notify on the related entity URIs
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+					
+				case MatcherTypes.CAMPAIGN_BY_URN:
+				case MatcherTypes.CAMPAIGNS:			
+					// notify on the related entity URIs
+					cr.notifyChange(Campaign.CONTENT_URI, null);
+					cr.notifyChange(Survey.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+			}
+			
+			// we should always notify on our own uri regardless
+			cr.notifyChange(uri, null);
+		}
+		
+		return count;
+	}
+	
+	@Override
+	public synchronized int delete(Uri uri, String selection, String[] selectionArgs) {
+		// get a handle to our db
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		int count = 0;
+		
+		// TODO: should we reject entities that shouldn't be deleted?
+		
+		// feed the uri to our selection builder, which will
+		// nab the appropriate rows from the right table.
+		SelectionBuilder builder = buildSelection(uri, true);
+		
+		// we should also add on the client's selection
+		builder.where(selection, selectionArgs);
 		
 		// we assume we've matched it correctly, so proceed with the delete
 		count = builder.delete(db);
 		
 		db.close();
 		
-		getContext().getContentResolver().notifyChange(uri, null);
+		if (count > 0) {
+			ContentResolver cr = getContext().getContentResolver();
+			
+			// depending on the type of the thing deleted, we have to notify potentially many URIs
+			switch (sUriMatcher.match(uri)) {
+				case MatcherTypes.RESPONSE_BY_PID:
+				case MatcherTypes.RESPONSES:
+					// notify on the related entity URIs
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+					
+				case MatcherTypes.CAMPAIGN_BY_URN:
+				case MatcherTypes.CAMPAIGNS:			
+					// notify on the related entity URIs
+					cr.notifyChange(Campaign.CONTENT_URI, null);
+					cr.notifyChange(Survey.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+					cr.notifyChange(Response.CONTENT_URI, null);
+					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					break;
+			}
+			
+			// we should always notify on our own uri regardless
+			cr.notifyChange(uri, null);
+		}
+		
 		return count;
 	}
 
@@ -260,7 +340,7 @@ public class DbProvider extends ContentProvider {
         return matcher;
     }
 	
-	private SelectionBuilder buildSelection(Uri uri) {
+	private SelectionBuilder buildSelection(Uri uri, boolean nonQuery) {
 		final SelectionBuilder builder = new SelectionBuilder();
 		
 		// vars used below
@@ -313,6 +393,8 @@ public class DbProvider extends ContentProvider {
 				
 			// RESPONSES
 			case MatcherTypes.RESPONSES:
+				if (nonQuery)
+					return builder.table(Tables.RESPONSES);
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS)
 					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS);
 				
@@ -338,18 +420,23 @@ public class DbProvider extends ContentProvider {
 			
 			// PROMPTS
 			case MatcherTypes.PROMPTS:
-				return builder.table(Tables.PROMPT_RESPONSES);
+				if (nonQuery)
+					return builder.table(Tables.PROMPT_RESPONSES);
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID);
 				
 			case MatcherTypes.PROMPT_BY_PID:
 				promptID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.PROMPT_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.where(PromptResponse._ID + "=?", promptID);
 				
 			case MatcherTypes.RESPONSE_PROMPTS:
 				responseID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
@@ -359,7 +446,8 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				promptID = uri.getPathSegments().get(6);
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
@@ -384,7 +472,8 @@ public class DbProvider extends ContentProvider {
 						throw new IllegalArgumentException("Specified aggregate was not one of AggregateTypes");
 				}
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES)
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.map("aggregate", toClause)

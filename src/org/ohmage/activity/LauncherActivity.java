@@ -22,6 +22,7 @@ import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.feedback.FeedbackService;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -266,13 +267,20 @@ public class LauncherActivity extends Activity {
 						String downloadTimestamp = dateFormat.format(new Date());
 						//String downloadTimestamp = DateFormat.format("yyyy-MM-dd kk:mm:ss", System.currentTimeMillis());
 						
+						// decorate campaign object with extra data before insertion
+						defaultCampaign.mDownloadTimestamp = downloadTimestamp;
+						defaultCampaign.mXml = xmlResponse.getXml();
+						
+						// also get a contentresolver so we can insert this campaign
+						ContentResolver cr = mActivity.getContentResolver();
+						
 						DbHelper dbHelper = new DbHelper(mActivity);
 						if (dbHelper.getCampaign(defaultCampaign.mUrn) == null) {
-							dbHelper.addCampaign(defaultCampaign.mUrn, defaultCampaign.mName, defaultCampaign.mDescription, defaultCampaign.mCreationTimestamp, downloadTimestamp, xmlResponse.getXml());
+							cr.insert(Campaign.CONTENT_URI, defaultCampaign.toCV());
 						} else {
 							Log.w(TAG, "Campaign already exists. This should never happen. Replacing previous entry with new one.");
-							dbHelper.removeCampaign(defaultCampaign.mUrn);
-							dbHelper.addCampaign(defaultCampaign.mUrn, defaultCampaign.mName, defaultCampaign.mDescription, defaultCampaign.mCreationTimestamp, downloadTimestamp, xmlResponse.getXml());
+							cr.delete(Campaign.getCampaignByURN(defaultCampaign.mUrn), null, null);
+							cr.insert(Campaign.CONTENT_URI, defaultCampaign.toCV());
 						}
 						
 						if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
