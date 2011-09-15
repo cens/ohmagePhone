@@ -116,15 +116,14 @@
 	
 	<TextView
 		android:id="@+id/num_response_summary" 
-		android:gravity="left|bottom"
-		android:text="Total: 18 responses from 5 campaigns"
-		android:textSize="15dp"
+		android:gravity="center"
+		android:layout_gravity="center"
+		android:text=""
+		android:textSize="16dp"
 		android:textStyle="italic"
 		android:textColor="#FFFFFF"
 		android:background="@color/dkgray"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-		android:paddingBottom="0dp"/>
+		android:layout_height="fill_parent"/>
 </LinearLayout>
 

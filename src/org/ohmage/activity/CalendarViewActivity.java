@@ -42,6 +42,7 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 {
 	private static final String tag = "CalendarViewActivity";
 
+	private TextView mNumResponseSummary;
 	private Button mCurrentMonthButton;
 	private Button mPrevMonthButton;
 	private Button mNextMonthButton;
@@ -57,6 +58,9 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.calendar_view);
+
+		//Num of Response Summary Text View
+		mNumResponseSummary = (TextView) this.findViewById(R.id.num_response_summary);
 
 		//Calendar
 		_calendar = Calendar.getInstance(Locale.getDefault());
@@ -93,29 +97,34 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 			@Override
 			public void onFilterChanged(String curCampaignValue) {
 				Cursor surveyCursor;
+
+				//Create Cursor
 				if(curCampaignValue.equals("all")){
 					surveyCursor = cr.query(Survey.getSurveys(), null, null, null, Survey.TITLE);
-
-					//When Campaign is All, we concatenate Campain_URN and Survey_ID with a colon
-					for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
-						mSurveyFilter.add(new Pair<String, String>(
-								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE)),
-								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
-								":" +
-								surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID))
-								));
-					}
-					mSurveyFilter.add(0, new Pair<String, String>("All Surveys", "all"));
 				}
 				else{
 					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), null, null, null, null);
-					mSurveyFilter.populate(surveyCursor, Survey.TITLE, Survey.SURVEY_ID) ;
-					mSurveyFilter.add(0, new Pair<String, String>("All Surveys", "all"));
 				}
+
+				//Update SurveyFilter
+				//Concatenate Campain_URN and Survey_ID with a colon for survey filer values,
+				//in order to handle 'All Campaign' case.
+				mSurveyFilter.clearAll();
+				for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
+					mSurveyFilter.add(new Pair<String, String>(
+							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE)),
+							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
+							":" +
+							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID))
+							));
+				}
+				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));
+
 				setGridCellAdapterToDate(CalendarViewActivity.this.mSelectedMonth, 
 						CalendarViewActivity.this.mSelectedYear,
 						mCampaignFilter.getValue(),
 						mSurveyFilter.getValue());
+				surveyCursor.close();
 			}
 		});
 
@@ -232,7 +241,7 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 			printMonth(month, year);
 
 			// Find Number of Events
-			eventsPerMonthMap = findNumberOfEventsPerMonth(year, month, curCampaignValue, curSurveyValue);
+			eventsPerMonthMap = findNumberOfEventsPerMonth(year, month, curSurveyValue);
 		}
 
 		/**
@@ -302,7 +311,7 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 			Log.d(tag, "No. Trailing space to Add: " + trailingSpaces);
 			Log.d(tag, "No. of Days in Previous Month: " + daysInPrevMonth);
 
-			if (cal.isLeapYear(cal.get(Calendar.YEAR)) && mm == 1)
+			if (cal.isLeapYear(cal.get(Calendar.YEAR)) && mm == 2)
 			{
 				++daysInMonth;
 			}
@@ -346,40 +355,36 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 		 * @param month
 		 * @return
 		 */
-		private HashMap<String, Integer> findNumberOfEventsPerMonth(int year, int month, 
-				String curCampaignValue, String curSurveyValue)
-				{
+		private HashMap<String, Integer> findNumberOfEventsPerMonth(int year, int month, String curSurveyValue)
+		{
 			ContentResolver cr = CalendarViewActivity.this.getContentResolver();
+
+			String campaignUrn = curSurveyValue.substring(0, curSurveyValue.lastIndexOf(":"));
+			String surveyID = curSurveyValue.substring(curSurveyValue.lastIndexOf(":")+1, curSurveyValue.length());
 
 			//Create Uri
 			Uri uri;
-			if(curCampaignValue.equals("all")){
+			if(campaignUrn.equals("all")){
 
-				if(curSurveyValue.equals("all")){
+				if(surveyID.equals("all")){
 					uri = Response.getResponses();
 				}
 				else{
-					//All campaigns and all surveys
-					//Parse the current survey value to get the campaign urn
-					String campaignUrn = curSurveyValue.substring(0, curSurveyValue.lastIndexOf(":")+1);
-					String surveyID = curSurveyValue.substring(
-							curSurveyValue.indexOf(":")+1);
-
 					uri = Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID);				    		
 				}
 
 			}
 			else{
-				if(curSurveyValue.equals("all")){
-					uri = Response.getResponsesByCampaign(curCampaignValue);
+				if(surveyID.equals("all")){
+					uri = Response.getResponsesByCampaign(campaignUrn);
 				}
 				else{
-					uri = Response.getResponsesByCampaignAndSurvey(curCampaignValue, curSurveyValue);				    		
+					uri = Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID);				    		
 				}
 			}
 
 			Date curMonthStart = new Date(year, month, 1);
-			Date curMonthEnd = new Date(year, month, getNumberOfDaysOfMonth(month));
+			Date curMonthEnd = new Date(year, month, getNumberOfDaysOfMonth(month-1));
 
 			//Create selection
 			String selection = 
@@ -394,28 +399,30 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 					null, 
 					Response.DATE
 					);
-			
+
 			HashMap<String, Integer> map = new HashMap<String, Integer>();
 			Calendar cal = Calendar.getInstance();
-			
+
+			int numOfResponse = 0;
 			for(responseCursor.moveToFirst();!responseCursor.isAfterLast();responseCursor.moveToNext()){
 				Long time = responseCursor.getLong(responseCursor.getColumnIndex(Response.TIME));
-				
+
 				cal.setTimeInMillis(time);
 				Integer responseMonth = new Integer(cal.get(Calendar.MONTH))+1;
 				Integer responseDay = new Integer(cal.get(Calendar.DAY_OF_MONTH));
 				if(responseMonth == month){
 					if(map.containsKey(responseDay.toString())){
 						Integer value = map.get(responseDay.toString()) + 1;
-						//map.remove(responseDay.toString());
 						map.put(responseDay.toString(), value);
 					}
 					else{
 						map.put(responseDay.toString(),1);
-					}					
+					}
+					numOfResponse ++;
 				}
 			}
-			
+			mNumResponseSummary.setText(this.getMonthAsString(month-1) + ": " + numOfResponse + " / Total: " + responseCursor.getCount());
+			responseCursor.close();
 			return map;
 		}
 
