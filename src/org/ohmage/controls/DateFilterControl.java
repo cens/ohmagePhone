@@ -38,6 +38,14 @@ public class DateFilterControl extends LinearLayout {
 	private AlertDialog mItemListDialog; // stores a dialog containing a list of items, updated by populate() and add()
 	private SimpleDateFormat mDateFormatter;
 	
+	// determines the number of items to show before and after the current date
+	// e.g. 6 ends up being 13 items total: 6 months before, the current month, and 6 months after
+	private final int PICKER_RANGE = 3;
+	// determines the unit that the filter pages through; the date string formatter is set accordingly
+	private final int CALENDAR_UNIT = Calendar.MONTH;
+	// determine if "today" is an option at the top of the list selector
+	private final boolean SHOW_TODAY_IN_PICKER = true;
+	
 	public DateFilterControl(Context context) {
 		super(context);
 		
@@ -49,6 +57,8 @@ public class DateFilterControl extends LinearLayout {
 
 	public DateFilterControl(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		
+		mActivity = (Activity)context;
 		
 		// construct the base control
 		initControl(context);
@@ -88,7 +98,16 @@ public class DateFilterControl extends LinearLayout {
 		mCurrentBtn.setSelected(true);
 		
 		// make a simple date formatter to display the thing (this may change depending on the selection)
-		mDateFormatter = new SimpleDateFormat("MMMM yyyy");
+		switch (CALENDAR_UNIT) {
+			case Calendar.MONTH:
+				mDateFormatter = new SimpleDateFormat("MMMM yyyy");
+				break;
+			case Calendar.YEAR:
+				mDateFormatter = new SimpleDateFormat("yyyy");
+				break;
+			default:
+				mDateFormatter = new SimpleDateFormat("M/dd/yyyy");
+		}
 		
 		// also update the list dialog once (just going from current date)
 		syncState();
@@ -154,7 +173,7 @@ public class DateFilterControl extends LinearLayout {
 		public void onClick(View v) {
 			switch (v.getId()) {
 				case R.id.controls_filter_prev:
-					mSelectedDate.add(Calendar.MONTH, -1);
+					mSelectedDate.add(CALENDAR_UNIT, -1);
 					syncState();
 					break;
 				case R.id.controls_filter_current:
@@ -163,7 +182,7 @@ public class DateFilterControl extends LinearLayout {
 					mItemListDialog.show();
 					break;
 				case R.id.controls_filter_next:
-					mSelectedDate.add(Calendar.MONTH, 1);
+					mSelectedDate.add(CALENDAR_UNIT, 1);
 					syncState();
 					break;
 			}
@@ -180,33 +199,39 @@ public class DateFilterControl extends LinearLayout {
 	
 	// helper method for constructing a list dialog based on the current item list
 	private void updateListDialog() {
-		// build a list of items for us to choose from
-		final int PICKER_RANGE = 6;
-		// RANGE months before, current month, RANGE after, "today"
-		final CharSequence items[] = new CharSequence[PICKER_RANGE*2 + 1];
+		// RANGE months before, current month, RANGE after, optional "today"
+		final CharSequence items[];
+		if (SHOW_TODAY_IN_PICKER)
+			items = new CharSequence[PICKER_RANGE*2 + 2];
+		else
+			items = new CharSequence[PICKER_RANGE*2 + 1];
 		
 		int idx = 0;
+		
 		for (int i = -PICKER_RANGE; i <= PICKER_RANGE; i++) {
 			Calendar curDate = (Calendar)mSelectedDate.clone();
-			curDate.add(Calendar.MONTH, i);
+			curDate.add(CALENDAR_UNIT, i);
 			items[idx++] = mDateFormatter.format(curDate.getTime());
 		}
 
+		if (SHOW_TODAY_IN_PICKER)
+			items[idx++] = "Today";
+		
 		// and construct a dialog that displays the list
 		AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-		builder.setTitle("Choose an item");
+		builder.setTitle("Choose a date");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 		    public void onClick(DialogInterface dialog, int item) {
 		        try {
-		        	if (item == 0)
+		        	if (items[item].equals("Today"))
 		        		mSelectedDate = Calendar.getInstance();
 		        	else
 		        		mSelectedDate.setTime(mDateFormatter.parse(items[item].toString()));
-					
+		        	
 		        	syncState();
 				}
 				catch (ParseException e) {
-					// i know it's bad form, but just ignore it...
+					// just ignore their selection, i guess?
 				}
 		    }
 		});

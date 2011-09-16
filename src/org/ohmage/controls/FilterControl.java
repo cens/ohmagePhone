@@ -46,6 +46,8 @@ public class FilterControl extends LinearLayout {
 	public FilterControl(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
+		mActivity = (Activity)context;
+		
 		// construct the base control
 		initControl(context);
 		
