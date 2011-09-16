@@ -7,7 +7,7 @@ import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.DbContract.SurveyPrompt;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
-import org.ohmage.feedback.utils.SelectionBuilder;
+import org.ohmage.db.utils.SelectionBuilder;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -437,6 +437,7 @@ public class DbProvider extends ContentProvider {
 				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
+					.where("SQ." + SurveyPrompt.PROMPT_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);

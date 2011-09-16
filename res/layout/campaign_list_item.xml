@@ -14,7 +14,7 @@
     	android:layout_marginBottom="8dp"
     	android:layout_marginLeft="8dp"
     	android:background="@drawable/imageview_border"
-    	android:src="@drawable/apple_logo" />
+    	android:src="@drawable/apple_logo"/>
     	
     <LinearLayout
     	android:layout_width="1dp"
@@ -23,6 +23,7 @@
     	android:layout_marginTop="8dp"
     	android:layout_marginBottom="8dp"  
     	android:layout_marginLeft="8dp"
+    	android:layout_marginRight="4dp"
     	android:orientation="vertical" >
     
 	    <TextView 
@@ -43,18 +44,18 @@
     </LinearLayout>
     
     <View 
-    	android:layout_width="2px"
+    	android:layout_width="1px"
     	android:layout_height="match_parent"
     	android:layout_marginTop="8dp"
     	android:layout_marginBottom="8dp"
-    	android:background="#555555"/>
+    	android:background="#D6D6D6"/>
     	
     <ImageButton 
     	android:id="@+id/action_button" 
     	android:layout_width="64dp" 
     	android:layout_height="match_parent" 
     	android:layout_gravity="center"
-    	android:background="#FFFFFF"
+    	android:background="@android:drawable/list_selector_background"
     	android:src="@drawable/ic_menu_camera" />
     	    	
 </LinearLayout>

@@ -56,7 +56,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 11;
+	private static final int DB_VERSION = 12;
 	
 	private Context mContext;
 	
@@ -82,8 +82,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		// nested queries declared here
 		// this may only be used on a PromptResponse query, since it references PromptResponse.COMPOSITE_ID
 		String PROMPTS_GET_TYPES = String.format(
-				"(select %1$s.%4$s, %1$s.%2$s from %1$s where %1$s.%2$s=%3$s)",
-				Tables.SURVEY_PROMPTS, SurveyPrompt.COMPOSITE_ID, PromptResponse.COMPOSITE_ID, SurveyPrompt.PROMPT_TYPE);
+				"(select * from %1$s where %1$s.%2$s=%3$s)",
+				Tables.SURVEY_PROMPTS, SurveyPrompt.COMPOSITE_ID, PromptResponse.COMPOSITE_ID);
 	}
 
 	public DbHelper(Context context) {
@@ -158,7 +158,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ PromptResponse.RESPONSE_ID + " INTEGER, " // cascade delete from responses
 				+ PromptResponse.COMPOSITE_ID + " TEXT, "
 				+ PromptResponse.PROMPT_ID + " TEXT, "
-				+ PromptResponse.PROMPT_VALUE + " TEXT"
+				+ PromptResponse.PROMPT_VALUE + " TEXT, "
+				+ PromptResponse.EXTRA_VALUE + " TEXT"
 				+ ");");
 		
 		// for responses, index the campaign and survey ID columns, as we'll be selecting on them
