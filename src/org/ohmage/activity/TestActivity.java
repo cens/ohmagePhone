@@ -1,5 +1,7 @@
 package org.ohmage.activity;
 
+import java.util.ArrayList;
+
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaign;
@@ -38,8 +40,29 @@ public class TestActivity extends Activity {
 		campaignFilter.setOnChangeListener(new FilterChangeListener() {
 			@Override
 			public void onFilterChanged(String curValue) {
-				Cursor surveys = mCR.query(Survey.getSurveysByCampaignURN(curValue), null, null, null, null);
-				surveyFilter.populate(surveys, Survey.TITLE, Survey.SURVEY_ID);
+				Cursor surveys;
+				
+				if (!curValue.equalsIgnoreCase("all"))
+					surveys = mCR.query(Survey.getSurveysByCampaignURN(curValue), null, null, null, null);
+				else
+					surveys = mCR.query(Survey.getSurveys(), null, null, null, null);
+
+				ArrayList<Pair<String,String>> items = new ArrayList<Pair<String,String>>();
+				
+				while (surveys.moveToNext()) {
+					items.add(
+							Pair.create(
+									surveys.getString(surveys.getColumnIndex(Survey.TITLE)),
+									surveys.getString(surveys.getColumnIndex(Survey.CAMPAIGN_URN)) +
+									":" + surveys.getString(surveys.getColumnIndex(Survey.SURVEY_ID))
+									)
+							);
+				}
+				
+				surveyFilter.populate(items);
+				surveyFilter.add(0, Pair.create("All Surveys", "all"));
+				
+				surveys.close();
 			}
 		});
 		

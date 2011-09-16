@@ -32,14 +32,16 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:paddingTop="0dp"
-		android:paddingBottom="0dp">
+		android:paddingBottom="0dp"
+		android:background="@drawable/controls_filter_bkgnd">
 
 		<Button
 			android:id="@+id/prevMonth"
 			android:text="&lt;"
 			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
+			android:textStyle="bold"
+			android:textColor="@color/black"
+			android:background="@drawable/controls_filter_button"
 			android:layout_gravity="center_vertical"
 			android:layout_width="55dp"
 			android:layout_height="40dp"
@@ -48,20 +50,23 @@
 		<Button
 			android:id="@+id/currentMonth"
 			android:layout_weight="0.6"
-			android:textColor="@color/dkgray"
-			android:background="#FFFFFF"
+			android:textColor="@color/black"
+			android:background="@drawable/controls_filter_button"
 			android:textSize="20dp"
 			android:gravity="center"
 			android:layout_gravity="center_vertical"
 			android:layout_width="wrap_content"
-			android:layout_height="40dp">
+			android:layout_height="40dp"
+			android:enabled="false"
+			>
 		</Button>
 		<Button
 			android:id="@+id/nextMonth"
 			android:text="&gt;"
 			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
+			android:textColor="@color/black"
+			android:textStyle="bold"
+			android:background="@drawable/controls_filter_button"
 			android:layout_gravity="center_vertical"
 			android:layout_width="55dp"
 			android:layout_height="40dp">

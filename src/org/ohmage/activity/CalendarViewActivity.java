@@ -87,21 +87,23 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 		calendarView.setAdapter(adapter);
 	}
 	
-	@Override
-	protected void onPause(){
-		ResponseHistoryTabHost.mCampaignFilterIndex = mCampaignFilter.getIndex();
-		ResponseHistoryTabHost.mSurveyFilterIndex = mSurveyFilter.getIndex();
-	}
-	
-	@Override
-	protected void onResume(){
-		
-	}
+//	@Override
+//	protected void onPause(){
+//		ResponseHistoryTabHost.mCampaignFilterIndex = mCampaignFilter.getIndex();
+//		ResponseHistoryTabHost.mSurveyFilterIndex = mSurveyFilter.getIndex();
+//	}
+//	
+//	@Override
+//	protected void onResume(){
+//		
+//	}
 
 	public void setupFilters(){
 		//Set filters
 		mCampaignFilter = (FilterControl)findViewById(R.id.campaign_filter);
 		mSurveyFilter = (FilterControl)findViewById(R.id.survey_filter);
+		//mCampaignFilter = new FilterControl(this);
+		//mSurveyFilter = new FilterControl(this);
 
 		final ContentResolver cr = getContentResolver();
 		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
@@ -150,6 +152,7 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 			}
 		});
 
+		//String selection = Campaign.STATUS+"!=1";
 		Cursor campaigns = cr.query(Campaign.getCampaigns(), null, null, null, null);
 		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));

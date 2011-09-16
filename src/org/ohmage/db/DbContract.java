@@ -39,6 +39,15 @@ public class DbContract {
 		public static final String CREATION_TIMESTAMP = "creationTimestamp";
 		public static final String DOWNLOAD_TIMESTAMP = "downloadTimestamp";
 		public static final String CONFIGURATION_XML = "configuration_xml";
+		public static final String STATUS = "status";
+		public static final String ICON = "icon";
+		
+		public static final int STATUS_READY = 0;
+		public static final int STATUS_REMOTE = 1;
+		public static final int STATUS_STOPPED = 2;
+		public static final int STATUS_OUT_OF_DATE = 3;
+		public static final int STATUS_INVALID_USER_ROLE = 4;
+		public static final int STATUS_REMOVED = 5;
 
 		// data fields here to support use of the Campaign class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
@@ -49,6 +58,8 @@ public class DbContract {
 		public String mCreationTimestamp;
 		public String mDownloadTimestamp;
 		public String mXml;
+		public int mStatus;
+		public String mIcon;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("campaigns").build();
@@ -91,6 +102,8 @@ public class DbContract {
     			c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
     			c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
     			c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
+    			c.mStatus = cursor.getInt(cursor.getColumnIndex(Campaign.STATUS));
+    			c.mIcon = cursor.getString(cursor.getColumnIndex(Campaign.ICON));
     			campaigns.add(c);
     			
     			cursor.moveToNext();
@@ -110,7 +123,8 @@ public class DbContract {
     		values.put(Campaign.CREATION_TIMESTAMP, mCreationTimestamp);
     		values.put(Campaign.DOWNLOAD_TIMESTAMP, mDownloadTimestamp);
     		values.put(Campaign.CONFIGURATION_XML, mXml);
-    		
+    		values.put(Campaign.STATUS, mStatus);
+    		values.put(Campaign.ICON, mIcon);
         	return values;
         }
 	}
@@ -213,6 +227,7 @@ public class DbContract {
 	public static final class SurveyPrompt implements BaseColumns {
 		public static final String SURVEY_PID = "survey_pid";
 		public static final String SURVEY_ID = "survey_id";
+		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_TEXT = "prompt_text";
 		public static final String PROMPT_TYPE = "prompt_type";
@@ -222,6 +237,7 @@ public class DbContract {
 		public long _id;
 		public long mSurveyPID;
 		public String mSurveyID;
+		public String mCompositeID;
 		public String mPromptID;
 		public String mPromptText;
 		public String mPromptType;
@@ -267,6 +283,7 @@ public class DbContract {
     			temp._id = cursor.getLong(cursor.getColumnIndex(SurveyPrompt._ID));
     			temp.mSurveyPID = cursor.getLong(cursor.getColumnIndex(SurveyPrompt.SURVEY_PID));
     			temp.mSurveyID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.SURVEY_ID));
+    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.COMPOSITE_ID));
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_ID));
     			temp.mPromptText = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TEXT));
     			temp.mPromptType = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TYPE));
@@ -285,6 +302,7 @@ public class DbContract {
         	
         	values.put(SurveyPrompt.SURVEY_PID, mSurveyPID);
         	values.put(SurveyPrompt.SURVEY_ID, mSurveyID);
+        	values.put(SurveyPrompt.COMPOSITE_ID, mCompositeID);
         	values.put(SurveyPrompt.PROMPT_ID, mPromptID);
         	values.put(SurveyPrompt.PROMPT_TEXT, mPromptText);
         	values.put(SurveyPrompt.PROMPT_TYPE, mPromptType);
@@ -351,17 +369,13 @@ public class DbContract {
         public static final String CONTENT_ITEM_TYPE =
         	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".response";
         
-        public static Uri getResponseUri(long insertID) {
-        	return CONTENT_URI.buildUpon().appendPath(Long.toString(insertID)).build();
-        }
-        
         public static Uri getResponses() {
     		return BASE_CONTENT_URI.buildUpon()
 				.appendPath("responses")
 				.build();
         }
         
-        public static Uri getResponsesByID(long responseID) {
+        public static Uri getResponseByID(long responseID) {
     		return BASE_CONTENT_URI.buildUpon()
 				.appendPath("responses")
 				.appendPath(Long.toString(responseID))
@@ -481,6 +495,7 @@ public class DbContract {
 	public static final class PromptResponse implements BaseColumns
 	{
 		public static final String RESPONSE_ID = "response_id";
+		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_VALUE = "prompt_value";
 		
@@ -488,6 +503,7 @@ public class DbContract {
 		// this should be reconciled by some kind of real ORM someday
 		public long _id;
 		public long mResponseID;
+		public String mCompositeID;
 		public String mPromptID;
 		public String mValue;
 		
@@ -516,10 +532,10 @@ public class DbContract {
 				.build();
         }
         
-        public static Uri getPromptsByResponseID(int responseID) {
+        public static Uri getPromptsByResponseID(long responseID) {
     		return BASE_CONTENT_URI.buildUpon()
 				.appendPath("responses")
-				.appendPath(Integer.toString(responseID))
+				.appendPath(Long.toString(responseID))
 				.appendPath("prompts")
 				.build();
         }
@@ -566,6 +582,7 @@ public class DbContract {
     			PromptResponse temp = new PromptResponse();
     			temp._id = cursor.getLong(cursor.getColumnIndex(PromptResponse._ID));
     			temp.mResponseID = cursor.getLong(cursor.getColumnIndex(PromptResponse.RESPONSE_ID));
+    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponse.COMPOSITE_ID));
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_ID));
     			temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_VALUE));
     			prompts.add(temp);
@@ -582,6 +599,7 @@ public class DbContract {
         	ContentValues values = new ContentValues();
         	
         	values.put(PromptResponse.RESPONSE_ID, mResponseID);
+        	values.put(PromptResponse.COMPOSITE_ID, mCompositeID);
         	values.put(PromptResponse.PROMPT_ID, mPromptID);
         	values.put(PromptResponse.PROMPT_VALUE, mValue);
         	
