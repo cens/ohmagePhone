@@ -16,6 +16,9 @@ import android.widget.TextView;
 public class ResponseHistoryTabHost extends TabActivity {
 	TabHost mTabHost;
 	
+	public static int mCampaignFilterIndex;
+	public static int mSurveyFilterIndex;
+	
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.response_history_tab_view);

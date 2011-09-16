@@ -86,6 +86,17 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
 	}
+	
+	@Override
+	protected void onPause(){
+		ResponseHistoryTabHost.mCampaignFilterIndex = mCampaignFilter.getIndex();
+		ResponseHistoryTabHost.mSurveyFilterIndex = mSurveyFilter.getIndex();
+	}
+	
+	@Override
+	protected void onResume(){
+		
+	}
 
 	public void setupFilters(){
 		//Set filters
@@ -494,7 +505,11 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 			try
 			{
 				Date parsedDate = dateFormatter.parse(date_month_year);
-				Toast.makeText(CalendarViewActivity.this, parsedDate.toString(), Toast.LENGTH_SHORT).show();
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(parsedDate.getTime());
+				Toast.makeText(CalendarViewActivity.this, 
+						cal.get(Calendar.MONTH) + "-" + (cal.get(Calendar.DAY_OF_MONTH)+1) + " " + mCampaignFilter.getText() + " " + mSurveyFilter.getText()
+						, Toast.LENGTH_SHORT).show();
 			}
 			catch (ParseException e)
 			{
