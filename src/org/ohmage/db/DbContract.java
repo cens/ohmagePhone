@@ -47,7 +47,8 @@ public class DbContract {
 		public static final int STATUS_STOPPED = 2;
 		public static final int STATUS_OUT_OF_DATE = 3;
 		public static final int STATUS_INVALID_USER_ROLE = 4;
-		public static final int STATUS_REMOVED = 5;
+		public static final int STATUS_DELETED = 5;
+		public static final int STATUS_VAGUE = 6;
 
 		// data fields here to support use of the Campaign class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
