@@ -2,6 +2,7 @@ package org.ohmage.activity;
 
 import java.util.ArrayList;
 
+import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaign;
@@ -28,12 +29,14 @@ public class TestActivity extends Activity {
 		// also create a filter that will be populated by the survey list
 		final FilterControl campaignFilter = new FilterControl(this);
 		final FilterControl surveyFilter = new FilterControl(this);
+		final DateFilterControl dateFilter = new DateFilterControl(this);
 		
 		LinearLayout layout = new LinearLayout(this);
 		layout.setOrientation(LinearLayout.VERTICAL);
 		
 		layout.addView(campaignFilter, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		layout.addView(surveyFilter, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		layout.addView(dateFilter, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		
 		addContentView(layout, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		
@@ -67,7 +70,7 @@ public class TestActivity extends Activity {
 		});
 		
 		mCR = getContentResolver();
-		Cursor campaigns = mCR.query(Campaign.getCampaigns(), null, null, null, null);
+		Cursor campaigns = mCR.query(Campaign.getCampaigns(), null, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
 		campaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
 		campaignFilter.add(0, Pair.create("All Campaigns", "all"));
 	}
