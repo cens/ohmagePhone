@@ -18,30 +18,30 @@
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-			<Button android:id="@+id/dash_campaigns_btn" style="@style/HomeButton" android:drawableTop="@drawable/campaigns"
+			<Button android:id="@+id/dash_campaigns_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_campaigns"
 				android:text="Campaigns" />
 
-			<Button android:id="@+id/dash_surveys_btn" style="@style/HomeButton" android:drawableTop="@drawable/surveys"
+			<Button android:id="@+id/dash_surveys_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_surveys"
 				android:text="Surveys" />
 		</LinearLayout>
 
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-			<Button android:id="@+id/dash_feedback_btn" style="@style/HomeButton" android:drawableTop="@drawable/feedback"
+			<Button android:id="@+id/dash_feedback_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_resphistory"
 				android:text="Response History" />
 
-			<Button android:id="@+id/dash_uploadqueue_btn" style="@style/HomeButton" android:drawableTop="@drawable/status"
+			<Button android:id="@+id/dash_uploadqueue_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_upqueue"
 				android:text="Upload Queue" />
 		</LinearLayout>
 
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-			<Button android:id="@+id/dash_profile_btn" style="@style/HomeButton" android:drawableTop="@drawable/profile"
+			<Button android:id="@+id/dash_profile_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_profile"
 				android:text="Profile" />
 
-			<Button android:id="@+id/dash_settings_btn" style="@style/HomeButton" android:drawableTop="@drawable/settings"
+			<Button android:id="@+id/dash_settings_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_settings"
 				android:text="Settings" />
 		</LinearLayout>
 	</LinearLayout>
