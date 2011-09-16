@@ -498,6 +498,7 @@ public class DbContract {
 		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_VALUE = "prompt_value";
+		public static final String EXTRA_VALUE = "extra_value";
 		
 		// data fields here to support use of the PromptResponse class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
@@ -506,6 +507,7 @@ public class DbContract {
 		public String mCompositeID;
 		public String mPromptID;
 		public String mValue;
+		public String mExtraValue;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("prompts").build();
@@ -585,6 +587,7 @@ public class DbContract {
     			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponse.COMPOSITE_ID));
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_ID));
     			temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_VALUE));
+    			temp.mExtraValue = cursor.getString(cursor.getColumnIndex(PromptResponse.EXTRA_VALUE));
     			prompts.add(temp);
     			
     			cursor.moveToNext();
@@ -602,6 +605,7 @@ public class DbContract {
         	values.put(PromptResponse.COMPOSITE_ID, mCompositeID);
         	values.put(PromptResponse.PROMPT_ID, mPromptID);
         	values.put(PromptResponse.PROMPT_VALUE, mValue);
+        	values.put(PromptResponse.EXTRA_VALUE, mExtraValue);
         	
         	return values;
         }
