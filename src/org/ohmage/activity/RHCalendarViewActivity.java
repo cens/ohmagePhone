@@ -38,7 +38,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CalendarViewActivity extends ResponseHistory implements OnClickListener
+public class RHCalendarViewActivity extends ResponseHistory implements OnClickListener
 {
 	private static final String tag = "CalendarViewActivity";
 
@@ -87,16 +87,19 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 		calendarView.setAdapter(adapter);
 	}
 	
-//	@Override
-//	protected void onPause(){
-//		ResponseHistoryTabHost.mCampaignFilterIndex = mCampaignFilter.getIndex();
-//		ResponseHistoryTabHost.mSurveyFilterIndex = mSurveyFilter.getIndex();
-//	}
-//	
-//	@Override
-//	protected void onResume(){
-//		
-//	}
+	@Override
+	protected void onPause(){
+		super.onPause();
+		RHTabHost.setCampaignFilterIndex(mCampaignFilter.getIndex());
+		RHTabHost.setSurveyFilterIndex(mSurveyFilter.getIndex());
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
+		mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+	}
 
 	public void setupFilters(){
 		//Set filters
@@ -133,8 +136,8 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 				}
 				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));
 
-				setGridCellAdapterToDate(CalendarViewActivity.this.mSelectedMonth, 
-						CalendarViewActivity.this.mSelectedYear,
+				setGridCellAdapterToDate(RHCalendarViewActivity.this.mSelectedMonth, 
+						RHCalendarViewActivity.this.mSelectedYear,
 						mCampaignFilter.getValue(),
 						mSurveyFilter.getValue());
 				surveyCursor.close();
@@ -145,8 +148,8 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 			@Override
 			public void onFilterChanged(String curValue) {
 				setGridCellAdapterToDate(
-						CalendarViewActivity.this.mSelectedMonth,
-						CalendarViewActivity.this.mSelectedYear, 
+						RHCalendarViewActivity.this.mSelectedMonth,
+						RHCalendarViewActivity.this.mSelectedYear, 
 						mCampaignFilter.getValue(), 
 						mSurveyFilter.getValue());			
 			}
@@ -371,7 +374,7 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 		 */
 		private HashMap<String, Integer> findNumberOfEventsPerMonth(int year, int month, String curSurveyValue)
 		{
-			ContentResolver cr = CalendarViewActivity.this.getContentResolver();
+			ContentResolver cr = RHCalendarViewActivity.this.getContentResolver();
 
 			String campaignUrn = curSurveyValue.substring(0, curSurveyValue.lastIndexOf(":"));
 			String surveyID = curSurveyValue.substring(curSurveyValue.lastIndexOf(":")+1, curSurveyValue.length());
@@ -399,11 +402,6 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 
 			Date curMonthStart = new Date(year, month, 1);
 			Date curMonthEnd = new Date(year, month, getNumberOfDaysOfMonth(month-1));
-
-			//Create selection
-			String selection = 
-					Response.TIME + " > " + curMonthStart.getTime() + " AND " + 
-							Response.TIME + " < " + curMonthEnd.getTime();
 
 			//Create Query
 			Cursor responseCursor = cr.query(
@@ -510,7 +508,7 @@ public class CalendarViewActivity extends ResponseHistory implements OnClickList
 				Date parsedDate = dateFormatter.parse(date_month_year);
 				Calendar cal = Calendar.getInstance();
 				cal.setTimeInMillis(parsedDate.getTime());
-				Toast.makeText(CalendarViewActivity.this, 
+				Toast.makeText(RHCalendarViewActivity.this, 
 						cal.get(Calendar.MONTH) + "-" + (cal.get(Calendar.DAY_OF_MONTH)+1) + " " + mCampaignFilter.getText() + " " + mSurveyFilter.getText()
 						, Toast.LENGTH_SHORT).show();
 			}

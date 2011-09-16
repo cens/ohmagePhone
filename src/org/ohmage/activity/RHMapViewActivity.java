@@ -50,7 +50,7 @@ import com.google.android.maps.OverlayItem;
 
 import edu.ucla.cens.systemlog.Log;
 
-public class MapViewActivity extends ResponseHistory {
+public class RHMapViewActivity extends ResponseHistory {
 
 	static final String TAG = "MapActivityLog"; 
 	private MapViewItemizedOverlay itemizedoverlay = null;
@@ -76,9 +76,25 @@ public class MapViewActivity extends ResponseHistory {
 	    
 	    mControl = mMapView.getController();
 	    mControl.setZoom(11);
-
+	    
 	    setupFilters();
-
+	    
+	    mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
+	    mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+	}
+	
+	@Override
+	protected void onPause(){
+		super.onPause();
+		RHTabHost.setCampaignFilterIndex(mCampaignFilter.getIndex());
+		RHTabHost.setSurveyFilterIndex(mSurveyFilter.getIndex());
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
+		mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
 	}
 		
 	private void setMapCenterToCurrentLocation(){

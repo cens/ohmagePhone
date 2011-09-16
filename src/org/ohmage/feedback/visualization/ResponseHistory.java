@@ -4,7 +4,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import org.ohmage.R;
-import org.ohmage.activity.CalendarViewActivity;
+import org.ohmage.activity.RHCalendarViewActivity;
+import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaign;
@@ -20,6 +21,7 @@ import com.google.android.maps.MapActivity;
 public class ResponseHistory extends MapActivity {
 	public FilterControl mCampaignFilter;
 	public FilterControl mSurveyFilter;
+	public DateFilterControl mDateFilter;
 	
 	/**
 	 * Initialize Campaign filter and Survey filter for mapview and calendarview

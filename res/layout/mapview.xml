@@ -26,7 +26,7 @@
 		android:layout_height="wrap_content"
 	/>
 	
-	<org.ohmage.controls.FilterControl
+	<org.ohmage.controls.DateFilterControl
 		android:id="@+id/date_filter"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
