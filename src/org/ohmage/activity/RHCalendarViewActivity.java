@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.ohmage.R;
+import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaign;
@@ -52,7 +53,13 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 	private int mSelectedMonth, mSelectedYear;
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
+	private FilterControl mCampaignFilter;
+	private FilterControl mSurveyFilter;
+	private DateFilterControl mDateFilter;
 
+	//TODO
+	//Change current dateFilterControl to the generic DateFilterControl.
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -92,6 +99,10 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		super.onPause();
 		RHTabHost.setCampaignFilterIndex(mCampaignFilter.getIndex());
 		RHTabHost.setSurveyFilterIndex(mSurveyFilter.getIndex());
+
+		Calendar cal = Calendar.getInstance();
+		cal.set(mSelectedYear, mSelectedMonth-1, 1);
+		RHTabHost.setDateFilterValue(cal);
 	}
 	
 	@Override
@@ -99,14 +110,16 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		super.onResume();
 		mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
 		mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+		
+		Calendar cal = RHTabHost.getDateFilterValue();
+		mSelectedMonth = cal.get(Calendar.MONTH)+1;
+		mSelectedYear = cal.get(Calendar.YEAR);
 	}
 
 	public void setupFilters(){
 		//Set filters
 		mCampaignFilter = (FilterControl)findViewById(R.id.campaign_filter);
 		mSurveyFilter = (FilterControl)findViewById(R.id.survey_filter);
-		//mCampaignFilter = new FilterControl(this);
-		//mSurveyFilter = new FilterControl(this);
 
 		final ContentResolver cr = getContentResolver();
 		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
@@ -400,41 +413,46 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				}
 			}
 
-			Date curMonthStart = new Date(year, month, 1);
-			Date curMonthEnd = new Date(year, month, getNumberOfDaysOfMonth(month-1));
+
+			GregorianCalendar greCalStart = new GregorianCalendar(mSelectedYear, mSelectedMonth-1, 1);
+			GregorianCalendar greCalEnd = new GregorianCalendar(mSelectedYear, mSelectedMonth-1, greCalStart.getActualMaximum(GregorianCalendar.DAY_OF_MONTH));
+			
+			String selection = 
+					Response.TIME + " > " + greCalStart.getTime().getTime() +
+					" AND " + 
+					Response.TIME + " < " + greCalEnd.getTime().getTime();
 
 			//Create Query
-			Cursor responseCursor = cr.query(
+			Cursor responseCursorThisMonth = cr.query(
 					uri, 
 					null, 
-					null, 
+					selection, 
 					null, 
 					Response.DATE
 					);
+			
+			Cursor responseCursorTotal = cr.query(uri, null, null, null, null);
 
 			HashMap<String, Integer> map = new HashMap<String, Integer>();
 			Calendar cal = Calendar.getInstance();
 
 			int numOfResponse = 0;
-			for(responseCursor.moveToFirst();!responseCursor.isAfterLast();responseCursor.moveToNext()){
-				Long time = responseCursor.getLong(responseCursor.getColumnIndex(Response.TIME));
+			for(responseCursorThisMonth.moveToFirst();!responseCursorThisMonth.isAfterLast();responseCursorThisMonth.moveToNext()){
+				Long time = responseCursorThisMonth.getLong(responseCursorThisMonth.getColumnIndex(Response.TIME));
 
 				cal.setTimeInMillis(time);
-				Integer responseMonth = new Integer(cal.get(Calendar.MONTH))+1;
 				Integer responseDay = new Integer(cal.get(Calendar.DAY_OF_MONTH));
-				if(responseMonth == month){
-					if(map.containsKey(responseDay.toString())){
-						Integer value = map.get(responseDay.toString()) + 1;
-						map.put(responseDay.toString(), value);
-					}
-					else{
-						map.put(responseDay.toString(),1);
-					}
-					numOfResponse ++;
+				if(map.containsKey(responseDay.toString())){
+					Integer value = map.get(responseDay.toString()) + 1;
+					map.put(responseDay.toString(), value);
 				}
+				else{
+					map.put(responseDay.toString(),1);
+				}
+				numOfResponse ++;
 			}
-			mNumResponseSummary.setText(this.getMonthAsString(month-1) + ": " + numOfResponse + " / Total: " + responseCursor.getCount());
-			responseCursor.close();
+			mNumResponseSummary.setText(this.getMonthAsString(month-1) + ": " + numOfResponse + " / Total: " + responseCursorTotal.getCount());
+			responseCursorThisMonth.close();
 			return map;
 		}
 
