@@ -114,6 +114,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		Calendar cal = RHTabHost.getDateFilterValue();
 		mSelectedMonth = cal.get(Calendar.MONTH)+1;
 		mSelectedYear = cal.get(Calendar.YEAR);
+		mCurrentMonthButton.setText(DateFormat.format(dateTemplate, cal.getTime()));
 	}
 
 	public void setupFilters(){
