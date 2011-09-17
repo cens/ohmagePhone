@@ -1,16 +1,19 @@
 package org.ohmage.activity;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.ohmage.CampaignXmlHelper;
-import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
+import org.ohmage.controls.DateFilterControl;
+import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract;
@@ -23,11 +26,9 @@ import org.ohmage.feedback.visualization.ResponseHistory;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.photo.PhotoPrompt;
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,18 +38,16 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
-
-import edu.ucla.cens.systemlog.Log;
 
 public class RHMapViewActivity extends ResponseHistory {
 
@@ -59,6 +58,9 @@ public class RHMapViewActivity extends ResponseHistory {
 	private String mCampaignUrn;
 	private String mSurveyId;
 	private List<Prompt> mPrompts;
+	private FilterControl mCampaignFilter;
+	private FilterControl mSurveyFilter;
+	private DateFilterControl mDateFilter;
 	
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -78,9 +80,138 @@ public class RHMapViewActivity extends ResponseHistory {
 	    mControl.setZoom(11);
 	    
 	    setupFilters();
+	    displayItemsOnMap();
+	}
+	
+	public void displayItemsOnMap(){
+		mMapView.getOverlays().clear();
+		//Get the currently selected CampaignUrn and SurveyID
+	    String curSurveyValue = mSurveyFilter.getValue();
+		mCampaignUrn = curSurveyValue.substring(0, curSurveyValue.lastIndexOf(":"));
+		mSurveyId = curSurveyValue.substring(curSurveyValue.lastIndexOf(":")+1, curSurveyValue.length());
+
+		//Retrieve data from CP
+	    ContentResolver cr = this.getContentResolver();
+		
+	    Uri queryUri;
+		if(mCampaignUrn.equals("all")){
+			if(mSurveyId.equals("all")){
+				queryUri = Response.getResponses();
+			}
+			else{
+				queryUri = Response.getResponsesByCampaignAndSurvey(mCampaignUrn, mSurveyId);
+			}
+		}
+		else{
+			if(mSurveyId.equals("all")){
+				queryUri = Response.getResponsesByCampaign(mCampaignUrn);
+			}
+			else{
+				queryUri = Response.getResponsesByCampaignAndSurvey(mCampaignUrn, mSurveyId);
+			}
+		}
+		
+
+		Calendar cal = mDateFilter.getValue();
+		GregorianCalendar greCalStart = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), 1);
+		GregorianCalendar greCalEnd = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+		
+		String selection = 
+				Response.TIME + " > " + greCalStart.getTime().getTime() +
+				" AND " + 
+				Response.TIME + " < " + greCalEnd.getTime().getTime();
+	    Cursor cursor = cr.query(queryUri, null, selection, null, null);
+    
+	    List<Responses> listResponses = new ArrayList<Responses>();
+	    while(cursor.moveToNext()){
+	    	String hashcode = cursor.getString(cursor.getColumnIndex(Response.HASHCODE));
+	    	String locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
+	    	String latitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
+	    	String longitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
+	    	String response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
+	    	String date = cursor.getString(cursor.getColumnIndex(Response.DATE));
+	    	String time = cursor.getString(cursor.getColumnIndex(Response.TIME));
+	    	listResponses.add(new Responses(hashcode, locationStatus, latitude, longitude, response, date));	    	
+	    }
+	    cursor.close();
+
+	    //Init the map center to current location
+	    setMapCenterToCurrentLocation();
+
+	    //Add overlays to the map
+	    List<Overlay> mapOverlays = mMapView.getOverlays();
+	    Drawable drawable = this.getResources().getDrawable(R.drawable.darkgreen_marker_a);
+	    itemizedoverlay= new MapViewItemizedOverlay(drawable, this);
 	    
-	    mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
-	    mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+	    for(Responses i : listResponses){
+	    	if(i.getLocationStatus().equalsIgnoreCase("valid")){
+	    		addNewItemToMap(i.getLatitude(), i.getLongitude(), "Response from "+ i.getDate().substring(5, i.getDate().length()), i.getResponses());
+	    	}
+	    }
+	    if(itemizedoverlay.size() > 0){
+		    mapOverlays.add(itemizedoverlay);
+		    mControl.setCenter(itemizedoverlay.getCenter());
+	    }
+	    //Toast.makeText(this, "Displaying " + itemizedoverlay.size() + " points", Toast.LENGTH_LONG).show();
+	}
+	
+	public void setupFilters(){
+		//Set filters
+		mDateFilter = (DateFilterControl)findViewById(R.id.date_filter);
+		mCampaignFilter = (FilterControl)findViewById(R.id.campaign_filter);
+		mSurveyFilter = (FilterControl)findViewById(R.id.survey_filter);
+	
+		final ContentResolver cr = getContentResolver();
+		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
+			@Override
+			public void onFilterChanged(String curCampaignValue) {
+				Cursor surveyCursor;
+	
+				//Create Cursor
+				if(curCampaignValue.equals("all")){
+					surveyCursor = cr.query(Survey.getSurveys(), null, null, null, Survey.TITLE);
+				}
+				else{
+					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), null, null, null, null);
+				}
+	
+				//Update SurveyFilter
+				//Concatenate Campain_URN and Survey_ID with a colon for survey filer values,
+				//in order to handle 'All Campaign' case.
+				mSurveyFilter.clearAll();
+				for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
+					mSurveyFilter.add(new Pair<String, String>(
+							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE)),
+							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
+							":" +
+							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID))
+							));
+				}
+				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));
+				surveyCursor.close();
+				
+				displayItemsOnMap();
+			}
+		});
+	
+		mSurveyFilter.setOnChangeListener(new FilterChangeListener() {
+			@Override
+			public void onFilterChanged(String curValue) {
+				displayItemsOnMap();
+			}
+		});
+		
+		mDateFilter.setOnChangeListener(new DateFilterChangeListener() {
+			
+			@Override
+			public void onFilterChanged(Calendar curValue) {
+				displayItemsOnMap();
+			}
+		});
+		
+		Cursor campaigns = cr.query(Campaign.getCampaigns(), null, null, null, null);
+		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
+		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));	
 	}
 	
 	@Override
@@ -88,6 +219,7 @@ public class RHMapViewActivity extends ResponseHistory {
 		super.onPause();
 		RHTabHost.setCampaignFilterIndex(mCampaignFilter.getIndex());
 		RHTabHost.setSurveyFilterIndex(mSurveyFilter.getIndex());
+		RHTabHost.setDateFilterValue(mDateFilter.getValue());
 	}
 	
 	@Override
@@ -95,6 +227,7 @@ public class RHMapViewActivity extends ResponseHistory {
 		super.onResume();
 		mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
 		mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+		mDateFilter.setDate(RHTabHost.getDateFilterValue());
 	}
 		
 	private void setMapCenterToCurrentLocation(){

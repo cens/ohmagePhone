@@ -1,5 +1,8 @@
 package org.ohmage.activity;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.ohmage.R;
 
 import android.app.TabActivity;
@@ -9,7 +12,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TabHost;
-import android.widget.TabHost.TabContentFactory;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
@@ -18,14 +20,15 @@ public class RHTabHost extends TabActivity {
 	
 	private static int mCampaignFilterIndex;
 	private static int mSurveyFilterIndex;
+	private static Calendar mDateFilterIndex;
 	
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.response_history_tab_view);
 		
+		mDateFilterIndex = Calendar.getInstance();
 		
 		mTabHost = getTabHost();
-
 		Intent intent = null; 
 		
 		intent = new Intent().setClass(this, RHCalendarViewActivity.class);
@@ -57,11 +60,19 @@ public class RHTabHost extends TabActivity {
 		mSurveyFilterIndex = idx;
 	}
 	
+	public static void setDateFilterValue(Calendar cal){
+		mDateFilterIndex = cal;
+	}
+	
 	public static int getCampaignFilterIndex(){
 		return mCampaignFilterIndex;
 	}
 	
 	public static int getSurveyFilterIndex(){
 		return mSurveyFilterIndex;
+	}
+	
+	public static Calendar getDateFilterValue(){
+		return mDateFilterIndex;
 	}
 }
