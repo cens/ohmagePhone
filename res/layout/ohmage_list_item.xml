@@ -27,23 +27,24 @@
     	android:orientation="vertical" >
     
 	    <TextView 
-	    	android:id="@+id/name_text" 
+	    	android:id="@+id/main_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"  
 	    	android:textAppearance="?android:attr/textAppearanceMedium" 
-	    	android:text="Campaign Name " />
+	    	android:text="Main Text" />
 	    	
 	    <TextView 
-	    	android:id="@+id/urn_text" 
+	    	android:id="@+id/sub_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content" 
 	    	android:layout_marginTop="6dp"
 	    	android:textAppearance="?android:attr/textAppearanceSmall" 
-	    	android:text="urn:campaign" />
+	    	android:text="Sub Text" />
     
     </LinearLayout>
     
-    <View 
+    <View
+    	android:id="@+id/action_separator" 
     	android:layout_width="1px"
     	android:layout_height="match_parent"
     	android:layout_marginTop="8dp"
@@ -55,7 +56,6 @@
     	android:layout_width="64dp" 
     	android:layout_height="match_parent" 
     	android:layout_gravity="center"
-    	android:background="@android:drawable/list_selector_background"
-    	android:src="@drawable/ic_menu_camera" />
+    	android:background="@android:drawable/list_selector_background" />
     	    	
 </LinearLayout>
