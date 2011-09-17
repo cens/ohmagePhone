@@ -454,6 +454,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			}
 			mNumResponseSummary.setText(this.getMonthAsString(month-1) + ": " + numOfResponse + " / Total: " + responseCursorTotal.getCount());
 			responseCursorThisMonth.close();
+			responseCursorTotal.close();
 			return map;
 		}
 
