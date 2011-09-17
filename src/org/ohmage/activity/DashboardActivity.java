@@ -74,6 +74,7 @@ public class DashboardActivity extends Activity {
 					break;
 					
 				case R.id.dash_surveys_btn:
+					startActivity(new Intent(c, SurveyListActivity.class));
 					break;
 					
 				case R.id.dash_feedback_btn:

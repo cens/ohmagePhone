@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.ListView;
 
 public class CampaignListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor> {
+	
 	private static final String TAG = "CampaignListFragment";
 	
 	public static final int MODE_MY_CAMPAIGNS = 0;
@@ -33,21 +34,19 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
         public void onCampaignActionError(String campaignUrn);
     }
 
-	public void setMode(int mode) {
-		if (mode == MODE_MY_CAMPAIGNS && mode == MODE_ADD_CAMPAIGNS) {
-			this.mMode = mode;
-		} else {
-			Log.e(TAG, "Invalid mode specified. Defaulting to MODE_MY_CAMPAIGNS");
-			this.mMode = MODE_MY_CAMPAIGNS;
-		}
-	}
+//	public void setMode(int mode) {
+//		if (mode == MODE_MY_CAMPAIGNS && mode == MODE_ADD_CAMPAIGNS) {
+//			this.mMode = mode;
+//		} else {
+//			Log.e(TAG, "Invalid mode specified. Defaulting to MODE_MY_CAMPAIGNS");
+//			this.mMode = MODE_MY_CAMPAIGNS;
+//		}
+//	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+
 		super.onActivityCreated(savedInstanceState);
-		
-		Log.i(TAG, getActivity().getComponentName().getClassName());
 		
 		if (getActivity().getComponentName().getClassName().equals(CampaignAddActivity.class.getName())) {
 			mMode = MODE_ADD_CAMPAIGNS;
@@ -55,7 +54,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 			mMode = MODE_MY_CAMPAIGNS;
 		}
 		
-		setEmptyText("Loading campaigns!");
+		setEmptyText("Loading campaigns...");
 		
 		mAdapter = new CampaignListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
@@ -78,7 +77,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Log.i(TAG, "onListItemClick");
+		
 		Cursor c = (Cursor) getListAdapter().getItem(position);
 		mListener.onCampaignActionView(c.getString(c.getColumnIndex(Campaign.URN)));
 	}

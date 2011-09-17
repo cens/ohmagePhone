@@ -25,11 +25,6 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mListener = listener;
-//		try {
-//			mListener = (OnCampaignActionListener) context;
-//		} catch (ClassCastException e) {
-//	        throw new ClassCastException(context.toString() + " must implement OnCampaignActionListener");
-//	    }
 	}
 
 	@Override

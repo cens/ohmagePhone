@@ -140,6 +140,7 @@ public class DbContract {
 		public static final String TITLE = "title";
 		public static final String DESCRIPTION = "description";
 		public static final String SUMMARY = "summary";
+		public static final String SUBMIT_TEXT = "submit_text";
 
 		// data fields here to support use of the Survey class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
@@ -149,6 +150,7 @@ public class DbContract {
 		public String mTitle;
 		public String mDescription;
 		public String mSummary;
+		public String mSubmitText;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("surveys").build();
@@ -200,6 +202,7 @@ public class DbContract {
     			s.mTitle = cursor.getString(cursor.getColumnIndex(Survey.TITLE));
     			s.mDescription = cursor.getString(cursor.getColumnIndex(Survey.DESCRIPTION));
     			s.mSummary = cursor.getString(cursor.getColumnIndex(Survey.SUMMARY));
+    			s.mSubmitText = cursor.getString(cursor.getColumnIndex(Survey.SUBMIT_TEXT));
     			surveys.add(s);
     			
     			cursor.moveToNext();
@@ -218,6 +221,7 @@ public class DbContract {
         	values.put(Survey.TITLE, mTitle);
         	values.put(Survey.DESCRIPTION, mDescription);
         	values.put(Survey.SUMMARY, mSummary);
+        	values.put(Survey.SUBMIT_TEXT, mSubmitText);
     		
         	return values;
         }

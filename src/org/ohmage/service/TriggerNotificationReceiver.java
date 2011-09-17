@@ -39,9 +39,7 @@ public class TriggerNotificationReceiver extends BroadcastReceiver {
 
 		if (TriggerFramework.ACTION_TRIGGER_NOTIFICATION.equals(action)) {
 			Intent i = new Intent(context, SurveyListActivity.class);
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // need to fix this so it doesn't start new activity if already on screen
 			i.putExtra("campaign_urn", campaignUrn);
-			i.putExtra("campaign_name", campaignName);
 			context.startActivity(i);
 		}
 	}

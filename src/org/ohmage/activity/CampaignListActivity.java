@@ -70,7 +70,9 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 
 	@Override
 	public void onCampaignActionSurveys(String campaignUrn) {
-		Toast.makeText(this, "Launching Survey List Activity", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(this, SurveyListActivity.class);
+		intent.putExtra("campaign_urn", campaignUrn);
+		startActivity(intent);
 	}
 
 	@Override

@@ -112,7 +112,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Survey.SURVEY_ID + " TEXT, "
 				+ Survey.TITLE + " TEXT, "
 				+ Survey.DESCRIPTION + " TEXT, "
-				+ Survey.SUMMARY + " TEXT"
+				+ Survey.SUMMARY + " TEXT, "
+				+ Survey.SUBMIT_TEXT + " TEXT"
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEY_PROMPTS + " ("
@@ -557,6 +558,8 @@ public class DbHelper extends SQLiteOpenHelper {
 								curSurvey.mDescription = xpp.getText();
 							else if (tagStack.peek().equalsIgnoreCase("summaryText"))
 								curSurvey.mSummary = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("submitText"))
+								curSurvey.mSubmitText = xpp.getText();
 						}
 						else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("prompt")) {
 							SurveyPrompt sp = prompts.lastElement();

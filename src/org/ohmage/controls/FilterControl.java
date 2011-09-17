@@ -200,6 +200,20 @@ public class FilterControl extends LinearLayout {
 		return mItemList.get(mSelectionIndex).second;
 	}
 	
+	/**
+	 * Sets the currently selected item by its value, if the value exists in the collection of items 
+	 * @return true if value existed in collection, false if not
+	 */
+	public boolean setValue(String value) {
+		for (int i = 0; i < mItemList.size(); i++) {
+			if (mItemList.get(i).second.equals(value)) {
+				setIndex(i);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void clearAll(){
 		mItemList.clear();
 		mSelectionIndex = 0;
