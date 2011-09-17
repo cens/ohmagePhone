@@ -451,12 +451,16 @@ public class DbHelper extends SQLiteOpenHelper {
 			// actually insert the campaign
 			rowId = db.insert(Tables.CAMPAIGNS, null, values);
 			
-			// xml parsing below, inserts into Surveys and SurveyPrompts
-			if (populateSurveysFromCampaignXML(db, campaignUrn, configurationXml)) {
-				// i think we're done now; finish up the transaction
+			if (configurationXml != null) {
+				// xml parsing below, inserts into Surveys and SurveyPrompts
+				if (populateSurveysFromCampaignXML(db, campaignUrn, configurationXml)) {
+					// i think we're done now; finish up the transaction
+					db.setTransactionSuccessful();
+				}
+				// else we fail and the transaction gets rolled back
+			} else {
 				db.setTransactionSuccessful();
 			}
-			// else we fail and the transaction gets rolled back
 		}
 		finally {
 			db.endTransaction();
