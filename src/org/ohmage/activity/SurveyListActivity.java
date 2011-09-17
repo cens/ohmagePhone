@@ -199,7 +199,7 @@ public class SurveyListActivity extends ListActivity {
 			return true;
 			
 		case R.id.mapview:
-			intent = new Intent(this, MapViewActivity.class);
+			intent = new Intent(this, RHMapViewActivity.class);
 			startActivityForResult(intent, 1);			
 			return true;
 		}

@@ -56,7 +56,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 11;
+	private static final int DB_VERSION = 12;
 	
 	private Context mContext;
 	
@@ -82,8 +82,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		// nested queries declared here
 		// this may only be used on a PromptResponse query, since it references PromptResponse.COMPOSITE_ID
 		String PROMPTS_GET_TYPES = String.format(
-				"(select %1$s.%4$s, %1$s.%2$s from %1$s where %1$s.%2$s=%3$s)",
-				Tables.SURVEY_PROMPTS, SurveyPrompt.COMPOSITE_ID, PromptResponse.COMPOSITE_ID, SurveyPrompt.PROMPT_TYPE);
+				"(select * from %1$s where %1$s.%2$s=%3$s)",
+				Tables.SURVEY_PROMPTS, SurveyPrompt.COMPOSITE_ID, PromptResponse.COMPOSITE_ID);
 	}
 
 	public DbHelper(Context context) {
@@ -158,7 +158,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ PromptResponse.RESPONSE_ID + " INTEGER, " // cascade delete from responses
 				+ PromptResponse.COMPOSITE_ID + " TEXT, "
 				+ PromptResponse.PROMPT_ID + " TEXT, "
-				+ PromptResponse.PROMPT_VALUE + " TEXT"
+				+ PromptResponse.PROMPT_VALUE + " TEXT, "
+				+ PromptResponse.EXTRA_VALUE + " TEXT"
 				+ ");");
 		
 		// for responses, index the campaign and survey ID columns, as we'll be selecting on them
@@ -274,66 +275,23 @@ public class DbHelper extends SQLiteOpenHelper {
 	/**
 	 * Adds a response to the feedback database.
 	 * 
-	 * @param campaignUrn the campaign URN for which to record the survey response
-	 * @param username the username to whom the survey response belongs
-	 * @param date the date on which the survey response was recorded, assumedly in UTC
-	 * @param time milliseconds since the epoch when this survey response was completed
-	 * @param timezone the timezone in which the survey response was completed
-	 * @param locationStatus LOCATION_-prefixed final string from {@link SurveyGeotagService}; if LOCATION_UNAVAILABLE is chosen, location data is ignored
-	 * @param locationLatitude latitude at which the survey response was recorded, if available
-	 * @param locationLongitude longitude at which the survey response was recorded, if available
-	 * @param locationProvider the provider for the location data, if available
-	 * @param locationAccuracy the accuracy of the location data, if available
-	 * @param locationTime time reported from location provider, if available
-	 * @param surveyId the id of the survey to which the response corresponds, in URN format
-	 * @param surveyLaunchContext the context in which the survey was launched (e.g. triggered, user-initiated, etc.)
-	 * @param response the response data as a JSON-encoded string
-	 * @param source the source of this data, either "local" or "remote"
 	 * @return the ID of the inserted record, or -1 if unsuccessful
 	 */
-	public long addResponseRow(String campaignUrn, String username, String date, long time, String timezone, String locationStatus, double locationLatitude, double locationLongitude, String locationProvider, float locationAccuracy, long locationTime, String surveyId, String surveyLaunchContext, String response, String source)
-	{
-		SQLiteDatabase db = getWritableDatabase();
-		
-		if (db == null) {
-			return -1;
-		}
-		
+	public long addResponseRow(SQLiteDatabase db, ContentValues values)
+	{		
 		long rowId = -1;
+		
+		// extract data that we'll need to parse the json + insert prompt responses
+		String response = values.getAsString(Response.RESPONSE);
+		String campaignUrn = values.getAsString(Response.CAMPAIGN_URN);
+		String surveyId = values.getAsString(Response.SURVEY_ID);
 		
 		try {
 			// start a transaction involving the following operations:
 			// 1) insert feedback response row
 			// 2) parse json-encoded responses and insert one row into prompts per entry
 			db.beginTransaction();
-			
-			ContentValues values = new ContentValues();
-			values.put(Response.CAMPAIGN_URN, campaignUrn);
-			values.put(Response.USERNAME, username);
-			values.put(Response.DATE, date);
-			values.put(Response.TIME, time);
-			values.put(Response.TIMEZONE, timezone);
-			values.put(Response.LOCATION_STATUS, locationStatus);
-			
-			if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE)
-			{
-				values.put(Response.LOCATION_LATITUDE, locationLatitude);
-				values.put(Response.LOCATION_LONGITUDE, locationLongitude);
-				values.put(Response.LOCATION_PROVIDER, locationProvider);
-				values.put(Response.LOCATION_ACCURACY, locationAccuracy);
-			}
-			
-			values.put(Response.LOCATION_TIME, locationTime);
-			values.put(Response.SURVEY_ID, surveyId);
-			values.put(Response.SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
-			values.put(Response.RESPONSE, response);
-			values.put(Response.SOURCE, source);
-			
-			// bookkeeping: compute the hashcode and add that, too
-			String hashableData = campaignUrn + surveyId + username + date;
-			String hashcode = getSHA1Hash(hashableData);
-			values.put(Response.HASHCODE, hashcode);
-			
+
 			// do the actual insert into feedback responses
 			rowId = db.insert(Tables.RESPONSES, null, values);
 			
@@ -341,79 +299,11 @@ public class DbHelper extends SQLiteOpenHelper {
 			if (rowId == -1)
 				return -1;
 			
-			// more bookkeeping: parse the responses and add those to the prompt responses table one by one
-			JSONArray responseData = new JSONArray(response);
-			
-			// iterate through the responses and add them to the prompt table one by one
-			for (int i = 0; i < responseData.length(); ++i) {
-				// nab the jsonobject, which contains "prompt_id" and "value"
-				JSONObject item = responseData.getJSONObject(i);
-				
-				// if the entry we're looking at doesn't include prompt_id or value, continue
-				if (!item.has("prompt_id") || !item.has("value"))
-					continue;
-				
-				// construct a new PromptResponse object to populate
-				PromptResponse p = new PromptResponse();
-				
-				p.mCompositeID = campaignUrn + ":" + surveyId;
-				p.mResponseID = rowId;
-				p.mPromptID = item.getString("prompt_id");
-				
-				// determine too if we have to remap the value from a number to text
-				// if custom_choices is included, then we do
-				if (item.has("custom_choices")) {
-					// build a hashmap of ID->label so we can do the remapping
-					JSONArray choicesArray = item.getJSONArray("custom_choices");
-					HashMap<String,String> glossary = new HashMap<String, String>();
-					
-					for (int iv = 0; iv < choicesArray.length(); ++iv) {
-						JSONObject choiceObject = choicesArray.getJSONObject(iv);
-						glossary.put(choiceObject.getString("choice_id"), choiceObject.getString("choice_value"));
-					}
-					
-					// determine if the value is singular or an array
-					// if it's an array, we need to remap each element
-					try {
-						JSONArray remapper = item.getJSONArray("value");
-						
-						for (int ir = 0; ir < remapper.length(); ++ir)
-							remapper.put(ir, glossary.get(remapper.getString(ir)));
-						
-						p.mValue = remapper.toString();
-					}
-					catch (JSONException e) {
-						// it wasn't a json array, so just remap the single value
-						p.mValue = glossary.get(item.getString("value"));
-					}
-				}
-				else {
-					p.mValue = item.getString("value");
-				}
-				
-				// and insert this into prompts				
-				db.insert(Tables.PROMPT_RESPONSES, null, p.toCV());
+			if (populatePromptsFromResponseJSON(db, rowId, response, campaignUrn, surveyId)) {
+				// and we're done; finalize the transaction
+				db.setTransactionSuccessful();
 			}
-			
-			// and we're done; finalize the transaction
-			db.setTransactionSuccessful();
-			
-			// notify all relevant URIs that a change occurred
-			// TODO: remove these when this method is indirectly called from the provider's insert()
-			ContentResolver cr = mContext.getContentResolver();
-			cr.notifyChange(Response.CONTENT_URI, null);
-			cr.notifyChange(PromptResponse.CONTENT_URI, null);
-			
-			// return the inserted feedback response row
-			// return rowId;
-		}
-		catch (JSONException e) {
-			Log.e(TAG, "Unable to parse response data in insert", e);
-			return -1;
-		}
-		catch (NoSuchAlgorithmException e) {
-			Log.e(TAG, "Unable to produce hashcode -- is SHA-1 supported?", e);
-			return -1;
+			// else we fail and the transaction gets rolled back
 		}
 		catch (SQLiteConstraintException e) {
 			Log.e(TAG, "Attempted to insert record that violated a SQL constraint (likely the hashcode)");
@@ -430,26 +320,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		}
 			
 		return rowId;
-	}
-	
-	/**
-	 * Adds a response to the feedback database, but without location data.
-	 * 
-	 * @param campaignUrn the campaign URN for which to record the survey response
-	 * @param username the username to whom the survey response belongs
-	 * @param date the date on which the survey response was recorded, assumedly in UTC
-	 * @param time milliseconds since the epoch when this survey response was completed
-	 * @param timezone the timezone in which the survey response was completed
-	 * @param surveyId the id of the survey to which the response corresponds, in URN format
-	 * @param surveyLaunchContext the context in which the survey was launched (e.g. triggered, user-initiated, etc.)
-	 * @param response the response data as a JSON-encoded string
-	 * @param source the source of this data, either "local" or "remote"
-	 * @return the ID of the inserted record, or -1 if unsuccessful
-	 */
-	public long addResponseRowWithoutLocation(String campaignUrn, String username, String date, long time, String timezone, String surveyId, String surveyLaunchContext, String response, String source) {
-		// just call the normal addresponserow with locationstatus set to unavailable and garbage location data
-		// the original method is smart enough to not insert the garbage location data
-		return addResponseRow(campaignUrn, username, date, time, timezone, SurveyGeotagService.LOCATION_UNAVAILABLE, -1, -1, null, -1, -1, surveyId, surveyLaunchContext, response, source);
 	}
 	
 	/**
@@ -566,13 +436,8 @@ public class DbHelper extends SQLiteOpenHelper {
 	 * @param values a ContentValues collection, preferably generated by calling {@link Campaign}'s toCV() method
 	 * @return the ID of the inserted record
 	 */
-	public long addCampaign(ContentValues values) {
-		
-		SQLiteDatabase db = getWritableDatabase();
-		
-		if (db == null)
-			return -1;
-		
+	public long addCampaign(SQLiteDatabase db, ContentValues values) {
+
 		long rowId = -1; // the row ID for the campaign that we'll eventually be returning
 				
 		try {
@@ -586,115 +451,15 @@ public class DbHelper extends SQLiteOpenHelper {
 			// actually insert the campaign
 			rowId = db.insert(Tables.CAMPAIGNS, null, values);
 			
-			// ==========================================================================
-			// === xml parsing section below, inserts into Surveys and SurveyPrompts
-			// ==========================================================================
-			
-			if (configurationXml != null) {
-				// do a pass over the XML to gather surveys and survey prompts
-				XmlPullParser xpp = Xml.newPullParser();
-				xpp.setInput(new ByteArrayInputStream(configurationXml.getBytes("UTF-8")), "UTF-8");
-				int eventType = xpp.getEventType();
-				String tagName;
-				
-				// various stacks to maintain state while walking through the xml tree
-				Stack<String> tagStack = new Stack<String>();
-				Survey curSurvey = null; // valid only within a survey, null otherwise
-				Vector<SurveyPrompt> prompts = new Vector<SurveyPrompt>(); // valid only within a survey, empty otherwise
-
-				// iterate through the xml, paying attention only to surveys and prompts
-				// note that this does no validation outside of preventing itself from crashing catastrophically
-				while (eventType != XmlPullParser.END_DOCUMENT) {
-					if (eventType == XmlPullParser.START_TAG) {
-						tagName = xpp.getName();
-						tagStack.push(tagName);
-						
-						if (tagName.equalsIgnoreCase("survey")) {
-							if (curSurvey != null)
-								throw new XmlPullParserException("encountered a survey tag inside another survey tag");
-							
-							curSurvey = new Survey();
-							curSurvey.mCampaignUrn = campaignUrn;
-						}
-						else if (tagName.equalsIgnoreCase("prompt")) {
-							SurveyPrompt sp = new SurveyPrompt();
-							// FIXME: add the campaign + survey ID to make lookups easier?
-							prompts.add(sp);
-						}
-					}
-					else if (eventType == XmlPullParser.TEXT) {
-						if (tagStack.size() >= 2) {
-							// we may be in an entity>property situation, so check and assign accordingly
-							if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("survey")) {				
-								// populating the current survey object with its properties here
-								if (tagStack.peek().equalsIgnoreCase("id"))
-									curSurvey.mSurveyID = xpp.getText();
-								else if (tagStack.peek().equalsIgnoreCase("title"))
-									curSurvey.mTitle = xpp.getText();
-								else if (tagStack.peek().equalsIgnoreCase("description"))
-									curSurvey.mDescription = xpp.getText();
-								else if (tagStack.peek().equalsIgnoreCase("summaryText"))
-									curSurvey.mSummary = xpp.getText();
-							}
-							else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("prompt")) {
-								SurveyPrompt sp = prompts.lastElement();
-								
-								// populating the last encountered survey prompt with its properties here
-								if (tagStack.peek().equalsIgnoreCase("id"))
-									sp.mPromptID = xpp.getText();
-								else if (tagStack.peek().equalsIgnoreCase("promptText"))
-									sp.mPromptText = xpp.getText();
-								else if (tagStack.peek().equalsIgnoreCase("promptType"))
-									sp.mPromptType = xpp.getText();
-							}
-						}
-					}
-					else if (eventType == XmlPullParser.END_TAG) {
-						tagName = xpp.getName();
-						tagStack.pop();
-						
-						if (tagName.equalsIgnoreCase("survey")) {
-							// store the current survey to the database
-							long surveyPID = db.insert(Tables.SURVEYS, null, curSurvey.toCV());
-							
-							// also store all the prompts we accumulated for it
-							for (SurveyPrompt sp : prompts) {
-								sp.mSurveyID = curSurvey.mSurveyID;
-								sp.mSurveyPID = surveyPID;
-								sp.mCompositeID = curSurvey.mCampaignUrn + ":" + curSurvey.mSurveyID;
-								db.insert(Tables.SURVEY_PROMPTS, null, sp.toCV());
-							}
-							
-							// flush the prompts we've stored up so far
-							prompts.clear();
-							
-							// and clear us from being in any survey
-							curSurvey = null;
-						}
-					}
-					
-					eventType = xpp.next();
-				}
-			}			
-			
-			// i think we're done at this point; close the transaction, etc.
-			db.setTransactionSuccessful();
-		}
-		catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// xml parsing below, inserts into Surveys and SurveyPrompts
+			if (populateSurveysFromCampaignXML(db, campaignUrn, configurationXml)) {
+				// i think we're done now; finish up the transaction
+				db.setTransactionSuccessful();
+			}
+			// else we fail and the transaction gets rolled back
 		}
 		finally {
 			db.endTransaction();
-			db.close();
 		}
 
 		return rowId;
@@ -723,5 +488,192 @@ public class DbHelper extends SQLiteOpenHelper {
 		ContentResolver cr = mContext.getContentResolver();
 		Cursor cursor = cr.query(Campaign.getCampaigns(), null, null, null, null);		
 		return Campaign.fromCursor(cursor);
+	}
+	
+	/**
+	 * Utility method that populates the Survey and SurveyPrompt tables for the campaign identified
+	 * by campaignUrn and containing the given xml as campaignXML.
+	 * 
+	 * Note that this method takes a db handle so that it can be used in a transaction.
+	 * 
+ 	 * @param db a handle to an existing writable db
+	 * @param campaignUrn the urn of the campaign for which we're populating subtables
+	 * @param campaignXML the XML for the campaign (not validated by this method)
+	 * @return 
+	 * 
+	 */
+	public boolean populateSurveysFromCampaignXML(SQLiteDatabase db, String campaignUrn, String campaignXML) {	
+		try {
+			// dump all the surveys (and consequently survey prompts) before we do anything
+			// this is (perhaps surprisingly) desired behavior, as the surveys + survey prompts
+			// should always reflect the state of the campaign XML, valid or not
+			db.delete(Tables.SURVEYS, Survey.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
+			
+			// do a pass over the XML to gather surveys and survey prompts
+			XmlPullParser xpp = Xml.newPullParser();
+			xpp.setInput(new ByteArrayInputStream(campaignXML.getBytes("UTF-8")), "UTF-8");
+			int eventType = xpp.getEventType();
+			String tagName;
+			
+			// various stacks to maintain state while walking through the xml tree
+			Stack<String> tagStack = new Stack<String>();
+			Survey curSurvey = null; // valid only within a survey, null otherwise
+			Vector<SurveyPrompt> prompts = new Vector<SurveyPrompt>(); // valid only within a survey, empty otherwise
+
+			// iterate through the xml, paying attention only to surveys and prompts
+			// note that this does no validation outside of preventing itself from crashing catastrophically
+			while (eventType != XmlPullParser.END_DOCUMENT) {
+				if (eventType == XmlPullParser.START_TAG) {
+					tagName = xpp.getName();
+					tagStack.push(tagName);
+					
+					if (tagName.equalsIgnoreCase("survey")) {
+						if (curSurvey != null)
+							throw new XmlPullParserException("encountered a survey tag inside another survey tag");
+						
+						curSurvey = new Survey();
+						curSurvey.mCampaignUrn = campaignUrn;
+					}
+					else if (tagName.equalsIgnoreCase("prompt")) {
+						SurveyPrompt sp = new SurveyPrompt();
+						// FIXME: add the campaign + survey ID to make lookups easier?
+						prompts.add(sp);
+					}
+				}
+				else if (eventType == XmlPullParser.TEXT) {
+					if (tagStack.size() >= 2) {
+						// we may be in an entity>property situation, so check and assign accordingly
+						if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("survey")) {				
+							// populating the current survey object with its properties here
+							if (tagStack.peek().equalsIgnoreCase("id"))
+								curSurvey.mSurveyID = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("title"))
+								curSurvey.mTitle = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("description"))
+								curSurvey.mDescription = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("summaryText"))
+								curSurvey.mSummary = xpp.getText();
+						}
+						else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("prompt")) {
+							SurveyPrompt sp = prompts.lastElement();
+							
+							// populating the last encountered survey prompt with its properties here
+							if (tagStack.peek().equalsIgnoreCase("id"))
+								sp.mPromptID = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("promptText"))
+								sp.mPromptText = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("promptType"))
+								sp.mPromptType = xpp.getText();
+						}
+					}
+				}
+				else if (eventType == XmlPullParser.END_TAG) {
+					tagName = xpp.getName();
+					tagStack.pop();
+					
+					if (tagName.equalsIgnoreCase("survey")) {
+						// store the current survey to the database
+						long surveyPID = db.insert(Tables.SURVEYS, null, curSurvey.toCV());
+						
+						// also store all the prompts we accumulated for it
+						for (SurveyPrompt sp : prompts) {
+							sp.mSurveyID = curSurvey.mSurveyID;
+							sp.mSurveyPID = surveyPID;
+							sp.mCompositeID = curSurvey.mCampaignUrn + ":" + curSurvey.mSurveyID;
+							db.insert(Tables.SURVEY_PROMPTS, null, sp.toCV());
+						}
+						
+						// flush the prompts we've stored up so far
+						prompts.clear();
+						
+						// and clear us from being in any survey
+						curSurvey = null;
+					}
+				}
+				
+				eventType = xpp.next();
+			}
+		}
+		catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		catch (XmlPullParserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean populatePromptsFromResponseJSON(SQLiteDatabase db, long responseRowID, String response, String campaignUrn, String surveyId) {
+		try {
+			JSONArray responseData = new JSONArray(response);
+			
+			// iterate through the responses and add them to the prompt table one by one
+			for (int i = 0; i < responseData.length(); ++i) {
+				// nab the jsonobject, which contains "prompt_id" and "value"
+				JSONObject item = responseData.getJSONObject(i);
+				
+				// if the entry we're looking at doesn't include prompt_id or value, continue
+				if (!item.has("prompt_id") || !item.has("value"))
+					continue;
+				
+				// construct a new PromptResponse object to populate
+				PromptResponse p = new PromptResponse();
+				
+				p.mCompositeID = campaignUrn + ":" + surveyId;
+				p.mResponseID = responseRowID;
+				p.mPromptID = item.getString("prompt_id");
+				
+				// determine too if we have to remap the value from a number to text
+				// if custom_choices is included, then we do
+				if (item.has("custom_choices")) {
+					// build a hashmap of ID->label so we can do the remapping
+					JSONArray choicesArray = item.getJSONArray("custom_choices");
+					HashMap<String,String> glossary = new HashMap<String, String>();
+					
+					for (int iv = 0; iv < choicesArray.length(); ++iv) {
+						JSONObject choiceObject = choicesArray.getJSONObject(iv);
+						glossary.put(choiceObject.getString("choice_id"), choiceObject.getString("choice_value"));
+					}
+					
+					// determine if the value is singular or an array
+					// if it's an array, we need to remap each element
+					try {
+						JSONArray remapper = item.getJSONArray("value");
+						
+						for (int ir = 0; ir < remapper.length(); ++ir)
+							remapper.put(ir, glossary.get(remapper.getString(ir)));
+						
+						p.mValue = remapper.toString();
+					}
+					catch (JSONException e) {
+						// it wasn't a json array, so just remap the single value
+						p.mValue = glossary.get(item.getString("value"));
+					}
+				}
+				else {
+					p.mValue = item.getString("value");
+				}
+				
+				// and insert this into prompts				
+				db.insert(Tables.PROMPT_RESPONSES, null, p.toCV());
+			}
+		}
+		catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
 	}
 }

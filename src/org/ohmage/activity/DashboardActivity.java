@@ -4,6 +4,7 @@ import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
+import org.ohmage.feedback.FBTestActivity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -76,7 +77,7 @@ public class DashboardActivity extends Activity {
 					break;
 					
 				case R.id.dash_feedback_btn:
-					startActivity(new Intent(DashboardActivity.this, ResponseHistoryTabHost.class));
+					startActivity(new Intent(DashboardActivity.this, RHTabHost.class));
 					break;
 					
 				case R.id.dash_uploadqueue_btn:
@@ -88,15 +89,7 @@ public class DashboardActivity extends Activity {
 					break;
 					
 				case R.id.dash_settings_btn:
-					// print out the version of sqlite we're using for debugging purposes
-					Cursor cursor = SQLiteDatabase.openOrCreateDatabase(":memory:", null).rawQuery("select sqlite_version() AS sqlite_version", null);
-					String sqliteVersion = "";
-					while(cursor.moveToNext()){
-					   sqliteVersion += cursor.getString(0);
-					}
-					
-					Toast.makeText(c, "SQLite Version: " + sqliteVersion, Toast.LENGTH_SHORT).show();
-					
+					startActivity(new Intent(c, FBTestActivity.class));
 					break;
 			}
 		}

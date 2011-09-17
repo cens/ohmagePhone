@@ -1,4 +1,4 @@
-package org.ohmage.feedback.utils;
+package org.ohmage.db.utils;
 /*
  * Copyright 1999,2004 The Apache Software Foundation.
  *

@@ -343,25 +343,40 @@ public class DbContract {
 		public static final String SOURCE = "source";
 		public static final String HASHCODE = "hashcode";
 
-		// data fields here to support use of the Response class as a data holder (and not just a schema definer)
-		// this should be reconciled by some kind of real ORM someday
 		public long _id;
+		/** the campaign URN for which to record the survey response */
 		public String campaignUrn;
+		/** the username to whom the survey response belongs */
 		public String username;
+		/** the date on which the survey response was recorded, assumedly in UTC */
 		public String date;
+		/** milliseconds since the epoch when this survey response was completed */
 		public long time;
+		/** the timezone in which the survey response was completed */
 		public String timezone;
+		/**  LOCATION_-prefixed final string from {@link SurveyGeotagService}; if LOCATION_UNAVAILABLE is chosen, location data is ignored */
 		public String locationStatus;
+		/** latitude at which the survey response was recorded, if available */
 		public double locationLatitude;
+		/** longitude at which the survey response was recorded, if available */
 		public double locationLongitude;
+		/** the provider for the location data, if available */
 		public String locationProvider;
+		/** the accuracy of the location data, if available */
 		public float locationAccuracy;
+		/** time reported from location provider, if available */
 		public long locationTime;
+		/** the id of the survey to which the response corresponds, in URN format */
 		public String surveyId;
+		/** the context in which the survey was launched (e.g. triggered, user-initiated, etc.) */
 		public String surveyLaunchContext;
+		/** the response data as a JSON-encoded string */
 		public String response;
+		/** flag indicating whether or not the response has been uploaded; meaningless for source=remote, but usually 0 */
 		public int uploaded;
+		/** the source of this data, either "local" or "remote" */
 		public String source;
+		/** read-only, a hash that uniquely identifies this response */
 		public String hashcode;
 		
         public static final Uri CONTENT_URI =
@@ -500,6 +515,7 @@ public class DbContract {
 		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_VALUE = "prompt_value";
+		public static final String EXTRA_VALUE = "extra_value";
 		
 		// data fields here to support use of the PromptResponse class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
@@ -508,6 +524,7 @@ public class DbContract {
 		public String mCompositeID;
 		public String mPromptID;
 		public String mValue;
+		public String mExtraValue;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("prompts").build();
@@ -587,6 +604,7 @@ public class DbContract {
     			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponse.COMPOSITE_ID));
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_ID));
     			temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_VALUE));
+    			temp.mExtraValue = cursor.getString(cursor.getColumnIndex(PromptResponse.EXTRA_VALUE));
     			prompts.add(temp);
     			
     			cursor.moveToNext();
@@ -604,6 +622,7 @@ public class DbContract {
         	values.put(PromptResponse.COMPOSITE_ID, mCompositeID);
         	values.put(PromptResponse.PROMPT_ID, mPromptID);
         	values.put(PromptResponse.PROMPT_VALUE, mValue);
+        	values.put(PromptResponse.EXTRA_VALUE, mExtraValue);
         	
         	return values;
         }

@@ -293,11 +293,11 @@
 		<uses-library android:name="com.google.android.maps" />
         <activity android:name="org.achartengine.GraphicalActivity" />
         <activity android:name="org.ohmage.activity.PromptListActivity"/>
-        <activity android:name=".activity.MapViewActivity" android:label="@string/app_name"/>
+        <activity android:name=".activity.RHMapViewActivity" android:label="@string/app_name"/>
         <activity android:name="org.ohmage.feedback.visualization.FeedbackTextChart"/>
         <activity android:name="org.ohmage.activity.FeedbackMenuActivity"/>
-        <activity android:name="org.ohmage.activity.CalendarViewActivity" android:screenOrientation="portrait"/> 
-		<activity android:name=".activity.ResponseHistoryTabHost" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:screenOrientation="portrait"/>
+        <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait"/> 
+		<activity android:name=".activity.RHTabHost" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:screenOrientation="portrait"/>
 	</application>
     <uses-sdk android:minSdkVersion="4" />
 

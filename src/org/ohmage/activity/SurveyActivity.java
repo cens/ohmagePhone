@@ -57,6 +57,7 @@ import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
@@ -958,12 +959,37 @@ public class SurveyActivity extends Activity {
 		}
 		String response = responseJson.toString();
 		
-		DbHelper dbHelper = new DbHelper(this);
+		// insert the response, which indirectly populates the prompt response tables, etc.
+		Response candidate = new Response();
+		
+		candidate.campaignUrn = mCampaignUrn;
+		candidate.username = username;
+		candidate.date = date;
+		candidate.time = time;
+		candidate.timezone = timezone;
+		candidate.surveyId = surveyId;
+		candidate.surveyLaunchContext = surveyLaunchContext;
+		candidate.response = response;
+		candidate.source = "local";
+		
 		if (loc != null) {
-			dbHelper.addResponseRow(mCampaignUrn, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response, "local");
+			candidate.locationStatus = SurveyGeotagService.LOCATION_VALID;
+			candidate.locationLatitude = loc.getLatitude();
+			candidate.locationLongitude = loc.getLongitude();
+			candidate.locationProvider = loc.getProvider();
+			candidate.locationAccuracy = loc.getAccuracy();
+			candidate.locationTime = loc.getTime();
 		} else {
-			dbHelper.addResponseRowWithoutLocation(mCampaignUrn, username, date, time, timezone, surveyId, surveyLaunchContext, response, "local");
+			candidate.locationStatus = SurveyGeotagService.LOCATION_UNAVAILABLE;
+			candidate.locationLatitude = -1;
+			candidate.locationLongitude = -1;
+			candidate.locationProvider = null;
+			candidate.locationAccuracy = -1;
+			candidate.locationTime = -1;
 		}
+
+		ContentResolver cr = getContentResolver();
+		cr.insert(Response.CONTENT_URI, candidate.toCV());
 		
 		// create an intent and broadcast it to any interested receivers
 		Intent i = new Intent("org.ohmage.SURVEY_COMPLETE");

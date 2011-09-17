@@ -1,4 +1,4 @@
-package org.ohmage.feedback.utils;
+package org.ohmage.db.utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

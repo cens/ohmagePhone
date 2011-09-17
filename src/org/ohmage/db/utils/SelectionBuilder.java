@@ -24,7 +24,7 @@
  * Imported from android iosched2011 project:
  * https://github.com/underhilllabs/iosched2011/blob/master/android/src/com/google/android/apps/iosched/util/SelectionBuilder.java
  */
-package org.ohmage.feedback.utils;
+package org.ohmage.db.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

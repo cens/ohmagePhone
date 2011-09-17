@@ -32,14 +32,16 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:paddingTop="0dp"
-		android:paddingBottom="0dp">
+		android:paddingBottom="0dp"
+		android:background="@drawable/controls_filter_bkgnd">
 
 		<Button
 			android:id="@+id/prevMonth"
 			android:text="&lt;"
 			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
+			android:textStyle="bold"
+			android:textColor="@color/black"
+			android:background="@drawable/controls_filter_button"
 			android:layout_gravity="center_vertical"
 			android:layout_width="55dp"
 			android:layout_height="40dp"
@@ -48,20 +50,23 @@
 		<Button
 			android:id="@+id/currentMonth"
 			android:layout_weight="0.6"
-			android:textColor="@color/dkgray"
-			android:background="#FFFFFF"
+			android:textColor="@color/black"
+			android:background="@drawable/controls_filter_button"
 			android:textSize="20dp"
 			android:gravity="center"
 			android:layout_gravity="center_vertical"
 			android:layout_width="wrap_content"
-			android:layout_height="40dp">
+			android:layout_height="40dp"
+			android:enabled="false"
+			>
 		</Button>
 		<Button
 			android:id="@+id/nextMonth"
 			android:text="&gt;"
 			android:textSize="28dp"
-			android:textColor="@color/dkgray"
-			android:background="@drawable/calendar_button_selector"
+			android:textColor="@color/black"
+			android:textStyle="bold"
+			android:background="@drawable/controls_filter_button"
 			android:layout_gravity="center_vertical"
 			android:layout_width="55dp"
 			android:layout_height="40dp">
@@ -70,7 +75,7 @@
 	
 	<LinearLayout 
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="22dp"
 		android:layout_gravity="center"
 		android:gravity="center"
 		android:orientation="horizontal"
@@ -108,7 +113,7 @@
 		android:numColumns="7"
 		android:paddingLeft="2dp"
 		android:layout_width="fill_parent"
-		android:layout_height="260dp"
+		android:layout_height="265dp"
 		android:horizontalSpacing="1dp"
 		android:verticalSpacing="1dp"
 		android:background="@color/dkgray">
@@ -116,15 +121,15 @@
 	
 	<TextView
 		android:id="@+id/num_response_summary" 
-		android:gravity="left|bottom"
-		android:text="Total: 18 responses from 5 campaigns"
-		android:textSize="15dp"
+		android:gravity="center"
+		android:layout_gravity="center"
+		android:paddingBottom="4dp"
+		android:text=""
+		android:textSize="16dp"
 		android:textStyle="italic"
 		android:textColor="#FFFFFF"
 		android:background="@color/dkgray"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:paddingLeft="5dp"
-		android:paddingBottom="0dp"/>
+		android:layout_height="fill_parent"/>
 </LinearLayout>
 

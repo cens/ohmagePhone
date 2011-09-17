@@ -13,8 +13,11 @@ import android.widget.TabHost.TabContentFactory;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
-public class ResponseHistoryTabHost extends TabActivity {
+public class RHTabHost extends TabActivity {
 	TabHost mTabHost;
+	
+	private static int mCampaignFilterIndex;
+	private static int mSurveyFilterIndex;
 	
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -25,10 +28,10 @@ public class ResponseHistoryTabHost extends TabActivity {
 
 		Intent intent = null; 
 		
-		intent = new Intent().setClass(this, CalendarViewActivity.class);
+		intent = new Intent().setClass(this, RHCalendarViewActivity.class);
 		setupTab(intent, "Calendar");
 		
-		intent = new Intent().setClass(this, MapViewActivity.class);
+		intent = new Intent().setClass(this, RHMapViewActivity.class);
 		setupTab(intent, "Map");
 		mTabHost.setCurrentTab(0);
 	}
@@ -44,5 +47,21 @@ public class ResponseHistoryTabHost extends TabActivity {
 		TextView tv = (TextView) view.findViewById(R.id.rh_tabs_text);
 		tv.setText(text);
 		return view;
+	}
+	
+	public static void setCampaignFilterIndex(int idx){
+		mCampaignFilterIndex = idx;
+	}
+	
+	public static void setSurveyFilterIndex(int idx){
+		mSurveyFilterIndex = idx;
+	}
+	
+	public static int getCampaignFilterIndex(){
+		return mCampaignFilterIndex;
+	}
+	
+	public static int getSurveyFilterIndex(){
+		return mSurveyFilterIndex;
 	}
 }

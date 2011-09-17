@@ -20,10 +20,14 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
+import org.ohmage.service.SurveyGeotagService;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -74,9 +78,12 @@ public class FeedbackService extends WakefulIntentService {
 			return;
 		}
 		
-		// open the db so we can read which campaigns we're in and populate the response cache for them
+		// get a ref to the dbhelper for maintenance funcs that should be moved into the provider someday
+		// grab a contentresolver for proper db queries 
 		DbHelper dbHelper = new DbHelper(this);
-        List<Campaign> campaigns = dbHelper.getCampaigns();
+		ContentResolver cr = getContentResolver();
+		// and also create a list to hold some campaigns
+		List<Campaign> campaigns;
         
 		// helper instance for parsing utc timestamps
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -92,7 +99,15 @@ public class FeedbackService extends WakefulIntentService {
         }
         else {
         	// otherwise, do all the campaigns
-        	campaigns = dbHelper.getCampaigns();
+        	// don't consider the ones that are remote if we're not in the debug state
+        	Cursor campaignCursor;
+        	
+        	if (SharedPreferencesHelper.FEEDBACK_DOWNLOAD_ALL)
+        		campaignCursor = cr.query(Campaign.getCampaigns(), null, null, null, null);
+        	else
+        		campaignCursor = cr.query(Campaign.getCampaigns(), null, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+        		    		
+    		campaigns = Campaign.fromCursor(campaignCursor);
         }
 
 		// ==================================================================
@@ -183,8 +198,7 @@ public class FeedbackService extends WakefulIntentService {
 				
 				try {
 					JSONObject survey = data.getJSONObject(i);
-					String surveyId = survey.getString("survey_id");
-					
+
 					/*
 					// get the count for this time, creating it if it doesn't exist already
 					int currentSurveyCount;
@@ -207,25 +221,30 @@ public class FeedbackService extends WakefulIntentService {
 					responsesPerSurvey.put(surveyId, currentSurveyCount+1);
 					*/
 					
-					// first we need to gather all of the appropriate data
+					// create an instance of a response to hold the data we're going to insert
+					Response candidate = new Response();
+					
+					// we need to gather all of the appropriate data
 					// from the survey response. some of this data needs to
 					// be transformed to match the format that SurveyActivity
 					// uploads/broadcasts, since our survey responses can come
 					// from either source and need to be stored the same way.
+					candidate.surveyId = survey.getString("survey_id");
+					
 					String date = survey.getString("timestamp");
 					String timezone = survey.getString("timezone");
 					sdf.setTimeZone(TimeZone.getTimeZone(timezone));
-					long time = sdf.parse(date).getTime();
+					candidate.time = sdf.parse(date).getTime();
 					
 					// much of the location data is optional, hence the "opt*()" calls
-					String locationStatus = survey.getString("location_status");
-					double locationLatitude = survey.optDouble("latitude");
-					double locationLongitude = survey.optDouble("longitude");
-					String locationProvider = survey.optString("location_provider");
-					float locationAccuracy = (float)survey.optDouble("location_accuracy");
-					long locationTime = survey.optLong("location_timestamp");
+					candidate.locationStatus = survey.getString("location_status");
+					candidate.locationLatitude = survey.optDouble("latitude");
+					candidate.locationLongitude = survey.optDouble("longitude");
+					candidate.locationProvider = survey.optString("location_provider");
+					candidate.locationAccuracy = (float)survey.optDouble("location_accuracy");
+					candidate.locationTime = survey.optLong("location_timestamp");
 					
-					String surveyLaunchContext = survey.getString("launch_context_long");
+					candidate.surveyLaunchContext = survey.getString("launch_context_long");
 					
 					// we need to parse out the responses and put them in
 					// the same format as what we collect from the local activity
@@ -234,6 +253,7 @@ public class FeedbackService extends WakefulIntentService {
 					// iterate through inputResponses and create a new JSON object of prompt_ids and values
 					JSONArray responseJson = new JSONArray();
 					Iterator<String> keys = inputResponses.keys();
+					
 					while (keys.hasNext()) {
 						// for each prompt response, create an object with a prompt_id/value pair
 						String key = keys.next();
@@ -249,42 +269,45 @@ public class FeedbackService extends WakefulIntentService {
 								String value = curItem.getString("prompt_response");
 								String type = curItem.getString("prompt_type");
 								newItem.put("prompt_id", key);
-								newItem.put("value", value);
-								
+
 								// also enter the custom_choices data if the type supports custom choices
 								// and if the custom choice data is actually there (e.g. in the glossary for the prompt)
-								if ((type.equals("single_choice_custom") || type.equals("multi_choice_custom"))
-									&& curItem.has("prompt_choice_glossary"))
-								{
-									// unfortunately, the glossary is in a totally different format than
-									// what the survey returns; we can't just store it directly.
-									// we have to reformat the glossary entries to be of the following form:
-									// [{"choice_value": "Exercise", "choice_id": 1}, etc.]
-									
-									JSONArray customChoiceArray = new JSONArray();
-									JSONObject glossary = curItem.getJSONObject("prompt_choice_glossary");
-									
-									// create an iterator over the glossary so we can extract the keys + "label" value
-									Iterator<String> glossaryKeys = glossary.keys();
-									
-									while (glossaryKeys.hasNext()) {
-										// grab the glossary key and its corresponding element
-										String glossaryKey = glossaryKeys.next();
-										JSONObject curGlossaryItem = glossary.getJSONObject(glossaryKey);
+								if (curItem.has("prompt_choice_glossary")) {
+									if (type.equals("single_choice_custom") || type.equals("multi_choice_custom"))
+									{
+										// unfortunately, the glossary is in a totally different format than
+										// what the survey returns; we can't just store it directly.
+										// we have to reformat the glossary entries to be of the following form:
+										// [{"choice_value": "Exercise", "choice_id": 1}, etc.]
 										
-										// create a new object that remaps the values from the glossary
-										// to the custom choices format
-										JSONObject newChoiceItem = new JSONObject();
-										newChoiceItem.put("choice_value", curGlossaryItem.getString("label"));
-										newChoiceItem.put("choice_id", glossaryKey);
+										JSONArray customChoiceArray = new JSONArray();
+										JSONObject glossary = curItem.getJSONObject("prompt_choice_glossary");
 										
-										// and add it to our custom choices array
-										customChoiceArray.put(newChoiceItem);
+										// create an iterator over the glossary so we can extract the keys + "label" value
+										Iterator<String> glossaryKeys = glossary.keys();
+										
+										while (glossaryKeys.hasNext()) {
+											// grab the glossary key and its corresponding element
+											String glossaryKey = glossaryKeys.next();
+											JSONObject curGlossaryItem = glossary.getJSONObject(glossaryKey);
+											
+											// create a new object that remaps the values from the glossary
+											// to the custom choices format
+											JSONObject newChoiceItem = new JSONObject();
+											newChoiceItem.put("choice_value", curGlossaryItem.getString("label"));
+											newChoiceItem.put("choice_id", glossaryKey);
+											
+											// and add it to our custom choices array
+											customChoiceArray.put(newChoiceItem);
+										}
+										
+										// put our newly reformatted custom choices array into the object, too
+										newItem.put("custom_choices", customChoiceArray);
 									}
-									
-									// put our newly reformatted custom choices array into the object, too
-									newItem.put("custom_choices", customChoiceArray);
 								}
+								
+								// add the value, which is generally just a number
+								newItem.put("value", value);
 								
 								// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
 								if (curItem.getString("prompt_type").equalsIgnoreCase("photo") && !value.equalsIgnoreCase("NOT_DISPLAYED")) {
@@ -300,27 +323,17 @@ public class FeedbackService extends WakefulIntentService {
 					}
 					
 					// render it to a string for storage into our db
-					String response = responseJson.toString();
+					candidate.response = responseJson.toString();
+					candidate.source = "remote";
+					candidate.uploaded = 0;
 					
 					// ok, gathered everything; time to insert into the feedback DB
 					// note that we mark this entry as "remote", meaning it came from the server
-					
-					if (dbHelper.addResponseRow(
-							c.mUrn,
-							username,
-							date,
-							time,
-							timezone,
-							locationStatus,
-							locationLatitude,
-							locationLongitude,
-							locationProvider,
-							locationAccuracy,
-							locationTime,
-							surveyId,
-							surveyLaunchContext,
-							response,
-							"remote") == -1) {
+
+					try {
+						cr.insert(Response.CONTENT_URI, candidate.toCV());
+					}
+					catch(Exception e) {
 						// display some note in the log that this failed
 						Log.v(TAG, "Record " + (i+1) + "/" + data.length() + " was not inserted (insertion returned -1)");
 					}

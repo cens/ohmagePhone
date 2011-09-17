@@ -200,6 +200,12 @@ public class FilterControl extends LinearLayout {
 		return mItemList.get(mSelectionIndex).second;
 	}
 	
+	public void clearAll(){
+		mItemList.clear();
+		mSelectionIndex = 0;
+	}
+
+	
 	/**
 	 * Attaches a {@link FilterChangeListener} to the filter which will be called when the user navigates between items or when the list is changed.
 	 * 

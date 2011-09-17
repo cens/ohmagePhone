@@ -20,4 +20,6 @@
 	<drawable name="calendar_focused">#FCBA1E</drawable>
 	<drawable name="calendar_pressed">#FCBA1E</drawable>
 	<drawable name="normal">#FFFFFF</drawable>
+	
+	<drawable name="button_pressed">#FCBA1E</drawable>
 </resources>

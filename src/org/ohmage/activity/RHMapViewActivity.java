@@ -50,7 +50,7 @@ import com.google.android.maps.OverlayItem;
 
 import edu.ucla.cens.systemlog.Log;
 
-public class MapViewActivity extends ResponseHistory {
+public class RHMapViewActivity extends ResponseHistory {
 
 	static final String TAG = "MapActivityLog"; 
 	private MapViewItemizedOverlay itemizedoverlay = null;
@@ -76,65 +76,25 @@ public class MapViewActivity extends ResponseHistory {
 	    
 	    mControl = mMapView.getController();
 	    mControl.setZoom(11);
-
+	    
 	    setupFilters();
 	    
-//	    mCampaignUrn = getIntent().getStringExtra("campaign_urn");
-//	    mSurveyId = getIntent().getStringExtra("survey_id");
-//        try {
-//			mPrompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadCampaignXmlFromDb(this, mCampaignUrn), mSurveyId);
-//			Log.i(TAG, "Parsed XML: " + mPrompts.toString());
-//		} catch (NotFoundException e) {
-//			Log.e(TAG, "Error parsing prompts from xml", e);
-//		} catch (XmlPullParserException e) {
-//			Log.e(TAG, "Error parsing prompts from xml", e);
-//		} catch (IOException e) {
-//			Log.e(TAG, "Error parsing prompts from xml", e);
-//		}
-	    
-	    
-	    
-	    //Retrieve data from CP
-//	    ContentResolver cr = this.getContentResolver();
-//	    Uri queryUri = DbContract.getBaseUri().buildUpon()
-//	    .appendPath(mCampaignUrn)
-//	    .appendPath(mSurveyId)
-//	    .appendPath("responses")
-//	    .build();
-//	    
-//	    Cursor cursor = cr.query(queryUri, null, null, null, null);
-//    
-//	    List<Responses> listResponses = new ArrayList<Responses>();
-//	    while(cursor.moveToNext()){
-//	    	String hashcode = cursor.getString(cursor.getColumnIndex(Response.HASHCODE));
-//	    	String locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
-//	    	String latitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
-//	    	String longitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
-//	    	String response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
-//	    	String date = cursor.getString(cursor.getColumnIndex(Response.DATE));
-//	    	
-//	    	listResponses.add(new Responses(hashcode, locationStatus, latitude, longitude, response, date));	    	
-//	    }
-//	    cursor.close();
-	    
-	    //Init the map center to current location
-//	    setMapCenterToCurrentLocation();
-	    	    	
-	    //Add overlays to the map
-//	    List<Overlay> mapOverlays = mMapView.getOverlays();
-//	    Drawable drawable = this.getResources().getDrawable(R.drawable.darkgreen_marker_a);
-//	    itemizedoverlay= new MapViewItemizedOverlay(drawable, this);
-//	    
-//	    for(Responses i : listResponses){
-//	    	if(i.getLocationStatus().equalsIgnoreCase("valid")){
-//	    		addNewItemToMap(i.getLatitude(), i.getLongitude(), "Response from "+ i.getDate().substring(5, i.getDate().length()), i.getResponses());
-//	    	}
-//	    }
-//	    if(itemizedoverlay.size() > 0){
-//		    mapOverlays.add(itemizedoverlay);
-//		    mControl.setCenter(itemizedoverlay.getCenter());
-//	    }
-//	    Toast.makeText(this, "Displaying " + itemizedoverlay.size() + " points", Toast.LENGTH_LONG).show();
+	    mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
+	    mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+	}
+	
+	@Override
+	protected void onPause(){
+		super.onPause();
+		RHTabHost.setCampaignFilterIndex(mCampaignFilter.getIndex());
+		RHTabHost.setSurveyFilterIndex(mSurveyFilter.getIndex());
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
+		mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
 	}
 		
 	private void setMapCenterToCurrentLocation(){
