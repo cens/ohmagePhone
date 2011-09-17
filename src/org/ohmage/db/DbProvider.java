@@ -182,9 +182,9 @@ public class DbProvider extends ContentProvider {
 		
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.RESPONSES:
+				insertID = dbHelper.addResponseRow(db, values);
 				campaignUrn = values.getAsString(Response.CAMPAIGN_URN);
 				surveyID = values.getAsString(Response.SURVEY_ID);
-				insertID = db.insert(Tables.RESPONSES, null, values);
 				resultingUri = Response.getResponseByID(insertID);
 				
 				// notify on the related entity URIs
@@ -193,7 +193,7 @@ public class DbProvider extends ContentProvider {
 				
 				break;
 			case MatcherTypes.CAMPAIGNS:
-				insertID = dbHelper.addCampaign(values);
+				insertID = dbHelper.addCampaign(db, values);
 				campaignUrn = values.getAsString(Campaign.URN);
 				resultingUri = Campaign.getCampaignByURN(campaignUrn);
 
@@ -228,10 +228,8 @@ public class DbProvider extends ContentProvider {
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
-		// we assume we've matched it correctly, so proceed with the delete
+		// we assume we've matched it correctly, so proceed with the update
 		count = builder.update(db, values);
-		
-		db.close();
 		
 		if (count > 0) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -246,7 +244,11 @@ public class DbProvider extends ContentProvider {
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
-				case MatcherTypes.CAMPAIGNS:			
+				case MatcherTypes.CAMPAIGNS:
+					// if it was a campaign, we may need to update the campaign's xml
+					if (values.containsKey(Campaign.URN) && values.containsKey(Campaign.CONFIGURATION_XML))
+						dbHelper.populateSurveysFromCampaignXML(db, values.getAsString(Campaign.URN), values.getAsString(Campaign.CONFIGURATION_XML));
+					
 					// notify on the related entity URIs
 					cr.notifyChange(Campaign.CONTENT_URI, null);
 					cr.notifyChange(Survey.CONTENT_URI, null);
@@ -259,6 +261,8 @@ public class DbProvider extends ContentProvider {
 			// we should always notify on our own uri regardless
 			cr.notifyChange(uri, null);
 		}
+		
+		db.close();
 		
 		return count;
 	}

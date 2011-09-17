@@ -13,8 +13,9 @@
 		app:title="Add Campaigns" />
 		
 	<fragment class="org.ohmage.activity.CampaignListFragment"
-            android:id="@+id/campaigns" android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    
+       android:id="@+id/campaigns" 
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_weight="1" />
+           
 </LinearLayout>
