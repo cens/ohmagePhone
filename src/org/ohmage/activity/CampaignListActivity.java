@@ -4,6 +4,8 @@ import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +21,8 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 	static final String TAG = "CampaignListActivity";
 	
 	SharedPreferencesHelper mSharedPreferencesHelper;
+
+	private ActionBarControl mActionBar;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +34,25 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 		
 //		((CampaignListFragment)getSupportFragmentManager().findFragmentById(R.id.campaigns)).setMode(CampaignListFragment.MODE_MY_CAMPAIGNS);
 		
-		((Button) findViewById(R.id.add_campaigns)).setOnClickListener(new OnClickListener() {
-			
+		// get a reference to the action bar so we can attach to it
+		mActionBar = (ActionBarControl) findViewById(R.id.action_bar);
+		
+		// throw some actions on it
+		mActionBar.addActionBarCommand(1, "add campaign", R.drawable.dashboard_title_add);
+		mActionBar.addActionBarCommand(2, "refresh", R.drawable.dashboard_title_refresh);
+		
+		// and attach handlers for said actions
+		mActionBar.setOnActionListener(new ActionListener() {
 			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(CampaignListActivity.this, CampaignAddActivity.class));
+			public void onActionClicked(int commandID) {
+				switch(commandID) {
+					case 1:
+						startActivity(new Intent(CampaignListActivity.this, CampaignAddActivity.class));
+						break;
+					case 2:
+						refreshCampaigns();
+						break;
+				}
 			}
 		});
 		
@@ -47,11 +65,13 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 			@Override
 			protected void onPreExecute() {
 				super.onPreExecute();
+				mActionBar.setProgressVisible(true);
 			}
 
 			@Override
 			protected void onPostExecute(CampaignReadResponse response) {
 				super.onPostExecute(response);
+				mActionBar.setProgressVisible(false);
 			}
 			
 		}.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());

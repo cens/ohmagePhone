@@ -46,21 +46,18 @@
     </style>
     
     <style name="TitleBarLogo">
-        <item name="android:id">@id/title_logo</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:clickable">true</item>
     </style>
     
     <style name="TitleBarLogoHome">
-        <item name="android:id">@id/title_logo_home</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:clickable">true</item>
     </style>
     
     <style name="TitleBarText">
-        <item name="android:id">@id/title_text</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_weight">1</item>
@@ -95,9 +92,4 @@
     <string name="description_logo">ohmage</string>
     <string name="description_logo_home">back to dashboard</string>
     <string name="description_search">Search</string>
-    
-    <item type="id" name="title_container" />
-    <item type="id" name="title_logo" />
-    <item type="id" name="title_logo_home" />
-    <item type="id" name="title_text" />
 </resources>
