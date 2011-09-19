@@ -230,6 +230,10 @@ public class FeedbackService extends WakefulIntentService {
 					// uploads/broadcasts, since our survey responses can come
 					// from either source and need to be stored the same way.
 					candidate.surveyId = survey.getString("survey_id");
+					candidate.campaignUrn = c.mUrn;
+					candidate.username = survey.getString("user");
+					candidate.date = survey.getString("utc_timestamp");
+					candidate.timezone = survey.getString("timezone");
 					
 					String date = survey.getString("timestamp");
 					String timezone = survey.getString("timezone");
