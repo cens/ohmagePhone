@@ -59,7 +59,7 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 	}
 
 	@Override
-	public void onSurveyActionView() {
+	public void onSurveyActionView(Survey survey) {
 		Toast.makeText(this, "Launching Survey Info Activity", Toast.LENGTH_SHORT).show();
 	}
 
@@ -72,11 +72,10 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 		intent.putExtra("survey_title", survey.mTitle);
 		intent.putExtra("survey_submit_text", survey.mSubmitText);
 		startActivity(intent);
-		
 	}
 
 	@Override
-	public void onSurveyActionUnavailable() {
+	public void onSurveyActionUnavailable(Survey survey) {
 		Toast.makeText(this, "This survey can only be taken when triggered.", Toast.LENGTH_SHORT).show();
 	}
 
