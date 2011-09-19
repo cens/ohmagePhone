@@ -15,29 +15,41 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
-public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
+public class MapViewItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
-	private ArrayList<RHMapViewActivity.FeedbackMapOverlayItems> mOverlays = new ArrayList<RHMapViewActivity.FeedbackMapOverlayItems>();
+	//private ArrayList<RHMapViewActivity.FeedbackMapOverlayItems> mOverlays = new ArrayList<RHMapViewActivity.FeedbackMapOverlayItems>();
+	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	private Context mContext;
 	
-	public MapViewItemizedOverlay(Drawable defaultMarker){
-		super(boundCenterBottom(defaultMarker));
-	}
+//	public MapViewItemizedOverlay(Drawable defaultMarker){
+//		super(boundCenterBottom(defaultMarker));
+//	}
 	
-	public MapViewItemizedOverlay(Drawable defaultMarker, Context context) {
-		  super(boundCenterBottom(defaultMarker));
-		  mContext = context;
+	public MapViewItemizedOverlay(Drawable defaultMarker, MapView mapView) {
+		  super(boundCenterBottom(defaultMarker), mapView);
+		  mContext = mapView.getContext();
 	}
 
-	public void addOverlay(RHMapViewActivity.FeedbackMapOverlayItems overlay){
+//	public void addOverlay(RHMapViewActivity.FeedbackMapOverlayItems overlay){
+//		mOverlays.add(overlay);
+//		populate();
+//	}
+	
+	public void addOverlay(OverlayItem overlay){
 		mOverlays.add(overlay);
 		populate();
 	}
 	
+//	@Override
+//	protected RHMapViewActivity.FeedbackMapOverlayItems createItem(int i) {
+//		return mOverlays.get(i);
+//	}
+	
 	@Override
-	protected RHMapViewActivity.FeedbackMapOverlayItems createItem(int i) {
+	protected OverlayItem createItem(int i) {
 		return mOverlays.get(i);
 	}
 
@@ -47,9 +59,10 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	}
 	
 	@Override
-	protected boolean onTap(int index){
-		RHMapViewActivity.FeedbackMapOverlayItems item = mOverlays.get(index);
-		//AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+	protected boolean onBalloonTap(int index){
+
+		OverlayItem item = mOverlays.get(index);
+		//RHMapViewActivity.FeedbackMapOverlayItems item = mOverlays.get(index);
 		final Dialog responseDialog = new Dialog(mContext);
 		
 		responseDialog.setContentView(R.layout.mapview_custom_dialog);
@@ -57,16 +70,16 @@ public class MapViewItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		
 		
 		//TODO Add image if there image files
-		Bitmap img = item.getImage();
-		ImageView image = (ImageView)responseDialog.findViewById(R.id.mapview_dialog_image);
-		if(img != null){
-			image.setVisibility(View.VISIBLE);
-			//image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.apple_logo));
-			image.setImageBitmap(img);
-		}
-		else{
-			image.setVisibility(View.GONE);
-		}
+//		Bitmap img = item.getImage();
+//		ImageView image = (ImageView)responseDialog.findViewById(R.id.mapview_dialog_image);
+//		if(img != null){
+//			image.setVisibility(View.VISIBLE);
+//			//image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.apple_logo));
+//			image.setImageBitmap(img);
+//		}
+//		else{
+//			image.setVisibility(View.GONE);
+//		}
 		
 		TextView text = (TextView)responseDialog.findViewById(R.id.mapview_dialog_text);
 		text.setText(item.getSnippet());

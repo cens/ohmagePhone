@@ -52,7 +52,7 @@ import com.google.android.maps.OverlayItem;
 public class RHMapViewActivity extends ResponseHistory {
 
 	static final String TAG = "MapActivityLog"; 
-	private MapViewItemizedOverlay itemizedoverlay = null;
+	private MapViewItemizedOverlay mItemizedoverlay = null;
 	private MapView mMapView;
 	private MapController mControl;
 	private String mCampaignUrn;
@@ -141,16 +141,16 @@ public class RHMapViewActivity extends ResponseHistory {
 	    //Add overlays to the map
 	    List<Overlay> mapOverlays = mMapView.getOverlays();
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.darkgreen_marker_a);
-	    itemizedoverlay= new MapViewItemizedOverlay(drawable, this);
+	    mItemizedoverlay= new MapViewItemizedOverlay(drawable, mMapView);
 	    
 	    for(Responses i : listResponses){
 	    	if(i.getLocationStatus().equalsIgnoreCase("valid")){
 	    		addNewItemToMap(i.getLatitude(), i.getLongitude(), "Response from "+ i.getDate().substring(5, i.getDate().length()), i.getResponses());
 	    	}
 	    }
-	    if(itemizedoverlay.size() > 0){
-		    mapOverlays.add(itemizedoverlay);
-		    mControl.setCenter(itemizedoverlay.getCenter());
+	    if(mItemizedoverlay.size() > 0){
+		    mapOverlays.add(mItemizedoverlay);
+		    mControl.setCenter(mItemizedoverlay.getCenter());
 	    }
 	    //Toast.makeText(this, "Displaying " + itemizedoverlay.size() + " points", Toast.LENGTH_LONG).show();
 	}
@@ -275,8 +275,10 @@ public class RHMapViewActivity extends ResponseHistory {
 			img = BitmapFactory.decodeFile(photo.getAbsolutePath());
 		} 
 		
-		FeedbackMapOverlayItems overlayitem = new FeedbackMapOverlayItems(point, title, resultResponse, img);
-		itemizedoverlay.addOverlay(overlayitem);
+		//FeedbackMapOverlayItems overlayitem = new FeedbackMapOverlayItems(point, title, resultResponse, img);
+		OverlayItem overlayItem = new OverlayItem(point, title, "Hello");
+		mItemizedoverlay.setBalloonBottomOffset(45);
+		mItemizedoverlay.addOverlay(overlayItem);
 	}	
 	
 	private boolean isPhotoPrompt(String promptId){
