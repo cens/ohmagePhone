@@ -401,14 +401,15 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.RESPONSES:
 				if (nonQuery)
 					return builder.table(Tables.RESPONSES);
-				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS)
-					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS);
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
+						.mapToTable(Campaign.NAME, Tables.CAMPAIGNS);
 				
 			case MatcherTypes.RESPONSE_BY_PID:
 				responseID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.RESPONSES)
-					.where(Response._ID + "=?", responseID);
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
+					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
+					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
 				
 			case MatcherTypes.CAMPAIGN_RESPONSES:
 				campaignUrn = uri.getPathSegments().get(1);
