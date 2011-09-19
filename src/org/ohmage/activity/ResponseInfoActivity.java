@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaign;
@@ -274,8 +276,21 @@ LoaderManager.LoaderCallbacks<Cursor> {
 						((ImageView) view.getTag()).setImageBitmap(img);
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
-						if("multi_choice".equals(prompt_type)) {
-							value = "¥ Choice number 1\n¥ Much more tired\n¥ I went to the park and played";
+						if("multi_choice_custom".equals(prompt_type)) {
+							try {
+								JSONArray choices = new JSONArray(value);
+								StringBuilder builder = new StringBuilder();
+								for(int i=0;i<choices.length();i++) {
+									if(i != 0)
+										builder.append("\n");
+									builder.append("¥ ");
+									builder.append(choices.get(i));
+								}
+								value = builder.toString();
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 						((TextView) view.getTag()).setText(value);
 					}
