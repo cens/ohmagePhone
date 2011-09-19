@@ -426,20 +426,20 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.PROMPTS:
 				if (nonQuery)
 					return builder.table(Tables.PROMPT_RESPONSES);
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID);
 				
 			case MatcherTypes.PROMPT_BY_PID:
 				promptID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.where(PromptResponse._ID + "=?", promptID);
 				
 			case MatcherTypes.RESPONSE_PROMPTS:
 				responseID = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.where("SQ." + SurveyPrompt.PROMPT_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
@@ -451,7 +451,7 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				promptID = uri.getPathSegments().get(6);
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
@@ -477,7 +477,7 @@ public class DbProvider extends ContentProvider {
 						throw new IllegalArgumentException("Specified aggregate was not one of AggregateTypes");
 				}
 				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
