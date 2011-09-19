@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:background="@color/dkgray">
-
-	<LinearLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="vertical"
+	
+  	<org.ohmage.controls.ActionBarControl
+		android:id="@+id/action_bar"
 		android:layout_width="fill_parent"
-		android:layout_height="50dp"
-		android:background="@color/gray">	
-	</LinearLayout>
+		android:layout_height="wrap_content"
+		app:showlogo="false"
+		app:title="My Campaigns" />
 	
 	<org.ohmage.controls.FilterControl
 		android:id="@+id/campaign_filter"
@@ -113,7 +113,7 @@
 		android:numColumns="7"
 		android:paddingLeft="2dp"
 		android:layout_width="fill_parent"
-		android:layout_height="265dp"
+		android:layout_height="253dp"
 		android:horizontalSpacing="1dp"
 		android:verticalSpacing="1dp"
 		android:background="@color/dkgray">
@@ -125,7 +125,7 @@
 		android:layout_gravity="center"
 		android:paddingBottom="4dp"
 		android:text=""
-		android:textSize="16dp"
+		android:textSize="15dp"
 		android:textStyle="italic"
 		android:textColor="#FFFFFF"
 		android:background="@color/dkgray"
