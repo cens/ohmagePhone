@@ -20,7 +20,8 @@
 	
     <application android:name="OhmageApplication" android:icon="@drawable/icon" android:label="@string/app_name">
     
-		<activity android:name=".activity.DashboardActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name">
+		<activity android:name=".activity.DashboardActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name"
+			android:launchMode="singleTask">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -54,6 +55,14 @@
 		
 		<activity android:name=".activity.TestActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name">
 		</activity>
+		
+		<activity android:name=".activity.RHMapViewActivity"/>
+		
+        <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/> 
+		
+		<activity android:name=".activity.RHTabHost" android:theme="@android:style/Theme.Light.NoTitleBar" android:screenOrientation="portrait"/>
+
+		<activity android:name=".activity.ResponseListActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:screenOrientation="portrait"/>
 		
 		<activity android:name=".activity.LauncherActivity" android:theme="@android:style/Theme.Light" android:label="@string/app_name">
 			<!--
@@ -291,10 +300,7 @@
 		-->
 
 		<uses-library android:name="com.google.android.maps" />
-        <activity android:name=".activity.RHMapViewActivity" android:label="@string/app_name"/>
-        <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait"/> 
-		<activity android:name=".activity.RHTabHost" android:theme="@android:style/Theme.NoTitleBar" android:screenOrientation="portrait"/>
-		<activity android:name=".activity.ResponseListActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:screenOrientation="portrait"/>
+
 	</application>
     <uses-sdk android:minSdkVersion="4" />
 

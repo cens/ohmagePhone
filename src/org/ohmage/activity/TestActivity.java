@@ -2,16 +2,21 @@ package org.ohmage.activity;
 
 import java.util.ArrayList;
 
+import org.ohmage.R;
+import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Survey;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
@@ -19,11 +24,34 @@ import android.widget.Toast;
 
 public class TestActivity extends Activity {
 	private ContentResolver mCR;
-
+	private Context mContext;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		
+		// save context for children to use
+		mContext = this;
+		
+		// create an action bar for testing purposes
+		final ActionBarControl actionbar = new ActionBarControl(this);
+		actionbar.setTitle("Test Activity");
+		
+		// and add a command to it for fun
+		actionbar.addActionBarCommand(1, "refresh", R.drawable.dashboard_title_refresh);
+		
+		// and attach our listener
+		actionbar.setOnActionListener(new ActionListener() {
+			@Override
+			public void onActionClicked(int commandID) {
+				switch (commandID) {
+					case 1:
+						Toast.makeText(mContext , "refreshed!", Toast.LENGTH_SHORT).show();
+						break;
+				}
+			}
+		});
 		
 		// instantiate a filter just for fun and populate it from the campaigns list
 		// also create a filter that will be populated by the survey list
@@ -34,6 +62,7 @@ public class TestActivity extends Activity {
 		LinearLayout layout = new LinearLayout(this);
 		layout.setOrientation(LinearLayout.VERTICAL);
 		
+		layout.addView(actionbar, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		layout.addView(campaignFilter, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		layout.addView(surveyFilter, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		layout.addView(dateFilter, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));

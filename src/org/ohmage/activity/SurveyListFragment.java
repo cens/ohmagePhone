@@ -35,9 +35,9 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 	private OnSurveyActionListener mListener;
 	
 	public interface OnSurveyActionListener {
-		public void onSurveyActionView();
+		public void onSurveyActionView(Survey survey);
         public void onSurveyActionStart(Survey survey);
-        public void onSurveyActionUnavailable();
+        public void onSurveyActionUnavailable(Survey survey);
     }
 	
 	@Override
@@ -69,8 +69,14 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		
-//		Cursor c = (Cursor) getListAdapter().getItem(position);
-		mListener.onSurveyActionView();
+		Cursor cursor = (Cursor) getListAdapter().getItem(position);
+		
+		List<Survey> surveys = Survey.fromCursor(cursor);
+		if (surveys.size() == 1) {
+			mListener.onSurveyActionView(surveys.get(0));
+		} else {
+			Log.e(TAG, "onListItemClick: more than one campaign read from content provider!");
+		}	
 	}
 	
 	@Override

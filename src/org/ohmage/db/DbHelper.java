@@ -56,7 +56,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 12;
+	private static final int DB_VERSION = 13;
 	
 	private Context mContext;
 	
@@ -71,8 +71,12 @@ public class DbHelper extends SQLiteOpenHelper {
 		String RESPONSES_JOIN_CAMPAIGNS = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
 				RESPONSES, CAMPAIGNS, Response.CAMPAIGN_URN, Campaign.URN);
 		
-		String PROMPTS_JOIN_RESPONSES = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
-				PROMPT_RESPONSES, RESPONSES, PromptResponse.RESPONSE_ID, Response._ID);
+		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String.format(
+				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s " +
+				"inner join %3$s on %3$s.survey_id=%2$s.survey_id and %3$s.%8$s=%2$s.%7$s " +
+				"inner join %4$s on %4$s.urn=%2$s.%7$s",
+				PROMPT_RESPONSES, RESPONSES, SURVEYS, CAMPAIGNS,
+				PromptResponse.RESPONSE_ID, Response._ID, Response.CAMPAIGN_URN, Survey.SURVEY_ID, Survey.CAMPAIGN_URN, Campaign.URN);
 		
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
 				SURVEY_PROMPTS, SURVEYS, SurveyPrompt.SURVEY_ID, Survey.SURVEY_ID);
