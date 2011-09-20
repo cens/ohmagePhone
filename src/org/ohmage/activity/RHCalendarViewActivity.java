@@ -19,9 +19,9 @@ import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.feedback.visualization.ResponseHistory;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -531,6 +531,8 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				Toast.makeText(RHCalendarViewActivity.this, 
 						cal.get(Calendar.MONTH) + "-" + (cal.get(Calendar.DAY_OF_MONTH)+1) + " " + mCampaignFilter.getText() + " " + mSurveyFilter.getText()
 						, Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(RHCalendarViewActivity.this, ResponseListActivity.class);
+				startActivity(intent);
 			}
 			catch (ParseException e)
 			{
