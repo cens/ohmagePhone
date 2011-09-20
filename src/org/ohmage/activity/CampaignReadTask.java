@@ -85,20 +85,23 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 							c.mDownloadTimestamp = null;
 							c.mXml = null;
 							c.mStatus = Campaign.STATUS_REMOTE;
+							c.mPrivacy = data.optString("privacy_state", "unknown");
 							c.mIcon = "http://www.lecs.cs.ucla.edu/~mmonibi/android_small_image_med.jpg";
 							boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
 							
 							if (localCampaignUrns.remove(c.mUrn)) { //campaign has already been downloaded
 								
+								ContentValues values = new ContentValues();
+								// FAISAL: include things here that may change at any time on the server
+								values.put(Campaign.PRIVACY, c.mPrivacy);
+								
 								if (running) { //campaign is running
-										
-									ContentValues values = new ContentValues();
+									
 									values.put(Campaign.STATUS, Campaign.STATUS_READY);
 									cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + c.mUrn + "'" , null);
 									
 								} else { //campaign is stopped
 									
-									ContentValues values = new ContentValues();
 									values.put(Campaign.STATUS, Campaign.STATUS_STOPPED);
 									cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + c.mUrn + "'" , null);
 								}

@@ -427,14 +427,18 @@ public class DbProvider extends ContentProvider {
 				if (nonQuery)
 					return builder.table(Tables.PROMPT_RESPONSES);
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID);
+					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
+					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
+					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES);
 				
 			case MatcherTypes.PROMPT_BY_PID:
 				promptID = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
-					.where(PromptResponse._ID + "=?", promptID);
+					.where(PromptResponse._ID + "=?", promptID)
+					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
+					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES);
 				
 			case MatcherTypes.RESPONSE_PROMPTS:
 				responseID = uri.getPathSegments().get(1);
@@ -444,6 +448,8 @@ public class DbProvider extends ContentProvider {
 					.where("SQ." + SurveyPrompt.PROMPT_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
+					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
+					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
 					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
 				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
@@ -455,6 +461,8 @@ public class DbProvider extends ContentProvider {
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
+					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
+					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Response.SURVEY_ID + "=?", surveyID)
 					.where(Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID + "=?", promptID);
@@ -481,6 +489,8 @@ public class DbProvider extends ContentProvider {
 					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
+					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
+					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
 					.map("aggregate", toClause)
 					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Response.SURVEY_ID + "=?", surveyID)

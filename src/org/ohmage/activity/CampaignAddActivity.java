@@ -3,9 +3,12 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
+import org.ohmage.db.DbContract.Campaign;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -49,7 +52,9 @@ public class CampaignAddActivity extends FragmentActivity implements OnCampaignA
 	
 	@Override
 	public void onCampaignActionView(String campaignUrn) {
-		Toast.makeText(this, "Launching Campaign Info Activity", Toast.LENGTH_SHORT).show();
+		Intent i = new Intent(this, CampaignInfoActivity.class);
+		i.setData(Campaign.getCampaignByURN(campaignUrn));
+		startActivity(i);
 	}
 	
 	@Override

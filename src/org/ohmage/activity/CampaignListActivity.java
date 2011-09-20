@@ -6,6 +6,7 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
+import org.ohmage.db.DbContract.Campaign;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,7 +41,7 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 		// throw some actions on it
 		mActionBar.addActionBarCommand(1, "add campaign", R.drawable.dashboard_title_add);
 		mActionBar.addActionBarCommand(2, "refresh", R.drawable.dashboard_title_refresh);
-		
+
 		// and attach handlers for said actions
 		mActionBar.setOnActionListener(new ActionListener() {
 			@Override
@@ -79,7 +80,9 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 
 	@Override
 	public void onCampaignActionView(String campaignUrn) {
-		Toast.makeText(this, "Launching Campaign Info Activity", Toast.LENGTH_SHORT).show();
+		Intent i = new Intent(this, CampaignInfoActivity.class);
+		i.setData(Campaign.getCampaignByURN(campaignUrn));
+		startActivity(i);
 	}
 
 	@Override

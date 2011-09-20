@@ -41,6 +41,7 @@ public class DbContract {
 		public static final String CONFIGURATION_XML = "configuration_xml";
 		public static final String STATUS = "status";
 		public static final String ICON = "icon";
+		public static final String PRIVACY = "privacy";
 		
 		public static final int STATUS_READY = 0;
 		public static final int STATUS_REMOTE = 1;
@@ -62,6 +63,7 @@ public class DbContract {
 		public String mXml;
 		public int mStatus;
 		public String mIcon;
+		public String mPrivacy;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("campaigns").build();
@@ -106,6 +108,7 @@ public class DbContract {
     			c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
     			c.mStatus = cursor.getInt(cursor.getColumnIndex(Campaign.STATUS));
     			c.mIcon = cursor.getString(cursor.getColumnIndex(Campaign.ICON));
+    			c.mPrivacy = cursor.getString(cursor.getColumnIndex(Campaign.PRIVACY));
     			campaigns.add(c);
     			
     			cursor.moveToNext();
@@ -127,6 +130,7 @@ public class DbContract {
     		values.put(Campaign.CONFIGURATION_XML, mXml);
     		values.put(Campaign.STATUS, mStatus);
     		values.put(Campaign.ICON, mIcon);
+    		values.put(Campaign.PRIVACY, mPrivacy);
         	return values;
         }
 	}

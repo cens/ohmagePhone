@@ -56,7 +56,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 13;
+	private static final int DB_VERSION = 15;
 	
 	private Context mContext;
 	
@@ -116,7 +116,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Campaign.DOWNLOAD_TIMESTAMP + " TEXT, "
 				+ Campaign.CONFIGURATION_XML + " TEXT, "
 				+ Campaign.STATUS + " INTEGER, "
-				+ Campaign.ICON + " TEXT "
+				+ Campaign.ICON + " TEXT, "
+				+ Campaign.PRIVACY + " TEXT "
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEYS + " ("

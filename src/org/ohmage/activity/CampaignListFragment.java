@@ -64,7 +64,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		
 		getLoaderManager().initLoader(0, null, this);
 	}
-	
+
 	@Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -84,41 +84,48 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 	
 	@Override
 	public void onSubActionClicked(Uri uri) {
+		Cursor cursor = null;
 		
-		Cursor cursor = getActivity().getContentResolver().query(uri, new String [] {Campaign._ID, Campaign.URN, Campaign.STATUS}, null, null, null);
-		
-		if (cursor.getCount() == 1) {
-			cursor.moveToFirst();
-			String campaignUrn = cursor.getString(cursor.getColumnIndexOrThrow(Campaign.URN));
-			int status = cursor.getInt(cursor.getColumnIndexOrThrow(Campaign.STATUS));
+		try {
+			cursor = getActivity().getContentResolver().query(uri, new String [] {Campaign._ID, Campaign.URN, Campaign.STATUS}, null, null, null);
 			
-			switch (status) {
-			case Campaign.STATUS_REMOTE:
-				mListener.onCampaignActionDownload(campaignUrn);
-				break;
+			if (cursor.getCount() == 1) {
+				cursor.moveToFirst();
+				String campaignUrn = cursor.getString(cursor.getColumnIndexOrThrow(Campaign.URN));
+				int status = cursor.getInt(cursor.getColumnIndexOrThrow(Campaign.STATUS));
 				
-			case Campaign.STATUS_READY:
-				mListener.onCampaignActionSurveys(campaignUrn);
-				break;
-				
-			case Campaign.STATUS_STOPPED:
-			case Campaign.STATUS_OUT_OF_DATE:
-			case Campaign.STATUS_INVALID_USER_ROLE:
-			case Campaign.STATUS_DELETED:
-			case Campaign.STATUS_VAGUE:
-				mListener.onCampaignActionError(campaignUrn);
-				break;
-				
-			case Campaign.STATUS_DOWNLOADING:
-				//do nothing while downloading
-				break;
-				
-			default:
-				//campaign is in some unknown state!
-				break;
+				switch (status) {
+				case Campaign.STATUS_REMOTE:
+					mListener.onCampaignActionDownload(campaignUrn);
+					break;
+					
+				case Campaign.STATUS_READY:
+					mListener.onCampaignActionSurveys(campaignUrn);
+					break;
+					
+				case Campaign.STATUS_STOPPED:
+				case Campaign.STATUS_OUT_OF_DATE:
+				case Campaign.STATUS_INVALID_USER_ROLE:
+				case Campaign.STATUS_DELETED:
+				case Campaign.STATUS_VAGUE:
+					mListener.onCampaignActionError(campaignUrn);
+					break;
+					
+				case Campaign.STATUS_DOWNLOADING:
+					//do nothing while downloading
+					break;
+					
+				default:
+					//campaign is in some unknown state!
+					break;
+				}
+			} else {
+				Log.e(TAG, "onSubActionClicked: more than one campaign read from content provider!");
 			}
-		} else {
-			Log.e(TAG, "onSubActionClicked: more than one campaign read from content provider!");
+		}
+		finally {
+			if (cursor != null)
+				cursor.close();
 		}
 	}
 	
@@ -134,6 +141,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		} else {
 			select = Campaign.STATUS + " != " + Campaign.STATUS_REMOTE + " AND " + Campaign.STATUS + " != " + Campaign.STATUS_DOWNLOADING;
 		}
+		
 		return new CursorLoader(getActivity(), baseUri, new String [] {Campaign._ID, Campaign.URN, Campaign.NAME, Campaign.STATUS, Campaign.ICON}, select, null, Campaign.NAME);
 	}
 
