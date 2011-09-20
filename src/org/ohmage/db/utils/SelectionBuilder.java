@@ -43,12 +43,13 @@ import android.util.Log;
 */
 public class SelectionBuilder {
     private static final String TAG = "SelectionBuilder";
-    private static final boolean LOGV = false;
+    private static final boolean LOGV = true;
 
     private String mTable = null;
     private Map<String, String> mProjectionMap = Maps.newHashMap();
     private StringBuilder mSelection = new StringBuilder();
     private ArrayList<String> mSelectionArgs = Lists.newArrayList();
+    private ArrayList<String> mJoins = Lists.newArrayList();
 
     /**
 * Reset any internal state, allowing this builder to be recycled.
@@ -92,6 +93,24 @@ public class SelectionBuilder {
     public SelectionBuilder table(String table) {
         mTable = table;
         return this;
+    }
+    
+    /**
+     * Joins a table to the query; only works with query() calls, since sql officially doesn't support joins on an update/delete.
+     * Calls to update() and delete() will ignore the joins.
+     * 
+     * Note that you must specify at least one clause.
+     * 
+     * @param target the table to join to this query
+     * @param clauses at least one constraint to apply to the join; multiple clauses are connected by and
+     * @return the SelectionBuilder used in the call, so that subsequent calls can be chained
+     */
+    public SelectionBuilder join(String target, String... clauses) {
+    	if (clauses.length <= 0)
+    		throw new IllegalArgumentException("at least one clause must be specified in a join");
+    	
+    	mJoins.add("inner join " + target + " on " + arrayToString2(clauses, " AND "));
+    	return this;
     }
 
     private void assertTable() {
@@ -157,8 +176,16 @@ public class SelectionBuilder {
             String having, String orderBy, String limit) {
         assertTable();
         if (columns != null) mapColumns(columns);
+        
+        // if there are joins, this is the table + any joins added on
+        String compositeTable = mTable;
+        
+        // add on all the joins!
+        for (String join : mJoins)
+        	compositeTable += " " + join;
+        
         if (LOGV) Log.v(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
-        return db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having,
+        return db.query(compositeTable, columns, getSelection(), getSelectionArgs(), groupBy, having,
                 orderBy, limit);
     }
 
@@ -178,5 +205,18 @@ public class SelectionBuilder {
         assertTable();
         if (LOGV) Log.v(TAG, "delete() " + this);
         return db.delete(mTable, getSelection(), getSelectionArgs());
+    }
+    
+    // utility method for gluing string arrays together
+    private static String arrayToString2(String[] a, String separator) {
+        StringBuffer result = new StringBuffer();
+        if (a.length > 0) {
+            result.append(a[0]);
+            for (int i=1; i<a.length; i++) {
+                result.append(separator);
+                result.append(a[i]);
+            }
+        }
+        return result.toString();
     }
 }

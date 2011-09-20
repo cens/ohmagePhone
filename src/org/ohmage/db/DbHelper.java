@@ -72,12 +72,21 @@ public class DbHelper extends SQLiteOpenHelper {
 				RESPONSES, CAMPAIGNS, Response.CAMPAIGN_URN, Campaign.URN);
 		
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String.format(
-				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s " +
-				"inner join %3$s on %3$s.survey_id=%2$s.survey_id and %3$s.%8$s=%2$s.%7$s " +
-				"inner join %4$s on %4$s.urn=%2$s.%7$s",
-				PROMPT_RESPONSES, RESPONSES, SURVEYS, CAMPAIGNS,
-				PromptResponse.RESPONSE_ID, Response._ID, Response.CAMPAIGN_URN, Survey.SURVEY_ID, Survey.CAMPAIGN_URN, Campaign.URN);
-		
+				"%1$s inner join %2$s on %1$s.%5$s=%2$s.%6$s " +
+				"inner join %3$s on %3$s.%9$s=%2$s.%8$s and %3$s.%10$s=%2$s.%7$s " +
+				"inner join %4$s on %4$s.%11$s=%2$s.%7$s",
+				PROMPT_RESPONSES,			// 1
+				RESPONSES,					// 2
+				SURVEYS,					// 3
+				CAMPAIGNS,					// 4
+				PromptResponse.RESPONSE_ID,	// 5
+				Response._ID,				// 6
+				Response.CAMPAIGN_URN,		// 7
+				Response.SURVEY_ID,			// 8
+				Survey.SURVEY_ID,			// 9
+				Survey.CAMPAIGN_URN,		// 10
+				Campaign.URN);				// 11
+
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
 				SURVEY_PROMPTS, SURVEYS, SurveyPrompt.SURVEY_ID, Survey.SURVEY_ID);
 	}
