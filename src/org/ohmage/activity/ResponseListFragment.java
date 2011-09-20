@@ -1,5 +1,7 @@
 package org.ohmage.activity;
 
+import org.ohmage.controls.DateFilterControl;
+import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbHelper;
 
@@ -15,6 +17,9 @@ import android.support.v4.content.Loader;
 public class ResponseListFragment extends ListFragment implements LoaderCallbacks<Cursor>{
 	
 	private ResponseListCursorAdapter mAdapter;
+	private FilterControl mCampaignFilter;
+	private FilterControl mSurveyFilter;
+	private DateFilterControl mDateFilter;
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState){
@@ -60,5 +65,12 @@ public class ResponseListFragment extends ListFragment implements LoaderCallback
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		mAdapter.swapCursor(null);
+	}
+	
+	public void setFilters(FilterControl campaignFilter, FilterControl surveyFilter, DateFilterControl dateFilter){
+		mCampaignFilter = campaignFilter;
+		mSurveyFilter = surveyFilter;
+		mDateFilter = dateFilter;
+		getLoaderManager().restartLoader(0, null, this);
 	}
 }

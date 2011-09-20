@@ -128,12 +128,13 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			public void onFilterChanged(String curCampaignValue) {
 				Cursor surveyCursor;
 
+				String[] projection = {Survey.TITLE, Survey.CAMPAIGN_URN, Survey.SURVEY_ID};
 				//Create Cursor
 				if(curCampaignValue.equals("all")){
-					surveyCursor = cr.query(Survey.getSurveys(), null, null, null, Survey.TITLE);
+					surveyCursor = cr.query(Survey.getSurveys(), projection, null, null, Survey.TITLE);
 				}
 				else{
-					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), null, null, null, null);
+					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), projection, null, null, null);
 				}
 
 				//Update SurveyFilter
@@ -169,8 +170,9 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			}
 		});
 
-		//String selection = Campaign.STATUS+"!=1";
-		Cursor campaigns = cr.query(Campaign.getCampaigns(), null, null, null, null);
+		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
+		String[] projection = {Campaign.NAME, Campaign.URN};
+		Cursor campaigns = cr.query(Campaign.getCampaigns(), projection, select, null, null);
 		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));
 	}
@@ -523,21 +525,29 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		{
 			String date_month_year = (String) view.getTag();
 
-			try
-			{
-				Date parsedDate = dateFormatter.parse(date_month_year);
-				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(parsedDate.getTime());
-				Toast.makeText(RHCalendarViewActivity.this, 
-						cal.get(Calendar.MONTH) + "-" + (cal.get(Calendar.DAY_OF_MONTH)+1) + " " + mCampaignFilter.getText() + " " + mSurveyFilter.getText()
-						, Toast.LENGTH_SHORT).show();
-				Intent intent = new Intent(RHCalendarViewActivity.this, ResponseListActivity.class);
-				startActivity(intent);
-			}
-			catch (ParseException e)
-			{
-				e.printStackTrace();
-			}
+//			try
+//			{
+				Button btn = (Button)view.findViewById(R.id.calendar_gridcell_num_responses);
+				String num = btn.getText().toString();
+				if(!num.equals("")){
+					Intent intent = new Intent(RHCalendarViewActivity.this, ResponseListActivity.class);
+					intent.putExtra("campaignFilterIndex", mCampaignFilter.getIndex());
+					intent.putExtra("surveyFilterIndex", mSurveyFilter.getIndex());
+					intent.putExtra("dateString", date_month_year);
+					startActivity(intent);					
+				}
+
+				//Need to remove later
+//				Date parsedDate = dateFormat.getInstance();
+//				cal.setTimeInMillis(parsedDate.getTime());
+//				Toast.makeText(RHCalendarViewActivity.this, 
+//						cal.get(Calendar.MONTH) + "-" + (cal.get(Calendar.DAY_OF_MONTH)) + " " + mCampaignFilter.getText() + " " + mSurveyFilter.getText()
+//						, Toast.LENGTH_SHORT).show();
+//			}
+//			catch (ParseException e)
+//			{
+//				e.printStackTrace();
+//			}
 		}
 
 		public int getCurrentDayOfMonth()
