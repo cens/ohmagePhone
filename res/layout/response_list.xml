@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+  
+  	<org.ohmage.controls.ActionBarControl
+		android:id="@+id/action_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:showlogo="false"
+		app:title="Response List" />
+		
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/campaign_filter"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+		
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/survey_filter"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<org.ohmage.controls.DateFilterControl
+		android:id="@+id/date_filter"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+		
+	<fragment class="org.ohmage.activity.ResponseListFragment"
+		android:id="@+id/responses"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1" />
+    
+</LinearLayout>

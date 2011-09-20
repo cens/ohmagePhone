@@ -1,26 +1,19 @@
 package org.ohmage.activity;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.ohmage.R;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
-import org.ohmage.feedback.FeedbackService;
+import org.ohmage.feedback.visualization.MapOverlayItem;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.feedback.visualization.ResponseHistory;
 import org.ohmage.prompt.AbstractPrompt;
@@ -30,8 +23,6 @@ import org.ohmage.prompt.photo.PhotoPrompt;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
@@ -41,13 +32,11 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 
 public class RHMapViewActivity extends ResponseHistory {
 
@@ -84,7 +73,10 @@ public class RHMapViewActivity extends ResponseHistory {
 	}
 	
 	public void displayItemsOnMap(){
+		
+		//Clear current overlay items
 		mMapView.getOverlays().clear();
+		
 		//Get the currently selected CampaignUrn and SurveyID
 	    String curSurveyValue = mSurveyFilter.getValue();
 		mCampaignUrn = curSurveyValue.substring(0, curSurveyValue.lastIndexOf(":"));
@@ -119,21 +111,11 @@ public class RHMapViewActivity extends ResponseHistory {
 		String selection = 
 				Response.TIME + " > " + greCalStart.getTime().getTime() +
 				" AND " + 
-				Response.TIME + " < " + greCalEnd.getTime().getTime();
+				Response.TIME + " < " + greCalEnd.getTime().getTime() + 
+				" AND " +
+				Response.LOCATION_STATUS + "=" + "'valid'";
+		
 	    Cursor cursor = cr.query(queryUri, null, selection, null, null);
-    
-	    List<Responses> listResponses = new ArrayList<Responses>();
-	    while(cursor.moveToNext()){
-	    	String hashcode = cursor.getString(cursor.getColumnIndex(Response.HASHCODE));
-	    	String locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
-	    	String latitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
-	    	String longitude = cursor.getString(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
-	    	String response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
-	    	String date = cursor.getString(cursor.getColumnIndex(Response.DATE));
-	    	String time = cursor.getString(cursor.getColumnIndex(Response.TIME));
-	    	listResponses.add(new Responses(hashcode, locationStatus, latitude, longitude, response, date));	    	
-	    }
-	    cursor.close();
 
 	    //Init the map center to current location
 	    setMapCenterToCurrentLocation();
@@ -143,16 +125,24 @@ public class RHMapViewActivity extends ResponseHistory {
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.darkgreen_marker_a);
 	    mItemizedoverlay= new MapViewItemizedOverlay(drawable, mMapView);
 	    
-	    for(Responses i : listResponses){
-	    	if(i.getLocationStatus().equalsIgnoreCase("valid")){
-	    		addNewItemToMap(i.getLatitude(), i.getLongitude(), "Response from "+ i.getDate().substring(5, i.getDate().length()), i.getResponses());
-	    	}
+	    for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
+		    Double lat = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
+		    Double lon = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
+		    GeoPoint point = new GeoPoint((int)(lat.doubleValue()*1e6), (int)(lon.doubleValue()*1e6));
+		    String title = cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID));
+		    String text = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN)) + "\n" + 
+		    cursor.getString(cursor.getColumnIndex(Response.DATE));
+		    String hashcode = cursor.getString(cursor.getColumnIndex(Response.HASHCODE));
+		    
+			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text, hashcode);
+			mItemizedoverlay.setBalloonBottomOffset(40);
+			mItemizedoverlay.addOverlay(overlayItem);
 	    }
+
 	    if(mItemizedoverlay.size() > 0){
 		    mapOverlays.add(mItemizedoverlay);
 		    mControl.setCenter(mItemizedoverlay.getCenter());
-	    }
-	    //Toast.makeText(this, "Displaying " + itemizedoverlay.size() + " points", Toast.LENGTH_LONG).show();
+	    }	    
 	}
 	
 	public void setupFilters(){
@@ -166,13 +156,15 @@ public class RHMapViewActivity extends ResponseHistory {
 			@Override
 			public void onFilterChanged(String curCampaignValue) {
 				Cursor surveyCursor;
-	
+				
+				String[] projection = {Survey.TITLE, Survey.CAMPAIGN_URN, Survey.SURVEY_ID};
+				
 				//Create Cursor
 				if(curCampaignValue.equals("all")){
-					surveyCursor = cr.query(Survey.getSurveys(), null, null, null, Survey.TITLE);
+					surveyCursor = cr.query(Survey.getSurveys(), projection, null, null, Survey.TITLE);
 				}
 				else{
-					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), null, null, null, null);
+					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), projection, null, null, null);
 				}
 	
 				//Update SurveyFilter
@@ -209,7 +201,10 @@ public class RHMapViewActivity extends ResponseHistory {
 			}
 		});
 		
-		Cursor campaigns = cr.query(Campaign.getCampaigns(), null, null, null, null);
+		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
+		String[] projection = {Campaign.NAME, Campaign.URN};
+
+		Cursor campaigns = cr.query(Campaign.getCampaigns(), projection, select, null, null);
 		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));	
 	}
@@ -241,45 +236,6 @@ public class RHMapViewActivity extends ResponseHistory {
 	    	point = new GeoPoint((int)(currentLocation.getLatitude()*1e6), (int)(currentLocation.getLongitude()*1e6));	    	
 	    mControl.setCenter(point);		
 	}
-	
-	private void addNewItemToMap(int lat, int lon, String title, String jsonResponse){
-		GeoPoint point = new GeoPoint(lat, lon);
-		String photoUUID = null;
-		
-		//Build propt text
-		String resultResponse = "";
-		try{
-			JSONArray arrResponse = new JSONArray(jsonResponse);
-			
-			for(int i=0; i<arrResponse.length(); i++){
-				JSONObject jobjectResponse = arrResponse.getJSONObject(i);
-				String promptId = jobjectResponse.get("prompt_id").toString();
-				String value = jobjectResponse.get("value").toString();
-				resultResponse += getPromptLabel(promptId)+ "\n";
-				resultResponse += "   :" + getPropertiesLabel(promptId, value) + "\n";
-				if(isPhotoPrompt(promptId)==true){
-					photoUUID = value;
-				}
-			}
-		}
-		catch(Exception e){
-			resultResponse = jsonResponse;
-		}
-		
-		Bitmap img = null;
-		if(photoUUID != null
-				&& !photoUUID.equalsIgnoreCase("NOT_DISPLAYED")
-				&& FeedbackService.ensurePhotoExists(this, mCampaignUrn, photoUUID)){
-			File photoDir = new File(PhotoPrompt.IMAGE_PATH + "_cache/" + mCampaignUrn.replace(':', '_'));
-			File photo = new File(photoDir, photoUUID + ".png");
-			img = BitmapFactory.decodeFile(photo.getAbsolutePath());
-		} 
-		
-		//FeedbackMapOverlayItems overlayitem = new FeedbackMapOverlayItems(point, title, resultResponse, img);
-		OverlayItem overlayItem = new OverlayItem(point, title, "Hello");
-		mItemizedoverlay.setBalloonBottomOffset(45);
-		mItemizedoverlay.addOverlay(overlayItem);
-	}	
 	
 	private boolean isPhotoPrompt(String promptId){
 		Iterator<Prompt> ite = mPrompts.iterator();
@@ -338,20 +294,6 @@ public class RHMapViewActivity extends ResponseHistory {
 			return true;
 		}
 		return false;
-	}
-	
-	public class FeedbackMapOverlayItems extends OverlayItem{
-		Bitmap mImage;
-		public FeedbackMapOverlayItems(GeoPoint point, String title, String snippet, Bitmap img){
-			super(point, title, snippet);
-			if(img != null){
-				mImage = Bitmap.createBitmap(img);
-			}
-		}
-		
-		public Bitmap getImage(){
-			return mImage;
-		}
 	}
 	
 	//Class to store responses

@@ -29,6 +29,9 @@ import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
 public class DateFilterControl extends LinearLayout {
+	
+	public final static int defaultCalendarUnit = 0;
+	
 	private DateFilterChangeListener mFilterChangeListener;
 	private Calendar mSelectedDate;
 	private Button mCurrentBtn;
@@ -42,7 +45,7 @@ public class DateFilterControl extends LinearLayout {
 	// e.g. 6 ends up being 13 items total: 6 months before, the current month, and 6 months after
 	private final int PICKER_RANGE = 3;
 	// determines the unit that the filter pages through; the date string formatter is set accordingly
-	private final int CALENDAR_UNIT = Calendar.MONTH;
+	private int CALENDAR_UNIT = Calendar.MONTH;
 	// determine if "today" is an option at the top of the list selector
 	private final boolean SHOW_TODAY_IN_PICKER = true;
 	
@@ -243,5 +246,11 @@ public class DateFilterControl extends LinearLayout {
 	private int dpToPixels(int padding_in_dp) {
 		final float scale = getResources().getDisplayMetrics().density;
 	    return (int) (padding_in_dp * scale + 0.5f);
+	}
+	
+	public void setCalendarUnit(int unit){
+		CALENDAR_UNIT = unit;
+		this.removeAllViews();
+		initControl(mActivity);
 	}
 }
