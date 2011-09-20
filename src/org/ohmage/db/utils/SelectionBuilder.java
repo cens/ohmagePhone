@@ -99,15 +99,23 @@ public class SelectionBuilder {
      * Joins a table to the query; only works with query() calls, since sql officially doesn't support joins on an update/delete.
      * Calls to update() and delete() will ignore the joins.
      * 
-     * Note that you must specify at least one clause.
+     * Note that you must specify at least one clause. For convenience, any occurrences of the string "%t" are
+     * replaced with the 'target' parameter, and any occurrences of string "%s" are replaced with the original table.
+     * Only use "%s" if the original table is a single table name, of course, and not a join itself.
      * 
      * @param target the table to join to this query
-     * @param clauses at least one constraint to apply to the join; multiple clauses are connected by and
+     * @param clauses at least one constraint to apply to the join; multiple clauses are connected by 'and'
      * @return the SelectionBuilder used in the call, so that subsequent calls can be chained
      */
     public SelectionBuilder join(String target, String... clauses) {
+    	assertTable();
+    	
     	if (clauses.length <= 0)
     		throw new IllegalArgumentException("at least one clause must be specified in a join");
+    	
+    	// replace instances of %t with the target table and %s with the original table
+    	for (int i = 0; i < clauses.length; ++i)
+    		clauses[i] = clauses[i].replaceAll("%t", target).replaceAll("%s", mTable);
     	
     	mJoins.add("inner join " + target + " on " + arrayToString2(clauses, " AND "));
     	return this;

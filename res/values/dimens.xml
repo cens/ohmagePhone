@@ -14,6 +14,7 @@
     <dimen name="text_size_medium">18sp</dimen>
     <dimen name="text_size_large">22sp</dimen>
     <dimen name="text_size_xlarge">18sp</dimen>
+    <dimen name="text_size_dash">20sp</dimen>
     <dimen name="speaker_image_size">36dp</dimen>
     <dimen name="speaker_image_padding">8dp</dimen>
     <dimen name="vendor_image_size">100dp</dimen>

@@ -86,7 +86,8 @@ public class DashboardActivity extends Activity {
 					break;
 					
 				case R.id.dash_profile_btn:
-					startActivity(new Intent(c, StatusActivity.class));
+					// startActivity(new Intent(c, StatusActivity.class));
+					startActivity(new Intent(c, ProfileActivity.class));
 					break;
 					
 				case R.id.dash_settings_btn:

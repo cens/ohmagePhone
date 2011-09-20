@@ -60,7 +60,9 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 
 	@Override
 	public void onSurveyActionView(Survey survey) {
-		Toast.makeText(this, "Launching Survey Info Activity", Toast.LENGTH_SHORT).show();
+		Intent i = new Intent(this, SurveyInfoActivity.class);
+		i.setData(Survey.getSurveyByID(survey.mCampaignUrn, survey.mSurveyID));
+		startActivity(i);
 	}
 
 	@Override

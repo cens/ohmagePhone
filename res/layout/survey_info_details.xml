@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:padding="@dimen/gutter">
+  
+	<!--an optional error message -->
+	<TextView style="@style/ErrorBox"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/survey_info_errorbox"
+		android:text="this is some test error text..." />
+	  
+	<!-- the description block -->
+	<TextView style="@style/InfoDescription"
+		android:id="@+id/survey_info_desc"
+		android:text="this is a test description" />
+	
+	<!-- collapsible(?) sections with attribute info -->
+	<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TableRow style="@style/InfoSectionHeader"
+			android:id="@+id/survey_info_status_row">
+			<TextView style="@style/InfoSectionLabel" android:text="status:" />
+			<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_status_value" android:text="test?!" />
+		</TableRow>
+		
+		<TableRow style="@style/InfoSectionHeader"
+			android:id="@+id/survey_info_responses_row">
+			<TextView style="@style/InfoSectionLabel" android:text="responses:" />
+			<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_responses_value" android:text="test?!" />
+		</TableRow>
+	</TableLayout>
+</LinearLayout>

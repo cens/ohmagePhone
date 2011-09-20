@@ -373,6 +373,8 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				
 				return builder.table(Tables.SURVEYS)
+					.join(Tables.CAMPAIGNS, "%t." + Campaign.URN + "=" + "%s." + Survey.CAMPAIGN_URN)
+					.mapToTable(Survey.DESCRIPTION, Tables.SURVEYS)
 					.where(Survey.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Survey.SURVEY_ID + "=?", surveyID);
 				

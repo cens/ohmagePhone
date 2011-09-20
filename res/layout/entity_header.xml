@@ -6,6 +6,7 @@
 	android:layout_height="wrap_content"
 	android:background="@drawable/entity_header_background"
 	android:padding="@dimen/gutter">
+	
 	<ImageView
 		android:id="@+id/entity_icon"
 		android:layout_width="@dimen/entity_icon_width"
@@ -20,40 +21,45 @@
 		android:id="@+id/entity_header"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:text="medication"
+		android:text="---"
 		style="@style/TextHeader"
 		android:layout_toRightOf="@id/entity_icon" />
-	<Button
-		android:id="@+id/entity_button"
+		
+	<!--
+	a "tray" which stores custom buttons, left to right.
+	the implementing activity needs to fill this up.
+	-->
+	<LinearLayout
+		android:id="@+id/entity_header_tray"
+		android:orientation="horizontal"
 		android:layout_width="wrap_content"
-		android:layout_height="@dimen/entity_button_height"
-		android:background="@drawable/entity_action_button"
-		android:drawableLeft="@drawable/plus"
-		android:drawablePadding="@dimen/halfgutter"
-		android:text="Participate"
-		android:paddingLeft="@dimen/gutter"
-		android:paddingRight="@dimen/gutter"
+		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/halfgutter"
 		android:layout_alignParentRight="true"
-		android:layout_below="@id/entity_header" />
+		android:layout_below="@+id/entity_icon">
+	</LinearLayout>
+	
 	<TextView
 		android:id="@+id/entity_header_sub1"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:text="CHIPTS (Mo)"
+		android:text="---"
 		style="@style/TextHeaderSub"
 		android:layout_marginTop="@dimen/gutter_thin"
 		android:layout_below="@id/entity_header"
 		android:layout_alignLeft="@id/entity_header" 
-		android:layout_toLeftOf="@id/entity_button" />
+		android:layout_toLeftOf="@id/entity_header_tray" />
+
 	<TextView
 		android:id="@+id/entity_header_sub2"
-		android:layout_width="fill_parent"
+		android:gravity="right"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="9/8/11 10:26 AM"
-		style="@style/TextHeaderSub"
+		android:text="(---)"
 		android:layout_below="@id/entity_header_sub1"
 		android:layout_alignLeft="@id/entity_header" 
-		android:layout_toLeftOf="@id/entity_button" />
+		android:layout_toLeftOf="@id/entity_header_tray"
+		style="@style/TextHeaderSub" />
+	
 </RelativeLayout>
 

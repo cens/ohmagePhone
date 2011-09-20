@@ -23,13 +23,23 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ActionBarControl extends LinearLayout {
+	private Activity mActivity;
+	
+	// view references
 	private TextView mTitleText;
 	private ImageButton mHomeButton;
-	private Activity mActivity;
+	private ProgressBar mProgressSpinner;
+	private ImageView mHomeSeparator;
+	
+	// functionality
 	private List<ImageButton> mActionButtons;
+	private List<ImageView> mSeparators;
 	private ActionListener mActionBarClickedListener;
 	private OnClickListener mActionButtonClickListener;
-	private ProgressBar mProgressSpinner;
+	
+	// style flags
+	private boolean mShowLogo;
+	private boolean mShowHome;	
 
 	public ActionBarControl(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -70,6 +80,7 @@ public class ActionBarControl extends LinearLayout {
 		
 		// holds a list of buttons that we manage
 		mActionButtons = new ArrayList<ImageButton>();
+		mSeparators = new ArrayList<ImageView>();
 		
 		// apply the xml-specified attributes, too
 		initStyles(attrs);
@@ -86,24 +97,46 @@ public class ActionBarControl extends LinearLayout {
 	protected void initStyles(AttributeSet attrs) {
 		TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ActivityBarControl);
 		
-		boolean showlogo = a.getBoolean(R.styleable.ActivityBarControl_showlogo, false);
+		mShowLogo = a.getBoolean(R.styleable.ActivityBarControl_showlogo, false);
 		String titleText = a.getString(R.styleable.ActivityBarControl_title);
 		
 		ImageView logo = (ImageView) findViewById(R.id.controls_actionbar_logo);
-		ImageView home_separator = (ImageView) findViewById(R.id.controls_actionbar_homebutton_separator);
+		mHomeSeparator = (ImageView) findViewById(R.id.controls_actionbar_homebutton_separator);
 		mTitleText.setText(titleText);
 		
-		if (showlogo) {
+		if (mShowLogo) {
 			logo.setVisibility(VISIBLE);
-			home_separator.setVisibility(GONE);
+			mHomeSeparator.setVisibility(GONE);
 			mHomeButton.setVisibility(GONE);
 			mTitleText.setVisibility(INVISIBLE);
 		}
 		else {
 			logo.setVisibility(GONE);
-			home_separator.setVisibility(VISIBLE);
+			mHomeSeparator.setVisibility(VISIBLE);
 			mHomeButton.setVisibility(VISIBLE);
 			mTitleText.setVisibility(VISIBLE);
+		}
+		
+		// and set whether or not the home button appears
+		setHomeVisibility(a.getBoolean(R.styleable.ActivityBarControl_showhome, true));
+	}
+	
+	/**
+	 * Set the visibility of the home button. Note that this is overridden by "showlogo";
+	 * if the logo is visible, the home button will never appear.
+	 * 
+	 * @param isVisible if true, home button is shown; if false, home button is hidden
+	 */
+	public void setHomeVisibility(boolean isVisible) {
+		if (!isVisible || mShowLogo) {
+			mHomeSeparator.setVisibility(GONE);
+			mHomeButton.setVisibility(GONE);
+			mShowHome = false;
+		}
+		else {
+			mHomeSeparator.setVisibility(VISIBLE);
+			mHomeButton.setVisibility(VISIBLE);
+			mShowHome = true;
 		}
 	}
 	
@@ -147,11 +180,22 @@ public class ActionBarControl extends LinearLayout {
 		// attach to our existing listener for routing clicks through the callback
 		newButton.setOnClickListener(mActionButtonClickListener);
 
+		mSeparators.add(newSeparator);
 		mActionButtons.add(newButton);
 		
 		// add to the parent layout now
 		this.addView(newSeparator, new LayoutParams(1, LayoutParams.FILL_PARENT));
 		this.addView(newButton, new LayoutParams(dpToPixels(45), LayoutParams.FILL_PARENT));
+	}
+	
+	/**
+	 * Removes all the action bar commands. This is somewhat useful if you want to recompose the action bar from scratch.
+	 */
+	public void clearActionBarCommands() {
+		for (ImageButton button : mActionButtons)
+			removeView(button);
+		for (ImageView sep : mSeparators)
+			removeView(sep);
 	}
 	
 	/**

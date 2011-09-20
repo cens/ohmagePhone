@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- style declarations -->
+	<style name="ErrorBox">
+		<item name="android:textSize">@dimen/text_size_small</item>
+		<item name="android:background">@drawable/warning</item>
+		<item name="android:layout_marginBottom">@dimen/gutter</item>
+		<item name="android:visibility">gone</item>
+	</style>
+	
+	<style name="InfoButton">
+		<item name="android:gravity">center</item>
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">@dimen/entity_button_height</item>
+		<item name="android:background">@drawable/entity_action_button</item>
+		<item name="android:drawableLeft">@drawable/plus</item>
+		<item name="android:drawablePadding">@dimen/halfgutter</item>
+		<item name="android:text">Participate</item>
+		<item name="android:paddingLeft">@dimen/gutter</item>
+		<item name="android:paddingRight">@dimen/gutter</item>
+	</style>
+	
+	<style name="InfoDescription">
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:padding">3dp</item>
+		<item name="android:layout_marginBottom">6dp</item>
+		<item name="android:textSize">@dimen/text_size_medium</item>
+	</style>
+
+	<style name="InfoSectionTable">
+		<item name="android:textSize">@dimen/text_size_large</item>
+	</style>
+	
+	<style name="InfoSectionHeader">
+		<item name="android:background">@drawable/campaign_info_header_bg</item>
+		<item name="android:layout_marginTop">@dimen/gutter_thin</item>
+	</style>
+	
+	<style name="InfoSectionLabel">
+		<item name="android:gravity">right</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:padding">5dp</item>
+	</style>
+	
+	<style name="InfoSectionValue">
+		<item name="android:drawablePadding">3dp</item>
+		<item name="android:textStyle">normal</item>
+		<item name="android:padding">5dp</item>
+	</style>
+	
+	<style name="InfoSectionDetails">
+		<item name="android:background">@drawable/campaign_info_details_bg</item>
+		<item name="android:padding">@dimen/gutter</item>
+		<item name="android:layout_marginBottom">@dimen/gutter</item>
+		<item name="android:visibility">gone</item>
+	</style>
+	
+	<!-- html-formatted errorbox messages -->
+	<string name="campaign_info_errorbox_stopped">
+	<![CDATA[
+	<b>warning:</b> this campaign is <b>stopped</b>, meaning that you can no longer submit surveys for it.
+	]]>
+	</string>
+	
+	<string name="campaign_info_errorbox_invalid_role">
+	<![CDATA[
+	<b>warning:</b> you don\'t seem to have sufficient permission to access this campaign at this time.
+	]]>
+	</string>
+	
+	<!-- explanatory text sections (FIXME: move to a dedicated string resource later) -->
+	<string name="campaign_info_privacy_details">
+	<![CDATA[
+	the <b>privacy</b> of the campaign determines in part who can view the data that you upload.<br /><br />
+	
+	a campaign may be in one of two privacy states:<br />
+	* <b>private</b>, only you and the administrator can see your data<br />
+	* <b>shared</b>, administrators, authors, and analysts can see your public data
+	]]>
+	</string>
+	
+	<string name="campaign_info_responses_details">
+	<![CDATA[
+	the above count is the number of responses in your response history.
+	]]>
+	</string>
+</resources>

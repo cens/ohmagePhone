@@ -8,6 +8,10 @@
 	<classpathentry kind="lib" path="lib/httpmime-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jbcrypt-0.3.jar"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="lib/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="lib/android-support-v4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/home/faisal/android-sdk/extras/android/compatibility/v4/docs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

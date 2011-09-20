@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button style="@style/InfoButton"
+    	android:id="@+id/profile_info_button_update_password"
+    	android:text="Update Password"
+    	android:layout_marginRight="5dp"
+    	android:textSize="12dp"
+    	android:drawableLeft="@drawable/update_password" />
+    	
+    <Button style="@style/InfoButton"
+    	android:id="@+id/profile_info_button_logout_wipe"
+    	android:text="Log Out, Wipe Data"
+    	android:textSize="12dp"
+    	android:drawableLeft="@drawable/logout_wipe" />
+</merge>

@@ -314,8 +314,8 @@ public class FilterControl extends LinearLayout {
 	}
 	
 	// utility method for converting dp to pixels, since the setters only take pixel values :\
-	private int dpToPixels(int padding_in_dp) {
+	private int dpToPixels(int dp) {
 		final float scale = getResources().getDisplayMetrics().density;
-	    return (int) (padding_in_dp * scale + 0.5f);
+	    return (int) (dp * scale + 0.5f);
 	}
 }

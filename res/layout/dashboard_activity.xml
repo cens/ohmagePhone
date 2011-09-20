@@ -29,10 +29,10 @@
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 			<Button android:id="@+id/dash_feedback_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_resphistory"
-				android:text="Response History" />
+				android:text="Response\nHistory" />
 
 			<Button android:id="@+id/dash_uploadqueue_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_upqueue"
-				android:text="Upload Queue" />
+				android:text="Upload\nQueue" />
 		</LinearLayout>
 
 		<LinearLayout android:orientation="horizontal"
