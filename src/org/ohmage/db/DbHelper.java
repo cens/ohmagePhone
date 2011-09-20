@@ -60,7 +60,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	
 	private Context mContext;
 	
-	interface Tables {
+	public interface Tables {
 		static final String RESPONSES = "responses";
 		static final String CAMPAIGNS = "campaigns";
 		static final String PROMPT_RESPONSES = "prompt_responses";
