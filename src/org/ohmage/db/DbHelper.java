@@ -15,23 +15,9 @@
  ******************************************************************************/
 package org.ohmage.db;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.CampaignXmlHelper;
-import org.ohmage.PromptXmlParser;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
@@ -48,8 +34,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.util.Xml;
-import edu.ucla.cens.systemlog.Log;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Stack;
+import java.util.Vector;
 
 public class DbHelper extends SQLiteOpenHelper {
 	
@@ -58,7 +55,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String DB_NAME = "ohmage.db";
 	private static final int DB_VERSION = 15;
 	
-	private Context mContext;
+	private final Context mContext;
 	
 	public interface Tables {
 		static final String RESPONSES = "responses";
@@ -68,9 +65,11 @@ public class DbHelper extends SQLiteOpenHelper {
 		static final String SURVEY_PROMPTS = "survey_prompts";
 		
 		// joins declared here
-		String RESPONSES_JOIN_CAMPAIGNS = String.format("%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
-				RESPONSES, CAMPAIGNS, Response.CAMPAIGN_URN, Campaign.URN);
-		
+		String RESPONSES_JOIN_CAMPAIGNS_SURVEYS = String.format(
+				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s " +
+				"inner join %5$s on %1$s.%6$s=%5$s.%7$s ",
+				RESPONSES, CAMPAIGNS, Response.CAMPAIGN_URN, Campaign.URN, SURVEYS, Response.SURVEY_ID, Survey.SURVEY_ID);
+
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String.format(
 				"%1$s inner join %2$s on %1$s.%5$s=%2$s.%6$s " +
 				"inner join %3$s on %3$s.%9$s=%2$s.%8$s and %3$s.%10$s=%2$s.%7$s " +

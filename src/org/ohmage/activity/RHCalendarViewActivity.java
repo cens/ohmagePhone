@@ -1,15 +1,5 @@
 package org.ohmage.activity;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
 import org.ohmage.R;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
@@ -37,7 +27,16 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 public class RHCalendarViewActivity extends ResponseHistory implements OnClickListener
 {
@@ -56,6 +55,9 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 	private FilterControl mCampaignFilter;
 	private FilterControl mSurveyFilter;
 	private DateFilterControl mDateFilter;
+	
+	private final SimpleDateFormat clickDateFormatter = new SimpleDateFormat("dd-MMMM-yyyy");
+
 
 	//TODO
 	//Change current dateFilterControl to the generic DateFilterControl.
@@ -125,7 +127,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		final ContentResolver cr = getContentResolver();
 		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
 			@Override
-			public void onFilterChanged(String curCampaignValue) {
+			public void onFilterChanged(boolean selfChange, String curCampaignValue) {
 				Cursor surveyCursor;
 
 				String[] projection = {Survey.TITLE, Survey.CAMPAIGN_URN, Survey.SURVEY_ID};
@@ -161,7 +163,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 
 		mSurveyFilter.setOnChangeListener(new FilterChangeListener() {
 			@Override
-			public void onFilterChanged(String curValue) {
+			public void onFilterChanged(boolean selfChange, String curValue) {
 				setGridCellAdapterToDate(
 						RHCalendarViewActivity.this.mSelectedMonth,
 						RHCalendarViewActivity.this.mSelectedYear, 
@@ -499,7 +501,13 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			dateDisplay = (TextView) row.findViewById(R.id.calendar_gridcell_date);
 			dateDisplay.setBackgroundColor(Color.WHITE);
 			dateDisplay.setText(theday);
-			numOfResponsesDisplay.setTag(theday + "-" + themonth + "-" + theyear);
+			try {
+				Date clickedDate = clickDateFormatter.parse(theday+"-"+themonth+"-"+theyear);
+				numOfResponsesDisplay.setTag(clickedDate.getTime());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			if (day_color[1].equals("OUTOFTHISMONTH"))
 			{
@@ -523,7 +531,6 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		@Override
 		public void onClick(View view)
 		{
-			String date_month_year = (String) view.getTag();
 
 //			try
 //			{
@@ -531,9 +538,11 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				String num = btn.getText().toString();
 				if(!num.equals("")){
 					Intent intent = new Intent(RHCalendarViewActivity.this, ResponseListActivity.class);
-					intent.putExtra("campaignFilterIndex", mCampaignFilter.getIndex());
-					intent.putExtra("surveyFilterIndex", mSurveyFilter.getIndex());
-					intent.putExtra("dateString", date_month_year);
+					if(!"all".equals(mCampaignFilter.getValue()))
+						intent.putExtra(ResponseListActivity.EXTRA_CAMPAIGN_URI_FILTER, mCampaignFilter.getValue());
+					if(!"all".equals(mSurveyFilter.getValue()))
+						intent.putExtra(ResponseListActivity.EXTRA_SURVEY_FILTER, mSurveyFilter.getValue().substring(mSurveyFilter.getValue().lastIndexOf(":")+1));
+					intent.putExtra(ResponseListActivity.EXTRA_DATE_FLITER, (Long) view.getTag());
 					startActivity(intent);					
 				}
 
@@ -574,6 +583,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			return daysOfMonth[i];
 		}
 
+		@Override
 		public String getItem(int position)
 		{
 			return list.get(position);

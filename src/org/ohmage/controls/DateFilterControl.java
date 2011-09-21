@@ -1,32 +1,21 @@
 package org.ohmage.controls;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.ohmage.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
-import android.util.Pair;
 import android.content.res.TypedArray;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class DateFilterControl extends LinearLayout {
 	
@@ -37,7 +26,7 @@ public class DateFilterControl extends LinearLayout {
 	private Button mCurrentBtn;
 	private Button mPrevBtn;
 	private Button mNextBtn;
-	private Activity mActivity; // stores a reference to our calling activity
+	private final Activity mActivity; // stores a reference to our calling activity
 	private AlertDialog mItemListDialog; // stores a dialog containing a list of items, updated by populate() and add()
 	private SimpleDateFormat mDateFormatter;
 	
@@ -131,6 +120,21 @@ public class DateFilterControl extends LinearLayout {
 	 */
 	public void setDate(Calendar newDate) {
 		mSelectedDate = newDate;
+
+		// The date that we set should be rounded based on the calendar Unit
+		// The smallest unit we allow is the day, so anything less than that should be removed
+		mSelectedDate.set(Calendar.HOUR_OF_DAY, 0);
+		mSelectedDate.set(Calendar.MINUTE, 0);
+		mSelectedDate.set(Calendar.SECOND, 0);
+		mSelectedDate.set(Calendar.MILLISECOND, 0);
+		switch (CALENDAR_UNIT) {
+			case Calendar.MONTH:
+				mSelectedDate.set(Calendar.DAY_OF_MONTH, 1);
+				break;
+			case Calendar.YEAR: 
+				mSelectedDate.set(Calendar.MONTH, Calendar.JANUARY);
+				break;
+		}
 		syncState();
 	}
 	
@@ -224,7 +228,8 @@ public class DateFilterControl extends LinearLayout {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 		builder.setTitle("Choose a date");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
-		    public void onClick(DialogInterface dialog, int item) {
+		    @Override
+			public void onClick(DialogInterface dialog, int item) {
 		        try {
 		        	if (items[item].equals("Today"))
 		        		mSelectedDate = Calendar.getInstance();

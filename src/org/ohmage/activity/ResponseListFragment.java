@@ -1,11 +1,11 @@
 package org.ohmage.activity;
 
-import org.ohmage.controls.DateFilterControl;
-import org.ohmage.controls.FilterControl;
+import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Survey;
 
-import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,64 +13,126 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.View;
+import android.widget.ListView;
 
 public class ResponseListFragment extends ListFragment implements LoaderCallbacks<Cursor>{
-	
+
 	private ResponseListCursorAdapter mAdapter;
-	private FilterControl mCampaignFilter;
-	private FilterControl mSurveyFilter;
-	private DateFilterControl mDateFilter;
-	
+
+	private String mCampaignUrnFilter;
+	private String mSurveyIdFilter;
+
+	private Long mStartDateFilter;
+	private Long mEndDateFilter;
+
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState){
+	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Uri queryUri = Response.getResponses();
-		
-		mAdapter = new ResponseListCursorAdapter(getActivity(), null, 0);
+		// Set the empty text
+		setEmptyText("No responses");
+
+		// We have no menu items to show in action bar.
+		setHasOptionsMenu(false);
+
+		// Create an empty adapter we will use to display the loaded data.
+		mAdapter = createAdapter();
 		setListAdapter(mAdapter);
-		
-		setEmptyText("Loaing response list...");
+
+		// Start out with a progress indicator.
 		setListShown(false);
-		
-		getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
-	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		startActivity(new Intent(Intent.ACTION_VIEW, DbContract.Response.getResponseByID(id)));
+	}
 
-		Uri queryUri = Response.getResponses();
-
-//		String select = null; 
-//		
-//		if (!mCampaignFilter.equals(FILTER_ALL_CAMPAIGNS)) {
-//			select = Survey.CAMPAIGN_URN + "= '" + mCampaignFilter + "'";
-//		}
-		
-		return new CursorLoader(
-				getActivity(), 
-				queryUri, 
-				new String [] {DbHelper.Tables.RESPONSES+"."+Response._ID, Response.DATE}, 
-				null, 
-				null, 
-				Response.DATE);
+	public interface ResponseQuery {
+		String[] PROJECTION = { 
+				"responses."+Response._ID,
+				Campaign.NAME,
+				Survey.TITLE,
+				Response.TIME 
+		};
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
-		mAdapter.swapCursor(c);
-		setListShownNoAnimation(true);
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		Uri queryUri;
+
+		// Filter the uri
+		if(mCampaignUrnFilter == null) {
+			queryUri = Response.getResponses();
+		} else {
+			if(mSurveyIdFilter == null) 
+				queryUri = Response.getResponsesByCampaign(mCampaignUrnFilter);
+			else
+				queryUri = Response.getResponsesByCampaignAndSurvey(mCampaignUrnFilter, mSurveyIdFilter);
+		}
+
+		// Set the date filter selection
+		StringBuilder selection = new StringBuilder();
+		if(mStartDateFilter != null)
+			selection.append(Response.TIME + " > " + mStartDateFilter);
+		if(mEndDateFilter != null) {
+			if(selection.length() != 0)
+				selection.append(" AND ");
+			selection.append(Response.TIME + " < " + mEndDateFilter);
+		}
+
+		return new CursorLoader(getActivity(), queryUri, ResponseQuery.PROJECTION, selection.toString(), null, Response.TIME + " DESC");
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		mAdapter.swapCursor(data);
+
+		// The list should now be shown.
+		if (isResumed()) {
+			setListShown(true);
+		} else {
+			setListShownNoAnimation(true);
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);
 	}
-	
-	public void setFilters(FilterControl campaignFilter, FilterControl surveyFilter, DateFilterControl dateFilter){
-		mCampaignFilter = campaignFilter;
-		mSurveyFilter = surveyFilter;
-		mDateFilter = dateFilter;
+
+	/**
+	 * Specify that this list should only show responses for a certain campaign or survey.
+	 * If campaignUrn is null, the surveyId will be ignored
+	 * If the surveyId is null, it will show responses from any survey from the specified campaign
+	 * @param campaignUrn
+	 * @param surveyId
+	 */
+	public void setFilters(String campaignUrn, String surveyId) {
+		mCampaignUrnFilter = campaignUrn;
+		mSurveyIdFilter = surveyId;
 		getLoaderManager().restartLoader(0, null, this);
+	}
+
+	/**
+	 * Specify date bounds for the responses that will be shown. If either startDateFilter
+	 * or endDateFilter is null, that bound will be ignored. No date bound will be set if both are null
+	 * @param startDateFilter
+	 * @param endDateFilter
+	 */
+	public void setDateBounds(Long startDateFilter, Long endDateFilter) {
+		mStartDateFilter = startDateFilter;
+		mEndDateFilter = endDateFilter;
+		getLoaderManager().restartLoader(0, null, this);
+	}
+	
+	/**
+	 * Extending fragments can override this method to change the list adapter used. For example, the {@link UploadQueueActivity}
+	 * uses this fragment with the {@link UploadingResponseListCursorAdapter} so it can have the uploading action for the responses
+	 * @return the adapter used in this fragment
+	 */
+	protected ResponseListCursorAdapter createAdapter() {
+		return new ResponseListCursorAdapter(getActivity(), null, 0);
 	}
 }

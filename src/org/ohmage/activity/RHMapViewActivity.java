@@ -1,9 +1,9 @@
 package org.ohmage.activity;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
 
 import org.ohmage.R;
 import org.ohmage.controls.DateFilterControl;
@@ -37,10 +37,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
 
 public class RHMapViewActivity extends ResponseHistory {
 
@@ -198,7 +198,7 @@ public class RHMapViewActivity extends ResponseHistory {
 		final ContentResolver cr = getContentResolver();
 		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
 			@Override
-			public void onFilterChanged(String curCampaignValue) {
+			public void onFilterChanged(boolean selfChange, String curCampaignValue) {
 				Cursor surveyCursor;
 				
 				String[] projection = {Survey.TITLE, Survey.CAMPAIGN_URN, Survey.SURVEY_ID};
@@ -232,7 +232,7 @@ public class RHMapViewActivity extends ResponseHistory {
 	
 		mSurveyFilter.setOnChangeListener(new FilterChangeListener() {
 			@Override
-			public void onFilterChanged(String curValue) {
+			public void onFilterChanged(boolean selfChange, String curValue) {
 				displayItemsOnMap();
 			}
 		});
