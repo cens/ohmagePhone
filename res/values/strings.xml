@@ -4,6 +4,10 @@
   <string name="app_name">ohmage</string>
   <string name="prefs">PreferenceFile</string> 
   <string name="mobilityservicestarted">Mobility service is running.</string> 
-  <string name="mobilityservicestopped">Mobility service is not running.</string> 
+  <string name="mobilityservicestopped">Mobility service is not running.</string>
+  
+  <!-- Titles -->
+  <string name="title_upload_queue">Upload Queue</string>
+  <string name="title_response">Response</string> 
 
 </resources>

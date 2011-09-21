@@ -64,8 +64,6 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		getActionBar().setTitle("Response");
-
 		FragmentManager fm = getSupportFragmentManager();
 
 		// Create the list fragment and add it as our sole content.

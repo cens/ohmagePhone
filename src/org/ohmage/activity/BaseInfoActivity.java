@@ -3,16 +3,10 @@ package org.ohmage.activity;
 import org.ohmage.R;
 import org.ohmage.controls.ActionBarControl;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,6 +33,9 @@ public abstract class BaseInfoActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.base_info_activity);
+		
+		// Set the title for this activity
+		getActionBar().setTitle(getTitle());
 	}
 	
 	/**
