@@ -1,28 +1,22 @@
 package org.ohmage.controls;
 
-import java.util.ArrayList;
-
 import org.ohmage.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
-import android.util.Pair;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
+
+import java.util.ArrayList;
 
 public class FilterControl extends LinearLayout {
 	private ArrayList<Pair<String, String>> mItemList;
@@ -31,7 +25,7 @@ public class FilterControl extends LinearLayout {
 	private Button mCurrentBtn;
 	private Button mPrevBtn;
 	private Button mNextBtn;
-	private Activity mActivity; // stores a reference to our calling activity
+	private final Activity mActivity; // stores a reference to our calling activity
 	private AlertDialog mItemListDialog; // stores a dialog containing a list of items, updated by populate() and add()
 	
 	public FilterControl(Context context) {
@@ -118,7 +112,7 @@ public class FilterControl extends LinearLayout {
 		
 		// and do a final sync
 		updateListDialog();
-		syncState();
+		syncState(true);
 	}
 	
 	/**
@@ -133,7 +127,7 @@ public class FilterControl extends LinearLayout {
 		
 		// update the list dialog and do a final sync
 		updateListDialog();
-		syncState();
+		syncState(true);
 	}
 	
 	/**
@@ -147,7 +141,7 @@ public class FilterControl extends LinearLayout {
 		
 		// and make sure we're displaying the right thing
 		updateListDialog();
-		syncState();
+		syncState(true);
 	}
 	
 	/**
@@ -156,7 +150,7 @@ public class FilterControl extends LinearLayout {
 	public void add(Pair<String,String> item) {
 		mItemList.add(item);
 		updateListDialog();
-		syncState();
+		syncState(true);
 	}
 	
 	/**
@@ -173,7 +167,7 @@ public class FilterControl extends LinearLayout {
 	 */
 	public void setIndex(int index) {
 		mSelectionIndex = index;
-		syncState();
+		syncState(true);
 	}
 	
 	/**
@@ -197,6 +191,8 @@ public class FilterControl extends LinearLayout {
 	 * @return the value as a string
 	 */
 	public String getValue() {
+		if(mItemList.isEmpty())
+			return null;
 		return mItemList.get(mSelectionIndex).second;
 	}
 	
@@ -205,10 +201,12 @@ public class FilterControl extends LinearLayout {
 	 * @return true if value existed in collection, false if not
 	 */
 	public boolean setValue(String value) {
-		for (int i = 0; i < mItemList.size(); i++) {
-			if (mItemList.get(i).second.equals(value)) {
-				setIndex(i);
-				return true;
+		if(value != null) {
+			for (int i = 0; i < mItemList.size(); i++) {
+				if (value.equals(mItemList.get(i).second)) {
+					setIndex(i);
+					return true;
+				}
 			}
 		}
 		return false;
@@ -233,7 +231,15 @@ public class FilterControl extends LinearLayout {
 	 * Exposes a callback to allow custom processing to occur when the filter is changed (either by navigation or population).
 	 */
 	public static interface FilterChangeListener {
-		public void onFilterChanged(String curValue);
+		public void onFilterChanged(boolean selfChange, String curValue);
+	}
+	
+	/**
+	 * Notifies our listener if we have one that the filter has changed
+	 */
+	private void notifyFilterChanged(boolean selfChange) {
+		if (mFilterChangeListener != null)
+			mFilterChangeListener.onFilterChanged(selfChange, mItemList.get(mSelectionIndex).second);
 	}
 
 	/**
@@ -248,7 +254,7 @@ public class FilterControl extends LinearLayout {
 				case R.id.controls_filter_prev:
 					if (mSelectionIndex > 0) {
 						mSelectionIndex -= 1;
-						syncState();
+						syncState(false);
 					}
 					break;
 				case R.id.controls_filter_current:
@@ -257,7 +263,7 @@ public class FilterControl extends LinearLayout {
 				case R.id.controls_filter_next:
 					if (mSelectionIndex < mItemList.size()-1) {
 						mSelectionIndex += 1;
-						syncState();
+						syncState(false);
 					}
 					break;
 			}
@@ -265,7 +271,7 @@ public class FilterControl extends LinearLayout {
 	}
 	
 	// keeps the middle text button in sync with the current index
-	private void syncState() {
+	private void syncState(boolean selfChange) {
 		// depending on where we are in the list, dim or disable the controls
 		mPrevBtn.setTextColor((mSelectionIndex <= 0)?Color.LTGRAY:Color.BLACK);
 		mNextBtn.setTextColor((mSelectionIndex >= mItemList.size() - 1)?Color.LTGRAY:Color.BLACK);
@@ -286,10 +292,7 @@ public class FilterControl extends LinearLayout {
 		
 		mCurrentBtn.setText(curItem.first);
 		
-		// check to see if the text overflows the button, then resize if necessary
-		
-		if (mFilterChangeListener != null)
-			mFilterChangeListener.onFilterChanged(curItem.second);
+		notifyFilterChanged(selfChange);
 	}
 	
 	// helper method for constructing a list dialog based on the current item list
@@ -304,9 +307,10 @@ public class FilterControl extends LinearLayout {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 		builder.setTitle("Choose an item");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
-		    public void onClick(DialogInterface dialog, int item) {
+		    @Override
+			public void onClick(DialogInterface dialog, int item) {
 		        mSelectionIndex = item;
-		        syncState();
+		        syncState(false);
 		    }
 		});
 		

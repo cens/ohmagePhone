@@ -14,9 +14,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.Toast;
 
 public class SurveyListActivity extends FragmentActivity implements OnSurveyActionListener {
@@ -43,7 +40,7 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
 			
 			@Override
-			public void onFilterChanged(String curValue) {
+			public void onFilterChanged(boolean selfChange, String curValue) {
 				// TODO Auto-generated method stub
 				((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setCampaignFilter(curValue);
 			}

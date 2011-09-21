@@ -414,16 +414,18 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.CAMPAIGN_RESPONSES:
 				campaignUrn = uri.getPathSegments().get(1);
 				
-				return builder.table(Tables.RESPONSES)
-					.where(Response.CAMPAIGN_URN + "=?", campaignUrn);
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
+					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
+					.where(Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "=?", campaignUrn);
 				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
 				campaignUrn = uri.getPathSegments().get(1);
 				surveyID = uri.getPathSegments().get(3);
 				
-				return builder.table(Tables.RESPONSES)
-					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
-					.where(Response.SURVEY_ID + "=?", surveyID);
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
+					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
+					.where(Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "=?", campaignUrn)
+					.where(Tables.RESPONSES + "." + Response.SURVEY_ID + "=?", surveyID);
 			
 			// PROMPTS
 			case MatcherTypes.PROMPTS:

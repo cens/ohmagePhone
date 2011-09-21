@@ -1,12 +1,10 @@
 package org.ohmage.activity;
 
-import java.util.ArrayList;
-
 import org.ohmage.R;
 import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
-import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Survey;
@@ -16,11 +14,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class TestActivity extends Activity {
 	private ContentResolver mCR;
@@ -71,7 +70,7 @@ public class TestActivity extends Activity {
 		
 		campaignFilter.setOnChangeListener(new FilterChangeListener() {
 			@Override
-			public void onFilterChanged(String curValue) {
+			public void onFilterChanged(boolean selfChange, String curValue) {
 				Cursor surveys;
 				
 				if (!curValue.equalsIgnoreCase("all"))
