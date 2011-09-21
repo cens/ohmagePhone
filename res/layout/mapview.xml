@@ -32,13 +32,49 @@
 		android:layout_height="wrap_content"
 	/>	
 		
-	<com.google.android.maps.MapView
-	    xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/mapview"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    android:clickable="true"
-	    android:apiKey="0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA"
-	/>
+	<RelativeLayout 
+		xmlns:android="http://schemas.android.com/apk/res/android" 
+    	android:layout_width="fill_parent" 
+    	android:layout_height="fill_parent">
+		<com.google.android.maps.MapView
+		    xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/mapview"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:clickable="true"
+		    android:apiKey="0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA"
+		/>
+
+		<LinearLayout 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:orientation="horizontal"
+			android:layout_alignParentRight="true">
+			<Button
+				android:id="@+id/map_pin_previous"
+				android:text="&lt;"
+				android:textSize="28dp"
+				android:textStyle="bold"
+				android:textColor="@color/black"
+				android:background="@drawable/controls_filter_button"
+				android:layout_gravity="center_vertical"
+				android:layout_width="45dp"
+				android:layout_height="40dp"
+			/>
+
+			<Button
+				android:id="@+id/map_pin_next"
+				android:text="&gt;"
+				android:textSize="28dp"
+				android:textStyle="bold"
+				android:textColor="@color/black"
+				android:background="@drawable/controls_filter_button"
+				android:layout_gravity="center_vertical"
+				android:layout_width="45dp"
+				android:layout_height="40dp"
+			/>
+		</LinearLayout>
+	</RelativeLayout>
 	</LinearLayout>
 	

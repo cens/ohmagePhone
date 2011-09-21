@@ -32,6 +32,10 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
@@ -50,6 +54,9 @@ public class RHMapViewActivity extends ResponseHistory {
 	private FilterControl mCampaignFilter;
 	private FilterControl mSurveyFilter;
 	private DateFilterControl mDateFilter;
+	private Button mMapPinNext;
+	private Button mMapPinPrevious;
+	private int pinIndex;  
 	
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -124,7 +131,7 @@ public class RHMapViewActivity extends ResponseHistory {
 	    List<Overlay> mapOverlays = mMapView.getOverlays();
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.darkgreen_marker_a);
 	    mItemizedoverlay= new MapViewItemizedOverlay(drawable, mMapView);
-	    
+
 	    for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
 		    Double lat = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
 		    Double lon = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
@@ -142,7 +149,44 @@ public class RHMapViewActivity extends ResponseHistory {
 	    if(mItemizedoverlay.size() > 0){
 		    mapOverlays.add(mItemizedoverlay);
 		    mControl.setCenter(mItemizedoverlay.getCenter());
-	    }	    
+	    }
+
+		mMapPinNext = (Button) mMapView.getRootView().findViewById(R.id.map_pin_next);
+		mMapPinPrevious = (Button) mMapView.getRootView().findViewById(R.id.map_pin_previous);
+		if(mMapPinNext != null){
+			mMapPinNext.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					int overlayListSize = mItemizedoverlay.size();
+					if(overlayListSize > 0){
+						mItemizedoverlay.onTap(pinIndex % overlayListSize);
+						if(pinIndex <= (overlayListSize-1)){
+							pinIndex++;	
+						}
+					}
+					Toast.makeText(mMapView.getContext(), "Hello next ", Toast.LENGTH_SHORT).show();
+				}
+			});			
+		}
+		
+		if(mMapPinPrevious != null){
+			mMapPinPrevious.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					int overlayListSize = mItemizedoverlay.size();
+					if(overlayListSize > 0){
+						mItemizedoverlay.onTap(pinIndex % overlayListSize);
+						if(pinIndex > 0){
+							pinIndex--;	
+						}
+					}
+					Toast.makeText(mMapView.getContext(), "Hello previous", Toast.LENGTH_SHORT).show();
+				}
+			});			
+		}
+		
 	}
 	
 	public void setupFilters(){

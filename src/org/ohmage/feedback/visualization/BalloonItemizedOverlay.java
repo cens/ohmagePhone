@@ -22,12 +22,16 @@ import java.util.List;
 
 import org.ohmage.R;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -49,6 +53,9 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 	private View clickRegion;
 	private int viewOffset;
 	final MapController mc;
+	private Button mMapPinNext;
+	private Button mMapPinPrevious;
+	private Context mContext;
 	
 	/**
 	 * Create a new BalloonItemizedOverlay
@@ -56,11 +63,31 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 	 * @param defaultMarker - A bounded Drawable to be drawn on the map for each item in the overlay.
 	 * @param mapView - The view upon which the overlay items are to be drawn.
 	 */
-	public BalloonItemizedOverlay(Drawable defaultMarker, MapView mapView) {
+	public BalloonItemizedOverlay(Drawable defaultMarker, final MapView mapView) {
 		super(defaultMarker);
 		this.mapView = mapView;
 		viewOffset = 0;
 		mc = mapView.getController();
+		mContext = mapView.getContext();
+		
+//		mMapPinNext = (Button) mapView.getRootView().findViewById(R.id.map_pin_next);
+//		mMapPinPrevious = (Button) mapView.getRootView().findViewById(R.id.map_pin_previous);
+//		
+//		mMapPinNext.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				Toast.makeText(mContext, "Hello next ", Toast.LENGTH_SHORT).show();
+//			}
+//		});
+//		
+//		mMapPinPrevious.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				Toast.makeText(mContext, "Hello previous", Toast.LENGTH_SHORT).show();
+//			}
+//		});
 	}
 	
 	/**
@@ -91,7 +118,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 	 * @see com.google.android.maps.ItemizedOverlay#onTap(int)
 	 */
 	@Override
-	protected final boolean onTap(int index) {
+	public final boolean onTap(int index) {
 		
 		boolean isRecycled;
 		final int thisIndex;
