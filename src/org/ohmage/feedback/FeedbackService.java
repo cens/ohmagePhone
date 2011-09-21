@@ -328,8 +328,6 @@ public class FeedbackService extends WakefulIntentService {
 					
 					// render it to a string for storage into our db
 					candidate.response = responseJson.toString();
-					candidate.source = "remote";
-					candidate.uploaded = 0; //why is this 0 and not 1?
 					candidate.status = Response.STATUS_DOWNLOADED;
 					
 					// ok, gathered everything; time to insert into the feedback DB
