@@ -6,10 +6,12 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 
 import org.ohmage.R;
+import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
+import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
@@ -56,7 +58,8 @@ public class RHMapViewActivity extends ResponseHistory {
 	private DateFilterControl mDateFilter;
 	private Button mMapPinNext;
 	private Button mMapPinPrevious;
-	private int pinIndex;  
+	private int pinIndex;
+
 	
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -77,6 +80,7 @@ public class RHMapViewActivity extends ResponseHistory {
 	    
 	    setupFilters();
 	    displayItemsOnMap();
+	    
 	}
 	
 	public void displayItemsOnMap(){
@@ -115,6 +119,15 @@ public class RHMapViewActivity extends ResponseHistory {
 		GregorianCalendar greCalStart = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), 1);
 		GregorianCalendar greCalEnd = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.getActualMaximum(Calendar.DAY_OF_MONTH));
 		
+		String[] projection = {
+				DbHelper.Tables.RESPONSES+"."+Response._ID,
+				DbHelper.Tables.RESPONSES+"."+Response.LOCATION_LATITUDE, 
+				DbHelper.Tables.RESPONSES+"."+Response.LOCATION_LONGITUDE,
+				DbHelper.Tables.RESPONSES+"."+Response.SURVEY_ID, 
+				DbHelper.Tables.RESPONSES+"."+Response.CAMPAIGN_URN, 
+				DbHelper.Tables.RESPONSES+"."+Response.DATE 
+				};
+		
 		String selection = 
 				Response.TIME + " > " + greCalStart.getTime().getTime() +
 				" AND " + 
@@ -122,7 +135,7 @@ public class RHMapViewActivity extends ResponseHistory {
 				" AND " +
 				Response.LOCATION_STATUS + "=" + "'valid'";
 		
-	    Cursor cursor = cr.query(queryUri, null, selection, null, null);
+	    Cursor cursor = cr.query(queryUri, projection, selection, null, null);
 
 	    //Init the map center to current location
 	    setMapCenterToCurrentLocation();
@@ -139,13 +152,13 @@ public class RHMapViewActivity extends ResponseHistory {
 		    String title = cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID));
 		    String text = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN)) + "\n" + 
 		    cursor.getString(cursor.getColumnIndex(Response.DATE));
-		    String hashcode = cursor.getString(cursor.getColumnIndex(Response.HASHCODE));
+		    String id = cursor.getString(cursor.getColumnIndex(Response._ID));
 		    
-			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text, hashcode);
+			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text, id);
 			mItemizedoverlay.setBalloonBottomOffset(40);
 			mItemizedoverlay.addOverlay(overlayItem);
 	    }
-
+	    cursor.close();
 	    if(mItemizedoverlay.size() > 0){
 		    mapOverlays.add(mItemizedoverlay);
 		    mControl.setCenter(mItemizedoverlay.getCenter());
@@ -165,7 +178,7 @@ public class RHMapViewActivity extends ResponseHistory {
 							pinIndex++;	
 						}
 					}
-					Toast.makeText(mMapView.getContext(), "Hello next ", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(mMapView.getContext(), "Hello next ", Toast.LENGTH_SHORT).show();
 				}
 			});			
 		}
@@ -182,7 +195,7 @@ public class RHMapViewActivity extends ResponseHistory {
 							pinIndex--;	
 						}
 					}
-					Toast.makeText(mMapView.getContext(), "Hello previous", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(mMapView.getContext(), "Hello previous", Toast.LENGTH_SHORT).show();
 				}
 			});			
 		}
@@ -338,60 +351,5 @@ public class RHMapViewActivity extends ResponseHistory {
 			return true;
 		}
 		return false;
-	}
-	
-	//Class to store responses
-	private class Responses{
-		private String mHashcode; 
-		private String mLocation_status;
-		private String mResponses;
-		private String mDate;
-		
-		//latitude and longitude are multuplied by 1e6
-		private int mLocation_latitude;
-		private int mLocation_longitude;
-		
-		public Responses(String hashcode, String locationStatus, String latitude, String longitude, String responses
-				, String date){
-			this.mHashcode = hashcode;
-			this.mLocation_status = locationStatus;
-			this.mDate = date;
-			
-			if(mLocation_status.equalsIgnoreCase("valid")){
-				this.mLocation_latitude = locationStringToInteger(latitude);
-				this.mLocation_longitude = locationStringToInteger(longitude);
-			}
-			this.mResponses = responses;
-		}
-		
-		private int locationStringToInteger(String strCoordinate){
-			//Multiplies coordinates by 1e6 and return it 
-			double dblCoordinate = Double.valueOf(strCoordinate).doubleValue();
-			return (int)(dblCoordinate*1e6);
-		}
-		
-		public String getDate(){
-			return mDate;
-		}
-		
-		public String getHashcode(){
-			return mHashcode;
-		}
-		
-		public String getLocationStatus(){
-			return mLocation_status;
-		}
-		
-		public int getLatitude(){
-			return mLocation_latitude;
-		}
-		
-		public int getLongitude(){
-			return mLocation_longitude;
-		}
-		
-		public String getResponses(){
-			return mResponses;
-		}
 	}
 }

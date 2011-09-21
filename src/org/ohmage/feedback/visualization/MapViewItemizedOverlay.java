@@ -1,21 +1,16 @@
 package org.ohmage.feedback.visualization;
 
+import java.net.URI;
 import java.util.ArrayList;
 
-import org.ohmage.R;
-import org.ohmage.activity.RHMapViewActivity;
+import org.ohmage.db.DbContract;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.net.Uri;
 import android.widget.Toast;
 
-import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
@@ -65,7 +60,14 @@ public class MapViewItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> 
 //			}
 //		});
 //		responseDialog.show();
-		
+		long id = Long.valueOf(item.getResponseID()).longValue();
+		Uri uri = DbContract.Response.getResponseByID(id);
+		//Uri uri = Uri.parse("content://org.ohmage.db/responses/25");
+		//URI uri = new URI("content://org.ohmage.db/responses/25");
+		mContext.startActivity(
+				new Intent(
+						Intent.ACTION_VIEW,
+						uri));
 		Toast.makeText(mContext, "ResponseInfo Activity will start. \nResponse ID:\n" + item.getResponseID() 
 		, Toast.LENGTH_SHORT).show();
 		
