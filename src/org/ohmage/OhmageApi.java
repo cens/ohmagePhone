@@ -355,6 +355,34 @@ public class OhmageApi {
 		}
 	}
 	
+	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, File [] photos) {
+		
+		final boolean GZIP = false;
+		
+		String url = serverUrl + SURVEY_UPLOAD_PATH;
+		
+		try {
+			MultipartEntity multipartEntity = new MultipartEntity();
+	    	multipartEntity.addPart("campaign_urn", new StringBody(campaignUrn));
+	    	multipartEntity.addPart("campaign_creation_timestamp", new StringBody(campaignCreationTimestamp));
+	    	multipartEntity.addPart("user", new StringBody(username));
+	    	multipartEntity.addPart("password", new StringBody(hashedPassword));
+	    	multipartEntity.addPart("client", new StringBody(client));
+	    	multipartEntity.addPart("surveys", new StringBody(responseJson));
+	    	
+	    	if (photos != null) {
+		    	for (int i = 0; i < photos.length; i++) {
+		    		multipartEntity.addPart(photos[i].getName().split("\\.")[0], new FileBody(photos[i], "image/jpeg"));
+		    	}
+	    	}
+	    	
+			return parseUploadResponse(doHttpPost(url, multipartEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
+		}
+	}
+	
 	public UploadResponse mediaUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String uuid, File data) {
 		
 		final boolean GZIP = false;

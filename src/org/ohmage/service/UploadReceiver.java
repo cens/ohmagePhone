@@ -60,7 +60,7 @@ private static final String TAG = "UploadReceiver";
 				Log.i(TAG, "Power is not low.");
 				Log.i(TAG, "Starting UploadService.");
 				
-				WakefulIntentService.sendWakefulWork(context, UploadService.class);
+				WakefulIntentService.sendWakefulWork(context, OldUploadService.class);
 			} else {
 				Log.i(TAG, "Power is low.");
 				Log.i(TAG, "Not starting UploadService.");
@@ -91,7 +91,7 @@ private static final String TAG = "UploadReceiver";
 				Log.i(TAG, "Storage is low.");
 				Log.i(TAG, "Starting UploadService.");
 				
-				WakefulIntentService.sendWakefulWork(context, UploadService.class);
+				WakefulIntentService.sendWakefulWork(context, OldUploadService.class);
 				
 			} else {
 				Log.i(TAG, "Storage is not low.");

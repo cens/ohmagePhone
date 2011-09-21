@@ -11,6 +11,7 @@ import org.ohmage.db.DbContract.Survey;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
@@ -56,25 +57,30 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 	}
 
 	@Override
-	public void onSurveyActionView(Survey survey) {
+	public void onSurveyActionView(Uri surveyUri) {
 		Intent i = new Intent(this, SurveyInfoActivity.class);
-		i.setData(Survey.getSurveyByID(survey.mCampaignUrn, survey.mSurveyID));
+		i.setData(surveyUri);
 		startActivity(i);
 	}
 
 	@Override
-	public void onSurveyActionStart(Survey survey) {
-		Toast.makeText(this, "Launching Survey Activity", Toast.LENGTH_SHORT).show();
-		Intent intent = new Intent(this, SurveyActivity.class);
-		intent.putExtra("campaign_urn", survey.mCampaignUrn);
-		intent.putExtra("survey_id", survey.mSurveyID);
-		intent.putExtra("survey_title", survey.mTitle);
-		intent.putExtra("survey_submit_text", survey.mSubmitText);
-		startActivity(intent);
+	public void onSurveyActionStart(Uri surveyUri) {
+		Cursor cursor = getContentResolver().query(surveyUri, null, null, null, null);
+		if (cursor.moveToFirst()) {
+			Intent intent = new Intent(this, SurveyActivity.class);
+			intent.putExtra("campaign_urn", cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN)));
+			intent.putExtra("survey_id", cursor.getString(cursor.getColumnIndex(Survey.SURVEY_ID)));
+			intent.putExtra("survey_title", cursor.getString(cursor.getColumnIndex(Survey.TITLE)));
+			intent.putExtra("survey_submit_text", cursor.getString(cursor.getColumnIndex(Survey.SUBMIT_TEXT)));
+			startActivity(intent);
+		} else {
+			Toast.makeText(this, "onSurveyActionStart: Error: Empty cursor returned.", Toast.LENGTH_SHORT).show();
+		}
+		cursor.close();
 	}
 
 	@Override
-	public void onSurveyActionUnavailable(Survey survey) {
+	public void onSurveyActionUnavailable(Uri surveyUri) {
 		Toast.makeText(this, "This survey can only be taken when triggered.", Toast.LENGTH_SHORT).show();
 	}
 

@@ -36,40 +36,14 @@ public class BackgroundManager {
 		
 		Context appContext = context.getApplicationContext();
 		
-		/*boolean parsedCampaign = false;
-		
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(appContext);
-		try {
-			Map<String, String> map = PromptXmlParser.parseCampaignInfo(CampaignXmlHelper.loadDefaultCampaign(appContext));
-			if (map.containsKey("campaign_name") && map.containsKey("campaign_urn")) {
-				prefs.putCampaignName(map.get("campaign_name"));
-				prefs.putCampaignUrn(map.get("campaign_urn"));
-				parsedCampaign = true;
-			} 
-			if (map.containsKey("server_url")) {
-				prefs.putServerUrl(map.get("server_url"));
-			}
-		} catch (NotFoundException e) {
-			Log.e(TAG, "Error parsing xml for campaign info", e);
-		} catch (XmlPullParserException e) {
-			Log.e(TAG, "Error parsing xml for campaign info", e);
-		} catch (IOException e) {
-			Log.e(TAG, "Error parsing xml for campaign info", e);
-		}
-		
-		if (!parsedCampaign) {
-			Log.e(TAG, "Unable to set campaign name and version!");
-			Toast.makeText(appContext, "Unable to set campaign name and version!", Toast.LENGTH_LONG).show();
-		}*/
-		
 		//uploadservice
 		AlarmManager alarms = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
-		Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intentToFire, 0);
-		//alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), pendingIntent);
-		alarms.cancel(pendingIntent);
-		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
-		Log.i(TAG, "UploadReceiver repeating alarm set");
+//		Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
+//		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intentToFire, 0);
+//		//alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), pendingIntent);
+//		alarms.cancel(pendingIntent);
+//		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
+//		Log.i(TAG, "UploadReceiver repeating alarm set");
 		
 		//storagemonitor
 		appContext.startService(new Intent(appContext, StorageMonitorService.class));

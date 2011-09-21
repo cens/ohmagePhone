@@ -1,22 +1,28 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
+import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
+import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Survey;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -33,7 +39,7 @@ import java.util.Calendar;
  * @author cketcham
  *
  */
-public class ResponseListActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ResponseListActivity extends FragmentActivity implements OnResponseActionListener, LoaderManager.LoaderCallbacks<Cursor> {
 
 	static final String TAG = "ResponseListActivitiy";
 
@@ -198,5 +204,22 @@ public class ResponseListActivity extends FragmentActivity implements LoaderMana
 					f.setDateBounds(curValue.getTimeInMillis(), curValue.getTimeInMillis() + DateUtils.DAY_IN_MILLIS);
 			}
 		});
+	}
+
+	@Override
+	public void onResponseActionView(Uri responseUri) {
+		startActivity(new Intent(Intent.ACTION_VIEW, responseUri));
+	}
+
+	@Override
+	public void onResponseActionUpload(Uri responseUri) {
+		Toast.makeText(this, "The Upload action should not be exposed in this activity!", Toast.LENGTH_SHORT).show();
+		Log.w(TAG, "onResponseActionUpload should not be exposed in this activity.");		
+	}
+
+	@Override
+	public void onResponseActionError(Uri responseUri) {
+		Toast.makeText(this, "The Error action should not be exposed in this activity!", Toast.LENGTH_SHORT).show();
+		Log.w(TAG, "onResponseActionError should not be exposed in this activity.");
 	}
 }

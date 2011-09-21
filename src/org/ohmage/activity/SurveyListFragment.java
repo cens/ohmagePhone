@@ -35,9 +35,9 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 	private OnSurveyActionListener mListener;
 	
 	public interface OnSurveyActionListener {
-		public void onSurveyActionView(Survey survey);
-        public void onSurveyActionStart(Survey survey);
-        public void onSurveyActionUnavailable(Survey survey);
+		public void onSurveyActionView(Uri surveyUri);
+        public void onSurveyActionStart(Uri surveyUri);
+        public void onSurveyActionUnavailable(Uri surveyUri);
     }
 	
 	@Override
@@ -71,24 +71,28 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 		
 		Cursor cursor = (Cursor) getListAdapter().getItem(position);
 		
-		List<Survey> surveys = Survey.fromCursor(cursor);
-		if (surveys.size() == 1) {
-			mListener.onSurveyActionView(surveys.get(0));
-		} else {
-			Log.e(TAG, "onListItemClick: more than one campaign read from content provider!");
-		}	
+		Uri uri = Survey.getSurveyByID(cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN)), cursor.getString(cursor.getColumnIndex(Survey.SURVEY_ID)));
+		mListener.onSurveyActionView(uri);
+		
+//		if (surveys.size() == 1) {
+//			
+//		} else {
+//			Log.e(TAG, "onListItemClick: more than one campaign read from content provider!");
+//		}	
 	}
 	
 	@Override
 	public void onSubActionClicked(Uri uri) {
 		
-		Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
-		List<Survey> surveys = Survey.fromCursor(cursor);
-		if (surveys.size() == 1) {
-			mListener.onSurveyActionStart(surveys.get(0));
-		} else {
-			Log.e(TAG, "onSubActionClicked: more than one campaign read from content provider!");
-		}
+		mListener.onSurveyActionStart(uri);
+		
+//		Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
+//		List<Survey> surveys = Survey.fromCursor(cursor);
+//		if (surveys.size() == 1) {
+//			mListener.onSurveyActionStart(surveys.get(0));
+//		} else {
+//			Log.e(TAG, "onSubActionClicked: more than one campaign read from content provider!");
+//		}
 		
 //		mListener.onSurveyActionUnavailable();
 	}
@@ -116,7 +120,7 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 			select = Survey.CAMPAIGN_URN + "= '" + mCampaignFilter + "'";
 		}
 		
-		return new CursorLoader(getActivity(), baseUri, new String [] {Survey._ID, Survey.SURVEY_ID, Survey.TITLE, Survey.CAMPAIGN_URN}, select, null, Survey.TITLE);
+		return new CursorLoader(getActivity(), baseUri, null, select, null, Survey.TITLE);
 	}
 
 	@Override
@@ -135,5 +139,4 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);
 	}
-
 }

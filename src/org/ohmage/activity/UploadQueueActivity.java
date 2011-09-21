@@ -1,13 +1,21 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
+import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
+import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.service.UploadService;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -17,8 +25,9 @@ import android.support.v4.content.Loader;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
-public class UploadQueueActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class UploadQueueActivity extends FragmentActivity implements OnResponseActionListener, LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "UploadQueueActivity";
 	private ContentResolver mCR;
 	private FilterControl mCampaignFilter;
@@ -93,7 +102,7 @@ public class UploadQueueActivity extends FragmentActivity implements LoaderManag
 
 		@Override
 		protected ResponseListCursorAdapter createAdapter() {
-			return new UploadingResponseListCursorAdapter(getActivity(), null, 0);
+			return new UploadingResponseListCursorAdapter(getActivity(), null, this, 0);
 		}
 
 		@Override
@@ -103,9 +112,27 @@ public class UploadQueueActivity extends FragmentActivity implements LoaderManag
 			StringBuilder selection = new StringBuilder(loader.getSelection());
 			if(selection.length() != 0)
 				selection.append(" AND ");
-			selection.append(Response.SOURCE  + "='local'");
+			selection.append(Tables.RESPONSES + "." + Response.STATUS + "!=" + Response.STATUS_UPLOADED + " AND " + Tables.RESPONSES + "." + Response.STATUS + "!=" + Response.STATUS_DOWNLOADED);
 			loader.setSelection(selection.toString());
 			return loader;
 		}
+	}
+
+	@Override
+	public void onResponseActionView(Uri responseUri) {
+		startActivity(new Intent(Intent.ACTION_VIEW, responseUri));
+	}
+
+	@Override
+	public void onResponseActionUpload(Uri responseUri) {
+		
+		Intent intent = new Intent(this, UploadService.class);
+		intent.setData(responseUri);
+		WakefulIntentService.sendWakefulWork(this, intent);
+	}
+
+	@Override
+	public void onResponseActionError(Uri responseUri) {
+		Toast.makeText(this, "Showing Error Dialog", Toast.LENGTH_SHORT).show();
 	}
 }

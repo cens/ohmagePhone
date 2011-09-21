@@ -4,7 +4,9 @@ import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbHelper.Tables;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,18 +15,28 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-public class ResponseListFragment extends ListFragment implements LoaderCallbacks<Cursor>{
+public class ResponseListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor>{
+	
+	private static final String TAG = "ResponseListFragment";
 
 	private ResponseListCursorAdapter mAdapter;
+	private OnResponseActionListener mListener;
 
 	private String mCampaignUrnFilter;
 	private String mSurveyIdFilter;
 
 	private Long mStartDateFilter;
 	private Long mEndDateFilter;
+	
+	public interface OnResponseActionListener {
+        public void onResponseActionView(Uri responseUri);
+        public void onResponseActionUpload(Uri responseUri);
+        public void onResponseActionError(Uri responseUri);
+    }
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -43,18 +55,75 @@ public class ResponseListFragment extends ListFragment implements LoaderCallback
 		// Start out with a progress indicator.
 		setListShown(false);
 	}
+	
+	@Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (OnResponseActionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnResponseActionListener");
+        }
+    }
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		startActivity(new Intent(Intent.ACTION_VIEW, DbContract.Response.getResponseByID(id)));
+//		startActivity(new Intent(Intent.ACTION_VIEW, DbContract.Response.getResponseByID(id)));
+		mListener.onResponseActionView(DbContract.Response.getResponseByID(id));
+	}
+	
+	@Override
+	public void onSubActionClicked(Uri uri) {
+		Cursor cursor = null;
+		
+		try {
+			cursor = getActivity().getContentResolver().query(uri, new String [] {Tables.RESPONSES + "." + Response.STATUS}, null, null, null);
+			
+			if (cursor.getCount() == 1) {
+				cursor.moveToFirst();
+				int status = cursor.getInt(cursor.getColumnIndexOrThrow(Response.STATUS));
+				
+				switch (status) {
+				case Response.STATUS_STANDBY:
+				case Response.STATUS_WAITING_FOR_LOCATION:
+					mListener.onResponseActionUpload(uri);
+					break;
+				
+				case Response.STATUS_UPLOADED:
+				case Response.STATUS_DOWNLOADED:
+					break;
+					
+				case Response.STATUS_QUEUED:
+				case Response.STATUS_UPLOADING:
+					break;
+					
+				case Response.STATUS_ERROR_AUTHENTICATION:
+				case Response.STATUS_ERROR_CAMPAIGN_NO_EXIST:
+				case Response.STATUS_ERROR_INVALID_USER_ROLE:
+					mListener.onResponseActionError(uri);
+					break;
+					
+				default:
+					//campaign is in some unknown state!
+					break;
+				}
+			} else {
+				Log.e(TAG, "onSubActionClicked: more than one response read from content provider!");
+			}
+		}
+		finally {
+			if (cursor != null)
+				cursor.close();
+		}
 	}
 
 	public interface ResponseQuery {
 		String[] PROJECTION = { 
-				"responses."+Response._ID,
+				Tables.RESPONSES + "." + Response._ID,
 				Campaign.NAME,
 				Survey.TITLE,
-				Response.TIME 
+				Response.TIME,
+				Tables.RESPONSES + "." + Response.STATUS
 		};
 	}
 

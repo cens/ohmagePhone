@@ -971,6 +971,7 @@ public class SurveyActivity extends Activity {
 		candidate.surveyLaunchContext = surveyLaunchContext;
 		candidate.response = response;
 		candidate.source = "local";
+		candidate.status = Response.STATUS_STANDBY;
 		
 		if (loc != null) {
 			candidate.locationStatus = SurveyGeotagService.LOCATION_VALID;

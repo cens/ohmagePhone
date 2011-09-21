@@ -53,7 +53,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 15;
+	private static final int DB_VERSION = 18;
 	
 	private final Context mContext;
 	
@@ -107,7 +107,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.CAMPAIGNS + " ("
-				+ Campaign._ID + " INTEGER PRIMARY KEY, "
+				+ Campaign._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ Campaign.URN + " TEXT, "
 				+ Campaign.NAME + " TEXT, "
 				+ Campaign.DESCRIPTION + " TEXT, "
@@ -120,7 +120,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEYS + " ("
-				+ Survey._ID + " INTEGER PRIMARY KEY, "
+				+ Survey._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ Survey.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
 				+ Survey.SURVEY_ID + " TEXT, "
 				+ Survey.TITLE + " TEXT, "
@@ -130,7 +130,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEY_PROMPTS + " ("
-				+ SurveyPrompt._ID + " INTEGER PRIMARY KEY, "
+				+ SurveyPrompt._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ SurveyPrompt.SURVEY_PID + " INTEGER, " // cascade delete from surveys
 				+ SurveyPrompt.SURVEY_ID + " TEXT, "
 				+ SurveyPrompt.COMPOSITE_ID + " TEXT, "
@@ -140,7 +140,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.RESPONSES + " ("
-				+ Response._ID + " INTEGER PRIMARY KEY, "
+				+ Response._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ Response.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
 				+ Response.USERNAME + " TEXT, "
 				+ Response.DATE + " TEXT, "
@@ -157,6 +157,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.RESPONSE + " TEXT, "
 				+ Response.UPLOADED + " INTEGER DEFAULT 0, "
 				+ Response.SOURCE + " TEXT, "
+				+ Response.STATUS + " INTEGER DEFAULT 0, "
 				+ Response.HASHCODE + " TEXT"
 				+ ");");
 		
@@ -168,7 +169,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		// create a "flat" table of prompt responses so we can easily compute aggregates
 		// across multiple survey responses (and potentially prompts)
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.PROMPT_RESPONSES + " ("
-				+ PromptResponse._ID + " INTEGER PRIMARY KEY, "
+				+ PromptResponse._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ PromptResponse.RESPONSE_ID + " INTEGER, " // cascade delete from responses
 				+ PromptResponse.COMPOSITE_ID + " TEXT, "
 				+ PromptResponse.PROMPT_ID + " TEXT, "
@@ -344,7 +345,8 @@ public class DbHelper extends SQLiteOpenHelper {
 	public boolean setResponseRowUploaded(long _id) {
 		ContentValues values = new ContentValues();
 		ContentResolver cr = mContext.getContentResolver();
-		values.put("uploaded", 1);
+		values.put(Response.UPLOADED, 1);
+		values.put(Response.STATUS, Response.STATUS_UPLOADED);
 		return cr.update(Response.CONTENT_URI, values, Response._ID + "=" + _id, null) > 0;
 	}
 	
@@ -425,6 +427,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			return -1;
 		
 		ContentValues vals = new ContentValues();
+		vals.put(Response.STATUS, Response.STATUS_STANDBY);
 		vals.put(Response.LOCATION_STATUS, locationStatus);
 		vals.put(Response.LOCATION_LATITUDE, locationLatitude);
 		vals.put(Response.LOCATION_LONGITUDE, locationLongitude);

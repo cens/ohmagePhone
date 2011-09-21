@@ -30,21 +30,22 @@ public class ResponseListCursorAdapter extends CursorAdapter {
 		TextView timeText = (TextView) view.findViewById(R.id.extra_text_1);
 		TextView dateText = (TextView) view.findViewById(R.id.extra_text_2);
 		
+		view.findViewById(R.id.icon_image).setVisibility(View.GONE);
+		view.findViewById(R.id.action_separator).setVisibility(View.GONE);
+		view.findViewById(R.id.action_button).setVisibility(View.GONE);
+		
 		surveyText.setText(cursor.getString(cursor.getColumnIndex(Survey.TITLE)));
 		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaign.NAME)));
 		
 		long millis = cursor.getLong(cursor.getColumnIndex(Response.TIME));
 		timeText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_TIME));
 		dateText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_NUMERIC_DATE));
+		timeText.setVisibility(View.VISIBLE);
+		dateText.setVisibility(View.VISIBLE);
 	}
 
 	@Override
-	public View newView(Context context, Cursor c, ViewGroup parent) {
-		View view = mInflater.inflate(R.layout.ohmage_list_item, null);
-		view.findViewById(R.id.extra_text_1).setVisibility(View.VISIBLE);
-		view.findViewById(R.id.extra_text_2).setVisibility(View.VISIBLE);
-		view.findViewById(R.id.icon_image).setVisibility(View.GONE);
-		view.findViewById(R.id.action_button).setVisibility(View.GONE);
-		return view;
+	public View newView(Context context, Cursor c, ViewGroup parent) {		
+		return  mInflater.inflate(R.layout.ohmage_list_item, null);
 	}
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.service.UploadService;
+import org.ohmage.service.OldUploadService;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -329,7 +329,7 @@ public class DbContract {
 	 * that it was downloaded by the feedback sync service. Both "local" and "remote" surveys are used for
 	 * generating feedback visualizations.
 	 *
-	 * The 'uploaded' field indicates whether or not the survey has been uploaded by the {@link UploadService}
+	 * The 'uploaded' field indicates whether or not the survey has been uploaded by the {@link OldUploadService}
 	 * yet. This field is valid only for records where 'source' is "local".
 	 */
 	public static final class Response implements BaseColumns {
@@ -349,7 +349,19 @@ public class DbContract {
 		public static final String RESPONSE = "response";
 		public static final String UPLOADED = "uploaded";
 		public static final String SOURCE = "source";
+		public static final String STATUS = "status";
 		public static final String HASHCODE = "hashcode";
+		
+		public static final int STATUS_UPLOADED = 0;
+		public static final int STATUS_UPLOADING = 1;
+		public static final int STATUS_QUEUED = 2;
+		public static final int STATUS_STANDBY = 3;
+		public static final int STATUS_ERROR_INVALID_USER_ROLE = 4;
+		public static final int STATUS_ERROR_CAMPAIGN_NO_EXIST = 5;
+		public static final int STATUS_ERROR_AUTHENTICATION = 6;
+		public static final int STATUS_WAITING_FOR_LOCATION = 7;
+		public static final int STATUS_DOWNLOADED = 8;
+		public static final int STATUS_ERROR_OTHER = 9;
 
 		public long _id;
 		/** the campaign URN for which to record the survey response */
@@ -384,6 +396,8 @@ public class DbContract {
 		public int uploaded;
 		/** the source of this data, either "local" or "remote" */
 		public String source;
+		/** read-only, an int indicating the status of a response; use constants supplied in this class (e.g. STATUS_UPLOADED) */
+		public int status;
 		/** read-only, a hash that uniquely identifies this response */
 		public String hashcode;
 		
@@ -460,6 +474,7 @@ public class DbContract {
     			r.response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
     			r.source = cursor.getString(cursor.getColumnIndex(Response.SOURCE));
     			r.uploaded = cursor.getInt(cursor.getColumnIndex(Response.UPLOADED));
+    			r.status = cursor.getInt(cursor.getColumnIndex(Response.STATUS));
     			responses.add(r);
     			
     			cursor.moveToNext();
@@ -494,6 +509,7 @@ public class DbContract {
     			values.put(Response.SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
     			values.put(Response.RESPONSE, response);
     			values.put(Response.SOURCE, source);
+    			values.put(Response.STATUS, status);
     			
     			String hashableData = campaignUrn + surveyId + username + date;
     			String hashcode = DbHelper.getSHA1Hash(hashableData);

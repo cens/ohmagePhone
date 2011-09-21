@@ -28,6 +28,7 @@ import org.ohmage.CampaignXmlHelper;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
+import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
 import org.xmlpull.v1.XmlPullParserException;
@@ -100,8 +101,8 @@ public class ResponseInfoActivity extends FragmentActivity implements
 	}
 
 	private interface ResponseQuery {
-		String[] PROJECTION = { DbContract.Response.CAMPAIGN_URN,
-				DbContract.Response.RESPONSE, DbContract.Response.SURVEY_ID,
+		String[] PROJECTION = { Tables.RESPONSES + "." + DbContract.Response.CAMPAIGN_URN,
+				DbContract.Response.RESPONSE, Tables.RESPONSES + "." + DbContract.Response.SURVEY_ID,
 				DbContract.Response.TIME };
 
 		int CAMPAIGN_URN = 0;
