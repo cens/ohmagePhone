@@ -970,7 +970,6 @@ public class SurveyActivity extends Activity {
 		candidate.surveyId = surveyId;
 		candidate.surveyLaunchContext = surveyLaunchContext;
 		candidate.response = response;
-		candidate.source = "local";
 		candidate.status = Response.STATUS_STANDBY;
 		
 		if (loc != null) {

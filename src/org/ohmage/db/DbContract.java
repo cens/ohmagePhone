@@ -347,8 +347,6 @@ public class DbContract {
 		public static final String SURVEY_ID = "survey_id";
 		public static final String SURVEY_LAUNCH_CONTEXT = "survey_launch_context";
 		public static final String RESPONSE = "response";
-		public static final String UPLOADED = "uploaded";
-		public static final String SOURCE = "source";
 		public static final String STATUS = "status";
 		public static final String HASHCODE = "hashcode";
 		
@@ -392,10 +390,6 @@ public class DbContract {
 		public String surveyLaunchContext;
 		/** the response data as a JSON-encoded string */
 		public String response;
-		/** flag indicating whether or not the response has been uploaded; meaningless for source=remote, but usually 0 */
-		public int uploaded;
-		/** the source of this data, either "local" or "remote" */
-		public String source;
 		/** read-only, an int indicating the status of a response; use constants supplied in this class (e.g. STATUS_UPLOADED) */
 		public int status;
 		/** read-only, a hash that uniquely identifies this response */
@@ -472,8 +466,6 @@ public class DbContract {
     			r.surveyId = cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID));
     			r.surveyLaunchContext = cursor.getString(cursor.getColumnIndex(Response.SURVEY_LAUNCH_CONTEXT));
     			r.response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
-    			r.source = cursor.getString(cursor.getColumnIndex(Response.SOURCE));
-    			r.uploaded = cursor.getInt(cursor.getColumnIndex(Response.UPLOADED));
     			r.status = cursor.getInt(cursor.getColumnIndex(Response.STATUS));
     			responses.add(r);
     			
@@ -508,7 +500,6 @@ public class DbContract {
     			values.put(Response.SURVEY_ID, surveyId);
     			values.put(Response.SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
     			values.put(Response.RESPONSE, response);
-    			values.put(Response.SOURCE, source);
     			values.put(Response.STATUS, status);
     			
     			String hashableData = campaignUrn + surveyId + username + date;

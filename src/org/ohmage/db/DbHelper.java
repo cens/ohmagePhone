@@ -53,7 +53,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 18;
+	private static final int DB_VERSION = 19;
 	
 	private final Context mContext;
 	
@@ -155,8 +155,6 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.SURVEY_ID + " TEXT, "
 				+ Response.SURVEY_LAUNCH_CONTEXT + " TEXT, "
 				+ Response.RESPONSE + " TEXT, "
-				+ Response.UPLOADED + " INTEGER DEFAULT 0, "
-				+ Response.SOURCE + " TEXT, "
 				+ Response.STATUS + " INTEGER DEFAULT 0, "
 				+ Response.HASHCODE + " TEXT"
 				+ ");");
@@ -345,7 +343,6 @@ public class DbHelper extends SQLiteOpenHelper {
 	public boolean setResponseRowUploaded(long _id) {
 		ContentValues values = new ContentValues();
 		ContentResolver cr = mContext.getContentResolver();
-		values.put(Response.UPLOADED, 1);
 		values.put(Response.STATUS, Response.STATUS_UPLOADED);
 		return cr.update(Response.CONTENT_URI, values, Response._ID + "=" + _id, null) > 0;
 	}
@@ -371,7 +368,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 */
 	public int removeStaleResponseRows(String campaignUrn) {
 		// build and execute the delete on the response table
-		String whereClause = "(" + Response.SOURCE + "='remote'" + " or (" + Response.SOURCE + "='local' and " + Response.UPLOADED + "=1))";
+		String whereClause = "(" + Response.STATUS + "=" + Response.STATUS_DOWNLOADED + " or " + Response.STATUS + "=" + Response.STATUS_UPLOADED + ")";
 		
 		if (campaignUrn != null)
 			whereClause += " and " + Response.CAMPAIGN_URN + "='" + campaignUrn + "'";
@@ -393,17 +390,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		return removeStaleResponseRows(null);
 	}
 	
-	public List<Response> getSurveyResponses(String campaignUrn) {
-		ContentResolver cr = mContext.getContentResolver();
-		Cursor cursor = cr.query(Response.getResponsesByCampaign(campaignUrn), null,
-				Response.SOURCE + "='local' AND " +
-				Response.UPLOADED + "=0", null, null);
-		
-		List<Response> responses = Response.fromCursor(cursor); 
-
-		return responses;
-	}
-	
 	/**
 	 * Returns survey responses for the given campaign that were stored before the given cutoff value.
 	 * Note: this only returns *local* survey responses that have not already been uploaded.
@@ -416,8 +402,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		ContentResolver cr = mContext.getContentResolver();
 		Cursor cursor = cr.query(Response.getResponsesByCampaign(campaignUrn), null,
 				Response.TIME + " < " + Long.toString(cutoffTime) + " AND " +
-				Response.SOURCE + "='local' AND " +
-				Response.UPLOADED + "=0", null, null);
+				Response.STATUS + "=" + Response.STATUS_STANDBY, null, null);
 
 		return Response.fromCursor(cursor);
 	}
@@ -441,8 +426,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		int count = cr.update(Response.CONTENT_URI, vals,
 				Response.LOCATION_STATUS + " = '" + SurveyGeotagService.LOCATION_UNAVAILABLE + "' AND "
 				+ Response.TIME + " > " + earliestTimestampToUpdate + " AND "
-				+ Response.SOURCE + " = 'local' AND "
-				+ Response.UPLOADED + " = 0", null);
+				+ Response.STATUS + "=" + Response.STATUS_STANDBY, null);
 		
 		return count;
 	}
@@ -638,6 +622,9 @@ public class DbHelper extends SQLiteOpenHelper {
 	
 	public boolean populatePromptsFromResponseJSON(SQLiteDatabase db, long responseRowID, String response, String campaignUrn, String surveyId) {
 		try {
+			// nab the survey XML beforehand so we can remap IDs to values
+			
+			// convert response data to JSON for parsing
 			JSONArray responseData = new JSONArray(response);
 			
 			// iterate through the responses and add them to the prompt table one by one
