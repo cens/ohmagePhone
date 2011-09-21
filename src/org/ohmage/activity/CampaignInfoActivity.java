@@ -59,14 +59,11 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
-		
-		getActionBar().setTitle("Campaign Info");
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);

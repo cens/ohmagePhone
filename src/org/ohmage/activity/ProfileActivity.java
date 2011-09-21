@@ -32,8 +32,6 @@ public class ProfileActivity extends BaseInfoActivity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
-		getActionBar().setTitle("My Profile");
-		
 		// set up some generic stuff for the profile, since it's not databound in any respect
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);

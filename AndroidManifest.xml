@@ -42,25 +42,25 @@
 			android:launchMode="standard"
 			android:windowSoftInputMode="adjustResize" />
 
-		<activity android:name=".activity.SurveyListActivity" />
+		<activity android:name=".activity.SurveyListActivity" android:label="@string/title_surveys" />
 
-		<activity android:name=".activity.CampaignListActivity" />
+		<activity android:name=".activity.CampaignListActivity" android:label="@string/title_campaigns" />
 
-		<activity android:name=".activity.CampaignAddActivity" />
+		<activity android:name=".activity.CampaignAddActivity" android:label="@string/title_add_campaign" />
 
 		<activity
 			android:name=".activity.UploadQueueActivity"
 			android:label="@string/title_upload_queue"
 			android:launchMode="singleTask" />
 
-		<activity android:name=".activity.ProfileActivity" />
+		<activity android:name=".activity.ProfileActivity" android:label="@string/title_profile" />
 
 		<!-- 
 		================================================
 		=== entity info activities
 		================================================
 		-->
-		<activity android:name=".activity.CampaignInfoActivity">
+		<activity android:name=".activity.CampaignInfoActivity" android:label="@string/title_campaign_info">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -68,7 +68,7 @@
             </intent-filter>
 		</activity>
 		
-		<activity android:name=".activity.SurveyInfoActivity">
+		<activity android:name=".activity.SurveyInfoActivity" android:label="@string/title_survey_info">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

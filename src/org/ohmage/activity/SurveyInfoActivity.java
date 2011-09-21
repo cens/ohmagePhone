@@ -56,9 +56,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		// and create a handler attached to this thread for contentobserver events
 		mHandler = new Handler();
-		
-		getActionBar().setTitle("Survey Info");
-		
+
 		// inflate the campaign-specific info page into the scrolling framelayout
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.survey_info_details, getContentArea(), true);
