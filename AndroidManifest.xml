@@ -94,7 +94,7 @@
 		
         <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/> 
 		
-		<activity android:name=".activity.RHTabHost" android:screenOrientation="portrait"/>
+		<activity android:name=".activity.RHTabHost" android:label="@string/title_response_history"  android:screenOrientation="portrait"/>
 
 		<activity android:name=".activity.ResponseListActivity" android:screenOrientation="portrait"/>
 

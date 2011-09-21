@@ -10,8 +10,10 @@
   <!-- main screen titles -->
   <string name="title_campaigns">Campaigns</string>
   <string name="title_surveys">Surveys</string>
+  <string name="title_response_history">Response History</string>
   <string name="title_upload_queue">Upload Queue</string>
   <string name="title_profile">Profile</string>
+  <string name="title_settings">Settings</string>
   
   <!-- subscreen titles -->
   <string name="title_add_campaign">Add Campaign</string>
