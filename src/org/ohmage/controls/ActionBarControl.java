@@ -1,8 +1,5 @@
 package org.ohmage.controls;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.ohmage.R;
 import org.ohmage.activity.DashboardActivity;
 
@@ -13,29 +10,29 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ActionBarControl extends LinearLayout {
-	private Activity mActivity;
+	private final Activity mActivity;
 	
 	// view references
-	private TextView mTitleText;
-	private ImageButton mHomeButton;
-	private ProgressBar mProgressSpinner;
+	private final TextView mTitleText;
+	private final ImageButton mHomeButton;
+	private final ProgressBar mProgressSpinner;
 	private ImageView mHomeSeparator;
 	
 	// functionality
-	private List<ImageButton> mActionButtons;
-	private List<ImageView> mSeparators;
+	private final List<ImageButton> mActionButtons;
+	private final List<ImageView> mSeparators;
 	private ActionListener mActionBarClickedListener;
-	private OnClickListener mActionButtonClickListener;
+	private final OnClickListener mActionButtonClickListener;
 	
 	// style flags
 	private boolean mShowLogo;
@@ -145,7 +142,7 @@ public class ActionBarControl extends LinearLayout {
 	 * 
 	 * @param text the text to display in the action bar
 	 */
-	public void setTitle(String text) {
+	public void setTitle(CharSequence text) {
 		mTitleText.setText(text);
 	}
 	

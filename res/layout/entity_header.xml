@@ -19,11 +19,28 @@
 		android:layout_marginRight="@dimen/gutter" />
 	<TextView
 		android:id="@+id/entity_header"
-		android:layout_width="fill_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="---"
 		style="@style/TextHeader"
 		android:layout_toRightOf="@id/entity_icon" />
+	<TextView
+		android:id="@+id/entity_header_sub1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="---"
+		style="@style/TextHeaderSub"
+		android:layout_marginTop="@dimen/gutter_thin"
+		android:layout_below="@id/entity_header"
+		android:layout_alignLeft="@id/entity_header" />
+	<TextView
+		android:id="@+id/entity_header_sub2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="(---)"
+		style="@style/TextHeaderSub" 
+		android:layout_below="@id/entity_header_sub1"
+		android:layout_alignLeft="@id/entity_header" />
 		
 	<!--
 	a "tray" which stores custom buttons, left to right.
@@ -38,28 +55,6 @@
 		android:layout_alignParentRight="true"
 		android:layout_below="@+id/entity_icon">
 	</LinearLayout>
-	
-	<TextView
-		android:id="@+id/entity_header_sub1"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:text="---"
-		style="@style/TextHeaderSub"
-		android:layout_marginTop="@dimen/gutter_thin"
-		android:layout_below="@id/entity_header"
-		android:layout_alignLeft="@id/entity_header" 
-		android:layout_toLeftOf="@id/entity_header_tray" />
-
-	<TextView
-		android:id="@+id/entity_header_sub2"
-		android:gravity="right"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="(---)"
-		android:layout_below="@id/entity_header_sub1"
-		android:layout_alignLeft="@id/entity_header" 
-		android:layout_toLeftOf="@id/entity_header_tray"
-		style="@style/TextHeaderSub" />
 	
 </RelativeLayout>
 
