@@ -27,7 +27,7 @@ public class SharedPreferencesHelper {
 	public static final boolean IS_SINGLE_CAMPAIGN = false;
 	public static final boolean ALLOWS_FEEDBACK = true;
 	public static final boolean FEEDBACK_DOWNLOAD_ALL = true;
-	public static final boolean REQUIRE_PIN_ON_CLEAR_USER = false;
+	public static final boolean REQUIRE_PIN_ON_CLEAR_USER = true;
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
@@ -46,7 +46,7 @@ public class SharedPreferencesHelper {
 //	private static final String KEY_CAMPAIGN_URN = "campaign_version";
 //	private static final String KEY_SERVER_URL = "server_url";
 	
-	private SharedPreferences mPreferences;
+	private final SharedPreferences mPreferences;
 	
 	public SharedPreferencesHelper(Context context) {
 		mPreferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
