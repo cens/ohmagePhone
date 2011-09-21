@@ -46,7 +46,7 @@
 		<activity android:name=".activity.CampaignAddActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name">
 		</activity>
 		
-		<activity android:name=".activity.TestActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name">
+		<activity android:name=".activity.UploadQueueActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name" android:launchMode="singleTask">
 		</activity>
 		
 		<activity android:name=".activity.ProfileActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name">
@@ -73,7 +73,7 @@
             </intent-filter>
 		</activity>
 		
-	    <activity android:name=".activity.ResponseInfoActivity" android:theme="@android:style/Theme.Light" android:label="@string/app_name">
+	    <activity android:name=".activity.ResponseInfoActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -104,7 +104,7 @@
              -->
 		</activity>
 		
-		<activity android:name=".activity.UploadQueueActivity" android:theme="@android:style/Theme.Light" android:label="@string/app_name" android:launchMode="singleTask">
+		<activity android:name=".activity.TestActivity" android:theme="@android:style/Theme.Light.NoTitleBar" android:label="@string/app_name">
 		</activity>
 		
 		<receiver android:name=".service.TriggerNotificationReceiver">
