@@ -43,34 +43,12 @@ public class MapViewItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> 
 	protected boolean onBalloonTap(int index){
 
 		MapOverlayItem item = mOverlays.get(index);
-		
-//		final Dialog responseDialog = new Dialog(mContext);
-//		
-//		responseDialog.setContentView(R.layout.mapview_custom_dialog);
-//		responseDialog.setTitle(item.getTitle());
-//		
-//		TextView text = (TextView)responseDialog.findViewById(R.id.mapview_dialog_text);
-//		text.setText(item.getSnippet());
-//		
-//		Button closeButton = (Button)responseDialog.findViewById(R.id.mapview_dialog_button); 
-//		closeButton.setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				responseDialog.dismiss();
-//			}
-//		});
-//		responseDialog.show();
+	
 		long id = Long.valueOf(item.getResponseID()).longValue();
 		Uri uri = DbContract.Response.getResponseByID(id);
-		//Uri uri = Uri.parse("content://org.ohmage.db/responses/25");
-		//URI uri = new URI("content://org.ohmage.db/responses/25");
+
 		mContext.startActivity(
-				new Intent(
-						Intent.ACTION_VIEW,
-						uri));
-		Toast.makeText(mContext, "ResponseInfo Activity will start. \nResponse ID:\n" + item.getResponseID() 
-		, Toast.LENGTH_SHORT).show();
-		
+				new Intent(Intent.ACTION_VIEW, uri));
 		return true;
 	}
 }

@@ -117,6 +117,12 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		mSelectedMonth = cal.get(Calendar.MONTH)+1;
 		mSelectedYear = cal.get(Calendar.YEAR);
 		mCurrentMonthButton.setText(DateFormat.format(dateTemplate, cal.getTime()));
+		
+		setGridCellAdapterToDate(
+				mSelectedMonth,
+				mSelectedYear, 
+				mCampaignFilter.getValue(), 
+				mSurveyFilter.getValue());
 	}
 
 	public void setupFilters(){

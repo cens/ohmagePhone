@@ -87,6 +87,7 @@ public class RHMapViewActivity extends ResponseHistory {
 		
 		//Clear current overlay items
 		mMapView.getOverlays().clear();
+		mMapView.removeAllViews();
 		
 		//Get the currently selected CampaignUrn and SurveyID
 	    String curSurveyValue = mSurveyFilter.getValue();
@@ -166,6 +167,9 @@ public class RHMapViewActivity extends ResponseHistory {
 
 		mMapPinNext = (Button) mMapView.getRootView().findViewById(R.id.map_pin_next);
 		mMapPinPrevious = (Button) mMapView.getRootView().findViewById(R.id.map_pin_previous);
+		
+		
+		pinIndex = 0;
 		if(mMapPinNext != null){
 			mMapPinNext.setOnClickListener(new OnClickListener() {
 				
@@ -174,11 +178,10 @@ public class RHMapViewActivity extends ResponseHistory {
 					int overlayListSize = mItemizedoverlay.size();
 					if(overlayListSize > 0){
 						mItemizedoverlay.onTap(pinIndex % overlayListSize);
-						if(pinIndex <= (overlayListSize-1)){
+						if(pinIndex < (overlayListSize-1)){
 							pinIndex++;	
 						}
 					}
-					//Toast.makeText(mMapView.getContext(), "Hello next ", Toast.LENGTH_SHORT).show();
 				}
 			});			
 		}
@@ -195,7 +198,6 @@ public class RHMapViewActivity extends ResponseHistory {
 							pinIndex--;	
 						}
 					}
-					//Toast.makeText(mMapView.getContext(), "Hello previous", Toast.LENGTH_SHORT).show();
 				}
 			});			
 		}
@@ -292,44 +294,6 @@ public class RHMapViewActivity extends ResponseHistory {
 	    if(currentLocation != null) //If location is not available, then set the map center to UCLA
 	    	point = new GeoPoint((int)(currentLocation.getLatitude()*1e6), (int)(currentLocation.getLongitude()*1e6));	    	
 	    mControl.setCenter(point);		
-	}
-	
-	private boolean isPhotoPrompt(String promptId){
-		Iterator<Prompt> ite = mPrompts.iterator();
-		while(ite.hasNext()){
-			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();
-			if(promptId.equals(allPromptList.getId())){
-				if(allPromptList instanceof PhotoPrompt){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	private String getPropertiesLabel(String promptId, String value){
-		
-		Iterator<Prompt> ite = mPrompts.iterator();
-		while(ite.hasNext()){
-			AbstractPrompt allPromptList = (AbstractPrompt)ite.next();
-			
-			if(promptId.equals(allPromptList.getId())){
-				return AbstractPrompt.getDisplayValue(allPromptList, value);
-			}
-		}
-		return value;
-	}
-	
-	private String getPromptLabel(String promptId){
-		Iterator<Prompt> ite = mPrompts.iterator();
-		String searchedLable = "";
-		while(ite.hasNext()){
-			AbstractPrompt prompt = (AbstractPrompt)ite.next();
-			if(promptId.equalsIgnoreCase(prompt.getId())){
-				searchedLable = prompt.getPromptText();
-			}
-		}
-		return searchedLable;
 	}
 	
 	@Override
