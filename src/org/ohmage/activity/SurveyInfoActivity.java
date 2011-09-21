@@ -7,6 +7,7 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -14,8 +15,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -31,19 +34,17 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
-	
-	// action bar commands
-	private static final int ACTION_TAKE_SURVEY = 1;
-	private static final int ACTION_VIEW_RESPHISTORY = 2;
-	
+
 	// handles to views we'll be manipulating
 	private TextView mErrorBox;
 	private TextView mDescView;
-	private TextView mPrivacyValue;
 	private TextView mStatusValue;
+	private TextView mResponsesValue;
 	
 	// state vars
 	private int mCampaignStatus; // status code for campaign as of last refresh
+	private Handler mHandler;
+	private ContentObserver mResponsesObserver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		// and create a handler attached to this thread for contentobserver events
+		mHandler = new Handler();
 		
 		getActionBar().setTitle("Survey Info");
 		
@@ -69,14 +72,31 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// nab references to things we'll be populating
 		mErrorBox = (TextView)findViewById(R.id.survey_info_errorbox);
 		mDescView = (TextView)findViewById(R.id.survey_info_desc);
+		mStatusValue = (TextView)findViewById(R.id.survey_info_status_value);
+		mResponsesValue = (TextView)findViewById(R.id.survey_info_responses_value);
+		
+		// and attach some handlers + populate some html data
+		// status
+		TextView statusDetails = (TextView)findViewById(R.id.survey_info_status_details);
+		statusDetails.setText(Html.fromHtml(getString(R.string.survey_info_status_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.survey_info_status_row),
+				statusDetails);
+		
+		// responses
+		TextView responsesDetails = (TextView)findViewById(R.id.survey_info_responses_details);
+		responsesDetails.setText(Html.fromHtml(getString(R.string.survey_info_responses_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.survey_info_responses_row),
+				responsesDetails);
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
-		getSupportLoaderManager().initLoader(0, null, this);
+		getSupportLoaderManager().initLoader(1, null, this);
 	}
 	
 	protected void populateCommands(final String surveyID, final String campaignUrn, final String surveyTitle, final String surveySubmitText, int campaignStatus) {
-		// ...and gather up the commands in the command tray so we can hide/show them
+		// gather up the commands in the command tray so we can hide/show them
 		Button takeSurveyButton = (Button)findViewById(R.id.survey_info_button_takesurvey);
 
 		// now, depending on the context, we can regenerate our commands
@@ -140,8 +160,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 			return;
 
 		// populate the views
-		String surveyID = data.getString(QueryParams.SURVEY_ID);
-		String campaignUrn = data.getString(QueryParams.CAMPAIGN_URN);
+		final String surveyID = data.getString(QueryParams.SURVEY_ID);
+		final String campaignUrn = data.getString(QueryParams.CAMPAIGN_URN);
 		String submitText = data.getString(QueryParams.SUBMIT_TEXT);
 
 		// set the header fields first
@@ -193,6 +213,24 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				mStatusValue.setText("unknown status");
 				break;
 		}
+		
+		mResponsesObserver = new ContentObserver(mHandler) {
+			@Override
+			public void onChange(boolean selfChange) {
+				// TODO Auto-generated method stub
+				super.onChange(selfChange);
+
+				// set the responses by querying the response table
+				// and getting the number of responses submitted for this campaign
+				Cursor responses = getContentResolver().query(Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID), null, null, null, null);
+				mResponsesValue.setText(responses.getCount() + " response(s) submitted");
+			}
+		};
+		
+		// register it to listen for newly submitted responses
+		getContentResolver().registerContentObserver(Response.CONTENT_URI, true, mResponsesObserver);
+		// and trigger it once to refresh right now
+		mResponsesObserver.onChange(false);
 		
 		// and finally populate the action bar + command tray
 		populateCommands(surveyID, campaignUrn, data.getString(QueryParams.TITLE), submitText, mCampaignStatus);

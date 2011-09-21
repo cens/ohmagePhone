@@ -4,6 +4,5 @@
     <Button style="@style/InfoButton"
     	android:id="@+id/survey_info_button_takesurvey"
     	android:text="Take Survey"
-    	android:drawableLeft="@drawable/pencil"
-    	android:visibility="gone" />
+    	android:drawableLeft="@drawable/pencil" />
 </merge>

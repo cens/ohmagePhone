@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
@@ -42,7 +43,16 @@ public abstract class BaseInfoActivity extends FragmentActivity {
 	}
 	
 	/**
-	 * Returns the scrollable content area which should be populated with the details pertaining to this entity.
+	 * Returns the scrollable view that contains the main content area. You probably shouldn't need to access this very often.
+	 * 
+	 * @return a ScrollView which contains a FrameLayout
+	 */
+	protected ScrollView getScrollView() {
+		return (ScrollView)findViewById(R.id.scrolling_container);
+	}
+	
+	/**
+	 * Returns the fixed content area which should be populated with the details pertaining to this entity.
 	 * 
 	 * @return a FrameLayout to which other layouts (e.g. a linearlayout) can be added
 	 */
@@ -85,36 +95,4 @@ public abstract class BaseInfoActivity extends FragmentActivity {
 			}
 		});
 	}
-	
-/*    protected class DropDownAnim extends Animation {
-        int targetHeight;
-        View v;
-        boolean down;
-
-        public DropDownAnim(View wv, boolean d){
-            v = wv;
-            targetHeight = 100;
-            down = d;
-        }
-
-        protected void applyTransformation(float interpolatedTime, Transformation t){
-            int newHeight;
-            if(down){
-                  newHeight = (int)(targetHeight*interpolatedTime);
-            }
-            else{
-                  newHeight = (int)(targetHeight*(1-interpolatedTime));
-            }
-            v.getLayoutParams().height = newHeight;
-            v.requestLayout();
-        }
-
-        public void initalize(int width, int height, int parentWidth, int parentHeight) {
-            super.initialize(width,height,parentWidth,parentHeight);
-        }
-
-        public boolean willChangeBounds() {
-            return true;
-        }
-    }*/
 }

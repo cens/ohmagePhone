@@ -23,7 +23,7 @@
 		<TableRow style="@style/InfoSectionHeader"
 			android:id="@+id/campaign_info_privacy_row">
 			<TextView style="@style/InfoSectionLabel" android:text="privacy:" />
-			<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_privacy_value" android:text="test?!" />
+			<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_privacy_value" />
 		</TableRow>
 		<TextView style="@style/InfoSectionDetails"
 			android:id="@+id/campaign_info_privacy_details" />
@@ -31,13 +31,15 @@
 		<TableRow style="@style/InfoSectionHeader"
 			android:id="@+id/campaign_info_status_row">
 			<TextView style="@style/InfoSectionLabel" android:text="status:" />
-			<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_status_value" android:text="test?!" />
+			<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_status_value" />
 		</TableRow>
+		<TextView style="@style/InfoSectionDetails"
+			android:id="@+id/campaign_info_status_details" />
 		
 		<TableRow style="@style/InfoSectionHeader"
 			android:id="@+id/campaign_info_responses_row">
 			<TextView style="@style/InfoSectionLabel" android:text="responses:" />
-			<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_responses_value" android:text="test?!" />
+			<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_responses_value" />
 		</TableRow>
 		<TextView style="@style/InfoSectionDetails"
 			android:id="@+id/campaign_info_responses_details" />
