@@ -1,26 +1,22 @@
 package org.ohmage.activity;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.ohmage.R;
-import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbHelper;
 import org.ohmage.feedback.visualization.MapOverlayItem;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.feedback.visualization.ResponseHistory;
-import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
-import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -37,12 +33,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
 
 public class RHMapViewActivity extends ResponseHistory {
 
@@ -58,7 +54,8 @@ public class RHMapViewActivity extends ResponseHistory {
 	private DateFilterControl mDateFilter;
 	private Button mMapPinNext;
 	private Button mMapPinPrevious;
-	private int pinIndex;
+	private TextView mMapPinIndex;
+	private int mPinIndex;
 
 	
 	@Override
@@ -165,11 +162,15 @@ public class RHMapViewActivity extends ResponseHistory {
 		    mControl.setCenter(mItemizedoverlay.getCenter());
 	    }
 
+		mPinIndex = 0;
 		mMapPinNext = (Button) mMapView.getRootView().findViewById(R.id.map_pin_next);
 		mMapPinPrevious = (Button) mMapView.getRootView().findViewById(R.id.map_pin_previous);
+		mMapPinIndex = (TextView) mMapView.getRootView().findViewById(R.id.map_pin_index);
 		
-		
-		pinIndex = 0;
+		if(mMapPinIndex != null){
+			mMapPinIndex.setText(""+mPinIndex);			
+		}
+
 		if(mMapPinNext != null){
 			mMapPinNext.setOnClickListener(new OnClickListener() {
 				
@@ -177,10 +178,11 @@ public class RHMapViewActivity extends ResponseHistory {
 				public void onClick(View v) {
 					int overlayListSize = mItemizedoverlay.size();
 					if(overlayListSize > 0){
-						mItemizedoverlay.onTap(pinIndex % overlayListSize);
-						if(pinIndex < (overlayListSize-1)){
-							pinIndex++;	
+						mItemizedoverlay.onTap(mPinIndex % overlayListSize);
+						if(mPinIndex < (overlayListSize-1)){
+							mPinIndex++;	
 						}
+						mMapPinIndex.setText(""+mPinIndex);
 					}
 				}
 			});			
@@ -193,10 +195,11 @@ public class RHMapViewActivity extends ResponseHistory {
 				public void onClick(View v) {
 					int overlayListSize = mItemizedoverlay.size();
 					if(overlayListSize > 0){
-						mItemizedoverlay.onTap(pinIndex % overlayListSize);
-						if(pinIndex > 0){
-							pinIndex--;	
+						mItemizedoverlay.onTap(mPinIndex % overlayListSize);
+						if(mPinIndex > 0){
+							mPinIndex--;	
 						}
+						mMapPinIndex.setText(""+mPinIndex);
 					}
 				}
 			});			
