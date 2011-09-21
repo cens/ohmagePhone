@@ -18,31 +18,31 @@
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-			<Button android:id="@+id/dash_campaigns_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_campaigns"
-				android:text="Campaigns" />
+			<Button android:id="@+id/dash_campaigns_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_campaigns"
+				android:text="@string/title_campaigns" />
 
-			<Button android:id="@+id/dash_surveys_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_surveys"
-				android:text="Surveys" />
+			<Button android:id="@+id/dash_surveys_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_surveys"
+				android:text="@string/title_surveys" />
 		</LinearLayout>
 
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-			<Button android:id="@+id/dash_feedback_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_resphistory"
-				android:text="Response\nHistory" />
+			<Button android:id="@+id/dash_feedback_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_resphistory"
+				android:text="@string/title_response_history" />
 
-			<Button android:id="@+id/dash_uploadqueue_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_upqueue"
-				android:text="Upload\nQueue" />
+			<Button android:id="@+id/dash_uploadqueue_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_upqueue"
+				android:text="@string/title_upload_queue" />
 		</LinearLayout>
 
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-			<Button android:id="@+id/dash_profile_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_profile"
-				android:text="Profile" />
+			<Button android:id="@+id/dash_profile_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_profile"
+				android:text="@string/title_profile" />
 
-			<Button android:id="@+id/dash_settings_btn" style="@style/HomeButton" android:drawableTop="@drawable/dash_settings"
-				android:text="Settings" />
+			<Button android:id="@+id/dash_settings_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_settings"
+				android:text="@string/title_settings" />
 		</LinearLayout>
 	</LinearLayout>
 

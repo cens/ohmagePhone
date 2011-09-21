@@ -55,34 +55,4 @@
 		<item name="android:layout_marginBottom">@dimen/gutter</item>
 		<item name="android:visibility">gone</item>
 	</style>
-	
-	<!-- html-formatted errorbox messages -->
-	<string name="campaign_info_errorbox_stopped">
-	<![CDATA[
-	<b>warning:</b> this campaign is <b>stopped</b>, meaning that you can no longer submit surveys for it.
-	]]>
-	</string>
-	
-	<string name="campaign_info_errorbox_invalid_role">
-	<![CDATA[
-	<b>warning:</b> you don\'t seem to have sufficient permission to access this campaign at this time.
-	]]>
-	</string>
-	
-	<!-- explanatory text sections (FIXME: move to a dedicated string resource later) -->
-	<string name="campaign_info_privacy_details">
-	<![CDATA[
-	the <b>privacy</b> of the campaign determines in part who can view the data that you upload.<br /><br />
-	
-	a campaign may be in one of two privacy states:<br />
-	* <b>private</b>, only you and the administrator can see your data<br />
-	* <b>shared</b>, administrators, authors, and analysts can see your public data
-	]]>
-	</string>
-	
-	<string name="campaign_info_responses_details">
-	<![CDATA[
-	the above count is the number of responses in your response history.
-	]]>
-	</string>
 </resources>

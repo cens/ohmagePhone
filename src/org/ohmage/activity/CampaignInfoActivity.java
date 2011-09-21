@@ -2,6 +2,8 @@ package org.ohmage.activity;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.ohmage.PromptXmlParser;
@@ -12,6 +14,9 @@ import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Survey;
+import org.ohmage.triggers.glue.TriggerFramework;
+import org.ohmage.triggers.ui.TriggerListActivity;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
@@ -40,6 +45,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 	// action bar commands
 	private static final int ACTION_TAKE_SURVEY = 1;
 	private static final int ACTION_VIEW_RESPHISTORY = 2;
+	private static final int ACTION_SETUP_TRIGGERS = 3;
 	
 	// handles to views we'll be manipulating
 	private TextView mErrorBox;
@@ -53,14 +59,11 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
-		
-		getActionBar().setTitle("Campaign Info");
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -81,14 +84,21 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		mResponsesValue = (TextView)findViewById(R.id.campaign_info_responses_value);
 		
 		// and attach some handlers + populate some html data
-		// this one's for the privacy section
+		// privacy
 		TextView privacyDetails = (TextView)findViewById(R.id.campaign_info_privacy_details);
 		privacyDetails.setText(Html.fromHtml(getString(R.string.campaign_info_privacy_details)));
 		setDetailsExpansionHandler(
 				findViewById(R.id.campaign_info_privacy_row),
 				privacyDetails);
 		
-		// and this one is for the responses section
+		// status
+		TextView statusDetails = (TextView)findViewById(R.id.campaign_info_status_details);
+		statusDetails.setText(Html.fromHtml(getString(R.string.campaign_info_status_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.campaign_info_status_row),
+				statusDetails);
+		
+		// responses
 		TextView responsesDetails = (TextView)findViewById(R.id.campaign_info_responses_details);
 		responsesDetails.setText(Html.fromHtml(getString(R.string.campaign_info_responses_details)));
 		setDetailsExpansionHandler(
@@ -112,29 +122,45 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// now, depending on the context, we can regenerate our commands
 		// this applies both to the action bar and to the command tray
 		if (campaignStatus != Campaign.STATUS_REMOTE) {
-			actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
-			actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "take survey", R.drawable.dashboard_title_resphist);
-			
-			// route the actions to the appropriate places
-			actionBar.setOnActionListener(new ActionListener() {
-				@Override
-				public void onActionClicked(int commandID) {
-					Intent intent;
-					
-					switch (commandID) {
-						case ACTION_TAKE_SURVEY:
-							intent = new Intent(mContext, SurveyListActivity.class);
-							intent.putExtra("campaign_urn", campaignUrn);
-							startActivity(intent);
-							break;
-						case ACTION_VIEW_RESPHISTORY:
-							intent = new Intent(mContext, RHTabHost.class);
-							intent.putExtra("campaign_urn", campaignUrn);
-							startActivity(intent);
-							break;
+			// only show data-related actions if it's ready
+			if (campaignStatus == Campaign.STATUS_READY) {
+				actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
+				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
+				
+				// route the actions to the appropriate places
+				actionBar.setOnActionListener(new ActionListener() {
+					@Override
+					public void onActionClicked(int commandID) {
+						Intent intent;
+						
+						switch (commandID) {
+							case ACTION_TAKE_SURVEY:
+								intent = new Intent(mContext, SurveyListActivity.class);
+								intent.putExtra("campaign_urn", campaignUrn);
+								startActivity(intent);
+								break;
+							case ACTION_VIEW_RESPHISTORY:
+								intent = new Intent(mContext, RHTabHost.class);
+								intent.putExtra("campaign_urn", campaignUrn);
+								startActivity(intent);
+								break;
+							case ACTION_SETUP_TRIGGERS:
+								List<String> surveyTitles = new ArrayList<String>();
+								
+								// grab a list of surveys for this campaign
+								Cursor surveys = getContentResolver().query(Survey.getSurveysByCampaignURN(campaignUrn), null, null, null, null);
+								
+								while (surveys.moveToNext()) {
+									surveyTitles.add(surveys.getString(surveys.getColumnIndex(Survey.TITLE)));
+								}
+								
+								TriggerFramework.launchTriggersActivity(mContext, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
+								return;
+						}
 					}
-				}
-			});
+				});
+			}
 			
 			// and set the command tray buttons accordingly
 			participateButton.setVisibility(View.GONE);
@@ -267,7 +293,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			mCampaignStatus = data.getInt(QueryParams.STATUS);
 			switch (mCampaignStatus) {
 				case Campaign.STATUS_READY:
-					mStatusValue.setText("participating");
+					mStatusValue.setText("ready");
 					mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_running, 0, 0, 0);
 					break;
 				case Campaign.STATUS_VAGUE:

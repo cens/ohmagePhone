@@ -14,9 +14,12 @@
 		
 	<include layout="@layout/entity_header" />
 	
-	<FrameLayout
-		android:id="@+id/root_container"
+	<ScrollView android:id="@+id/scrolling_container"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:isScrollContainer="true" />
+		android:layout_height="fill_parent">
+		<FrameLayout
+			android:id="@+id/root_container"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+	</ScrollView>
 </LinearLayout>
