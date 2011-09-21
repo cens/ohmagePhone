@@ -16,7 +16,8 @@
 	
 	<ScrollView android:id="@+id/scrolling_container"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
+		android:layout_height="fill_parent"
+		android:fillViewport="true">
 		<FrameLayout
 			android:id="@+id/root_container"
 			android:layout_width="fill_parent"
