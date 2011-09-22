@@ -18,7 +18,8 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.FeedbackService;
 
 import android.app.Activity;
@@ -109,7 +110,7 @@ public class LauncherActivity extends Activity {
 		}
 	}
 	
-	private OnClickListener mClickListener = new OnClickListener() {
+	private final OnClickListener mClickListener = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
@@ -274,11 +275,11 @@ public class LauncherActivity extends Activity {
 						
 						DbHelper dbHelper = new DbHelper(mActivity);
 						if (dbHelper.getCampaign(defaultCampaign.mUrn) == null) {
-							cr.insert(Campaign.CONTENT_URI, defaultCampaign.toCV());
+							cr.insert(Campaigns.CONTENT_URI, defaultCampaign.toCV());
 						} else {
 							Log.w(TAG, "Campaign already exists. This should never happen. Replacing previous entry with new one.");
-							cr.delete(Campaign.getCampaignByURN(defaultCampaign.mUrn), null, null);
-							cr.insert(Campaign.CONTENT_URI, defaultCampaign.toCV());
+							cr.delete(Campaigns.buildCampaignUri(defaultCampaign.mUrn), null, null);
+							cr.insert(Campaigns.CONTENT_URI, defaultCampaign.toCV());
 						}
 						
 						if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {

@@ -10,10 +10,11 @@ import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.MapOverlayItem;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.feedback.visualization.ResponseHistory;
@@ -34,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -260,7 +260,7 @@ public class RHMapViewActivity extends ResponseHistory {
 					surveyCursor = cr.query(Survey.getSurveys(), projection, null, null, Survey.TITLE);
 				}
 				else{
-					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), projection, null, null, null);
+					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
 				}
 	
 				//Update SurveyFilter
@@ -297,11 +297,11 @@ public class RHMapViewActivity extends ResponseHistory {
 			}
 		});
 		
-		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
-		String[] projection = {Campaign.NAME, Campaign.URN};
+		String select = Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY;
+		String[] projection = {Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN};
 
-		Cursor campaigns = cr.query(Campaign.getCampaigns(), projection, select, null, null);
-		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
+		Cursor campaigns = cr.query(Campaigns.CONTENT_URI, projection, select, null, null);
+		mCampaignFilter.populate(campaigns, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));	
 	}
 	

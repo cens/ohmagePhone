@@ -23,7 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
@@ -92,10 +92,10 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	}
 
 	private interface ResponseQuery {
-		String[] PROJECTION = { Campaign.NAME,
+		String[] PROJECTION = { Campaigns.CAMPAIGN_NAME,
 				Survey.TITLE,
 				Response.TIME,
-				Campaign.ICON};
+				Campaigns.CAMPAIGN_ICON};
 
 		int CAMPAIGN_NAME = 0;
 		int SURVEY_TITLE = 1;

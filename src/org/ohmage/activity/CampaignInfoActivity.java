@@ -12,9 +12,10 @@ import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
@@ -163,7 +164,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								List<String> surveyTitles = new ArrayList<String>();
 								
 								// grab a list of surveys for this campaign
-								Cursor surveys = getContentResolver().query(Survey.getSurveysByCampaignURN(campaignUrn), null, null, null, null);
+								Cursor surveys = getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
 								
 								while (surveys.moveToNext()) {
 									surveyTitles.add(surveys.getString(surveys.getColumnIndex(Survey.TITLE)));
@@ -200,14 +201,16 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 					builder.setMessage("Are you sure that you want to remove this campaign? Any data that you haven't uploaded will be lost!")
 						.setCancelable(false)
 						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								// remove the campaign URN and take us back to my campaigns
-								getContentResolver().delete(Campaign.CONTENT_URI, Campaign.URN + "=?", new String[]{campaignUrn});
+								getContentResolver().delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 								startActivity(new Intent(mContext, CampaignListActivity.class));
 								mContext.finish();
 							}
 						})
 						.setNegativeButton("No", new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								dialog.cancel();
 							}
@@ -255,13 +258,13 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	private interface QueryParams {
 		String[] PROJECTION = {
-					Campaign.URN,
-					Campaign.NAME,
-					Campaign.CONFIGURATION_XML,
-					Campaign.DESCRIPTION,
-					Campaign.STATUS,
-					Campaign.PRIVACY,
-					Campaign.ICON
+					Campaigns.CAMPAIGN_URN,
+					Campaigns.CAMPAIGN_NAME,
+					Campaigns.CAMPAIGN_CONFIGURATION_XML,
+					Campaigns.CAMPAIGN_DESCRIPTION,
+					Campaigns.CAMPAIGN_STATUS,
+					Campaigns.CAMPAIGN_PRIVACY,
+					Campaigns.CAMPAIGN_ICON
 				};
 		
 		final int URN = 0;

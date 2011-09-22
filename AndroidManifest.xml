@@ -64,7 +64,7 @@
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.org.ohmage.db.campaign" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.campaign" />
             </intent-filter>
 		</activity>
 		

@@ -5,9 +5,10 @@ import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.service.UploadService;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -74,8 +75,8 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(this, Campaign.getCampaigns(), new String [] { Campaign.URN, Campaign.NAME }, 
-				Campaign.STATUS + "=" + Campaign.STATUS_READY, null, Campaign.NAME);
+		return new CursorLoader(this, Campaigns.CONTENT_URI, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_NAME }, 
+				Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, Campaigns.CAMPAIGN_NAME);
 	}
 
 	@Override
@@ -84,7 +85,7 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 		mCampaignFilter.setVisibility(View.VISIBLE);
 
 		// Populate the filter
-		mCampaignFilter.populate(data, Campaign.NAME, Campaign.URN);
+		mCampaignFilter.populate(data, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String,String>("All Campaigns", null));
 	}
 

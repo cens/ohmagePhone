@@ -6,8 +6,9 @@ import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.Models.Campaign;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -74,7 +75,7 @@ public class TestActivity extends Activity {
 				Cursor surveys;
 				
 				if (!curValue.equalsIgnoreCase("all"))
-					surveys = mCR.query(Survey.getSurveysByCampaignURN(curValue), null, null, null, null);
+					surveys = mCR.query(Campaigns.buildSurveysUri(curValue), null, null, null, null);
 				else
 					surveys = mCR.query(Survey.getSurveys(), null, null, null, null);
 
@@ -98,8 +99,8 @@ public class TestActivity extends Activity {
 		});
 		
 		mCR = getContentResolver();
-		Cursor campaigns = mCR.query(Campaign.getCampaigns(), null, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
-		campaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
+		Cursor campaigns = mCR.query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+		campaignFilter.populate(campaigns, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		campaignFilter.add(0, Pair.create("All Campaigns", "all"));
 	}
 }

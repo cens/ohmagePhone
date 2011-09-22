@@ -2,9 +2,12 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.OhmageApi.CampaignXmlResponse;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -141,9 +144,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 					Survey.TITLE,
 					Survey.DESCRIPTION,
 					Survey.SUBMIT_TEXT,
-					Campaign.NAME,
-					Campaign.STATUS,
-					Campaign.ICON
+					Campaigns.CAMPAIGN_NAME,
+					Campaigns.CAMPAIGN_STATUS,
+					Campaigns.CAMPAIGN_ICON
 				};
 		
 		final int SURVEY_ID = 0;

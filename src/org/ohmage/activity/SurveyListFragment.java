@@ -3,7 +3,7 @@ package org.ohmage.activity;
 
 import java.util.List;
 
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.utils.SelectionBuilder;
 

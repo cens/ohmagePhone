@@ -29,11 +29,12 @@ import java.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.service.SurveyGeotagService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -53,8 +54,8 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 25;
-
+	private static final int DB_VERSION = 26;
+	
 	private final Context mContext;
 
 	public interface Tables {
@@ -68,7 +69,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		String RESPONSES_JOIN_CAMPAIGNS_SURVEYS = String.format(
 				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s "
 						+ "inner join %5$s on %1$s.%6$s=%5$s.%7$s ", RESPONSES,
-				CAMPAIGNS, Response.CAMPAIGN_URN, Campaign.URN, SURVEYS,
+				CAMPAIGNS, Response.CAMPAIGN_URN, Campaigns.CAMPAIGN_URN, SURVEYS,
 				Response.SURVEY_ID, Survey.SURVEY_ID);
 
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String
@@ -86,7 +87,7 @@ public class DbHelper extends SQLiteOpenHelper {
 						Response.SURVEY_ID, // 8
 						Survey.SURVEY_ID, // 9
 						Survey.CAMPAIGN_URN, // 10
-						Campaign.URN); // 11
+						Campaigns.CAMPAIGN_URN); // 11
 
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format(
 				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
@@ -112,13 +113,13 @@ public class DbHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.CAMPAIGNS + " ("
-				+ Campaign._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ Campaign.URN + " TEXT, " + Campaign.NAME + " TEXT, "
-				+ Campaign.DESCRIPTION + " TEXT, "
-				+ Campaign.CREATION_TIMESTAMP + " TEXT, "
-				+ Campaign.DOWNLOAD_TIMESTAMP + " TEXT, "
-				+ Campaign.CONFIGURATION_XML + " TEXT, " + Campaign.STATUS
-				+ " INTEGER, " + Campaign.ICON + " TEXT, " + Campaign.PRIVACY
+				+ Campaigns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ Campaigns.CAMPAIGN_URN + " TEXT, " + Campaigns.CAMPAIGN_NAME + " TEXT, "
+				+ Campaigns.CAMPAIGN_DESCRIPTION + " TEXT, "
+				+ Campaigns.CAMPAIGN_CREATED + " TEXT, "
+				+ Campaigns.CAMPAIGN_DOWNLOADED + " TEXT, "
+				+ Campaigns.CAMPAIGN_CONFIGURATION_XML + " TEXT, " + Campaigns.CAMPAIGN_STATUS
+				+ " INTEGER, " + Campaigns.CAMPAIGN_ICON + " TEXT, " + Campaigns.CAMPAIGN_PRIVACY
 				+ " TEXT " + ");");
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
@@ -169,8 +170,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ " INTEGER DEFAULT 0, " + Response.HASHCODE + " TEXT" + ");");
 
 		// make campaign URN unique in the campaigns table
-		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Campaign.URN
-				+ "_idx ON " + Tables.CAMPAIGNS + " (" + Campaign.URN + ");");
+		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Campaigns.CAMPAIGN_URN
+				+ "_idx ON " + Tables.CAMPAIGNS + " (" + Campaigns.CAMPAIGN_URN + ");");
 
 		// create a "flat" table of prompt responses so we can easily compute
 		// aggregates
@@ -234,7 +235,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Tables.SURVEY_PROMPTS + " SP" + " INNER JOIN "
 				+ Tables.SURVEYS + " S ON S." + Survey._ID + "=SP."
 				+ SurveyPrompt.SURVEY_PID + " WHERE S." + Survey.CAMPAIGN_URN
-				+ "=old." + Campaign.URN + "); "
+				+ "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.PROMPT_RESPONSES + " WHERE "
 				+ PromptResponse._ID + " IN (" + " SELECT "
@@ -242,12 +243,12 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Tables.PROMPT_RESPONSES + " PR" + " INNER JOIN "
 				+ Tables.RESPONSES + " R ON R." + Response._ID + "=PR."
 				+ PromptResponse.RESPONSE_ID + " WHERE R."
-				+ Response.CAMPAIGN_URN + "=old." + Campaign.URN + "); "
+				+ Response.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.SURVEYS + " WHERE "
-				+ Survey.CAMPAIGN_URN + "=old." + Campaign.URN + "; "
+				+ Survey.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
 				+ "DELETE from " + Tables.RESPONSES + " WHERE "
-				+ Response.CAMPAIGN_URN + "=old." + Campaign.URN + "; "
+				+ Response.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
 				+ "END;");
 
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.SURVEYS
@@ -498,8 +499,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
 			// hold onto some variables for processing
 			String configurationXml = values
-					.getAsString(Campaign.CONFIGURATION_XML);
-			String campaignUrn = values.getAsString(Campaign.URN);
+					.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML);
+			String campaignUrn = values.getAsString(Campaigns.CAMPAIGN_URN);
 
 			// actually insert the campaign
 			rowId = db.insert(Tables.CAMPAIGNS, null, values);
@@ -526,13 +527,13 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	public boolean removeCampaign(String urn) {
 		ContentResolver cr = mContext.getContentResolver();
-		return cr.delete(Campaign.CONTENT_URI, Campaign.URN + "='" + urn + "'",
+		return cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "='" + urn + "'",
 				null) > 0;
 	}
 
 	public Campaign getCampaign(String urn) {
 		ContentResolver cr = mContext.getContentResolver();
-		Cursor cursor = cr.query(Campaign.getCampaignByURN(urn), null, null,
+		Cursor cursor = cr.query(Campaigns.buildCampaignUri(urn), null, null,
 				null, null);
 
 		// ensure that only one record is returned
@@ -547,7 +548,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	public List<Campaign> getCampaigns() {
 		ContentResolver cr = mContext.getContentResolver();
-		Cursor cursor = cr.query(Campaign.getCampaigns(), null, null, null,
+		Cursor cursor = cr.query(Campaigns.CONTENT_URI, null, null, null,
 				null);
 		return Campaign.fromCursor(cursor);
 	}

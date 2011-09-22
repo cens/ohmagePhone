@@ -1,12 +1,9 @@
 package org.ohmage.db;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 
-import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.OldUploadService;
 
@@ -24,114 +21,62 @@ import android.provider.BaseColumns;
 public class DbContract {
 	public static final String CONTENT_AUTHORITY = "org.ohmage.db";
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-	
-	public static Uri getBaseUri() {
-		return BASE_CONTENT_URI;
-	}
-	
+
+    interface CampaignColumns {
+        /** Unique string identifying this campaign. */
+        String CAMPAIGN_URN = "campaign_urn";
+        /** Name of this campaign. */
+        String CAMPAIGN_NAME = "campaign_name";
+        /** Description of this campaign. */
+		String CAMPAIGN_DESCRIPTION = "campaign_description";
+		/** Time when this campaign was created */
+		String CAMPAIGN_CREATED = "campaign_created";
+		/** Time when this campaign was downloaded */
+		String CAMPAIGN_DOWNLOADED = "campaign_downloaded";
+		/** Configuration xml for this campaign */
+		String CAMPAIGN_CONFIGURATION_XML = "campaign_configuration_xml";
+		/** Status of this campaign */
+		String CAMPAIGN_STATUS = "campaign_status";
+		/** Icon for this campaign */
+		String CAMPAIGN_ICON = "campaign_icon";
+		/** Privacy status of this campaign */
+		String CAMPAIGN_PRIVACY = "campaign_privacy";
+    }
+    
+    private static final String PATH_CAMPAIGNS = "campaigns";
+    private static final String PATH_SURVEYS = "surveys";
+    
 	/**
 	 * Represents a campaign.
 	 */
-	public static final class Campaign implements BaseColumns {
-		public static final String URN = "urn";
-		public static final String NAME = "name";
-		public static final String DESCRIPTION = "description";
-		public static final String CREATION_TIMESTAMP = "creationTimestamp";
-		public static final String DOWNLOAD_TIMESTAMP = "downloadTimestamp";
-		public static final String CONFIGURATION_XML = "configuration_xml";
-		public static final String STATUS = "status";
-		public static final String ICON = "icon";
-		public static final String PRIVACY = "privacy";
-		
-		public static final int STATUS_READY = 0;
-		public static final int STATUS_REMOTE = 1;
-		public static final int STATUS_STOPPED = 2;
-		public static final int STATUS_OUT_OF_DATE = 3;
-		public static final int STATUS_INVALID_USER_ROLE = 4;
-		public static final int STATUS_DELETED = 5;
-		public static final int STATUS_VAGUE = 6;
-		public static final int STATUS_DOWNLOADING = 7;
+    public static final class Campaigns implements BaseColumns, CampaignColumns {
 
-		// data fields here to support use of the Campaign class as a data holder (and not just a schema definer)
-		// this should be reconciled by some kind of real ORM someday
-		public long _id;
-		public String mUrn;
-		public String mName;
-		public String mDescription;
-		public String mCreationTimestamp;
-		public String mDownloadTimestamp;
-		public String mXml;
-		public int mStatus;
-		public String mIcon;
-		public String mPrivacy;
-		
-        public static final Uri CONTENT_URI =
-        	BASE_CONTENT_URI.buildUpon().appendPath("campaigns").build();
-        public static final String CONTENT_TYPE =
-        	"vnd.android.cursor.dir/vnd." + CONTENT_AUTHORITY + ".campaign";
-        public static final String CONTENT_ITEM_TYPE =
-        	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".campaign";
-       
-        public static Uri getCampaigns() {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("campaigns")
-				.build();
+    	public static final Uri CONTENT_URI =
+    			BASE_CONTENT_URI.buildUpon().appendPath(PATH_CAMPAIGNS).build();
+    	public static final String CONTENT_TYPE =
+    			"vnd.android.cursor.dir/vnd.ohmage.campaign";
+    	public static final String CONTENT_ITEM_TYPE =
+    			"vnd.android.cursor.item/vnd.ohmage.campaign";
+
+        /** Default "ORDER BY" clause. */
+        public static final String DEFAULT_SORT = CampaignColumns.CAMPAIGN_NAME;
+
+        /** Build {@link Uri} for requested {@link #CAMPAIGN_URN}  */
+        public static Uri buildCampaignUri(String campaignUrn) {
+            return CONTENT_URI.buildUpon().appendPath(campaignUrn).build();
         }
-        
-        public static Uri getCampaignByURN(String campaignUrn) {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("campaigns")
-				.appendPath(campaignUrn)
-				.build();
-        }
-        
+
         /**
-         * Returns a list of Campaign objects from the given cursor.
-         * 
-         * @param cursor a cursor containing the fields specified in the Campaign schema, which is closed when this method returns.
-         * @return a List of Campaign objects
+         * Build {@link Uri} that references any {@link Surveys} associated
+         * with the requested {@link #CAMPAIGN_URN}.
          */
-        public static List<Campaign> fromCursor(Cursor cursor) {
-        	List<Campaign> campaigns = new ArrayList<Campaign>();
-    		
-    		cursor.moveToFirst();
-    		
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			Campaign c = new Campaign();
-    			c._id = cursor.getLong(cursor.getColumnIndex(Campaign._ID));
-    			c.mUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
-    			c.mName = cursor.getString(cursor.getColumnIndex(Campaign.NAME));
-    			c.mDescription = cursor.getString(cursor.getColumnIndex(Campaign.DESCRIPTION));
-    			c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
-    			c.mDownloadTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.DOWNLOAD_TIMESTAMP));
-    			c.mXml = cursor.getString(cursor.getColumnIndex(Campaign.CONFIGURATION_XML));
-    			c.mStatus = cursor.getInt(cursor.getColumnIndex(Campaign.STATUS));
-    			c.mIcon = cursor.getString(cursor.getColumnIndex(Campaign.ICON));
-    			c.mPrivacy = cursor.getString(cursor.getColumnIndex(Campaign.PRIVACY));
-    			campaigns.add(c);
-    			
-    			cursor.moveToNext();
-    		}
-    		
-    		cursor.close();
-    		
-    		return campaigns;
+        public static Uri buildSurveysUri(String campaignUrn) {
+            return CONTENT_URI.buildUpon().appendPath(campaignUrn).appendPath(PATH_SURVEYS).build();
         }
         
-        public ContentValues toCV() {
-        	ContentValues values = new ContentValues();
-        	
-    		values.put(Campaign.URN, mUrn);
-    		values.put(Campaign.NAME, mName);
-    		values.put(Campaign.DESCRIPTION, mDescription);
-    		values.put(Campaign.CREATION_TIMESTAMP, mCreationTimestamp);
-    		values.put(Campaign.DOWNLOAD_TIMESTAMP, mDownloadTimestamp);
-    		values.put(Campaign.CONFIGURATION_XML, mXml);
-    		values.put(Campaign.STATUS, mStatus);
-    		values.put(Campaign.ICON, mIcon);
-    		values.put(Campaign.PRIVACY, mPrivacy);
-        	return values;
+        /** Read {@link #CAMPAIGN_URN} from {@link Campaigns} {@link Uri}. */
+        public static String getCampaignUrn(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
 	}
 	
@@ -188,14 +133,6 @@ public class DbContract {
     			.appendPath(campaignUrn)
 				.appendPath("surveys")
 				.appendPath(surveyId)
-				.build();
-        }
-        
-        public static Uri getSurveysByCampaignURN(String campaignUrn) {
-    		return BASE_CONTENT_URI.buildUpon()
-    			.appendPath("campaigns")
-    			.appendPath(campaignUrn)
-				.appendPath("surveys")
 				.build();
         }
         

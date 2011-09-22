@@ -16,7 +16,7 @@
 package org.ohmage.triggers.base;
 
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.config.NotifConfig;
 import org.ohmage.triggers.notif.NotifDesc;
 import org.ohmage.triggers.notif.Notifier;

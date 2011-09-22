@@ -1,7 +1,7 @@
 package org.ohmage.activity;
 
 import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.DbHelper.Tables;
@@ -121,7 +121,7 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 	public interface ResponseQuery {
 		String[] PROJECTION = { 
 				Tables.RESPONSES + "." + Response._ID,
-				Campaign.NAME,
+				Campaigns.CAMPAIGN_NAME,
 				Survey.TITLE,
 				Response.TIME,
 				Tables.RESPONSES + "." + Response.STATUS

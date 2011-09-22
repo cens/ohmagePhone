@@ -2,7 +2,7 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Survey;
 
 import android.content.Context;

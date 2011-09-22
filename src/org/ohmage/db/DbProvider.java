@@ -1,7 +1,7 @@
 package org.ohmage.db;
 
 import org.ohmage.OhmageCache;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
@@ -122,9 +122,9 @@ public class DbProvider extends ContentProvider {
         	
         	// CAMPAIGNS
         	case MatcherTypes.CAMPAIGNS:
-        		return Campaign.CONTENT_TYPE;
+        		return Campaigns.CONTENT_TYPE;
         	case MatcherTypes.CAMPAIGN_BY_URN:
-        		return Campaign.CONTENT_ITEM_TYPE;
+        		return Campaigns.CONTENT_ITEM_TYPE;
         		
         	// SURVEYS
         	case MatcherTypes.SURVEYS:
@@ -199,11 +199,11 @@ public class DbProvider extends ContentProvider {
 				break;
 			case MatcherTypes.CAMPAIGNS:
 				insertID = dbHelper.addCampaign(db, values);
-				campaignUrn = values.getAsString(Campaign.URN);
-				resultingUri = Campaign.getCampaignByURN(campaignUrn);
+				campaignUrn = values.getAsString(Campaigns.CAMPAIGN_URN);
+				resultingUri = Campaigns.buildCampaignUri(campaignUrn);
 
 				// notify on the related entity URIs
-				cr.notifyChange(Campaign.CONTENT_URI, null);
+				cr.notifyChange(Campaigns.CONTENT_URI, null);
 				cr.notifyChange(Survey.CONTENT_URI, null);
 				cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
 				
@@ -251,11 +251,11 @@ public class DbProvider extends ContentProvider {
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
 					// if it was a campaign, we may need to update the campaign's xml
-					if (values.containsKey(Campaign.URN) && values.containsKey(Campaign.CONFIGURATION_XML))
-						dbHelper.populateSurveysFromCampaignXML(db, values.getAsString(Campaign.URN), values.getAsString(Campaign.CONFIGURATION_XML));
+					if (values.containsKey(Campaigns.CAMPAIGN_URN) && values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
+						dbHelper.populateSurveysFromCampaignXML(db, values.getAsString(Campaigns.CAMPAIGN_URN), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 					
 					// notify on the related entity URIs
-					cr.notifyChange(Campaign.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Survey.CONTENT_URI, null);
 					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
 					cr.notifyChange(Response.CONTENT_URI, null);
@@ -293,7 +293,7 @@ public class DbProvider extends ContentProvider {
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.CAMPAIGN_BY_URN:
 			case MatcherTypes.CAMPAIGNS:
-				Cursor c = builder.query(db, new String [] { Campaign.ICON }, null);
+				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_ICON }, null);
 				if(c.moveToFirst()) {
 					while(c.moveToNext()) {
 						if(c.getString(0) != null)
@@ -324,7 +324,7 @@ public class DbProvider extends ContentProvider {
 					for(String iconUrl : iconUrls) {
 						db.beginTransaction();
 						try {
-							Cursor c = db.query(Tables.CAMPAIGNS, new String [] { "_id" }, Campaign.ICON + "=?", new String[] { iconUrl }, null, null, null);
+							Cursor c = db.query(Tables.CAMPAIGNS, new String [] { "_id" }, Campaigns.CAMPAIGN_ICON + "=?", new String[] { iconUrl }, null, null, null);
 							if(c.getCount() == 0) {
 								try {
 									OhmageCache.getCachedFile(getContext(), new URI(iconUrl)).delete();
@@ -341,7 +341,7 @@ public class DbProvider extends ContentProvider {
 					}	
 
 					// notify on the related entity URIs
-					cr.notifyChange(Campaign.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Survey.CONTENT_URI, null);
 					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
 					cr.notifyChange(Response.CONTENT_URI, null);
@@ -403,7 +403,7 @@ public class DbProvider extends ContentProvider {
 				campaignUrn = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.CAMPAIGNS)
-					.where(Campaign.URN + "=?", campaignUrn);
+					.where(Campaigns.CAMPAIGN_URN + "=?", campaignUrn);
 				
 			// SURVEYS
 			case MatcherTypes.SURVEYS:
@@ -414,9 +414,10 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				
 				return builder.table(Tables.SURVEYS)
-					.join(Tables.CAMPAIGNS, "%t." + Campaign.URN + "=" + "%s." + Survey.CAMPAIGN_URN)
+					.join(Tables.CAMPAIGNS, "%t." + Campaigns.CAMPAIGN_URN + "=" + "%s." + Survey.CAMPAIGN_URN)
+					.mapToTable(Survey.CAMPAIGN_URN, Tables.SURVEYS)
 					.mapToTable(Survey.DESCRIPTION, Tables.SURVEYS)
-					.where(Survey.CAMPAIGN_URN + "=?", campaignUrn)
+					.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Survey.SURVEY_ID + "=?", surveyID);
 				
 			case MatcherTypes.CAMPAIGN_SURVEYS:
@@ -443,20 +444,20 @@ public class DbProvider extends ContentProvider {
 				if (nonQuery)
 					return builder.table(Tables.RESPONSES);
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-						.mapToTable(Campaign.NAME, Tables.CAMPAIGNS);
+						.mapToTable(Campaigns.CAMPAIGN_NAME, Tables.CAMPAIGNS);
 				
 			case MatcherTypes.RESPONSE_BY_PID:
 				responseID = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
+					.mapToTable(Campaigns.CAMPAIGN_NAME, Tables.CAMPAIGNS)
 					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
 				
 			case MatcherTypes.CAMPAIGN_RESPONSES:
 				campaignUrn = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
+					.mapToTable(Campaigns.CAMPAIGN_NAME, Tables.CAMPAIGNS)
 					.where(Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "=?", campaignUrn);
 				
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
@@ -464,7 +465,7 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
+					.mapToTable(Campaigns.CAMPAIGN_NAME, Tables.CAMPAIGNS)
 					.where(Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "=?", campaignUrn)
 					.where(Tables.RESPONSES + "." + Response.SURVEY_ID + "=?", surveyID);
 			
@@ -546,4 +547,12 @@ public class DbProvider extends ContentProvider {
 				throw new UnsupportedOperationException("buildSelection(): Unknown URI: " + uri);
 		}
 	}
+	
+    /**
+     * {@link DbContract} fields that are fully qualified with a specific
+     * parent {@link Tables}. Used when needed to work around SQL ambiguity.
+     */
+    private interface Qualified {
+        String SURVEYS_CAMPAIGN_URN = Tables.SURVEYS + "." + Survey.CAMPAIGN_URN;
+    }
 }

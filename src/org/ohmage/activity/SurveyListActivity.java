@@ -7,8 +7,9 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.Models.Campaign;
 
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -38,9 +39,9 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 		mPendingFilter = (FilterControl) findViewById(R.id.pending_filter);
 
 		ContentResolver cr = getContentResolver();
-		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
-		Cursor data = cr.query(Campaign.CONTENT_URI, new String [] {Campaign._ID, Campaign.NAME, Campaign.URN}, select, null, Campaign.NAME);
-		mCampaignFilter.populate(data, Campaign.NAME, Campaign.URN);
+		String select = Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY;
+		Cursor data = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns._ID, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN}, select, null, Campaigns.CAMPAIGN_NAME);
+		mCampaignFilter.populate(data, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", SurveyListFragment.FILTER_ALL_CAMPAIGNS));
 		mCampaignFilter.setOnChangeListener(new FilterChangeListener() {
 			

@@ -33,7 +33,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.config.LocTrigConfig;
 import org.ohmage.triggers.utils.SimpleTime;
 
@@ -183,11 +183,11 @@ public class LocTrigService extends Service
 	//Current value of the proximity distance
 	private float mCurrProxDist = 0;
 	//The latest location update received
-	private Location mLastKnownLoc = new Location(LocationManager.GPS_PROVIDER);
+	private final Location mLastKnownLoc = new Location(LocationManager.GPS_PROVIDER);
 	//Time stamp of the above location update
 	private long mLastKnownLocTime = 0;
 	//Location update received in the previous duty cycle
-	private Location mLastKnownLocBackup = new Location(LocationManager.GPS_PROVIDER);
+	private final Location mLastKnownLocBackup = new Location(LocationManager.GPS_PROVIDER);
 	//Time stamp of the above location update
 	private long mLastKnownLocTimeBackup = 0;
 	//The last category (place) where the user was known to be in
@@ -207,11 +207,12 @@ public class LocTrigService extends Service
 	//Upload trace even if it is similar to the previous trace
 	private boolean mLocTraceUploadAlways = false;
 	//Latest location uploaded 
-	private Location mLastLocTrace = new Location(LocationManager.GPS_PROVIDER);
+	private final Location mLastLocTrace = new Location(LocationManager.GPS_PROVIDER);
 	
 	//Handler to handle motion detection callback
 	//It is require to run the handling in the current thread
 	Handler mHandler = new Handler() {
+		@Override
 		public void handleMessage(Message msg) {
 			handleWifiGPSLocChange();
 		}
@@ -1596,6 +1597,7 @@ public class LocTrigService extends Service
     /* Receiver for all the alarms */
 	public static class AlarmReceiver extends BroadcastReceiver {
 
+		@Override
 		public void onReceive(Context context, Intent intent) {
 			
 			acquireRecvrWakeLock(context);

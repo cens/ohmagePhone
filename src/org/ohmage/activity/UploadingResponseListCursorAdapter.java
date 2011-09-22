@@ -1,7 +1,7 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
 
 import android.content.Context;

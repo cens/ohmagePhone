@@ -19,11 +19,10 @@ import org.ohmage.OhmageApi.ImageReadResponse;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.prompt.photo.PhotoPrompt;
-import org.ohmage.service.SurveyGeotagService;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -100,7 +99,7 @@ public class FeedbackService extends WakefulIntentService {
         else {
         	// otherwise, do all the campaigns
         	// don't consider the ones that are remote
-        	Cursor campaignCursor = cr.query(Campaign.getCampaigns(), null, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+        	Cursor campaignCursor = cr.query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
 
     		campaigns = Campaign.fromCursor(campaignCursor);
         }

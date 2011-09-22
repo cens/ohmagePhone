@@ -8,7 +8,8 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.FeedbackService;
 
 import android.content.ContentResolver;
@@ -39,8 +40,8 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 
 			ContentResolver cr = mContext.getContentResolver();
 			ContentValues values = new ContentValues();
-			values.put(Campaign.STATUS, Campaign.STATUS_DOWNLOADING);
-			cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + mCampaignUrn + "'", null); 
+			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
+			cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
 		}
 
 		@Override
@@ -57,11 +58,11 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 			
 				ContentResolver cr = mContext.getContentResolver();
 				ContentValues values = new ContentValues();
-				values.put(Campaign.URN, mCampaignUrn);
-				values.put(Campaign.DOWNLOAD_TIMESTAMP, downloadTimestamp);
-				values.put(Campaign.CONFIGURATION_XML, response.getXml());
-				values.put(Campaign.STATUS, Campaign.STATUS_READY);
-				int count = cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + mCampaignUrn + "'", null); 
+				values.put(Campaigns.CAMPAIGN_URN, mCampaignUrn);
+				values.put(Campaigns.CAMPAIGN_DOWNLOADED, downloadTimestamp);
+				values.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, response.getXml());
+				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+				int count = cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
 				if (count < 1) {
 					//nothing was updated
 				} else if (count > 1) {
@@ -82,8 +83,8 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 				
 				ContentResolver cr = mContext.getContentResolver();
 				ContentValues values = new ContentValues();
-				values.put(Campaign.STATUS, Campaign.STATUS_REMOTE);
-				cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + mCampaignUrn + "'", null); 
+				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+				cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
 				Toast.makeText(mContext, "Unable to download campaign xml.", Toast.LENGTH_SHORT).show();
 				
 //				try {

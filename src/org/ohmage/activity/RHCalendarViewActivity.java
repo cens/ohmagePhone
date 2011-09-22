@@ -4,9 +4,10 @@ import org.ohmage.R;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.ResponseHistory;
 
 import android.content.ContentResolver;
@@ -142,7 +143,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 					surveyCursor = cr.query(Survey.getSurveys(), projection, null, null, Survey.TITLE);
 				}
 				else{
-					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), projection, null, null, null);
+					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
 				}
 
 				//Update SurveyFilter
@@ -178,10 +179,10 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			}
 		});
 
-		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
-		String[] projection = {Campaign.NAME, Campaign.URN};
-		Cursor campaigns = cr.query(Campaign.getCampaigns(), projection, select, null, null);
-		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
+		String select = Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY;
+		String[] projection = {Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN};
+		Cursor campaigns = cr.query(Campaigns.CONTENT_URI, projection, select, null, null);
+		mCampaignFilter.populate(campaigns, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));
 	}
 
@@ -253,13 +254,13 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		private final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 		private final int[] daysOfMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 		private int daysInMonth, prevMonthDays;
-		private int currentDayOfMonth;
-		private int currentWeekDay;
+		private final int currentDayOfMonth;
+		private final int currentWeekDay;
 		private Button numOfResponsesDisplay;
 		private TextView dateDisplay;
 		private final HashMap eventsPerMonthMap;
 		private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
-		private int currentMonth;
+		private final int currentMonth;
 
 		// Days in Current Month
 		public GridCellAdapter(Context context, int textViewResourceId, int month, int year, String curCampaignValue, 

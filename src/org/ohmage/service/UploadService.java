@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.SurveyPrompt;
@@ -70,7 +70,7 @@ public class UploadService extends WakefulIntentService {
 										Response.SURVEY_LAUNCH_CONTEXT,
 										Response.RESPONSE,
 										Tables.RESPONSES + "." + Response.CAMPAIGN_URN,
-										Campaign.CREATION_TIMESTAMP};
+										Campaigns.CAMPAIGN_CREATED};
 		
 		String select = intent.getStringExtra("select");
 		
@@ -131,7 +131,7 @@ public class UploadService extends WakefulIntentService {
 			responsesJsonArray.put(responseJson);
 			
 			String campaignUrn = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN));
-			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
+			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 			
 			File [] photos = new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_')).listFiles(new FilenameFilter() {
 				
