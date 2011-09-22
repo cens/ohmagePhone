@@ -18,6 +18,7 @@ package org.ohmage.db;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Dictionary;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +56,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 21;
+	private static final int DB_VERSION = 22;
 	
 	private final Context mContext;
 	
@@ -659,7 +661,15 @@ public class DbHelper extends SQLiteOpenHelper {
 	
 	public boolean populatePromptsFromResponseJSON(SQLiteDatabase db, long responseRowID, String response, String campaignUrn, String surveyId) {
 		try {
-			// nab the survey XML beforehand so we can remap IDs to values
+			// create a list of metadata for this survey from the surveyprompts table
+			// this will help in remapping values for single and multichoice prompts, etc.
+			HashMap<String, SurveyPrompt> promptsMap = new HashMap<String, SurveyPrompt>();
+			List<SurveyPrompt> promptsList = SurveyPrompt.fromCursor(
+						db.query(Tables.SURVEY_PROMPTS, null, SurveyPrompt.COMPOSITE_ID + "='" + campaignUrn + ":" + surveyId + "'", null, null, null, null)
+					);
+			// remap list to hashmap; i know this looks crazy, but it'll make lookups slightly faster and doesn't take much memory
+			for (SurveyPrompt sp : promptsList)
+				promptsMap.put(sp.mPromptID, sp);
 			
 			// convert response data to JSON for parsing
 			JSONArray responseData = new JSONArray(response);
@@ -672,6 +682,9 @@ public class DbHelper extends SQLiteOpenHelper {
 				// if the entry we're looking at doesn't include prompt_id or value, continue
 				if (!item.has("prompt_id") || !item.has("value"))
 					continue;
+				
+				// look up the metadata for this prompt
+				SurveyPrompt promptData = promptsMap.get(item.getString("prompt_id"));
 				
 				// construct a new PromptResponse object to populate
 				PromptResponse p = new PromptResponse();
@@ -706,6 +719,47 @@ public class DbHelper extends SQLiteOpenHelper {
 						// it wasn't a json array, so just remap the single value
 						p.mValue = glossary.get(item.getString("value"));
 					}
+				}
+				else if (promptData.mPromptType.equalsIgnoreCase("single_choice")) {
+					// unload the json properties
+					JSONArray values = new JSONArray(promptData.mProperties);
+					// set the explicit value as the default; if we don't find a match, it'll end up as this
+					p.mValue = item.getString("value");
+					
+					// search for a key that matches the given value
+					for (int ir = 0; ir < values.length(); ++ir) {
+						JSONObject entry = values.getJSONObject(ir);
+						if (entry.getString("key").equals(p.mValue)) {
+							p.mValue = entry.getString("label");
+							p.mExtraValue = item.getString("value");
+							break;
+						}
+					}
+				}
+				else if (promptData.mPromptType.equalsIgnoreCase("multi_choice")) {
+					// same procedure as above, except that we need to remap every value
+					
+					// unload the json properties
+					JSONArray values = new JSONArray(promptData.mProperties);
+					// set the explicit value as the default; if we don't find a match, it'll end up as this
+					JSONArray newValues = new JSONArray(item.getString("value"));
+					
+					// for each entry in newValues...
+					for (int io = 0; io < newValues.length(); ++io) {
+						// search for a key that matches the given value
+						for (int ir = 0; ir < values.length(); ++ir) {
+							JSONObject entry = values.getJSONObject(ir);
+							if (entry.getString("key").equals(newValues.getString(io))) {
+								// assign the remapped value to this index
+								newValues.put(io, entry.getString("label"));
+								break;
+							}
+						}
+					}
+					
+					// and reassign mValue here
+					p.mValue = newValues.toString();
+					p.mExtraValue = item.getString("value");
 				}
 				else {
 					p.mValue = item.getString("value");
