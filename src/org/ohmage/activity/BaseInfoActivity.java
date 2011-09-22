@@ -10,7 +10,6 @@ import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
@@ -38,16 +37,7 @@ public abstract class BaseInfoActivity extends FragmentActivity {
 		// Set the title for this activity
 		getActionBar().setTitle(getTitle());
 	}
-	
-	/**
-	 * Returns the scrollable view that contains the main content area. You probably shouldn't need to access this very often.
-	 * 
-	 * @return a ScrollView which contains a FrameLayout
-	 */
-	protected ScrollView getScrollView() {
-		return (ScrollView)findViewById(R.id.scrolling_container);
-	}
-	
+
 	/**
 	 * Returns the fixed content area which should be populated with the details pertaining to this entity.
 	 * 
