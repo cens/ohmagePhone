@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -54,9 +55,10 @@ public class RHMapViewActivity extends ResponseHistory {
 	private DateFilterControl mDateFilter;
 	private Button mMapPinNext;
 	private Button mMapPinPrevious;
-	private TextView mMapPinIndex;
+	private Button mMapZoomIn;
+	private Button mMapZoomOut;
+	private TextView mMapPinIdxButton;
 	private int mPinIndex;
-
 	
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -70,14 +72,36 @@ public class RHMapViewActivity extends ResponseHistory {
 	    setContentView(R.layout.mapview);
 	    
 	    mMapView = (MapView) findViewById(R.id.mapview);
-	    mMapView.setBuiltInZoomControls(true);
+	    mMapView.setBuiltInZoomControls(false);
 	    
+		mMapPinNext = (Button) mMapView.getRootView().findViewById(R.id.map_pin_next);
+		mMapPinPrevious = (Button) mMapView.getRootView().findViewById(R.id.map_pin_previous);
+		mMapPinIdxButton = (TextView) mMapView.getRootView().findViewById(R.id.map_pin_index);
+	    
+		mMapZoomIn = (Button) mMapView.getRootView().findViewById(R.id.map_zoom_in);
+		mMapZoomOut = (Button) mMapView.getRootView().findViewById(R.id.map_zoom_out);
+		
+		mMapZoomIn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mMapView.getController().zoomIn();
+			}
+		});
+		
+		mMapZoomOut.setOnClickListener(new OnClickListener(){
+			
+			@Override
+			public void onClick(View v) {
+				mMapView.getController().zoomOut();
+			}
+		});
+
 	    mControl = mMapView.getController();
 	    mControl.setZoom(11);
-	    
+
 	    setupFilters();
-	    displayItemsOnMap();
-	    
+	    displayItemsOnMap();	
 	}
 	
 	public void displayItemsOnMap(){
@@ -162,15 +186,13 @@ public class RHMapViewActivity extends ResponseHistory {
 		    mControl.setCenter(mItemizedoverlay.getCenter());
 	    }
 
-		mPinIndex = 0;
-		mMapPinNext = (Button) mMapView.getRootView().findViewById(R.id.map_pin_next);
-		mMapPinPrevious = (Button) mMapView.getRootView().findViewById(R.id.map_pin_previous);
-		mMapPinIndex = (TextView) mMapView.getRootView().findViewById(R.id.map_pin_index);
-		
-		if(mMapPinIndex != null){
-			mMapPinIndex.setText(""+mPinIndex);			
+	    //Set Map Pin Navigators.
+		mPinIndex = -1;
+		if(mMapPinIdxButton != null){
+			mMapPinIdxButton.setText("");
+			//mMapPinIdxButton.setText(""+ ((mPinIndex==-1)?0:1) + "/" + ((mPinIndex==-1)?0:mItemizedoverlay.size()));
 		}
-
+		
 		if(mMapPinNext != null){
 			mMapPinNext.setOnClickListener(new OnClickListener() {
 				
@@ -178,11 +200,11 @@ public class RHMapViewActivity extends ResponseHistory {
 				public void onClick(View v) {
 					int overlayListSize = mItemizedoverlay.size();
 					if(overlayListSize > 0){
-						mItemizedoverlay.onTap(mPinIndex % overlayListSize);
-						if(mPinIndex < (overlayListSize-1)){
-							mPinIndex++;	
-						}
-						mMapPinIndex.setText(""+mPinIndex);
+						 if(mPinIndex < (overlayListSize-1)){
+							mPinIndex++;
+							mItemizedoverlay.onTap(mPinIndex % overlayListSize);
+							mMapPinIdxButton.setText(""+(mPinIndex+1)+"/"+overlayListSize);
+						 }
 					}
 				}
 			});			
@@ -195,11 +217,11 @@ public class RHMapViewActivity extends ResponseHistory {
 				public void onClick(View v) {
 					int overlayListSize = mItemizedoverlay.size();
 					if(overlayListSize > 0){
-						mItemizedoverlay.onTap(mPinIndex % overlayListSize);
 						if(mPinIndex > 0){
-							mPinIndex--;	
+							mPinIndex--;
+							mItemizedoverlay.onTap(mPinIndex % overlayListSize);
+							mMapPinIdxButton.setText(""+(mPinIndex+1)+"/"+overlayListSize);	
 						}
-						mMapPinIndex.setText(""+mPinIndex);
 					}
 				}
 			});			

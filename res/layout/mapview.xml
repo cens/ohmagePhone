@@ -1,90 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
-	android:orientation="vertical"
+	android:orientation="vertical" 
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+	android:layout_height="fill_parent" 
 	android:background="@color/dkgray">
-	
-  	<org.ohmage.controls.ActionBarControl
-		android:id="@+id/action_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		app:showlogo="false"
-		app:title="My Campaigns" />
-		
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/campaign_filter"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-	/>
-	
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/survey_filter"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-	/>
-	
-	<org.ohmage.controls.DateFilterControl
-		android:id="@+id/date_filter"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-	/>	
-		
-	<RelativeLayout 
-		xmlns:android="http://schemas.android.com/apk/res/android" 
-    	android:layout_width="fill_parent" 
-    	android:layout_height="fill_parent">
-		<com.google.android.maps.MapView
-		    xmlns:android="http://schemas.android.com/apk/res/android"
-		    android:id="@+id/mapview"
-		    android:layout_width="fill_parent"
-		    android:layout_height="fill_parent"
-		    android:clickable="true"
-		    android:apiKey="0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA"
-		/>
 
-		<LinearLayout 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+	<org.ohmage.controls.ActionBarControl
+		android:id="@+id/action_bar" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" app:showlogo="false" app:title="My Campaigns" />
+
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/campaign_filter" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/survey_filter" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+
+	<org.ohmage.controls.DateFilterControl
+		android:id="@+id/date_filter" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
+		
+		<com.google.android.maps.MapView
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/mapview" 
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent" 
+			android:clickable="true"
+			android:apiKey="0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA" />
+
+		<LinearLayout android:id="@+id/layout_zoom"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentRight="true"
+			android:background="@drawable/map_nav_bkgnd"
+			android:layout_marginRight="20dp"
+			android:layout_marginBottom="20dp">
+			
+			<Button 
+				android:id="@+id/map_zoom_out" 
+				android:text="-"
+				android:textSize="30dp" 
+				android:textStyle="bold" 
+				android:textColor="@color/black"
+				android:background="@drawable/controls_filter_button"
+				android:layout_gravity="center_vertical" 
+				android:layout_width="45dp"
+				android:layout_height="40dp" />
+
+			<Button 
+				android:id="@+id/map_zoom_in" 
+				android:text="+"
+				android:textSize="30dp" 
+				android:textStyle="bold" 
+				android:textColor="@color/black"
+				android:background="@drawable/controls_filter_button"
+				android:layout_gravity="center_vertical" 
+				android:layout_width="45dp"
+				android:layout_height="40dp" />
+
+		</LinearLayout>
+
+		<LinearLayout android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
 			android:orientation="horizontal"
 			android:layout_alignParentBottom="true"
-			android:layout_alignParentLeft="true"
-			android:background="@drawable/map_nav_bkgnd">
-			<Button
-				android:id="@+id/map_pin_previous"
-				android:text="&lt;"
-				android:textSize="30dp"
-				android:textStyle="bold"
-				android:textColor="@color/black"
-				android:background="@drawable/controls_filter_button"
-				android:layout_gravity="center_vertical"
-				android:layout_width="45dp"
-				android:layout_height="40dp"
-			/>
+			android:layout_alignParentLeft="true" 
+			android:background="@drawable/map_nav_bkgnd"
+			android:layout_marginBottom="20dp"
+			android:layout_marginLeft="20dp">
 			
-			<TextView 
-				android:id="@+id/map_pin_index"
-				android:text=""
-				android:textSize="28dp"
-				android:gravity="center"
-				android:layout_gravity="center"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
-
-			<Button
-				android:id="@+id/map_pin_next"
-				android:text="&gt;"
-				android:textSize="30dp"
-				android:textStyle="bold"
-				android:textColor="@color/black"
+			<Button android:id="@+id/map_pin_previous" android:text="&lt;"
+				android:textSize="30dp" android:textStyle="bold" android:textColor="@color/black"
 				android:background="@drawable/controls_filter_button"
-				android:layout_gravity="center_vertical"
-				android:layout_width="45dp"
-				android:layout_height="40dp"
-			/>
+				android:layout_gravity="center_vertical" android:layout_width="45dp"
+				android:layout_height="40dp" />
+
+			<TextView android:id="@+id/map_pin_index" android:text=""
+				android:textSize="22dp" android:gravity="center"
+				android:layout_gravity="center" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+			<Button android:id="@+id/map_pin_next" android:text="&gt;"
+				android:textSize="30dp" android:textStyle="bold" android:textColor="@color/black"
+				android:background="@drawable/controls_filter_button"
+				android:layout_gravity="center_vertical" android:layout_width="45dp"
+				android:layout_height="40dp" />
 		</LinearLayout>
 	</RelativeLayout>
-	</LinearLayout>
+</LinearLayout>
 	
