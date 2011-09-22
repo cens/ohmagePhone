@@ -34,12 +34,6 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			
-			Toast.makeText(mContext, "Starting " + this.getClass().getName(), Toast.LENGTH_SHORT).show();
-			
-//			mActivity.mFooter.setVisibility(View.VISIBLE);
-//			mActivity.mFooter.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-//			mActivity.mFooter.findViewById(R.id.error_text).setVisibility(View.GONE);
 		}
 
 		@Override
@@ -183,14 +177,6 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 		
 		@Override
 		protected void onPostExecute(CampaignReadResponse response) {
-			super.onPostExecute(response);
-			
-			Toast.makeText(mContext, "Finished " + this.getClass().getName(), Toast.LENGTH_SHORT).show();	
-			
-			// dismissing dialog from other task!!!
-//			if (mActivity.mShowingProgressDialog) {
-//				mActivity.dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
-//				mActivity.mShowingProgressDialog = false;
-//			}			
+			super.onPostExecute(response);		
 		}
 	}

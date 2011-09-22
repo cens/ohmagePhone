@@ -50,11 +50,13 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		
 		if (getActivity().getComponentName().getClassName().equals(CampaignAddActivity.class.getName())) {
 			mMode = MODE_ADD_CAMPAIGNS;
+			setEmptyText("Loading campaigns...");
 		} else {
 			mMode = MODE_MY_CAMPAIGNS;
+			setEmptyText("You are not participating in any campaigns. Hit the + icon on the top right to view and download avaialable campaigns.");
 		}
 		
-		setEmptyText("Loading campaigns...");
+		
 		
 		mAdapter = new CampaignListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
@@ -155,6 +157,8 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
         } else {
             setListShownNoAnimation(true);
         }
+        
+        setEmptyText("No campaigns were returned by the server.");
 	}
 
 	@Override

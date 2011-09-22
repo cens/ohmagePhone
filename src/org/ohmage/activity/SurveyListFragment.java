@@ -73,26 +73,12 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 		
 		Uri uri = Survey.getSurveyByID(cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN)), cursor.getString(cursor.getColumnIndex(Survey.SURVEY_ID)));
 		mListener.onSurveyActionView(uri);
-		
-//		if (surveys.size() == 1) {
-//			
-//		} else {
-//			Log.e(TAG, "onListItemClick: more than one campaign read from content provider!");
-//		}	
 	}
 	
 	@Override
 	public void onSubActionClicked(Uri uri) {
 		
 		mListener.onSurveyActionStart(uri);
-		
-//		Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
-//		List<Survey> surveys = Survey.fromCursor(cursor);
-//		if (surveys.size() == 1) {
-//			mListener.onSurveyActionStart(surveys.get(0));
-//		} else {
-//			Log.e(TAG, "onSubActionClicked: more than one campaign read from content provider!");
-//		}
 		
 //		mListener.onSurveyActionUnavailable();
 	}
