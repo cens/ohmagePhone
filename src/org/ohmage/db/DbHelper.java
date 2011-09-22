@@ -35,6 +35,7 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Xml;
 
 import java.io.ByteArrayInputStream;
@@ -53,7 +54,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 19;
+	private static final int DB_VERSION = 20;
 	
 	private final Context mContext;
 	
@@ -136,7 +137,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ SurveyPrompt.COMPOSITE_ID + " TEXT, "
 				+ SurveyPrompt.PROMPT_ID + " TEXT, "
 				+ SurveyPrompt.PROMPT_TEXT + " TEXT, "
-				+ SurveyPrompt.PROMPT_TYPE + " TEXT"
+				+ SurveyPrompt.PROMPT_TYPE + " TEXT, "
+				+ SurveyPrompt.PROPERTIES + " TEXT "
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.RESPONSES + " ("
@@ -524,6 +526,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			Stack<String> tagStack = new Stack<String>();
 			Survey curSurvey = null; // valid only within a survey, null otherwise
 			Vector<SurveyPrompt> prompts = new Vector<SurveyPrompt>(); // valid only within a survey, empty otherwise
+			Vector<JSONObject> properties = new Vector<JSONObject>(); // valid only within a prompt, empty otherwise
 
 			// iterate through the xml, paying attention only to surveys and prompts
 			// note that this does no validation outside of preventing itself from crashing catastrophically
@@ -543,6 +546,9 @@ public class DbHelper extends SQLiteOpenHelper {
 						SurveyPrompt sp = new SurveyPrompt();
 						// FIXME: add the campaign + survey ID to make lookups easier?
 						prompts.add(sp);
+					}
+					else if (tagName.equalsIgnoreCase("property")) {
+						properties.add(new JSONObject());
 					}
 				}
 				else if (eventType == XmlPullParser.TEXT) {
@@ -572,6 +578,17 @@ public class DbHelper extends SQLiteOpenHelper {
 							else if (tagStack.peek().equalsIgnoreCase("promptType"))
 								sp.mPromptType = xpp.getText();
 						}
+						else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("property")) {
+							JSONObject curProperty = properties.lastElement();
+							
+							// populating the last encountered property
+							if (tagStack.peek().equalsIgnoreCase("key"))
+								curProperty.put("key", xpp.getText());
+							else if (tagStack.peek().equalsIgnoreCase("label"))
+								curProperty.put("label", xpp.getText());
+							else if (tagStack.peek().equalsIgnoreCase("value"))
+								curProperty.put("value", xpp.getText());
+						}
 					}
 				}
 				else if (eventType == XmlPullParser.END_TAG) {
@@ -592,9 +609,24 @@ public class DbHelper extends SQLiteOpenHelper {
 						
 						// flush the prompts we've stored up so far
 						prompts.clear();
-						
+
 						// and clear us from being in any survey
 						curSurvey = null;
+					}
+					else if (tagName.equalsIgnoreCase("prompt")) {
+						SurveyPrompt sp = prompts.lastElement();
+						
+						// update the current prompt with the collected properties
+						JSONArray propertyArray = new JSONArray();
+						
+						for (JSONObject property : properties)
+							propertyArray.put(property);
+
+						// encode it as json and stuff it in the surveyprompt
+						sp.mProperties = propertyArray.toString();
+						
+						// and wipe the properties
+						properties.clear();
 					}
 				}
 				
@@ -612,6 +644,11 @@ public class DbHelper extends SQLiteOpenHelper {
 			return false;
 		}
 		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;

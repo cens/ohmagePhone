@@ -241,6 +241,7 @@ public class DbContract {
 		public static final String PROMPT_ID = "prompt_id";
 		public static final String PROMPT_TEXT = "prompt_text";
 		public static final String PROMPT_TYPE = "prompt_type";
+		public static final String PROPERTIES = "properties";
 
 		// data fields here to support use of the Survey class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
@@ -251,6 +252,7 @@ public class DbContract {
 		public String mPromptID;
 		public String mPromptText;
 		public String mPromptType;
+		public String mProperties;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("surveys").build();
@@ -297,6 +299,7 @@ public class DbContract {
     			temp.mPromptID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_ID));
     			temp.mPromptText = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TEXT));
     			temp.mPromptType = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TYPE));
+    			temp.mProperties = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROPERTIES));
     			surveyprompts.add(temp);
     			
     			cursor.moveToNext();
@@ -316,7 +319,8 @@ public class DbContract {
         	values.put(SurveyPrompt.PROMPT_ID, mPromptID);
         	values.put(SurveyPrompt.PROMPT_TEXT, mPromptText);
         	values.put(SurveyPrompt.PROMPT_TYPE, mPromptType);
-    		
+        	values.put(SurveyPrompt.PROPERTIES, mProperties);
+        	
         	return values;
         }
 	}

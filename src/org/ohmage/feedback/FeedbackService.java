@@ -232,13 +232,11 @@ public class FeedbackService extends WakefulIntentService {
 					candidate.surveyId = survey.getString("survey_id");
 					candidate.campaignUrn = c.mUrn;
 					candidate.username = survey.getString("user");
-					candidate.date = survey.getString("utc_timestamp");
+					candidate.date = survey.getString("timestamp");
 					candidate.timezone = survey.getString("timezone");
-					
-					String date = survey.getString("timestamp");
-					String timezone = survey.getString("timezone");
-					sdf.setTimeZone(TimeZone.getTimeZone(timezone));
-					candidate.time = sdf.parse(date).getTime();
+
+					sdf.setTimeZone(TimeZone.getTimeZone(candidate.timezone));
+					candidate.time = sdf.parse(candidate.date).getTime();
 					
 					// much of the location data is optional, hence the "opt*()" calls
 					candidate.locationStatus = survey.getString("location_status");
