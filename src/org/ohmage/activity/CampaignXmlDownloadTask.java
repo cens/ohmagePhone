@@ -17,6 +17,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.slezica.tools.async.ManagedAsyncTask;
 
@@ -77,6 +79,12 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 					WakefulIntentService.sendWakefulWork(mContext, fbIntent);
 				}
 			} else { 
+				
+				ContentResolver cr = mContext.getContentResolver();
+				ContentValues values = new ContentValues();
+				values.put(Campaign.STATUS, Campaign.STATUS_REMOTE);
+				cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + mCampaignUrn + "'", null); 
+				Toast.makeText(mContext, "Unable to download campaign xml.", Toast.LENGTH_SHORT).show();
 				
 //				try {
 //					dismissDialog(DIALOG_DOWNLOAD_PROGRESS);

@@ -24,6 +24,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -38,6 +39,16 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.upload_queue_layout);
+		
+		mUploadAll = (Button) findViewById(R.id.upload_button);
+		
+		mUploadAll.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(UploadQueueActivity.this, "Upload all functionality coming soon!", Toast.LENGTH_SHORT).show();
+			}
+		});
 
 		// Add the surveys to the list fragment
 		final FragmentManager fm = getSupportFragmentManager();
@@ -64,13 +75,6 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 		}
 
 		getSupportLoaderManager().initLoader(0, null, this);
-	}
-
-	@Override
-	public void onContentChanged() {
-		super.onContentChanged();
-
-		mUploadAll = (Button) findViewById(R.id.upload_button);
 	}
 
 	@Override

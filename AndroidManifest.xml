@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.ohmage"
-	android:versionName="2.6 (Mobilize)" android:versionCode="11082401">
+	android:versionName="2.7 beta" android:versionCode="11092100">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
