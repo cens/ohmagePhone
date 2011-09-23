@@ -37,7 +37,10 @@ public class RHTabHost extends TabActivity {
 		intent = new Intent().setClass(this, RHMapViewActivity.class);
 		setupTab(intent, "Map");
 		mTabHost.setCurrentTab(0);
-	}
+		
+		mCampaignFilterIndex = 0;
+		mSurveyFilterIndex = 0;
+	} 
 	
 	private void setupTab(final Intent intent, final String tag){
 		View tabview = createTabView(mTabHost.getContext(), tag);
