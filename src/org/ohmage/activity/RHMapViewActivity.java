@@ -2,6 +2,7 @@ package org.ohmage.activity;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 
 import org.ohmage.R;
@@ -100,6 +101,9 @@ public class RHMapViewActivity extends ResponseHistory {
 	    mControl = mMapView.getController();
 	    mControl.setZoom(11);
 
+	    //Init the map center to current location
+	    setMapCenterToCurrentLocation();
+
 	    setupFilters();
 	    displayItemsOnMap();	
 	}
@@ -159,13 +163,11 @@ public class RHMapViewActivity extends ResponseHistory {
 		
 	    Cursor cursor = cr.query(queryUri, projection, selection, null, null);
 
-	    //Init the map center to current location
-	    setMapCenterToCurrentLocation();
-
 	    //Add overlays to the map
 	    List<Overlay> mapOverlays = mMapView.getOverlays();
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.darkgreen_marker_a);
 	    mItemizedoverlay= new MapViewItemizedOverlay(drawable, mMapView);
+
 
 	    for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
 		    Double lat = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
@@ -181,9 +183,19 @@ public class RHMapViewActivity extends ResponseHistory {
 			mItemizedoverlay.addOverlay(overlayItem);
 	    }
 	    cursor.close();
+
 	    if(mItemizedoverlay.size() > 0){
 		    mapOverlays.add(mItemizedoverlay);
-		    mControl.setCenter(mItemizedoverlay.getCenter());
+		    
+		    int maxLatitude = mItemizedoverlay.getMaxLatitude();
+		    int minLatitude = mItemizedoverlay.getMinLatitude();
+		    
+		    int maxLongitude = mItemizedoverlay.getMaxLongitude();
+		    int minLongitude = mItemizedoverlay.getMinLongitude();
+		    
+		    mControl.animateTo(new GeoPoint((maxLatitude+minLatitude)/2, (maxLongitude+minLongitude)/2));
+		    mControl.zoomToSpan(Math.abs(maxLatitude-minLatitude), Math.abs(maxLongitude-minLongitude));
+
 	    }
 
 	    //Set Map Pin Navigators.
