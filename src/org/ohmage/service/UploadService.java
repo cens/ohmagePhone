@@ -72,9 +72,15 @@ public class UploadService extends WakefulIntentService {
 										Tables.RESPONSES + "." + Response.CAMPAIGN_URN,
 										Campaign.CREATION_TIMESTAMP};
 		
-		Cursor cursor = cr.query(dataUri, projection, null, null, null);
+		String select = intent.getStringExtra("select");
 		
+		Cursor cursor = cr.query(dataUri, projection, select, null, null);
+
 		cursor.moveToFirst();
+		
+//		ContentValues cv = new ContentValues();
+//		cv.put(Tables.RESPONSES + "." + Response.STATUS, Response.STATUS_QUEUED);
+//		cr.update(dataUri, cv, select, null);
 		
 		for (int i = 0; i < cursor.getCount(); i++) {
 			
@@ -82,8 +88,7 @@ public class UploadService extends WakefulIntentService {
 			
 			ContentValues values = new ContentValues();
 			values.put(Response.STATUS, Response.STATUS_UPLOADING);
-			String select = Tables.RESPONSES + "." + Response._ID + "=" + responseId;
-			cr.update(Response.CONTENT_URI, values, select, null);
+			cr.update(Response.CONTENT_URI, values, Tables.RESPONSES + "." + Response._ID + "=" + responseId, null);
 			
 			JSONArray responsesJsonArray = new JSONArray(); 
 			JSONObject responseJson = new JSONObject();

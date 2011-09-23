@@ -48,6 +48,8 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 			break;
 			
 		case Response.STATUS_QUEUED:
+			actionButton.setImageResource(R.drawable.ic_menu_upload_you_tube);
+			break;
 		case Response.STATUS_UPLOADING:
 			actionButton.setImageResource(R.drawable.spinner_black_48);
 			break;
@@ -59,6 +61,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		case Response.STATUS_ERROR_AUTHENTICATION:
 		case Response.STATUS_ERROR_CAMPAIGN_NO_EXIST:
 		case Response.STATUS_ERROR_INVALID_USER_ROLE:
+		case Response.STATUS_ERROR_OTHER:
 			actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
 			break;
 			

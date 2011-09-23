@@ -13,6 +13,7 @@ import org.ohmage.service.UploadService;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -42,13 +43,7 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 		
 		mUploadAll = (Button) findViewById(R.id.upload_button);
 		
-		mUploadAll.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(UploadQueueActivity.this, "Upload all functionality coming soon!", Toast.LENGTH_SHORT).show();
-			}
-		});
+		mUploadAll.setOnClickListener(mUploadAllListener);
 
 		// Add the surveys to the list fragment
 		final FragmentManager fm = getSupportFragmentManager();
@@ -121,6 +116,19 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 			return loader;
 		}
 	}
+	
+	private OnClickListener mUploadAllListener = new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			Uri responsesUri = Response.getResponses();
+			
+			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
+			intent.setData(responsesUri);
+			intent.putExtra("select", Tables.RESPONSES + "." + Response.STATUS + "=" + Response.STATUS_STANDBY);
+			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
+		}
+	};
 
 	@Override
 	public void onResponseActionView(Uri responseUri) {
@@ -129,6 +137,11 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 
 	@Override
 	public void onResponseActionUpload(Uri responseUri) {
+		
+//		ContentResolver cr = getContentResolver();
+//		ContentValues cv = new ContentValues();
+//		cv.put(Tables.RESPONSES + "." + Response.STATUS, Response.STATUS_QUEUED);
+//		cr.update(responseUri, cv, null, null);
 		
 		Intent intent = new Intent(this, UploadService.class);
 		intent.setData(responseUri);
