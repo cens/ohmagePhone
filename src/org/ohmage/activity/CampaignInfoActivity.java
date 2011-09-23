@@ -15,6 +15,7 @@ import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.triggers.ui.TriggerListActivity;
 import org.xmlpull.v1.XmlPullParserException;
@@ -53,6 +54,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 	private TextView mPrivacyValue;
 	private TextView mStatusValue;
 	private TextView mResponsesValue;
+	private TextView mTriggersValue;
 	
 	// state vars
 	private int mCampaignStatus; // status code for campaign as of last refresh
@@ -82,6 +84,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		mPrivacyValue = (TextView)findViewById(R.id.campaign_info_privacy_value);
 		mStatusValue = (TextView)findViewById(R.id.campaign_info_status_value);
 		mResponsesValue = (TextView)findViewById(R.id.campaign_info_responses_value);
+		mTriggersValue = (TextView)findViewById(R.id.campaign_info_triggers_value);
 		
 		// and attach some handlers + populate some html data
 		// privacy
@@ -104,6 +107,13 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		setDetailsExpansionHandler(
 				findViewById(R.id.campaign_info_responses_row),
 				responsesDetails);
+		
+		// triggers
+		TextView triggersDetails = (TextView)findViewById(R.id.campaign_info_triggers_details);
+		triggersDetails.setText(Html.fromHtml(getString(R.string.campaign_info_triggers_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.campaign_info_triggers_row),
+				triggersDetails);
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
@@ -331,6 +341,15 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			// and getting the number of responses submitted for this campaign
 			Cursor responses = getContentResolver().query(Response.getResponsesByCampaign(campaignUrn), null, null, null, null);
 			mResponsesValue.setText(responses.getCount() + " response(s) submitted");
+			
+			// get the number of triggers for this campaign
+			TriggerDB trigDB = new TriggerDB(mContext);
+			if (trigDB.open()) {
+				Cursor triggers = trigDB.getAllTriggers(campaignUrn);
+				mTriggersValue.setText(triggers.getCount() + " trigger(s) configured");
+				triggers.close();
+				trigDB.close();
+			}
 			
 			// and finally populate the action bar + command tray
 			populateCommands(campaignUrn, mCampaignStatus);

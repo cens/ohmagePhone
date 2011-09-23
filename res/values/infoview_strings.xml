@@ -54,4 +54,12 @@
 		the above count is the number of survey responses you\'ve submitted for this survey.
 		]]>
 	</string>
+	
+	<string name="campaign_info_triggers_details">
+		<![CDATA[
+		the above count is the number of triggers configured for this campaign.<br /><br />
+		
+		tap the bell icon in the action bar to configure the triggers.
+		]]>
+	</string>
 </resources>
