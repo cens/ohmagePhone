@@ -90,6 +90,8 @@
 		================================================
 		-->
 
+		<activity android:name=".activity.HelpActivity"/>
+
 		<activity android:name=".activity.RHMapViewActivity"/>
 		
         <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/> 

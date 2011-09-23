@@ -19,5 +19,10 @@
   <string name="title_add_campaign">Add Campaign</string>
   <string name="title_response">Response</string>
   <string name="title_campaign_info">Campaign Info</string> 
-  <string name="title_survey_info">Survey Info</string> 
+  <string name="title_survey_info">Survey Info</string>
+  
+  <!-- Help -->
+  <string name="help_goto_dashboard">Dashboard</string> 
+  <string name="help_goto_filter">Filter</string>
+  <string name="help_goto_list">List</string>
 </resources>
