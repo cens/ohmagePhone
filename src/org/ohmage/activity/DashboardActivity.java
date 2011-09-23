@@ -3,20 +3,14 @@ package org.ohmage.activity;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.controls.ActionBarControl;
-import org.ohmage.feedback.FBTestActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 
 public class DashboardActivity extends Activity {
 	private static final String TAG = "DashboardActivity";
@@ -91,7 +85,7 @@ public class DashboardActivity extends Activity {
 					break;
 					
 				case R.id.dash_settings_btn:
-					startActivity(new Intent(c, FBTestActivity.class));
+					startActivity(new Intent(c, HelpActivity.class));
 					break;
 			}
 		}

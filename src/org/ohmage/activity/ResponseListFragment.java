@@ -100,6 +100,7 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 				case Response.STATUS_ERROR_AUTHENTICATION:
 				case Response.STATUS_ERROR_CAMPAIGN_NO_EXIST:
 				case Response.STATUS_ERROR_INVALID_USER_ROLE:
+				case Response.STATUS_ERROR_OTHER:
 					mListener.onResponseActionError(uri);
 					break;
 					

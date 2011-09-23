@@ -34,15 +34,6 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
         public void onCampaignActionError(String campaignUrn);
     }
 
-//	public void setMode(int mode) {
-//		if (mode == MODE_MY_CAMPAIGNS && mode == MODE_ADD_CAMPAIGNS) {
-//			this.mMode = mode;
-//		} else {
-//			Log.e(TAG, "Invalid mode specified. Defaulting to MODE_MY_CAMPAIGNS");
-//			this.mMode = MODE_MY_CAMPAIGNS;
-//		}
-//	}
-
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
@@ -55,8 +46,6 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 			mMode = MODE_MY_CAMPAIGNS;
 			setEmptyText("You are not participating in any campaigns. Hit the + icon on the top right to view and download avaialable campaigns.");
 		}
-		
-		
 		
 		mAdapter = new CampaignListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
@@ -157,8 +146,6 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
         } else {
             setListShownNoAnimation(true);
         }
-        
-        setEmptyText("No campaigns were returned by the server.");
 	}
 
 	@Override
