@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.utils.SelectionBuilder;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -23,13 +24,10 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 
 	private static final String TAG = "SurveyListFragment";
 	
-	public static final int MODE_ALL_SURVEYS = 0;
-	public static final int MODE_PENDING_SURVEYS = 1;
-	
 	public static final String FILTER_ALL_CAMPAIGNS = "all";
 	
-	private int mMode = MODE_ALL_SURVEYS;
 	private String mCampaignFilter = FILTER_ALL_CAMPAIGNS;
+	private boolean mShowPending = false;
 	
 	private CursorAdapter mAdapter;
 	private OnSurveyActionListener mListener;
@@ -88,25 +86,28 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 		getLoaderManager().restartLoader(0, null, this);
 		Log.i(TAG, "restarted loader for filter: " + filter);
 	}
+	
+	public void setShowPending(boolean showPending) {
+		mShowPending = showPending;
+		getLoaderManager().restartLoader(0, null, this);
+	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		Log.i(TAG, "Creating loader - filter: " + mCampaignFilter);
 		Uri baseUri = Survey.CONTENT_URI;
-
-		String select = null; 
 		
-		if (mMode == MODE_PENDING_SURVEYS) {
-//			select = Campaign.STATUS + " = " + Campaign.STATUS_REMOTE + " OR " + Campaign.STATUS + " = " + Campaign.STATUS_DOWNLOADING;
-		} else {
-//			select = Campaign.STATUS + " != " + Campaign.STATUS_REMOTE + " AND " + Campaign.STATUS + " != " + Campaign.STATUS_DOWNLOADING;
-		}
+		SelectionBuilder builder = new SelectionBuilder();
 		
 		if (!mCampaignFilter.equals(FILTER_ALL_CAMPAIGNS)) {
-			select = Survey.CAMPAIGN_URN + "= '" + mCampaignFilter + "'";
+			builder.where(Survey.CAMPAIGN_URN + "= ?", mCampaignFilter);
 		}
 		
-		return new CursorLoader(getActivity(), baseUri, null, select, null, Survey.TITLE);
+		if (mShowPending) {
+			builder.where(Survey.STATUS + "=" + Survey.STATUS_TRIGGERED);
+		} 
+		
+		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Survey.TITLE);
 	}
 
 	@Override

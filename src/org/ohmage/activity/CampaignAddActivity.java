@@ -3,7 +3,6 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Campaign;

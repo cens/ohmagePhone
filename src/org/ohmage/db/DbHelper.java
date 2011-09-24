@@ -15,10 +15,20 @@
  ******************************************************************************/
 package org.ohmage.db;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Stack;
+import java.util.Vector;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
@@ -36,27 +46,14 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.util.Pair;
 import android.util.Xml;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Dictionary;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
-import java.util.Vector;
 
 public class DbHelper extends SQLiteOpenHelper {
 	
 	private static final String TAG = "DbHelper";
 	
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 22;
+	private static final int DB_VERSION = 25;
 	
 	private final Context mContext;
 	
@@ -128,8 +125,13 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Survey.SURVEY_ID + " TEXT, "
 				+ Survey.TITLE + " TEXT, "
 				+ Survey.DESCRIPTION + " TEXT, "
-				+ Survey.SUMMARY + " TEXT, "
-				+ Survey.SUBMIT_TEXT + " TEXT"
+				+ Survey.SUBMIT_TEXT + " TEXT, "
+				+ Survey.SHOW_SUMMARY + " INTEGER DEFAULT 0, "
+				+ Survey.EDIT_SUMMARY + " INTEGER DEFAULT 0, "
+				+ Survey.SUMMARY_TEXT + " TEXT, "
+				+ Survey.INTRO_TEXT + " TEXT, "
+				+ Survey.ANYTIME + " INTEGER DEFAULT 1, "
+				+ Survey.STATUS + " INTEGER DEFAULT 0"
 				+ ");");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEY_PROMPTS + " ("
@@ -564,10 +566,18 @@ public class DbHelper extends SQLiteOpenHelper {
 								curSurvey.mTitle = xpp.getText();
 							else if (tagStack.peek().equalsIgnoreCase("description"))
 								curSurvey.mDescription = xpp.getText();
-							else if (tagStack.peek().equalsIgnoreCase("summaryText"))
-								curSurvey.mSummary = xpp.getText();
 							else if (tagStack.peek().equalsIgnoreCase("submitText"))
 								curSurvey.mSubmitText = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("showSummary"))
+								curSurvey.mShowSummary = xpp.getText().equals("true") ? true : false;
+							else if (tagStack.peek().equalsIgnoreCase("editSummary"))
+								curSurvey.mEditSummary = xpp.getText().equals("true") ? true : false;
+							else if (tagStack.peek().equalsIgnoreCase("summaryText"))
+								curSurvey.mSummaryText = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("introText"))
+								curSurvey.mIntroText = xpp.getText();
+							else if (tagStack.peek().equalsIgnoreCase("anytime"))
+								curSurvey.mAnytime = xpp.getText().equals("true") ? true : false;
 						}
 						else if (tagStack.get(tagStack.size()-2).equalsIgnoreCase("prompt")) {
 							SurveyPrompt sp = prompts.lastElement();

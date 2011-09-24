@@ -52,22 +52,28 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		
 		actionButton.setImageResource(R.drawable.ic_menu_edit);
 		
-//		int status = cursor.getInt(cursor.getColumnIndex(Campaign.STATUS));
-//		
-//		switch (status) {
-//		case Campaign.STATUS_REMOTE:
-//			actionButton.setImageResource(R.drawable.ic_menu_add);
-//			break;
-//			
-//		case Campaign.STATUS_READY:
-//			actionButton.setImageResource(R.drawable.ic_menu_compose);
-//			break;
-//			
-//		default:
-//			//campaign is in some unknown state!
-//			actionButton.setVisibility(View.INVISIBLE);
-//			break;
-//		}
+		int status = cursor.getInt(cursor.getColumnIndex(Survey.STATUS));
+		boolean anytime = cursor.getInt(cursor.getColumnIndex(Survey.ANYTIME)) == 0 ? false : true;
+		
+		switch (status) {
+		case Survey.STATUS_NORMAL:
+			if (anytime) {
+				actionButton.setImageResource(R.drawable.ic_menu_pencil_yellow);
+			} else {
+				actionButton.setImageResource(R.drawable.ic_menu_pencil_grey);
+				actionButton.setEnabled(false);
+			}
+			break;
+			
+		case Survey.STATUS_TRIGGERED:
+			actionButton.setImageResource(R.drawable.ic_menu_pencil_green);
+			break;
+			
+		default:
+			//campaign is in some unknown state!
+			actionButton.setVisibility(View.INVISIBLE);
+			break;
+		}
 	}
 
 	@Override

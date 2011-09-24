@@ -22,5 +22,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_weight="1" />
+		
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/pending_filter"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
     
 </LinearLayout>

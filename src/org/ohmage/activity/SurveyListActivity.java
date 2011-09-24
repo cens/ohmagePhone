@@ -1,5 +1,7 @@
 package org.ohmage.activity;
 
+import java.util.ArrayList;
+
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.SurveyListFragment.OnSurveyActionListener;
@@ -22,6 +24,7 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 	static final String TAG = "SurveyListActivity";
 	
 	private FilterControl mCampaignFilter;
+	private FilterControl mPendingFilter;
 	
 	private SharedPreferencesHelper mSharedPreferencesHelper;
 	
@@ -32,6 +35,7 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 		setContentView(R.layout.survey_list);
 		
 		mCampaignFilter = (FilterControl) findViewById(R.id.campaign_filter);
+		mPendingFilter = (FilterControl) findViewById(R.id.pending_filter);
 
 		ContentResolver cr = getContentResolver();
 		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
@@ -42,18 +46,35 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 			
 			@Override
 			public void onFilterChanged(boolean selfChange, String curValue) {
-				// TODO Auto-generated method stub
 				((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setCampaignFilter(curValue);
+			}
+		});
+		
+		mPendingFilter.add(new Pair<String, String>("All Surveys", "all"));
+		mPendingFilter.add(new Pair<String, String>("Pending Surveys", "pending"));
+		mPendingFilter.setOnChangeListener(new FilterChangeListener() {
+			
+			@Override
+			public void onFilterChanged(boolean selfChange, String curValue) {
+				if (curValue.equalsIgnoreCase("pending")) {
+					((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(true);
+				} else {
+					((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(false);
+				}
+				
 			}
 		});
 		
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		
 		String campaignUrn = getIntent().getStringExtra("campaign_urn");
+		boolean showPending = getIntent().getBooleanExtra("show_pending", false);
 		
 		if (campaignUrn != null) {
 			mCampaignFilter.setValue(campaignUrn);
 		}
+		
+		mPendingFilter.setValue(showPending ? "pending" : "all");
 	}
 
 	@Override

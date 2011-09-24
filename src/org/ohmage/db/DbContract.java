@@ -143,8 +143,16 @@ public class DbContract {
 		public static final String CAMPAIGN_URN = "campaign_urn";
 		public static final String TITLE = "title";
 		public static final String DESCRIPTION = "description";
-		public static final String SUMMARY = "summary";
 		public static final String SUBMIT_TEXT = "submit_text";
+		public static final String SHOW_SUMMARY = "show_summary";
+		public static final String EDIT_SUMMARY = "edit_summary";
+		public static final String SUMMARY_TEXT = "summary_text";
+		public static final String INTRO_TEXT = "intro_text";
+		public static final String ANYTIME = "anytime";
+		public static final String STATUS = "survey_status";
+		
+		public static final int STATUS_NORMAL = 0;
+		public static final int STATUS_TRIGGERED = 1;
 
 		// data fields here to support use of the Survey class as a data holder (and not just a schema definer)
 		// this should be reconciled by some kind of real ORM someday
@@ -153,8 +161,13 @@ public class DbContract {
 		public String mCampaignUrn;
 		public String mTitle;
 		public String mDescription;
-		public String mSummary;
 		public String mSubmitText;
+		public boolean mShowSummary;
+		public boolean mEditSummary;
+		public String mSummaryText;
+		public String mIntroText;
+		public boolean mAnytime;
+		public int mStatus;
 		
         public static final Uri CONTENT_URI =
         	BASE_CONTENT_URI.buildUpon().appendPath("surveys").build();
@@ -205,8 +218,13 @@ public class DbContract {
     			s.mCampaignUrn = cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN));
     			s.mTitle = cursor.getString(cursor.getColumnIndex(Survey.TITLE));
     			s.mDescription = cursor.getString(cursor.getColumnIndex(Survey.DESCRIPTION));
-    			s.mSummary = cursor.getString(cursor.getColumnIndex(Survey.SUMMARY));
     			s.mSubmitText = cursor.getString(cursor.getColumnIndex(Survey.SUBMIT_TEXT));
+    			s.mShowSummary = cursor.getInt(cursor.getColumnIndex(Survey.SHOW_SUMMARY)) == 0 ? false : true;
+    			s.mEditSummary = cursor.getInt(cursor.getColumnIndex(Survey.EDIT_SUMMARY)) == 0 ? false : true;
+    			s.mSummaryText = cursor.getString(cursor.getColumnIndex(Survey.SUMMARY_TEXT));
+    			s.mIntroText = cursor.getString(cursor.getColumnIndex(Survey.INTRO_TEXT));
+    			s.mAnytime = cursor.getInt(cursor.getColumnIndex(Survey.ANYTIME)) == 0 ? false : true;
+    			s.mStatus = cursor.getInt(cursor.getColumnIndex(Survey.STATUS));
     			surveys.add(s);
     			
     			cursor.moveToNext();
@@ -224,9 +242,14 @@ public class DbContract {
         	values.put(Survey.CAMPAIGN_URN, mCampaignUrn);
         	values.put(Survey.TITLE, mTitle);
         	values.put(Survey.DESCRIPTION, mDescription);
-        	values.put(Survey.SUMMARY, mSummary);
         	values.put(Survey.SUBMIT_TEXT, mSubmitText);
-    		
+        	values.put(Survey.SHOW_SUMMARY, mShowSummary);
+        	values.put(Survey.EDIT_SUMMARY, mEditSummary);
+        	values.put(Survey.SUMMARY_TEXT, mSummaryText);
+        	values.put(Survey.INTRO_TEXT, mIntroText);
+        	values.put(Survey.ANYTIME, mAnytime);
+        	values.put(Survey.STATUS, mStatus);
+        	
         	return values;
         }
 	}
