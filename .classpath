@@ -13,5 +13,6 @@
 			<attribute name="javadoc_location" value="file:/home/faisal/android-sdk/extras/android/compatibility/v4/docs/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/imageloader.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

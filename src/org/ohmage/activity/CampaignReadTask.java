@@ -18,13 +18,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.slezica.tools.async.ManagedAsyncTask;
 
 class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadResponse>{
 		
-		private Context mContext;
+		private final Context mContext;
 
 		public CampaignReadTask(FragmentActivity activity) {
 			super(activity);
@@ -80,7 +78,7 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 							c.mXml = null;
 							c.mStatus = Campaign.STATUS_REMOTE;
 							c.mPrivacy = data.optString("privacy_state", "unknown");
-							c.mIcon = "http://www.lecs.cs.ucla.edu/~mmonibi/android_small_image_med.jpg";
+							c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
 							boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
 							
 							if (localCampaignUrns.remove(c.mUrn)) { //campaign has already been downloaded

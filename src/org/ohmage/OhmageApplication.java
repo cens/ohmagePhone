@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage;
 
+import com.google.android.imageloader.ImageLoader;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -25,6 +27,7 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 
 public class OhmageApplication extends Application {
@@ -38,6 +41,9 @@ public class OhmageApplication extends Application {
 		Log.i(TAG, "onCreate()");
 		
 		edu.ucla.cens.systemlog.Log.initialize(this, "Ohmage");
+		
+        mImageLoader = createImageLoader(this);
+
 	}
 	
 	public void resetAll() {
@@ -71,4 +77,26 @@ public class OhmageApplication extends Application {
 			Log.e(TAG, "Error deleting images", e);
 		}
 	}
+	
+    private static ImageLoader createImageLoader(Context context) {
+        return new ImageLoader();
+    }
+
+    private ImageLoader mImageLoader;
+
+    @Override
+    public void onTerminate() {
+        mImageLoader = null;
+        super.onTerminate();
+    }
+
+	
+    @Override
+    public Object getSystemService(String name) {
+        if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
+            return mImageLoader;
+        } else {
+            return super.getSystemService(name);
+        }
+    }
 }

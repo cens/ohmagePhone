@@ -1,7 +1,8 @@
 package org.ohmage.activity;
 
+import com.google.android.imageloader.ImageLoader;
+
 import org.ohmage.R;
-import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.db.DbContract.Campaign;
 
 import android.content.Context;
@@ -17,14 +18,16 @@ import android.widget.TextView;
 
 public class CampaignListCursorAdapter extends CursorAdapter{
 	
-	private LayoutInflater mInflater;
-	private SubActionClickListener mListener;
+	private final LayoutInflater mInflater;
+	private final SubActionClickListener mListener;
+	private final ImageLoader mImageLoader;
 	
 	public CampaignListCursorAdapter(Context context, Cursor c, SubActionClickListener listener, int flags) {
 		super(context, c, flags);
 		
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mListener = listener;
+        mImageLoader = ImageLoader.get(context);
 	}
 
 	@Override
@@ -36,7 +39,11 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		
 		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
 		
-		iconImage.setImageResource(R.drawable.apple_logo);
+		final String iconUrl = cursor.getString(cursor.getColumnIndex(Campaign.ICON));
+		if(iconUrl == null || mImageLoader.bind(this, iconImage, iconUrl) != ImageLoader.BindResult.OK) {
+			iconImage.setImageResource(R.drawable.apple_logo);
+		}
+
 		nameText.setText(cursor.getString(cursor.getColumnIndex(Campaign.NAME)));
 		urnText.setText(campaignUrn);
 		actionButton.setFocusable(false);
