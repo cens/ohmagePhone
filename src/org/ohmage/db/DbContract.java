@@ -42,9 +42,26 @@ public class DbContract {
 		/** Privacy status of this campaign */
 		String CAMPAIGN_PRIVACY = "campaign_privacy";
     }
-    
+
+    interface SurveyColumns {
+    	/** Unique string identifying this survey. */
+    	String SURVEY_ID = "survey_id";
+    	/** Title of this survey. */
+    	String SURVEY_TITLE = "survey_title";
+    	/** Description of this survey. */
+    	String SURVEY_DESCRIPTION = "survey_description";
+    	String SURVEY_SUBMIT_TEXT = "survey_submit_text";
+    	String SURVEY_SHOW_SUMMARY = "survey_show_summary";
+    	String SURVEY_EDIT_SUMMARY = "survey_edit_summary";
+    	String SURVEY_SUMMARY_TEXT = "survey_summary_text";
+    	String SURVEY_INTRO_TEXT = "survey_intro_text";
+    	String SURVEY_ANYTIME = "survey_anytime";
+    	String SURVEY_STATUS = "survey_status";
+    }
+
     private static final String PATH_CAMPAIGNS = "campaigns";
     private static final String PATH_SURVEYS = "surveys";
+    private static final String PATH_PROMPTS = "prompts";
     
 	/**
 	 * Represents a campaign.
@@ -74,124 +91,49 @@ public class DbContract {
             return CONTENT_URI.buildUpon().appendPath(campaignUrn).appendPath(PATH_SURVEYS).build();
         }
         
+        /**
+         * Build {@link Uri} that references any {@link Surveys} associated
+         * with the requested {@link #CAMPAIGN_URN} and {@link Surveys#SURVEY_ID}
+         */
+        public static Uri buildSurveysUri(String campaignUrn, String surveyId) {
+            return buildSurveysUri(campaignUrn).buildUpon().appendPath(surveyId).build();
+        }
+        
         /** Read {@link #CAMPAIGN_URN} from {@link Campaigns} {@link Uri}. */
         public static String getCampaignUrn(Uri uri) {
             return uri.getPathSegments().get(1);
         }
-	}
-	
-	/**
-	 * Represents a survey, as extracted from the campaign XML.
-	 */
-	public static final class Survey implements BaseColumns {
-		public static final String SURVEY_ID = "survey_id";
-		public static final String CAMPAIGN_URN = "campaign_urn";
-		public static final String TITLE = "title";
-		public static final String DESCRIPTION = "description";
-		public static final String SUBMIT_TEXT = "submit_text";
-		public static final String SHOW_SUMMARY = "show_summary";
-		public static final String EDIT_SUMMARY = "edit_summary";
-		public static final String SUMMARY_TEXT = "summary_text";
-		public static final String INTRO_TEXT = "intro_text";
-		public static final String ANYTIME = "anytime";
-		public static final String STATUS = "survey_status";
-		
-		public static final int STATUS_NORMAL = 0;
-		public static final int STATUS_TRIGGERED = 1;
+    }
 
-		// data fields here to support use of the Survey class as a data holder (and not just a schema definer)
-		// this should be reconciled by some kind of real ORM someday
-		public long _id;
-		public String mSurveyID;
-		public String mCampaignUrn;
-		public String mTitle;
-		public String mDescription;
-		public String mSubmitText;
-		public boolean mShowSummary;
-		public boolean mEditSummary;
-		public String mSummaryText;
-		public String mIntroText;
-		public boolean mAnytime;
-		public int mStatus;
-		
-        public static final Uri CONTENT_URI =
-        	BASE_CONTENT_URI.buildUpon().appendPath("surveys").build();
-        public static final String CONTENT_TYPE =
-        	"vnd.android.cursor.dir/vnd." + CONTENT_AUTHORITY + ".survey";
-        public static final String CONTENT_ITEM_TYPE =
-        	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".survey";
-       
-        public static Uri getSurveys() {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("surveys")
-				.build();
-        }
+    /**
+     * Represents a survey, as extracted from the campaign XML.
+     */
+    public static final class Surveys implements BaseColumns, SurveyColumns {
 
-        public static Uri getSurveyByID(String campaignUrn, String surveyId) {
-    		return BASE_CONTENT_URI.buildUpon()
-    			.appendPath("campaigns")
-    			.appendPath(campaignUrn)
-				.appendPath("surveys")
-				.appendPath(surveyId)
-				.build();
-        }
-        
-        /**
-         * Returns a list of Survey objects from the given cursor.
-         * 
-         * @param cursor a cursor containing the fields specified in the Survey schema, which is closed when this method returns.
-         * @return a List of Survey objects
-         */
-        public static List<Survey> fromCursor(Cursor cursor) {
-        	List<Survey> surveys = new ArrayList<Survey>();
-    		
-    		cursor.moveToFirst();
-    		
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			Survey s = new Survey();
-    			s._id = cursor.getLong(cursor.getColumnIndex(Survey._ID));
-    			s.mSurveyID = cursor.getString(cursor.getColumnIndex(Survey.SURVEY_ID));
-    			s.mCampaignUrn = cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN));
-    			s.mTitle = cursor.getString(cursor.getColumnIndex(Survey.TITLE));
-    			s.mDescription = cursor.getString(cursor.getColumnIndex(Survey.DESCRIPTION));
-    			s.mSubmitText = cursor.getString(cursor.getColumnIndex(Survey.SUBMIT_TEXT));
-    			s.mShowSummary = cursor.getInt(cursor.getColumnIndex(Survey.SHOW_SUMMARY)) == 0 ? false : true;
-    			s.mEditSummary = cursor.getInt(cursor.getColumnIndex(Survey.EDIT_SUMMARY)) == 0 ? false : true;
-    			s.mSummaryText = cursor.getString(cursor.getColumnIndex(Survey.SUMMARY_TEXT));
-    			s.mIntroText = cursor.getString(cursor.getColumnIndex(Survey.INTRO_TEXT));
-    			s.mAnytime = cursor.getInt(cursor.getColumnIndex(Survey.ANYTIME)) == 0 ? false : true;
-    			s.mStatus = cursor.getInt(cursor.getColumnIndex(Survey.STATUS));
-    			surveys.add(s);
-    			
-    			cursor.moveToNext();
-    		}
-    		
-    		cursor.close();
-    		
-    		return surveys;
-        }
-        
-        public ContentValues toCV() {
-        	ContentValues values = new ContentValues();
-        	
-        	values.put(Survey.SURVEY_ID, mSurveyID);
-        	values.put(Survey.CAMPAIGN_URN, mCampaignUrn);
-        	values.put(Survey.TITLE, mTitle);
-        	values.put(Survey.DESCRIPTION, mDescription);
-        	values.put(Survey.SUBMIT_TEXT, mSubmitText);
-        	values.put(Survey.SHOW_SUMMARY, mShowSummary);
-        	values.put(Survey.EDIT_SUMMARY, mEditSummary);
-        	values.put(Survey.SUMMARY_TEXT, mSummaryText);
-        	values.put(Survey.INTRO_TEXT, mIntroText);
-        	values.put(Survey.ANYTIME, mAnytime);
-        	values.put(Survey.STATUS, mStatus);
-        	
-        	return values;
-        }
-	}
-	
-	/**
+    	public static final Uri CONTENT_URI =
+    			BASE_CONTENT_URI.buildUpon().appendPath(PATH_SURVEYS).build();
+    	public static final String CONTENT_TYPE =
+    			"vnd.android.cursor.dir/vnd.ohmage.survey";
+    	public static final String CONTENT_ITEM_TYPE =
+    			"vnd.android.cursor.item/vnd.ohmage.survey";
+
+    	public static final String CAMPAIGN_URN = "campaign_urn";
+
+    	/** Default "ORDER BY" clause. */
+    	public static final String DEFAULT_SORT = SurveyColumns.SURVEY_TITLE;
+
+    	/** Build {@link Uri} for all {@link SurveyPrompt}  */
+    	public static Uri buildSurveyPromptsUri() {
+    		return CONTENT_URI.buildUpon().appendPath(PATH_PROMPTS).build();
+    	}
+
+    	/** Read {@link #SURVEY_ID} from {@link Surveys} {@link Uri}. */
+    	public static String getSurveyId(Uri uri) {
+    		return uri.getPathSegments().get(3);
+    	}
+    }
+
+    /**
 	 * Represents a prompt within a survey, again as extracted from the campaign XML.
 	 */
 	public static final class SurveyPrompt implements BaseColumns {

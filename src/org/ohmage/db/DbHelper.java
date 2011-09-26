@@ -32,9 +32,10 @@ import org.json.JSONObject;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
 import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Survey;
 import org.ohmage.service.SurveyGeotagService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -54,7 +55,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 26;
+	private static final int DB_VERSION = 27;
 	
 	private final Context mContext;
 
@@ -70,7 +71,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s "
 						+ "inner join %5$s on %1$s.%6$s=%5$s.%7$s ", RESPONSES,
 				CAMPAIGNS, Response.CAMPAIGN_URN, Campaigns.CAMPAIGN_URN, SURVEYS,
-				Response.SURVEY_ID, Survey.SURVEY_ID);
+				Response.SURVEY_ID, Surveys.SURVEY_ID);
 
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String
 				.format(
@@ -85,13 +86,13 @@ public class DbHelper extends SQLiteOpenHelper {
 						Response._ID, // 6
 						Response.CAMPAIGN_URN, // 7
 						Response.SURVEY_ID, // 8
-						Survey.SURVEY_ID, // 9
-						Survey.CAMPAIGN_URN, // 10
+						Surveys.SURVEY_ID, // 9
+						Surveys.CAMPAIGN_URN, // 10
 						Campaigns.CAMPAIGN_URN); // 11
 
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format(
 				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
-				SURVEYS, SurveyPrompt.SURVEY_ID, Survey.SURVEY_ID);
+				SURVEYS, SurveyPrompt.SURVEY_ID, Surveys.SURVEY_ID);
 	}
 
 	interface Subqueries {
@@ -125,17 +126,17 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ Tables.SURVEYS
 				+ " ("
-				+ Survey._ID
+				+ Surveys._ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ Survey.CAMPAIGN_URN
+				+ Surveys.CAMPAIGN_URN
 				+ " TEXT, " // cascade delete from campaigns
-				+ Survey.SURVEY_ID + " TEXT, " + Survey.TITLE + " TEXT, "
-				+ Survey.DESCRIPTION + " TEXT, " + Survey.SUBMIT_TEXT
-				+ " TEXT, " + Survey.SHOW_SUMMARY + " INTEGER DEFAULT 0, "
-				+ Survey.EDIT_SUMMARY + " INTEGER DEFAULT 0, "
-				+ Survey.SUMMARY_TEXT + " TEXT, " + Survey.INTRO_TEXT
-				+ " TEXT, " + Survey.ANYTIME + " INTEGER DEFAULT 1, "
-				+ Survey.STATUS + " INTEGER DEFAULT 0" + ");");
+				+ Surveys.SURVEY_ID + " TEXT, " + Surveys.SURVEY_TITLE + " TEXT, "
+				+ Surveys.SURVEY_DESCRIPTION + " TEXT, " + Surveys.SURVEY_SUBMIT_TEXT
+				+ " TEXT, " + Surveys.SURVEY_SHOW_SUMMARY + " INTEGER DEFAULT 0, "
+				+ Surveys.SURVEY_EDIT_SUMMARY + " INTEGER DEFAULT 0, "
+				+ Surveys.SURVEY_SUMMARY_TEXT + " TEXT, " + Surveys.SURVEY_INTRO_TEXT
+				+ " TEXT, " + Surveys.SURVEY_ANYTIME + " INTEGER DEFAULT 1, "
+				+ Surveys.SURVEY_STATUS + " INTEGER DEFAULT 0" + ");");
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ Tables.SURVEY_PROMPTS
@@ -233,8 +234,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ SurveyPrompt._ID + " IN (" + " SELECT "
 				+ Tables.SURVEY_PROMPTS + "." + SurveyPrompt._ID + " FROM "
 				+ Tables.SURVEY_PROMPTS + " SP" + " INNER JOIN "
-				+ Tables.SURVEYS + " S ON S." + Survey._ID + "=SP."
-				+ SurveyPrompt.SURVEY_PID + " WHERE S." + Survey.CAMPAIGN_URN
+				+ Tables.SURVEYS + " S ON S." + Surveys._ID + "=SP."
+				+ SurveyPrompt.SURVEY_PID + " WHERE S." + Surveys.CAMPAIGN_URN
 				+ "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.PROMPT_RESPONSES + " WHERE "
@@ -246,7 +247,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Response.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.SURVEYS + " WHERE "
-				+ Survey.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
+				+ Surveys.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
 				+ "DELETE from " + Tables.RESPONSES + " WHERE "
 				+ Response.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
 				+ "END;");
@@ -254,7 +255,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.SURVEYS
 				+ "_cascade_del AFTER DELETE ON " + Tables.SURVEYS + " BEGIN "
 				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE "
-				+ SurveyPrompt.SURVEY_PID + "=old." + Survey._ID + "; "
+				+ SurveyPrompt.SURVEY_PID + "=old." + Surveys._ID + "; "
 				+ "END;");
 
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.RESPONSES
@@ -578,7 +579,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			// this is (perhaps surprisingly) desired behavior, as the surveys +
 			// survey prompts
 			// should always reflect the state of the campaign XML, valid or not
-			db.delete(Tables.SURVEYS, Survey.CAMPAIGN_URN + "=?",
+			db.delete(Tables.SURVEYS, Surveys.CAMPAIGN_URN + "=?",
 					new String[] { campaignUrn });
 
 			// do a pass over the XML to gather surveys and survey prompts

@@ -1,7 +1,8 @@
 package org.ohmage.activity;
 
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Survey;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.triggers.notif.Notifier;
 
@@ -23,21 +24,21 @@ public class TriggerReceiver extends BroadcastReceiver {
 			
 			ContentResolver cr = context.getContentResolver();
 			
-			String where = Tables.SURVEYS + "." + Survey.CAMPAIGN_URN + " = '" + campaignUrn + "'";
+			String where = Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN + " = '" + campaignUrn + "'";
 			
 			ContentValues cv = new ContentValues();
-			cv.put(Survey.STATUS, Survey.STATUS_NORMAL);
+			cv.put(Surveys.SURVEY_STATUS, Survey.STATUS_NORMAL);
 			
-			cr.update(Survey.CONTENT_URI, cv, where, null);
+			cr.update(Surveys.CONTENT_URI, cv, where, null);
 			
-			cv.remove(Survey.STATUS);
-			cv.put(Survey.STATUS, Survey.STATUS_TRIGGERED);
+			cv.remove(Surveys.SURVEY_STATUS);
+			cv.put(Surveys.SURVEY_STATUS, Survey.STATUS_TRIGGERED);
 			
-			where = Tables.SURVEYS + "." + Survey.CAMPAIGN_URN + " = '" + campaignUrn + "' AND " + Tables.SURVEYS + "." + Survey.TITLE + " = ?";
+			where = Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN + " = '" + campaignUrn + "' AND " + Tables.SURVEYS + "." + Surveys.SURVEY_TITLE + " = ?";
 			
 			for (String surveyTitle : surveyTitles) {
 				
-				cr.update(Survey.CONTENT_URI, cv, where, new String [] {surveyTitle});
+				cr.update(Surveys.CONTENT_URI, cv, where, new String [] {surveyTitle});
 			}			
 		}
 	}

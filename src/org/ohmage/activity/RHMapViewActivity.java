@@ -2,7 +2,6 @@ package org.ohmage.activity;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
 import org.ohmage.R;
@@ -12,7 +11,7 @@ import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.MapOverlayItem;
@@ -253,11 +252,11 @@ public class RHMapViewActivity extends ResponseHistory {
 			public void onFilterChanged(boolean selfChange, String curCampaignValue) {
 				Cursor surveyCursor;
 				
-				String[] projection = {Survey.TITLE, Survey.CAMPAIGN_URN, Survey.SURVEY_ID};
+				String[] projection = {Surveys.SURVEY_TITLE, Surveys.CAMPAIGN_URN, Surveys.SURVEY_ID};
 				
 				//Create Cursor
 				if(curCampaignValue.equals("all")){
-					surveyCursor = cr.query(Survey.getSurveys(), projection, null, null, Survey.TITLE);
+					surveyCursor = cr.query(Surveys.CONTENT_URI, projection, null, null, Surveys.SURVEY_TITLE);
 				}
 				else{
 					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
@@ -269,10 +268,10 @@ public class RHMapViewActivity extends ResponseHistory {
 				mSurveyFilter.clearAll();
 				for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
 					mSurveyFilter.add(new Pair<String, String>(
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE)),
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_TITLE)),
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.CAMPAIGN_URN)) + 
 							":" +
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID))
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_ID))
 							));
 				}
 				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));

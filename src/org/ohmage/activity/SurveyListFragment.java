@@ -1,10 +1,9 @@
 package org.ohmage.activity;
 
 
-import java.util.List;
-
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Survey;
 import org.ohmage.db.utils.SelectionBuilder;
 
 import android.app.Activity;
@@ -69,7 +68,7 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 		
 		Cursor cursor = (Cursor) getListAdapter().getItem(position);
 		
-		Uri uri = Survey.getSurveyByID(cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN)), cursor.getString(cursor.getColumnIndex(Survey.SURVEY_ID)));
+		Uri uri = Campaigns.buildSurveysUri(cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN)), cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID)));
 		mListener.onSurveyActionView(uri);
 	}
 	
@@ -95,19 +94,19 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		Log.i(TAG, "Creating loader - filter: " + mCampaignFilter);
-		Uri baseUri = Survey.CONTENT_URI;
+		Uri baseUri = Surveys.CONTENT_URI;
 		
 		SelectionBuilder builder = new SelectionBuilder();
 		
 		if (!mCampaignFilter.equals(FILTER_ALL_CAMPAIGNS)) {
-			builder.where(Survey.CAMPAIGN_URN + "= ?", mCampaignFilter);
+			builder.where(Surveys.CAMPAIGN_URN + "= ?", mCampaignFilter);
 		}
 		
 		if (mShowPending) {
-			builder.where(Survey.STATUS + "=" + Survey.STATUS_TRIGGERED);
+			builder.where(Surveys.SURVEY_STATUS + "=" + Survey.STATUS_TRIGGERED);
 		} 
 		
-		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Survey.TITLE);
+		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Surveys.SURVEY_TITLE);
 	}
 
 	@Override

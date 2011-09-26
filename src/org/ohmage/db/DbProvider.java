@@ -4,7 +4,7 @@ import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompt;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
@@ -129,9 +129,9 @@ public class DbProvider extends ContentProvider {
         	// SURVEYS
         	case MatcherTypes.SURVEYS:
         	case MatcherTypes.CAMPAIGN_SURVEYS:
-        		return Survey.CONTENT_TYPE;
+        		return Surveys.CONTENT_TYPE;
         	case MatcherTypes.SURVEY_BY_ID:
-        		return Survey.CONTENT_ITEM_TYPE;
+        		return Surveys.CONTENT_ITEM_TYPE;
         		
         	// SURVEY PROMPTS
         	case MatcherTypes.SURVEY_SURVEYPROMPTS:
@@ -204,7 +204,7 @@ public class DbProvider extends ContentProvider {
 
 				// notify on the related entity URIs
 				cr.notifyChange(Campaigns.CONTENT_URI, null);
-				cr.notifyChange(Survey.CONTENT_URI, null);
+				cr.notifyChange(Surveys.CONTENT_URI, null);
 				cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
 				
 				break;
@@ -256,7 +256,7 @@ public class DbProvider extends ContentProvider {
 					
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
-					cr.notifyChange(Survey.CONTENT_URI, null);
+					cr.notifyChange(Surveys.CONTENT_URI, null);
 					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
 					cr.notifyChange(Response.CONTENT_URI, null);
 					cr.notifyChange(PromptResponse.CONTENT_URI, null);
@@ -342,7 +342,7 @@ public class DbProvider extends ContentProvider {
 
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
-					cr.notifyChange(Survey.CONTENT_URI, null);
+					cr.notifyChange(Surveys.CONTENT_URI, null);
 					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
 					cr.notifyChange(Response.CONTENT_URI, null);
 					cr.notifyChange(PromptResponse.CONTENT_URI, null);
@@ -408,7 +408,7 @@ public class DbProvider extends ContentProvider {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 
 				return builder.table(Tables.SURVEYS)
-						.where(Survey.CAMPAIGN_URN + "=?", campaignUrn);
+						.where(Surveys.CAMPAIGN_URN + "=?", campaignUrn);
 			}
 			case MatcherTypes.CAMPAIGN_RESPONSES: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
@@ -482,11 +482,11 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				
 				return builder.table(Tables.SURVEYS)
-					.join(Tables.CAMPAIGNS, "%t." + Campaigns.CAMPAIGN_URN + "=" + "%s." + Survey.CAMPAIGN_URN)
-					.mapToTable(Survey.CAMPAIGN_URN, Tables.SURVEYS)
-					.mapToTable(Survey.DESCRIPTION, Tables.SURVEYS)
+					.join(Tables.CAMPAIGNS, "%t." + Campaigns.CAMPAIGN_URN + "=" + "%s." + Surveys.CAMPAIGN_URN)
+					.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS)
+					.mapToTable(Surveys.SURVEY_DESCRIPTION, Tables.SURVEYS)
 					.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn)
-					.where(Survey.SURVEY_ID + "=?", surveyID);
+					.where(Surveys.SURVEY_ID + "=?", surveyID);
 			}
 
 				
@@ -498,8 +498,8 @@ public class DbProvider extends ContentProvider {
 				surveyID = uri.getPathSegments().get(3);
 				
 				return builder.table(Tables.SURVEY_PROMPTS_JOIN_SURVEYS)
-					.mapToTable(Survey.CAMPAIGN_URN, Tables.SURVEYS)
-					.where(Tables.SURVEYS + "." + Survey.CAMPAIGN_URN + "=?", Campaigns.getCampaignUrn(uri))
+					.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS)
+					.where(Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN + "=?", Campaigns.getCampaignUrn(uri))
 					.where(Tables.SURVEY_PROMPTS + "." + SurveyPrompt.SURVEY_ID + "=?", surveyID);
 				
 			// RESPONSES
@@ -556,7 +556,7 @@ public class DbProvider extends ContentProvider {
      * parent {@link Tables}. Used when needed to work around SQL ambiguity.
      */
     private interface Qualified {
-        String SURVEYS_CAMPAIGN_URN = Tables.SURVEYS + "." + Survey.CAMPAIGN_URN;
+        String SURVEYS_CAMPAIGN_URN = Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN;
         String RESPONSES_CAMPAIGN_URN = Tables.RESPONSES + "." + Response.CAMPAIGN_URN;
         String RESPONSES_SURVEY_ID = Tables.RESPONSES + "." + Response.SURVEY_ID;
     }

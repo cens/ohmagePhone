@@ -3,7 +3,7 @@ package org.ohmage.activity;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Tables;
 
 import android.app.Activity;
@@ -122,7 +122,7 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 		String[] PROJECTION = { 
 				Tables.RESPONSES + "." + Response._ID,
 				Campaigns.CAMPAIGN_NAME,
-				Survey.TITLE,
+				Surveys.SURVEY_TITLE,
 				Response.TIME,
 				Tables.RESPONSES + "." + Response.STATUS
 		};

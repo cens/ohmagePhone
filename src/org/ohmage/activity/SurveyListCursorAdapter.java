@@ -1,9 +1,9 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
-import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Survey;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -18,8 +18,8 @@ import android.widget.TextView;
 
 public class SurveyListCursorAdapter extends CursorAdapter{
 	
-	private LayoutInflater mInflater;
-	private SubActionClickListener mListener;
+	private final LayoutInflater mInflater;
+	private final SubActionClickListener mListener;
 	
 	public SurveyListCursorAdapter(Context context, Cursor c, SubActionClickListener listener, int flags) {
 		super(context, c, flags);
@@ -35,25 +35,25 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		TextView campaignText = (TextView) view.findViewById(R.id.sub_text);
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
 		
-		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN));
-		final String surveyId = cursor.getString(cursor.getColumnIndex(Survey.SURVEY_ID));
+		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
+		final String surveyId = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
 		
 		iconImage.setVisibility(View.GONE);
-		titleText.setText(cursor.getString(cursor.getColumnIndex(Survey.TITLE)));
+		titleText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(campaignUrn);
 		actionButton.setFocusable(false);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				mListener.onSubActionClicked(Survey.getSurveyByID(campaignUrn, surveyId));
+				mListener.onSubActionClicked(Campaigns.buildSurveysUri(campaignUrn, surveyId));
 			}
 		});
 		
 		actionButton.setImageResource(R.drawable.ic_menu_edit);
 		
-		int status = cursor.getInt(cursor.getColumnIndex(Survey.STATUS));
-		boolean anytime = cursor.getInt(cursor.getColumnIndex(Survey.ANYTIME)) == 0 ? false : true;
+		int status = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_STATUS));
+		boolean anytime = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_ANYTIME)) == 0 ? false : true;
 		
 		switch (status) {
 		case Survey.STATUS_NORMAL:

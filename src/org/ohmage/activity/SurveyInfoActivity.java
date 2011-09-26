@@ -6,7 +6,7 @@ import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
 import org.xmlpull.v1.XmlPullParserException;
@@ -139,11 +139,11 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 	private interface QueryParams {
 		String[] PROJECTION = {
-					Survey.SURVEY_ID,
-					Survey.CAMPAIGN_URN,
-					Survey.TITLE,
-					Survey.DESCRIPTION,
-					Survey.SUBMIT_TEXT,
+					Surveys.SURVEY_ID,
+					Surveys.CAMPAIGN_URN,
+					Surveys.SURVEY_TITLE,
+					Surveys.SURVEY_DESCRIPTION,
+					Surveys.SURVEY_SUBMIT_TEXT,
 					Campaigns.CAMPAIGN_NAME,
 					Campaigns.CAMPAIGN_STATUS,
 					Campaigns.CAMPAIGN_ICON

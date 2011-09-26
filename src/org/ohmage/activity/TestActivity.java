@@ -7,7 +7,7 @@ import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 
 import android.app.Activity;
@@ -77,16 +77,16 @@ public class TestActivity extends Activity {
 				if (!curValue.equalsIgnoreCase("all"))
 					surveys = mCR.query(Campaigns.buildSurveysUri(curValue), null, null, null, null);
 				else
-					surveys = mCR.query(Survey.getSurveys(), null, null, null, null);
+					surveys = mCR.query(Surveys.CONTENT_URI, null, null, null, null);
 
 				ArrayList<Pair<String,String>> items = new ArrayList<Pair<String,String>>();
 				
 				while (surveys.moveToNext()) {
 					items.add(
 							Pair.create(
-									surveys.getString(surveys.getColumnIndex(Survey.TITLE)),
-									surveys.getString(surveys.getColumnIndex(Survey.CAMPAIGN_URN)) +
-									":" + surveys.getString(surveys.getColumnIndex(Survey.SURVEY_ID))
+									surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)),
+									surveys.getString(surveys.getColumnIndex(Surveys.CAMPAIGN_URN)) +
+									":" + surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_ID))
 									)
 							);
 				}

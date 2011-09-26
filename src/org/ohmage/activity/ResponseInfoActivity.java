@@ -26,7 +26,7 @@ import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompt;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
@@ -93,7 +93,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 	private interface ResponseQuery {
 		String[] PROJECTION = { Campaigns.CAMPAIGN_NAME,
-				Survey.TITLE,
+				Surveys.SURVEY_TITLE,
 				Response.TIME,
 				Campaigns.CAMPAIGN_ICON};
 

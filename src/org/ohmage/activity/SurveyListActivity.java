@@ -8,7 +8,7 @@ import org.ohmage.activity.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 
 import android.content.ContentResolver;
@@ -90,10 +90,10 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 		Cursor cursor = getContentResolver().query(surveyUri, null, null, null, null);
 		if (cursor.moveToFirst()) {
 			Intent intent = new Intent(this, SurveyActivity.class);
-			intent.putExtra("campaign_urn", cursor.getString(cursor.getColumnIndex(Survey.CAMPAIGN_URN)));
-			intent.putExtra("survey_id", cursor.getString(cursor.getColumnIndex(Survey.SURVEY_ID)));
-			intent.putExtra("survey_title", cursor.getString(cursor.getColumnIndex(Survey.TITLE)));
-			intent.putExtra("survey_submit_text", cursor.getString(cursor.getColumnIndex(Survey.SUBMIT_TEXT)));
+			intent.putExtra("campaign_urn", cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN)));
+			intent.putExtra("survey_id", cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID)));
+			intent.putExtra("survey_title", cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
+			intent.putExtra("survey_submit_text", cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUBMIT_TEXT)));
 			startActivity(intent);
 		} else {
 			Toast.makeText(this, "onSurveyActionStart: Error: Empty cursor returned.", Toast.LENGTH_SHORT).show();
