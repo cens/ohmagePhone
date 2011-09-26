@@ -795,30 +795,31 @@ public class DbHelper extends SQLiteOpenHelper {
 			
 			// iterate through the responses and add them to the prompt table one by one
 			for (int i = 0; i < responseData.length(); ++i) {
+				// nab the jsonobject, which contains "prompt_id" and "value"
+				JSONObject item = responseData.getJSONObject(i);
+				
+				// if the entry we're looking at doesn't include prompt_id or value, continue
+				if (!item.has("prompt_id") || !item.has("value"))
+					continue;
+				
+				// look up the metadata for this prompt
+				SurveyPrompt promptData = promptsMap.get(item.getString("prompt_id"));
+				
+				// construct a new PromptResponse object to populate
+				PromptResponse p = new PromptResponse();
+				
+				p.mCompositeID = campaignUrn + ":" + surveyId;
+				p.mResponseID = responseRowID;
+				p.mPromptID = item.getString("prompt_id");
+				
+				// determine too if we have to remap the value from a number to text
+				// if custom_choices is included, then we do
 				try {
-					// nab the jsonobject, which contains "prompt_id" and "value"
-					JSONObject item = responseData.getJSONObject(i);
-					
-					// if the entry we're looking at doesn't include prompt_id or value, continue
-					if (!item.has("prompt_id") || !item.has("value"))
-						continue;
-					
-					// look up the metadata for this prompt
-					SurveyPrompt promptData = promptsMap.get(item.getString("prompt_id"));
-					
-					// if we can't find the prompt type in the map, there's no a lot we can do :\
+					// before we determine what to do for this prompt, we need to see if we
+					// have metadata. if we don't, we have to go for the default behavior.
 					if (promptData == null)
 						throw new NoMetadataException();
 					
-					// construct a new PromptResponse object to populate
-					PromptResponse p = new PromptResponse();
-					
-					p.mCompositeID = campaignUrn + ":" + surveyId;
-					p.mResponseID = responseRowID;
-					p.mPromptID = item.getString("prompt_id");
-					
-					// determine too if we have to remap the value from a number to text
-					// if custom_choices is included, then we do
 					if (item.has("custom_choices")) {
 						// build a hashmap of ID->label so we can do the remapping
 						JSONArray choicesArray = item.getJSONArray("custom_choices");
@@ -888,14 +889,14 @@ public class DbHelper extends SQLiteOpenHelper {
 					else {
 						p.mValue = item.getString("value");
 					}
-					
-					// and insert this into prompts				
-					db.insert(Tables.PROMPT_RESPONSES, null, p.toCV());
 				}
 				catch (NoMetadataException e) {
-					Log.e(TAG, "Couldn't find the associated metadata for prompt ID " + (i+1) + ", continuing...");
-					continue;
+					Log.e(TAG, "Couldn't find the associated metadata for prompt ID " + (i+1) + ", assigning default value");
+					p.mValue = item.getString("value");
 				}
+				
+				// and insert this into prompts				
+				db.insert(Tables.PROMPT_RESPONSES, null, p.toCV());
 			}
 		}
 		catch (JSONException e) {
