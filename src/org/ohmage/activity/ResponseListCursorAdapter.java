@@ -2,7 +2,7 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 
 import android.content.Context;
@@ -37,7 +37,7 @@ public class ResponseListCursorAdapter extends CursorAdapter {
 		surveyText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		
-		long millis = cursor.getLong(cursor.getColumnIndex(Response.TIME));
+		long millis = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME));
 		timeText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_TIME));
 		dateText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_NUMERIC_DATE));
 		timeText.setVisibility(View.VISIBLE);

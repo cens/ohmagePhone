@@ -2,10 +2,8 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
-import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
@@ -239,13 +237,13 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 				// set the responses by querying the response table
 				// and getting the number of responses submitted for this campaign
-				Cursor responses = getContentResolver().query(Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID), null, null, null, null);
+				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn, surveyID), null, null, null, null);
 				mResponsesValue.setText(responses.getCount() + " response(s) submitted");
 			}
 		};
 		
 		// register it to listen for newly submitted responses
-		getContentResolver().registerContentObserver(Response.CONTENT_URI, true, mResponsesObserver);
+		getContentResolver().registerContentObserver(Responses.CONTENT_URI, true, mResponsesObserver);
 		// and trigger it once to refresh right now
 		mResponsesObserver.onChange(false);
 		

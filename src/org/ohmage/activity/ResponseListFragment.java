@@ -1,13 +1,12 @@
 package org.ohmage.activity;
 
-import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Response;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -69,7 +68,7 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 //		startActivity(new Intent(Intent.ACTION_VIEW, DbContract.Response.getResponseByID(id)));
-		mListener.onResponseActionView(DbContract.Response.getResponseByID(id));
+		mListener.onResponseActionView(Responses.buildResponseUri(id));
 	}
 	
 	@Override
@@ -77,11 +76,11 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 		Cursor cursor = null;
 		
 		try {
-			cursor = getActivity().getContentResolver().query(uri, new String [] {Tables.RESPONSES + "." + Response.STATUS}, null, null, null);
+			cursor = getActivity().getContentResolver().query(uri, new String [] {Tables.RESPONSES + "." + Responses.RESPONSE_STATUS}, null, null, null);
 			
 			if (cursor.getCount() == 1) {
 				cursor.moveToFirst();
-				int status = cursor.getInt(cursor.getColumnIndexOrThrow(Response.STATUS));
+				int status = cursor.getInt(cursor.getColumnIndexOrThrow(Responses.RESPONSE_STATUS));
 				
 				switch (status) {
 				case Response.STATUS_STANDBY:
@@ -120,11 +119,11 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 
 	public interface ResponseQuery {
 		String[] PROJECTION = { 
-				Tables.RESPONSES + "." + Response._ID,
+				Tables.RESPONSES + "." + Responses._ID,
 				Campaigns.CAMPAIGN_NAME,
 				Surveys.SURVEY_TITLE,
-				Response.TIME,
-				Tables.RESPONSES + "." + Response.STATUS
+				Responses.RESPONSE_TIME,
+				Tables.RESPONSES + "." + Responses.RESPONSE_STATUS
 		};
 	}
 
@@ -134,25 +133,25 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 
 		// Filter the uri
 		if(mCampaignUrnFilter == null) {
-			queryUri = Response.getResponses();
+			queryUri = Responses.CONTENT_URI;
 		} else {
 			if(mSurveyIdFilter == null) 
-				queryUri = Response.getResponsesByCampaign(mCampaignUrnFilter);
+				queryUri = Campaigns.buildResponsesUri(mCampaignUrnFilter);
 			else
-				queryUri = Response.getResponsesByCampaignAndSurvey(mCampaignUrnFilter, mSurveyIdFilter);
+				queryUri = Campaigns.buildResponsesUri(mCampaignUrnFilter, mSurveyIdFilter);
 		}
 
 		// Set the date filter selection
 		StringBuilder selection = new StringBuilder();
 		if(mStartDateFilter != null)
-			selection.append(Response.TIME + " > " + mStartDateFilter);
+			selection.append(Responses.RESPONSE_TIME + " > " + mStartDateFilter);
 		if(mEndDateFilter != null) {
 			if(selection.length() != 0)
 				selection.append(" AND ");
-			selection.append(Response.TIME + " < " + mEndDateFilter);
+			selection.append(Responses.RESPONSE_TIME + " < " + mEndDateFilter);
 		}
 
-		return new CursorLoader(getActivity(), queryUri, ResponseQuery.PROJECTION, selection.toString(), null, Response.TIME + " DESC");
+		return new CursorLoader(getActivity(), queryUri, ResponseQuery.PROJECTION, selection.toString(), null, Responses.RESPONSE_TIME + " DESC");
 	}
 
 	@Override

@@ -1,23 +1,20 @@
 package org.ohmage.feedback.visualization;
 
-import java.net.URI;
 import java.util.ArrayList;
 
-import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.Responses;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.widget.Toast;
-
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
 public class MapViewItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
-	private ArrayList<MapOverlayItem> mOverlays = new ArrayList<MapOverlayItem>();
-	private Context mContext;
+	private final ArrayList<MapOverlayItem> mOverlays = new ArrayList<MapOverlayItem>();
+	private final Context mContext;
 	
 	public MapViewItemizedOverlay(Drawable defaultMarker, MapView mapView) {
 		  super(boundCenterBottom(defaultMarker), mapView);
@@ -45,7 +42,7 @@ public class MapViewItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> 
 		MapOverlayItem item = mOverlays.get(index);
 	
 		long id = Long.valueOf(item.getResponseID()).longValue();
-		Uri uri = DbContract.Response.getResponseByID(id);
+		Uri uri = Responses.buildResponseUri(id);
 
 		mContext.startActivity(
 				new Intent(Intent.ACTION_VIEW, uri));

@@ -13,7 +13,6 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
@@ -366,7 +365,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			
 			// set the responses by querying the response table
 			// and getting the number of responses submitted for this campaign
-			Cursor responses = getContentResolver().query(Response.getResponsesByCampaign(campaignUrn), null, null, null, null);
+			Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn), null, null, null, null);
 			mResponsesValue.setText(responses.getCount() + " response(s) submitted");
 			
 			// get the number of triggers for this campaign

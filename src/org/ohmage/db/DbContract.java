@@ -1,12 +1,12 @@
 package org.ohmage.db;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.OldUploadService;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -65,9 +65,41 @@ public class DbContract {
 		String SURVEY_PROMPT_PROPERTIES = "survey_prompt_properties";
     }
 
+    interface ResponseColumns {
+		/** the username to whom the survey response belongs */
+		String RESPONSE_USERNAME = "response_username";
+		/** the date on which the survey response was recorded, assumedly in UTC */
+		String RESPONSE_DATE = "response_date";
+		/** milliseconds since the epoch when this survey response was completed */
+		String RESPONSE_TIME = "response_time";
+		/** the timezone in which the survey response was completed */
+		String RESPONSE_TIMEZONE = "response_timezone";
+		/**  LOCATION_-prefixed final string from {@link SurveyGeotagService}; if LOCATION_UNAVAILABLE is chosen, location data is ignored */
+		String RESPONSE_LOCATION_STATUS ="response_location_status";
+		/** latitude at which the survey response was recorded, if available */
+		String RESPONSE_LOCATION_LATITUDE = "response_location_latitude";
+		/** longitude at which the survey response was recorded, if available */
+		String RESPONSE_LOCATION_LONGITUDE = "response_location_longitude";
+		/** the provider for the location data, if available */
+		String RESPONSE_LOCATION_PROVIDER = "response_location_provider";
+		/** the accuracy of the location data, if available */
+		String RESPONSE_LOCATION_ACCURACY = "response_location_accuracy";
+		/** time reported from location provider, if available */
+		String RESPONSE_LOCATION_TIME = "response_location_time";
+		/** the context in which the survey was launched (e.g. triggered, user-initiated, etc.) */
+		String RESPONSE_SURVEY_LAUNCH_CONTEXT = "response_survey_launch_context";
+		/** the response data as a JSON-encoded string */
+		String RESPONSE_JSON = "response_json";
+		/** read-only, an int indicating the status of a response; use constants supplied in this class (e.g. STATUS_UPLOADED) */
+		String RESPONSE_STATUS = "response_status";
+		/** read-only, a hash that uniquely identifies this response */
+		String RESPONSE_HASHCODE = "response_hashcode";
+    }
+    
     private static final String PATH_CAMPAIGNS = "campaigns";
     private static final String PATH_SURVEYS = "surveys";
     private static final String PATH_PROMPTS = "prompts";
+    private static final String PATH_RESPONSES = "responses";
     
 	/**
 	 * Represents a campaign.
@@ -112,11 +144,28 @@ public class DbContract {
         public static Uri buildSurveyPromptsUri(String campaignUrn, String surveyId) {
             return buildSurveysUri(campaignUrn, surveyId).buildUpon().appendPath(PATH_SURVEYS).build();
         }
-        
+
+        /**
+         * Build {@link Uri} that references any {@link Responses} associated
+         * with the requested {@link #CAMPAIGN_URN}
+         */
+		public static Uri buildResponsesUri(String campaignUrn) {
+            return CONTENT_URI.buildUpon().appendPath(campaignUrn).appendPath(PATH_RESPONSES).build();
+		}
+		
+        /**
+         * Build {@link Uri} that references any {@link Responses} associated
+         * with the requested {@link #CAMPAIGN_URN} and {@link Surveys#SURVEY_ID}
+         */
+        public static Uri buildResponsesUri(String campaignUrn, String surveyId) {
+            return buildSurveysUri(campaignUrn, surveyId).buildUpon().appendPath(PATH_RESPONSES).build();
+        }
+
         /** Read {@link #CAMPAIGN_URN} from {@link Campaigns} {@link Uri}. */
         public static String getCampaignUrn(Uri uri) {
             return uri.getPathSegments().get(1);
         }
+
     }
 
     /**
@@ -176,185 +225,21 @@ public class DbContract {
 	 * The 'uploaded' field indicates whether or not the survey has been uploaded by the {@link OldUploadService}
 	 * yet. This field is valid only for records where 'source' is "local".
 	 */
-	public static final class Response implements BaseColumns {
+	public static final class Responses implements BaseColumns, ResponseColumns {
+
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_RESPONSES).build();
+		public static final String CONTENT_TYPE =
+				"vnd.android.cursor.dir/vnd.ohmage.response";
+		public static final String CONTENT_ITEM_TYPE =
+				"vnd.android.cursor.item/vnd.ohmage.response";
+
 		public static final String CAMPAIGN_URN = "campaign_urn";
-		public static final String USERNAME = "username";
-		public static final String DATE = "date";
-		public static final String TIME = "time";
-		public static final String TIMEZONE = "timezone";
-		public static final String LOCATION_STATUS ="location_status";
-		public static final String LOCATION_LATITUDE = "location_latitude";
-		public static final String LOCATION_LONGITUDE = "location_longitude";
-		public static final String LOCATION_PROVIDER = "location_provider";
-		public static final String LOCATION_ACCURACY = "location_accuracy";
-		public static final String LOCATION_TIME = "location_time";
 		public static final String SURVEY_ID = "survey_id";
-		public static final String SURVEY_LAUNCH_CONTEXT = "survey_launch_context";
-		public static final String RESPONSE = "response";
-		public static final String STATUS = "status";
-		public static final String HASHCODE = "hashcode";
 		
-		public static final int STATUS_UPLOADED = 0;
-		public static final int STATUS_UPLOADING = 1;
-		public static final int STATUS_QUEUED = 2;
-		public static final int STATUS_STANDBY = 3;
-		public static final int STATUS_ERROR_INVALID_USER_ROLE = 4;
-		public static final int STATUS_ERROR_CAMPAIGN_NO_EXIST = 5;
-		public static final int STATUS_ERROR_AUTHENTICATION = 6;
-		public static final int STATUS_WAITING_FOR_LOCATION = 7;
-		public static final int STATUS_DOWNLOADED = 8;
-		public static final int STATUS_ERROR_OTHER = 9;
-
-		public long _id;
-		/** the campaign URN for which to record the survey response */
-		public String campaignUrn;
-		/** the username to whom the survey response belongs */
-		public String username;
-		/** the date on which the survey response was recorded, assumedly in UTC */
-		public String date;
-		/** milliseconds since the epoch when this survey response was completed */
-		public long time;
-		/** the timezone in which the survey response was completed */
-		public String timezone;
-		/**  LOCATION_-prefixed final string from {@link SurveyGeotagService}; if LOCATION_UNAVAILABLE is chosen, location data is ignored */
-		public String locationStatus;
-		/** latitude at which the survey response was recorded, if available */
-		public double locationLatitude;
-		/** longitude at which the survey response was recorded, if available */
-		public double locationLongitude;
-		/** the provider for the location data, if available */
-		public String locationProvider;
-		/** the accuracy of the location data, if available */
-		public float locationAccuracy;
-		/** time reported from location provider, if available */
-		public long locationTime;
-		/** the id of the survey to which the response corresponds, in URN format */
-		public String surveyId;
-		/** the context in which the survey was launched (e.g. triggered, user-initiated, etc.) */
-		public String surveyLaunchContext;
-		/** the response data as a JSON-encoded string */
-		public String response;
-		/** read-only, an int indicating the status of a response; use constants supplied in this class (e.g. STATUS_UPLOADED) */
-		public int status;
-		/** read-only, a hash that uniquely identifies this response */
-		public String hashcode;
-		
-        public static final Uri CONTENT_URI =
-        	BASE_CONTENT_URI.buildUpon().appendPath("responses").build();
-        public static final String CONTENT_TYPE =
-        	"vnd.android.cursor.dir/vnd." + CONTENT_AUTHORITY + ".response";
-        public static final String CONTENT_ITEM_TYPE =
-        	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".response";
-        
-        public static Uri getResponses() {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("responses")
-				.build();
-        }
-        
-        public static Uri getResponseByID(long responseID) {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("responses")
-				.appendPath(Long.toString(responseID))
-				.build();
-        }
-        
-        public static Uri getResponsesByCampaign(String campaignUrn) {
-    		return BASE_CONTENT_URI.buildUpon()
-    			.appendPath("campaigns")
-				.appendPath(campaignUrn)
-				.appendPath("responses")
-				.build();
-        }
-        
-        public static Uri getResponsesByCampaignAndSurvey(String campaignUrn, String surveyID) {
-    		return BASE_CONTENT_URI.buildUpon()
-    			.appendPath("campaigns")
-				.appendPath(campaignUrn)
-				.appendPath("surveys")
-				.appendPath(surveyID)
-				.appendPath("responses")
-				.build();
-        }
-
-        /**
-         * Returns a list of Response objects from the given cursor.
-         * 
-         * @param cursor a cursor containing the fields specified in the Response schema, which is closed when this method returns.
-         * @return a List of Response objects
-         */
-        public static List<Response> fromCursor(Cursor cursor) {
-    		
-    		ArrayList<Response> responses = new ArrayList<Response>();
-    		
-    		cursor.moveToFirst();
-    		
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			Response r = new Response();
-    			r._id = cursor.getLong(cursor.getColumnIndex(Response._ID));
-    			r.campaignUrn = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN));
-    			r.username = cursor.getString(cursor.getColumnIndex(Response.USERNAME));
-    			r.date = cursor.getString(cursor.getColumnIndex(Response.DATE));
-    			r.time = cursor.getLong(cursor.getColumnIndex(Response.TIME));
-    			r.timezone = cursor.getString(cursor.getColumnIndex(Response.TIMEZONE));
-    			r.locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
-    			if (! r.locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
-    				
-    				r.locationLatitude = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
-    				r.locationLongitude = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
-    				r.locationProvider = cursor.getString(cursor.getColumnIndex(Response.LOCATION_PROVIDER));
-    				r.locationAccuracy = cursor.getFloat(cursor.getColumnIndex(Response.LOCATION_ACCURACY));
-    				r.locationTime = cursor.getLong(cursor.getColumnIndex(Response.LOCATION_TIME));
-    			}
-    			r.surveyId = cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID));
-    			r.surveyLaunchContext = cursor.getString(cursor.getColumnIndex(Response.SURVEY_LAUNCH_CONTEXT));
-    			r.response = cursor.getString(cursor.getColumnIndex(Response.RESPONSE));
-    			r.status = cursor.getInt(cursor.getColumnIndex(Response.STATUS));
-    			responses.add(r);
-    			
-    			cursor.moveToNext();
-    		}
-    		
-    		cursor.close();
-    		
-    		return responses; 
-    	}
-    	
-        public ContentValues toCV() {
-        	try {
-            	ContentValues values = new ContentValues();
-
-    			values.put(Response.CAMPAIGN_URN, campaignUrn);
-    			values.put(Response.USERNAME, username);
-    			values.put(Response.DATE, date);
-    			values.put(Response.TIME, time);
-    			values.put(Response.TIMEZONE, timezone);
-    			values.put(Response.LOCATION_STATUS, locationStatus);
-    			
-    			if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE)
-    			{
-    				values.put(Response.LOCATION_LATITUDE, locationLatitude);
-    				values.put(Response.LOCATION_LONGITUDE, locationLongitude);
-    				values.put(Response.LOCATION_PROVIDER, locationProvider);
-    				values.put(Response.LOCATION_ACCURACY, locationAccuracy);
-    			}
-    			
-    			values.put(Response.LOCATION_TIME, locationTime);
-    			values.put(Response.SURVEY_ID, surveyId);
-    			values.put(Response.SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
-    			values.put(Response.RESPONSE, response);
-    			values.put(Response.STATUS, status);
-    			
-    			String hashableData = campaignUrn + surveyId + username + date;
-    			String hashcode = DbHelper.getSHA1Hash(hashableData);
-    			values.put(Response.HASHCODE, hashcode);
-    			
-            	return values;
-        	}
-        	catch (NoSuchAlgorithmException e) {
-        		throw new UnsupportedOperationException("The SHA1 algorithm is not available, can't make a response CV", e);
-        	}
+        /** Build {@link Uri} for requested {@link #_ID}  */
+        public static Uri buildResponseUri(long responseId) {
+        	return ContentUris.withAppendedId(CONTENT_URI, responseId);
         }
 	}
 	

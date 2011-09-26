@@ -30,8 +30,8 @@ import org.ohmage.Utilities;
 import org.ohmage.activity.CampaignListActivity;
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.app.Notification;

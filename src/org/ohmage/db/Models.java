@@ -1,12 +1,15 @@
 package org.ohmage.db;
 
 import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.service.SurveyGeotagService;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,6 +215,120 @@ public class Models {
 			values.put(SurveyPrompts.SURVEY_PROMPT_PROPERTIES, mProperties);
 
 			return values;
+		}
+	}
+
+	public final static class Response {
+
+		public static final int STATUS_UPLOADED = 0;
+		public static final int STATUS_UPLOADING = 1;
+		public static final int STATUS_QUEUED = 2;
+		public static final int STATUS_STANDBY = 3;
+		public static final int STATUS_ERROR_INVALID_USER_ROLE = 4;
+		public static final int STATUS_ERROR_CAMPAIGN_NO_EXIST = 5;
+		public static final int STATUS_ERROR_AUTHENTICATION = 6;
+		public static final int STATUS_WAITING_FOR_LOCATION = 7;
+		public static final int STATUS_DOWNLOADED = 8;
+		public static final int STATUS_ERROR_OTHER = 9;
+
+		public long _id;
+		/** the campaign URN for which to record the survey response */
+		public String campaignUrn;
+		public String username;
+		public String date;
+		public long time;
+		public String timezone;
+		public String locationStatus;
+		public double locationLatitude;
+		public double locationLongitude;
+		public String locationProvider;
+		public float locationAccuracy;
+		public long locationTime;
+		/** the id of the survey to which the response corresponds, in URN format */
+		public String surveyId;
+		public String surveyLaunchContext;
+		public String response;
+		public int status;
+		public String hashcode;
+
+		/**
+		 * Returns a list of Response objects from the given cursor.
+		 * 
+		 * @param cursor a cursor containing the fields specified in the Response schema, which is closed when this method returns.
+		 * @return a List of Response objects
+		 */
+		public static List<Response> fromCursor(Cursor cursor) {
+
+			ArrayList<Response> responses = new ArrayList<Response>();
+
+			cursor.moveToFirst();
+
+			for (int i = 0; i < cursor.getCount(); i++) {
+
+				Response r = new Response();
+				r._id = cursor.getLong(cursor.getColumnIndex(Responses._ID));
+				r.campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
+				r.username = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_USERNAME));
+				r.date = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_DATE));
+				r.time = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME));
+				r.timezone = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE));
+				r.locationStatus = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
+				if (! r.locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
+
+					r.locationLatitude = cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE));
+					r.locationLongitude = cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE));
+					r.locationProvider = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
+					r.locationAccuracy = cursor.getFloat(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY));
+					r.locationTime = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME));
+				}
+				r.surveyId = cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID));
+				r.surveyLaunchContext = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT));
+				r.response = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON));
+				r.status = cursor.getInt(cursor.getColumnIndex(Responses.RESPONSE_STATUS));
+				responses.add(r);
+
+				cursor.moveToNext();
+			}
+
+			cursor.close();
+
+			return responses; 
+		}
+
+		public ContentValues toCV() {
+			try {
+				ContentValues values = new ContentValues();
+
+				values.put(Responses.CAMPAIGN_URN, campaignUrn);
+				values.put(Responses.RESPONSE_USERNAME, username);
+				values.put(Responses.RESPONSE_DATE, date);
+				values.put(Responses.RESPONSE_TIME, time);
+				values.put(Responses.RESPONSE_TIMEZONE, timezone);
+				values.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
+
+				if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE)
+				{
+					values.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
+					values.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
+					values.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
+					values.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
+				}
+
+				values.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
+				values.put(Responses.SURVEY_ID, surveyId);
+				values.put(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
+				values.put(Responses.RESPONSE_JSON, response);
+				values.put(Responses.RESPONSE_STATUS, status);
+
+				String hashableData = campaignUrn + surveyId + username + date;
+				String hashcode = DbHelper.getSHA1Hash(hashableData);
+				values.put(Responses.RESPONSE_HASHCODE, hashcode);
+
+				return values;
+			}
+			catch (NoSuchAlgorithmException e) {
+				throw new UnsupportedOperationException("The SHA1 algorithm is not available, can't make a response CV", e);
+			}
 		}
 	}
 }

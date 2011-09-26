@@ -80,7 +80,7 @@
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.org.ohmage.db.response" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.response" />
             </intent-filter>
 		</activity>
 		

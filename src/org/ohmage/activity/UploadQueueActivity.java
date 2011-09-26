@@ -4,17 +4,16 @@ import org.ohmage.R;
 import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.service.UploadService;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -112,21 +111,21 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 			StringBuilder selection = new StringBuilder(loader.getSelection());
 			if(selection.length() != 0)
 				selection.append(" AND ");
-			selection.append(Tables.RESPONSES + "." + Response.STATUS + "!=" + Response.STATUS_UPLOADED + " AND " + Tables.RESPONSES + "." + Response.STATUS + "!=" + Response.STATUS_DOWNLOADED);
+			selection.append(Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED + " AND " + Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED);
 			loader.setSelection(selection.toString());
 			return loader;
 		}
 	}
 	
-	private OnClickListener mUploadAllListener = new OnClickListener() {
+	private final OnClickListener mUploadAllListener = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			Uri responsesUri = Response.getResponses();
+			Uri responsesUri = Responses.CONTENT_URI;
 			
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(responsesUri);
-			intent.putExtra("select", Tables.RESPONSES + "." + Response.STATUS + "=" + Response.STATUS_STANDBY);
+			intent.putExtra("select", Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "=" + Response.STATUS_STANDBY);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}
 	};

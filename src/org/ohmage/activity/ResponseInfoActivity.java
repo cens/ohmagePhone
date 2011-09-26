@@ -25,7 +25,7 @@ import org.ohmage.R;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.prompt.photo.PhotoPrompt;
@@ -54,7 +54,7 @@ import com.google.android.imageloader.ImageLoader;
 /**
  * This Activity is used to display Information for an individual response. It
  * is called with {@link Intent#ACTION_VIEW} on the URI specified by
- * {@link DbContract.Response#getResponseUri(long)}
+ * {@link DbContract.Responses#getResponseUri(long)}
  *
  * @author cketcham
  *
@@ -94,7 +94,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	private interface ResponseQuery {
 		String[] PROJECTION = { Campaigns.CAMPAIGN_NAME,
 				Surveys.SURVEY_TITLE,
-				Response.TIME,
+				Responses.RESPONSE_TIME,
 				Campaigns.CAMPAIGN_ICON};
 
 		int CAMPAIGN_NAME = 0;
@@ -279,7 +279,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 					String value = cursor.getString(columnIndex);
 
 					if(view.getTag() instanceof ImageView) {
-						String campaignUrn = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN));
+						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 						File photoDir = new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_'));
 						File photo = new File(photoDir, value + ".jpg");
 						Bitmap img = BitmapFactory.decodeFile(photo.getAbsolutePath());

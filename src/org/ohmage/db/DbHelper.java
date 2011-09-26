@@ -31,10 +31,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.Models.SurveyPrompt;
 import org.ohmage.service.SurveyGeotagService;
@@ -56,7 +57,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 27;
+	private static final int DB_VERSION = 28;
 	
 	private final Context mContext;
 
@@ -71,8 +72,8 @@ public class DbHelper extends SQLiteOpenHelper {
 		String RESPONSES_JOIN_CAMPAIGNS_SURVEYS = String.format(
 				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s "
 						+ "inner join %5$s on %1$s.%6$s=%5$s.%7$s ", RESPONSES,
-				CAMPAIGNS, Response.CAMPAIGN_URN, Campaigns.CAMPAIGN_URN, SURVEYS,
-				Response.SURVEY_ID, Surveys.SURVEY_ID);
+				CAMPAIGNS, Responses.CAMPAIGN_URN, Campaigns.CAMPAIGN_URN, SURVEYS,
+				Responses.SURVEY_ID, Surveys.SURVEY_ID);
 
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String
 				.format(
@@ -84,9 +85,9 @@ public class DbHelper extends SQLiteOpenHelper {
 						SURVEYS, // 3
 						CAMPAIGNS, // 4
 						PromptResponse.RESPONSE_ID, // 5
-						Response._ID, // 6
-						Response.CAMPAIGN_URN, // 7
-						Response.SURVEY_ID, // 8
+						Responses._ID, // 6
+						Responses.CAMPAIGN_URN, // 7
+						Responses.SURVEY_ID, // 8
 						Surveys.SURVEY_ID, // 9
 						Surveys.CAMPAIGN_URN, // 10
 						Campaigns.CAMPAIGN_URN); // 11
@@ -155,21 +156,21 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ Tables.RESPONSES
 				+ " ("
-				+ Response._ID
+				+ Responses._ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ Response.CAMPAIGN_URN
+				+ Responses.CAMPAIGN_URN
 				+ " TEXT, " // cascade delete from campaigns
-				+ Response.USERNAME + " TEXT, " + Response.DATE + " TEXT, "
-				+ Response.TIME + " INTEGER, " + Response.TIMEZONE + " TEXT, "
-				+ Response.LOCATION_STATUS + " TEXT, "
-				+ Response.LOCATION_LATITUDE + " REAL, "
-				+ Response.LOCATION_LONGITUDE + " REAL, "
-				+ Response.LOCATION_PROVIDER + " TEXT, "
-				+ Response.LOCATION_ACCURACY + " REAL, "
-				+ Response.LOCATION_TIME + " INTEGER, " + Response.SURVEY_ID
-				+ " TEXT, " + Response.SURVEY_LAUNCH_CONTEXT + " TEXT, "
-				+ Response.RESPONSE + " TEXT, " + Response.STATUS
-				+ " INTEGER DEFAULT 0, " + Response.HASHCODE + " TEXT" + ");");
+				+ Responses.RESPONSE_USERNAME + " TEXT, " + Responses.RESPONSE_DATE + " TEXT, "
+				+ Responses.RESPONSE_TIME + " INTEGER, " + Responses.RESPONSE_TIMEZONE + " TEXT, "
+				+ Responses.RESPONSE_LOCATION_STATUS + " TEXT, "
+				+ Responses.RESPONSE_LOCATION_LATITUDE + " REAL, "
+				+ Responses.RESPONSE_LOCATION_LONGITUDE + " REAL, "
+				+ Responses.RESPONSE_LOCATION_PROVIDER + " TEXT, "
+				+ Responses.RESPONSE_LOCATION_ACCURACY + " REAL, "
+				+ Responses.RESPONSE_LOCATION_TIME + " INTEGER, " + Responses.SURVEY_ID
+				+ " TEXT, " + Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT + " TEXT, "
+				+ Responses.RESPONSE_JSON + " TEXT, " + Responses.RESPONSE_STATUS
+				+ " INTEGER DEFAULT 0, " + Responses.RESPONSE_HASHCODE + " TEXT" + ");");
 
 		// make campaign URN unique in the campaigns table
 		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Campaigns.CAMPAIGN_URN
@@ -192,23 +193,23 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		// for responses, index the campaign and survey ID columns, as we'll be
 		// selecting on them
-		db.execSQL("CREATE INDEX IF NOT EXISTS " + Response.CAMPAIGN_URN
-				+ "_idx ON " + Tables.RESPONSES + " (" + Response.CAMPAIGN_URN
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + Responses.CAMPAIGN_URN
+				+ "_idx ON " + Tables.RESPONSES + " (" + Responses.CAMPAIGN_URN
 				+ ");");
-		db.execSQL("CREATE INDEX IF NOT EXISTS " + Response.SURVEY_ID
-				+ "_idx ON " + Tables.RESPONSES + " (" + Response.SURVEY_ID
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + Responses.SURVEY_ID
+				+ "_idx ON " + Tables.RESPONSES + " (" + Responses.SURVEY_ID
 				+ ");");
 		// also index the time column, as we'll use that for time-related
 		// queries
-		db.execSQL("CREATE INDEX IF NOT EXISTS " + Response.TIME + "_idx ON "
-				+ Tables.RESPONSES + " (" + Response.TIME + ");");
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + Responses.RESPONSE_TIME + "_idx ON "
+				+ Tables.RESPONSES + " (" + Responses.RESPONSE_TIME + ");");
 
 		// for responses, to prevent duplicates, add a unique key on the
 		// 'hashcode' column, which is just a hash of the concatentation
 		// of the campaign urn + survey ID + username + time of the response,
 		// computed and maintained by us, unfortunately :\
-		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Response.HASHCODE
-				+ "_idx ON " + Tables.RESPONSES + " (" + Response.HASHCODE
+		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Responses.RESPONSE_HASHCODE
+				+ "_idx ON " + Tables.RESPONSES + " (" + Responses.RESPONSE_HASHCODE
 				+ ");");
 
 		// for prompt values, index on the response id for fast lookups
@@ -243,14 +244,14 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ PromptResponse._ID + " IN (" + " SELECT "
 				+ Tables.PROMPT_RESPONSES + "." + PromptResponse._ID + " FROM "
 				+ Tables.PROMPT_RESPONSES + " PR" + " INNER JOIN "
-				+ Tables.RESPONSES + " R ON R." + Response._ID + "=PR."
+				+ Tables.RESPONSES + " R ON R." + Responses._ID + "=PR."
 				+ PromptResponse.RESPONSE_ID + " WHERE R."
-				+ Response.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "); "
+				+ Responses.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.SURVEYS + " WHERE "
 				+ Surveys.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
 				+ "DELETE from " + Tables.RESPONSES + " WHERE "
-				+ Response.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
+				+ Responses.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
 				+ "END;");
 
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.SURVEYS
@@ -263,7 +264,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ "_cascade_del AFTER DELETE ON " + Tables.RESPONSES
 				+ " BEGIN " + "DELETE from " + Tables.PROMPT_RESPONSES
 				+ " WHERE " + PromptResponse.RESPONSE_ID + "=old."
-				+ Response._ID + "; " + "END;");
+				+ Responses._ID + "; " + "END;");
 	}
 
 	@Override
@@ -317,9 +318,9 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		// extract data that we'll need to parse the json + insert prompt
 		// responses
-		String response = values.getAsString(Response.RESPONSE);
-		String campaignUrn = values.getAsString(Response.CAMPAIGN_URN);
-		String surveyId = values.getAsString(Response.SURVEY_ID);
+		String response = values.getAsString(Responses.RESPONSE_JSON);
+		String campaignUrn = values.getAsString(Responses.CAMPAIGN_URN);
+		String surveyId = values.getAsString(Responses.SURVEY_ID);
 
 		try {
 			// start a transaction involving the following operations:
@@ -372,9 +373,9 @@ public class DbHelper extends SQLiteOpenHelper {
 	public boolean setResponseRowUploaded(long _id) {
 		ContentValues values = new ContentValues();
 		ContentResolver cr = mContext.getContentResolver();
-		values.put(Response.STATUS, Response.STATUS_UPLOADED);
-		return cr.update(Response.CONTENT_URI, values,
-				Response._ID + "=" + _id, null) > 0;
+		values.put(Responses.RESPONSE_STATUS, Response.STATUS_UPLOADED);
+		return cr.update(Responses.CONTENT_URI, values,
+				Responses._ID + "=" + _id, null) > 0;
 	}
 
 	/**
@@ -387,7 +388,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 */
 	public boolean removeResponseRows(String campaignUrn) {
 		ContentResolver cr = mContext.getContentResolver();
-		return cr.delete(Response.CONTENT_URI, Response.CAMPAIGN_URN + "='"
+		return cr.delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "='"
 				+ campaignUrn + "'", null) > 0;
 	}
 
@@ -401,18 +402,18 @@ public class DbHelper extends SQLiteOpenHelper {
 	 */
 	public int removeStaleResponseRows(String campaignUrn) {
 		// build and execute the delete on the response table
-		String whereClause = "(" + Response.STATUS + "="
-				+ Response.STATUS_DOWNLOADED + " or " + Response.STATUS + "="
+		String whereClause = "(" + Responses.RESPONSE_STATUS + "="
+				+ Response.STATUS_DOWNLOADED + " or " + Responses.RESPONSE_STATUS + "="
 				+ Response.STATUS_UPLOADED + ")";
 
 		if (campaignUrn != null)
-			whereClause += " and " + Response.CAMPAIGN_URN + "='" + campaignUrn
+			whereClause += " and " + Responses.CAMPAIGN_URN + "='" + campaignUrn
 					+ "'";
 
 		// get a contentresolver and pass the delete onto it (so it can notify,
 		// etc.)
 		ContentResolver cr = mContext.getContentResolver();
-		return cr.delete(Response.CONTENT_URI, whereClause, null);
+		return cr.delete(Responses.CONTENT_URI, whereClause, null);
 	}
 
 	/**
@@ -441,9 +442,9 @@ public class DbHelper extends SQLiteOpenHelper {
 	public List<Response> getSurveyResponsesBefore(String campaignUrn,
 			long cutoffTime) {
 		ContentResolver cr = mContext.getContentResolver();
-		Cursor cursor = cr.query(Response.getResponsesByCampaign(campaignUrn),
-				null, Response.TIME + " < " + Long.toString(cutoffTime)
-						+ " AND " + Response.STATUS + "="
+		Cursor cursor = cr.query(Campaigns.buildResponsesUri(campaignUrn),
+				null, Responses.RESPONSE_TIME + " < " + Long.toString(cutoffTime)
+						+ " AND " + Responses.RESPONSE_STATUS + "="
 						+ Response.STATUS_STANDBY, null, null);
 
 		return Response.fromCursor(cursor);
@@ -456,23 +457,23 @@ public class DbHelper extends SQLiteOpenHelper {
 			return -1;
 
 		ContentValues vals = new ContentValues();
-		vals.put(Response.STATUS, Response.STATUS_STANDBY);
-		vals.put(Response.LOCATION_STATUS, locationStatus);
-		vals.put(Response.LOCATION_LATITUDE, locationLatitude);
-		vals.put(Response.LOCATION_LONGITUDE, locationLongitude);
-		vals.put(Response.LOCATION_PROVIDER, locationProvider);
-		vals.put(Response.LOCATION_ACCURACY, locationAccuracy);
-		vals.put(Response.LOCATION_TIME, locationTime);
+		vals.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
+		vals.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
+		vals.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
+		vals.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
+		vals.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
+		vals.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
+		vals.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
 
 		long earliestTimestampToUpdate = locationTime
 				- SurveyGeotagService.LOCATION_STALENESS_LIMIT;
 
 		ContentResolver cr = mContext.getContentResolver();
-		int count = cr.update(Response.CONTENT_URI, vals,
-				Response.LOCATION_STATUS + " = '"
+		int count = cr.update(Responses.CONTENT_URI, vals,
+				Responses.RESPONSE_LOCATION_STATUS + " = '"
 						+ SurveyGeotagService.LOCATION_UNAVAILABLE + "' AND "
-						+ Response.TIME + " > " + earliestTimestampToUpdate
-						+ " AND " + Response.STATUS + "="
+						+ Responses.RESPONSE_TIME + " > " + earliestTimestampToUpdate
+						+ " AND " + Responses.RESPONSE_STATUS + "="
 						+ Response.STATUS_STANDBY, null);
 
 		return count;

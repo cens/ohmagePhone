@@ -5,7 +5,7 @@ import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.ResponseHistory;
@@ -409,19 +409,19 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			if(campaignUrn.equals("all")){
 
 				if(surveyID.equals("all")){
-					uri = Response.getResponses();
+					uri = Responses.CONTENT_URI;
 				}
 				else{
-					uri = Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID);				    		
+					uri = Campaigns.buildResponsesUri(campaignUrn, surveyID);				    		
 				}
 
 			}
 			else{
 				if(surveyID.equals("all")){
-					uri = Response.getResponsesByCampaign(campaignUrn);
+					uri = Campaigns.buildResponsesUri(campaignUrn);				    		
 				}
 				else{
-					uri = Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID);				    		
+					uri = Campaigns.buildResponsesUri(campaignUrn, surveyID);				    		
 				}
 			}
 
@@ -430,9 +430,9 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			GregorianCalendar greCalEnd = new GregorianCalendar(mSelectedYear, mSelectedMonth-1, greCalStart.getActualMaximum(GregorianCalendar.DAY_OF_MONTH));
 			
 			String selection = 
-					Response.TIME + " > " + greCalStart.getTime().getTime() +
+					Responses.RESPONSE_TIME + " > " + greCalStart.getTime().getTime() +
 					" AND " + 
-					Response.TIME + " < " + greCalEnd.getTime().getTime();
+					Responses.RESPONSE_TIME + " < " + greCalEnd.getTime().getTime();
 
 			//Create Query
 			Cursor responseCursorThisMonth = cr.query(
@@ -440,7 +440,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 					null, 
 					selection, 
 					null, 
-					Response.DATE
+					Responses.RESPONSE_DATE
 					);
 			
 			Cursor responseCursorTotal = cr.query(uri, null, null, null, null);
@@ -450,7 +450,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 
 			int numOfResponse = 0;
 			for(responseCursorThisMonth.moveToFirst();!responseCursorThisMonth.isAfterLast();responseCursorThisMonth.moveToNext()){
-				Long time = responseCursorThisMonth.getLong(responseCursorThisMonth.getColumnIndex(Response.TIME));
+				Long time = responseCursorThisMonth.getLong(responseCursorThisMonth.getColumnIndex(Responses.RESPONSE_TIME));
 
 				cal.setTimeInMillis(time);
 				Integer responseDay = new Integer(cal.get(Calendar.DAY_OF_MONTH));

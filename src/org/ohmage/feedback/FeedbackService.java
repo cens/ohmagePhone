@@ -20,8 +20,9 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -326,7 +327,7 @@ public class FeedbackService extends WakefulIntentService {
 					// note that we mark this entry as "remote", meaning it came from the server
 
 					try {
-						cr.insert(Response.CONTENT_URI, candidate.toCV());
+						cr.insert(Responses.CONTENT_URI, candidate.toCV());
 					}
 					catch(Exception e) {
 						// display some note in the log that this failed
