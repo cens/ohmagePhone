@@ -58,6 +58,12 @@ public class DbContract {
     	String SURVEY_ANYTIME = "survey_anytime";
     	String SURVEY_STATUS = "survey_status";
     }
+    
+    interface SurveyPromptColumns {
+		String SURVEY_PROMPT_TEXT = "survey_prompt_text";
+		String SURVEY_PROMPT_TYPE = "survey_prompt_type";
+		String SURVEY_PROMPT_PROPERTIES = "survey_prompt_properties";
+    }
 
     private static final String PATH_CAMPAIGNS = "campaigns";
     private static final String PATH_SURVEYS = "surveys";
@@ -99,6 +105,14 @@ public class DbContract {
             return buildSurveysUri(campaignUrn).buildUpon().appendPath(surveyId).build();
         }
         
+        /**
+         * Build {@link Uri} that references any {@link SurveyPrompts} associated
+         * with the requested {@link #CAMPAIGN_URN} and {@link Surveys#SURVEY_ID}
+         */
+        public static Uri buildSurveyPromptsUri(String campaignUrn, String surveyId) {
+            return buildSurveysUri(campaignUrn, surveyId).buildUpon().appendPath(PATH_SURVEYS).build();
+        }
+        
         /** Read {@link #CAMPAIGN_URN} from {@link Campaigns} {@link Uri}. */
         public static String getCampaignUrn(Uri uri) {
             return uri.getPathSegments().get(1);
@@ -122,7 +136,7 @@ public class DbContract {
     	/** Default "ORDER BY" clause. */
     	public static final String DEFAULT_SORT = SurveyColumns.SURVEY_TITLE;
 
-    	/** Build {@link Uri} for all {@link SurveyPrompt}  */
+    	/** Build {@link Uri} for all {@link SurveyPrompts}  */
     	public static Uri buildSurveyPromptsUri() {
     		return CONTENT_URI.buildUpon().appendPath(PATH_PROMPTS).build();
     	}
@@ -136,95 +150,19 @@ public class DbContract {
     /**
 	 * Represents a prompt within a survey, again as extracted from the campaign XML.
 	 */
-	public static final class SurveyPrompt implements BaseColumns {
-		public static final String SURVEY_PID = "survey_pid";
-		public static final String SURVEY_ID = "survey_id";
-		public static final String COMPOSITE_ID = "composite_id";
-		public static final String PROMPT_ID = "prompt_id";
-		public static final String PROMPT_TEXT = "prompt_text";
-		public static final String PROMPT_TYPE = "prompt_type";
-		public static final String PROPERTIES = "properties";
-
-		// data fields here to support use of the Survey class as a data holder (and not just a schema definer)
-		// this should be reconciled by some kind of real ORM someday
-		public long _id;
-		public long mSurveyPID;
-		public String mSurveyID;
-		public String mCompositeID;
-		public String mPromptID;
-		public String mPromptText;
-		public String mPromptType;
-		public String mProperties;
+	public static final class SurveyPrompts implements BaseColumns, SurveyPromptColumns {
 		
         public static final Uri CONTENT_URI =
-        	BASE_CONTENT_URI.buildUpon().appendPath("surveys").build();
+        	BASE_CONTENT_URI.buildUpon().appendPath(PATH_SURVEYS).build();
         public static final String CONTENT_TYPE =
-        	"vnd.android.cursor.dir/vnd." + CONTENT_AUTHORITY + ".surveyprompt";
+        	"vnd.android.cursor.dir/vnd.ohmage.surveyprompt";
         public static final String CONTENT_ITEM_TYPE =
-        	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".surveyprompt";
+        	"vnd.android.cursor.item/vnd.ohmage.surveyprompt";
         
-        public static Uri getSurveyPrompts() {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("surveys")
-				.appendPath("prompts")
-				.build();
-        }
-        
-        public static Uri getSurveyPromptsByCampaignAndSurveyID(String campaignUrn, String surveyID) {
-    		return BASE_CONTENT_URI.buildUpon()
-    			.appendPath("campaigns")
-    			.appendPath(campaignUrn)
-				.appendPath("surveys")
-				.appendPath(surveyID)
-				.appendPath("prompts")
-				.build();
-        }
-
-        /**
-         * Returns a list of Survey objects from the given cursor.
-         * 
-         * @param cursor a cursor containing the fields specified in the Survey schema, which is closed when this method returns.
-         * @return a List of Survey objects
-         */
-        public static List<SurveyPrompt> fromCursor(Cursor cursor) {
-        	List<SurveyPrompt> surveyprompts = new ArrayList<SurveyPrompt>();
-    		
-    		cursor.moveToFirst();
-    		
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			SurveyPrompt temp = new SurveyPrompt();
-    			temp._id = cursor.getLong(cursor.getColumnIndex(SurveyPrompt._ID));
-    			temp.mSurveyPID = cursor.getLong(cursor.getColumnIndex(SurveyPrompt.SURVEY_PID));
-    			temp.mSurveyID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.SURVEY_ID));
-    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.COMPOSITE_ID));
-    			temp.mPromptID = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_ID));
-    			temp.mPromptText = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TEXT));
-    			temp.mPromptType = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TYPE));
-    			temp.mProperties = cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROPERTIES));
-    			surveyprompts.add(temp);
-    			
-    			cursor.moveToNext();
-    		}
-    		
-    		cursor.close();
-    		
-    		return surveyprompts;
-        }
-        
-        public ContentValues toCV() {
-        	ContentValues values = new ContentValues();
-        	
-        	values.put(SurveyPrompt.SURVEY_PID, mSurveyPID);
-        	values.put(SurveyPrompt.SURVEY_ID, mSurveyID);
-        	values.put(SurveyPrompt.COMPOSITE_ID, mCompositeID);
-        	values.put(SurveyPrompt.PROMPT_ID, mPromptID);
-        	values.put(SurveyPrompt.PROMPT_TEXT, mPromptText);
-        	values.put(SurveyPrompt.PROMPT_TYPE, mPromptType);
-        	values.put(SurveyPrompt.PROPERTIES, mProperties);
-        	
-        	return values;
-        }
+        public static final String SURVEY_PID = "survey_pid";
+        public static final String SURVEY_ID = "survey_id";
+        public static final String PROMPT_ID = "prompt_id";
+        public static final String COMPOSITE_ID = "composite_id";
 	}
 	
 	/**

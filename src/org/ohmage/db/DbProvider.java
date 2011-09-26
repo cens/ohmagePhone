@@ -5,7 +5,7 @@ import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.utils.SelectionBuilder;
@@ -135,7 +135,7 @@ public class DbProvider extends ContentProvider {
         		
         	// SURVEY PROMPTS
         	case MatcherTypes.SURVEY_SURVEYPROMPTS:
-        		return SurveyPrompt.CONTENT_TYPE;
+        		return SurveyPrompts.CONTENT_TYPE;
         	
         	// RESPONSES
             case MatcherTypes.RESPONSES:
@@ -205,7 +205,7 @@ public class DbProvider extends ContentProvider {
 				// notify on the related entity URIs
 				cr.notifyChange(Campaigns.CONTENT_URI, null);
 				cr.notifyChange(Surveys.CONTENT_URI, null);
-				cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+				cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
 				
 				break;
 			default:
@@ -257,7 +257,7 @@ public class DbProvider extends ContentProvider {
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);
-					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
 					cr.notifyChange(Response.CONTENT_URI, null);
 					cr.notifyChange(PromptResponse.CONTENT_URI, null);
 					break;
@@ -343,7 +343,7 @@ public class DbProvider extends ContentProvider {
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);
-					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
 					cr.notifyChange(Response.CONTENT_URI, null);
 					cr.notifyChange(PromptResponse.CONTENT_URI, null);
 					break;
@@ -436,7 +436,7 @@ public class DbProvider extends ContentProvider {
 				promptID = uri.getPathSegments().get(6);
 
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-						.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
+						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 						.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 						.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
 						.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
@@ -463,7 +463,7 @@ public class DbProvider extends ContentProvider {
 				}
 
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-						.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
+						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 						.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 						.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
 						.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
@@ -500,7 +500,7 @@ public class DbProvider extends ContentProvider {
 				return builder.table(Tables.SURVEY_PROMPTS_JOIN_SURVEYS)
 					.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS)
 					.where(Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN + "=?", Campaigns.getCampaignUrn(uri))
-					.where(Tables.SURVEY_PROMPTS + "." + SurveyPrompt.SURVEY_ID + "=?", surveyID);
+					.where(Tables.SURVEY_PROMPTS + "." + SurveyPrompts.SURVEY_ID + "=?", surveyID);
 				
 			// RESPONSES
 			case MatcherTypes.RESPONSES:
@@ -521,7 +521,7 @@ public class DbProvider extends ContentProvider {
 				if (nonQuery)
 					return builder.table(Tables.PROMPT_RESPONSES);
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
+					.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
 					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES);
 				
@@ -529,7 +529,7 @@ public class DbProvider extends ContentProvider {
 				promptID = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
+					.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
 					.where(PromptResponse._ID + "=?", promptID)
 					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
 					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES);
@@ -538,8 +538,8 @@ public class DbProvider extends ContentProvider {
 				responseID = uri.getPathSegments().get(1);
 				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
-					.where("SQ." + SurveyPrompt.PROMPT_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID)
+					.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
+					.where("SQ." + SurveyPrompts.PROMPT_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID)
 					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
 					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)

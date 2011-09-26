@@ -16,7 +16,7 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.prompt.photo.PhotoPrompt;
@@ -116,7 +116,7 @@ public class UploadService extends WakefulIntentService {
 				responseJson.put("responses", new JSONArray(cursor.getString(cursor.getColumnIndex(Response.RESPONSE))));
 				
 				ContentResolver cr2 = getContentResolver();
-				Cursor promptsCursor = cr2.query(PromptResponse.getPromptsByResponseID(responseId), new String [] {PromptResponse.PROMPT_VALUE, SurveyPrompt.PROMPT_TYPE}, SurveyPrompt.PROMPT_TYPE + "='photo'", null, null);
+				Cursor promptsCursor = cr2.query(PromptResponse.getPromptsByResponseID(responseId), new String [] {PromptResponse.PROMPT_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE}, SurveyPrompts.SURVEY_PROMPT_TYPE + "='photo'", null, null);
 				
 				while (promptsCursor.moveToNext()) {
 					photoUUIDs.add(promptsCursor.getString(promptsCursor.getColumnIndex(PromptResponse.PROMPT_VALUE)));

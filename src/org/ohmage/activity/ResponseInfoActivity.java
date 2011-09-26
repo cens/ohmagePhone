@@ -27,7 +27,7 @@ import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.content.ContentUris;
@@ -155,7 +155,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			// Create an empty adapter we will use to display the loaded data.
 			mAdapter = new PromptResponsesAdapter(getActivity(), null,  new String[] {
-				SurveyPrompt.PROMPT_TEXT, PromptResponse.PROMPT_VALUE }, new int[] {
+				SurveyPrompts.SURVEY_PROMPT_TEXT, PromptResponse.PROMPT_VALUE }, new int[] {
 				android.R.id.text1, R.id.prompt_value }, 0);
 
 			setListAdapter(mAdapter);
@@ -231,7 +231,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			 * @return
 			 */
 			public String getItemPromptType(Cursor cursor) {
-				return cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TYPE));
+				return cursor.getString(cursor.getColumnIndex(SurveyPrompts.SURVEY_PROMPT_TYPE));
 			}
 
 			@Override

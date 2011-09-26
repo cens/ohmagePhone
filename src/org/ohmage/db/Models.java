@@ -1,6 +1,7 @@
 package org.ohmage.db;
 
 import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
 
 import android.content.ContentValues;
@@ -154,5 +155,63 @@ public class Models {
         	
         	return values;
         }
+	}
+
+	public final static class SurveyPrompt {
+
+		public long _id;
+		public long mSurveyPID;
+		public String mSurveyID;
+		public String mCompositeID;
+		public String mPromptID;
+		public String mPromptText;
+		public String mPromptType;
+		public String mProperties;
+
+		/**
+		 * Returns a list of Survey objects from the given cursor.
+		 * 
+		 * @param cursor a cursor containing the fields specified in the Survey schema, which is closed when this method returns.
+		 * @return a List of Survey objects
+		 */
+		public static List<SurveyPrompt> fromCursor(Cursor cursor) {
+			List<SurveyPrompt> surveyprompts = new ArrayList<SurveyPrompt>();
+
+			cursor.moveToFirst();
+
+			for (int i = 0; i < cursor.getCount(); i++) {
+
+				SurveyPrompt temp = new SurveyPrompt();
+				temp._id = cursor.getLong(cursor.getColumnIndex(SurveyPrompts._ID));
+				temp.mSurveyPID = cursor.getLong(cursor.getColumnIndex(SurveyPrompts.SURVEY_PID));
+				temp.mSurveyID = cursor.getString(cursor.getColumnIndex(SurveyPrompts.SURVEY_ID));
+				temp.mCompositeID = cursor.getString(cursor.getColumnIndex(SurveyPrompts.COMPOSITE_ID));
+				temp.mPromptID = cursor.getString(cursor.getColumnIndex(SurveyPrompts.PROMPT_ID));
+				temp.mPromptText = cursor.getString(cursor.getColumnIndex(SurveyPrompts.SURVEY_PROMPT_TEXT));
+				temp.mPromptType = cursor.getString(cursor.getColumnIndex(SurveyPrompts.SURVEY_PROMPT_TYPE));
+				temp.mProperties = cursor.getString(cursor.getColumnIndex(SurveyPrompts.SURVEY_PROMPT_PROPERTIES));
+				surveyprompts.add(temp);
+
+				cursor.moveToNext();
+			}
+
+			cursor.close();
+
+			return surveyprompts;
+		}
+
+		public ContentValues toCV() {
+			ContentValues values = new ContentValues();
+
+			values.put(SurveyPrompts.SURVEY_PID, mSurveyPID);
+			values.put(SurveyPrompts.SURVEY_ID, mSurveyID);
+			values.put(SurveyPrompts.COMPOSITE_ID, mCompositeID);
+			values.put(SurveyPrompts.PROMPT_ID, mPromptID);
+			values.put(SurveyPrompts.SURVEY_PROMPT_TEXT, mPromptText);
+			values.put(SurveyPrompts.SURVEY_PROMPT_TYPE, mPromptType);
+			values.put(SurveyPrompts.SURVEY_PROMPT_PROPERTIES, mProperties);
+
+			return values;
+		}
 	}
 }

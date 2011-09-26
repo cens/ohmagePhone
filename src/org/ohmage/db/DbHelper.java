@@ -32,10 +32,11 @@ import org.json.JSONObject;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.SurveyPrompt;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Survey;
+import org.ohmage.db.Models.SurveyPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -92,7 +93,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format(
 				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
-				SURVEYS, SurveyPrompt.SURVEY_ID, Surveys.SURVEY_ID);
+				SURVEYS, SurveyPrompts.SURVEY_ID, Surveys.SURVEY_ID);
 	}
 
 	interface Subqueries {
@@ -101,7 +102,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		// PromptResponse.COMPOSITE_ID
 		String PROMPTS_GET_TYPES = String.format(
 				"(select * from %1$s where %1$s.%2$s=%3$s)",
-				Tables.SURVEY_PROMPTS, SurveyPrompt.COMPOSITE_ID,
+				Tables.SURVEY_PROMPTS, SurveyPrompts.COMPOSITE_ID,
 				PromptResponse.COMPOSITE_ID);
 	}
 
@@ -141,15 +142,15 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ Tables.SURVEY_PROMPTS
 				+ " ("
-				+ SurveyPrompt._ID
+				+ SurveyPrompts._ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ SurveyPrompt.SURVEY_PID
+				+ SurveyPrompts.SURVEY_PID
 				+ " INTEGER, " // cascade delete from surveys
-				+ SurveyPrompt.SURVEY_ID + " TEXT, "
-				+ SurveyPrompt.COMPOSITE_ID + " TEXT, "
-				+ SurveyPrompt.PROMPT_ID + " TEXT, " + SurveyPrompt.PROMPT_TEXT
-				+ " TEXT, " + SurveyPrompt.PROMPT_TYPE + " TEXT, "
-				+ SurveyPrompt.PROPERTIES + " TEXT " + ");");
+				+ SurveyPrompts.SURVEY_ID + " TEXT, "
+				+ SurveyPrompts.COMPOSITE_ID + " TEXT, "
+				+ SurveyPrompts.PROMPT_ID + " TEXT, " + SurveyPrompts.SURVEY_PROMPT_TEXT
+				+ " TEXT, " + SurveyPrompts.SURVEY_PROMPT_TYPE + " TEXT, "
+				+ SurveyPrompts.SURVEY_PROMPT_PROPERTIES + " TEXT " + ");");
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ Tables.RESPONSES
@@ -231,11 +232,11 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ " BEGIN "
 
 				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE "
-				+ SurveyPrompt._ID + " IN (" + " SELECT "
-				+ Tables.SURVEY_PROMPTS + "." + SurveyPrompt._ID + " FROM "
+				+ SurveyPrompts._ID + " IN (" + " SELECT "
+				+ Tables.SURVEY_PROMPTS + "." + SurveyPrompts._ID + " FROM "
 				+ Tables.SURVEY_PROMPTS + " SP" + " INNER JOIN "
 				+ Tables.SURVEYS + " S ON S." + Surveys._ID + "=SP."
-				+ SurveyPrompt.SURVEY_PID + " WHERE S." + Surveys.CAMPAIGN_URN
+				+ SurveyPrompts.SURVEY_PID + " WHERE S." + Surveys.CAMPAIGN_URN
 				+ "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.PROMPT_RESPONSES + " WHERE "
@@ -255,7 +256,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.SURVEYS
 				+ "_cascade_del AFTER DELETE ON " + Tables.SURVEYS + " BEGIN "
 				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE "
-				+ SurveyPrompt.SURVEY_PID + "=old." + Surveys._ID + "; "
+				+ SurveyPrompts.SURVEY_PID + "=old." + Surveys._ID + "; "
 				+ "END;");
 
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.RESPONSES
@@ -786,7 +787,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			// this will help in remapping values for single and multichoice prompts, etc.
 			HashMap<String, SurveyPrompt> promptsMap = new HashMap<String, SurveyPrompt>();
 			List<SurveyPrompt> promptsList = SurveyPrompt.fromCursor(
-						db.query(Tables.SURVEY_PROMPTS, null, SurveyPrompt.COMPOSITE_ID + "='" + campaignUrn + ":" + surveyId + "'", null, null, null, null)
+						db.query(Tables.SURVEY_PROMPTS, null, SurveyPrompts.COMPOSITE_ID + "='" + campaignUrn + ":" + surveyId + "'", null, null, null, null)
 					);
 			// remap list to hashmap; i know this looks crazy, but it'll make lookups slightly faster and doesn't take much memory
 			for (SurveyPrompt sp : promptsList)
