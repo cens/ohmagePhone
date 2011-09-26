@@ -1,6 +1,7 @@
 package org.ohmage.db;
 
 import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
@@ -330,5 +331,58 @@ public class Models {
 				throw new UnsupportedOperationException("The SHA1 algorithm is not available, can't make a response CV", e);
 			}
 		}
+	}
+	
+	public final static class PromptResponse {
+
+		public long _id;
+		public long mResponseID;
+		public String mCompositeID;
+		public String mPromptID;
+		public String mValue;
+		public String mExtraValue;
+		
+        /**
+         * Returns a list of PromptResponse objects from the given cursor.
+         * 
+         * @param cursor a cursor containing the fields specified in the PromptResponse schema, which is closed when this method returns.
+         * @return a List of PromptResponse objects
+         */
+        public static List<PromptResponse> fromCursor(Cursor cursor) {
+    		
+    		ArrayList<PromptResponse> prompts = new ArrayList<PromptResponse>();
+    		
+    		cursor.moveToFirst();
+    		
+    		for (int i = 0; i < cursor.getCount(); i++) {
+    			
+    			PromptResponse temp = new PromptResponse();
+    			temp._id = cursor.getLong(cursor.getColumnIndex(PromptResponses._ID));
+    			temp.mResponseID = cursor.getLong(cursor.getColumnIndex(PromptResponses.RESPONSE_ID));
+    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponses.COMPOSITE_ID));
+    			temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_ID));
+    			temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE));
+    			temp.mExtraValue = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE));
+    			prompts.add(temp);
+    			
+    			cursor.moveToNext();
+    		}
+    		
+    		cursor.close();
+    		
+    		return prompts; 
+    	}
+        
+        public ContentValues toCV() {
+        	ContentValues values = new ContentValues();
+        	
+        	values.put(PromptResponses.RESPONSE_ID, mResponseID);
+        	values.put(PromptResponses.COMPOSITE_ID, mCompositeID);
+        	values.put(PromptResponses.PROMPT_ID, mPromptID);
+        	values.put(PromptResponses.PROMPT_RESPONSE_VALUE, mValue);
+        	values.put(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE, mExtraValue);
+        	
+        	return values;
+        }
 	}
 }

@@ -24,7 +24,7 @@ import org.json.JSONException;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.PromptResponse;
+import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
@@ -155,7 +155,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			// Create an empty adapter we will use to display the loaded data.
 			mAdapter = new PromptResponsesAdapter(getActivity(), null,  new String[] {
-				SurveyPrompts.SURVEY_PROMPT_TEXT, PromptResponse.PROMPT_VALUE }, new int[] {
+				SurveyPrompts.SURVEY_PROMPT_TEXT, PromptResponses.PROMPT_RESPONSE_VALUE }, new int[] {
 				android.R.id.text1, R.id.prompt_value }, 0);
 
 			setListAdapter(mAdapter);
@@ -169,11 +169,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		@Override
 		public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 			return new CursorLoader(getActivity(),
-					DbContract.PromptResponse
-					.getPromptsByResponseID(ContentUris
-							.parseId(getActivity().getIntent()
-									.getData())),
-									null, DbContract.PromptResponse.PROMPT_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
+					Responses.buildPromptResponsesUri(ContentUris.parseId(getActivity().getIntent().getData())),
+					null, PromptResponses.PROMPT_RESPONSE_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
 		}
 
 		@Override
@@ -275,7 +272,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 
-				if(cursor.getColumnName(columnIndex).equals(PromptResponse.PROMPT_VALUE)) {
+				if(cursor.getColumnName(columnIndex).equals(PromptResponses.PROMPT_RESPONSE_VALUE)) {
 					String value = cursor.getString(columnIndex);
 
 					if(view.getTag() instanceof ImageView) {

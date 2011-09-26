@@ -1,14 +1,9 @@
 package org.ohmage.db;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.OldUploadService;
 
 import android.content.ContentUris;
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -94,6 +89,13 @@ public class DbContract {
 		String RESPONSE_STATUS = "response_status";
 		/** read-only, a hash that uniquely identifies this response */
 		String RESPONSE_HASHCODE = "response_hashcode";
+    }
+    
+    interface PromptResponseColumns {
+    	/** actual value for the response */
+		String PROMPT_RESPONSE_VALUE = "prompt_response_value";
+		/** extra data associated with the response that might be needed */
+		String PROMPT_RESPONSE_EXTRA_VALUE = "prompt_response_extra_value";
     }
     
     private static final String PATH_CAMPAIGNS = "campaigns";
@@ -237,10 +239,17 @@ public class DbContract {
 		public static final String CAMPAIGN_URN = "campaign_urn";
 		public static final String SURVEY_ID = "survey_id";
 		
-        /** Build {@link Uri} for requested {@link #_ID}  */
+        /** Build {@link Uri} for requested {@link Responses#_ID}  */
         public static Uri buildResponseUri(long responseId) {
         	return ContentUris.withAppendedId(CONTENT_URI, responseId);
         }
+
+        /** Build {@link Uri} that references any {@link Responses} associated
+         * with the requested {@link Responses#_ID}
+         */
+		public static Uri buildPromptResponsesUri(long responseId) {
+			return buildResponseUri(responseId).buildUpon().appendPath(PATH_PROMPTS).build();
+		}
 	}
 	
 	// ===================================
@@ -253,122 +262,25 @@ public class DbContract {
 	 * These are extracted from the survey response json at the time of survey completion,
 	 * or in FeedbackService from the downloaded response data.
 	 */
-	public static final class PromptResponse implements BaseColumns
-	{
+	public static final class PromptResponses implements BaseColumns, PromptResponseColumns {
+
+		public static final Uri CONTENT_URI =
+				BASE_CONTENT_URI.buildUpon().appendPath(PATH_PROMPTS).build();
+		public static final String CONTENT_TYPE =
+				"vnd.android.cursor.dir/vnd.ohmage.promptresponse";
+		public static final String CONTENT_ITEM_TYPE =
+				"vnd.android.cursor.item/vnd.ohmage.promptresponse";
+
+		public enum AggregateTypes {
+			AVG,
+			COUNT,
+			MAX,
+			MIN,
+			TOTAL
+		}
+
 		public static final String RESPONSE_ID = "response_id";
 		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
-		public static final String PROMPT_VALUE = "prompt_value";
-		public static final String EXTRA_VALUE = "extra_value";
-		
-		// data fields here to support use of the PromptResponse class as a data holder (and not just a schema definer)
-		// this should be reconciled by some kind of real ORM someday
-		public long _id;
-		public long mResponseID;
-		public String mCompositeID;
-		public String mPromptID;
-		public String mValue;
-		public String mExtraValue;
-		
-        public static final Uri CONTENT_URI =
-        	BASE_CONTENT_URI.buildUpon().appendPath("prompts").build();
-        public static final String CONTENT_TYPE =
-        	"vnd.android.cursor.dir/vnd." + CONTENT_AUTHORITY + ".promptresponse";
-        public static final String CONTENT_ITEM_TYPE =
-        	"vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + ".promptresponse";
-        
-        public enum AggregateTypes {
-        	AVG,
-        	COUNT,
-        	MAX,
-        	MIN,
-        	TOTAL
-        }
-        
-        public static Uri getPromptUri(long insertID) {
-        	return CONTENT_URI.buildUpon().appendPath(Long.toString(insertID)).build();
-        }
-        
-        public static Uri getPrompts() {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("prompts")
-				.build();
-        }
-        
-        public static Uri getPromptsByResponseID(long responseID) {
-    		return BASE_CONTENT_URI.buildUpon()
-				.appendPath("responses")
-				.appendPath(Long.toString(responseID))
-				.appendPath("prompts")
-				.build();
-        }
-        
-        public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID) {
-    		return BASE_CONTENT_URI.buildUpon()
-    			.appendPath("campaigns")
-				.appendPath(campaignUrn)
-				.appendPath("surveys")
-				.appendPath(surveyID)
-				.appendPath("responses")
-				.appendPath("prompts")
-				.appendPath(promptID)
-				.build();
-        }
-        
-        public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID, AggregateTypes aggregate) {
-    		return BASE_CONTENT_URI.buildUpon()
-    			.appendPath("campaigns")
-				.appendPath(campaignUrn)
-				.appendPath("surveys")
-				.appendPath(surveyID)
-				.appendPath("responses")
-				.appendPath("prompts")
-				.appendPath(promptID)
-				.appendPath(aggregate.toString())
-				.build();
-        }
-        
-        /**
-         * Returns a list of PromptResponse objects from the given cursor.
-         * 
-         * @param cursor a cursor containing the fields specified in the PromptResponse schema, which is closed when this method returns.
-         * @return a List of PromptResponse objects
-         */
-        public static List<PromptResponse> fromCursor(Cursor cursor) {
-    		
-    		ArrayList<PromptResponse> prompts = new ArrayList<PromptResponse>();
-    		
-    		cursor.moveToFirst();
-    		
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			PromptResponse temp = new PromptResponse();
-    			temp._id = cursor.getLong(cursor.getColumnIndex(PromptResponse._ID));
-    			temp.mResponseID = cursor.getLong(cursor.getColumnIndex(PromptResponse.RESPONSE_ID));
-    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponse.COMPOSITE_ID));
-    			temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_ID));
-    			temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponse.PROMPT_VALUE));
-    			temp.mExtraValue = cursor.getString(cursor.getColumnIndex(PromptResponse.EXTRA_VALUE));
-    			prompts.add(temp);
-    			
-    			cursor.moveToNext();
-    		}
-    		
-    		cursor.close();
-    		
-    		return prompts; 
-    	}
-        
-        public ContentValues toCV() {
-        	ContentValues values = new ContentValues();
-        	
-        	values.put(PromptResponse.RESPONSE_ID, mResponseID);
-        	values.put(PromptResponse.COMPOSITE_ID, mCompositeID);
-        	values.put(PromptResponse.PROMPT_ID, mPromptID);
-        	values.put(PromptResponse.PROMPT_VALUE, mValue);
-        	values.put(PromptResponse.EXTRA_VALUE, mExtraValue);
-        	
-        	return values;
-        }
 	}
 }

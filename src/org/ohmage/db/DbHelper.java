@@ -30,7 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.PromptResponse;
+import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
@@ -38,6 +38,7 @@ import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.Models.SurveyPrompt;
+import org.ohmage.db.Models.PromptResponse;
 import org.ohmage.service.SurveyGeotagService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -57,7 +58,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 28;
+	private static final int DB_VERSION = 29;
 	
 	private final Context mContext;
 
@@ -84,7 +85,7 @@ public class DbHelper extends SQLiteOpenHelper {
 						RESPONSES, // 2
 						SURVEYS, // 3
 						CAMPAIGNS, // 4
-						PromptResponse.RESPONSE_ID, // 5
+						PromptResponses.RESPONSE_ID, // 5
 						Responses._ID, // 6
 						Responses.CAMPAIGN_URN, // 7
 						Responses.SURVEY_ID, // 8
@@ -104,7 +105,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		String PROMPTS_GET_TYPES = String.format(
 				"(select * from %1$s where %1$s.%2$s=%3$s)",
 				Tables.SURVEY_PROMPTS, SurveyPrompts.COMPOSITE_ID,
-				PromptResponse.COMPOSITE_ID);
+				PromptResponses.COMPOSITE_ID);
 	}
 
 	public DbHelper(Context context) {
@@ -182,14 +183,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ Tables.PROMPT_RESPONSES
 				+ " ("
-				+ PromptResponse._ID
+				+ PromptResponses._ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ PromptResponse.RESPONSE_ID
+				+ PromptResponses.RESPONSE_ID
 				+ " INTEGER, " // cascade delete from responses
-				+ PromptResponse.COMPOSITE_ID + " TEXT, "
-				+ PromptResponse.PROMPT_ID + " TEXT, "
-				+ PromptResponse.PROMPT_VALUE + " TEXT, "
-				+ PromptResponse.EXTRA_VALUE + " TEXT" + ");");
+				+ PromptResponses.COMPOSITE_ID + " TEXT, "
+				+ PromptResponses.PROMPT_ID + " TEXT, "
+				+ PromptResponses.PROMPT_RESPONSE_VALUE + " TEXT, "
+				+ PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + " TEXT" + ");");
 
 		// for responses, index the campaign and survey ID columns, as we'll be
 		// selecting on them
@@ -213,9 +214,9 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ ");");
 
 		// for prompt values, index on the response id for fast lookups
-		db.execSQL("CREATE INDEX IF NOT EXISTS " + PromptResponse.RESPONSE_ID
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + PromptResponses.RESPONSE_ID
 				+ "_idx ON " + Tables.PROMPT_RESPONSES + " ("
-				+ PromptResponse.RESPONSE_ID + ");");
+				+ PromptResponses.RESPONSE_ID + ");");
 
 		// --------
 		// --- set up the triggers to implement cascading deletes, too
@@ -241,11 +242,11 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.PROMPT_RESPONSES + " WHERE "
-				+ PromptResponse._ID + " IN (" + " SELECT "
-				+ Tables.PROMPT_RESPONSES + "." + PromptResponse._ID + " FROM "
+				+ PromptResponses._ID + " IN (" + " SELECT "
+				+ Tables.PROMPT_RESPONSES + "." + PromptResponses._ID + " FROM "
 				+ Tables.PROMPT_RESPONSES + " PR" + " INNER JOIN "
 				+ Tables.RESPONSES + " R ON R." + Responses._ID + "=PR."
-				+ PromptResponse.RESPONSE_ID + " WHERE R."
+				+ PromptResponses.RESPONSE_ID + " WHERE R."
 				+ Responses.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.SURVEYS + " WHERE "
@@ -263,7 +264,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.RESPONSES
 				+ "_cascade_del AFTER DELETE ON " + Tables.RESPONSES
 				+ " BEGIN " + "DELETE from " + Tables.PROMPT_RESPONSES
-				+ " WHERE " + PromptResponse.RESPONSE_ID + "=old."
+				+ " WHERE " + PromptResponses.RESPONSE_ID + "=old."
 				+ Responses._ID + "; " + "END;");
 	}
 
