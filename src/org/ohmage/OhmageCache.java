@@ -51,6 +51,24 @@ public class OhmageCache extends FileResponseCache {
         dir = new File(dir, "filecache");
         return dir;
     }
+    
+    public static File getCachedFile(Context context, URI uri) {
+        try {
+        	File parent = getCacheDir(context);
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(String.valueOf(uri).getBytes("UTF-8"));
+            byte[] output = digest.digest();
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < output.length; i++) {
+                builder.append(Integer.toHexString(0xFF & output[i]));
+            }
+            return new File(parent, builder.toString());
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private final Context mContext;
 
@@ -72,23 +90,7 @@ public class OhmageCache extends FileResponseCache {
     }
 
     @Override
-    protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders,
-            Object cookie) {
-        try {
-            File parent = getCacheDir(mContext);
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(String.valueOf(uri).getBytes("UTF-8"));
-            byte[] output = digest.digest();
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < output.length; i++) {
-                builder.append(Integer.toHexString(0xFF & output[i]));
-            }
-            String filename = builder.toString();
-            return new File(parent, filename);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+    protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
+    	return getCachedFile(mContext, uri);
     }
 }
