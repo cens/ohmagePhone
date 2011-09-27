@@ -1,19 +1,12 @@
 package org.ohmage.activity;
 
-import java.io.IOException;
-
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
-import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
-import org.xmlpull.v1.XmlPullParserException;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -30,10 +23,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.imageloader.ImageLoader;
+
 public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private ImageLoader mImageLoader;
 
 	// handles to views we'll be manipulating
 	private TextView mErrorBox;
@@ -54,6 +50,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mImageLoader = ImageLoader.get(this);
 		// and create a handler attached to this thread for contentobserver events
 		mHandler = new Handler();
 
@@ -134,7 +131,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 					Survey.DESCRIPTION,
 					Survey.SUBMIT_TEXT,
 					Campaign.NAME,
-					Campaign.STATUS
+					Campaign.STATUS,
+					Campaign.ICON
 				};
 		
 		final int SURVEY_ID = 0;
@@ -144,6 +142,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		final int SUBMIT_TEXT = 4;
 		final int CAMPAIGN_NAME = 5;
 		final int CAMPAIGN_STATUS = 6;
+		final int CAMPAIGN_ICON = 7;
 	}
 
 	@Override
@@ -166,6 +165,11 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mHeadertext.setText(data.getString(QueryParams.TITLE));
 		mSubtext.setText(data.getString(QueryParams.CAMPAIGN_NAME));
 		mNotetext.setVisibility(View.INVISIBLE);
+		
+		final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
+		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
+			mIconView.setImageResource(R.drawable.apple_logo);
+		}
 		
 		// fill in the description
 		mDescView.setText(data.getString(QueryParams.DESCRIPTION));

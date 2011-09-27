@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.R;
@@ -45,9 +49,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.google.android.imageloader.ImageLoader;
 
 /**
  * This Activity is used to display Information for an individual response. It
@@ -59,10 +61,14 @@ import java.util.Date;
  */
 public class ResponseInfoActivity extends BaseInfoActivity implements
 LoaderManager.LoaderCallbacks<Cursor> {
+	
+	private ImageLoader mImageLoader;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		mImageLoader = ImageLoader.get(this);
 
 		FragmentManager fm = getSupportFragmentManager();
 
@@ -88,11 +94,13 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	private interface ResponseQuery {
 		String[] PROJECTION = { Campaign.NAME,
 				Survey.TITLE,
-				Response.TIME };
+				Response.TIME,
+				Campaign.ICON};
 
 		int CAMPAIGN_NAME = 0;
 		int SURVEY_TITLE = 1;
 		int TIME = 2;
+		int CAMPAIGN_ICON = 3;
 	}
 
 	@Override
@@ -114,6 +122,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
 		SimpleDateFormat df = new SimpleDateFormat();
 		mNotetext.setText(df.format(new Date(completedDate)));
+		
+		final String iconUrl = data.getString(ResponseQuery.CAMPAIGN_ICON);
+		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
+			mIconView.setImageResource(R.drawable.apple_logo);
+		}
 
 		mEntityHeader.setVisibility(View.VISIBLE);
 	}

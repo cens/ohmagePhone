@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaign;
@@ -17,7 +17,6 @@ import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
-import org.ohmage.triggers.ui.TriggerListActivity;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
@@ -35,13 +34,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.TableRow;
 import android.widget.TextView;
+
+import com.google.android.imageloader.ImageLoader;
 
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private ImageLoader mImageLoader;
 	
 	// action bar commands
 	private static final int ACTION_TAKE_SURVEY = 1;
@@ -66,6 +67,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mImageLoader = ImageLoader.get(this);
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -243,7 +245,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 					Campaign.CONFIGURATION_XML,
 					Campaign.DESCRIPTION,
 					Campaign.STATUS,
-					Campaign.PRIVACY
+					Campaign.PRIVACY,
+					Campaign.ICON
 				};
 		
 		final int URN = 0;
@@ -252,6 +255,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		final int DESCRIPTION = 3;
 		final int STATUS = 4;
 		final int PRIVACY = 5;
+		final int ICON = 6;
 	}
 
 	@Override
@@ -281,6 +285,11 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			mHeadertext.setText(data.getString(QueryParams.NAME));
 			mSubtext.setText(campaignUrn);
 			mNotetext.setVisibility(View.INVISIBLE);
+			
+			final String iconUrl = data.getString(QueryParams.ICON);
+			if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
+				mIconView.setImageResource(R.drawable.apple_logo);
+			}
 			
 			// fill in the description
 			mDescView.setText(data.getString(QueryParams.DESCRIPTION));
