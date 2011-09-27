@@ -1,8 +1,10 @@
 package org.ohmage.activity;
 
+import com.google.android.imageloader.ImageLoader;
+
 import org.ohmage.R;
-import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -17,14 +19,16 @@ import android.widget.TextView;
 
 public class CampaignListCursorAdapter extends CursorAdapter{
 	
-	private LayoutInflater mInflater;
-	private SubActionClickListener mListener;
+	private final LayoutInflater mInflater;
+	private final SubActionClickListener mListener;
+	private final ImageLoader mImageLoader;
 	
 	public CampaignListCursorAdapter(Context context, Cursor c, SubActionClickListener listener, int flags) {
 		super(context, c, flags);
 		
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mListener = listener;
+        mImageLoader = ImageLoader.get(context);
 	}
 
 	@Override
@@ -34,21 +38,25 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		TextView urnText = (TextView) view.findViewById(R.id.sub_text);
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
 		
-		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
+		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
 		
-		iconImage.setImageResource(R.drawable.apple_logo);
-		nameText.setText(cursor.getString(cursor.getColumnIndex(Campaign.NAME)));
+		final String iconUrl = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_ICON));
+		if(iconUrl == null || mImageLoader.bind(this, iconImage, iconUrl) != ImageLoader.BindResult.OK) {
+			iconImage.setImageResource(R.drawable.apple_logo);
+		}
+
+		nameText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		urnText.setText(campaignUrn);
 		actionButton.setFocusable(false);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				mListener.onSubActionClicked(Campaign.getCampaignByURN(campaignUrn));
+				mListener.onSubActionClicked(Campaigns.buildCampaignUri(campaignUrn));
 			}
 		});
 		
-		int status = cursor.getInt(cursor.getColumnIndex(Campaign.STATUS));
+		int status = cursor.getInt(cursor.getColumnIndex(Campaigns.CAMPAIGN_STATUS));
 		
 		switch (status) {
 		case Campaign.STATUS_REMOTE:

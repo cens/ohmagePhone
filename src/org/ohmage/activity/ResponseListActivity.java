@@ -6,9 +6,9 @@ import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Campaign;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -96,8 +96,8 @@ public class ResponseListActivity extends FragmentActivity implements OnResponse
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		switch(id) {
 			case CAMPAIGN_FILTER_LOADER_ID:
-				return new CursorLoader(this, Campaign.getCampaigns(), new String [] { Campaign.URN, Campaign.NAME }, 
-						Campaign.STATUS + "=" + Campaign.STATUS_READY, null, Campaign.NAME);
+				return new CursorLoader(this, Campaigns.CONTENT_URI, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_NAME }, 
+						Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, Campaigns.CAMPAIGN_NAME);
 			case SURVEY_FILTER_LOADER_ID:
 				
 				// If we are looking at All Campaigns, this query will return an empty cursor since we are searching for the campaign uri
@@ -108,8 +108,8 @@ public class ResponseListActivity extends FragmentActivity implements OnResponse
 				else if(mCampaignFilter.getValue() != null)
 					campaignFilter = mCampaignFilter.getValue();
 				
-				return new CursorLoader(this, Survey.getSurveys(), new String [] { Survey.SURVEY_ID, Survey.TITLE }, 
-						Survey.CAMPAIGN_URN + "=?", new String[] { campaignFilter }, Survey.TITLE);
+				return new CursorLoader(this, Surveys.CONTENT_URI, new String [] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE }, 
+						Surveys.CAMPAIGN_URN + "=?", new String[] { campaignFilter }, Surveys.SURVEY_TITLE);
 			default:
 				return null;
 		}
@@ -125,7 +125,7 @@ public class ResponseListActivity extends FragmentActivity implements OnResponse
 				mDateFilter.setVisibility(View.VISIBLE);
 
 				// Populate the filter
-				mCampaignFilter.populate(data, Campaign.NAME, Campaign.URN);
+				mCampaignFilter.populate(data, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 				mCampaignFilter.add(0, new Pair<String,String>("All Campaigns", null));
 
 				// initialize the filter if this is the first time
@@ -136,7 +136,7 @@ public class ResponseListActivity extends FragmentActivity implements OnResponse
 			case SURVEY_FILTER_LOADER_ID:
 
 				// Populate the filter
-				mSurveyFilter.populate(data, Survey.TITLE, Survey.SURVEY_ID);
+				mSurveyFilter.populate(data, Surveys.SURVEY_TITLE, Surveys.SURVEY_ID);
 				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", null));
 				
 				// initialize the filter if this is the first time

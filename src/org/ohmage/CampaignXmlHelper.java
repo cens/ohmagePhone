@@ -23,10 +23,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Environment;
 import edu.ucla.cens.systemlog.Log;
 
@@ -64,10 +65,17 @@ public class CampaignXmlHelper {
 	}	
 	
 	public static InputStream loadCampaignXmlFromDb(Context context, String campaignUrn) throws IOException {
+		ContentResolver cr = context.getContentResolver();
+		Cursor cursor = cr.query(Campaigns.buildCampaignUri(campaignUrn), new String[] { Campaigns.CAMPAIGN_CONFIGURATION_XML }, null, null, null);
 		
-		DbHelper dbHelper = new DbHelper(context);
-		Campaign campaign = dbHelper.getCampaign(campaignUrn);
-		
-		return new ByteArrayInputStream(campaign.mXml.getBytes("UTF-8"));
+		// ensure that only one record is returned
+		if (cursor.moveToFirst() && cursor.getCount() == 1) {
+			String xml = cursor.getString(0);
+			cursor.close();
+			return new ByteArrayInputStream(xml.getBytes("UTF-8"));
+		} else {
+			cursor.close();
+			return null;
+		}
 	}
 }

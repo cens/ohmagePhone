@@ -3,10 +3,9 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -53,7 +52,7 @@ public class CampaignAddActivity extends FragmentActivity implements OnCampaignA
 	@Override
 	public void onCampaignActionView(String campaignUrn) {
 		Intent i = new Intent(this, CampaignInfoActivity.class);
-		i.setData(Campaign.getCampaignByURN(campaignUrn));
+		i.setData(Campaigns.buildCampaignUri(campaignUrn));
 		startActivity(i);
 	}
 	

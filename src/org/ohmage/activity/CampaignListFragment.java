@@ -1,6 +1,7 @@
 package org.ohmage.activity;
 
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -70,7 +71,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		
 		Cursor c = (Cursor) getListAdapter().getItem(position);
-		mListener.onCampaignActionView(c.getString(c.getColumnIndex(Campaign.URN)));
+		mListener.onCampaignActionView(c.getString(c.getColumnIndex(Campaigns.CAMPAIGN_URN)));
 	}
 	
 	@Override
@@ -78,12 +79,12 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		Cursor cursor = null;
 		
 		try {
-			cursor = getActivity().getContentResolver().query(uri, new String [] {Campaign._ID, Campaign.URN, Campaign.STATUS}, null, null, null);
+			cursor = getActivity().getContentResolver().query(uri, new String [] {Campaigns._ID, Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null, null, null);
 			
 			if (cursor.getCount() == 1) {
 				cursor.moveToFirst();
-				String campaignUrn = cursor.getString(cursor.getColumnIndexOrThrow(Campaign.URN));
-				int status = cursor.getInt(cursor.getColumnIndexOrThrow(Campaign.STATUS));
+				String campaignUrn = cursor.getString(cursor.getColumnIndexOrThrow(Campaigns.CAMPAIGN_URN));
+				int status = cursor.getInt(cursor.getColumnIndexOrThrow(Campaigns.CAMPAIGN_STATUS));
 				
 				switch (status) {
 				case Campaign.STATUS_REMOTE:
@@ -123,17 +124,17 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		
-		Uri baseUri = Campaign.CONTENT_URI;
+		Uri baseUri = Campaigns.CONTENT_URI;
 
 		String select; 
 		
 		if (mMode == MODE_ADD_CAMPAIGNS) {
-			select = Campaign.STATUS + " = " + Campaign.STATUS_REMOTE + " OR " + Campaign.STATUS + " = " + Campaign.STATUS_DOWNLOADING;
+			select = Campaigns.CAMPAIGN_STATUS + " = " + Campaign.STATUS_REMOTE + " OR " + Campaigns.CAMPAIGN_STATUS + " = " + Campaign.STATUS_DOWNLOADING;
 		} else {
-			select = Campaign.STATUS + " != " + Campaign.STATUS_REMOTE + " AND " + Campaign.STATUS + " != " + Campaign.STATUS_DOWNLOADING;
+			select = Campaigns.CAMPAIGN_STATUS + " != " + Campaign.STATUS_REMOTE + " AND " + Campaigns.CAMPAIGN_STATUS + " != " + Campaign.STATUS_DOWNLOADING;
 		}
 		
-		return new CursorLoader(getActivity(), baseUri, new String [] {Campaign._ID, Campaign.URN, Campaign.NAME, Campaign.STATUS, Campaign.ICON}, select, null, Campaign.NAME);
+		return new CursorLoader(getActivity(), baseUri, new String [] {Campaigns._ID, Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_STATUS, Campaigns.CAMPAIGN_ICON}, select, null, Campaigns.CAMPAIGN_NAME);
 	}
 
 	@Override

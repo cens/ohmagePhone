@@ -1,19 +1,15 @@
 package org.ohmage.activity;
 
-import java.io.IOException;
-
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
-import org.ohmage.controls.ActionBarControl;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.triggers.base.TriggerDB;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -30,16 +26,20 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.imageloader.ImageLoader;
+
 public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private ImageLoader mImageLoader;
 
 	// handles to views we'll be manipulating
 	private TextView mErrorBox;
 	private TextView mDescView;
 	private TextView mStatusValue;
 	private TextView mResponsesValue;
+	private TextView mTriggersValue;
 	
 	// state vars
 	private int mCampaignStatus; // status code for campaign as of last refresh
@@ -54,6 +54,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mImageLoader = ImageLoader.get(this);
 		// and create a handler attached to this thread for contentobserver events
 		mHandler = new Handler();
 
@@ -72,6 +73,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mDescView = (TextView)findViewById(R.id.survey_info_desc);
 		mStatusValue = (TextView)findViewById(R.id.survey_info_status_value);
 		mResponsesValue = (TextView)findViewById(R.id.survey_info_responses_value);
+		mTriggersValue = (TextView)findViewById(R.id.survey_info_triggers_value);
 		
 		// and attach some handlers + populate some html data
 		// status
@@ -87,6 +89,13 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		setDetailsExpansionHandler(
 				findViewById(R.id.survey_info_responses_row),
 				responsesDetails);
+		
+		// triggers
+		TextView triggersDetails = (TextView)findViewById(R.id.survey_info_triggers_details);
+		triggersDetails.setText(Html.fromHtml(getString(R.string.survey_info_triggers_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.survey_info_triggers_row),
+				triggersDetails);
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
@@ -128,13 +137,14 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 	private interface QueryParams {
 		String[] PROJECTION = {
-					Survey.SURVEY_ID,
-					Survey.CAMPAIGN_URN,
-					Survey.TITLE,
-					Survey.DESCRIPTION,
-					Survey.SUBMIT_TEXT,
-					Campaign.NAME,
-					Campaign.STATUS
+					Surveys.SURVEY_ID,
+					Surveys.CAMPAIGN_URN,
+					Surveys.SURVEY_TITLE,
+					Surveys.SURVEY_DESCRIPTION,
+					Surveys.SURVEY_SUBMIT_TEXT,
+					Campaigns.CAMPAIGN_NAME,
+					Campaigns.CAMPAIGN_STATUS,
+					Campaigns.CAMPAIGN_ICON
 				};
 		
 		final int SURVEY_ID = 0;
@@ -144,6 +154,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		final int SUBMIT_TEXT = 4;
 		final int CAMPAIGN_NAME = 5;
 		final int CAMPAIGN_STATUS = 6;
+		final int CAMPAIGN_ICON = 7;
 	}
 
 	@Override
@@ -166,6 +177,11 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mHeadertext.setText(data.getString(QueryParams.TITLE));
 		mSubtext.setText(data.getString(QueryParams.CAMPAIGN_NAME));
 		mNotetext.setVisibility(View.INVISIBLE);
+		
+		final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
+		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
+			mIconView.setImageResource(R.drawable.apple_logo);
+		}
 		
 		// fill in the description
 		mDescView.setText(data.getString(QueryParams.DESCRIPTION));
@@ -212,6 +228,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				break;
 		}
 		
+		// create an observer to watch the responses table for changes (hopefully)
 		mResponsesObserver = new ContentObserver(mHandler) {
 			@Override
 			public void onChange(boolean selfChange) {
@@ -220,15 +237,24 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 				// set the responses by querying the response table
 				// and getting the number of responses submitted for this campaign
-				Cursor responses = getContentResolver().query(Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID), null, null, null, null);
+				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn, surveyID), null, null, null, null);
 				mResponsesValue.setText(responses.getCount() + " response(s) submitted");
 			}
 		};
 		
 		// register it to listen for newly submitted responses
-		getContentResolver().registerContentObserver(Response.CONTENT_URI, true, mResponsesObserver);
+		getContentResolver().registerContentObserver(Responses.CONTENT_URI, true, mResponsesObserver);
 		// and trigger it once to refresh right now
 		mResponsesObserver.onChange(false);
+		
+		// get the number of triggers for this survey
+		TriggerDB trigDB = new TriggerDB(mContext);
+		if (trigDB.open()) {
+			Cursor triggers = trigDB.getTriggers(campaignUrn, surveyID);
+			mTriggersValue.setText(triggers.getCount() + " trigger(s) configured");
+			triggers.close();
+			trigDB.close();
+		}
 		
 		// and finally populate the action bar + command tray
 		populateCommands(surveyID, campaignUrn, data.getString(QueryParams.TITLE), submitText, mCampaignStatus);

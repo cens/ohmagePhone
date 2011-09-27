@@ -1,8 +1,8 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Response;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -13,7 +13,7 @@ import android.widget.ImageButton;
 
 public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapter {
 	
-	private SubActionClickListener mListener;
+	private final SubActionClickListener mListener;
 	
 	public UploadingResponseListCursorAdapter(Context context, Cursor c, SubActionClickListener listener, int flags){
 		super(context, c, flags);
@@ -25,7 +25,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 	public void bindView(View view, Context context, Cursor c) {
 		super.bindView(view, context, c);
 		
-		final long responseId = c.getLong(c.getColumnIndex(Response._ID));
+		final long responseId = c.getLong(c.getColumnIndex(Responses._ID));
 		
 		view.findViewById(R.id.action_separator).setVisibility(View.VISIBLE);
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
@@ -36,11 +36,11 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 			
 			@Override
 			public void onClick(View v) {
-				mListener.onSubActionClicked(Response.getResponseByID(responseId));
+				mListener.onSubActionClicked(Responses.buildResponseUri(responseId));
 			}
 		});
 		
-		int status = c.getInt(c.getColumnIndex(Response.STATUS));
+		int status = c.getInt(c.getColumnIndex(Responses.RESPONSE_STATUS));
 		
 		switch (status) {
 		case Response.STATUS_STANDBY:

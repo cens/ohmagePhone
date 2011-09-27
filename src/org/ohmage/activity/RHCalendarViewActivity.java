@@ -4,9 +4,10 @@ import org.ohmage.R;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.ResponseHistory;
 
 import android.content.ContentResolver;
@@ -153,13 +154,13 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			public void onFilterChanged(boolean selfChange, String curCampaignValue) {
 				Cursor surveyCursor;
 
-				String[] projection = {Survey.TITLE, Survey.CAMPAIGN_URN, Survey.SURVEY_ID};
+				String[] projection = {Surveys.SURVEY_TITLE, Surveys.CAMPAIGN_URN, Surveys.SURVEY_ID};
 				//Create Cursor
 				if(curCampaignValue.equals("all")){
-					surveyCursor = cr.query(Survey.getSurveys(), projection, null, null, Survey.TITLE);
+					surveyCursor = cr.query(Surveys.CONTENT_URI, projection, null, null, Surveys.SURVEY_TITLE);
 				}
 				else{
-					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), projection, null, null, null);
+					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
 				}
 
 				//Update SurveyFilter
@@ -168,10 +169,10 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				mSurveyFilter.clearAll();
 				for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
 					mSurveyFilter.add(new Pair<String, String>(
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE)),
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_TITLE)),
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.CAMPAIGN_URN)) + 
 							":" +
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID))
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_ID))
 							));
 				}
 				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));
@@ -195,10 +196,10 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			}
 		});
 
-		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
-		String[] projection = {Campaign.NAME, Campaign.URN};
-		Cursor campaigns = cr.query(Campaign.getCampaigns(), projection, select, null, null);
-		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
+		String select = Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY;
+		String[] projection = {Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN};
+		Cursor campaigns = cr.query(Campaigns.CONTENT_URI, projection, select, null, null);
+		mCampaignFilter.populate(campaigns, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));
 	}
 
@@ -270,13 +271,13 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		private final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 		private final int[] daysOfMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 		private int daysInMonth, prevMonthDays;
-		private int currentDayOfMonth;
-		private int currentWeekDay;
+		private final int currentDayOfMonth;
+		private final int currentWeekDay;
 		private Button numOfResponsesDisplay;
 		private TextView dateDisplay;
 		private final HashMap eventsPerMonthMap;
 		private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
-		private int currentMonth;
+		private final int currentMonth;
 
 		// Days in Current Month
 		public GridCellAdapter(Context context, int textViewResourceId, int month, int year, String curCampaignValue, 
@@ -425,19 +426,19 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			if(campaignUrn.equals("all")){
 
 				if(surveyID.equals("all")){
-					uri = Response.getResponses();
+					uri = Responses.CONTENT_URI;
 				}
 				else{
-					uri = Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID);				    		
+					uri = Campaigns.buildResponsesUri(campaignUrn, surveyID);				    		
 				}
 
 			}
 			else{
 				if(surveyID.equals("all")){
-					uri = Response.getResponsesByCampaign(campaignUrn);
+					uri = Campaigns.buildResponsesUri(campaignUrn);				    		
 				}
 				else{
-					uri = Response.getResponsesByCampaignAndSurvey(campaignUrn, surveyID);				    		
+					uri = Campaigns.buildResponsesUri(campaignUrn, surveyID);				    		
 				}
 			}
 
@@ -446,9 +447,9 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			GregorianCalendar greCalEnd = new GregorianCalendar(mSelectedYear, mSelectedMonth-1, greCalStart.getActualMaximum(GregorianCalendar.DAY_OF_MONTH));
 			
 			String selection = 
-					Response.TIME + " > " + greCalStart.getTime().getTime() +
+					Responses.RESPONSE_TIME + " > " + greCalStart.getTime().getTime() +
 					" AND " + 
-					Response.TIME + " < " + greCalEnd.getTime().getTime();
+					Responses.RESPONSE_TIME + " < " + greCalEnd.getTime().getTime();
 
 			//Create Query
 			Cursor responseCursorThisMonth = cr.query(
@@ -456,7 +457,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 					null, 
 					selection, 
 					null, 
-					Response.DATE
+					Responses.RESPONSE_DATE
 					);
 			
 			Cursor responseCursorTotal = cr.query(uri, null, null, null, null);
@@ -466,7 +467,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 
 			int numOfResponse = 0;
 			for(responseCursorThisMonth.moveToFirst();!responseCursorThisMonth.isAfterLast();responseCursorThisMonth.moveToNext()){
-				Long time = responseCursorThisMonth.getLong(responseCursorThisMonth.getColumnIndex(Response.TIME));
+				Long time = responseCursorThisMonth.getLong(responseCursorThisMonth.getColumnIndex(Responses.RESPONSE_TIME));
 
 				cal.setTimeInMillis(time);
 				Integer responseDay = new Integer(cal.get(Calendar.DAY_OF_MONTH));

@@ -36,8 +36,8 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
-import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
@@ -206,7 +206,7 @@ public class SurveyActivity extends Activity {
 		}
 	}
 
-	private OnClickListener mClickListener = new OnClickListener() {
+	private final OnClickListener mClickListener = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
@@ -779,9 +779,9 @@ public class SurveyActivity extends Activity {
 					dataPoint.setNotDisplayed();
 				} else {
 					if (PromptType.single_choice.equals(dataPoint.getPromptType())) {
-						dataPoint.setValue((Integer)prompt.getResponseObject());
+						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.single_choice_custom.equals(dataPoint.getPromptType())) {
-						dataPoint.setValue((Integer)prompt.getResponseObject());
+						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.multi_choice.equals(dataPoint.getPromptType())) {
 						JSONArray jsonArray;
 						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
@@ -809,13 +809,13 @@ public class SurveyActivity extends Activity {
 						}
 						dataPoint.setValue(dataPointValue);
 					} else if (PromptType.number.equals(dataPoint.getPromptType())) {
-						dataPoint.setValue((Integer)prompt.getResponseObject());
+						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.hours_before_now.equals(dataPoint.getPromptType())) {
-						dataPoint.setValue((Integer)prompt.getResponseObject());
+						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.text.equals(dataPoint.getPromptType())) {
-						dataPoint.setValue((String)prompt.getResponseObject());
+						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.photo.equals(dataPoint.getPromptType())) {
-						dataPoint.setValue((String)prompt.getResponseObject());
+						dataPoint.setValue(prompt.getResponseObject());
 					}
 				}
 				
@@ -989,33 +989,33 @@ public class SurveyActivity extends Activity {
 		}
 
 		ContentResolver cr = getContentResolver();
-		cr.insert(Response.CONTENT_URI, candidate.toCV());
+		cr.insert(Responses.CONTENT_URI, candidate.toCV());
 		
 		// create an intent and broadcast it to any interested receivers
 		Intent i = new Intent("org.ohmage.SURVEY_COMPLETE");
 		
-		i.putExtra(Response.CAMPAIGN_URN, mCampaignUrn);
-		i.putExtra(Response.USERNAME, username);
-		i.putExtra(Response.DATE, date);
-		i.putExtra(Response.TIME, time);
-		i.putExtra(Response.TIMEZONE, timezone);
+		i.putExtra(Responses.CAMPAIGN_URN, mCampaignUrn);
+		i.putExtra(Responses.RESPONSE_USERNAME, username);
+		i.putExtra(Responses.RESPONSE_DATE, date);
+		i.putExtra(Responses.RESPONSE_TIME, time);
+		i.putExtra(Responses.RESPONSE_TIMEZONE, timezone);
 		
 		if (loc != null) {
-			i.putExtra(Response.LOCATION_STATUS, SurveyGeotagService.LOCATION_VALID);
-			i.putExtra(Response.LOCATION_LATITUDE, loc.getLatitude());
-			i.putExtra(Response.LOCATION_LONGITUDE, loc.getLongitude());
-			i.putExtra(Response.LOCATION_PROVIDER, loc.getProvider());
-			i.putExtra(Response.LOCATION_ACCURACY, loc.getAccuracy());
-			i.putExtra(Response.LOCATION_TIME, loc.getTime());
+			i.putExtra(Responses.RESPONSE_LOCATION_STATUS, SurveyGeotagService.LOCATION_VALID);
+			i.putExtra(Responses.RESPONSE_LOCATION_LATITUDE, loc.getLatitude());
+			i.putExtra(Responses.RESPONSE_LOCATION_LONGITUDE, loc.getLongitude());
+			i.putExtra(Responses.RESPONSE_LOCATION_PROVIDER, loc.getProvider());
+			i.putExtra(Responses.RESPONSE_LOCATION_ACCURACY, loc.getAccuracy());
+			i.putExtra(Responses.RESPONSE_LOCATION_TIME, loc.getTime());
 		}
 		else
 		{
-			i.putExtra(Response.LOCATION_STATUS, SurveyGeotagService.LOCATION_UNAVAILABLE);
+			i.putExtra(Responses.RESPONSE_LOCATION_STATUS, SurveyGeotagService.LOCATION_UNAVAILABLE);
 		}
 
-		i.putExtra(Response.SURVEY_ID, surveyId);
-		i.putExtra(Response.SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
-		i.putExtra(Response.RESPONSE, response);
+		i.putExtra(Responses.SURVEY_ID, surveyId);
+		i.putExtra(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
+		i.putExtra(Responses.RESPONSE_JSON, response);
 
 		this.sendBroadcast(i);
 	}

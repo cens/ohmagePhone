@@ -19,6 +19,7 @@ import org.ohmage.activity.SurveyListActivity;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.triggers.notif.Notifier;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,13 +34,14 @@ public class TriggerNotificationReceiver extends BroadcastReceiver {
 		
 		String action = intent.getAction();
 		String campaignUrn = intent.getStringExtra(Notifier.KEY_CAMPAIGN_URN);
-		String campaignName = intent.getStringExtra(Notifier.KEY_CAMPAIGN_NAME);
 
 		Log.i(TAG, "Broadcast received: " + action);
 
 		if (TriggerFramework.ACTION_TRIGGER_NOTIFICATION.equals(action)) {
 			Intent i = new Intent(context, SurveyListActivity.class);
 			i.putExtra("campaign_urn", campaignUrn);
+			i.putExtra("show_pending", true);
+			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			context.startActivity(i);
 		}
 	}

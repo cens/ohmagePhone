@@ -8,9 +8,9 @@ import org.ohmage.activity.RHCalendarViewActivity;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
 
 import android.content.ContentResolver;
 import android.database.Cursor;

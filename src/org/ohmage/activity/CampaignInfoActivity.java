@@ -6,18 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
-import org.ohmage.triggers.ui.TriggerListActivity;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
@@ -35,13 +34,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.TableRow;
 import android.widget.TextView;
+
+import com.google.android.imageloader.ImageLoader;
 
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private ImageLoader mImageLoader;
 	
 	// action bar commands
 	private static final int ACTION_TAKE_SURVEY = 1;
@@ -66,6 +67,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mImageLoader = ImageLoader.get(this);
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -126,6 +128,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		actionBar.clearActionBarCommands();
 		
 		// ...and gather up the commands in the command tray so we can hide/show them
+		Button surveysButton = (Button)findViewById(R.id.campaign_info_button_surveys);
 		Button participateButton = (Button)findViewById(R.id.campaign_info_button_particpate);
 		Button removeButton = (Button)findViewById(R.id.campaign_info_button_remove);
 		
@@ -134,7 +137,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		if (campaignStatus != Campaign.STATUS_REMOTE) {
 			// only show data-related actions if it's ready
 			if (campaignStatus == Campaign.STATUS_READY) {
-				actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
+				// FIXME: temporarily removed "take survey" button and moved it to the entity info header button tray
+				// actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
 				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
 				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
 				
@@ -159,15 +163,27 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								List<String> surveyTitles = new ArrayList<String>();
 								
 								// grab a list of surveys for this campaign
-								Cursor surveys = getContentResolver().query(Survey.getSurveysByCampaignURN(campaignUrn), null, null, null, null);
+								Cursor surveys = getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
 								
 								while (surveys.moveToNext()) {
-									surveyTitles.add(surveys.getString(surveys.getColumnIndex(Survey.TITLE)));
+									surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 								}
 								
 								TriggerFramework.launchTriggersActivity(mContext, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 								return;
 						}
+					}
+				});
+				
+				// also show the take surveys button
+				surveysButton.setVisibility(View.VISIBLE);
+				// and attach a handler for it
+				surveysButton.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(mContext, SurveyListActivity.class);
+						intent.putExtra("campaign_urn", campaignUrn);
+						startActivity(intent);
 					}
 				});
 			}
@@ -184,14 +200,16 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 					builder.setMessage("Are you sure that you want to remove this campaign? Any data that you haven't uploaded will be lost!")
 						.setCancelable(false)
 						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								// remove the campaign URN and take us back to my campaigns
-								getContentResolver().delete(Campaign.CONTENT_URI, Campaign.URN + "=?", new String[]{campaignUrn});
+								getContentResolver().delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 								startActivity(new Intent(mContext, CampaignListActivity.class));
 								mContext.finish();
 							}
 						})
 						.setNegativeButton("No", new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								dialog.cancel();
 							}
@@ -203,6 +221,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		}
 		else {
 			// show commands for a remote campaign (e.g. "participate")
+			surveysButton.setVisibility(View.GONE);
 			participateButton.setVisibility(View.VISIBLE);
 			removeButton.setVisibility(View.GONE);
 			
@@ -238,12 +257,13 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	private interface QueryParams {
 		String[] PROJECTION = {
-					Campaign.URN,
-					Campaign.NAME,
-					Campaign.CONFIGURATION_XML,
-					Campaign.DESCRIPTION,
-					Campaign.STATUS,
-					Campaign.PRIVACY
+					Campaigns.CAMPAIGN_URN,
+					Campaigns.CAMPAIGN_NAME,
+					Campaigns.CAMPAIGN_CONFIGURATION_XML,
+					Campaigns.CAMPAIGN_DESCRIPTION,
+					Campaigns.CAMPAIGN_STATUS,
+					Campaigns.CAMPAIGN_PRIVACY,
+					Campaigns.CAMPAIGN_ICON
 				};
 		
 		final int URN = 0;
@@ -252,6 +272,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		final int DESCRIPTION = 3;
 		final int STATUS = 4;
 		final int PRIVACY = 5;
+		final int ICON = 6;
 	}
 
 	@Override
@@ -281,6 +302,11 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			mHeadertext.setText(data.getString(QueryParams.NAME));
 			mSubtext.setText(campaignUrn);
 			mNotetext.setVisibility(View.INVISIBLE);
+			
+			final String iconUrl = data.getString(QueryParams.ICON);
+			if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
+				mIconView.setImageResource(R.drawable.apple_logo);
+			}
 			
 			// fill in the description
 			mDescView.setText(data.getString(QueryParams.DESCRIPTION));
@@ -339,7 +365,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			
 			// set the responses by querying the response table
 			// and getting the number of responses submitted for this campaign
-			Cursor responses = getContentResolver().query(Response.getResponsesByCampaign(campaignUrn), null, null, null, null);
+			Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn), null, null, null, null);
 			mResponsesValue.setText(responses.getCount() + " response(s) submitted");
 			
 			// get the number of triggers for this campaign

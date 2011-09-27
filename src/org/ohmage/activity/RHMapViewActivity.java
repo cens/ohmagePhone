@@ -2,7 +2,6 @@ package org.ohmage.activity;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
 import org.ohmage.R;
@@ -10,10 +9,11 @@ import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.MapOverlayItem;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.feedback.visualization.ResponseHistory;
@@ -34,7 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -125,18 +124,18 @@ public class RHMapViewActivity extends ResponseHistory {
 	    Uri queryUri;
 		if(mCampaignUrn.equals("all")){
 			if(mSurveyId.equals("all")){
-				queryUri = Response.getResponses();
+				queryUri = Responses.CONTENT_URI;
 			}
 			else{
-				queryUri = Response.getResponsesByCampaignAndSurvey(mCampaignUrn, mSurveyId);
+				queryUri = Campaigns.buildResponsesUri(mCampaignUrn, mSurveyId);
 			}
 		}
 		else{
 			if(mSurveyId.equals("all")){
-				queryUri = Response.getResponsesByCampaign(mCampaignUrn);
+				queryUri = Campaigns.buildResponsesUri(mCampaignUrn);
 			}
 			else{
-				queryUri = Response.getResponsesByCampaignAndSurvey(mCampaignUrn, mSurveyId);
+				queryUri = Campaigns.buildResponsesUri(mCampaignUrn, mSurveyId);
 			}
 		}
 		
@@ -146,20 +145,20 @@ public class RHMapViewActivity extends ResponseHistory {
 		GregorianCalendar greCalEnd = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.getActualMaximum(Calendar.DAY_OF_MONTH));
 		
 		String[] projection = {
-				DbHelper.Tables.RESPONSES+"."+Response._ID,
-				DbHelper.Tables.RESPONSES+"."+Response.LOCATION_LATITUDE, 
-				DbHelper.Tables.RESPONSES+"."+Response.LOCATION_LONGITUDE,
-				DbHelper.Tables.RESPONSES+"."+Response.SURVEY_ID, 
-				DbHelper.Tables.RESPONSES+"."+Response.CAMPAIGN_URN, 
-				DbHelper.Tables.RESPONSES+"."+Response.DATE 
+				DbHelper.Tables.RESPONSES+"."+Responses._ID,
+				DbHelper.Tables.RESPONSES+"."+Responses.RESPONSE_LOCATION_LATITUDE, 
+				DbHelper.Tables.RESPONSES+"."+Responses.RESPONSE_LOCATION_LONGITUDE,
+				DbHelper.Tables.RESPONSES+"."+Responses.SURVEY_ID, 
+				DbHelper.Tables.RESPONSES+"."+Responses.CAMPAIGN_URN, 
+				DbHelper.Tables.RESPONSES+"."+Responses.RESPONSE_DATE 
 				};
 		
 		String selection = 
-				Response.TIME + " > " + greCalStart.getTime().getTime() +
+				Responses.RESPONSE_TIME + " > " + greCalStart.getTime().getTime() +
 				" AND " + 
-				Response.TIME + " < " + greCalEnd.getTime().getTime() + 
+				Responses.RESPONSE_TIME + " < " + greCalEnd.getTime().getTime() + 
 				" AND " +
-				Response.LOCATION_STATUS + "=" + "'valid'";
+				Responses.RESPONSE_LOCATION_STATUS + "=" + "'valid'";
 		
 	    Cursor cursor = cr.query(queryUri, projection, selection, null, null);
 
@@ -170,13 +169,13 @@ public class RHMapViewActivity extends ResponseHistory {
 
 
 	    for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
-		    Double lat = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE));
-		    Double lon = cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LONGITUDE));
+		    Double lat = cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE));
+		    Double lon = cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE));
 		    GeoPoint point = new GeoPoint((int)(lat.doubleValue()*1e6), (int)(lon.doubleValue()*1e6));
-		    String title = cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID));
-		    String text = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN)) + "\n" + 
-		    cursor.getString(cursor.getColumnIndex(Response.DATE));
-		    String id = cursor.getString(cursor.getColumnIndex(Response._ID));
+		    String title = cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID));
+		    String text = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN)) + "\n" + 
+		    cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_DATE));
+		    String id = cursor.getString(cursor.getColumnIndex(Responses._ID));
 		    
 			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text, id);
 			mItemizedoverlay.setBalloonBottomOffset(40);
@@ -253,14 +252,14 @@ public class RHMapViewActivity extends ResponseHistory {
 			public void onFilterChanged(boolean selfChange, String curCampaignValue) {
 				Cursor surveyCursor;
 				
-				String[] projection = {Survey.TITLE, Survey.CAMPAIGN_URN, Survey.SURVEY_ID};
+				String[] projection = {Surveys.SURVEY_TITLE, Surveys.CAMPAIGN_URN, Surveys.SURVEY_ID};
 				
 				//Create Cursor
 				if(curCampaignValue.equals("all")){
-					surveyCursor = cr.query(Survey.getSurveys(), projection, null, null, Survey.TITLE);
+					surveyCursor = cr.query(Surveys.CONTENT_URI, projection, null, null, Surveys.SURVEY_TITLE);
 				}
 				else{
-					surveyCursor = cr.query(Survey.getSurveysByCampaignURN(curCampaignValue), projection, null, null, null);
+					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
 				}
 	
 				//Update SurveyFilter
@@ -269,10 +268,10 @@ public class RHMapViewActivity extends ResponseHistory {
 				mSurveyFilter.clearAll();
 				for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
 					mSurveyFilter.add(new Pair<String, String>(
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.TITLE)),
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.CAMPAIGN_URN)) + 
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_TITLE)),
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.CAMPAIGN_URN)) + 
 							":" +
-							surveyCursor.getString(surveyCursor.getColumnIndex(Survey.SURVEY_ID))
+							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_ID))
 							));
 				}
 				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));
@@ -297,11 +296,11 @@ public class RHMapViewActivity extends ResponseHistory {
 			}
 		});
 		
-		String select = Campaign.STATUS + "=" + Campaign.STATUS_READY;
-		String[] projection = {Campaign.NAME, Campaign.URN};
+		String select = Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY;
+		String[] projection = {Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN};
 
-		Cursor campaigns = cr.query(Campaign.getCampaigns(), projection, select, null, null);
-		mCampaignFilter.populate(campaigns, Campaign.NAME, Campaign.URN);
+		Cursor campaigns = cr.query(Campaigns.CONTENT_URI, projection, select, null, null);
+		mCampaignFilter.populate(campaigns, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", "all"));	
 	}
 	

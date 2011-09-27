@@ -22,7 +22,7 @@ import java.util.LinkedList;
 
 import org.ohmage.R;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
 
@@ -80,7 +80,7 @@ public class LocTrigSettingsActivity extends ListActivity
 	//The list cursor
 	private Cursor mCursor;
 	private HashSet<String> mCategNames;
-	private LocationTrigger mLocTrigger = new LocationTrigger();
+	private final LocationTrigger mLocTrigger = new LocationTrigger();
 	
 	private int mDialogCategId =  -1;
 	private String mDialogText = null;

@@ -1,9 +1,9 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -34,10 +34,10 @@ public class ResponseListCursorAdapter extends CursorAdapter {
 		view.findViewById(R.id.action_separator).setVisibility(View.GONE);
 		view.findViewById(R.id.action_button).setVisibility(View.GONE);
 		
-		surveyText.setText(cursor.getString(cursor.getColumnIndex(Survey.TITLE)));
-		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaign.NAME)));
+		surveyText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
+		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		
-		long millis = cursor.getLong(cursor.getColumnIndex(Response.TIME));
+		long millis = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME));
 		timeText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_TIME));
 		dateText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_NUMERIC_DATE));
 		timeText.setVisibility(View.VISIBLE);

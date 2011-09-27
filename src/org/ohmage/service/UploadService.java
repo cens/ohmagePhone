@@ -5,20 +5,19 @@ import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.PromptResponse;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.PromptResponses;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.content.ContentResolver;
@@ -26,9 +25,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
-import android.widget.Toast;
-
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class UploadService extends WakefulIntentService {
@@ -56,21 +52,21 @@ public class UploadService extends WakefulIntentService {
 		ContentResolver cr = getContentResolver();
 		
 		String [] projection = new String [] {
-										Tables.RESPONSES + "." + Response._ID,
-										Response.DATE,
-										Response.TIME,
-										Response.TIMEZONE,
-										Response.LOCATION_STATUS,
-										Response.LOCATION_LATITUDE,
-										Response.LOCATION_LONGITUDE,
-										Response.LOCATION_PROVIDER,
-										Response.LOCATION_ACCURACY,
-										Response.LOCATION_TIME,
-										Tables.RESPONSES + "." + Response.SURVEY_ID,
-										Response.SURVEY_LAUNCH_CONTEXT,
-										Response.RESPONSE,
-										Tables.RESPONSES + "." + Response.CAMPAIGN_URN,
-										Campaign.CREATION_TIMESTAMP};
+										Tables.RESPONSES + "." + Responses._ID,
+										Responses.RESPONSE_DATE,
+										Responses.RESPONSE_TIME,
+										Responses.RESPONSE_TIMEZONE,
+										Responses.RESPONSE_LOCATION_STATUS,
+										Responses.RESPONSE_LOCATION_LATITUDE,
+										Responses.RESPONSE_LOCATION_LONGITUDE,
+										Responses.RESPONSE_LOCATION_PROVIDER,
+										Responses.RESPONSE_LOCATION_ACCURACY,
+										Responses.RESPONSE_LOCATION_TIME,
+										Tables.RESPONSES + "." + Responses.SURVEY_ID,
+										Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT,
+										Responses.RESPONSE_JSON,
+										Tables.RESPONSES + "." + Responses.CAMPAIGN_URN,
+										Campaigns.CAMPAIGN_CREATED};
 		
 		String select = intent.getStringExtra("select");
 		
@@ -84,42 +80,42 @@ public class UploadService extends WakefulIntentService {
 		
 		for (int i = 0; i < cursor.getCount(); i++) {
 			
-			long responseId = cursor.getLong(cursor.getColumnIndex(Response._ID));
+			long responseId = cursor.getLong(cursor.getColumnIndex(Responses._ID));
 			
 			ContentValues values = new ContentValues();
-			values.put(Response.STATUS, Response.STATUS_UPLOADING);
-			cr.update(Response.CONTENT_URI, values, Tables.RESPONSES + "." + Response._ID + "=" + responseId, null);
+			values.put(Responses.RESPONSE_STATUS, Response.STATUS_UPLOADING);
+			cr.update(Responses.CONTENT_URI, values, Tables.RESPONSES + "." + Responses._ID + "=" + responseId, null);
 			
 			JSONArray responsesJsonArray = new JSONArray(); 
 			JSONObject responseJson = new JSONObject();
 			final ArrayList<String> photoUUIDs = new ArrayList<String>();
             
 			try {
-				responseJson.put("date", cursor.getString(cursor.getColumnIndex(Response.DATE)));
-				responseJson.put("time", cursor.getLong(cursor.getColumnIndex(Response.TIME)));
-				responseJson.put("timezone", cursor.getString(cursor.getColumnIndex(Response.TIMEZONE)));
-				String locationStatus = cursor.getString(cursor.getColumnIndex(Response.LOCATION_STATUS));
+				responseJson.put("date", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_DATE)));
+				responseJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
+				responseJson.put("timezone", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
+				String locationStatus = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
 				responseJson.put("location_status", locationStatus);
 				if (! locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
 					JSONObject locationJson = new JSONObject();
-					locationJson.put("latitude", cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LATITUDE)));
-					locationJson.put("longitude", cursor.getDouble(cursor.getColumnIndex(Response.LOCATION_LONGITUDE)));
-					locationJson.put("provider", cursor.getString(cursor.getColumnIndex(Response.LOCATION_PROVIDER)));
-					locationJson.put("accuracy", cursor.getFloat(cursor.getColumnIndex(Response.LOCATION_ACCURACY)));
+					locationJson.put("latitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
+					locationJson.put("longitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
+					locationJson.put("provider", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER)));
+					locationJson.put("accuracy", cursor.getFloat(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
 					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-					String locationTimestamp = dateFormat.format(new Date(cursor.getLong(cursor.getColumnIndex(Response.LOCATION_TIME))));
+					String locationTimestamp = dateFormat.format(new Date(cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME))));
 					locationJson.put("timestamp", locationTimestamp);
 					responseJson.put("location", locationJson);
 				}
-				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Response.SURVEY_ID)));
-				responseJson.put("survey_launch_context", new JSONObject(cursor.getString(cursor.getColumnIndex(Response.SURVEY_LAUNCH_CONTEXT))));
-				responseJson.put("responses", new JSONArray(cursor.getString(cursor.getColumnIndex(Response.RESPONSE))));
+				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
+				responseJson.put("survey_launch_context", new JSONObject(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
+				responseJson.put("responses", new JSONArray(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON))));
 				
 				ContentResolver cr2 = getContentResolver();
-				Cursor promptsCursor = cr2.query(PromptResponse.getPromptsByResponseID(responseId), new String [] {PromptResponse.PROMPT_VALUE, SurveyPrompt.PROMPT_TYPE}, SurveyPrompt.PROMPT_TYPE + "='photo'", null, null);
+				Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId), new String [] {PromptResponses.PROMPT_RESPONSE_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE}, SurveyPrompts.SURVEY_PROMPT_TYPE + "='photo'", null, null);
 				
 				while (promptsCursor.moveToNext()) {
-					photoUUIDs.add(promptsCursor.getString(promptsCursor.getColumnIndex(PromptResponse.PROMPT_VALUE)));
+					photoUUIDs.add(promptsCursor.getString(promptsCursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)));
 				}
 				
 				promptsCursor.close();
@@ -130,8 +126,8 @@ public class UploadService extends WakefulIntentService {
 			
 			responsesJsonArray.put(responseJson);
 			
-			String campaignUrn = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN));
-			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaign.CREATION_TIMESTAMP));
+			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
+			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 			
 			File [] photos = new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_')).listFiles(new FilenameFilter() {
 				
@@ -150,9 +146,9 @@ public class UploadService extends WakefulIntentService {
 				dbHelper.setResponseRowUploaded(responseId);
 			} else {
 				ContentValues values2 = new ContentValues();
-				values2.put(Response.STATUS, Response.STATUS_ERROR_OTHER);
-				String select2 = Tables.RESPONSES + "." + Response._ID + "=" + responseId;
-				cr.update(Response.CONTENT_URI, values2, select2, null);
+				values2.put(Responses.RESPONSE_STATUS, Response.STATUS_ERROR_OTHER);
+				String select2 = Tables.RESPONSES + "." + Responses._ID + "=" + responseId;
+				cr.update(Responses.CONTENT_URI, values2, select2, null);
 			}
 			
 			cursor.moveToNext();

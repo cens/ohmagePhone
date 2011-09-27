@@ -19,11 +19,11 @@ import org.ohmage.OhmageApi.ImageReadResponse;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.SurveyReadResponse;
 import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.Response;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.photo.PhotoPrompt;
-import org.ohmage.service.SurveyGeotagService;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -99,14 +99,9 @@ public class FeedbackService extends WakefulIntentService {
         }
         else {
         	// otherwise, do all the campaigns
-        	// don't consider the ones that are remote if we're not in the debug state
-        	Cursor campaignCursor;
-        	
-        	if (SharedPreferencesHelper.FEEDBACK_DOWNLOAD_ALL)
-        		campaignCursor = cr.query(Campaign.getCampaigns(), null, null, null, null);
-        	else
-        		campaignCursor = cr.query(Campaign.getCampaigns(), null, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
-        		    		
+        	// don't consider the ones that are remote
+        	Cursor campaignCursor = cr.query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+
     		campaigns = Campaign.fromCursor(campaignCursor);
         }
 
@@ -332,7 +327,7 @@ public class FeedbackService extends WakefulIntentService {
 					// note that we mark this entry as "remote", meaning it came from the server
 
 					try {
-						cr.insert(Response.CONTENT_URI, candidate.toCV());
+						cr.insert(Responses.CONTENT_URI, candidate.toCV());
 					}
 					catch(Exception e) {
 						// display some note in the log that this failed

@@ -1,10 +1,11 @@
 package org.ohmage.db;
 
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.PromptResponse;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
-import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.OhmageCache;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.PromptResponses;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.utils.SelectionBuilder;
@@ -16,6 +17,10 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
 
 /**
  * A ContentProvider which makes the contents of the campaign, survey, and response
@@ -117,37 +122,37 @@ public class DbProvider extends ContentProvider {
         	
         	// CAMPAIGNS
         	case MatcherTypes.CAMPAIGNS:
-        		return Campaign.CONTENT_TYPE;
+        		return Campaigns.CONTENT_TYPE;
         	case MatcherTypes.CAMPAIGN_BY_URN:
-        		return Campaign.CONTENT_ITEM_TYPE;
+        		return Campaigns.CONTENT_ITEM_TYPE;
         		
         	// SURVEYS
         	case MatcherTypes.SURVEYS:
         	case MatcherTypes.CAMPAIGN_SURVEYS:
-        		return Survey.CONTENT_TYPE;
+        		return Surveys.CONTENT_TYPE;
         	case MatcherTypes.SURVEY_BY_ID:
-        		return Survey.CONTENT_ITEM_TYPE;
+        		return Surveys.CONTENT_ITEM_TYPE;
         		
         	// SURVEY PROMPTS
         	case MatcherTypes.SURVEY_SURVEYPROMPTS:
-        		return SurveyPrompt.CONTENT_TYPE;
+        		return SurveyPrompts.CONTENT_TYPE;
         	
         	// RESPONSES
             case MatcherTypes.RESPONSES:
             case MatcherTypes.CAMPAIGN_RESPONSES:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
-            	return Response.CONTENT_TYPE;
+            	return Responses.CONTENT_TYPE;
             case MatcherTypes.RESPONSE_BY_PID:
-            	return Response.CONTENT_ITEM_TYPE;
+            	return Responses.CONTENT_ITEM_TYPE;
             
             // PROMPTS
             case MatcherTypes.PROMPTS:
             case MatcherTypes.RESPONSE_PROMPTS:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
-            	return PromptResponse.CONTENT_TYPE;
+            	return PromptResponses.CONTENT_TYPE;
             case MatcherTypes.PROMPT_BY_PID:
-            	return PromptResponse.CONTENT_ITEM_TYPE;
+            	return PromptResponses.CONTENT_ITEM_TYPE;
             	
             default:
                 throw new UnsupportedOperationException("getType(): Unknown URI: " + uri);
@@ -183,24 +188,24 @@ public class DbProvider extends ContentProvider {
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.RESPONSES:
 				insertID = dbHelper.addResponseRow(db, values);
-				campaignUrn = values.getAsString(Response.CAMPAIGN_URN);
-				surveyID = values.getAsString(Response.SURVEY_ID);
-				resultingUri = Response.getResponseByID(insertID);
+				campaignUrn = values.getAsString(Responses.CAMPAIGN_URN);
+				surveyID = values.getAsString(Responses.SURVEY_ID);
+				resultingUri = Responses.buildResponseUri(insertID);
 				
 				// notify on the related entity URIs
-				cr.notifyChange(Response.CONTENT_URI, null);
-				cr.notifyChange(PromptResponse.CONTENT_URI, null);
+				cr.notifyChange(Responses.CONTENT_URI, null);
+				cr.notifyChange(PromptResponses.CONTENT_URI, null);
 				
 				break;
 			case MatcherTypes.CAMPAIGNS:
 				insertID = dbHelper.addCampaign(db, values);
-				campaignUrn = values.getAsString(Campaign.URN);
-				resultingUri = Campaign.getCampaignByURN(campaignUrn);
+				campaignUrn = values.getAsString(Campaigns.CAMPAIGN_URN);
+				resultingUri = Campaigns.buildCampaignUri(campaignUrn);
 
 				// notify on the related entity URIs
-				cr.notifyChange(Campaign.CONTENT_URI, null);
-				cr.notifyChange(Survey.CONTENT_URI, null);
-				cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
+				cr.notifyChange(Campaigns.CONTENT_URI, null);
+				cr.notifyChange(Surveys.CONTENT_URI, null);
+				cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
 				
 				break;
 			default:
@@ -239,22 +244,22 @@ public class DbProvider extends ContentProvider {
 				case MatcherTypes.RESPONSE_BY_PID:
 				case MatcherTypes.RESPONSES:
 					// notify on the related entity URIs
-					cr.notifyChange(Response.CONTENT_URI, null);
-					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					cr.notifyChange(Responses.CONTENT_URI, null);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
 					// if it was a campaign, we may need to update the campaign's xml
-					if (values.containsKey(Campaign.URN) && values.containsKey(Campaign.CONFIGURATION_XML))
-						dbHelper.populateSurveysFromCampaignXML(db, values.getAsString(Campaign.URN), values.getAsString(Campaign.CONFIGURATION_XML));
+					if (values.containsKey(Campaigns.CAMPAIGN_URN) && values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
+						dbHelper.populateSurveysFromCampaignXML(db, values.getAsString(Campaigns.CAMPAIGN_URN), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 					
 					// notify on the related entity URIs
-					cr.notifyChange(Campaign.CONTENT_URI, null);
-					cr.notifyChange(Survey.CONTENT_URI, null);
-					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
-					cr.notifyChange(Response.CONTENT_URI, null);
-					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null);
+					cr.notifyChange(Surveys.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
+					cr.notifyChange(Responses.CONTENT_URI, null);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
 			}
 			
@@ -282,10 +287,24 @@ public class DbProvider extends ContentProvider {
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
+		// Depending on the type of the thing deleted, we may have to delete the icon associated with it
+		// We need to know what the url is before we delete it
+		HashSet<String> iconUrls = new HashSet<String>();
+		switch (sUriMatcher.match(uri)) {
+			case MatcherTypes.CAMPAIGN_BY_URN:
+			case MatcherTypes.CAMPAIGNS:
+				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_ICON }, null);
+				if(c.moveToFirst()) {
+					while(c.moveToNext()) {
+						if(c.getString(0) != null)
+							iconUrls.add(c.getString(0));
+					}
+				}
+				c.close();
+		}
+		
 		// we assume we've matched it correctly, so proceed with the delete
 		count = builder.delete(db);
-		
-		db.close();
 		
 		if (count > 0) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -295,18 +314,38 @@ public class DbProvider extends ContentProvider {
 				case MatcherTypes.RESPONSE_BY_PID:
 				case MatcherTypes.RESPONSES:
 					// notify on the related entity URIs
-					cr.notifyChange(Response.CONTENT_URI, null);
-					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					cr.notifyChange(Responses.CONTENT_URI, null);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
-				case MatcherTypes.CAMPAIGNS:			
+				case MatcherTypes.CAMPAIGNS:
+					// Delete the icon if it is on the sdcard and no other campaigns reference that url
+					for(String iconUrl : iconUrls) {
+						db.beginTransaction();
+						try {
+							Cursor c = db.query(Tables.CAMPAIGNS, new String [] { "_id" }, Campaigns.CAMPAIGN_ICON + "=?", new String[] { iconUrl }, null, null, null);
+							if(c.getCount() == 0) {
+								try {
+									OhmageCache.getCachedFile(getContext(), new URI(iconUrl)).delete();
+								} catch (URISyntaxException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								c.close();
+							}
+							db.setTransactionSuccessful();
+						} finally {
+							db.endTransaction();
+						}
+					}	
+
 					// notify on the related entity URIs
-					cr.notifyChange(Campaign.CONTENT_URI, null);
-					cr.notifyChange(Survey.CONTENT_URI, null);
-					cr.notifyChange(SurveyPrompt.CONTENT_URI, null);
-					cr.notifyChange(Response.CONTENT_URI, null);
-					cr.notifyChange(PromptResponse.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null);
+					cr.notifyChange(Surveys.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
+					cr.notifyChange(Responses.CONTENT_URI, null);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
 			}
 			
@@ -314,195 +353,208 @@ public class DbProvider extends ContentProvider {
 			cr.notifyChange(uri, null);
 		}
 		
+		db.close();
+		
 		return count;
 	}
 
 	// ====================================
 	// === definitions for URI resolver and entity type maps
 	// ====================================
-	
+
 	private static UriMatcher buildUriMatcher() {
-        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns", MatcherTypes.CAMPAIGNS);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*", MatcherTypes.CAMPAIGN_BY_URN);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys", MatcherTypes.CAMPAIGN_SURVEYS);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*", MatcherTypes.SURVEY_BY_ID);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/prompts", MatcherTypes.SURVEY_SURVEYPROMPTS);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#", MatcherTypes.RESPONSE_BY_PID);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#/prompts", MatcherTypes.RESPONSE_PROMPTS);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts", MatcherTypes.PROMPTS);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts/#", MatcherTypes.PROMPT_BY_PID);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses", MatcherTypes.CAMPAIGN_RESPONSES);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
-        matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
-        
-        return matcher;
-    }
-	
+		final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns", MatcherTypes.CAMPAIGNS);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*", MatcherTypes.CAMPAIGN_BY_URN);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses", MatcherTypes.CAMPAIGN_RESPONSES);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys", MatcherTypes.CAMPAIGN_SURVEYS);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*", MatcherTypes.SURVEY_BY_ID);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/prompts", MatcherTypes.SURVEY_SURVEYPROMPTS);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#", MatcherTypes.RESPONSE_BY_PID);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses/#/prompts", MatcherTypes.RESPONSE_PROMPTS);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts", MatcherTypes.PROMPTS);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "prompts/#", MatcherTypes.PROMPT_BY_PID);
+
+		return matcher;
+	}
+
 	private SelectionBuilder buildSelection(Uri uri, boolean nonQuery) {
 		final SelectionBuilder builder = new SelectionBuilder();
-		
-		// vars used below
-		// defined here because case statements are reasonably not scoped
-		String campaignUrn, surveyID, responseID, promptID;
-		
+
 		final int match = sUriMatcher.match(uri);
-		
+
 		switch (match) {
-			// CAMPAIGNS
-			case MatcherTypes.CAMPAIGNS:
+			case MatcherTypes.CAMPAIGNS: {
 				return builder.table(Tables.CAMPAIGNS);
-				
-			case MatcherTypes.CAMPAIGN_BY_URN:
-				campaignUrn = uri.getPathSegments().get(1);
-				
+			}
+			case MatcherTypes.CAMPAIGN_BY_URN: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+
 				return builder.table(Tables.CAMPAIGNS)
-					.where(Campaign.URN + "=?", campaignUrn);
-				
-			// SURVEYS
-			case MatcherTypes.SURVEYS:
-				return builder.table(Tables.SURVEYS);
-				
-			case MatcherTypes.SURVEY_BY_ID:
-				campaignUrn = uri.getPathSegments().get(1);
-				surveyID = uri.getPathSegments().get(3);
-				
+						.where(Campaigns.CAMPAIGN_URN + "=?", campaignUrn);
+			}
+			case MatcherTypes.CAMPAIGN_RESPONSES: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
+						.mapToTable(Responses._ID, Tables.RESPONSES)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
+						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn);
+			}
+			case MatcherTypes.CAMPAIGN_SURVEYS: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+
 				return builder.table(Tables.SURVEYS)
-					.join(Tables.CAMPAIGNS, "%t." + Campaign.URN + "=" + "%s." + Survey.CAMPAIGN_URN)
-					.mapToTable(Survey.DESCRIPTION, Tables.SURVEYS)
-					.where(Survey.CAMPAIGN_URN + "=?", campaignUrn)
-					.where(Survey.SURVEY_ID + "=?", surveyID);
-				
-			case MatcherTypes.CAMPAIGN_SURVEYS:
-				campaignUrn = uri.getPathSegments().get(1);
-				
+						.where(Surveys.CAMPAIGN_URN + "=?", campaignUrn);
+			}
+			case MatcherTypes.SURVEY_BY_ID: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+				final String surveyId = Surveys.getSurveyId(uri);
+
 				return builder.table(Tables.SURVEYS)
-					.where(Survey.CAMPAIGN_URN + "=?", campaignUrn);
-				
-			// SURVEY PROMPTS
-			case MatcherTypes.SURVEYPROMPTS:
-				return builder.table(Tables.SURVEY_PROMPTS);
-				
-			case MatcherTypes.SURVEY_SURVEYPROMPTS:
-				campaignUrn = uri.getPathSegments().get(1);
-				surveyID = uri.getPathSegments().get(3);
-				
+						.join(Tables.CAMPAIGNS, "%t." + Campaigns.CAMPAIGN_URN + "=" + "%s." + Surveys.CAMPAIGN_URN)
+						.mapToTable(Surveys._ID, Tables.SURVEYS)
+						.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS)
+						.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn)
+						.where(Surveys.SURVEY_ID + "=?", surveyId);
+			}
+			case MatcherTypes.SURVEY_SURVEYPROMPTS: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+				final String surveyId = Surveys.getSurveyId(uri);
+
 				return builder.table(Tables.SURVEY_PROMPTS_JOIN_SURVEYS)
-					.mapToTable(Survey.CAMPAIGN_URN, Tables.SURVEYS)
-					.where(Tables.SURVEYS + "." + Survey.CAMPAIGN_URN + "=?", campaignUrn)
-					.where(Tables.SURVEY_PROMPTS + "." + SurveyPrompt.SURVEY_ID + "=?", surveyID);
-				
-			// RESPONSES
-			case MatcherTypes.RESPONSES:
-				if (nonQuery)
-					return builder.table(Tables.RESPONSES);
+						.mapToTable(SurveyPrompts._ID, Tables.SURVEY_PROMPTS)
+						.mapToTable(SurveyPrompts.SURVEY_ID, Tables.SURVEY_PROMPTS)
+						.where(Surveys.CAMPAIGN_URN + "=?", campaignUrn)
+						.where(Qualified.SURVEY_PROMPTS_SURVEY_ID + "=?", surveyId);
+			}
+			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+				final String surveyId = Surveys.getSurveyId(uri);
+
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-						.mapToTable(Campaign.NAME, Tables.CAMPAIGNS);
-				
-			case MatcherTypes.RESPONSE_BY_PID:
-				responseID = uri.getPathSegments().get(1);
-				
-				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
-					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
-				
-			case MatcherTypes.CAMPAIGN_RESPONSES:
-				campaignUrn = uri.getPathSegments().get(1);
-				
-				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
-					.where(Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "=?", campaignUrn);
-				
-			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
-				campaignUrn = uri.getPathSegments().get(1);
-				surveyID = uri.getPathSegments().get(3);
-				
-				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
-					.mapToTable(Campaign.NAME, Tables.CAMPAIGNS)
-					.where(Tables.RESPONSES + "." + Response.CAMPAIGN_URN + "=?", campaignUrn)
-					.where(Tables.RESPONSES + "." + Response.SURVEY_ID + "=?", surveyID);
-			
-			// PROMPTS
-			case MatcherTypes.PROMPTS:
-				if (nonQuery)
-					return builder.table(Tables.PROMPT_RESPONSES);
+						.mapToTable(Responses._ID, Tables.RESPONSES)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
+						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
+						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId);
+			}
+			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+				final String surveyId = Surveys.getSurveyId(uri);
+				final String promptId = PromptResponses.getSurveyPromptId(uri);
+
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
-					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
-					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES);
-				
-			case MatcherTypes.PROMPT_BY_PID:
-				promptID = uri.getPathSegments().get(1);
-				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
-					.where(PromptResponse._ID + "=?", promptID)
-					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
-					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES);
-				
-			case MatcherTypes.RESPONSE_PROMPTS:
-				responseID = uri.getPathSegments().get(1);
-				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
-					.where("SQ." + SurveyPrompt.PROMPT_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID)
-					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
-					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
-					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
-					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
-					.where(Tables.RESPONSES + "." + Response._ID + "=?", responseID);
-				
-			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
-				campaignUrn = uri.getPathSegments().get(1);
-				surveyID = uri.getPathSegments().get(3);
-				promptID = uri.getPathSegments().get(6);
-				
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
-					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
-					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
-					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
-					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
-					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
-					.where(Response.SURVEY_ID + "=?", surveyID)
-					.where(Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID + "=?", promptID);
-				
-			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
-				campaignUrn = uri.getPathSegments().get(1);
-				surveyID = uri.getPathSegments().get(3);
-				promptID = uri.getPathSegments().get(6);
+						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
+						.mapToTable(PromptResponses._ID, Tables.PROMPT_RESPONSES)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
+						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
+						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
+						.where(PromptResponses.PROMPT_ID + "=?", promptId);
+			}	
+			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE: {
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+				final String surveyId = Surveys.getSurveyId(uri);
+				final String promptId = PromptResponses.getSurveyPromptId(uri);
 				String aggregate = uri.getPathSegments().get(7);
-				
+
 				String toClause;
-				
-				switch (DbContract.PromptResponse.AggregateTypes.valueOf(aggregate)) {
-					case AVG: toClause = "avg(" + PromptResponse.PROMPT_VALUE + ")"; break;
-					case COUNT: toClause = "count(" + PromptResponse.PROMPT_VALUE + ")"; break;
-					case MAX: toClause = "max(" + PromptResponse.PROMPT_VALUE + ")"; break;
-					case MIN: toClause = "min(" + PromptResponse.PROMPT_VALUE + ")"; break;
-					case TOTAL: toClause = "total(" + PromptResponse.PROMPT_VALUE + ")"; break;
+
+				switch (DbContract.PromptResponses.AggregateTypes.valueOf(aggregate)) {
+					case AVG: toClause = "avg(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
+					case COUNT: toClause = "count(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
+					case MAX: toClause = "max(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
+					case MIN: toClause = "min(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
+					case TOTAL: toClause = "total(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
 					default:
 						throw new IllegalArgumentException("Specified aggregate was not one of AggregateTypes");
 				}
-				
+
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-					.where("SQ." + SurveyPrompt.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponse.COMPOSITE_ID)
-					.mapToTable(PromptResponse._ID, Tables.PROMPT_RESPONSES)
-					.mapToTable(PromptResponse.RESPONSE_ID, Tables.PROMPT_RESPONSES)
-					.mapToTable(Response.CAMPAIGN_URN, Tables.RESPONSES)
-					.mapToTable(Response.SURVEY_ID, Tables.RESPONSES)
-					.map("aggregate", toClause)
-					.where(Response.CAMPAIGN_URN + "=?", campaignUrn)
-					.where(Response.SURVEY_ID + "=?", surveyID)
-					.where(Tables.PROMPT_RESPONSES + "." + PromptResponse.PROMPT_ID + "=?", promptID);
-				
+						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
+						.mapToTable(PromptResponses._ID, Tables.PROMPT_RESPONSES)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
+						.map("aggregate", toClause)
+						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
+						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
+						.where(PromptResponses.PROMPT_ID + "=?", promptId);
+			}
+			case MatcherTypes.SURVEYS: {
+				return builder.table(Tables.SURVEYS);
+			}
+			case MatcherTypes.SURVEYPROMPTS: {
+				return builder.table(Tables.SURVEY_PROMPTS);
+			}
+			case MatcherTypes.RESPONSES: {
+				if (nonQuery)
+					return builder.table(Tables.RESPONSES);
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
+						.mapToTable(Responses._ID, Tables.RESPONSES)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES);
+			}
+			case MatcherTypes.RESPONSE_BY_PID: {
+				final String responseId = Responses.getResponseId(uri);
+
+				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
+						.mapToTable(Responses._ID, Tables.RESPONSES)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
+						.where(Qualified.RESPONSES_ID + "=?", responseId);
+			}
+			case MatcherTypes.RESPONSE_PROMPTS: {
+				final String responseId = Responses.getResponseId(uri);
+
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
+						.where("SQ." + SurveyPrompts.PROMPT_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.PROMPT_ID)
+						.mapToTable(PromptResponses._ID, Tables.PROMPT_RESPONSES)
+						.mapToTable(PromptResponses.RESPONSE_ID, Tables.PROMPT_RESPONSES)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
+						.where(Tables.RESPONSES + "." + Responses._ID + "=?", responseId);
+			}
+			case MatcherTypes.PROMPTS: {
+				if (nonQuery)
+					return builder.table(Tables.PROMPT_RESPONSES);
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES);
+			}
+			case MatcherTypes.PROMPT_BY_PID: {
+				final String promptId = SurveyPrompts.getSurveyPromptId(uri);
+
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
+						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
+						.where(PromptResponses._ID + "=?", promptId)
+						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
+						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES);
+			}
 			default:
 				throw new UnsupportedOperationException("buildSelection(): Unknown URI: " + uri);
 		}
+	}
+
+	/**
+	 * {@link DbContract} fields that are fully qualified with a specific
+	 * parent {@link Tables}. Used when needed to work around SQL ambiguity.
+	 */
+	private interface Qualified {
+		String SURVEYS_CAMPAIGN_URN = Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN;
+		String RESPONSES_CAMPAIGN_URN = Tables.RESPONSES + "." + Responses.CAMPAIGN_URN;
+		String RESPONSES_SURVEY_ID = Tables.RESPONSES + "." + Responses.SURVEY_ID;
+		String SURVEY_PROMPTS_SURVEY_ID = Tables.SURVEY_PROMPTS + "." + SurveyPrompts.SURVEY_ID;
+		String RESPONSES_ID = Tables.RESPONSES + "." + Responses._ID;
 	}
 }

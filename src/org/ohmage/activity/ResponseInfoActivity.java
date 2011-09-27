@@ -15,15 +15,19 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbContract.PromptResponse;
-import org.ohmage.db.DbContract.Response;
-import org.ohmage.db.DbContract.Survey;
-import org.ohmage.db.DbContract.SurveyPrompt;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.PromptResponses;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.prompt.photo.PhotoPrompt;
 
 import android.content.ContentUris;
@@ -45,24 +49,26 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.google.android.imageloader.ImageLoader;
 
 /**
  * This Activity is used to display Information for an individual response. It
  * is called with {@link Intent#ACTION_VIEW} on the URI specified by
- * {@link DbContract.Response#getResponseUri(long)}
+ * {@link DbContract.Responses#getResponseUri(long)}
  *
  * @author cketcham
  *
  */
 public class ResponseInfoActivity extends BaseInfoActivity implements
 LoaderManager.LoaderCallbacks<Cursor> {
+	
+	private ImageLoader mImageLoader;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		mImageLoader = ImageLoader.get(this);
 
 		FragmentManager fm = getSupportFragmentManager();
 
@@ -86,13 +92,15 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	}
 
 	private interface ResponseQuery {
-		String[] PROJECTION = { Campaign.NAME,
-				Survey.TITLE,
-				Response.TIME };
+		String[] PROJECTION = { Campaigns.CAMPAIGN_NAME,
+				Surveys.SURVEY_TITLE,
+				Responses.RESPONSE_TIME,
+				Campaigns.CAMPAIGN_ICON};
 
 		int CAMPAIGN_NAME = 0;
 		int SURVEY_TITLE = 1;
 		int TIME = 2;
+		int CAMPAIGN_ICON = 3;
 	}
 
 	@Override
@@ -114,6 +122,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
 		SimpleDateFormat df = new SimpleDateFormat();
 		mNotetext.setText(df.format(new Date(completedDate)));
+		
+		final String iconUrl = data.getString(ResponseQuery.CAMPAIGN_ICON);
+		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
+			mIconView.setImageResource(R.drawable.apple_logo);
+		}
 
 		mEntityHeader.setVisibility(View.VISIBLE);
 	}
@@ -142,7 +155,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			// Create an empty adapter we will use to display the loaded data.
 			mAdapter = new PromptResponsesAdapter(getActivity(), null,  new String[] {
-				SurveyPrompt.PROMPT_TEXT, PromptResponse.PROMPT_VALUE }, new int[] {
+				SurveyPrompts.SURVEY_PROMPT_TEXT, PromptResponses.PROMPT_RESPONSE_VALUE }, new int[] {
 				android.R.id.text1, R.id.prompt_value }, 0);
 
 			setListAdapter(mAdapter);
@@ -156,11 +169,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		@Override
 		public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 			return new CursorLoader(getActivity(),
-					DbContract.PromptResponse
-					.getPromptsByResponseID(ContentUris
-							.parseId(getActivity().getIntent()
-									.getData())),
-									null, DbContract.PromptResponse.PROMPT_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
+					Responses.buildPromptResponsesUri(ContentUris.parseId(getActivity().getIntent().getData())),
+					null, PromptResponses.PROMPT_RESPONSE_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
 		}
 
 		@Override
@@ -218,7 +228,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			 * @return
 			 */
 			public String getItemPromptType(Cursor cursor) {
-				return cursor.getString(cursor.getColumnIndex(SurveyPrompt.PROMPT_TYPE));
+				return cursor.getString(cursor.getColumnIndex(SurveyPrompts.SURVEY_PROMPT_TYPE));
 			}
 
 			@Override
@@ -262,11 +272,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 
-				if(cursor.getColumnName(columnIndex).equals(PromptResponse.PROMPT_VALUE)) {
+				if(cursor.getColumnName(columnIndex).equals(PromptResponses.PROMPT_RESPONSE_VALUE)) {
 					String value = cursor.getString(columnIndex);
 
 					if(view.getTag() instanceof ImageView) {
-						String campaignUrn = cursor.getString(cursor.getColumnIndex(Response.CAMPAIGN_URN));
+						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 						File photoDir = new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_'));
 						File photo = new File(photoDir, value + ".jpg");
 						Bitmap img = BitmapFactory.decodeFile(photo.getAbsolutePath());

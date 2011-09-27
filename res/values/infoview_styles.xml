@@ -16,6 +16,7 @@
 		<item name="android:drawableLeft">@drawable/plus</item>
 		<item name="android:drawablePadding">@dimen/halfgutter</item>
 		<item name="android:text">Participate</item>
+		<item name="android:layout_marginLeft">@dimen/halfgutter</item>
 		<item name="android:paddingLeft">@dimen/gutter</item>
 		<item name="android:paddingRight">@dimen/gutter</item>
 	</style>

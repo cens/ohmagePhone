@@ -10,7 +10,8 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -18,13 +19,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.slezica.tools.async.ManagedAsyncTask;
 
 class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadResponse>{
 		
-		private Context mContext;
+		private final Context mContext;
 
 		public CampaignReadTask(FragmentActivity activity) {
 			super(activity);
@@ -47,17 +46,17 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 				ContentResolver cr = mContext.getContentResolver();
 				
 				//delete all remote campaigns from content provider
-				cr.delete(Campaign.CONTENT_URI, Campaign.STATUS + "=" + Campaign.STATUS_REMOTE, null);
+				cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE, null);
 				
 				//build list of urns of all downloaded (local) campaigns
-				Cursor cursor = cr.query(Campaign.CONTENT_URI, new String [] {Campaign._ID, Campaign.URN}, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+				Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns._ID, Campaigns.CAMPAIGN_URN}, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
 				cursor.moveToFirst();
 				
 				ArrayList<String> localCampaignUrns = new ArrayList<String>();
 				
 	    		for (int i = 0; i < cursor.getCount(); i++) {
 	    			
-	    			String urn = cursor.getString(cursor.getColumnIndex(Campaign.URN));
+	    			String urn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
 	    			localCampaignUrns.add(urn);
 	    			
 	    			cursor.moveToNext();
@@ -80,31 +79,31 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 							c.mXml = null;
 							c.mStatus = Campaign.STATUS_REMOTE;
 							c.mPrivacy = data.optString("privacy_state", "unknown");
-							c.mIcon = "http://www.lecs.cs.ucla.edu/~mmonibi/android_small_image_med.jpg";
+							c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
 							boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
 							
 							if (localCampaignUrns.remove(c.mUrn)) { //campaign has already been downloaded
 								
 								ContentValues values = new ContentValues();
 								// FAISAL: include things here that may change at any time on the server
-								values.put(Campaign.PRIVACY, c.mPrivacy);
+								values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
 								
 								if (running) { //campaign is running
 									
-									values.put(Campaign.STATUS, Campaign.STATUS_READY);
-									cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + c.mUrn + "'" , null);
+									values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+									cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
 									
 								} else { //campaign is stopped
 									
-									values.put(Campaign.STATUS, Campaign.STATUS_STOPPED);
-									cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + c.mUrn + "'" , null);
+									values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_STOPPED);
+									cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
 								}
 								
 							} else { //campaign has not been downloaded
 								
 								if (running) { //campaign is running
 									
-									cr.insert(Campaign.CONTENT_URI, c.toCV()); //insert remote campaign into content provider
+									cr.insert(Campaigns.CONTENT_URI, c.toCV()); //insert remote campaign into content provider
 								}
 							}
 						} catch (JSONException e) {
@@ -118,8 +117,8 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 				//leftover local campaigns were not returned by campaign read, therefore must be in some unavailable state
 				for (String urn : localCampaignUrns) { 
 					ContentValues values = new ContentValues();
-					values.put(Campaign.STATUS, Campaign.STATUS_VAGUE);
-					cr.update(Campaign.CONTENT_URI, values, Campaign.URN + "= '" + urn + "'" , null);
+					values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_VAGUE);
+					cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + urn + "'" , null);
 				}				
 
 			} else if (response.getResult() == Result.FAILURE) {

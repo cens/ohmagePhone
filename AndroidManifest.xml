@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.ohmage"
-	android:versionName="2.7 beta" android:versionCode="11092100">
+	android:versionName="2.7 beta" android:versionCode="11092300">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -64,7 +64,7 @@
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.org.ohmage.db.campaign" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.campaign" />
             </intent-filter>
 		</activity>
 		
@@ -72,7 +72,7 @@
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.org.ohmage.db.survey" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.survey" />
             </intent-filter>
 		</activity>
 		
@@ -80,7 +80,7 @@
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.org.ohmage.db.response" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.response" />
             </intent-filter>
 		</activity>
 		
@@ -133,6 +133,12 @@
 				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
 				<data android:scheme="package" android:host="org.ohmage"/>
 			</intent-filter>
+	    </receiver>
+	    
+	    <receiver android:name=".activity.TriggerReceiver">
+			<intent-filter>
+	    		<action android:name="org.ohmage.triggers.SURVEY_LIST_CHANGED"/>
+	    	</intent-filter>
 	    </receiver>
 	        
 	    <service android:name=".service.UploadService"/>
