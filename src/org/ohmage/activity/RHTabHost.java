@@ -1,12 +1,8 @@
 package org.ohmage.activity;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import org.ohmage.R;
-import org.ohmage.db.DbContract.Campaign;
-import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbProvider;
 
 import android.app.TabActivity;
 import android.content.Context;
@@ -15,8 +11,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TabHost;
-import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
+import android.widget.TabHost.TabSpec;
 
 public class RHTabHost extends TabActivity {
 	

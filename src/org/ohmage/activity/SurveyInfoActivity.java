@@ -1,12 +1,18 @@
 package org.ohmage.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
+import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
@@ -29,6 +35,10 @@ import android.widget.TextView;
 import com.google.android.imageloader.ImageLoader;
 
 public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+	// action bar commands
+	private static final int ACTION_VIEW_RESPHISTORY = 1;
+	private static final int ACTION_SETUP_TRIGGERS = 2;
+	
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
@@ -103,12 +113,48 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	}
 	
 	protected void populateCommands(final String surveyID, final String campaignUrn, final String surveyTitle, final String surveySubmitText, int campaignStatus) {
+		// first remove all the commands from the action bar...
+		ActionBarControl actionBar = getActionBar();
+		actionBar.clearActionBarCommands();
+		
 		// gather up the commands in the command tray so we can hide/show them
 		Button takeSurveyButton = (Button)findViewById(R.id.survey_info_button_takesurvey);
 
 		// now, depending on the context, we can regenerate our commands
 		// this applies both to the action bar and to the command tray
 		if (campaignStatus == Campaign.STATUS_READY) {
+			actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
+			// actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
+			
+			// route the actions to the appropriate places
+			actionBar.setOnActionListener(new ActionListener() {
+				@Override
+				public void onActionClicked(int commandID) {
+					Intent intent;
+					
+					switch (commandID) {
+						case ACTION_VIEW_RESPHISTORY:
+							intent = new Intent(mContext, RHTabHost.class);
+							intent.putExtra(RHTabHost.EXTRA_CAMPAIGN_URN, campaignUrn);
+							intent.putExtra(RHTabHost.EXTRA_SURVEY_ID, surveyID);
+							startActivity(intent);
+							break;
+						case ACTION_SETUP_TRIGGERS:
+							List<String> surveyTitles = new ArrayList<String>();
+							
+							// grab a list of surveys for this campaign
+							Cursor surveys = getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
+							
+							while (surveys.moveToNext()) {
+								surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
+							}
+							
+							TriggerFramework.launchTriggersActivity(mContext, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
+							return;
+					}
+				}
+			});
+			
 			takeSurveyButton.setEnabled(true);
 			
 			// attach a remove handler
