@@ -65,7 +65,7 @@
 	
 	<string name="survey_info_triggers_details">
 		<![CDATA[
-		the above count is the number of triggers configured for this survey.<br /><br />
+		the above count is the number of triggers configured for this survey.
 		]]>
 	</string>
 </resources>
