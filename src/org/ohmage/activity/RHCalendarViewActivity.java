@@ -110,8 +110,25 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 	@Override
 	protected void onResume(){
 		super.onResume();
-		mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
-		mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+		
+		String campaignUrn = getIntent().getStringExtra(RHTabHost.EXTRA_CAMPAIGN_URN);
+		getIntent().removeExtra(RHTabHost.EXTRA_CAMPAIGN_URN);
+		String surveyId = getIntent().getStringExtra(RHTabHost.EXTRA_SURVEY_ID);
+		getIntent().removeExtra(RHTabHost.EXTRA_SURVEY_ID);
+
+		if(campaignUrn != null){
+			mCampaignFilter.setIndex(mCampaignFilter.getIndex(campaignUrn));
+		}
+		else{
+			mCampaignFilter.setIndex(RHTabHost.getCampaignFilterIndex());
+		}
+		
+		if(surveyId != null){
+			mSurveyFilter.setIndex(mSurveyFilter.getIndex(surveyId));
+		}
+		else{
+			mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
+		}
 		
 		Calendar cal = RHTabHost.getDateFilterValue();
 		mSelectedMonth = cal.get(Calendar.MONTH)+1;

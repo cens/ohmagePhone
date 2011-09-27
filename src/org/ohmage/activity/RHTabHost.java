@@ -4,6 +4,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.ohmage.R;
+import org.ohmage.db.DbContract.Campaign;
+import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbProvider;
 
 import android.app.TabActivity;
 import android.content.Context;
@@ -16,6 +19,10 @@ import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
 public class RHTabHost extends TabActivity {
+	
+	public static final String EXTRA_CAMPAIGN_URN = "campaign_urn";
+	public static final String EXTRA_SURVEY_ID = "survey_id";
+	
 	TabHost mTabHost;
 	
 	private static int mCampaignFilterIndex;
@@ -31,11 +38,19 @@ public class RHTabHost extends TabActivity {
 		mTabHost = getTabHost();
 		Intent intent = null; 
 		
+		
+		//In case previous shown activity has campaign urn or survey id to set them into filters.
+		String campaignUrn = getIntent().getStringExtra(EXTRA_CAMPAIGN_URN);
+		String surveyId = getIntent().getStringExtra(EXTRA_SURVEY_ID);
+		
 		intent = new Intent().setClass(this, RHCalendarViewActivity.class);
+		intent.putExtra(EXTRA_CAMPAIGN_URN, campaignUrn);
+		intent.putExtra(EXTRA_SURVEY_ID, surveyId);
 		setupTab(intent, "Calendar");
 		
 		intent = new Intent().setClass(this, RHMapViewActivity.class);
 		setupTab(intent, "Map");
+		
 		mTabHost.setCurrentTab(0);
 		
 		mCampaignFilterIndex = 0;

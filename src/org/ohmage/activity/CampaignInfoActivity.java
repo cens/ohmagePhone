@@ -152,7 +152,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								break;
 							case ACTION_VIEW_RESPHISTORY:
 								intent = new Intent(mContext, RHTabHost.class);
-								intent.putExtra("campaign_urn", campaignUrn);
+								intent.putExtra(RHTabHost.EXTRA_CAMPAIGN_URN, campaignUrn);
 								startActivity(intent);
 								break;
 							case ACTION_SETUP_TRIGGERS:

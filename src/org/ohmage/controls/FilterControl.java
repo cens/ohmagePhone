@@ -162,6 +162,20 @@ public class FilterControl extends LinearLayout {
 	}
 	
 	/**
+	 * Gets the index of the currently selected item, from 0 to list size -1.
+	 * @param a String to find out in the list (e.g, CampaignUrn)
+	 * @return a numeric index for the currently selected item
+	 */
+	public int getIndex(String text) {
+		for(int i=0; i<mItemList.size(); i++){
+			if(mItemList.get(i).second.equals(text)){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	/**
 	 * Sets the currently selected item by its index, which should be between 0 and list size - 1 inclusive.
 	 * @param index the index to set, between 0 and list size - 1 inclusive
 	 */
