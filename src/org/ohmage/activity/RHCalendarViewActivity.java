@@ -125,7 +125,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		}
 		
 		if(surveyId != null){
-			mSurveyFilter.setIndex(mSurveyFilter.getIndex(surveyId));
+			mSurveyFilter.setIndex(mSurveyFilter.getIndex(campaignUrn + ":" + surveyId));
 		}
 		else{
 			mSurveyFilter.setIndex(RHTabHost.getSurveyFilterIndex());
