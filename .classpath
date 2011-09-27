@@ -14,5 +14,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/imageloader.jar"/>
+	<classpathentry kind="lib" path="lib/filecache.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

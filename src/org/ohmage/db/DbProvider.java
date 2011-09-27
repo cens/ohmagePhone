@@ -1,5 +1,6 @@
 package org.ohmage.db;
 
+import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.PromptResponse;
 import org.ohmage.db.DbContract.Response;
@@ -16,6 +17,10 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
 
 /**
  * A ContentProvider which makes the contents of the campaign, survey, and response
@@ -282,10 +287,24 @@ public class DbProvider extends ContentProvider {
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
+		// Depending on the type of the thing deleted, we may have to delete the icon associated with it
+		// We need to know what the url is before we delete it
+		HashSet<String> iconUrls = new HashSet<String>();
+		switch (sUriMatcher.match(uri)) {
+			case MatcherTypes.CAMPAIGN_BY_URN:
+			case MatcherTypes.CAMPAIGNS:
+				Cursor c = builder.query(db, new String [] { Campaign.ICON }, null);
+				if(c.moveToFirst()) {
+					while(c.moveToNext()) {
+						if(c.getString(0) != null)
+							iconUrls.add(c.getString(0));
+					}
+				}
+				c.close();
+		}
+		
 		// we assume we've matched it correctly, so proceed with the delete
 		count = builder.delete(db);
-		
-		db.close();
 		
 		if (count > 0) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -300,7 +319,27 @@ public class DbProvider extends ContentProvider {
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
-				case MatcherTypes.CAMPAIGNS:			
+				case MatcherTypes.CAMPAIGNS:
+					// Delete the icon if it is on the sdcard and no other campaigns reference that url
+					for(String iconUrl : iconUrls) {
+						db.beginTransaction();
+						try {
+							Cursor c = db.query(Tables.CAMPAIGNS, new String [] { "_id" }, Campaign.ICON + "=?", new String[] { iconUrl }, null, null, null);
+							if(c.getCount() == 0) {
+								try {
+									OhmageCache.getCachedFile(getContext(), new URI(iconUrl)).delete();
+								} catch (URISyntaxException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								c.close();
+							}
+							db.setTransactionSuccessful();
+						} finally {
+							db.endTransaction();
+						}
+					}	
+
 					// notify on the related entity URIs
 					cr.notifyChange(Campaign.CONTENT_URI, null);
 					cr.notifyChange(Survey.CONTENT_URI, null);
@@ -313,6 +352,8 @@ public class DbProvider extends ContentProvider {
 			// we should always notify on our own uri regardless
 			cr.notifyChange(uri, null);
 		}
+		
+		db.close();
 		
 		return count;
 	}

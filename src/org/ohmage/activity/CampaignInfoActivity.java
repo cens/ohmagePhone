@@ -128,6 +128,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		actionBar.clearActionBarCommands();
 		
 		// ...and gather up the commands in the command tray so we can hide/show them
+		Button surveysButton = (Button)findViewById(R.id.campaign_info_button_surveys);
 		Button participateButton = (Button)findViewById(R.id.campaign_info_button_particpate);
 		Button removeButton = (Button)findViewById(R.id.campaign_info_button_remove);
 		
@@ -136,7 +137,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		if (campaignStatus != Campaign.STATUS_REMOTE) {
 			// only show data-related actions if it's ready
 			if (campaignStatus == Campaign.STATUS_READY) {
-				actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
+				// FIXME: temporarily removed "take survey" button and moved it to the entity info header button tray
+				// actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
 				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
 				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
 				
@@ -172,6 +174,18 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 						}
 					}
 				});
+				
+				// also show the take surveys button
+				surveysButton.setVisibility(View.VISIBLE);
+				// and attach a handler for it
+				surveysButton.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(mContext, SurveyListActivity.class);
+						intent.putExtra("campaign_urn", campaignUrn);
+						startActivity(intent);
+					}
+				});
 			}
 			
 			// and set the command tray buttons accordingly
@@ -205,6 +219,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		}
 		else {
 			// show commands for a remote campaign (e.g. "participate")
+			surveysButton.setVisibility(View.GONE);
 			participateButton.setVisibility(View.VISIBLE);
 			removeButton.setVisibility(View.GONE);
 			
