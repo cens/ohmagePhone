@@ -70,12 +70,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		static final String SURVEY_PROMPTS = "survey_prompts";
 
 		// joins declared here
-		String RESPONSES_JOIN_CAMPAIGNS_SURVEYS = String.format(
-				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s "
-						+ "inner join %5$s on %1$s.%6$s=%5$s.%7$s ", RESPONSES,
-				CAMPAIGNS, Responses.CAMPAIGN_URN, Campaigns.CAMPAIGN_URN, SURVEYS,
-				Responses.SURVEY_ID, Surveys.SURVEY_ID);
-
+		String RESPONSES_JOIN_CAMPAIGNS_SURVEYS =
+			Tables.RESPONSES
+			+ " inner join " + Tables.CAMPAIGNS
+				+ " on " + Tables.CAMPAIGNS + "." + Campaigns.CAMPAIGN_URN + "=" + Tables.RESPONSES + "." + Responses.CAMPAIGN_URN
+			+ " inner join " + Tables.SURVEYS +
+				" on " + Tables.SURVEYS + "." + Surveys.SURVEY_ID + "=" + Tables.RESPONSES + "." + Responses.SURVEY_ID +
+				" and " + Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN + "=" + Tables.RESPONSES + "." + Responses.CAMPAIGN_URN;
+				
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String
 				.format(
 						"%1$s inner join %2$s on %1$s.%5$s=%2$s.%6$s "
@@ -94,7 +96,7 @@ public class DbHelper extends SQLiteOpenHelper {
 						Campaigns.CAMPAIGN_URN); // 11
 
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format(
-				"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
+				"distinct %1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
 				SURVEYS, SurveyPrompts.SURVEY_ID, Surveys.SURVEY_ID);
 	}
 
@@ -118,60 +120,62 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.CAMPAIGNS + " ("
 				+ Campaigns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ Campaigns.CAMPAIGN_URN + " TEXT, " + Campaigns.CAMPAIGN_NAME + " TEXT, "
+				+ Campaigns.CAMPAIGN_URN + " TEXT, "
+				+ Campaigns.CAMPAIGN_NAME + " TEXT, "
 				+ Campaigns.CAMPAIGN_DESCRIPTION + " TEXT, "
 				+ Campaigns.CAMPAIGN_CREATED + " TEXT, "
 				+ Campaigns.CAMPAIGN_DOWNLOADED + " TEXT, "
-				+ Campaigns.CAMPAIGN_CONFIGURATION_XML + " TEXT, " + Campaigns.CAMPAIGN_STATUS
-				+ " INTEGER, " + Campaigns.CAMPAIGN_ICON + " TEXT, " + Campaigns.CAMPAIGN_PRIVACY
-				+ " TEXT " + ");");
+				+ Campaigns.CAMPAIGN_CONFIGURATION_XML + " TEXT, "
+				+ Campaigns.CAMPAIGN_STATUS + " INTEGER, "
+				+ Campaigns.CAMPAIGN_ICON + " TEXT, "
+				+ Campaigns.CAMPAIGN_PRIVACY + " TEXT " +
+				");");
 
-		db.execSQL("CREATE TABLE IF NOT EXISTS "
-				+ Tables.SURVEYS
-				+ " ("
-				+ Surveys._ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ Surveys.CAMPAIGN_URN
-				+ " TEXT, " // cascade delete from campaigns
-				+ Surveys.SURVEY_ID + " TEXT, " + Surveys.SURVEY_TITLE + " TEXT, "
-				+ Surveys.SURVEY_DESCRIPTION + " TEXT, " + Surveys.SURVEY_SUBMIT_TEXT
-				+ " TEXT, " + Surveys.SURVEY_SHOW_SUMMARY + " INTEGER DEFAULT 0, "
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEYS + " ("
+				+ Surveys._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ Surveys.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
+				+ Surveys.SURVEY_ID + " TEXT, "
+				+ Surveys.SURVEY_TITLE + " TEXT, "
+				+ Surveys.SURVEY_DESCRIPTION + " TEXT, "
+				+ Surveys.SURVEY_SUBMIT_TEXT + " TEXT, "
+				+ Surveys.SURVEY_SHOW_SUMMARY + " INTEGER DEFAULT 0, "
 				+ Surveys.SURVEY_EDIT_SUMMARY + " INTEGER DEFAULT 0, "
-				+ Surveys.SURVEY_SUMMARY_TEXT + " TEXT, " + Surveys.SURVEY_INTRO_TEXT
-				+ " TEXT, " + Surveys.SURVEY_ANYTIME + " INTEGER DEFAULT 1, "
-				+ Surveys.SURVEY_STATUS + " INTEGER DEFAULT 0" + ");");
+				+ Surveys.SURVEY_SUMMARY_TEXT + " TEXT, "
+				+ Surveys.SURVEY_INTRO_TEXT + " TEXT, "
+				+ Surveys.SURVEY_ANYTIME + " INTEGER DEFAULT 1, "
+				+ Surveys.SURVEY_STATUS + " INTEGER DEFAULT 0"
+				+ ");");
 
-		db.execSQL("CREATE TABLE IF NOT EXISTS "
-				+ Tables.SURVEY_PROMPTS
-				+ " ("
-				+ SurveyPrompts._ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ SurveyPrompts.SURVEY_PID
-				+ " INTEGER, " // cascade delete from surveys
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEY_PROMPTS + " ("
+				+ SurveyPrompts._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ SurveyPrompts.SURVEY_PID + " INTEGER, " // cascade delete from surveys
 				+ SurveyPrompts.SURVEY_ID + " TEXT, "
 				+ SurveyPrompts.COMPOSITE_ID + " TEXT, "
-				+ SurveyPrompts.PROMPT_ID + " TEXT, " + SurveyPrompts.SURVEY_PROMPT_TEXT
-				+ " TEXT, " + SurveyPrompts.SURVEY_PROMPT_TYPE + " TEXT, "
-				+ SurveyPrompts.SURVEY_PROMPT_PROPERTIES + " TEXT " + ");");
+				+ SurveyPrompts.PROMPT_ID + " TEXT, "
+				+ SurveyPrompts.SURVEY_PROMPT_TEXT + " TEXT, "
+				+ SurveyPrompts.SURVEY_PROMPT_TYPE + " TEXT, "
+				+ SurveyPrompts.SURVEY_PROMPT_PROPERTIES + " TEXT "
+				+ ");");
 
-		db.execSQL("CREATE TABLE IF NOT EXISTS "
-				+ Tables.RESPONSES
-				+ " ("
-				+ Responses._ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ Responses.CAMPAIGN_URN
-				+ " TEXT, " // cascade delete from campaigns
-				+ Responses.RESPONSE_USERNAME + " TEXT, " + Responses.RESPONSE_DATE + " TEXT, "
-				+ Responses.RESPONSE_TIME + " INTEGER, " + Responses.RESPONSE_TIMEZONE + " TEXT, "
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.RESPONSES + " ("
+				+ Responses._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ Responses.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
+				+ Responses.RESPONSE_USERNAME + " TEXT, "
+				+ Responses.RESPONSE_DATE + " TEXT, "
+				+ Responses.RESPONSE_TIME + " INTEGER, "
+				+ Responses.RESPONSE_TIMEZONE + " TEXT, "
 				+ Responses.RESPONSE_LOCATION_STATUS + " TEXT, "
 				+ Responses.RESPONSE_LOCATION_LATITUDE + " REAL, "
 				+ Responses.RESPONSE_LOCATION_LONGITUDE + " REAL, "
 				+ Responses.RESPONSE_LOCATION_PROVIDER + " TEXT, "
 				+ Responses.RESPONSE_LOCATION_ACCURACY + " REAL, "
-				+ Responses.RESPONSE_LOCATION_TIME + " INTEGER, " + Responses.SURVEY_ID
-				+ " TEXT, " + Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT + " TEXT, "
-				+ Responses.RESPONSE_JSON + " TEXT, " + Responses.RESPONSE_STATUS
-				+ " INTEGER DEFAULT 0, " + Responses.RESPONSE_HASHCODE + " TEXT" + ");");
+				+ Responses.RESPONSE_LOCATION_TIME + " INTEGER, "
+				+ Responses.SURVEY_ID + " TEXT, "
+				+ Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT + " TEXT, "
+				+ Responses.RESPONSE_JSON + " TEXT, "
+				+ Responses.RESPONSE_STATUS + " INTEGER DEFAULT 0, "
+				+ Responses.RESPONSE_HASHCODE + " TEXT"
+				+ ");");
 
 		// make campaign URN unique in the campaigns table
 		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Campaigns.CAMPAIGN_URN
@@ -183,14 +187,13 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ Tables.PROMPT_RESPONSES
 				+ " ("
-				+ PromptResponses._ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ PromptResponses.RESPONSE_ID
-				+ " INTEGER, " // cascade delete from responses
+				+ PromptResponses._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ PromptResponses.RESPONSE_ID + " INTEGER, " // cascade delete from responses
 				+ PromptResponses.COMPOSITE_ID + " TEXT, "
 				+ PromptResponses.PROMPT_ID + " TEXT, "
 				+ PromptResponses.PROMPT_RESPONSE_VALUE + " TEXT, "
-				+ PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + " TEXT" + ");");
+				+ PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + " TEXT"
+				+ ");");
 
 		// for responses, index the campaign and survey ID columns, as we'll be
 		// selecting on them
@@ -345,10 +348,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			// else we fail and the transaction gets rolled back
 		}
 		catch (SQLiteConstraintException e) {
-			Log
-					.e(
-							TAG,
-							"Attempted to insert record that violated a SQL constraint (likely the hashcode)");
+			Log.e(TAG, "Attempted to insert record that violated a SQL constraint (likely the hashcode)");
 			return -1;
 		}
 		catch (Exception e) {
