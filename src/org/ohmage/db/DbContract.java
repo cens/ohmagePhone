@@ -214,6 +214,11 @@ public class DbContract {
         public static final String SURVEY_ID = "survey_id";
         public static final String PROMPT_ID = "prompt_id";
         public static final String COMPOSITE_ID = "composite_id";
+        
+    	/** Read Prompt id from {@link SurveyPrompts} {@link Uri}. */
+		public static String getSurveyPromptId(Uri uri) {
+			return uri.getPathSegments().get(1);
+		}
 	}
 	
 	/**
@@ -250,6 +255,11 @@ public class DbContract {
 		public static Uri buildPromptResponsesUri(long responseId) {
 			return buildResponseUri(responseId).buildUpon().appendPath(PATH_PROMPTS).build();
 		}
+
+        /** Read ResponseId from {@link Responses} {@link Uri}. */
+		public static String getResponseId(Uri uri) {
+			return uri.getPathSegments().get(1);
+		}
 	}
 	
 	// ===================================
@@ -282,5 +292,10 @@ public class DbContract {
 		public static final String RESPONSE_ID = "response_id";
 		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
+		
+    	/** Read Prompt id from {@link PromptResponses} {@link Uri}. */
+		public static String getSurveyPromptId(Uri uri) {
+			return uri.getPathSegments().get(6);
+		}
 	}
 }
