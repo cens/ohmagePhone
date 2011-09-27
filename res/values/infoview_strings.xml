@@ -62,4 +62,10 @@
 		tap the bell icon in the action bar to configure the triggers.
 		]]>
 	</string>
+	
+	<string name="survey_info_triggers_details">
+		<![CDATA[
+		the above count is the number of triggers configured for this survey.<br /><br />
+		]]>
+	</string>
 </resources>

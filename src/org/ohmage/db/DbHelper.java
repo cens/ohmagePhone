@@ -775,7 +775,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 * SurveyPrompts table) can't be found.
 	 */
 	public class NoMetadataException extends Exception {
-
+		private static final long serialVersionUID = -3002929068033069759L;
 	}
 
 	public boolean populatePromptsFromResponseJSON(SQLiteDatabase db, long responseRowID, String response, String campaignUrn, String surveyId) {

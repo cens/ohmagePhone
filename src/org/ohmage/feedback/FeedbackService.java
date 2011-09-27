@@ -99,14 +99,9 @@ public class FeedbackService extends WakefulIntentService {
         }
         else {
         	// otherwise, do all the campaigns
-        	// don't consider the ones that are remote if we're not in the debug state
-        	Cursor campaignCursor;
-        	
-        	if (SharedPreferencesHelper.FEEDBACK_DOWNLOAD_ALL)
-        		campaignCursor = cr.query(Campaign.getCampaigns(), null, null, null, null);
-        	else
-        		campaignCursor = cr.query(Campaign.getCampaigns(), null, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
-        		    		
+        	// don't consider the ones that are remote
+        	Cursor campaignCursor = cr.query(Campaign.getCampaigns(), null, Campaign.STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+
     		campaigns = Campaign.fromCursor(campaignCursor);
         }
 

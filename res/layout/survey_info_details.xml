@@ -40,6 +40,14 @@
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
 				android:id="@+id/survey_info_responses_details" />
+				
+			<TableRow style="@style/InfoSectionHeader"
+				android:id="@+id/survey_info_triggers_row">
+				<TextView style="@style/InfoSectionLabel" android:text="triggers:" />
+				<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_triggers_value" />
+			</TableRow>
+			<TextView style="@style/InfoSectionDetails"
+				android:id="@+id/survey_info_triggers_details" />
 		</TableLayout>
 	</LinearLayout>
 </ScrollView>

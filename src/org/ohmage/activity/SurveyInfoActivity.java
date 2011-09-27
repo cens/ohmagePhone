@@ -9,6 +9,7 @@ import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Campaign;
 import org.ohmage.db.DbContract.Response;
 import org.ohmage.db.DbContract.Survey;
+import org.ohmage.triggers.base.TriggerDB;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
@@ -40,6 +41,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	private TextView mDescView;
 	private TextView mStatusValue;
 	private TextView mResponsesValue;
+	private TextView mTriggersValue;
 	
 	// state vars
 	private int mCampaignStatus; // status code for campaign as of last refresh
@@ -72,6 +74,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mDescView = (TextView)findViewById(R.id.survey_info_desc);
 		mStatusValue = (TextView)findViewById(R.id.survey_info_status_value);
 		mResponsesValue = (TextView)findViewById(R.id.survey_info_responses_value);
+		mTriggersValue = (TextView)findViewById(R.id.survey_info_triggers_value);
 		
 		// and attach some handlers + populate some html data
 		// status
@@ -87,6 +90,13 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		setDetailsExpansionHandler(
 				findViewById(R.id.survey_info_responses_row),
 				responsesDetails);
+		
+		// triggers
+		TextView triggersDetails = (TextView)findViewById(R.id.survey_info_triggers_details);
+		triggersDetails.setText(Html.fromHtml(getString(R.string.survey_info_triggers_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.survey_info_triggers_row),
+				triggersDetails);
 		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
@@ -212,6 +222,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				break;
 		}
 		
+		// create an observer to watch the responses table for changes (hopefully)
 		mResponsesObserver = new ContentObserver(mHandler) {
 			@Override
 			public void onChange(boolean selfChange) {
@@ -229,6 +240,15 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		getContentResolver().registerContentObserver(Response.CONTENT_URI, true, mResponsesObserver);
 		// and trigger it once to refresh right now
 		mResponsesObserver.onChange(false);
+		
+		// get the number of triggers for this survey
+		TriggerDB trigDB = new TriggerDB(mContext);
+		if (trigDB.open()) {
+			Cursor triggers = trigDB.getTriggers(campaignUrn, surveyID);
+			mTriggersValue.setText(triggers.getCount() + " trigger(s) configured");
+			triggers.close();
+			trigDB.close();
+		}
 		
 		// and finally populate the action bar + command tray
 		populateCommands(surveyID, campaignUrn, data.getString(QueryParams.TITLE), submitText, mCampaignStatus);
