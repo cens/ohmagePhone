@@ -50,6 +50,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.util.Xml;
 
@@ -295,7 +296,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		clearAll(db);
 		// we also have to close it, since it's not a managed reference as with
 		// onUpgrade's db handle.
-		db.close();
+		// db.close();
 	}
 
 	// helper method that returns a hex-formatted string for some given input
@@ -357,7 +358,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		}
 		finally {
 			db.endTransaction();
-			db.close();
+			// db.close();
 		}
 
 		return rowId;
@@ -869,27 +870,33 @@ public class DbHelper extends SQLiteOpenHelper {
 					else if (promptData.mPromptType.equalsIgnoreCase("multi_choice")) {
 						// same procedure as above, except that we need to remap every value
 						
-						// unload the json properties
-						JSONArray values = new JSONArray(promptData.mProperties);
-						// set the explicit value as the default; if we don't find a match, it'll end up as this
-						JSONArray newValues = new JSONArray(item.getString("value"));
-						
-						// for each entry in newValues...
-						for (int io = 0; io < newValues.length(); ++io) {
-							// search for a key that matches the given value
-							for (int ir = 0; ir < values.length(); ++ir) {
-								JSONObject entry = values.getJSONObject(ir);
-								if (entry.getString("key").equals(newValues.getString(io))) {
-									// assign the remapped value to this index
-									newValues.put(io, entry.getString("label"));
-									break;
+						try {
+							// unload the json properties
+							JSONArray values = new JSONArray(promptData.mProperties);
+							// set the explicit value as the default; if we don't find a match, it'll end up as this
+							JSONArray newValues = new JSONArray(item.getString("value"));
+							
+							// for each entry in newValues...
+							for (int io = 0; io < newValues.length(); ++io) {
+								// search for a key that matches the given value
+								for (int ir = 0; ir < values.length(); ++ir) {
+									JSONObject entry = values.getJSONObject(ir);
+									if (entry.getString("key").equals(newValues.getString(io))) {
+										// assign the remapped value to this index
+										newValues.put(io, entry.getString("label"));
+										break;
+									}
 								}
 							}
+							
+							// and reassign mValue here
+							p.mValue = newValues.toString();
+							p.mExtraValue = item.getString("value");	
 						}
-						
-						// and reassign mValue here
-						p.mValue = newValues.toString();
-						p.mExtraValue = item.getString("value");
+						catch (JSONException e) {
+							// it wasn't a json array, so just remap the value
+							p.mValue = item.getString("value");
+						}
 					}
 					else {
 						p.mValue = item.getString("value");
@@ -910,5 +917,17 @@ public class DbHelper extends SQLiteOpenHelper {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Swaps newCursor into the given adapter and closes the old cursor if one exists 
+	 * @param adapter the adapter into which to swap the new cursor
+	 * @param newCursor the cursor to swap into the adapter
+	 */
+	public static void swapCursorSafe(CursorAdapter adapter, Cursor newCursor) {
+		Cursor oldCursor = adapter.swapCursor(newCursor);
+		
+		if (oldCursor != null && !oldCursor.isClosed())
+			oldCursor.close();
 	}
 }

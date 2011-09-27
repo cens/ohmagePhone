@@ -212,8 +212,6 @@ public class DbProvider extends ContentProvider {
 				throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
 		}
 		
-		db.close();
-		
 		// return the path to our new URI
 		return resultingUri;
 	}
@@ -266,8 +264,6 @@ public class DbProvider extends ContentProvider {
 			// we should always notify on our own uri regardless
 			cr.notifyChange(uri, null);
 		}
-		
-		db.close();
 		
 		return count;
 	}
@@ -352,8 +348,6 @@ public class DbProvider extends ContentProvider {
 			// we should always notify on our own uri regardless
 			cr.notifyChange(uri, null);
 		}
-		
-		db.close();
 		
 		return count;
 	}
