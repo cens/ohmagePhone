@@ -366,7 +366,7 @@ public class FeedbackService extends WakefulIntentService {
 				
 				if (!photo.exists()) {
 					// it doesn't exist, so we have to download it :(
-					ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, "small");
+					ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, null);
 				
 					// if it succeeded, it contains data that we should save as the photo file above
 					try {
