@@ -23,13 +23,14 @@
 		android:id="@+id/upload_all_container"
 		android:layout_width="fill_parent"
 		android:layout_height="@dimen/upload_all_container_height"
-		android:background="@color/lightgray"
+		android:background="@drawable/entity_header_background"
 		android:layout_alignParentBottom="true">
 		<Button
 			android:id="@+id/upload_button"
-			android:layout_width="wrap_content"
+			android:layout_width="200dp"
 			android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
+			android:background="@drawable/entity_action_button"
 			android:text="Upload All" />
 	</RelativeLayout>
 
