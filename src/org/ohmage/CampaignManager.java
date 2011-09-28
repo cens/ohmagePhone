@@ -18,9 +18,7 @@ package org.ohmage;
 import java.io.File;
 
 import org.ohmage.db.DbHelper;
-import org.ohmage.feedback.FeedbackService;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
-import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.triggers.glue.TriggerFramework;
 
@@ -41,34 +39,16 @@ public class CampaignManager {
 		dbHelper.removeCampaign(urn);
 		
 		//remove images
-		File imageDir = new File(PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_'));
+		File imageDir = new File(OhmageApplication.getImageDirectory(context), urn.replace(':', '_'));
 		if (imageDir.exists()) {
 			File [] files = imageDir.listFiles();
 			
-			if (files != null) {
-				for (int i = 0; i < files.length; i++) {
-					files[i].delete();
-				}
-			}
-			
+			for(File file : files)
+				file.delete();
+
 			imageDir.delete();
 		} else {
-			Log.e(TAG, PhotoPrompt.IMAGE_PATH + "/" + urn.replace(':', '_') + " does not exist.");
-		}
-		
-		// remove image cache as well
-		File imageCacheDir = new File(FeedbackService.IMAGE_CACHE_PATH + "/" + urn.replace(':', '_'));
-		if (imageCacheDir.exists()) {
-			File [] files = imageCacheDir.listFiles();
-			
-			if (files != null) {
-				for (int i = 0; i < files.length; i++)
-					files[i].delete();
-			}
-			
-			imageCacheDir.delete();
-		} else {
-			Log.e(TAG, imageCacheDir.toString() + " does not exist.");
+			Log.e(TAG, imageDir.getAbsolutePath() + " does not exist.");
 		}
 		
 		//clear custom type dbs

@@ -1,5 +1,6 @@
 package org.ohmage.db;
 
+import org.ohmage.OhmageApplication;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -8,8 +9,10 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.service.SurveyGeotagService;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 
+import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +88,14 @@ public class Models {
 			values.put(Campaigns.CAMPAIGN_ICON, mIcon);
 			values.put(Campaigns.CAMPAIGN_PRIVACY, mPrivacy);
 			return values;
+		}
+		
+		public File getImageDir(Context context) {
+			return getCampaignImageDir(context, this.mUrn);
+		}
+		
+		public static File getCampaignImageDir(Context context, String campaignUrn) {
+			return new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
 		}
 	}
 

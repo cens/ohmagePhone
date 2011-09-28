@@ -16,6 +16,9 @@
 package org.ohmage.activity;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,7 +31,7 @@ import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
-import org.ohmage.prompt.photo.PhotoPrompt;
+import org.ohmage.db.Models.Campaign;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -273,15 +276,30 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 
 				if(cursor.getColumnName(columnIndex).equals(PromptResponses.PROMPT_RESPONSE_VALUE)) {
-					String value = cursor.getString(columnIndex);
+					final String value = cursor.getString(columnIndex);
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						File photoDir = new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_'));
-						File photo = new File(photoDir, value + ".jpg");
-						Bitmap img = BitmapFactory.decodeFile(photo.getAbsolutePath());
+						// We don't know if the file is .jpg or .png
+						// This list will match the first part of the filename which should be unique
+						File [] files = Campaign.getCampaignImageDir(mContext, campaignUrn).listFiles(new FilenameFilter() {
+							
+							@Override
+							public boolean accept(File dir, String filename) {
+								return filename.startsWith(value);
+							}
+						});
 
-						((ImageView) view.getTag()).setImageBitmap(img);
+						if(files.length > 0 && files[0].exists()) {
+							try {
+								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(files[0]));
+								((ImageView) view.getTag()).setImageBitmap(img);
+							} catch (FileNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
 						if("multi_choice_custom".equals(prompt_type)) {
@@ -294,7 +312,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 									builder.append("¥ ");
 									builder.append(choices.get(i));
 								}
-								value = builder.toString();
+								((TextView) view.getTag()).setText(builder.toString());
+								return true;
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();

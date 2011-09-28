@@ -37,6 +37,7 @@ import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
@@ -834,7 +835,7 @@ public class SurveyActivity extends Activity {
 				final String uuid = (String) photoPrompt.getResponseObject();
 				
 				if (photoPrompt.isDisplayed() && !photoPrompt.isSkipped()) {
-					File [] files = new File(PhotoPrompt.IMAGE_PATH + "/" + mCampaignUrn.replace(':', '_')).listFiles(new FilenameFilter() {
+					File [] files = Campaign.getCampaignImageDir(this, mCampaignUrn).listFiles(new FilenameFilter() {
 						
 						@Override
 						public boolean accept(File dir, String filename) {
@@ -847,7 +848,7 @@ public class SurveyActivity extends Activity {
 					});
 					
 					for (File f : files) {
-						f.renameTo(new File(PhotoPrompt.IMAGE_PATH + "/" + mCampaignUrn.replace(':', '_') + "/" + uuid + ".jpg"));
+						f.renameTo(new File(Campaign.getCampaignImageDir(this, mCampaignUrn), uuid + ".jpg"));
 						
 						// TODO: add thumbnail generation, oddly enough as a png
 					}

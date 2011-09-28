@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApplication;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.OhmageApi.ImageReadResponse;
 import org.ohmage.OhmageApi.Result;
@@ -23,7 +24,6 @@ import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.photo.PhotoPrompt;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,8 +36,6 @@ import edu.ucla.cens.systemlog.Log;
 public class FeedbackService extends WakefulIntentService {
 	private static final String TAG = "FeedbackService";
 	private static final int MAX_RESPONSES_PER_SURVEY = 20;
-	
-	public static final String IMAGE_CACHE_PATH = "/sdcard/aw_images_cache";
 
 	public FeedbackService() {
 		super(TAG);
@@ -353,7 +351,7 @@ public class FeedbackService extends WakefulIntentService {
 			// ==================================================================
 			
 			// get the image cache directory for this campaign and ensure it exists
-			File photoDir = new File(IMAGE_CACHE_PATH + "/" + c.mUrn.replace(':', '_'));
+			File photoDir = new File(OhmageApplication.getImageDirectory(this), c.mUrn.replace(':', '_'));
 			photoDir.mkdirs();
 			
 			// now that we're done inserting all that data from the server
@@ -409,7 +407,7 @@ public class FeedbackService extends WakefulIntentService {
 	
 	public static boolean ensurePhotoExists(Context context, String campaignUrn, String photoUUID) {
 		// get the image directory for this campaign and ensure it exists
-		File photoDir = new File(PhotoPrompt.IMAGE_PATH + "_cache/" + campaignUrn.replace(':', '_'));
+		File photoDir = new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
 		photoDir.mkdirs();
 
 		// check if it doesn't already exist in our photos directory

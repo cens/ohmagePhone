@@ -32,8 +32,6 @@ import org.ohmage.activity.LoginActivity;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.photo.PhotoPrompt;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -276,7 +274,7 @@ public class OldUploadService extends WakefulIntentService{
 			
 			String serverUrl = SharedPreferencesHelper.DEFAULT_SERVER_URL; //campaign.serverUrl;
 			
-			File [] files = new File(PhotoPrompt.IMAGE_PATH + "/" + campaign.mUrn.replace(':', '_')).listFiles();
+			File [] files = campaign.getImageDir(this).listFiles();
 			
 			if (files != null) {
 				for (int i = 0; i < files.length; i++) {
@@ -297,7 +295,7 @@ public class OldUploadService extends WakefulIntentService{
 					}
 				}
 			} else {
-				Log.e(TAG, PhotoPrompt.IMAGE_PATH + "/" + campaign.mUrn.replace(':', '_') + " does not exist.");
+				Log.e(TAG, campaign.getImageDir(this) + " does not exist.");
 			}
 		}		
 	}	

@@ -20,7 +20,6 @@ import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.db.DbHelper;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
-import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.triggers.glue.TriggerFramework;
 
@@ -84,7 +83,7 @@ public class OhmageApplication extends Application {
 		
 		//clear images
 		try {
-			Utilities.delete(new File(PhotoPrompt.IMAGE_PATH));
+			Utilities.delete(getImageDirectory(this));
 		} catch (IOException e) {
 			Log.e(TAG, "Error deleting images", e);
 		}
@@ -129,5 +128,9 @@ public class OhmageApplication extends Application {
         } else {
             return super.getSystemService(name);
         }
+    }
+    
+    public static File getImageDirectory(Context context) {
+    	return new File(context.getExternalCacheDir(), "images");
     }
 }

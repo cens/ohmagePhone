@@ -17,9 +17,8 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.photo.PhotoPrompt;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -129,7 +128,7 @@ public class UploadService extends WakefulIntentService {
 			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 			
-			File [] photos = new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_')).listFiles(new FilenameFilter() {
+			File [] photos = Campaign.getCampaignImageDir(this, campaignUrn).listFiles(new FilenameFilter() {
 				
 				@Override
 				public boolean accept(File dir, String filename) {

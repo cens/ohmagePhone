@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import org.ohmage.R;
 import org.ohmage.activity.SurveyActivity;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.app.Activity;
@@ -37,9 +38,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 public class PhotoPrompt extends AbstractPrompt {
-	
-	public static final String IMAGE_PATH = "/sdcard/aw_images"; //use Environment.getExternalStorageDirectory()
-	
+
 	String mResolution;
 	String uuid;
 	
@@ -96,9 +95,8 @@ public class PhotoPrompt extends AbstractPrompt {
 				uuid = UUID.randomUUID().toString();
 			}
 			
-			final String campaignUrn = ((SurveyActivity) context).getCampaignUrn();
-			
-			Bitmap source = BitmapFactory.decodeFile(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp.jpg");
+			final File tmpFile = new File(getCampaignImageDir((SurveyActivity) context), "/temp.jpg");
+			Bitmap source = BitmapFactory.decodeFile(tmpFile.getAbsolutePath());
 			Bitmap scaled;
 			
 			if (source.getWidth() > source.getHeight()) {
@@ -108,7 +106,7 @@ public class PhotoPrompt extends AbstractPrompt {
 			}			
 			
 			try {
-		       FileOutputStream out = new FileOutputStream(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp" + uuid + ".jpg");
+		       FileOutputStream out = new FileOutputStream(new File(getCampaignImageDir((SurveyActivity) context), "/temp" + uuid + ".jpg"));
 		       scaled.compress(Bitmap.CompressFormat.JPEG, 80, out);
 		       out.flush();
 		       out.close();
@@ -116,10 +114,8 @@ public class PhotoPrompt extends AbstractPrompt {
 		       e.printStackTrace();
 			}
 			
-			new File(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp.jpg").delete();
-			
-			//new File(IMAGE_PATH + "/temp.jpg").renameTo(new File(IMAGE_PATH + "/temp" + uuid + ".jpg"));
-			
+			tmpFile.delete();
+
 			((SurveyActivity) context).reloadCurrentPrompt();
 		} 
 	}
@@ -133,12 +129,11 @@ public class PhotoPrompt extends AbstractPrompt {
 		ImageButton button = (ImageButton) layout.findViewById(R.id.photo_button);
 		ImageView imageView = (ImageView) layout.findViewById(R.id.image_view);
 		
-		final String campaignUrn = ((SurveyActivity) context).getCampaignUrn();
-		
-		new File(PhotoPrompt.IMAGE_PATH + "/" + campaignUrn.replace(':', '_')).mkdirs();
+		final File imageDir = getCampaignImageDir((SurveyActivity) context);
+		imageDir.mkdirs();
 		
 		if (uuid != null) {
-			imageView.setImageBitmap(BitmapFactory.decodeFile(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp" + uuid + ".jpg"));
+			imageView.setImageBitmap(BitmapFactory.decodeFile(new File(imageDir, "/temp" + uuid + ".jpg").getAbsolutePath()));
 		}
 		
 		final Activity act = (Activity) context;
@@ -148,13 +143,17 @@ public class PhotoPrompt extends AbstractPrompt {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(IMAGE_PATH + "/" + campaignUrn.replace(':', '_') + "/temp.jpg")));
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(imageDir, "/temp.jpg")));
 				act.startActivityForResult(intent, 1);
 
 			}
 		});
 		
 		return layout;
+	}
+	
+	private static File getCampaignImageDir(SurveyActivity context) {
+		return Campaign.getCampaignImageDir(context, context.getCampaignUrn());
 	}
 
 }
