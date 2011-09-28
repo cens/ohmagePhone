@@ -15,11 +15,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,7 +30,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.ViewSwitcher.ViewFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,7 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class RHCalendarViewActivity extends ResponseHistory implements OnClickListener
+public class RHCalendarViewActivity extends ResponseHistory implements OnClickListener, ViewFactory
 {
 	private static final String tag = "CalendarViewActivity";
 
@@ -56,6 +61,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 	private FilterControl mCampaignFilter;
 	private FilterControl mSurveyFilter;
 	private DateFilterControl mDateFilter;
+	private TextSwitcher mTextSwitcher;
 	
 	private final SimpleDateFormat clickDateFormatter = new SimpleDateFormat("dd-MMMM-yyyy");
 
@@ -71,6 +77,12 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 
 		//Num of Response Summary Text View
 		mNumResponseSummary = (TextView) this.findViewById(R.id.num_response_summary);
+		
+		//Summary Text Switcher
+		mTextSwitcher = (TextSwitcher) this.findViewById(R.id.summary_text_switcher);
+		mTextSwitcher.setFactory(this);
+		mTextSwitcher.setInAnimation(this, android.R.anim.fade_in);
+		mTextSwitcher.setOutAnimation(this, android.R.anim.fade_out);
 
 		//Calendar
 		_calendar = Calendar.getInstance(Locale.getDefault());
@@ -257,7 +269,41 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 		Log.d(tag, "Destroying View ...");
 		super.onDestroy();
 	}
-
+	
+	private TextView getTextViewForTextSwitcher()
+	{
+		TextView textview = new TextView(this);
+		textview.setTextColor(R.color.white);
+		textview.setBackgroundColor(R.color.dkgray);
+		textview.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+		textview.setTypeface(null, Typeface.ITALIC);
+		textview.setGravity(Gravity.CENTER);
+		
+		int padding_in_dp = 4;  // 6 dps
+		final float scale = getResources().getDisplayMetrics().density;
+		int padding_in_px = (int) (padding_in_dp * scale + 0.5f);
+		    
+		textview.setPadding(0, 0, 0, padding_in_px);
+		return textview;		
+	}
+	
+	@Override
+	public View makeView() {
+		TextView textview = new TextView(this);
+		textview.setTextColor(Color.WHITE);
+		textview.setBackgroundColor(Color.DKGRAY);
+		textview.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+		textview.setTypeface(null, Typeface.ITALIC);
+		textview.setGravity(Gravity.CENTER);
+		
+		int padding_in_dp = 3;
+		final float scale = getResources().getDisplayMetrics().density;
+		int padding_in_px = (int) (padding_in_dp * scale + 0.5f);
+		    
+		textview.setPadding(0, 0, 0, padding_in_px);
+		return textview;
+	}
+	
 	// ///////////////////////////////////////////////////////////////////////////////////////
 	// Inner Class
 	public class GridCellAdapter extends BaseAdapter implements OnClickListener
@@ -480,7 +526,10 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				}
 				numOfResponse ++;
 			}
-			mNumResponseSummary.setText(this.getMonthAsString(month-1) + ": " + numOfResponse + " / Total: " + responseCursorTotal.getCount());
+			//mNumResponseSummary.setText(this.getMonthAsString(month-1) + ": " + numOfResponse + " / Total: " + responseCursorTotal.getCount());
+			
+			mTextSwitcher.setText(this.getMonthAsString(month-1) + ": " + numOfResponse + " / Total: " + responseCursorTotal.getCount());
+	
 			responseCursorThisMonth.close();
 			responseCursorTotal.close();
 			return map;
@@ -618,6 +667,8 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			return list.size();
 		}
 	}
+
+
 }
 
 
