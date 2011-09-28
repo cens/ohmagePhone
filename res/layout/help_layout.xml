@@ -17,12 +17,15 @@
             android:layout_weight="0">
         <Button android:id="@+id/goto_dashboard"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/help_goto_dashboard" />
+            android:text="@string/help_goto_dashboard"
+            android:layout_weight="1" />
         <Button android:id="@+id/goto_filter"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/help_goto_filter" />
+            android:text="@string/help_goto_filter"
+            android:layout_weight="1" />
         <Button android:id="@+id/goto_list"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/help_goto_list" />
+            android:text="@string/help_goto_list"
+            android:layout_weight="1" />
     </LinearLayout>
 </LinearLayout>

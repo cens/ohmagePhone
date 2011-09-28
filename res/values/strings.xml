@@ -16,6 +16,7 @@
   <string name="title_upload_queue_dash">Upload\nQueue</string>
   <string name="title_profile">Profile</string>
   <string name="title_settings">Settings</string>
+  <string name="title_help">Help</string>
   
   <!-- subscreen titles -->
   <string name="title_add_campaign">Add Campaign</string>
