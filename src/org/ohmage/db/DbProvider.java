@@ -396,7 +396,11 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.CAMPAIGN_RESPONSES: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
-
+				
+				if (nonQuery)
+					return builder.table(Tables.RESPONSES)
+						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn);
+				
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
 						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
@@ -412,6 +416,11 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.SURVEY_BY_ID: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
+				
+				if (nonQuery)
+					return builder.table(Tables.SURVEYS)
+						.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn)
+						.where(Surveys.SURVEY_ID + "=?", surveyId);
 
 				return builder.table(Tables.SURVEYS)
 						.join(Tables.CAMPAIGNS, "%t." + Campaigns.CAMPAIGN_URN + "=" + "%s." + Surveys.CAMPAIGN_URN)
@@ -421,6 +430,9 @@ public class DbProvider extends ContentProvider {
 						.where(Surveys.SURVEY_ID + "=?", surveyId);
 			}
 			case MatcherTypes.SURVEY_SURVEYPROMPTS: {
+				if (nonQuery)
+					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
+
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
 
@@ -433,6 +445,11 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
+				
+				if (nonQuery)
+					return builder.table(Tables.RESPONSES)
+						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
+						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId);
 
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
@@ -442,6 +459,9 @@ public class DbProvider extends ContentProvider {
 						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId);
 			}
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID: {
+				if (nonQuery)
+					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
+
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
 				final String promptId = PromptResponses.getSurveyPromptId(uri);
@@ -456,6 +476,9 @@ public class DbProvider extends ContentProvider {
 						.where(PromptResponses.PROMPT_ID + "=?", promptId);
 			}	
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE: {
+				if (nonQuery)
+					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
+
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
 				final String promptId = PromptResponses.getSurveyPromptId(uri);
@@ -492,6 +515,7 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.RESPONSES: {
 				if (nonQuery)
 					return builder.table(Tables.RESPONSES);
+				
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
 						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
@@ -499,6 +523,10 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.RESPONSE_BY_PID: {
 				final String responseId = Responses.getResponseId(uri);
+				
+				if (nonQuery)
+					return builder.table(Tables.RESPONSES)
+						.where(Qualified.RESPONSES_ID + "=?", responseId);
 
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
@@ -508,6 +536,9 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.RESPONSE_PROMPTS: {
 				final String responseId = Responses.getResponseId(uri);
+				
+				if (nonQuery)
+					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
 
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
@@ -521,6 +552,7 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.PROMPTS: {
 				if (nonQuery)
 					return builder.table(Tables.PROMPT_RESPONSES);
+				
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
 						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
@@ -528,6 +560,10 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.PROMPT_BY_PID: {
 				final String promptId = SurveyPrompts.getSurveyPromptId(uri);
+				
+				if (nonQuery)
+					return builder.table(Tables.PROMPT_RESPONSES)
+						.where(PromptResponses._ID + "=?", promptId);
 
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
