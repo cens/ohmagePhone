@@ -1,20 +1,27 @@
 package org.ohmage.activity;
 
+import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Campaign;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.Toast;
 
 public class CampaignListActivity extends FragmentActivity implements OnCampaignActionListener {
@@ -99,8 +106,51 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 	}
 
 	@Override
-	public void onCampaignActionError(String campaignUrn) {
-		Toast.makeText(this, "Showing Error Dialog", Toast.LENGTH_SHORT).show();
+	public void onCampaignActionError(String campaignUrn, int status) {
+		
+		Bundle bundle = new Bundle();
+		bundle.putString("campaign_urn", campaignUrn);
+		showDialog(status, bundle);
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateDialog(int, android.os.Bundle)
+	 */
+	@Override
+	protected Dialog onCreateDialog(int id, Bundle args) {
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		
+		String message = "This campaign is currently unavailable.";
+		final Uri campaignUrn = Uri.parse(args.getString("campaign_urn"));
+		
+		switch (id) {
+		case Campaign.STATUS_STOPPED:
+			message = "This campaign is stopped.";
+			break;
+		case Campaign.STATUS_OUT_OF_DATE:
+			message = "This campaign is out of date";
+			break;
+		case Campaign.STATUS_INVALID_USER_ROLE:
+			message = "Invalid user role.";
+			break;
+		case Campaign.STATUS_DELETED:
+			message = "This campaign no longer exists.";
+			break;
+		}
+		
+		builder.setMessage(message)
+				.setCancelable(true)
+				.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						ContentResolver cr = getContentResolver();
+						cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "= '" + campaignUrn + "'", null);
+					}
+				}).setNegativeButton("Ignore", null);
+		
+		return builder.create();
+	}
 }

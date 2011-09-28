@@ -34,7 +34,7 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 	public interface OnResponseActionListener {
         public void onResponseActionView(Uri responseUri);
         public void onResponseActionUpload(Uri responseUri);
-        public void onResponseActionError(Uri responseUri);
+        public void onResponseActionError(Uri responseUri, int status);
     }
 
 	@Override
@@ -100,7 +100,7 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 				case Response.STATUS_ERROR_CAMPAIGN_NO_EXIST:
 				case Response.STATUS_ERROR_INVALID_USER_ROLE:
 				case Response.STATUS_ERROR_OTHER:
-					mListener.onResponseActionError(uri);
+					mListener.onResponseActionError(uri, status);
 					break;
 					
 				default:

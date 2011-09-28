@@ -68,7 +68,7 @@ public class CampaignAddActivity extends FragmentActivity implements OnCampaignA
 	}
 
 	@Override
-	public void onCampaignActionError(String campaignUrn) {
+	public void onCampaignActionError(String campaignUrn, int status) {
 		Toast.makeText(this, "The error action should not be exposed in this activity!", Toast.LENGTH_SHORT).show();
 		Log.w(TAG, "onCampaignActionError should not be exposed in this activity.");
 	}

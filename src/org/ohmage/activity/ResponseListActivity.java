@@ -218,7 +218,7 @@ public class ResponseListActivity extends FragmentActivity implements OnResponse
 	}
 
 	@Override
-	public void onResponseActionError(Uri responseUri) {
+	public void onResponseActionError(Uri responseUri, int status) {
 		Toast.makeText(this, "The Error action should not be exposed in this activity!", Toast.LENGTH_SHORT).show();
 		Log.w(TAG, "onResponseActionError should not be exposed in this activity.");
 	}

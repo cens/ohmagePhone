@@ -13,7 +13,11 @@ import org.ohmage.service.UploadService;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -149,7 +154,76 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 	}
 
 	@Override
-	public void onResponseActionError(Uri responseUri) {
-		Toast.makeText(this, "Showing Error Dialog", Toast.LENGTH_SHORT).show();
+	public void onResponseActionError(Uri responseUri, int status) {
+//		Toast.makeText(this, "Showing Error Dialog", Toast.LENGTH_SHORT).show();
+		Bundle bundle = new Bundle();
+		bundle.putString("response_uri", responseUri.toString());
+		showDialog(status, bundle);
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id, Bundle args) {
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		
+		String message = "An error occurred while trying attempting to upload this response.";
+		final Uri responseUri = Uri.parse(args.getString("response_uri"));
+		
+		switch (id) {
+		case Response.STATUS_ERROR_AUTHENTICATION:
+			message = "An authentication error occurred while trying attempting to upload this response.";
+			break;
+		case Response.STATUS_ERROR_CAMPAIGN_NO_EXIST:
+			message = "The campaign this response belongs to no longer exists.";
+			break;
+		case Response.STATUS_ERROR_INVALID_USER_ROLE:
+			message = "Invalid user role.";
+			break;
+		}
+		
+		builder.setMessage(message)
+				.setCancelable(true)
+				.setPositiveButton("Retry Now", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
+						intent.setData(responseUri);
+						WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
+					}
+				}).setNeutralButton("Retry Later", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						ContentResolver cr = getContentResolver();
+						Cursor c = cr.query(responseUri, new String [] {Tables.RESPONSES + "." + Responses._ID}, null, null, null);
+						if (c.getCount() == 1) {
+							c.moveToFirst();
+							long responseId = c.getLong(0);
+							ContentValues values = new ContentValues();
+							values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
+							cr.update(Responses.CONTENT_URI, values, Responses._ID + "=" + responseId, null);
+						} else {
+							Log.e(TAG, "Unexpected number of rows returned for + " + responseUri.toString() + ": " + c.getCount());
+						}
+					}
+				}).setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						ContentResolver cr = getContentResolver();
+						Cursor c = cr.query(responseUri, new String [] {Tables.RESPONSES + "." + Responses._ID}, null, null, null);
+						if (c.getCount() == 1) {
+							c.moveToFirst();
+							long responseId = c.getLong(0);
+							cr.delete(Responses.CONTENT_URI, Responses._ID + "=" + responseId, null);
+						} else {
+							Log.e(TAG, "Unexpected number of rows returned for + " + responseUri.toString() + ": " + c.getCount());
+						}
+					}
+				});
+		
+		return builder.create();
 	}
 }

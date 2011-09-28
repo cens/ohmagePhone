@@ -32,7 +32,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
         public void onCampaignActionView(String campaignUrn);
         public void onCampaignActionDownload(String campaignUrn);
         public void onCampaignActionSurveys(String campaignUrn);
-        public void onCampaignActionError(String campaignUrn);
+        public void onCampaignActionError(String campaignUrn, int status);
     }
 
 	@Override
@@ -100,7 +100,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 				case Campaign.STATUS_INVALID_USER_ROLE:
 				case Campaign.STATUS_DELETED:
 				case Campaign.STATUS_VAGUE:
-					mListener.onCampaignActionError(campaignUrn);
+					mListener.onCampaignActionError(campaignUrn, status);
 					break;
 					
 				case Campaign.STATUS_DOWNLOADING:
