@@ -9,6 +9,8 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.utils.SelectionBuilder;
+import org.ohmage.triggers.base.TriggerDB;
+import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -289,11 +291,17 @@ public class DbProvider extends ContentProvider {
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.CAMPAIGN_BY_URN:
 			case MatcherTypes.CAMPAIGNS:
-				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_ICON }, null);
+				// build a list of icons associated w/this campaign to delete
+				// also clear triggers associated with this campaign before deletion
+				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_ICON }, null);
 				if(c.moveToFirst()) {
 					while(c.moveToNext()) {
-						if(c.getString(0) != null)
-							iconUrls.add(c.getString(0));
+						// append this icon to the list of delete candidates
+						if(c.getString(1) != null)
+							iconUrls.add(c.getString(1));
+						
+						// remove the associated triggers, too
+						TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
 					}
 				}
 				c.close();
