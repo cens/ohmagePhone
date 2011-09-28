@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage.service;
 
+import org.ohmage.activity.UploadQueueActivity;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Response;
 import org.ohmage.storagemonitor.StorageMonitorService;
 
 import android.app.AlarmManager;
@@ -60,7 +64,10 @@ private static final String TAG = "UploadReceiver";
 				Log.i(TAG, "Power is not low.");
 				Log.i(TAG, "Starting UploadService.");
 				
-				WakefulIntentService.sendWakefulWork(context, OldUploadService.class);
+				Intent i = new Intent(context, UploadService.class);
+				i.setData(Responses.CONTENT_URI);
+				i.putExtra("select", Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "=" + Response.STATUS_STANDBY);
+				WakefulIntentService.sendWakefulWork(context, i);
 			} else {
 				Log.i(TAG, "Power is low.");
 				Log.i(TAG, "Not starting UploadService.");
@@ -91,7 +98,10 @@ private static final String TAG = "UploadReceiver";
 				Log.i(TAG, "Storage is low.");
 				Log.i(TAG, "Starting UploadService.");
 				
-				WakefulIntentService.sendWakefulWork(context, OldUploadService.class);
+				Intent i = new Intent(context, UploadService.class);
+				i.setData(Responses.CONTENT_URI);
+				i.putExtra("select", Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "=" + Response.STATUS_STANDBY);
+				WakefulIntentService.sendWakefulWork(context, i);
 				
 			} else {
 				Log.i(TAG, "Storage is not low.");

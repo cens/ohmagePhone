@@ -126,10 +126,9 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 		
 		@Override
 		public void onClick(View v) {
-			Uri responsesUri = Responses.CONTENT_URI;
 			
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
-			intent.setData(responsesUri);
+			intent.setData(Responses.CONTENT_URI);
 			intent.putExtra("select", Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "=" + Response.STATUS_STANDBY);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}

@@ -1,7 +1,6 @@
 package org.ohmage.db;
 
 import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.service.OldUploadService;
 
 import android.content.ContentUris;
 import android.net.Uri;
