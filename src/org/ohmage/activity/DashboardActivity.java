@@ -45,7 +45,8 @@ public class DashboardActivity extends Activity {
 		Button feedbackBtn = (Button) findViewById(R.id.dash_feedback_btn);
 		Button uploadQueueBtn = (Button) findViewById(R.id.dash_uploadqueue_btn);
 		Button profileBtn = (Button) findViewById(R.id.dash_profile_btn);
-		Button settingsBtn = (Button) findViewById(R.id.dash_settings_btn);
+		// Button settingsBtn = (Button) findViewById(R.id.dash_settings_btn);
+		Button helpBtn = (Button) findViewById(R.id.dash_help_btn);
 		
 		DashboardButtonListener buttonListener = new DashboardButtonListener();
 		
@@ -54,7 +55,8 @@ public class DashboardActivity extends Activity {
 		feedbackBtn.setOnClickListener(buttonListener);
 		uploadQueueBtn.setOnClickListener(buttonListener);
 		profileBtn.setOnClickListener(buttonListener);
-		settingsBtn.setOnClickListener(buttonListener);
+		// settingsBtn.setOnClickListener(buttonListener);
+		helpBtn.setOnClickListener(buttonListener);
 	}
 	
 	protected class DashboardButtonListener implements OnClickListener {		
@@ -84,7 +86,13 @@ public class DashboardActivity extends Activity {
 					startActivity(new Intent(c, ProfileActivity.class));
 					break;
 					
+					/*					
 				case R.id.dash_settings_btn:
+					startActivity(new Intent(c, HelpActivity.class));
+					break;
+					*/
+					
+				case R.id.dash_help_btn:
 					startActivity(new Intent(c, HelpActivity.class));
 					break;
 			}

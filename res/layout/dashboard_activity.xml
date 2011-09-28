@@ -40,9 +40,14 @@
 
 			<Button android:id="@+id/dash_profile_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_profile"
 				android:text="@string/title_profile" />
-
+				
+			<!--
 			<Button android:id="@+id/dash_settings_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_settings"
 				android:text="@string/title_settings" />
+			-->
+			
+			<Button android:id="@+id/dash_help_btn" style="@style/HomeButton" android:drawableTop="@drawable/dashboard_help"
+				android:text="@string/title_help" />
 		</LinearLayout>
 	</LinearLayout>
 
