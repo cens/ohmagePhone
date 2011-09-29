@@ -14,6 +14,7 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.feedback.visualization.MapOverlayItem;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.feedback.visualization.ResponseHistory;
@@ -160,11 +161,11 @@ public class RHMapViewActivity extends ResponseHistory {
 				" AND " +
 				Responses.RESPONSE_LOCATION_STATUS + "=" + "'valid'";
 		
-	    Cursor cursor = cr.query(queryUri, projection, selection, null, null);
+	    Cursor cursor = cr.query(queryUri, projection, selection, null, DbHelper.Tables.RESPONSES+"."+Responses.RESPONSE_DATE);
 
 	    //Add overlays to the map
 	    List<Overlay> mapOverlays = mMapView.getOverlays();
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.darkgreen_marker_a);
+	    Drawable drawable = this.getResources().getDrawable(R.drawable.pens1);
 	    mItemizedoverlay= new MapViewItemizedOverlay(drawable, mMapView);
 
 

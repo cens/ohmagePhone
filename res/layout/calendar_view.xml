@@ -130,6 +130,17 @@
 		android:textColor="#FFFFFF"
 		android:background="@color/dkgray"
 		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:visibility="gone"/>
+		
+	<TextSwitcher
+		android:id="@+id/summary_text_switcher"
+		android:gravity="center"
+		android:layout_gravity="center"
+		android:paddingBottom="4dp"
+		android:background="@color/dkgray"
+		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"/>
+		
 </LinearLayout>
 

@@ -78,7 +78,7 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 							c.mDownloadTimestamp = null;
 							c.mXml = null;
 							c.mStatus = Campaign.STATUS_REMOTE;
-							c.mPrivacy = data.optString("privacy_state", "unknown");
+							c.mPrivacy = data.getJSONObject(c.mUrn).optString("privacy_state", "unknown");
 							c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
 							boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
 							
