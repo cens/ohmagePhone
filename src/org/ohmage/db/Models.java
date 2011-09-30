@@ -29,6 +29,10 @@ public class Models {
 		public static final int STATUS_DELETED = 5;
 		public static final int STATUS_VAGUE = 6;
 		public static final int STATUS_DOWNLOADING = 7;
+		
+		public static final String PRIVACY_UNKNOWN = "unknown";
+		public static final String PRIVACY_SHARED = "shared";
+		public static final String PRIVACY_PRIVATE = "private";
 
 		public long _id;
 		public String mUrn;
