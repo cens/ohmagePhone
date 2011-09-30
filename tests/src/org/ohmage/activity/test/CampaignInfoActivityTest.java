@@ -19,13 +19,12 @@ import org.ohmage.R;
 import org.ohmage.activity.CampaignInfoActivity;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.test.helper.LoaderHelper;
 import org.ohmage.triggers.base.TriggerDB;
 
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.CursorLoader;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -55,6 +54,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	private static final String CAMPAIGN_URN = "urn:mo:chipts";
 
 	private CampaignInfoActivity mActivity;
+	private LoaderHelper mLoaderHelper;
 	private Campaign campaign;
 
 	private View mEntityHeader;
@@ -83,9 +83,11 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		mActivity = getActivity();
 
+		mLoaderHelper = new LoaderHelper(mActivity, this);
+		
 		// Stop the loading for now since we may want to test to see what happens before any data is loaded.
 		// Once we want to start loading data we can do waitForLoader()
-		stopLoading();
+		mLoaderHelper.stopLoading();
 
 		mEntityHeader = mActivity.findViewById(R.id.entity_header_content);
 		mIconView = (ImageView) mActivity.findViewById(R.id.entity_icon);
@@ -154,13 +156,13 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	@SmallTest
 	public void testLoadingState() {
 		assertEquals(false, mEntityHeader.getVisibility() == View.VISIBLE);
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 		assertEquals(true, mEntityHeader.getVisibility() == View.VISIBLE);
 	}
 
 	@SmallTest
 	public void testHeaderText() {
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 		assertEquals("CHIPTS (Mo)", mHeaderText.getText());
 		assertEquals("urn:mo:chipts", mSubtext.getText());
 	}
@@ -168,11 +170,11 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	@MediumTest
 	public void testDeletedState() {
 
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 
 		ContentValues values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DELETED);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 
 		assertEquals("deleted on server", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);
@@ -184,11 +186,11 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	@MediumTest
 	public void testStoppedState() {
 
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 
 		ContentValues values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_STOPPED);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 
 		assertEquals(true, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals("stopped", mStatusValue.getText());
@@ -201,11 +203,11 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	@MediumTest
 	public void testCampaignStates() {
 
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 
 		ContentValues values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DELETED);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("deleted on server", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(false, surveysButton.getVisibility() == View.VISIBLE);
@@ -214,7 +216,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("downloading...", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(false, surveysButton.getVisibility() == View.VISIBLE);
@@ -223,7 +225,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_INVALID_USER_ROLE);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("invalid role", mStatusValue.getText());
 		assertEquals(true, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(false, surveysButton.getVisibility() == View.VISIBLE);
@@ -232,7 +234,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("out of date", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(false, surveysButton.getVisibility() == View.VISIBLE);
@@ -241,7 +243,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("ready", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(true, surveysButton.getVisibility() == View.VISIBLE);
@@ -250,7 +252,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("available", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(false, surveysButton.getVisibility() == View.VISIBLE);
@@ -259,7 +261,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_STOPPED);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("stopped", mStatusValue.getText());
 		assertEquals(true, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(false, surveysButton.getVisibility() == View.VISIBLE);
@@ -268,7 +270,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_VAGUE);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("not available", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);
 		assertEquals(false, surveysButton.getVisibility() == View.VISIBLE);
@@ -279,31 +281,31 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	@MediumTest
 	public void testCampaignPrivacyStates() {
 
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 
 		ContentValues values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_PRIVACY, Campaign.PRIVACY_PRIVATE);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("private", mPrivacyValue.getText());
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_PRIVACY, Campaign.PRIVACY_UNKNOWN);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("unknown", mPrivacyValue.getText());
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_PRIVACY, "not real privacy state");
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("unknown", mPrivacyValue.getText());
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_PRIVACY, 8);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("unknown", mPrivacyValue.getText());
 
 		values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_PRIVACY, Campaign.PRIVACY_SHARED);
-		setEntityContentValues(values);
+		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("shared", mPrivacyValue.getText());
 	}
 
@@ -314,7 +316,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	 */
 	@MediumTest
 	public void testResponseCount() {
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 
 		Cursor responses = mActivity.getContentResolver().query(Campaigns.buildResponsesUri(CAMPAIGN_URN), null, null, null, null);
 		assertEquals(responses.getCount() + " response(s) submitted", mResponsesValue.getText());
@@ -326,7 +328,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	 */
 	@MediumTest
 	public void testTriggerCount() {
-		waitForLoader();
+		mLoaderHelper.waitForLoader();
 
 		// get the number of triggers for this campaign
 		TriggerDB trigDB = new TriggerDB(mActivity);
@@ -336,42 +338,5 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 			triggers.close();
 			trigDB.close();
 		}
-	}
-
-	private void setEntityContentValues(final ContentValues values) {
-		final CursorLoader loader = (CursorLoader) mActivity.onCreateLoader(0, null);
-		mActivity.getContentResolver().update(loader.getUri(), values, loader.getSelection(), loader.getSelectionArgs());
-
-		// Wait for the activity to be idle so we know its not processing other loader requests.
-		getInstrumentation().waitForIdleSync();
-
-		// Then wait for the loader
-		waitForLoader();
-	}
-
-	private Cursor getEntity() {
-		CursorLoader loader = (CursorLoader) mActivity.onCreateLoader(0, null);
-		return mActivity.getContentResolver().query(loader.getUri(), null, loader.getSelection(), loader.getSelectionArgs(), loader.getSortOrder());
-	}
-
-	private void restartLoader() {
-		mActivity.getSupportLoaderManager().restartLoader(0, null, mActivity);
-	}
-
-	private AsyncTaskLoader<Object> getDataLoader() {
-		return (AsyncTaskLoader<Object>) mActivity.getSupportLoaderManager().getLoader(0);
-	}
-
-	private void waitForLoader() {
-		startLoading();
-		getDataLoader().waitForLoader();
-	}
-
-	private void startLoading() {
-		getDataLoader().startLoading();
-	}
-
-	private void stopLoading() {
-		getDataLoader().stopLoading();
 	}
 }
