@@ -490,12 +490,12 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 
 
 			GregorianCalendar greCalStart = new GregorianCalendar(mSelectedYear, mSelectedMonth-1, 1);
-			GregorianCalendar greCalEnd = new GregorianCalendar(mSelectedYear, mSelectedMonth-1, greCalStart.getActualMaximum(GregorianCalendar.DAY_OF_MONTH));
+			GregorianCalendar greCalEnd = new GregorianCalendar(mSelectedYear, mSelectedMonth-1, greCalStart.getActualMaximum(GregorianCalendar.DAY_OF_MONTH), 23, 59, 59);
 			
 			String selection = 
 					Responses.RESPONSE_TIME + " > " + greCalStart.getTime().getTime() +
 					" AND " + 
-					Responses.RESPONSE_TIME + " < " + greCalEnd.getTime().getTime();
+					Responses.RESPONSE_TIME + " < " + greCalEnd.getTime().getTime() + 86400000;
 
 			//Create Query
 			Cursor responseCursorThisMonth = cr.query(
@@ -514,7 +514,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			int numOfResponse = 0;
 			for(responseCursorThisMonth.moveToFirst();!responseCursorThisMonth.isAfterLast();responseCursorThisMonth.moveToNext()){
 				Long time = responseCursorThisMonth.getLong(responseCursorThisMonth.getColumnIndex(Responses.RESPONSE_TIME));
-
+				Log.i(tag, "Response time: "+time.toString());
 				cal.setTimeInMillis(time);
 				Integer responseDay = new Integer(cal.get(Calendar.DAY_OF_MONTH));
 				if(map.containsKey(responseDay.toString())){
