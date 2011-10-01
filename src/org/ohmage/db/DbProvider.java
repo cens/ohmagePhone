@@ -8,6 +8,7 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
@@ -293,15 +294,16 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.CAMPAIGNS:
 				// build a list of icons associated w/this campaign to delete
 				// also clear triggers associated with this campaign before deletion
-				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_ICON }, null);
+				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_ICON, Campaigns.CAMPAIGN_STATUS }, null);
 				if(c.moveToFirst()) {
 					while(c.moveToNext()) {
 						// append this icon to the list of delete candidates
 						if(c.getString(1) != null)
 							iconUrls.add(c.getString(1));
 						
-						// remove the associated triggers, too
-						TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
+						// remove the associated triggers, too, if it's not a remote campaign
+						if (c.getInt(2) != Campaign.STATUS_REMOTE)
+							TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
 					}
 				}
 				c.close();
