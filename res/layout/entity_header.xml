@@ -21,14 +21,12 @@
 		android:id="@+id/entity_header"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="---"
 		style="@style/TextHeader"
 		android:layout_toRightOf="@id/entity_icon" />
 	<TextView
 		android:id="@+id/entity_header_sub1"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="---"
 		style="@style/TextHeaderSub"
 		android:layout_marginTop="@dimen/gutter_thin"
 		android:layout_below="@id/entity_header"
@@ -37,7 +35,6 @@
 		android:id="@+id/entity_header_sub2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="(---)"
 		style="@style/TextHeaderSub" 
 		android:layout_below="@id/entity_header_sub1"
 		android:layout_alignLeft="@id/entity_header" />
