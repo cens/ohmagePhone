@@ -385,7 +385,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				nextMonth = 0;
 				prevYear = yy;
 				nextYear = yy + 1;
-				Log.d(tag, "*->PrevYear: " + prevYear + " PrevMonth:" + prevMonth + " NextMonth: " + nextMonth + " NextYear: " + nextYear);
+//				Log.d(tag, "*->PrevYear: " + prevYear + " PrevMonth:" + prevMonth + " NextMonth: " + nextMonth + " NextYear: " + nextYear);
 			}
 			else if (currentSelectedMonth == 0)
 			{
@@ -394,7 +394,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				nextYear = yy;
 				daysInPrevMonth = getNumberOfDaysOfMonth(prevMonth);
 				nextMonth = 1;
-				Log.d(tag, "**--> PrevYear: " + prevYear + " PrevMonth:" + prevMonth + " NextMonth: " + nextMonth + " NextYear: " + nextYear);
+//				Log.d(tag, "**--> PrevYear: " + prevYear + " PrevMonth:" + prevMonth + " NextMonth: " + nextMonth + " NextYear: " + nextYear);
 			}
 			else
 			{
@@ -403,7 +403,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				nextYear = yy;
 				prevYear = yy;
 				daysInPrevMonth = getNumberOfDaysOfMonth(prevMonth);
-				Log.d(tag, "***---> PrevYear: " + prevYear + " PrevMonth:" + prevMonth + " NextMonth: " + nextMonth + " NextYear: " + nextYear);
+//				Log.d(tag, "***---> PrevYear: " + prevYear + " PrevMonth:" + prevMonth + " NextMonth: " + nextMonth + " NextYear: " + nextYear);
 			}
 
 			// Compute how much to leave before before the first day of the
@@ -412,9 +412,9 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			int currentWeekDay = cal.get(Calendar.DAY_OF_WEEK) - 1;
 			trailingSpaces = currentWeekDay;
 
-			Log.d(tag, "Week Day:" + currentWeekDay + " is " + getWeekDayAsString(currentWeekDay));
-			Log.d(tag, "No. Trailing space to Add: " + trailingSpaces);
-			Log.d(tag, "No. of Days in Previous Month: " + daysInPrevMonth);
+//			Log.d(tag, "Week Day:" + currentWeekDay + " is " + getWeekDayAsString(currentWeekDay));
+//			Log.d(tag, "No. Trailing space to Add: " + trailingSpaces);
+//			Log.d(tag, "No. of Days in Previous Month: " + daysInPrevMonth);
 
 			if (cal.isLeapYear(cal.get(Calendar.YEAR)) && mm == 2)
 			{
@@ -431,7 +431,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			// Current Month Days
 			for (int i = 1; i <= daysInMonth; i++)
 			{
-				Log.d(currentMonthName, String.valueOf(i) + " " + getMonthAsString(currentSelectedMonth) + " " + yy);
+//				Log.d(currentMonthName, String.valueOf(i) + " " + getMonthAsString(currentSelectedMonth) + " " + yy);
 				if (currentMonth == currentSelectedMonth && i == getCurrentDayOfMonth())
 				{
 					list.add(String.valueOf(i) + "-TODAY" + "-" + getMonthAsString(currentSelectedMonth) + "-" + yy);
@@ -445,7 +445,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			// Leading Month days
 			for (int i = 0; i < list.size() % 7; i++)
 			{
-				Log.d(tag, "NEXT MONTH:= " + getMonthAsString(nextMonth));
+//				Log.d(tag, "NEXT MONTH:= " + getMonthAsString(nextMonth));
 				list.add(String.valueOf(i + 1) + "-OUTOFTHISMONTH" + "-" + getMonthAsString(nextMonth) + "-" + nextYear);
 			}
 		}
@@ -495,7 +495,7 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 			String selection = 
 					Responses.RESPONSE_TIME + " > " + greCalStart.getTime().getTime() +
 					" AND " + 
-					Responses.RESPONSE_TIME + " < " + greCalEnd.getTime().getTime() + 86400000;
+					Responses.RESPONSE_TIME + " < " + greCalEnd.getTime().getTime();
 
 			//Create Query
 			Cursor responseCursorThisMonth = cr.query(
