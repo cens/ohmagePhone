@@ -29,6 +29,7 @@ import org.ohmage.triggers.ui.TriggerListActivity;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.Smoke;
 
@@ -81,6 +82,11 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 		getActivity().finish(); 
 		super.tearDown();
 	}
+	
+	public void testPreconditions() {
+		Cursor entity = mLoaderHelper.getEntity();
+		assertTrue("We should be getting one item from the db", entity.getCount() == 1);
+	}
 
 	@Smoke
 	public void testFlowHomeButtonActionBar() {
@@ -90,6 +96,10 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 
 	@Smoke
 	public void testFlowResponseHistoryActionBar() {
+		ContentValues values = new ContentValues();
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+		mLoaderHelper.setEntityContentValues(values);
+		
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_RESPONSE_HISTORY);
 		solo.assertCurrentActivity("Expected Response History", RHTabHost.class);
 		solo.searchText(CAMPAIGN_NAME, true);
@@ -99,6 +109,10 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 
 	@Smoke
 	public void testFlowTriggerButtonActionBar() {
+		ContentValues values = new ContentValues();
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+		mLoaderHelper.setEntityContentValues(values);
+		
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_TRIGGERS);
 		solo.assertCurrentActivity("Expected Triggers list", TriggerListActivity.class);
 		solo.goBack();

@@ -14,31 +14,56 @@ public class LoaderHelper {
 	private final FragmentActivity mContext;
 	private final LoaderCallbacks<Cursor> mLoader;
 	private final InstrumentationTestCase mTester;
+	private final CursorLoader mCursorLoader;
 
 	public LoaderHelper(FragmentActivity context, LoaderManager.LoaderCallbacks<Cursor> loaderCallback, InstrumentationTestCase tester) {
 		mContext = context;
 		mLoader = loaderCallback;
 		mTester = tester;
+		mCursorLoader = (CursorLoader) mLoader.onCreateLoader(0, null);
 	}
 
 	public LoaderHelper(FragmentActivity context, InstrumentationTestCase tester) {
 		this(context, (LoaderCallbacks<Cursor>) context, tester);
 	}
+	
+	public void setEntityContentValues(ContentValues values) {
+		setEntityContentValues(values, false);
+	}
+	
+	/**
+	 * Sets the contentvalues for an entity. Won't update the db if the values don't cause a change.
+	 * @param values
+	 * @param force
+	 */
+	public void setEntityContentValues(ContentValues values, boolean force) {
+		if(!force) {
+			Cursor entity = getEntity();
+			if(entity.moveToFirst()) {
+				for(int i=0;i<entity.getColumnCount();i++) {
+					String key =  entity.getColumnName(i);
+					if(values.containsKey(key) && !values.getAsString(key).equals(entity.getString(entity.getColumnIndex(key)))) {
+						force = true;
+						break;
+					}
+				}
+			}
 
-	public void setEntityContentValues(final ContentValues values) {
-		final CursorLoader loader = (CursorLoader) mLoader.onCreateLoader(0, null);
-		mContext.getContentResolver().update(loader.getUri(), values, loader.getSelection(), loader.getSelectionArgs());
+		}
 
-		// Wait for the activity to be idle so we know its not processing other loader requests.
-		mTester.getInstrumentation().waitForIdleSync();
+		if(force) {
+			mContext.getContentResolver().update(mCursorLoader.getUri(), values, mCursorLoader.getSelection(), mCursorLoader.getSelectionArgs());
 
-		// Then wait for the loader
-		waitForLoader();
+			// Wait for the activity to be idle so we know its not processing other loader requests.
+			mTester.getInstrumentation().waitForIdleSync();
+
+			// Then wait for the loader
+			waitForLoader();
+		}
 	}
 
 	public Cursor getEntity() {
-		CursorLoader loader = (CursorLoader) mLoader.onCreateLoader(0, null);
-		return mContext.getContentResolver().query(loader.getUri(), null, loader.getSelection(), loader.getSelectionArgs(), loader.getSortOrder());
+		return mContext.getContentResolver().query(mCursorLoader.getUri(), null, mCursorLoader.getSelection(), mCursorLoader.getSelectionArgs(), mCursorLoader.getSortOrder());
 	}
 
 	public void restartLoader() {
