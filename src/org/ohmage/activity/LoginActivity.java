@@ -319,8 +319,11 @@ public class LoginActivity extends Activity {
             	Log.i(TAG, "this is not the first run");
             }
 			
-            //start main activity
+            // clear back stack, start main activity
+			
 			Intent intent = new Intent(LoginActivity.this, LauncherActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); 
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(intent);
 			
 			//close this activity
@@ -336,7 +339,8 @@ public class LoginActivity extends Activity {
 			//clear creds
 			//mPreferencesHelper.clearCredentials();
 			//just clear password, keep username for single user lock-in
-			mPreferencesHelper.putHashedPassword("");
+			// FAISAL: commenting this out so the user gets a chance to back out of a password change attempt
+			/*mPreferencesHelper.putHashedPassword("");*/
 			
 			//clear password so user will re-enter it
 			mPasswordEdit.setText("");

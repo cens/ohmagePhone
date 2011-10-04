@@ -53,12 +53,10 @@ public class ProfileActivity extends BaseInfoActivity {
 						showDialog(DIALOG_CLEAR_USER_CONFIRM);
 						break;
 					case R.id.profile_info_button_update_password:
-						// i suppose we'll just go straight to the login screen after clearing the back stack
+						// just take them to the login activity,
+						// but allow them to back out of it if they change their mind
 						Intent intent = new Intent(mContext, LoginActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); 
-						intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 						startActivity(intent);
-						finish();
 						break;
 				}
 			}
@@ -92,9 +90,7 @@ public class ProfileActivity extends BaseInfoActivity {
 						if (SharedPreferencesHelper.REQUIRE_PIN_ON_CLEAR_USER) {
 							showDialog(DIALOG_CLEAR_USER_PINCODE);
 						} else {
-							((OhmageApplication)getApplication()).resetAll();
-							setResult(125);
-							finish();
+							clearAndGotoLogin();
 						}
 					}
 	
@@ -125,9 +121,7 @@ public class ProfileActivity extends BaseInfoActivity {
 			public void onClick(TrigTextInput ti, int which) {
 				if (which == TrigTextInput.BUTTON_POSITIVE) {
 					if(ti.getText().equals(TrigUserConfig.adminPass)) {
-						((OhmageApplication)getApplication()).resetAll();
-						setResult(125);
-						finish();
+						clearAndGotoLogin();
 					}
 					else {
 						removeDialog(DIALOG_CLEAR_USER_PINCODE);
@@ -140,5 +134,22 @@ public class ProfileActivity extends BaseInfoActivity {
 		});
 		
 		return ti.createDialog();
+	}
+	
+	/**
+	 * 1) Clears the user's data,
+	 * 2) redirects the user to the login page, and
+	 * 3) clears the backstack + makes it a new task, so they can't get back into the app
+	 */
+	private void clearAndGotoLogin()  {
+		// clear all their data
+		((OhmageApplication)getApplication()).resetAll();
+		
+		// then send them on a one-way trip to the login screen
+		Intent intent = new Intent(mContext, LoginActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
+		finish();
 	}
 }
