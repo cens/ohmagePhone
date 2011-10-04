@@ -39,18 +39,14 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	private static final int INDEX_IMAGE_BUTTON_OHMAGE_HOME = 0;
 
 	private Solo solo;
-	private final SharedPreferencesHelper mPrefsHelper;
+	private SharedPreferencesHelper mPrefsHelper;
 
 	private boolean isLoggedOut;
-	private final String userName;
-	private final String hashedPass;
+	private String userName;
+	private String hashedPass;
 
 	public ProfileActivityFlowTest() {
 		super(ProfileActivity.class);
-
-		mPrefsHelper = new SharedPreferencesHelper(getActivity());
-		userName = mPrefsHelper.getUsername();
-		hashedPass = mPrefsHelper.getHashedPassword();
 	}
 
 	@Override
@@ -58,6 +54,10 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 		super.setUp();
 
 		solo = new Solo(getInstrumentation(), getActivity());
+		
+		mPrefsHelper = new SharedPreferencesHelper(getActivity());
+		userName = mPrefsHelper.getUsername();
+		hashedPass = mPrefsHelper.getHashedPassword();
 	}
 
 	@Override
