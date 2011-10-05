@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -49,6 +50,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -336,6 +338,20 @@ LoaderManager.LoaderCallbacks<Cursor> {
 								((TextView) view.getTag()).setText(builder.toString());
 								return true;
 							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else if("timestamp".equals(prompt_type)) {
+							SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+							try {
+								long time = format.parse(value).getTime();
+								StringBuilder timeDisplay =  new StringBuilder(DateUtils.formatDateTime(mContext, time, DateUtils.FORMAT_SHOW_YEAR));
+								timeDisplay.append(" at ");
+								timeDisplay.append(DateUtils.formatDateTime(mContext, time, DateUtils.FORMAT_SHOW_TIME));
+
+								((TextView) view.getTag()).setText(timeDisplay);
+								return true;
+							} catch (ParseException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
