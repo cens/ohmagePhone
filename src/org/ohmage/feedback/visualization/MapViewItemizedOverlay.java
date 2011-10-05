@@ -41,11 +41,13 @@ public class MapViewItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> 
 
 		MapOverlayItem item = mOverlays.get(index);
 	
+		if(item.getResponseID() == null)
+			return false;
+		
 		long id = Long.valueOf(item.getResponseID()).longValue();
 		Uri uri = Responses.buildResponseUri(id);
 
-		mContext.startActivity(
-				new Intent(Intent.ACTION_VIEW, uri));
+		mContext.startActivity(new Intent(Intent.ACTION_VIEW, uri));
 		return true;
 	}
 	

@@ -92,6 +92,14 @@
 
 		<activity android:name=".activity.HelpActivity"/>
 
+		<activity android:name=".activity.ResponseInfoMapActivity" android:label="@string/title_response">
+			<intent-filter>
+                <action android:name="ohmage.intent.action.VIEW_MAP" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.response" />
+            </intent-filter>
+		</activity>
+		
 		<activity android:name=".activity.RHMapViewActivity"/>
 		
         <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/> 

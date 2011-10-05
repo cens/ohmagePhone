@@ -24,6 +24,7 @@ import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
@@ -32,6 +33,7 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.service.SurveyGeotagService;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -47,8 +49,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -66,12 +70,18 @@ public class ResponseInfoActivity extends BaseInfoActivity implements
 LoaderManager.LoaderCallbacks<Cursor> {
 	
 	private ImageLoader mImageLoader;
+	private View mapViewButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		mImageLoader = ImageLoader.get(this);
+		
+		// inflate the campaign-specific info page into the scrolling framelayout
+		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
+		// and inflate all the possible commands into the button tray
+		inflater.inflate(R.layout.response_info_buttons, mButtonTray, true);
 
 		FragmentManager fm = getSupportFragmentManager();
 
@@ -85,6 +95,14 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
 		getSupportLoaderManager().initLoader(0, null, this);
+		
+		mapViewButton = findViewById(R.id.response_info_button_view_map);
+		mapViewButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(OhmageApplication.VIEW_MAP, getIntent().getData()));
+			}
+		});
 	}
 
 	@Override
@@ -98,12 +116,14 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		String[] PROJECTION = { Campaigns.CAMPAIGN_NAME,
 				Surveys.SURVEY_TITLE,
 				Responses.RESPONSE_TIME,
-				Campaigns.CAMPAIGN_ICON};
+				Campaigns.CAMPAIGN_ICON,
+				Responses.RESPONSE_LOCATION_STATUS};
 
 		int CAMPAIGN_NAME = 0;
 		int SURVEY_TITLE = 1;
 		int TIME = 2;
 		int CAMPAIGN_ICON = 3;
+		int LOCATION_STATUS = 4;
 	}
 
 	@Override
@@ -132,6 +152,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		}
 
 		mEntityHeader.setVisibility(View.VISIBLE);
+		mapViewButton.setEnabled(SurveyGeotagService.LOCATION_VALID.equals(data.getString(ResponseQuery.LOCATION_STATUS)));
 	}
 
 	@Override
