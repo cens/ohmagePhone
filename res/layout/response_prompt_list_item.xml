@@ -50,6 +50,7 @@
 			android:adjustViewBounds="true"
 			android:background="@drawable/entity_icon_background"
 			android:padding="3dip"
+			android:maxHeight="250dip"
 			android:src="@android:drawable/ic_dialog_alert" />
 	</FrameLayout>
 
