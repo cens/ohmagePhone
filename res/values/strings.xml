@@ -31,4 +31,7 @@
   
   <!-- Upload Queue -->
   <string name="upload_queue_empty">There are no surveys that need to be uploaded.\n\nAfter completing a survey, you can upload it from here.</string>
+
+  <!-- Maps -->
+  <string name="maps_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
 </resources>
