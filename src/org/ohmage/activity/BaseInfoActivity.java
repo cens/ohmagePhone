@@ -1,13 +1,11 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
-import org.ohmage.controls.ActionBarControl;
-
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,7 +17,7 @@ import android.widget.TextView;
  * @author faisal
  *
  */
-public abstract class BaseInfoActivity extends FragmentActivity {
+public abstract class BaseInfoActivity extends BaseActivity {
 	// fields in the entity info header, populated by onContentChanged()
 	protected View mEntityHeader;
 	protected TextView mHeadertext;
@@ -29,28 +27,10 @@ public abstract class BaseInfoActivity extends FragmentActivity {
 	protected LinearLayout mButtonTray;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.base_info_activity);
-		
-		// Set the title for this activity
-		getActionBar().setTitle(getTitle());
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.base_info_activity, container, false);
 	}
 
-	/**
-	 * Returns the fixed content area which should be populated with the details pertaining to this entity.
-	 * 
-	 * @return a FrameLayout to which other layouts (e.g. a linearlayout) can be added
-	 */
-	protected FrameLayout getContentArea() {
-		return (FrameLayout)findViewById(R.id.root_container);
-	}
-	
-	protected ActionBarControl getActionBar() {
-		return (ActionBarControl)findViewById(R.id.action_bar);
-	}
-	
 	@Override
 	public void onContentChanged() {
 		super.onContentChanged();
