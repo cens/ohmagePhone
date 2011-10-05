@@ -28,4 +28,7 @@
   <string name="help_goto_dashboard">Dashboard</string> 
   <string name="help_goto_filter">Filter</string>
   <string name="help_goto_list">List</string>
+  
+  <!-- Upload Queue -->
+  <string name="upload_queue_empty">There are no surveys that need to be uploaded.\n\nAfter completing a survey, you can upload it from here.</string>
 </resources>

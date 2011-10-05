@@ -32,7 +32,6 @@ import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 
 public class UploadQueueActivity extends FragmentActivity implements OnResponseActionListener, LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "UploadQueueActivity";
@@ -104,6 +103,14 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 
 	public static class UploadingResponseListFragment extends ResponseListFragment {
 
+		@Override
+		public void onActivityCreated(Bundle savedInstanceState) {
+			super.onActivityCreated(savedInstanceState);
+
+			// Set the empty text
+			setEmptyText(getString(R.string.upload_queue_empty));
+		}
+		
 		@Override
 		protected ResponseListCursorAdapter createAdapter() {
 			return new UploadingResponseListCursorAdapter(getActivity(), null, this, 0);
