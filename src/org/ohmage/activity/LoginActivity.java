@@ -48,6 +48,8 @@ public class LoginActivity extends Activity {
     private static final int DIALOG_LOGIN_PROGRESS = 4;
     private static final int DIALOG_INTERNAL_ERROR = 5;
     private static final int DIALOG_USER_DISABLED = 6;
+
+	private static final int LOGIN_FINISHED = 0;
 	
 	private EditText mUsernameEdit;
 	private EditText mPasswordEdit;
@@ -62,6 +64,19 @@ public class LoginActivity extends Activity {
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.login);
 		setTitle(getTitle() + " login");
+		
+		// first see if they are already logged in
+		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+		
+		if (preferencesHelper.isUserDisabled()) {
+        	((OhmageApplication) getApplication()).resetAll();
+        }
+		
+		// if they are, redirect them to the dashboard
+		if (preferencesHelper.isAuthenticated()) {
+			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
+			return;
+		}
 		
 		mLoginButton = (Button) findViewById(R.id.login);
         mUsernameEdit = (EditText) findViewById(R.id.user_input); 
@@ -149,7 +164,7 @@ public class LoginActivity extends Activity {
 		return null;
 	}
 
-	private OnClickListener mClickListener = new OnClickListener() {
+	private final OnClickListener mClickListener = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
@@ -319,16 +334,7 @@ public class LoginActivity extends Activity {
             	Log.i(TAG, "this is not the first run");
             }
 			
-            // clear back stack, start main activity
-			
-			Intent intent = new Intent(LoginActivity.this, LauncherActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); 
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			
-			//close this activity
-			finish();
-			
+			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
 			break;
 		case FAILURE:
 			Log.e(TAG, "login failure");
@@ -365,6 +371,17 @@ public class LoginActivity extends Activity {
 			//show error dialog
 			showDialog(DIALOG_INTERNAL_ERROR);
 			break;
+		}
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch(requestCode) {
+			case LOGIN_FINISHED:
+				finish();
+			break;
+			default:
+				this.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 	

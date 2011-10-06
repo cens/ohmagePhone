@@ -1,13 +1,10 @@
 package org.ohmage.activity;
 
-import org.ohmage.OhmageApplication;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -18,20 +15,6 @@ public class DashboardActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// first, ensure that they're logged in
-		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
-		
-		if (preferencesHelper.isUserDisabled()) {
-        	((OhmageApplication) getApplication()).resetAll();
-        }
-		
-		// if they're not, redirect them to the login screen
-		if (!preferencesHelper.isAuthenticated()) {
-			Log.i(TAG, "no credentials saved, so launching LoginActivity");
-			startActivity(new Intent(this, LoginActivity.class));
-			finish();
-		}
 		
 		setContentView(R.layout.dashboard_activity);
 		

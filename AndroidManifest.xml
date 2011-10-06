@@ -24,14 +24,15 @@
 		android:icon="@drawable/icon"
 		android:label="@string/app_name">
     
-		<activity android:name=".activity.DashboardActivity"
-			android:launchMode="singleTask">
+		<activity android:name=".activity.DashboardActivity" />
+		
+		<activity android:name=".activity.LoginActivity">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 		</activity>
-		
+
 		<!-- 
 		================================================
 		=== dashboard-level activities (and direct sub-activities)
@@ -125,9 +126,6 @@
         		<action android:name="org.ohmage.triggers.TRIGGER_NOTIFICATION"/>
         	</intent-filter>
     	</receiver>
-    
-	    <activity android:name=".activity.LoginActivity" android:noHistory="true">
-	    </activity>
     
 	    <activity android:name=".activity.StatusActivity">
 	    </activity>
