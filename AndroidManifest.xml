@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.ohmage"
-	android:versionName="2.7 beta" android:versionCode="11092300">
+	android:versionName="2.7 beta" android:versionCode="11100600">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -25,6 +25,7 @@
 		android:label="@string/app_name">
     
 		<activity android:name=".activity.DashboardActivity"
+			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
 			android:launchMode="singleTask">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,25 +43,31 @@
 			android:launchMode="standard"
 			android:windowSoftInputMode="adjustResize" />
 
-		<activity android:name=".activity.SurveyListActivity" android:label="@string/title_surveys" />
+		<activity android:name=".activity.SurveyListActivity" android:label="@string/title_surveys" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.CampaignListActivity" android:label="@string/title_campaigns" />
+		<activity android:name=".activity.CampaignListActivity" android:label="@string/title_campaigns" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.CampaignAddActivity" android:label="@string/title_add_campaign" />
+		<activity android:name=".activity.CampaignAddActivity" android:label="@string/title_add_campaign" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<activity
 			android:name=".activity.UploadQueueActivity"
 			android:label="@string/title_upload_queue"
+			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
 			android:launchMode="singleTask" />
 
-		<activity android:name=".activity.ProfileActivity" android:label="@string/title_profile" />
+		<activity android:name=".activity.ProfileActivity" android:label="@string/title_profile" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<!-- 
 		================================================
 		=== entity info activities
 		================================================
 		-->
-		<activity android:name=".activity.CampaignInfoActivity" android:label="@string/title_campaign_info">
+		<activity android:name=".activity.CampaignInfoActivity" android:label="@string/title_campaign_info"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -68,7 +75,8 @@
             </intent-filter>
 		</activity>
 		
-		<activity android:name=".activity.SurveyInfoActivity" android:label="@string/title_survey_info">
+		<activity android:name=".activity.SurveyInfoActivity" android:label="@string/title_survey_info"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -76,7 +84,8 @@
             </intent-filter>
 		</activity>
 		
-	    <activity android:name=".activity.ResponseInfoActivity" android:label="@string/title_response">
+	    <activity android:name=".activity.ResponseInfoActivity" android:label="@string/title_response"
+	    			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -90,9 +99,11 @@
 		================================================
 		-->
 
-		<activity android:name=".activity.HelpActivity"/>
+		<activity android:name=".activity.HelpActivity"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.ResponseInfoMapActivity" android:label="@string/title_response">
+		<activity android:name=".activity.ResponseInfoMapActivity" android:label="@string/title_response"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 			<intent-filter>
                 <action android:name="ohmage.intent.action.VIEW_MAP" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -100,13 +111,13 @@
             </intent-filter>
 		</activity>
 		
-		<activity android:name=".activity.RHMapViewActivity"/>
+		<activity android:name=".activity.RHMapViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 		
         <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/> 
 		
-		<activity android:name=".activity.RHTabHost" android:label="@string/title_response_history"  android:screenOrientation="portrait"/>
+		<activity android:name=".activity.RHTabHost" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.ResponseListActivity" android:screenOrientation="portrait"/>
+		<activity android:name=".activity.ResponseListActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<activity android:name=".activity.LauncherActivity" android:label="@string/app_name">
 			<!--
