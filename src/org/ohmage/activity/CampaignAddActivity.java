@@ -31,22 +31,6 @@ public class CampaignAddActivity extends FragmentActivity implements OnCampaignA
 		mActionBar = (ActionBarControl) findViewById(R.id.action_bar);
 		
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
-		
-//		((CampaignListFragment)getSupportFragmentManager().findFragmentById(R.id.campaigns)).setMode(CampaignListFragment.MODE_ADD_CAMPAIGNS);
-		
-//		new CampaignReadTask(this) {
-//
-//			@Override
-//			protected void onPreExecute() {
-//				super.onPreExecute();
-//			}
-//
-//			@Override
-//			protected void onPostExecute(CampaignReadResponse response) {
-//				super.onPostExecute(response);
-//			}
-//			
-//		}.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
 	}
 	
 	@Override
