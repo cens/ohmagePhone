@@ -167,25 +167,25 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				Cursor surveyCursor;
 
 				String[] projection = {Surveys.SURVEY_TITLE, Surveys.CAMPAIGN_URN, Surveys.SURVEY_ID};
-				//Create Cursor
-				if(curCampaignValue.equals("all")){
-					surveyCursor = cr.query(Surveys.CONTENT_URI, projection, null, null, Surveys.SURVEY_TITLE);
-				}
-				else{
-					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
-				}
-
-				//Update SurveyFilter
-				//Concatenate Campain_URN and Survey_ID with a colon for survey filer values,
-				//in order to handle 'All Campaign' case.
+				
 				mSurveyFilter.clearAll();
-				for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
-					mSurveyFilter.add(new Pair<String, String>(
-							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_TITLE)),
-							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.CAMPAIGN_URN)) + 
-							":" +
-							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_ID))
-							));
+				if(!curCampaignValue.equals("all")){
+					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
+
+					//Update SurveyFilter
+					//Concatenate Campain_URN and Survey_ID with a colon for survey filer values,
+					//in order to handle 'All Campaign' case.
+					//This requirement is not valid any more.
+
+					for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
+						mSurveyFilter.add(new Pair<String, String>(
+								surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_TITLE)),
+								surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.CAMPAIGN_URN)) + 
+								":" +
+								surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_ID))
+								));
+					}
+					surveyCursor.close();
 				}
 				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));
 
@@ -193,7 +193,31 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 						RHCalendarViewActivity.this.mSelectedYear,
 						mCampaignFilter.getValue(),
 						mSurveyFilter.getValue());
-				surveyCursor.close();
+
+				//Create Cursor
+//				if(curCampaignValue.equals("all")){
+//					
+//					surveyCursor = cr.query(Surveys.CONTENT_URI, projection, null, null, Surveys.SURVEY_TITLE);
+//				}
+//				else{
+//					surveyCursor = cr.query(Campaigns.buildSurveysUri(curCampaignValue), projection, null, null, null);
+//				}
+//
+//				//Update SurveyFilter
+//				//Concatenate Campain_URN and Survey_ID with a colon for survey filer values,
+//				//in order to handle 'All Campaign' case.
+//				mSurveyFilter.clearAll();
+//				for(surveyCursor.moveToFirst();!surveyCursor.isAfterLast();surveyCursor.moveToNext()){
+//					mSurveyFilter.add(new Pair<String, String>(
+//							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_TITLE)),
+//							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.CAMPAIGN_URN)) + 
+//							":" +
+//							surveyCursor.getString(surveyCursor.getColumnIndex(Surveys.SURVEY_ID))
+//							));
+//				}
+//				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", mCampaignFilter.getValue() + ":" + "all"));
+
+
 			}
 		});
 
