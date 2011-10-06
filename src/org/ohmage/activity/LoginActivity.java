@@ -42,6 +42,12 @@ public class LoginActivity extends Activity {
 	
 	public static final String TAG = "LoginActivity";
 	
+	/**
+	 * The {@link LoginActivity} looks for this extra to determine if
+	 * it should update the credentials for the user rather than just passing through
+	 */
+	public static final String EXTRA_UPDATE_CREDENTIALS = "extra_update_credentials";
+	
     private static final int DIALOG_FIRST_RUN = 1;
     private static final int DIALOG_LOGIN_ERROR = 2;
     private static final int DIALOG_NETWORK_ERROR = 3;
@@ -58,6 +64,8 @@ public class LoginActivity extends Activity {
 	private SharedPreferencesHelper mPreferencesHelper;
 	private LoginTask mTask;
 
+	private boolean mUpdateCredentials;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -72,8 +80,10 @@ public class LoginActivity extends Activity {
         	((OhmageApplication) getApplication()).resetAll();
         }
 		
+		mUpdateCredentials = getIntent().getBooleanExtra(EXTRA_UPDATE_CREDENTIALS, false);
+		
 		// if they are, redirect them to the dashboard
-		if (preferencesHelper.isAuthenticated()) {
+		if (preferencesHelper.isAuthenticated() && !mUpdateCredentials) {
 			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
 			return;
 		}
@@ -334,7 +344,10 @@ public class LoginActivity extends Activity {
             	Log.i(TAG, "this is not the first run");
             }
 			
-			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
+			if(mUpdateCredentials)
+				finish();
+			else
+				startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
 			break;
 		case FAILURE:
 			Log.e(TAG, "login failure");
