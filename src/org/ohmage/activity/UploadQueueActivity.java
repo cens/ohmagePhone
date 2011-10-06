@@ -184,7 +184,21 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 			break;
 		case Response.STATUS_ERROR_INVALID_USER_ROLE:
 			message = "Invalid user role.";
-			break;
+		case Response.STATUS_WAITING_FOR_LOCATION:
+			builder.setMessage(R.string.upload_queue_response_waiting_for_gps)
+			.setCancelable(true)
+			.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+
+					Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
+					intent.setData(responseUri);
+					WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
+				}
+			}).setNegativeButton("Wait", null);
+
+			return builder.create();
 		}
 		
 		builder.setMessage(message)

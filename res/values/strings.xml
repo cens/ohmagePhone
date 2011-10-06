@@ -31,6 +31,7 @@
   
   <!-- Upload Queue -->
   <string name="upload_queue_empty">There are no surveys that need to be uploaded.\n\nAfter completing a survey, you can upload it from here.</string>
+  <string name="upload_queue_response_waiting_for_gps">This response is currently waiting for a GPS location before it is uploaded. You can force the response to upload now or continue to wait for the location.</string>
 
   <!-- Maps -->
   <string name="maps_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>

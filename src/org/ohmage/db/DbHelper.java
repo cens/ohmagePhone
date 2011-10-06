@@ -50,6 +50,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.util.Xml;
@@ -452,31 +453,24 @@ public class DbHelper extends SQLiteOpenHelper {
 		return Response.fromCursor(cursor);
 	}
 
-	public int updateRecentRowLocations(String locationStatus,
-			double locationLatitude, double locationLongitude,
-			String locationProvider, float locationAccuracy, long locationTime) {
-		if (locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE))
-			return -1;
-
+	public int updateResponseLocation(String locationStatus, Location location) {
 		ContentValues vals = new ContentValues();
 		vals.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
 		vals.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
-		vals.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
-		vals.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
-		vals.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
-		vals.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
-		vals.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
 
-		long earliestTimestampToUpdate = locationTime
-				- SurveyGeotagService.LOCATION_STALENESS_LIMIT;
+		if(location != null) {
+			vals.put(Responses.RESPONSE_LOCATION_LATITUDE, location.getLatitude());
+			vals.put(Responses.RESPONSE_LOCATION_LONGITUDE, location.getLongitude());
+			vals.put(Responses.RESPONSE_LOCATION_PROVIDER, location.getProvider());
+			vals.put(Responses.RESPONSE_LOCATION_ACCURACY, location.getAccuracy());
+			vals.put(Responses.RESPONSE_LOCATION_TIME, location.getTime());
+		}
 
 		ContentResolver cr = mContext.getContentResolver();
 		int count = cr.update(Responses.CONTENT_URI, vals,
-				Responses.RESPONSE_LOCATION_STATUS + " = '"
-						+ SurveyGeotagService.LOCATION_UNAVAILABLE + "' AND "
-						+ Responses.RESPONSE_TIME + " > " + earliestTimestampToUpdate
-						+ " AND " + Responses.RESPONSE_STATUS + "="
-						+ Response.STATUS_STANDBY, null);
+				Responses.RESPONSE_LOCATION_STATUS + " =? AND "
+						+ Responses.RESPONSE_STATUS + " = " + Response.STATUS_WAITING_FOR_LOCATION, 
+						new String [] { SurveyGeotagService.LOCATION_UNAVAILABLE } );
 
 		return count;
 	}
