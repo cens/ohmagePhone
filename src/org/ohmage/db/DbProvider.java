@@ -255,6 +255,13 @@ public class DbProvider extends ContentProvider {
 					if (values.containsKey(Campaigns.CAMPAIGN_URN) && values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
 						dbHelper.populateSurveysFromCampaignXML(db, values.getAsString(Campaigns.CAMPAIGN_URN), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 					
+					// remove triggers if the campaign becomes non-ready (this may be time-consuming)
+					Cursor c = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
+					while (c.moveToNext()) {
+						if (c.getInt(1) != Campaign.STATUS_READY)
+							TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
+					}
+					
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);

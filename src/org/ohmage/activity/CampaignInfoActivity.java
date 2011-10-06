@@ -20,6 +20,7 @@ import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -202,9 +203,11 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								// remove the campaign URN and take us back to my campaigns
-								getContentResolver().delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-								startActivity(new Intent(mContext, CampaignListActivity.class));
+								// set this campaign as "remote" and exit out of here
+								ContentValues cv = new ContentValues();
+								cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+								cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
+								getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 								mContext.finish();
 							}
 						})

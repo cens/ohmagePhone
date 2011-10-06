@@ -14,13 +14,11 @@
 		<TextView style="@style/ErrorBox"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/campaign_info_errorbox"
-			android:text="this is some test error text..." />
+			android:id="@+id/campaign_info_errorbox" />
 
 		<!-- the description block -->
 		<TextView style="@style/InfoDescription"
-			android:id="@+id/campaign_info_desc"
-			android:text="this is a test description" />
+			android:id="@+id/campaign_info_desc" />
 
 		<!-- collapsible(?) sections with attribute info -->
 		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content">
