@@ -3,5 +3,5 @@
     <Button style="@style/InfoButton"
     	android:id="@+id/response_info_button_view_map"
     	android:text="View Map"
-    	android:drawableLeft="@drawable/plus" />
+    	android:drawableLeft="@drawable/location_map" />
 </merge>
