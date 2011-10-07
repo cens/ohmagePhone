@@ -67,7 +67,9 @@ public class UploadService extends WakefulIntentService {
 										Tables.RESPONSES + "." + Responses.CAMPAIGN_URN,
 										Campaigns.CAMPAIGN_CREATED};
 		
-		String select = intent.getStringExtra("select");
+		String select =  Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + 
+						Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED + " AND " + 
+						Responses.RESPONSE_STATUS + "!=" + Response.STATUS_WAITING_FOR_LOCATION;
 		
 		Cursor cursor = cr.query(dataUri, projection, select, null, null);
 

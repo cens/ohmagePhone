@@ -38,12 +38,12 @@ public class BackgroundManager {
 		
 		//uploadservice
 		AlarmManager alarms = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
-//		Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
-//		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intentToFire, 0);
-//		//alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), pendingIntent);
-//		alarms.cancel(pendingIntent);
-//		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
-//		Log.i(TAG, "UploadReceiver repeating alarm set");
+		Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intentToFire, 0);
+		//alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), pendingIntent);
+		alarms.cancel(pendingIntent);
+		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 60 * 1000, pendingIntent);
+		Log.i(TAG, "UploadReceiver repeating alarm set");
 		
 		//storagemonitor
 		appContext.startService(new Intent(appContext, StorageMonitorService.class));

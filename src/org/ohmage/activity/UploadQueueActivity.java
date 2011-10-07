@@ -136,10 +136,20 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 			
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
-			intent.putExtra("select", Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "=" + Response.STATUS_STANDBY);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}
 	};
+	
+	private void queueForUpload(Uri responseUri) {
+		ContentResolver cr = getContentResolver();
+		ContentValues cv = new ContentValues();
+		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
+		cr.update(responseUri, cv, null, null);
+		
+		Intent intent = new Intent(this, UploadService.class);
+		intent.setData(responseUri);
+		WakefulIntentService.sendWakefulWork(this, intent);
+	}
 
 	@Override
 	public void onResponseActionView(Uri responseUri) {
@@ -149,14 +159,7 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 	@Override
 	public void onResponseActionUpload(Uri responseUri) {
 		
-		ContentResolver cr = getContentResolver();
-		ContentValues cv = new ContentValues();
-		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
-		cr.update(responseUri, cv, null, null);
-		
-		Intent intent = new Intent(this, UploadService.class);
-		intent.setData(responseUri);
-		WakefulIntentService.sendWakefulWork(this, intent);
+		queueForUpload(responseUri);
 	}
 
 	@Override
@@ -173,7 +176,7 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		
 		String message = "An error occurred while trying attempting to upload this response.";
-		final Uri responseUri = Uri.parse(args.getString("response_uri"));
+		
 		
 		switch (id) {
 		case Response.STATUS_ERROR_AUTHENTICATION:
@@ -192,9 +195,7 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 
-					Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
-					intent.setData(responseUri);
-					WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
+					queueForUpload(responseUriForDialogs);
 				}
 			}).setNegativeButton("Wait", null);
 
@@ -208,42 +209,34 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						
-						Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
-						intent.setData(responseUri);
-						WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
+						queueForUpload(responseUriForDialogs);
 					}
 				}).setNeutralButton("Retry Later", new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						ContentResolver cr = getContentResolver();
-						Cursor c = cr.query(responseUri, new String [] {Tables.RESPONSES + "." + Responses._ID}, null, null, null);
-						if (c.getCount() == 1) {
-							c.moveToFirst();
-							long responseId = c.getLong(0);
-							ContentValues values = new ContentValues();
-							values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
-							cr.update(Responses.CONTENT_URI, values, Responses._ID + "=" + responseId, null);
-						} else {
-							Log.e(TAG, "Unexpected number of rows returned for + " + responseUri.toString() + ": " + c.getCount());
-						}
+						ContentValues cv = new ContentValues();
+						cv.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
+						cr.update(responseUriForDialogs, cv, null, null);
 					}
 				}).setNegativeButton("Delete", new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						ContentResolver cr = getContentResolver();
-						Cursor c = cr.query(responseUri, new String [] {Tables.RESPONSES + "." + Responses._ID}, null, null, null);
-						if (c.getCount() == 1) {
-							c.moveToFirst();
-							long responseId = c.getLong(0);
-							cr.delete(Responses.CONTENT_URI, Responses._ID + "=" + responseId, null);
-						} else {
-							Log.e(TAG, "Unexpected number of rows returned for + " + responseUri.toString() + ": " + c.getCount());
-						}
+						cr.delete(responseUriForDialogs, null, null);
 					}
 				});
 		
 		return builder.create();
 	}
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		super.onPrepareDialog(id, dialog, args);
+		responseUriForDialogs = Uri.parse(args.getString("response_uri"));
+	}
+	
+	private Uri responseUriForDialogs;
 }
