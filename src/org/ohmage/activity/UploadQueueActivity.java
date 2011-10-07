@@ -149,10 +149,10 @@ public class UploadQueueActivity extends FragmentActivity implements OnResponseA
 	@Override
 	public void onResponseActionUpload(Uri responseUri) {
 		
-//		ContentResolver cr = getContentResolver();
-//		ContentValues cv = new ContentValues();
-//		cv.put(Tables.RESPONSES + "." + Response.STATUS, Response.STATUS_QUEUED);
-//		cr.update(responseUri, cv, null, null);
+		ContentResolver cr = getContentResolver();
+		ContentValues cv = new ContentValues();
+		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
+		cr.update(responseUri, cv, null, null);
 		
 		Intent intent = new Intent(this, UploadService.class);
 		intent.setData(responseUri);

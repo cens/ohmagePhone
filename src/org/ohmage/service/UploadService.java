@@ -73,9 +73,9 @@ public class UploadService extends WakefulIntentService {
 
 		cursor.moveToFirst();
 		
-//		ContentValues cv = new ContentValues();
-//		cv.put(Tables.RESPONSES + "." + Response.STATUS, Response.STATUS_QUEUED);
-//		cr.update(dataUri, cv, select, null);
+		ContentValues cv = new ContentValues();
+		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
+		cr.update(dataUri, cv, select, null);
 		
 		for (int i = 0; i < cursor.getCount(); i++) {
 			
