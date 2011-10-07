@@ -137,18 +137,17 @@ public class SurveyGeotagTimeoutReceiver extends BroadcastReceiver {
 					/*if (now - networkLocation.getTime() < SurveyLocationService.LOCATION_STALENESS_LIMIT && networkLocation.getAccuracy() < ACCURACY_THRESHOLD) {
 						updateLocInDb(context, networkLocation);
 					}*/
-				} 
+				} else {
+					updateLocInDb(context, SurveyGeotagService.LOCATION_UNAVAILABLE, null);
+				}
 			}
 		}
 	}
 
 
 	private void updateLocInDb(Context context, String status, Location loc) {
-		if (loc != null) {
-			
-			DbHelper dbHelper = new DbHelper(context);
-			dbHelper.updateRecentRowLocations(status, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime());
-		}
+		DbHelper dbHelper = new DbHelper(context);
+		dbHelper.updateResponseLocation(status, loc);
 	}
 
 }

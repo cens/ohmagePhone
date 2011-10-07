@@ -17,7 +17,6 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -158,6 +157,7 @@ public class HelpActivity extends FragmentActivity {
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			WebView webView = new WebView(getActivity());
 			webView.loadUrl(mUrl);
+			webView.getSettings().setSupportZoom(false);
 			return webView;
 		}
 	}

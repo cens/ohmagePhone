@@ -61,7 +61,7 @@ public class ActionBarControl extends LinearLayout {
 		mHomeButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mActivity.startActivity(new Intent(mActivity, DashboardActivity.class));
+				mActivity.startActivity(new Intent(mActivity, DashboardActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 			}
 		});
 		

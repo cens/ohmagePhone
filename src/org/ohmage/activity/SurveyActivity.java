@@ -987,6 +987,7 @@ public class SurveyActivity extends Activity {
 			candidate.locationProvider = null;
 			candidate.locationAccuracy = -1;
 			candidate.locationTime = -1;
+			candidate.status = Response.STATUS_WAITING_FOR_LOCATION;
 		}
 
 		ContentResolver cr = getContentResolver();
@@ -1012,6 +1013,7 @@ public class SurveyActivity extends Activity {
 		else
 		{
 			i.putExtra(Responses.RESPONSE_LOCATION_STATUS, SurveyGeotagService.LOCATION_UNAVAILABLE);
+			i.putExtra(Responses.RESPONSE_STATUS, Response.STATUS_WAITING_FOR_LOCATION);
 		}
 
 		i.putExtra(Responses.SURVEY_ID, surveyId);
