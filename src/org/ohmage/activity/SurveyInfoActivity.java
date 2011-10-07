@@ -107,6 +107,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				findViewById(R.id.survey_info_triggers_row),
 				triggersDetails);
 		
+		// hide our content behind the overlay before we load
+		setLoadingVisibility(true);
+		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
 		getSupportLoaderManager().initLoader(1, null, this);
@@ -307,6 +310,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 		// and make the entity header visible (although i assume it already was)
 		mEntityHeader.setVisibility(View.VISIBLE);
+		
+		// finally, show our content
+		setLoadingVisibility(false);
 	}
 
 	@Override

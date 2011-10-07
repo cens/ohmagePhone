@@ -118,6 +118,9 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				findViewById(R.id.campaign_info_triggers_row),
 				triggersDetails);
 		
+		// hide our content behind the overlay before we load
+		setLoadingVisibility(true);
+		
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
 		getSupportLoaderManager().initLoader(0, null, this);
@@ -392,6 +395,9 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		// finally, show our content
+		setLoadingVisibility(false);
 	}
 
 	@Override

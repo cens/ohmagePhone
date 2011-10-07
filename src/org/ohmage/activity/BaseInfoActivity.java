@@ -6,8 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -61,5 +63,26 @@ public abstract class BaseInfoActivity extends BaseActivity {
 				child.setVisibility((currentVis == View.INVISIBLE || currentVis == View.GONE)?View.VISIBLE:View.GONE);
 			}
 		});
+	}
+	
+	/**
+	 * Sets whether the progress spinner overlay is covering the content area (e.g. if the view is still loading).
+	 * You're encouraged to call setLoadingVisiblity(true) in your onCreate() and then setLoadingVisibility(false) when
+	 * your content is ready.
+	 * 
+	 * @param isLoading true if the progress spinner overlay should cover the content, false to show the content underneath.
+	 */
+	protected void setLoadingVisibility(boolean isLoading) {
+		View pv = (View) findViewById(R.id.info_loading_bar);
+		boolean wasVisible = pv.getVisibility() == View.VISIBLE;
+		
+		// do the appropriate animation if the view is disappearing
+		// do nothing if it's not transitioning or if it's being displayed
+		if (wasVisible && !isLoading) {
+			pv.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+		}
+		
+		// and finally set the actual visibility of the thing
+		pv.setVisibility(isLoading?View.VISIBLE:View.GONE);
 	}
 }
