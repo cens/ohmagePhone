@@ -610,10 +610,11 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 				String num = btn.getText().toString();
 				if(!num.equals("")){
 					Intent intent = new Intent(RHCalendarViewActivity.this, ResponseListActivity.class);
+					String surveyFilter = mSurveyFilter.getValue().substring(mSurveyFilter.getValue().lastIndexOf(":")+1);
 					if(!"all".equals(mCampaignFilter.getValue()))
 						intent.putExtra(ResponseListActivity.EXTRA_CAMPAIGN_URI_FILTER, mCampaignFilter.getValue());
-					if(!"all".equals(mSurveyFilter.getValue()))
-						intent.putExtra(ResponseListActivity.EXTRA_SURVEY_FILTER, mSurveyFilter.getValue().substring(mSurveyFilter.getValue().lastIndexOf(":")+1));
+					if(!"all".equals(surveyFilter))
+						intent.putExtra(ResponseListActivity.EXTRA_SURVEY_FILTER, surveyFilter);
 					intent.putExtra(ResponseListActivity.EXTRA_DATE_FLITER, (Long) view.getTag());
 					startActivity(intent);					
 				}
