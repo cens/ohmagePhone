@@ -206,7 +206,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								// set this campaign as "remote" and exit out of here
 								ContentValues cv = new ContentValues();
 								cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
-								cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, (String)null);
+								cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
 								getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 								mContext.finish();
 							}
