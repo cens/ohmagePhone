@@ -29,8 +29,15 @@
   <string name="help_goto_filter">Filter</string>
   <string name="help_goto_list">List</string>
   
+  <!-- Surveys -->
+  <string name="surveys_all">All</string> 
+  <string name="surveys_pending">Pending</string>
+  <string name="surveys_empty_all">There are no surveys to display.\n\nAfter selecting campaigns to participate in, you can view a list of their surveys here.</string>
+  <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey triggers via each campaign\'s information screen.</string>
+  
   <!-- Upload Queue -->
-  <string name="upload_queue_empty">There are no surveys that need to be uploaded.\n\nAfter completing a survey, you can upload it from here.</string>
+  <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>
+  <string name="upload_queue_response_waiting_for_gps">This response is currently waiting for a GPS location before it is uploaded. You can force the response to upload now or continue to wait for the location.</string>
 
   <!-- Maps -->
   <string name="maps_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>

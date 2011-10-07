@@ -42,12 +42,20 @@ public class LoginActivity extends Activity {
 	
 	public static final String TAG = "LoginActivity";
 	
+	/**
+	 * The {@link LoginActivity} looks for this extra to determine if
+	 * it should update the credentials for the user rather than just passing through
+	 */
+	public static final String EXTRA_UPDATE_CREDENTIALS = "extra_update_credentials";
+	
     private static final int DIALOG_FIRST_RUN = 1;
     private static final int DIALOG_LOGIN_ERROR = 2;
     private static final int DIALOG_NETWORK_ERROR = 3;
     private static final int DIALOG_LOGIN_PROGRESS = 4;
     private static final int DIALOG_INTERNAL_ERROR = 5;
     private static final int DIALOG_USER_DISABLED = 6;
+
+	private static final int LOGIN_FINISHED = 0;
 	
 	private EditText mUsernameEdit;
 	private EditText mPasswordEdit;
@@ -56,12 +64,29 @@ public class LoginActivity extends Activity {
 	private SharedPreferencesHelper mPreferencesHelper;
 	private LoginTask mTask;
 
+	private boolean mUpdateCredentials;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.login);
 		setTitle(getTitle() + " login");
+		
+		// first see if they are already logged in
+		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+		
+		if (preferencesHelper.isUserDisabled()) {
+        	((OhmageApplication) getApplication()).resetAll();
+        }
+		
+		mUpdateCredentials = getIntent().getBooleanExtra(EXTRA_UPDATE_CREDENTIALS, false);
+		
+		// if they are, redirect them to the dashboard
+		if (preferencesHelper.isAuthenticated() && !mUpdateCredentials) {
+			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
+			return;
+		}
 		
 		mLoginButton = (Button) findViewById(R.id.login);
         mUsernameEdit = (EditText) findViewById(R.id.user_input); 
@@ -149,7 +174,7 @@ public class LoginActivity extends Activity {
 		return null;
 	}
 
-	private OnClickListener mClickListener = new OnClickListener() {
+	private final OnClickListener mClickListener = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
@@ -319,16 +344,10 @@ public class LoginActivity extends Activity {
             	Log.i(TAG, "this is not the first run");
             }
 			
-            // clear back stack, start main activity
-			
-			Intent intent = new Intent(LoginActivity.this, LauncherActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); 
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			
-			//close this activity
-			finish();
-			
+			if(mUpdateCredentials)
+				finish();
+			else
+				startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
 			break;
 		case FAILURE:
 			Log.e(TAG, "login failure");
@@ -365,6 +384,17 @@ public class LoginActivity extends Activity {
 			//show error dialog
 			showDialog(DIALOG_INTERNAL_ERROR);
 			break;
+		}
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch(requestCode) {
+			case LOGIN_FINISHED:
+				finish();
+			break;
+			default:
+				this.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 	

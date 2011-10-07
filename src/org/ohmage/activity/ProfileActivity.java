@@ -56,6 +56,7 @@ public class ProfileActivity extends BaseInfoActivity {
 						// just take them to the login activity,
 						// but allow them to back out of it if they change their mind
 						Intent intent = new Intent(mContext, LoginActivity.class);
+						intent.putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true);
 						startActivity(intent);
 						break;
 				}

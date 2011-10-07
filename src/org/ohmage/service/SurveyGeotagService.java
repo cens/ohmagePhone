@@ -93,7 +93,7 @@ public class SurveyGeotagService extends Service {
 		return null;
 	}
 
-	private LocationListener mLocationListener = new LocationListener() {
+	private final LocationListener mLocationListener = new LocationListener() {
 
 		@Override
 		public void onLocationChanged(Location location) {
@@ -105,7 +105,7 @@ public class SurveyGeotagService extends Service {
 					Log.i(TAG, "Accuracy threshold reached.");
 					
 					DbHelper dbHelper = new DbHelper(SurveyGeotagService.this);
-					dbHelper.updateRecentRowLocations(LOCATION_VALID, location.getLatitude(), location.getLongitude(), location.getProvider(), location.getAccuracy(), location.getTime());
+					dbHelper.updateResponseLocation(LOCATION_VALID, location);
 					
 					stopSelf();
 				}

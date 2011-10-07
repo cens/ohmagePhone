@@ -1,9 +1,6 @@
 package org.ohmage.activity;
 
-import java.util.ArrayList;
-
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
@@ -18,6 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 public class SurveyListActivity extends FragmentActivity implements OnSurveyActionListener {
@@ -25,9 +24,9 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 	static final String TAG = "SurveyListActivity";
 	
 	private FilterControl mCampaignFilter;
-	private FilterControl mPendingFilter;
-	
-	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private Button mAllButton;
+	private Button mPendingButton;
+	private boolean mShowPending = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +35,9 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 		setContentView(R.layout.survey_list);
 		
 		mCampaignFilter = (FilterControl) findViewById(R.id.campaign_filter);
-		mPendingFilter = (FilterControl) findViewById(R.id.pending_filter);
+		
+		mAllButton = (Button) findViewById(R.id.all_surveys_button);
+		mPendingButton = (Button) findViewById(R.id.pending_surveys_button);
 
 		ContentResolver cr = getContentResolver();
 		String select = Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY;
@@ -51,31 +52,42 @@ public class SurveyListActivity extends FragmentActivity implements OnSurveyActi
 			}
 		});
 		
-		mPendingFilter.add(new Pair<String, String>("All Surveys", "all"));
-		mPendingFilter.add(new Pair<String, String>("Pending Surveys", "pending"));
-		mPendingFilter.setOnChangeListener(new FilterChangeListener() {
-			
-			@Override
-			public void onFilterChanged(boolean selfChange, String curValue) {
-				if (curValue.equalsIgnoreCase("pending")) {
-					((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(true);
-				} else {
-					((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(false);
-				}
-				
-			}
-		});
-		
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mAllButton.setOnClickListener(mPendingListener);
+		mPendingButton.setOnClickListener(mPendingListener);
 		
 		String campaignUrn = getIntent().getStringExtra("campaign_urn");
-		boolean showPending = getIntent().getBooleanExtra("show_pending", false);
 		
 		if (campaignUrn != null) {
 			mCampaignFilter.setValue(campaignUrn);
 		}
 		
-		mPendingFilter.setValue(showPending ? "pending" : "all");
+		mShowPending = getIntent().getBooleanExtra("show_pending", false);
+		
+		updateView();
+	}
+	
+	View.OnClickListener mPendingListener = new View.OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.all_surveys_button:
+				mShowPending = false;
+				updateView();
+				break;
+				
+			case R.id.pending_surveys_button:
+				mShowPending = true;
+				updateView();
+				break;
+			}
+		}
+	};
+	
+	private void updateView() {
+		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(mShowPending);
+		mAllButton.setBackgroundResource(mShowPending ? R.drawable.tab_bg_unselected : R.drawable.tab_bg_selected);
+		mPendingButton.setBackgroundResource(mShowPending ? R.drawable.tab_bg_selected : R.drawable.tab_bg_unselected);
 	}
 
 	@Override
