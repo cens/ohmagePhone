@@ -23,9 +23,20 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="1" />
 		
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/pending_filter"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
+	<LinearLayout android:orientation="horizontal"
+            android:gravity="center" android:layout_margin="0dp" android:padding="0dp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_weight="0">
+        <Button android:id="@+id/all_surveys_button"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:text="@string/surveys_all"
+            android:background="@drawable/tab_bg_unselected"
+            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp" />
+        <Button android:id="@+id/pending_surveys_button"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:text="@string/surveys_pending"
+            android:background="@drawable/tab_bg_unselected"
+            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp" />
+    </LinearLayout>
     
 </LinearLayout>

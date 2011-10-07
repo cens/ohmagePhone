@@ -1,6 +1,7 @@
 package org.ohmage.activity;
 
 
+import org.ohmage.R;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Survey;
@@ -42,7 +43,7 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 
 		super.onActivityCreated(savedInstanceState);
 		
-		setEmptyText("Loading surveys...");
+		setEmptyText(getString(R.string.surveys_empty_all));
 		
 		mAdapter = new SurveyListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
@@ -88,6 +89,11 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 	
 	public void setShowPending(boolean showPending) {
 		mShowPending = showPending;
+		if (showPending) {
+			setEmptyText(getString(R.string.surveys_empty_pending));
+		} else {
+			setEmptyText(getString(R.string.surveys_empty_all));
+		}
 		getLoaderManager().restartLoader(0, null, this);
 	}
 
