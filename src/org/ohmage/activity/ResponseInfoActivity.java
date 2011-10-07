@@ -34,6 +34,7 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.service.SurveyGeotagService;
 
 import android.content.ContentUris;
@@ -72,7 +73,7 @@ public class ResponseInfoActivity extends BaseInfoActivity implements
 LoaderManager.LoaderCallbacks<Cursor> {
 	
 	private ImageLoader mImageLoader;
-	private View mapViewButton;
+	private TextView mapViewButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +99,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		// or start a new one.
 		getSupportLoaderManager().initLoader(0, null, this);
 		
-		mapViewButton = findViewById(R.id.response_info_button_view_map);
+		mapViewButton = (TextView) findViewById(R.id.response_info_button_view_map);
 		mapViewButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -119,13 +120,15 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				Surveys.SURVEY_TITLE,
 				Responses.RESPONSE_TIME,
 				Campaigns.CAMPAIGN_ICON,
-				Responses.RESPONSE_LOCATION_STATUS};
+				Responses.RESPONSE_LOCATION_STATUS,
+				Responses.RESPONSE_STATUS};
 
 		int CAMPAIGN_NAME = 0;
 		int SURVEY_TITLE = 1;
 		int TIME = 2;
 		int CAMPAIGN_ICON = 3;
 		int LOCATION_STATUS = 4;
+		int STATUS = 5;
 	}
 
 	@Override
@@ -154,7 +157,17 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		}
 
 		mEntityHeader.setVisibility(View.VISIBLE);
-		mapViewButton.setEnabled(SurveyGeotagService.LOCATION_VALID.equals(data.getString(ResponseQuery.LOCATION_STATUS)));
+		
+		// Make the map view button status aware so it can provide some useful info about the gps state
+		if(data.getInt(ResponseQuery.STATUS) == Response.STATUS_WAITING_FOR_LOCATION) {
+			mapViewButton.setText("Waiting for Location");
+			mapViewButton.setEnabled(false);
+		} else if(!(SurveyGeotagService.LOCATION_VALID.equals(data.getString(ResponseQuery.LOCATION_STATUS)))) {
+			mapViewButton.setText("Location Not Available");
+			mapViewButton.setEnabled(false);
+		} else {
+			mapViewButton.setEnabled(true);
+		}
 	}
 
 	@Override
