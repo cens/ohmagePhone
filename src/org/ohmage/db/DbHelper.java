@@ -569,8 +569,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	 * @return
 	 * 
 	 */
-	public boolean populateSurveysFromCampaignXML(SQLiteDatabase db,
-			String campaignUrn, String campaignXML) {
+	public boolean populateSurveysFromCampaignXML(SQLiteDatabase db, String campaignUrn, String campaignXML) {
 		try {
 			// dump all the surveys (and consequently survey prompts) before we
 			// do anything

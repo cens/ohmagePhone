@@ -251,15 +251,16 @@ public class DbProvider extends ContentProvider {
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
-					// if it was a campaign, we may need to update the campaign's xml
-					if (values.containsKey(Campaigns.CAMPAIGN_URN) && values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
-						dbHelper.populateSurveysFromCampaignXML(db, values.getAsString(Campaigns.CAMPAIGN_URN), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
-					
-					// remove triggers if the campaign becomes non-ready (this may be time-consuming)
+					// process each element in the update set to maintain ref integrity across entities that don't support it
+					// (e.g. triggers and surveys + responses, since they don't respond to updates, only deletes)
 					Cursor c = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
 					while (c.moveToNext()) {
+						// remove triggers for campaigns that are not ready
 						if (c.getInt(1) != Campaign.STATUS_READY)
 							TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
+						// update xml-related entities (surveys, surveyprompts) if the xml for these items is changed
+						if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
+							dbHelper.populateSurveysFromCampaignXML(db, c.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 					}
 					
 					// notify on the related entity URIs
