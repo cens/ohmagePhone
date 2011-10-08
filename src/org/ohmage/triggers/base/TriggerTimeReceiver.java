@@ -78,7 +78,7 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 			Log.i(DEBUG_TAG, "TriggerTimeReceiver: " + i.getAction());
 			
 			DbHelper dbHelper = new DbHelper(context);
-			for (Campaign c : dbHelper.getCampaigns()) {
+			for (Campaign c : dbHelper.getReadyCampaigns()) {
 				handleTimeChange(context, c.mUrn);
 			}
 		}

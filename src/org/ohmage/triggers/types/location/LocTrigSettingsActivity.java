@@ -186,7 +186,7 @@ public class LocTrigSettingsActivity extends ListActivity
     	LinkedList<Integer> trigIds = new LinkedList<Integer>();
 		
 		DbHelper dbHelper = new DbHelper(this);
-		for (Campaign c : dbHelper.getCampaigns()) {
+		for (Campaign c : dbHelper.getReadyCampaigns()) {
 			trigIds.addAll(mLocTrigger.getAllActiveTriggerIds(this, c.mUrn));
 		}
     	
@@ -207,7 +207,7 @@ public class LocTrigSettingsActivity extends ListActivity
     	LinkedList<Integer> trigIds = new LinkedList<Integer>();
 		
 		DbHelper dbHelper = new DbHelper(this);
-		for (Campaign c : dbHelper.getCampaigns()) {
+		for (Campaign c : dbHelper.getReadyCampaigns()) {
 			trigIds.addAll(mLocTrigger.getAllActiveTriggerIds(this, c.mUrn));
 		}
     	

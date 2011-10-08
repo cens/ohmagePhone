@@ -25,6 +25,7 @@ import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.util.Log;
 
@@ -57,6 +58,23 @@ public class OhmageApplication extends Application {
 		
         mImageLoader = createImageLoader(this);
 
+        int currentVersionCode = 0;
+        
+        try {
+			currentVersionCode = getPackageManager().getPackageInfo("org.ohmage", 0).versionCode;
+		} catch (NameNotFoundException e) {
+			Log.e(TAG, "unable to retrieve current version code", e);
+		}
+		
+		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+		int lastVersionCode = prefs.getLastVersionCode();
+		boolean isFirstRun = prefs.isFirstRun();
+		
+		if (currentVersionCode != lastVersionCode && !isFirstRun) {
+			BackgroundManager.initComponents(this);
+			
+			prefs.setLastVersionCode(currentVersionCode);
+		}
 	}
 	
 	public void resetAll() {

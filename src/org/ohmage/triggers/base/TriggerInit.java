@@ -34,11 +34,11 @@ import android.util.Log;
  * Boot listener. Starts all the active triggers. 
  * Also restores the pending notifications if any
  */
-public class TriggerInit extends BroadcastReceiver {
+public class TriggerInit {
 	
 	private static final String DEBUG_TAG = "TriggerFramework";
 	
-	private static void initTriggers(Context context, String campaignUrn) {
+	public static void initTriggers(Context context, String campaignUrn) {
 		
 		Log.i(DEBUG_TAG, "TriggerInit: Initializing triggers for " + campaignUrn);
 		
@@ -105,18 +105,6 @@ public class TriggerInit extends BroadcastReceiver {
 		Notifier.refreshNotification(context, campaignUrn, true);
 	}
 	
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		
-		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-			Log.i(DEBUG_TAG, "TriggerInit: Received boot completed intent");
-			
-			DbHelper dbHelper = new DbHelper(context);
-			for (Campaign c : dbHelper.getCampaigns()) {
-				initTriggers(context, c.mUrn);
-			}
-		}
-	}
 	
 	/*
 	 * Resets all triggers, settings and preferences to its default.
@@ -165,7 +153,7 @@ public class TriggerInit extends BroadcastReceiver {
 		Log.i(DEBUG_TAG, "TriggerInit: Resetting all triggers");
 		
 		DbHelper dbHelper = new DbHelper(context);
-		for (Campaign c : dbHelper.getCampaigns()) {
+		for (Campaign c : dbHelper.getReadyCampaigns()) {
 			resetTriggersAndSettings(context, c.mUrn);
 		}
 		

@@ -85,7 +85,7 @@ public class LauncherActivity extends Activity {
 			
 		        
 	        	DbHelper dbHelper = new DbHelper(this);
-				List<Campaign> campaigns = dbHelper.getCampaigns();
+				List<Campaign> campaigns = dbHelper.getReadyCampaigns();
 				if (campaigns.size() < 1) {
 					Log.e(TAG, "A default campaign has not been loaded.");
 					Log.i(TAG, "Re-attempting to load default campaign.");
@@ -152,7 +152,7 @@ public class LauncherActivity extends Activity {
 		switch (result) {
 		case SUCCESS:
 			DbHelper dbHelper = new DbHelper(this);
-			List<Campaign> campaigns = dbHelper.getCampaigns();
+			List<Campaign> campaigns = dbHelper.getReadyCampaigns();
 			if (campaigns.size() < 1) {
 				Log.e(TAG, "Campaign was just added to db but cannot be found!");
 			} else {

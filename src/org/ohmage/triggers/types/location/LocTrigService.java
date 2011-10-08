@@ -581,7 +581,7 @@ public class LocTrigService extends Service
 		LocationTrigger lt = new LocationTrigger();
 		
 		DbHelper dbHelper = new DbHelper(this);
-		for (Campaign c : dbHelper.getCampaigns()) {
+		for (Campaign c : dbHelper.getReadyCampaigns()) {
 			actTrigs.addAll(lt.getAllActiveTriggerIds(this, c.mUrn));
 		}
 		
@@ -1112,7 +1112,7 @@ public class LocTrigService extends Service
 		LinkedList<Integer> trigs = new LinkedList<Integer>();
 		
 		DbHelper dbHelper = new DbHelper(this);
-		for (Campaign c : dbHelper.getCampaigns()) {
+		for (Campaign c : dbHelper.getReadyCampaigns()) {
 			trigs.addAll(locTrig.getAllActiveTriggerIds(this, c.mUrn));
 		}
 		
@@ -1333,7 +1333,7 @@ public class LocTrigService extends Service
 		LinkedList<Integer> trigs = new LinkedList<Integer>();
 		
 		DbHelper dbHelper = new DbHelper(this);
-		for (Campaign c : dbHelper.getCampaigns()) {
+		for (Campaign c : dbHelper.getReadyCampaigns()) {
 			trigs.addAll(locTrig.getAllActiveTriggerIds(this, c.mUrn));
 		}
 		

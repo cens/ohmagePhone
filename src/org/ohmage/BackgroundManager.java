@@ -15,9 +15,12 @@
  ******************************************************************************/
 package org.ohmage;
 
+import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.FeedbackSyncReceiver;
 import org.ohmage.service.UploadReceiver;
 import org.ohmage.storagemonitor.StorageMonitorService;
+import org.ohmage.triggers.base.TriggerInit;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -56,6 +59,12 @@ public class BackgroundManager {
 			alarms.cancel(fbServiceSyncPendingIntent);
 			alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);
 			Log.i(TAG, "Feedback sync repeating alarm set");
+		}
+		
+		//init triggers for all campaigns
+		DbHelper dbHelper = new DbHelper(context);
+		for (Campaign c : dbHelper.getReadyCampaigns()) {
+			TriggerInit.initTriggers(context, c.mUrn);
 		}
 	}
 }

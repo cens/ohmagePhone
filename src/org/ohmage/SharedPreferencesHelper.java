@@ -26,13 +26,14 @@ public class SharedPreferencesHelper {
 	public static final String DEFAULT_SERVER_URL = "https://dev.mobilizingcs.org/";
 	public static final boolean IS_SINGLE_CAMPAIGN = false;
 	public static final boolean ALLOWS_FEEDBACK = true;
-	public static final boolean REQUIRE_PIN_ON_CLEAR_USER = true;
+	public static final boolean REQUIRE_PIN_ON_CLEAR_USER = false;
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
 	public static final String PREFERENCES_TRIGGERS = "preferences_triggers";
 	public static final String PREFERENCES_SUBMISSIONS = "preferences_submissions";
 	
+	private static final String KEY_VERSION_CODE = "version_code";
 	private static final String KEY_USERNAME = "username";
 	private static final String KEY_PASSWORD_HASHED = "hashedPassword";
 	private static final String KEY_IS_FIRST_RUN = "is_first_run";
@@ -58,6 +59,14 @@ public class SharedPreferencesHelper {
 	
 	public boolean clearAll() {
 		return mPreferences.edit().clear().commit();
+	}
+	
+	public int getLastVersionCode() {
+		return mPreferences.getInt(KEY_VERSION_CODE, -1);
+	}
+	
+	public boolean setLastVersionCode(int versionCode) {
+		return mPreferences.edit().putInt(KEY_VERSION_CODE, versionCode).commit();
 	}
 	
 	public String getUsername() {

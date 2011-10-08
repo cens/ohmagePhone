@@ -562,10 +562,9 @@ public class DbHelper extends SQLiteOpenHelper {
 		return Campaign.fromCursor(cursor).get(0);
 	}
 
-	public List<Campaign> getCampaigns() {
+	public List<Campaign> getReadyCampaigns() {
 		ContentResolver cr = mContext.getContentResolver();
-		Cursor cursor = cr.query(Campaigns.CONTENT_URI, null, null, null,
-				null);
+		Cursor cursor = cr.query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, null);
 		return Campaign.fromCursor(cursor);
 	}
 

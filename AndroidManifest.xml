@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.ohmage"
-	android:versionName="2.7 beta" android:versionCode="11100600">
+	android:versionName="2.7 beta" android:versionCode="11100702">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -145,11 +145,11 @@
 	    	<intent-filter>
 	    		<action android:name="android.intent.action.BOOT_COMPLETED"/>
 	    	</intent-filter>
-	    	<intent-filter>
+<!-- 	    	<intent-filter>
 				<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
 				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
 				<data android:scheme="package" android:host="org.ohmage"/>
-			</intent-filter>
+			</intent-filter> -->
 	    </receiver>
 	    
 	    <receiver android:name=".activity.TriggerReceiver">
@@ -226,17 +226,6 @@
 		<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
 	    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
 					  android:screenOrientation="portrait"/>
-		
-		<receiver android:name=".triggers.base.TriggerInit">
-			<intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-            <intent-filter>
-				<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
-				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
-				<data android:scheme="package" android:host="org.ohmage"/>
-			</intent-filter>
-		</receiver>
 		
 		<receiver android:name=".triggers.base.TriggerTimeReceiver">
 	    	<intent-filter>
