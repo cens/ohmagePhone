@@ -42,7 +42,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		
 		if (getActivity().getComponentName().getClassName().equals(CampaignAddActivity.class.getName())) {
 			mMode = MODE_ADD_CAMPAIGNS;
-			setEmptyText("Loading campaigns...");
+			setEmptyText("No campaigns available at this time.");
 		} else {
 			mMode = MODE_MY_CAMPAIGNS;
 			setEmptyText("You are not participating in any campaigns.\n\nHit the + icon on the top right to view and download avaialable campaigns.");

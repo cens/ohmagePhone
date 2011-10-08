@@ -121,8 +121,7 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		
-		String message = "This campaign is currently unavailable.";
-		final Uri campaignUrn = Uri.parse(args.getString("campaign_urn"));
+		String message = "This campaign is unavailable.";
 		
 		switch (id) {
 		case Campaign.STATUS_STOPPED:
@@ -147,10 +146,18 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 					public void onClick(DialogInterface dialog, int which) {
 						
 						ContentResolver cr = getContentResolver();
-						cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "= '" + campaignUrn + "'", null);
+						cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "= '" + campaignUrnForDialogs + "'", null);
 					}
 				}).setNegativeButton("Ignore", null);
 		
 		return builder.create();
 	}
+	
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		super.onPrepareDialog(id, dialog, args);
+		campaignUrnForDialogs = args.getString("campaign_urn");
+	}
+	
+	private String campaignUrnForDialogs;
 }

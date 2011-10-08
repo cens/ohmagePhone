@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.CampaignManager;
+import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.Result;
@@ -193,10 +194,10 @@ public class UploadService extends WakefulIntentService {
 					}
 					
 					if (isUserDisabled) {
-						SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-						prefs.setUserDisabled(true);
-						errorStatusCode = Response.STATUS_ERROR_AUTHENTICATION;
-					} else if (isAuthenticationError) {
+						new SharedPreferencesHelper(this).setUserDisabled(true);
+					}
+					
+					if (isAuthenticationError) {
 						errorStatusCode = Response.STATUS_ERROR_AUTHENTICATION;
 					} else if (errorCode.equals("0700")) {
 						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
@@ -238,44 +239,12 @@ public class UploadService extends WakefulIntentService {
 		
 		if (isBackground) {
 			if (authErrorOccurred) {
-				showAuthNotification();
+				NotificationHelper.showAuthNotification(this);
 			} else if (uploadErrorOccurred) {
-				showErrorNotification();
+				NotificationHelper.showUploadErrorNotification(this);
 			}
 		}
 	}
 	
-	private void showAuthNotification() {
-		NotificationManager noteManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification note = new Notification();
-		
-		Intent intentToLaunch = new Intent(this, LoginActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
-		String title = "Authentication error!";
-		String body = "Tap here to re-enter credentials.";
-		note.icon = android.R.drawable.stat_notify_error;
-		note.tickerText = "Authentication error!";
-		note.defaults |= Notification.DEFAULT_ALL;
-		note.when = System.currentTimeMillis();
-		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
-		note.setLatestEventInfo(this, title, body, pendingIntent);
-		noteManager.notify(1, note);
-	}
-
-	private void showErrorNotification() {
-		NotificationManager noteManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification note = new Notification();
-		
-		Intent intentToLaunch = new Intent(this, UploadQueueActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
-		String title = "Upload error!";
-		String body = "An error occurred while trying to upload survey responses.";
-		note.icon = android.R.drawable.stat_notify_error;
-		note.tickerText = "Upload error!";
-		note.defaults |= Notification.DEFAULT_ALL;
-		note.when = System.currentTimeMillis();
-		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
-		note.setLatestEventInfo(this, title, body, pendingIntent);
-		noteManager.notify(2, note);
-	}
+	
 }
