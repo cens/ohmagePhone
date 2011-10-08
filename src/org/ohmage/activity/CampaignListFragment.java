@@ -45,7 +45,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 			setEmptyText("Loading campaigns...");
 		} else {
 			mMode = MODE_MY_CAMPAIGNS;
-			setEmptyText("You are not participating in any campaigns. Hit the + icon on the top right to view and download avaialable campaigns.");
+			setEmptyText("You are not participating in any campaigns.\n\nHit the + icon on the top right to view and download avaialable campaigns.");
 		}
 		
 		mAdapter = new CampaignListCursorAdapter(getActivity(), null, this, 0);
@@ -98,7 +98,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 				case Campaign.STATUS_STOPPED:
 				case Campaign.STATUS_OUT_OF_DATE:
 				case Campaign.STATUS_INVALID_USER_ROLE:
-				case Campaign.STATUS_DELETED:
+				case Campaign.STATUS_NO_EXIST:
 				case Campaign.STATUS_VAGUE:
 					mListener.onCampaignActionError(campaignUrn, status);
 					break;

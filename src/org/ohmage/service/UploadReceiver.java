@@ -66,6 +66,7 @@ private static final String TAG = "UploadReceiver";
 				
 				Intent i = new Intent(context, UploadService.class);
 				i.setData(Responses.CONTENT_URI);
+				i.putExtra("is_background", true);
 				WakefulIntentService.sendWakefulWork(context, i);
 			} else {
 				Log.i(TAG, "Power is low.");
@@ -99,6 +100,7 @@ private static final String TAG = "UploadReceiver";
 				
 				Intent i = new Intent(context, UploadService.class);
 				i.setData(Responses.CONTENT_URI);
+				i.putExtra("is_background", true);
 				WakefulIntentService.sendWakefulWork(context, i);
 				
 			} else {

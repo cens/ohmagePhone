@@ -8,9 +8,14 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.CampaignManager;
 import org.ohmage.OhmageApi;
+import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.activity.CampaignListActivity;
+import org.ohmage.activity.LoginActivity;
+import org.ohmage.activity.UploadQueueActivity;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -19,12 +24,19 @@ import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.systemlog.Log;
 
 public class UploadService extends WakefulIntentService {
 	
@@ -42,6 +54,9 @@ public class UploadService extends WakefulIntentService {
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
+		boolean isBackground = intent.getBooleanExtra("is_background", false);
+		boolean uploadErrorOccurred = false;
+		boolean authErrorOccurred = false;
 		
 		OhmageApi api = new OhmageApi(this);
 		DbHelper dbHelper = new DbHelper(this);
@@ -85,7 +100,8 @@ public class UploadService extends WakefulIntentService {
 			
 			ContentValues values = new ContentValues();
 			values.put(Responses.RESPONSE_STATUS, Response.STATUS_UPLOADING);
-			cr.update(Responses.CONTENT_URI, values, Tables.RESPONSES + "." + Responses._ID + "=" + responseId, null);
+			cr.update(Responses.buildResponseUri(responseId), values, null, null);
+//			cr.update(Responses.CONTENT_URI, values, Tables.RESPONSES + "." + Responses._ID + "=" + responseId, null);
 			
 			JSONArray responsesJsonArray = new JSONArray(); 
 			JSONObject responseJson = new JSONObject();
@@ -146,16 +162,120 @@ public class UploadService extends WakefulIntentService {
 			if (response.getResult() == Result.SUCCESS) {
 				dbHelper.setResponseRowUploaded(responseId);
 			} else {
-				ContentValues values2 = new ContentValues();
-				values2.put(Responses.RESPONSE_STATUS, Response.STATUS_ERROR_OTHER);
-				String select2 = Tables.RESPONSES + "." + Responses._ID + "=" + responseId;
-				cr.update(Responses.CONTENT_URI, values2, select2, null);
+				int errorStatusCode = Response.STATUS_ERROR_OTHER;
+				
+				switch (response.getResult()) {
+				case FAILURE:
+					Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+					
+					uploadErrorOccurred = true;
+					
+					boolean isAuthenticationError = false;
+					boolean isUserDisabled = false;
+					
+					String errorCode = null;
+					
+					for (String code : response.getErrorCodes()) {
+						if (code.charAt(1) == '2') {
+							authErrorOccurred = true;
+							
+							isAuthenticationError = true;
+							
+							if (code.equals("0201")) {
+								isUserDisabled = true;
+							}
+						}
+						
+						if (code.equals("0700") || code.equals("0707") || code.equals("0703") || code.equals("0710")) {
+							errorCode = code;
+							break;
+						}
+					}
+					
+					if (isUserDisabled) {
+						SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+						prefs.setUserDisabled(true);
+						errorStatusCode = Response.STATUS_ERROR_AUTHENTICATION;
+					} else if (isAuthenticationError) {
+						errorStatusCode = Response.STATUS_ERROR_AUTHENTICATION;
+					} else if (errorCode.equals("0700")) {
+						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
+						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_NO_EXIST);
+					} else if (errorCode.equals("0707")) {
+						errorStatusCode = Response.STATUS_ERROR_INVALID_USER_ROLE;
+						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_INVALID_USER_ROLE);
+					} else if (errorCode.equals("0703")) {
+						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
+						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_STOPPED);
+					} else if (errorCode.equals("0710")) {
+						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
+						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_OUT_OF_DATE);
+					} else {
+						errorStatusCode = Response.STATUS_ERROR_OTHER;
+					} 
+					
+					break;
+
+				case INTERNAL_ERROR:
+					uploadErrorOccurred = true;
+					errorStatusCode = Response.STATUS_ERROR_OTHER;
+					break;
+					
+				case HTTP_ERROR:
+					errorStatusCode = Response.STATUS_ERROR_HTTP;
+					break;
+				}
+				
+				ContentValues cv2 = new ContentValues();
+				cv2.put(Responses.RESPONSE_STATUS, errorStatusCode);
+				cr.update(Responses.buildResponseUri(responseId), cv2, null, null);
 			}
 			
 			cursor.moveToNext();
 		}
 		
 		cursor.close();
+		
+		if (isBackground) {
+			if (authErrorOccurred) {
+				showAuthNotification();
+			} else if (uploadErrorOccurred) {
+				showErrorNotification();
+			}
+		}
+	}
+	
+	private void showAuthNotification() {
+		NotificationManager noteManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification note = new Notification();
+		
+		Intent intentToLaunch = new Intent(this, LoginActivity.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+		String title = "Authentication error!";
+		String body = "Tap here to re-enter credentials.";
+		note.icon = android.R.drawable.stat_notify_error;
+		note.tickerText = "Authentication error!";
+		note.defaults |= Notification.DEFAULT_ALL;
+		note.when = System.currentTimeMillis();
+		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
+		note.setLatestEventInfo(this, title, body, pendingIntent);
+		noteManager.notify(1, note);
 	}
 
+	private void showErrorNotification() {
+		NotificationManager noteManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification note = new Notification();
+		
+		Intent intentToLaunch = new Intent(this, UploadQueueActivity.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intentToLaunch, 0);
+		String title = "Upload error!";
+		String body = "An error occurred while trying to upload survey responses.";
+		note.icon = android.R.drawable.stat_notify_error;
+		note.tickerText = "Upload error!";
+		note.defaults |= Notification.DEFAULT_ALL;
+		note.when = System.currentTimeMillis();
+		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
+		note.setLatestEventInfo(this, title, body, pendingIntent);
+		noteManager.notify(2, note);
+	}
 }

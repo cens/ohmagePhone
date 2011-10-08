@@ -26,7 +26,7 @@ public class Models {
 		public static final int STATUS_STOPPED = 2;
 		public static final int STATUS_OUT_OF_DATE = 3;
 		public static final int STATUS_INVALID_USER_ROLE = 4;
-		public static final int STATUS_DELETED = 5;
+		public static final int STATUS_NO_EXIST = 5;
 		public static final int STATUS_VAGUE = 6;
 		public static final int STATUS_DOWNLOADING = 7;
 		
@@ -246,6 +246,9 @@ public class Models {
 		public static final int STATUS_WAITING_FOR_LOCATION = 7;
 		public static final int STATUS_DOWNLOADED = 8;
 		public static final int STATUS_ERROR_OTHER = 9;
+		public static final int STATUS_ERROR_CAMPAIGN_STOPPED = 10;
+		public static final int STATUS_ERROR_CAMPAIGN_OUT_OF_DATE = 11;
+		public static final int STATUS_ERROR_HTTP = 12;
 
 		public long _id;
 		/** the campaign URN for which to record the survey response */

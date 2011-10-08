@@ -529,6 +529,23 @@ public class DbHelper extends SQLiteOpenHelper {
 		return cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "='" + urn + "'",
 				null) > 0;
 	}
+	
+	/**
+	 * Updates the status for a given campaign
+	 * 
+	 * @param campaignUrn
+	 *            the campaign to update
+	 * @param status
+	 *            the status code the campaign should be set to
+	 * @return true if the operation succeeded, false otherwise
+	 */
+	public boolean updateCampaignStatus(String campaignUrn,
+			int status) {
+		ContentValues values = new ContentValues();
+		ContentResolver cr = mContext.getContentResolver();				
+		values.put(Campaigns.CAMPAIGN_STATUS, status);
+		return cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "='" + campaignUrn + "'" , null) > 0;
+	}
 
 	public Campaign getCampaign(String urn) {
 		ContentResolver cr = mContext.getContentResolver();

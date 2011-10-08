@@ -134,7 +134,7 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 		case Campaign.STATUS_INVALID_USER_ROLE:
 			message = "Invalid user role.";
 			break;
-		case Campaign.STATUS_DELETED:
+		case Campaign.STATUS_NO_EXIST:
 			message = "This campaign no longer exists.";
 			break;
 		}

@@ -70,7 +70,7 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		case Campaign.STATUS_STOPPED:
 		case Campaign.STATUS_OUT_OF_DATE:
 		case Campaign.STATUS_INVALID_USER_ROLE:
-		case Campaign.STATUS_DELETED:
+		case Campaign.STATUS_NO_EXIST:
 		case Campaign.STATUS_VAGUE:
 			actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
 			break;

@@ -347,7 +347,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				case Campaign.STATUS_OUT_OF_DATE:
 					mStatusValue.setText("out of date");
 					break;
-				case Campaign.STATUS_DELETED:
+				case Campaign.STATUS_NO_EXIST:
 					mStatusValue.setText("deleted on server");
 					break;
 				case Campaign.STATUS_STOPPED:
