@@ -1,15 +1,20 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
-import android.app.Activity;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.controls.ActionBarControl;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class DashboardActivity extends Activity {
+public class DashboardActivity extends FragmentActivity {
 	private static final String TAG = "DashboardActivity";
 	
 	private Button mCampaignBtn;
@@ -19,6 +24,10 @@ public class DashboardActivity extends Activity {
 	private Button mProfileBtn;
 	// Button settingsBtn = (Button) findViewById(R.id.dash_settings_btn);
 	private Button mHelpBtn;
+
+	private SharedPreferencesHelper mSharedPreferencesHelper;
+
+	private ActionBarControl mActionBar;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +57,35 @@ public class DashboardActivity extends Activity {
 		mProfileBtn.setOnClickListener(buttonListener);
 		// settingsBtn.setOnClickListener(buttonListener);
 		mHelpBtn.setOnClickListener(buttonListener);
+		
+		
+		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		// get a reference to the action bar so we can attach to it
+		mActionBar = (ActionBarControl) findViewById(R.id.action_bar);
+		
+		// refresh campaigns
+		if(mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 < System.currentTimeMillis()) {
+			refreshCampaigns();
+		}
+	}
+	
+	private void refreshCampaigns() {
+		mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
+		new CampaignReadTask(this) {
+
+			@Override
+			protected void onPreExecute() {
+				super.onPreExecute();
+				mActionBar.setProgressVisible(true);
+			}
+
+			@Override
+			protected void onPostExecute(CampaignReadResponse response) {
+				super.onPostExecute(response);
+				mActionBar.setProgressVisible(false);
+			}
+			
+		}.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
 	}
 	
 	@Override

@@ -7,8 +7,6 @@ import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
 
 import android.app.AlertDialog;
@@ -16,11 +14,9 @@ import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -63,11 +59,10 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 				}
 			}
 		});
-		
-		refreshCampaigns();
 	}
 
 	private void refreshCampaigns() {
+		mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
 		new CampaignReadTask(this) {
 
 			@Override
