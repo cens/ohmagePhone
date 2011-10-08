@@ -187,6 +187,16 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 		getLoaderManager().restartLoader(0, null, this);
 	}
 
+	public void setCampaignFilter(String campaignUrn) {
+		mCampaignUrnFilter = campaignUrn;
+		getLoaderManager().restartLoader(0, null, this);
+	}
+	
+	public void setSurveyFilter(String surveyId) {
+		mSurveyIdFilter = surveyId;
+		getLoaderManager().restartLoader(0, null, this);
+	}
+	
 	/**
 	 * Specify date bounds for the responses that will be shown. If either startDateFilter
 	 * or endDateFilter is null, that bound will be ignored. No date bound will be set if both are null
