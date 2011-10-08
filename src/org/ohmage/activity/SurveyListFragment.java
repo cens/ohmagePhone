@@ -23,10 +23,8 @@ import android.widget.ListView;
 public class SurveyListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor> {
 
 	private static final String TAG = "SurveyListFragment";
-	
-	public static final String FILTER_ALL_CAMPAIGNS = "all";
-	
-	private String mCampaignFilter = FILTER_ALL_CAMPAIGNS;
+		
+	private String mCampaignFilter = null;
 	private boolean mShowPending = false;
 	
 	private CursorAdapter mAdapter;
@@ -104,7 +102,7 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 		
 		SelectionBuilder builder = new SelectionBuilder();
 		
-		if (!mCampaignFilter.equals(FILTER_ALL_CAMPAIGNS)) {
+		if (mCampaignFilter != null) {
 			builder.where(Surveys.CAMPAIGN_URN + "= ?", mCampaignFilter);
 		}
 		

@@ -24,7 +24,8 @@
 		android:layout_width="fill_parent"
 		android:layout_height="@dimen/upload_all_container_height"
 		android:background="@drawable/entity_header_background"
-		android:layout_alignParentBottom="true">
+		android:layout_alignParentBottom="true"
+		android:visibility="invisible">
 		<Button
 			android:id="@+id/upload_button"
 			android:layout_width="200dp"
@@ -34,8 +35,9 @@
 			android:text="Upload All" />
 	</RelativeLayout>
 
-	<FrameLayout
-		android:id="@+id/root_container"
+	<fragment
+		android:id="@+id/upload_queue_response_list_fragment"
+		android:name="org.ohmage.activity.UploadQueueActivity$UploadingResponseListFragment"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:layout_below="@id/campaign_filter" 
