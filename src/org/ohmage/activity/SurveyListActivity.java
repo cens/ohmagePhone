@@ -34,6 +34,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 		mPendingButton.setOnClickListener(mPendingListener);
 
 		mShowPending = getIntent().getBooleanExtra("show_pending", false);
+		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(mShowPending);
 		setPendingButtons();
 	}
 
