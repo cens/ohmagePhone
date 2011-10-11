@@ -96,7 +96,7 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 	@Override
 	public void onCampaignActionSurveys(String campaignUrn) {
 		Intent intent = new Intent(this, SurveyListActivity.class);
-		intent.putExtra("campaign_urn", campaignUrn);
+		intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
 		startActivity(intent);
 	}
 

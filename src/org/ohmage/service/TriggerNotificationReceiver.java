@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage.service;
 
+import org.ohmage.activity.CampaignFilterActivity;
 import org.ohmage.activity.SurveyListActivity;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.triggers.notif.Notifier;
@@ -39,8 +40,8 @@ public class TriggerNotificationReceiver extends BroadcastReceiver {
 
 		if (TriggerFramework.ACTION_TRIGGER_NOTIFICATION.equals(action)) {
 			Intent i = new Intent(context, SurveyListActivity.class);
-			i.putExtra("campaign_urn", campaignUrn);
-			i.putExtra("show_pending", true);
+			i.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
+			i.putExtra(SurveyListActivity.EXTRA_SHOW_PENDING, true);
 			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			context.startActivity(i);
 		}

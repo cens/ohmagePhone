@@ -50,7 +50,6 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 		});
 
 		mDefaultCampaign = getIntent().getStringExtra(EXTRA_CAMPAIGN_URN);
-//		mDefaultCampaign = "urn:mo:chipts";
 
 		getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
 	}

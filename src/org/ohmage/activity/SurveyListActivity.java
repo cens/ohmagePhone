@@ -19,6 +19,8 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 	private Button mAllButton;
 	private Button mPendingButton;
 	private boolean mShowPending = false;
+	
+	public static final String EXTRA_SHOW_PENDING = "extra_show_pending";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +35,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 		mAllButton.setOnClickListener(mPendingListener);
 		mPendingButton.setOnClickListener(mPendingListener);
 
-		mShowPending = getIntent().getBooleanExtra("show_pending", false);
+		mShowPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
 		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(mShowPending);
 		setPendingButtons();
 	}

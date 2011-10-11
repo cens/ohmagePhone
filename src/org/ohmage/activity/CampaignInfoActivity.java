@@ -155,7 +155,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 						switch (commandID) {
 							case ACTION_TAKE_SURVEY:
 								intent = new Intent(mContext, SurveyListActivity.class);
-								intent.putExtra("campaign_urn", campaignUrn);
+								intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
 								startActivity(intent);
 								break;
 							case ACTION_VIEW_RESPHISTORY:
@@ -186,7 +186,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent(mContext, SurveyListActivity.class);
-						intent.putExtra("campaign_urn", campaignUrn);
+						intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
 						startActivity(intent);
 					}
 				});

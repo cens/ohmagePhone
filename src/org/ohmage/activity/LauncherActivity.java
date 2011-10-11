@@ -98,7 +98,7 @@ public class LauncherActivity extends Activity {
 					}
 			        Campaign defaultCampaign = campaigns.get(0);
 					Intent intent = new Intent(this, SurveyListActivity.class);
-					intent.putExtra("campaign_urn", defaultCampaign.mUrn);
+					intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, defaultCampaign.mUrn);
 					startActivity(intent);
 					finish();
 				}
@@ -162,7 +162,7 @@ public class LauncherActivity extends Activity {
 				}
 				Campaign defaultCampaign = campaigns.get(0);
 				Intent intent = new Intent(this, SurveyListActivity.class);
-				intent.putExtra("campaign_urn", defaultCampaign.mUrn);
+				intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, defaultCampaign.mUrn);
 				startActivity(intent);
 				finish();
 			}
