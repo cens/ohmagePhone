@@ -369,6 +369,61 @@ public class DbProvider extends ContentProvider {
 		
 		return count;
 	}
+	
+	// ====================================
+	// === bulk insert/update/delete methods that make use of the smaller ones
+	// ====================================
+	
+	/**
+	 * Inserts all entries in the values ContentValues array into the table specified by Uri.
+	 */
+	@Override
+	public int bulkInsert(Uri uri, ContentValues[] values) {
+		int count = 0;
+
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		
+		ContentResolver cr = getContext().getContentResolver();
+		
+		try {
+			db.beginTransaction();
+		
+			switch (sUriMatcher.match(uri)) {
+				case MatcherTypes.RESPONSES:
+					for (ContentValues value : values) {
+						if (dbHelper.addResponseRow(db, value) > 0)
+							count += 1;
+					}
+					
+					// notify on the related entity URIs
+					cr.notifyChange(Responses.CONTENT_URI, null);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					
+					break;
+				case MatcherTypes.CAMPAIGNS:
+					for (ContentValues value : values) {
+						if (dbHelper.addCampaign(db, value) > 0)
+							count += 1;
+					}
+
+					// notify on the related entity URIs
+					cr.notifyChange(Campaigns.CONTENT_URI, null);
+					cr.notifyChange(Surveys.CONTENT_URI, null);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
+					
+					break;
+				default:
+					throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
+			}
+			
+			db.endTransaction();
+		}
+		finally {
+			// i don't think we need to close the db handle, but it might be necessary someday
+		}
+		
+		return count;
+	}
 
 	// ====================================
 	// === definitions for URI resolver and entity type maps
