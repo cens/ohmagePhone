@@ -71,6 +71,8 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
     		}
     		
     		cursor.close();
+    		
+    		ArrayList<ContentValues> allCampaignValues = new ArrayList<ContentValues>();
 
 			try { // parse response
 				JSONArray jsonItems = response.getMetadata().getJSONArray("items");
@@ -111,7 +113,8 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 							
 							if (running) { //campaign is running
 								
-								cr.insert(Campaigns.CONTENT_URI, c.toCV()); //insert remote campaign into content provider
+//								cr.insert(Campaigns.CONTENT_URI, c.toCV()); //insert remote campaign into content provider
+								allCampaignValues.add(c.toCV());
 							}
 						}
 					} catch (JSONException e) {
@@ -121,6 +124,9 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing response json: 'items' key doesn't exist or is not a JSONArray", e);
 			}
+			
+			ContentValues [] vals = allCampaignValues.toArray(new ContentValues[allCampaignValues.size()]);
+			cr.bulkInsert(Campaigns.CONTENT_URI, vals);
 			
 			//leftover local campaigns were not returned by campaign read, therefore must be in some unavailable state
 			for (String urn : localCampaignUrns) { 

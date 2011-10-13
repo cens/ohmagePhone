@@ -416,6 +416,12 @@ public class DbProvider extends ContentProvider {
 					throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
 			}
 			
+			if (count == values.length) {
+				db.setTransactionSuccessful();
+			} else {
+				count = 0;
+			}
+			
 			db.endTransaction();
 		}
 		finally {
