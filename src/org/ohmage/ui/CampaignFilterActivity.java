@@ -1,10 +1,15 @@
-package org.ohmage.activity;
+package org.ohmage.ui;
 
 import org.ohmage.R;
+import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
+
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
@@ -23,17 +28,13 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 
 	protected static final int CAMPAIGN_LOADER = 0;
 
-	/**
-	 * Filters the response list by the given campaign uri
-	 */
-	public static final String EXTRA_CAMPAIGN_URN = "extra_campaign_urn";
-
 	protected FilterControl mCampaignFilter;
 	protected String mDefaultCampaign;
 
 	@Override
 	public void onContentChanged() {
 		super.onContentChanged();
+		((ActionBarControl)findViewById(R.id.action_bar)).setTitle(getTitle());
 
 		mCampaignFilter = (FilterControl) findViewById(R.id.campaign_filter);
 		if(mCampaignFilter == null)
@@ -49,20 +50,16 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 			}
 		});
 
-		mDefaultCampaign = getIntent().getStringExtra(EXTRA_CAMPAIGN_URN);
+		mDefaultCampaign = getIntent().getStringExtra(CampaignFilter.EXTRA_CAMPAIGN_URN);
+		
+		if(mDefaultCampaign == null)
+			mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", null));
 
 		getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
 	}
 	
-	@Override
-	public void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		
-		initLoading();
-	}
-
-	protected void initLoading() {
-		onCampaignFilterChanged(mDefaultCampaign);
+	public String getCampaignUrn() {
+		return mCampaignFilter.getValue();
 	}
 
 	protected void onCampaignFilterChanged(String filter) {
@@ -77,9 +74,9 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		// Now that the campaigns loaded, we can show the filters
-		mCampaignFilter.setVisibility(View.VISIBLE);
 
+		mCampaignFilter.setVisibility(View.VISIBLE);
+		
 		// Populate the filter
 		mCampaignFilter.populate(data, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String,String>("All Campaigns", null));
@@ -94,4 +91,26 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mCampaignFilter.clearAll();
 	}
+	
+    /**
+     * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
+     */
+    public static Bundle intentToFragmentArguments(Intent intent) {
+        Bundle arguments = new Bundle();
+        if (intent == null) {
+            return arguments;
+        }
+
+        final Uri data = intent.getData();
+        if (data != null) {
+            arguments.putParcelable("_uri", data);
+        }
+
+        final Bundle extras = intent.getExtras();
+        if (extras != null) {
+            arguments.putAll(intent.getExtras());
+        }
+
+        return arguments;
+    }
 }

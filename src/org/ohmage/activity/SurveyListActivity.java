@@ -3,6 +3,8 @@ package org.ohmage.activity;
 import org.ohmage.R;
 import org.ohmage.activity.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.ui.CampaignFilterActivity;
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;

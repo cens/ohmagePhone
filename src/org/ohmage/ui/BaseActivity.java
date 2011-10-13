@@ -1,8 +1,10 @@
-package org.ohmage.activity;
+package org.ohmage.ui;
 
 import org.ohmage.R;
 import org.ohmage.controls.ActionBarControl;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -55,4 +57,26 @@ public abstract class BaseActivity extends FragmentActivity {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.base_activity, container, false);
 	}
+	
+    /**
+     * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
+     */
+    public static Bundle intentToFragmentArguments(Intent intent) {
+        Bundle arguments = new Bundle();
+        if (intent == null) {
+            return arguments;
+        }
+
+        final Uri data = intent.getData();
+        if (data != null) {
+            arguments.putParcelable("_uri", data);
+        }
+
+        final Bundle extras = intent.getExtras();
+        if (extras != null) {
+            arguments.putAll(intent.getExtras());
+        }
+
+        return arguments;
+    }
 }

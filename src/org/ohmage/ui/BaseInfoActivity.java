@@ -1,4 +1,4 @@
-package org.ohmage.activity;
+package org.ohmage.ui;
 
 import org.ohmage.R;
 import android.os.Bundle;

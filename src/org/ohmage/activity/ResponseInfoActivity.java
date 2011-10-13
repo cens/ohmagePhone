@@ -36,6 +36,7 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.ui.BaseInfoActivity;
 
 import android.content.ContentUris;
 import android.content.Context;

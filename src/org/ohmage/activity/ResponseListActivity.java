@@ -4,6 +4,8 @@ import org.ohmage.R;
 import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
+import org.ohmage.ui.CampaignSurveyFilterActivity;
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -54,11 +56,6 @@ public class ResponseListActivity extends CampaignSurveyFilterActivity implement
 			cal.setTimeInMillis(getIntent().getLongExtra(EXTRA_DATE_FLITER, 0));
 
 		mDateFilter.setDate(cal);
-	}
-	
-	@Override
-	protected void initLoading() {
-		getResponseListFragment().setFilters(mDefaultCampaign, mDefaultSurvey);
 	}
 
 	private ResponseListFragment getResponseListFragment() {

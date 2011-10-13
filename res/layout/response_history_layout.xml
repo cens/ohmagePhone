@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+  	<org.ohmage.controls.ActionBarControl
+		android:id="@+id/action_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:showlogo="false" />
+
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/campaign_filter"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<org.ohmage.controls.FilterControl
+		android:id="@+id/survey_filter"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<org.ohmage.controls.DateFilterControl
+		android:id="@+id/date_filter"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<TabHost
+		android:id="@android:id/tabhost"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<LinearLayout
+	   		android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<FrameLayout
+				android:id="@android:id/tabcontent"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				android:layout_weight="0"/>
+
+			<FrameLayout
+				android:id="@+android:id/realtabcontent"
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:layout_weight="1"/>
+
+			<TabWidget
+				android:id="@android:id/tabs"
+				android:orientation="horizontal"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:tabStripEnabled="false"
+				android:layout_weight="0"/>
+
+		</LinearLayout>
+	</TabHost>
+</LinearLayout>

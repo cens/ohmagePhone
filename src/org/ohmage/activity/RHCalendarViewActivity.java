@@ -9,6 +9,8 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.ResponseHistory;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
+import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -612,9 +614,9 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 					Intent intent = new Intent(RHCalendarViewActivity.this, ResponseListActivity.class);
 					String surveyFilter = mSurveyFilter.getValue().substring(mSurveyFilter.getValue().lastIndexOf(":")+1);
 					if(!"all".equals(mCampaignFilter.getValue()))
-						intent.putExtra(ResponseListActivity.EXTRA_CAMPAIGN_URN, mCampaignFilter.getValue());
+						intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, mCampaignFilter.getValue());
 					if(!"all".equals(surveyFilter))
-						intent.putExtra(ResponseListActivity.EXTRA_SURVEY_ID, surveyFilter);
+						intent.putExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID, surveyFilter);
 					intent.putExtra(ResponseListActivity.EXTRA_DATE_FLITER, (Long) view.getTag());
 					startActivity(intent);					
 				}

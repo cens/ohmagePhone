@@ -5,6 +5,7 @@ import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
+import org.ohmage.ui.BaseInfoActivity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

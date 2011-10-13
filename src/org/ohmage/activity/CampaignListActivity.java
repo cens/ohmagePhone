@@ -8,13 +8,13 @@ import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -96,7 +96,7 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 	@Override
 	public void onCampaignActionSurveys(String campaignUrn) {
 		Intent intent = new Intent(this, SurveyListActivity.class);
-		intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
+		intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 		startActivity(intent);
 	}
 

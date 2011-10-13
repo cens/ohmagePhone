@@ -17,6 +17,8 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
+import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
@@ -155,12 +157,12 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 						switch (commandID) {
 							case ACTION_TAKE_SURVEY:
 								intent = new Intent(mContext, SurveyListActivity.class);
-								intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
+								intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 								startActivity(intent);
 								break;
 							case ACTION_VIEW_RESPHISTORY:
 								intent = new Intent(mContext, RHTabHost.class);
-								intent.putExtra(RHTabHost.EXTRA_CAMPAIGN_URN, campaignUrn);
+								intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 								startActivity(intent);
 								break;
 							case ACTION_SETUP_TRIGGERS:
@@ -186,7 +188,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent(mContext, SurveyListActivity.class);
-						intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
+						intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 						startActivity(intent);
 					}
 				});

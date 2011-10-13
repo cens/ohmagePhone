@@ -13,8 +13,9 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
-import org.xmlpull.v1.XmlPullParserException;
-
+import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
+import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -138,8 +139,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 					switch (commandID) {
 						case ACTION_VIEW_RESPHISTORY:
 							intent = new Intent(mContext, RHTabHost.class);
-							intent.putExtra(RHTabHost.EXTRA_CAMPAIGN_URN, campaignUrn);
-							intent.putExtra(RHTabHost.EXTRA_SURVEY_ID, surveyID);
+							intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
+							intent.putExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID, surveyID);
 							startActivity(intent);
 							break;
 						case ACTION_SETUP_TRIGGERS:

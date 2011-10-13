@@ -8,6 +8,7 @@ import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.service.UploadService;
+import org.ohmage.ui.CampaignFilterActivity;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -20,7 +21,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;

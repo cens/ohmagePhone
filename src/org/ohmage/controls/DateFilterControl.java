@@ -74,8 +74,8 @@ public class DateFilterControl extends LinearLayout {
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.controls_filter, this, true);
 		
-		// and init an empty list so we don't crash and burn when we try to read before populating
-		mSelectedDate = Calendar.getInstance();
+		if(mSelectedDate == null)
+			mSelectedDate = Calendar.getInstance();
 		
 		mPrevBtn = (Button) findViewById(R.id.controls_filter_prev);
 		mCurrentBtn = (Button) findViewById(R.id.controls_filter_current);
@@ -120,21 +120,6 @@ public class DateFilterControl extends LinearLayout {
 	 */
 	public void setDate(Calendar newDate) {
 		mSelectedDate = newDate;
-
-		// The date that we set should be rounded based on the calendar Unit
-		// The smallest unit we allow is the day, so anything less than that should be removed
-		mSelectedDate.set(Calendar.HOUR_OF_DAY, 0);
-		mSelectedDate.set(Calendar.MINUTE, 0);
-		mSelectedDate.set(Calendar.SECOND, 0);
-		mSelectedDate.set(Calendar.MILLISECOND, 0);
-		switch (CALENDAR_UNIT) {
-			case Calendar.MONTH:
-				mSelectedDate.set(Calendar.DAY_OF_MONTH, 1);
-				break;
-			case Calendar.YEAR: 
-				mSelectedDate.set(Calendar.MONTH, Calendar.JANUARY);
-				break;
-		}
 		syncState();
 	}
 	
@@ -253,9 +238,34 @@ public class DateFilterControl extends LinearLayout {
 	    return (int) (padding_in_dp * scale + 0.5f);
 	}
 	
-	public void setCalendarUnit(int unit){
-		CALENDAR_UNIT = unit;
-		this.removeAllViews();
-		initControl(mActivity);
+	public boolean setCalendarUnit(int unit){
+		if(CALENDAR_UNIT != unit) {
+			CALENDAR_UNIT = unit;
+			this.removeAllViews();
+			initControl(mActivity);
+			return true;
+		}
+		return false;
+	}
+
+	public void setMonth(int month, int year) {
+		setCalendarUnit(Calendar.MONTH);
+		if(month != -1)
+			mSelectedDate.set(Calendar.MONTH, month);
+		if(year != -1)
+			mSelectedDate.set(Calendar.YEAR, year);
+		syncState();
+	}
+	
+	public void setDate(int day, int month, int year) {
+		setCalendarUnit(Calendar.DATE);
+		if(day != -1)
+			mSelectedDate.set(Calendar.DATE, day);
+		if(month != -1)
+			mSelectedDate.set(Calendar.MONTH, month);
+		if(year != -1)
+			mSelectedDate.set(Calendar.YEAR, year);
+		
+		syncState();
 	}
 }

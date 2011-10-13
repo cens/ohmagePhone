@@ -21,6 +21,7 @@ import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.FeedbackService;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -98,7 +99,7 @@ public class LauncherActivity extends Activity {
 					}
 			        Campaign defaultCampaign = campaigns.get(0);
 					Intent intent = new Intent(this, SurveyListActivity.class);
-					intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, defaultCampaign.mUrn);
+					intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, defaultCampaign.mUrn);
 					startActivity(intent);
 					finish();
 				}
@@ -162,7 +163,7 @@ public class LauncherActivity extends Activity {
 				}
 				Campaign defaultCampaign = campaigns.get(0);
 				Intent intent = new Intent(this, SurveyListActivity.class);
-				intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, defaultCampaign.mUrn);
+				intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, defaultCampaign.mUrn);
 				startActivity(intent);
 				finish();
 			}
