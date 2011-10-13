@@ -7,7 +7,7 @@
 		android:contentDescription="@string/description_logo_home"
 		android:src="@drawable/dashboard_title_home"
 		android:visibility="gone"
-		android:background="@null" />
+		android:background="@drawable/dashboard_title_button" />
 	<ImageView style="@style/TitleBarSeparator"
 		android:id="@+id/controls_actionbar_homebutton_separator"
 		android:visibility="gone" />
