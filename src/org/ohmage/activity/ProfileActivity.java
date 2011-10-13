@@ -8,9 +8,11 @@ import org.ohmage.triggers.utils.TrigTextInput;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -22,6 +24,8 @@ import android.widget.Toast;
 public class ProfileActivity extends BaseInfoActivity {
 	private static final int DIALOG_CLEAR_USER_CONFIRM = 1;
 	private static final int DIALOG_CLEAR_USER_PINCODE = 2;
+	private static final int DIALOG_WIPE_PROGRESS = 3;
+	
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
 
@@ -101,6 +105,13 @@ public class ProfileActivity extends BaseInfoActivity {
 			case DIALOG_CLEAR_USER_PINCODE:
 				dialog = createClearUserPincodeDialog();
 				break;
+			case DIALOG_WIPE_PROGRESS:
+				ProgressDialog pDialog = new ProgressDialog(this);
+				pDialog.setMessage("Clearing local user data...");
+				pDialog.setCancelable(false);
+				//pDialog.setIndeterminate(true);
+				dialog = pDialog;
+	        	break;
         }
 		
 		return dialog;
@@ -143,14 +154,44 @@ public class ProfileActivity extends BaseInfoActivity {
 	 * 3) clears the backstack + makes it a new task, so they can't get back into the app
 	 */
 	private void clearAndGotoLogin()  {
-		// clear all their data
-		((OhmageApplication)getApplication()).resetAll();
+		// create a task that asynchronously clears their data and displays a "waiting" dialog in the meantime
+		AsyncTask<Void, Void, Void> wipeTask = new AsyncTask<Void,Void,Void>() {
+			@Override
+			protected void onPreExecute() {
+				super.onPreExecute();
+				
+				showDialog(DIALOG_WIPE_PROGRESS);
+			}
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				((OhmageApplication)getApplication()).resetAll();
+				return null;
+			}
+			
+			@Override
+			protected void onPostExecute(Void result) {
+				super.onPostExecute(result);
+				
+				dismissDialog(DIALOG_WIPE_PROGRESS);
+				
+				// then send them on a one-way trip to the login screen
+				Intent intent = new Intent(mContext, LoginActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+				finish();
+			}
+			
+			@Override
+			protected void onCancelled() {
+				super.onCancelled();
+				
+				// FIXME: we should probably indicate that the task is cancelled, but this is probably fine for now
+				dismissDialog(DIALOG_WIPE_PROGRESS);
+			}
+		};
 		
-		// then send them on a one-way trip to the login screen
-		Intent intent = new Intent(mContext, LoginActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(intent);
-		finish();
+		wipeTask.execute();
 	}
 }
