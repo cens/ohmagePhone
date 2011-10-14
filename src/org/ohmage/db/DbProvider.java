@@ -421,11 +421,10 @@ public class DbProvider extends ContentProvider {
 			} else {
 				count = 0;
 			}
-			
-			db.endTransaction();
 		}
 		finally {
-			// i don't think we need to close the db handle, but it might be necessary someday
+			// the transaction must be ended whether or not it was flagged successful
+			db.endTransaction();
 		}
 		
 		return count;
