@@ -166,6 +166,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			mapViewButton.setText("Location Not Available");
 			mapViewButton.setEnabled(false);
 		} else {
+			mapViewButton.setText("View Map");
 			mapViewButton.setEnabled(true);
 		}
 	}
