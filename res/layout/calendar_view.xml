@@ -12,7 +12,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		app:showlogo="false"
-		app:title="My Campaigns" />
+		app:title="Calendar View" />
 	
 	<org.ohmage.controls.FilterControl
 		android:id="@+id/campaign_filter"
