@@ -8,7 +8,7 @@
 
 	<org.ohmage.controls.ActionBarControl
 		android:id="@+id/action_bar" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" app:showlogo="false" app:title="My Campaigns" />
+		android:layout_height="wrap_content" app:showlogo="false" app:title="Map View" />
 
 	<org.ohmage.controls.FilterControl
 		android:id="@+id/campaign_filter" android:layout_width="fill_parent"
