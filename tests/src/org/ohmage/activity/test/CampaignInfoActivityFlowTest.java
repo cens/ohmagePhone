@@ -19,7 +19,7 @@ import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.activity.CampaignInfoActivity;
 import org.ohmage.activity.DashboardActivity;
-import org.ohmage.activity.RHTabHost;
+import org.ohmage.activity.ResponseHistoryActivity;
 import org.ohmage.activity.SurveyListActivity;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
@@ -101,7 +101,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 		mLoaderHelper.setEntityContentValues(values);
 		
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_RESPONSE_HISTORY);
-		solo.assertCurrentActivity("Expected Response History", RHTabHost.class);
+		solo.assertCurrentActivity("Expected Response History", ResponseHistoryActivity.class);
 		solo.searchText(CAMPAIGN_NAME, true);
 		solo.searchText(FilterBarHelper.ALL_SURVEYS, true);
 		solo.goBack();

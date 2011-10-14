@@ -4,13 +4,13 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import org.ohmage.R;
-import org.ohmage.activity.RHCalendarViewActivity;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.controls.FilterControl.FilterChangeListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.fragments.ResponseHistoryCalendarFragment;
 
 import android.content.ContentResolver;
 import android.database.Cursor;

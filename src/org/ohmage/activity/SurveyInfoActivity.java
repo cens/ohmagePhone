@@ -138,7 +138,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 					
 					switch (commandID) {
 						case ACTION_VIEW_RESPHISTORY:
-							intent = new Intent(mContext, RHTabHost.class);
+							intent = new Intent(mContext, ResponseHistoryActivity.class);
 							intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 							intent.putExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID, surveyID);
 							startActivity(intent);

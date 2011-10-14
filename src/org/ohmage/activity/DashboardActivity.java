@@ -130,7 +130,7 @@ public class DashboardActivity extends FragmentActivity {
 					break;
 					
 				case R.id.dash_feedback_btn:
-					startActivity(new Intent(DashboardActivity.this, RHTabHost.class));
+					startActivity(new Intent(DashboardActivity.this, ResponseHistoryActivity.class));
 					break;
 					
 				case R.id.dash_uploadqueue_btn:

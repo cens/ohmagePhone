@@ -161,7 +161,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								startActivity(intent);
 								break;
 							case ACTION_VIEW_RESPHISTORY:
-								intent = new Intent(mContext, RHTabHost.class);
+								intent = new Intent(mContext, ResponseHistoryActivity.class);
 								intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 								startActivity(intent);
 								break;

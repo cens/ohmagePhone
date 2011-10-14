@@ -2,6 +2,7 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.controls.DateFilterControl;
+import org.ohmage.fragments.ResponseHistoryCalendarFragment;
 import org.ohmage.fragments.TestResponseFragment;
 import org.ohmage.ui.CampaignSurveyFilterActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
@@ -74,7 +75,7 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 		Bundle calendarBundle = intentToFragmentArguments(getIntent());
 		calendarBundle.remove(TimeFilter.EXTRA_DAY);
 		mTabManager.addTab(mTabHost.newTabSpec("calendar").setIndicator(createTabView("Calendar")),
-				TestResponseFragment.class, calendarBundle);
+				ResponseHistoryCalendarFragment.class, calendarBundle);
 		mTabManager.addTab(mTabHost.newTabSpec("map").setIndicator(createTabView("Map")),
 				TestResponseFragment.class, intentToFragmentArguments(getIntent()));
 

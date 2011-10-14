@@ -3,10 +3,10 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 	<item
 		android:state_pressed="true"
-		android:drawable="@drawable/calendar_focused" /> <!-- pressed -->
+		android:drawable="@color/calendar_focused" /> <!-- pressed -->
 	<item
 		android:state_focused="true"
-		android:drawable="@drawable/calendar_focused" /> <!-- focused -->
+		android:drawable="@color/calendar_focused" /> <!-- focused -->
 	<item
 		android:drawable="@color/transparent" /> <!-- default -->
 </selector>

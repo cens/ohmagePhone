@@ -1,79 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+	android:layout_height="match_parent"
 	android:background="@color/dkgray">
-	
-  	<org.ohmage.controls.ActionBarControl
-		android:id="@+id/action_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		app:showlogo="false"
-		app:title="Calendar View" />
-	
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/campaign_filter"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-	/>
-	
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/survey_filter"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-	/>
 
-	<LinearLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="horizontal"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="0dp"
-		android:paddingBottom="0dp"
-		android:background="@drawable/controls_filter_bkgnd">
-
-		<Button
-			android:id="@+id/prevMonth"
-			android:text="&lt;"
-			android:textSize="28dp"
-			android:textStyle="bold"
-			android:textColor="@color/black"
-			android:background="@drawable/controls_filter_button"
-			android:layout_gravity="center_vertical"
-			android:layout_width="55dp"
-			android:layout_height="40dp"
-			>
-		</Button>
-		<Button
-			android:id="@+id/currentMonth"
-			android:layout_weight="0.6"
-			android:textColor="@color/black"
-			android:background="@drawable/controls_filter_button"
-			android:textSize="20dp"
-			android:gravity="center"
-			android:layout_gravity="center_vertical"
-			android:layout_width="wrap_content"
-			android:layout_height="40dp"
-			android:enabled="false"
-			>
-		</Button>
-		<Button
-			android:id="@+id/nextMonth"
-			android:text="&gt;"
-			android:textSize="28dp"
-			android:textColor="@color/black"
-			android:textStyle="bold"
-			android:background="@drawable/controls_filter_button"
-			android:layout_gravity="center_vertical"
-			android:layout_width="55dp"
-			android:layout_height="40dp">
-		</Button>
-	</LinearLayout>
-	
 	<LinearLayout 
+		android:id="@+id/weekday_names"
 		android:layout_width="fill_parent"
 		android:layout_height="22dp"
 		android:layout_gravity="center"
@@ -106,6 +41,16 @@
 			android:text="Sat"
 			android:layout_weight="1.1"/>
 	</LinearLayout>
+	
+	<TextSwitcher
+		android:id="@+id/summary_text_switcher"
+		android:gravity="center"
+		android:layout_gravity="center"
+		android:paddingBottom="4dp"
+		android:background="@color/dkgray"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"/>
 
 	<GridView
 		android:id="@+id/calendar"
@@ -116,31 +61,10 @@
 		android:layout_height="253dp"
 		android:horizontalSpacing="1dp"
 		android:verticalSpacing="1dp"
-		android:background="@color/dkgray">
-	</GridView>
-	
-	<TextView
-		android:id="@+id/num_response_summary" 
-		android:gravity="center"
-		android:layout_gravity="center"
-		android:paddingBottom="4dp"
-		android:text=""
-		android:textSize="15dp"
-		android:textStyle="italic"
-		android:textColor="#FFFFFF"
-		android:background="@color/dkgray"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:visibility="gone"/>
+		android:background="@color/dkgray" 
+		android:layout_above="@id/summary_text_switcher"
+		android:layout_below="@id/weekday_names"/>
+
 		
-	<TextSwitcher
-		android:id="@+id/summary_text_switcher"
-		android:gravity="center"
-		android:layout_gravity="center"
-		android:paddingBottom="4dp"
-		android:background="@color/dkgray"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"/>
-		
-</LinearLayout>
+</RelativeLayout>
 

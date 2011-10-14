@@ -112,11 +112,7 @@
             </intent-filter>
 		</activity>
 		
-		<activity android:name=".activity.RHMapViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
-		
-        <activity android:name=".activity.RHCalendarViewActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/> 
-		
-		<activity android:name=".activity.RHTabHost" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+		<activity android:name=".activity.ResponseHistoryActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<activity android:name=".activity.ResponseListActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 

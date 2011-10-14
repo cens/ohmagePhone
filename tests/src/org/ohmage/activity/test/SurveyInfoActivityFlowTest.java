@@ -18,7 +18,7 @@ package org.ohmage.activity.test;
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.activity.DashboardActivity;
-import org.ohmage.activity.RHTabHost;
+import org.ohmage.activity.ResponseHistoryActivity;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.activity.SurveyInfoActivity;
 import org.ohmage.db.DbContract.Campaigns;
@@ -78,7 +78,7 @@ public class SurveyInfoActivityFlowTest extends ActivityInstrumentationTestCase2
 	public void testFlowResponseHistoryActionBar() {
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_RESPONSE_HISTORY);
 
-		solo.assertCurrentActivity("Expected Response History", RHTabHost.class);
+		solo.assertCurrentActivity("Expected Response History", ResponseHistoryActivity.class);
 		solo.searchText(CAMPAIGN_NAME, true);
 		solo.searchText(SURVEY_NAME, true);
 
