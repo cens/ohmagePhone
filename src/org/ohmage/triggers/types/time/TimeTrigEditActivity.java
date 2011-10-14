@@ -66,6 +66,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	private static final int DIALOG_ID_REPEAT_SEL = 0;
 	private static final int DIALOG_ID_INVALID_TIME_ALERT = 1;
 	private static final int DIALOG_ID_ACTION_SEL = 2;
+	private static final int DIALOG_ID_NO_SURVEYS_SELECTED = 3;
 
 	private TimeTrigDesc mTrigDesc;
 	private TriggerActionDesc mActDesc;
@@ -289,13 +290,20 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		case R.id.trig_edit_done:
 			if(mExitListener != null) {
 				udateTriggerDesc();
-				if(mTrigDesc.validate()) {
-					mExitListener.onDone(this, mTrigId, mTrigDesc.toString(), mActDesc.toString());
-				}
-				else {
+
+				if(!mTrigDesc.validate()) {
+					// if the time settings are invalid, tell the user and abort
 					showDialog(DIALOG_ID_INVALID_TIME_ALERT);
 					return;
 				}
+				else if (mActDesc.getSurveys().length <= 0) {
+					// if no surveys were selected, tell the user and abort
+					showDialog(DIALOG_ID_NO_SURVEYS_SELECTED);
+					return;
+				}
+				
+				// since we didn't hit any issues, we must be good; invoke the exit handler which stores the trigger
+				mExitListener.onDone(this, mTrigId, mTrigDesc.toString(), mActDesc.toString());
 			}
 			break;
 		}
@@ -384,6 +392,16 @@ public class TimeTrigEditActivity extends PreferenceActivity
 					.create();
 	}
 	
+	private Dialog createNoSurveysSelectedAlert() {
+		final String msg =  "Make sure that at least one survey is selected";
+		
+		return new AlertDialog.Builder(this)
+					.setTitle("No survey selected!")
+					.setNegativeButton("Cancel", null)
+					.setMessage(msg)
+					.create();
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch(id) {
@@ -391,6 +409,8 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			return createRepeatSelDialog();
 		case DIALOG_ID_INVALID_TIME_ALERT:
 			return createInvalidTimeAlert();
+		case DIALOG_ID_NO_SURVEYS_SELECTED:
+			return createNoSurveysSelectedAlert();
 		case DIALOG_ID_ACTION_SEL:
 			return createEditActionDialog();
 		}

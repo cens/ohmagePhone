@@ -74,6 +74,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 	private static final int DIALOG_ID_INVALID_TIME_ALERT = 0;
 	private static final int DIALOG_ID_DEFINE_LOC_PROMPT = 1;
 	private static final int DIALOG_ID_ACTION_SEL = 2;
+	private static final int DIALOG_ID_NO_SURVEYS_SELECTED = 3;
 	
 	private boolean mAdminMode = false;
 	
@@ -215,6 +216,16 @@ public class LocTrigEditActivity extends PreferenceActivity
 				.setMessage(msgErr)
 				.create();
 
+		case DIALOG_ID_NO_SURVEYS_SELECTED:
+			final String msgErrNoSurveys = 
+				"Make sure that at least one survey is selected";
+
+			return new AlertDialog.Builder(this)
+				.setTitle("No survey selected!")
+				.setNegativeButton("Cancel", null)
+				.setMessage(msgErrNoSurveys)
+				.create();
+			
 		case DIALOG_ID_DEFINE_LOC_PROMPT:
 			final String msgPrompt = 
 				"'" + mTrigDesc.getLocation() + "' "
@@ -441,19 +452,22 @@ public class LocTrigEditActivity extends PreferenceActivity
 			if(mExitListener != null) {
 				updateTriggerDesc();
 				
-				if(mTrigDesc.validate()) {
-					
-					mExitListener.onDone(this, mTrigId, mTrigDesc.toString(), mActDesc.toString());
-					
-					//If the location is not defined yet, prompt the
-					//user to do so
-					if(getLocationCount(mTrigDesc.getLocation()) == 0) {
-						showDialog(DIALOG_ID_DEFINE_LOC_PROMPT);
-						return;
-					}
-				}
-				else {
+				if(!mTrigDesc.validate()) {
 					showDialog(DIALOG_ID_INVALID_TIME_ALERT);
+					return;
+				}
+				else if (mActDesc.getSurveys().length <= 0) {
+					// if no surveys were selected, tell the user and abort
+					showDialog(DIALOG_ID_NO_SURVEYS_SELECTED);
+					return;
+				}
+				
+				mExitListener.onDone(this, mTrigId, mTrigDesc.toString(), mActDesc.toString());
+				
+				//If the location is not defined yet, prompt the
+				//user to do so
+				if(getLocationCount(mTrigDesc.getLocation()) == 0) {
+					showDialog(DIALOG_ID_DEFINE_LOC_PROMPT);
 					return;
 				}
 			}
