@@ -1,14 +1,16 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
-import org.ohmage.activity.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.fragments.SurveyListFragment;
+import org.ohmage.fragments.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.ui.CampaignFilterActivity;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.Button;
@@ -28,8 +30,20 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		mShowPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
+		
 		setContentView(R.layout.survey_list);
 
+        if (savedInstanceState == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            SurveyListFragment newFragment = new SurveyListFragment();
+            newFragment.setShowPending(mShowPending);
+            newFragment.setArguments(intentToFragmentArguments(getIntent()));
+            ft.add(R.id.surveys, newFragment);
+            ft.commit();
+        } else {
+			((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(mShowPending);
+        }
 
 		mAllButton = (Button) findViewById(R.id.all_surveys_button);
 		mPendingButton = (Button) findViewById(R.id.pending_surveys_button);
@@ -37,8 +51,6 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 		mAllButton.setOnClickListener(mPendingListener);
 		mPendingButton.setOnClickListener(mPendingListener);
 
-		mShowPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
-		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(mShowPending);
 		setPendingButtons();
 	}
 
@@ -54,7 +66,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
-		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setCampaignFilter(filter);
+		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setCampaignUrn(filter);
 	}
 
 	@Override

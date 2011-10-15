@@ -1,18 +1,19 @@
-package org.ohmage.activity;
+package org.ohmage.fragments;
 
 
 import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.activity.SurveyListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.utils.SelectionBuilder;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -20,11 +21,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-public class SurveyListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor> {
+/**
+ * <p>The {@link SurveyListFragment} shows a list of surveys</p>
+ * 
+ * <p>The {@link SurveyListFragment} accepts {@link CampaignFilter#EXTRA_CAMPAIGN_URN} as an extra</p>
+ * @author cketcham
+ *
+ */
+public class SurveyListFragment extends FilterableListFragment implements SubActionClickListener {
 
 	private static final String TAG = "SurveyListFragment";
 		
-	private String mCampaignFilter = null;
 	private boolean mShowPending = false;
 	
 	private CursorAdapter mAdapter;
@@ -41,14 +48,14 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 
 		super.onActivityCreated(savedInstanceState);
 		
-		setEmptyText(getString(R.string.surveys_empty_all));
+        setShowPending();
 		
 		mAdapter = new SurveyListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
 		
 		// Start out with a progress indicator.
         setListShown(false);
-		
+        
 		getLoaderManager().initLoader(0, null, this);
 	}
 	
@@ -78,32 +85,32 @@ public class SurveyListFragment extends ListFragment implements SubActionClickLi
 		
 //		mListener.onSurveyActionUnavailable();
 	}
-	
-	public void setCampaignFilter(String filter) {
-		mCampaignFilter = filter;
-		getLoaderManager().restartLoader(0, null, this);
-		Log.i(TAG, "restarted loader for filter: " + filter);
-	}
-	
+
 	public void setShowPending(boolean showPending) {
 		mShowPending = showPending;
-		if (showPending) {
+		if(isVisible()) {
+			setShowPending();
+			getLoaderManager().restartLoader(0, null, this);
+		}
+	}
+	
+	private void setShowPending() {
+		if (mShowPending) {
 			setEmptyText(getString(R.string.surveys_empty_pending));
 		} else {
 			setEmptyText(getString(R.string.surveys_empty_all));
 		}
-		getLoaderManager().restartLoader(0, null, this);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Log.i(TAG, "Creating loader - filter: " + mCampaignFilter);
+		Log.i(TAG, "Creating loader - filter: " + getCampaignUrn());
 		Uri baseUri = Surveys.CONTENT_URI;
 		
 		SelectionBuilder builder = new SelectionBuilder();
 		
-		if (mCampaignFilter != null) {
-			builder.where(Surveys.CAMPAIGN_URN + "= ?", mCampaignFilter);
+		if (getCampaignUrn() != null) {
+			builder.where(Surveys.CAMPAIGN_URN + "= ?", getCampaignUrn());
 		}
 		
 		if (mShowPending) {

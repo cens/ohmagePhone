@@ -17,7 +17,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content" />
 		
-	<fragment class="org.ohmage.activity.SurveyListFragment"
+	<FrameLayout
 		android:id="@+id/surveys" 
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
