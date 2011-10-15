@@ -2,27 +2,35 @@ package org.ohmage.fragments;
 
 import com.google.android.maps.MapView;
 
-import org.ohmage.R;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class MapFragment extends Fragment {
+public abstract class MapFragment extends Fragment {
 
 	private MapView mMapView;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return addMapView(null);
+	}
+
+	/**
+	 * Adds the mapview to the container if one is provided
+	 * @param container
+	 * @return the mapview instance
+	 */
+	protected MapView addMapView(ViewGroup container) {
 		if(mMapView == null) {
 			mMapView = new MapView(getActivity(), getMapsApiKey());
+			mMapView.setClickable(true);
 		} else {
 			((ViewGroup)mMapView.getParent()).removeView(mMapView);
 		}
-
+		if(container != null)
+			container.addView(mMapView);
 		return mMapView;
 	}
 
@@ -32,9 +40,7 @@ public class MapFragment extends Fragment {
 	 */
 	protected MapView getMapView() {
 		if(mMapView == null)
-			mMapView = (MapView) getView().findViewById(R.id.mapview);
-		if(mMapView == null)
-			throw new RuntimeException("The layout provided to create the map fragment should have a mapview with the id mapview");
+			throw new RuntimeException("A mapview must be added to the layout using the addMapView function");
 		return mMapView;
 	}
 
@@ -42,7 +48,5 @@ public class MapFragment extends Fragment {
 	 * Extending classes should override this to give the mapview access to the api key
 	 * @return the api key
 	 */
-	protected String getMapsApiKey() {
-		return getString(R.string.maps_api_key);
-	}
+	protected abstract String getMapsApiKey();
 }

@@ -1,8 +1,6 @@
 package org.ohmage.fragments;
 
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 
 import org.ohmage.R;
@@ -15,26 +13,28 @@ import org.ohmage.service.SurveyGeotagService;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.List;
 
-public class ResponseMapFragment extends MapFragment implements LoaderCallbacks<Cursor> {
+
+public class ResponseMapFragment extends FilterableMapFragment  {
 
 	private static final String RESPONSE_ID = "response_id";
+	
+	private Button mMapPinNext;
+	private Button mMapPinPrevious;
+	private TextView mMapPinIdxButton;
+	private int mPinIndex;
+	private MapViewItemizedOverlay mItemizedOverlay;
 
-	private long responseId;
-
-	private Double mLatitude;
-	private Double mLongitude;
-	private String mTitle;
-	private String mText;
+	private Long mResponseId;
 
 	/**
 	 * Create an instance of {@link ResponseMapFragment} which creates a point
@@ -47,7 +47,7 @@ public class ResponseMapFragment extends MapFragment implements LoaderCallbacks<
 		Bundle args = new Bundle();
 		args.putLong(RESPONSE_ID, responseId);
 		f.setArguments(args);
-
+		
 		return f;
 	}
 
@@ -55,16 +55,128 @@ public class ResponseMapFragment extends MapFragment implements LoaderCallbacks<
 	public void onCreate(Bundle args) {
 		super.onCreate(args);
 
-		if(getArguments() == null || !getArguments().containsKey(RESPONSE_ID))
-			throw new RuntimeException("The response ID must be passed to the ViewResponseMapFragment");
+		if(getArguments() != null && getArguments().containsKey(RESPONSE_ID))
+			mResponseId = getArguments().getLong(RESPONSE_ID);
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = super.onCreateView(inflater, container, savedInstanceState);
+		inflater.inflate(R.layout.response_map_navigator_layout, (ViewGroup) view);
 
-		responseId = getArguments().getLong(RESPONSE_ID);
+		mMapPinNext = (Button) view.findViewById(R.id.map_pin_next);
+		mMapPinPrevious = (Button) view.findViewById(R.id.map_pin_previous);
+		mMapPinIdxButton = (TextView) view.findViewById(R.id.map_pin_index);
 
-		getLoaderManager().initLoader(0, null, this);
+		mMapPinNext.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				int overlayListSize = mItemizedOverlay.size();
+				if(overlayListSize > 0){
+					if(mPinIndex < (overlayListSize-1)){
+						mPinIndex++;
+						mItemizedOverlay.onTap(mPinIndex % overlayListSize);
+						mMapPinIdxButton.setText(""+(mPinIndex+1)+"/"+overlayListSize);
+					}
+				}
+			}
+		});			
+
+		mMapPinPrevious.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				int overlayListSize = mItemizedOverlay.size();
+				if(overlayListSize > 0){
+					if(mPinIndex > 0){
+						mPinIndex--;
+						mItemizedOverlay.onTap(mPinIndex % overlayListSize);
+						mMapPinIdxButton.setText(""+(mPinIndex+1)+"/"+overlayListSize);	
+					}
+				}
+			}
+		});			
+
+		return view;
 	}
 
-	private static class ResponseMapQuery {
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		// When the map comes back it could have data from another map on it, so we need to restart our loader
+		getLoaderManager().restartLoader(0, null, this);
+	}
+	
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		if(mResponseId == null) {
+			return new ResponseLoader(this, ResponseMapQuery.PROJECTION, Responses.RESPONSE_LOCATION_STATUS + "='" + SurveyGeotagService.LOCATION_VALID + "'").onCreateLoader(id, args);
+		} else
+			return new CursorLoader(getActivity(), Responses.buildResponseUri(mResponseId), ResponseMapQuery.PROJECTION, null, null, null);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+		//Add overlays to the map
+		List<Overlay> mapOverlays = getMapView().getOverlays();
+		Drawable drawable = this.getResources().getDrawable(R.drawable.pens1);
+		mItemizedOverlay = new MapViewItemizedOverlay(drawable, getMapView());
+
+		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
+			Double lat = cursor.getDouble(ResponseMapQuery.LOCATION_LATITUDE);
+			Double lon = cursor.getDouble(ResponseMapQuery.LOCATION_LONGITUDE);
+			GeoPoint point = new GeoPoint((int)(lat.doubleValue()*1e6), (int)(lon.doubleValue()*1e6));
+			String title = cursor.getString(ResponseMapQuery.TITLE);
+			String text = cursor.getString(ResponseMapQuery.CAMPAIGN_URN) + "\n" + 
+					cursor.getString(ResponseMapQuery.DATE);
+			String id = cursor.getString(ResponseMapQuery.ID);
+
+			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text, (mResponseId != null) ? null : id);
+			mItemizedOverlay.setBalloonBottomOffset(40);
+			mItemizedOverlay.addOverlay(overlayItem);
+		}
+
+		mapOverlays.clear();
+		getMapView().invalidate();
+		if(mItemizedOverlay.size() > 0){
+			mapOverlays.add(mItemizedOverlay);
+
+			int maxLatitude = mItemizedOverlay.getMaxLatitude();
+			int minLatitude = mItemizedOverlay.getMinLatitude();
+
+			int maxLongitude = mItemizedOverlay.getMaxLongitude();
+			int minLongitude = mItemizedOverlay.getMinLongitude();
+
+			getMapControl().animateTo(new GeoPoint((maxLatitude+minLatitude)/2, (maxLongitude+minLongitude)/2));
+			getMapControl().zoomToSpan(Math.abs(maxLatitude-minLatitude), Math.abs(maxLongitude-minLongitude));
+		}
+
+		//Set Map Pin Navigators.
+		if(mResponseId == null) {
+			mMapPinIdxButton.setVisibility(View.VISIBLE);
+			mMapPinNext.setVisibility(View.VISIBLE);
+			mMapPinPrevious.setVisibility(View.VISIBLE);
+		} else {
+			mMapPinIdxButton.setVisibility(View.GONE);
+			mMapPinNext.setVisibility(View.GONE);
+			mMapPinPrevious.setVisibility(View.GONE);
+		}
+
+		mPinIndex = -1;
+		mMapPinIdxButton.setText("");
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		//
+	}
+
+	protected static class ResponseMapQuery {
 		public static final String[] PROJECTION = new String[] {
+			Responses._ID,
 			Responses.RESPONSE_LOCATION_STATUS,
 			Responses.RESPONSE_LOCATION_LATITUDE,
 			Responses.RESPONSE_LOCATION_LONGITUDE,
@@ -73,65 +185,12 @@ public class ResponseMapFragment extends MapFragment implements LoaderCallbacks<
 			Responses.RESPONSE_DATE
 		};
 
-		public static final int LOCATION_STATUS = 0;
-		public static final int LOCATION_LATITUDE = 1;
-		public static final int LOCATION_LONGITUDE = 2;
-		public static final int TITLE = 3;
-		public static final int CAMPAIGN_URN = 4;
-		public static final int DATE = 5;
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		MapView v = (MapView) super.onCreateView(inflater, container, savedInstanceState);
-		v.setBuiltInZoomControls(true);
-		v.setClickable(true);
-		return v;
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-		return new CursorLoader(getActivity(), Responses.buildResponseUri(responseId), ResponseMapQuery.PROJECTION, null, null, null);
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-		if(!data.moveToFirst()) {
-			Toast.makeText(getActivity(), "Response does not exist", Toast.LENGTH_SHORT).show();
-			getActivity().finish();
-			return;
-		}
-
-		if(!SurveyGeotagService.LOCATION_VALID.equals(data.getString(ResponseMapQuery.LOCATION_STATUS))) {
-			Toast.makeText(getActivity(), "No location for response", Toast.LENGTH_SHORT).show();
-			getActivity().finish();
-			return;
-		}
-
-		mLatitude = data.getDouble(ResponseMapQuery.LOCATION_LATITUDE);
-		mLongitude = data.getDouble(ResponseMapQuery.LOCATION_LONGITUDE);
-		mTitle = data.getString(ResponseMapQuery.TITLE);
-		mText = data.getString(ResponseMapQuery.CAMPAIGN_URN) + "\n" + data.getString(ResponseMapQuery.DATE);	    
-
-		Drawable drawable = getResources().getDrawable(R.drawable.pens1);
-		MapViewItemizedOverlay itemizedoverlay = new MapViewItemizedOverlay(drawable, getMapView());
-
-		GeoPoint point = new GeoPoint((int)(mLatitude*1e6), (int)(mLongitude*1e6));
-		MapOverlayItem overlayItem = new MapOverlayItem(point, mTitle, mText, null);
-		itemizedoverlay.setBalloonBottomOffset(40);
-		itemizedoverlay.addOverlay(overlayItem);
-
-		List<Overlay> overlays = getMapView().getOverlays();
-		overlays.clear();
-		overlays.add(itemizedoverlay);
-
-		MapController mapControl = getMapView().getController();
-		mapControl.animateTo(overlayItem.getPoint());
-		mapControl.setZoom(16);
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+		public static final int ID = 0;
+		public static final int LOCATION_STATUS = 1;
+		public static final int LOCATION_LATITUDE = 2;
+		public static final int LOCATION_LONGITUDE = 3;
+		public static final int TITLE = 4;
+		public static final int CAMPAIGN_URN = 5;
+		public static final int DATE = 6;
 	}
 }

@@ -3,7 +3,7 @@ package org.ohmage.activity;
 import org.ohmage.R;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.fragments.ResponseHistoryCalendarFragment;
-import org.ohmage.fragments.TestResponseFragment;
+import org.ohmage.fragments.ResponseMapFragment;
 import org.ohmage.ui.CampaignSurveyFilterActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
@@ -77,7 +77,7 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 		mTabManager.addTab(mTabHost.newTabSpec("calendar").setIndicator(createTabView("Calendar")),
 				ResponseHistoryCalendarFragment.class, calendarBundle);
 		mTabManager.addTab(mTabHost.newTabSpec("map").setIndicator(createTabView("Map")),
-				TestResponseFragment.class, intentToFragmentArguments(getIntent()));
+				ResponseMapFragment.class, intentToFragmentArguments(getIntent()));
 
 		if (savedInstanceState != null) {
 			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
