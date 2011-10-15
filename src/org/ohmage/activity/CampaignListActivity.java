@@ -3,11 +3,11 @@ package org.ohmage.activity;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.fragments.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.AlertDialog;

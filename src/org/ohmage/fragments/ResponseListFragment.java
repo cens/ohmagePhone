@@ -1,9 +1,9 @@
 package org.ohmage.fragments;
 
-import org.ohmage.activity.ResponseListCursorAdapter;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.activity.UploadQueueActivity;
-import org.ohmage.activity.UploadingResponseListCursorAdapter;
+import org.ohmage.adapters.ResponseListCursorAdapter;
+import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;

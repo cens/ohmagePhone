@@ -1,6 +1,7 @@
-package org.ohmage.activity;
+package org.ohmage.adapters;
 
 import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Response;
 

@@ -4,10 +4,10 @@ package org.ohmage.activity;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.OhmageApi.CampaignReadResponse;
-import org.ohmage.activity.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.fragments.CampaignListFragment.OnCampaignActionListener;
 
 import android.content.Intent;
 import android.os.Bundle;

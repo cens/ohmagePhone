@@ -3,7 +3,7 @@ package org.ohmage.fragments;
 
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
-import org.ohmage.activity.SurveyListCursorAdapter;
+import org.ohmage.adapters.SurveyListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Survey;

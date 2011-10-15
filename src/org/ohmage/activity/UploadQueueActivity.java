@@ -3,6 +3,8 @@ package org.ohmage.activity;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.R;
+import org.ohmage.adapters.ResponseListCursorAdapter;
+import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper.Tables;

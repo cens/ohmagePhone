@@ -1,6 +1,7 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
+import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
 import org.ohmage.fragments.ResponseListFragment;
