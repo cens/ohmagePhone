@@ -11,6 +11,7 @@ import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.visualization.ResponseHistory;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
+import org.ohmage.ui.OhmageFilterable.TimeFilter;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -617,7 +618,11 @@ public class RHCalendarViewActivity extends ResponseHistory implements OnClickLi
 						intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, mCampaignFilter.getValue());
 					if(!"all".equals(surveyFilter))
 						intent.putExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID, surveyFilter);
-					intent.putExtra(ResponseListActivity.EXTRA_DATE_FLITER, (Long) view.getTag());
+					Calendar c = Calendar.getInstance();
+					c.setTimeInMillis((Long) view.getTag());
+					intent.putExtra(TimeFilter.EXTRA_DAY, c.get(Calendar.DATE));
+					intent.putExtra(TimeFilter.EXTRA_MONTH, c.get(Calendar.MONTH));
+					intent.putExtra(TimeFilter.EXTRA_YEAR, c.get(Calendar.YEAR));
 					startActivity(intent);					
 				}
 

@@ -1,16 +1,17 @@
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.ohmage.R;
-import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.fragments.ResponseListFragment;
+import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.service.UploadService;
 import org.ohmage.ui.CampaignFilterActivity;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,7 +47,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
 		if (getUploadingResponseListFragment() != null) {
-			getUploadingResponseListFragment().setFilters(filter, null);
+			getUploadingResponseListFragment().setCampaignUrn(filter);
 		}
 	}
 

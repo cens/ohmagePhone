@@ -27,8 +27,8 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content" />
 		
-	<fragment class="org.ohmage.activity.ResponseListFragment"
-		android:id="@+id/responses"
+	<FrameLayout
+		android:id="@+id/response_list_fragment"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_weight="1" />
