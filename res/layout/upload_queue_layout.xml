@@ -6,13 +6,6 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<org.ohmage.controls.ActionBarControl
-		android:id="@+id/action_bar"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:showlogo="false"
-		app:title="Upload Queue" />
-
 	<org.ohmage.controls.FilterControl
 		android:id="@+id/campaign_filter"
 		android:layout_width="fill_parent"

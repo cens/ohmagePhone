@@ -3,11 +3,12 @@ package org.ohmage.activity;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.fragments.CampaignListFragment;
 import org.ohmage.fragments.CampaignListFragment.OnCampaignActionListener;
+import org.ohmage.ui.BaseSingleFragmentActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.AlertDialog;
@@ -16,37 +17,31 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-public class CampaignListActivity extends FragmentActivity implements OnCampaignActionListener {
+public class CampaignListActivity extends BaseSingleFragmentActivity implements OnCampaignActionListener {
 	
 	static final String TAG = "CampaignListActivity";
 	
 	SharedPreferencesHelper mSharedPreferencesHelper;
 
-	private ActionBarControl mActionBar;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.campaign_list);
+		setContentFragment(new CampaignListFragment());
 		
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		
 //		((CampaignListFragment)getSupportFragmentManager().findFragmentById(R.id.campaigns)).setMode(CampaignListFragment.MODE_MY_CAMPAIGNS);
-		
-		// get a reference to the action bar so we can attach to it
-		mActionBar = (ActionBarControl) findViewById(R.id.action_bar);
-		
+
 		// throw some actions on it
-		mActionBar.addActionBarCommand(1, "add campaign", R.drawable.dashboard_title_add);
-		mActionBar.addActionBarCommand(2, "refresh", R.drawable.dashboard_title_refresh);
+		getActionBar().addActionBarCommand(1, "add campaign", R.drawable.dashboard_title_add);
+		getActionBar().addActionBarCommand(2, "refresh", R.drawable.dashboard_title_refresh);
 
 		// and attach handlers for said actions
-		mActionBar.setOnActionListener(new ActionListener() {
+		getActionBar().setOnActionListener(new ActionListener() {
 			@Override
 			public void onActionClicked(int commandID) {
 				switch(commandID) {
@@ -68,13 +63,13 @@ public class CampaignListActivity extends FragmentActivity implements OnCampaign
 			@Override
 			protected void onPreExecute() {
 				super.onPreExecute();
-				mActionBar.setProgressVisible(true);
+				getActionBar().setProgressVisible(true);
 			}
 
 			@Override
 			protected void onPostExecute(CampaignReadResponse response) {
 				super.onPostExecute(response);
-				mActionBar.setProgressVisible(false);
+				getActionBar().setProgressVisible(false);
 			}
 			
 		}.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());

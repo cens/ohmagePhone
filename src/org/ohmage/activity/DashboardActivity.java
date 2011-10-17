@@ -1,20 +1,19 @@
 package org.ohmage.activity;
 
-import org.ohmage.R;
 import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.controls.ActionBarControl;
+import org.ohmage.ui.BaseActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class DashboardActivity extends FragmentActivity {
+public class DashboardActivity extends BaseActivity {
 	private static final String TAG = "DashboardActivity";
 	
 	private Button mCampaignBtn;
@@ -26,8 +25,6 @@ public class DashboardActivity extends FragmentActivity {
 	private Button mHelpBtn;
 
 	private SharedPreferencesHelper mSharedPreferencesHelper;
-
-	private ActionBarControl mActionBar;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +32,7 @@ public class DashboardActivity extends FragmentActivity {
 		
 		setContentView(R.layout.dashboard_activity);
 		
-		// nab a reference to the action bar so we can set it up a little bit
-		// ActionBarControl actionBar = (ActionBarControl)findViewById(R.id.action_bar);
+		getActionBar().setShowLogo(true);
 
 		// gather up all the buttons and tie them to the dashboard button listener
 		// you'll specify what the buttons do in DashboardButtonListener rather than here
@@ -60,8 +56,6 @@ public class DashboardActivity extends FragmentActivity {
 		
 		
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
-		// get a reference to the action bar so we can attach to it
-		mActionBar = (ActionBarControl) findViewById(R.id.action_bar);
 		
 		// refresh campaigns
 		if(mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 < System.currentTimeMillis()) {
@@ -76,13 +70,13 @@ public class DashboardActivity extends FragmentActivity {
 			@Override
 			protected void onPreExecute() {
 				super.onPreExecute();
-				mActionBar.setProgressVisible(true);
+				getActionBar().setProgressVisible(true);
 			}
 
 			@Override
 			protected void onPostExecute(CampaignReadResponse response) {
 				super.onPostExecute(response);
-				mActionBar.setProgressVisible(false);
+				getActionBar().setProgressVisible(false);
 			}
 			
 		}.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());

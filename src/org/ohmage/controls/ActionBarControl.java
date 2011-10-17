@@ -97,25 +97,28 @@ public class ActionBarControl extends LinearLayout {
 		mShowLogo = a.getBoolean(R.styleable.ActivityBarControl_showlogo, false);
 		String titleText = a.getString(R.styleable.ActivityBarControl_title);
 		
-		ImageView logo = (ImageView) findViewById(R.id.controls_actionbar_logo);
 		mHomeSeparator = (ImageView) findViewById(R.id.controls_actionbar_homebutton_separator);
 		mTitleText.setText(titleText);
 		
-		if (mShowLogo) {
+		setShowLogo(mShowLogo);
+		
+		// and set whether or not the home button appears
+		setHomeVisibility(a.getBoolean(R.styleable.ActivityBarControl_showhome, true));
+	}
+	
+	public void setShowLogo(boolean showLogo) {
+		ImageView logo = (ImageView) findViewById(R.id.controls_actionbar_logo);
+		if (showLogo) {
 			logo.setVisibility(VISIBLE);
 			mHomeSeparator.setVisibility(GONE);
 			mHomeButton.setVisibility(GONE);
 			mTitleText.setVisibility(INVISIBLE);
-		}
-		else {
+		} else {
 			logo.setVisibility(GONE);
 			mHomeSeparator.setVisibility(VISIBLE);
 			mHomeButton.setVisibility(VISIBLE);
 			mTitleText.setVisibility(VISIBLE);
 		}
-		
-		// and set whether or not the home button appears
-		setHomeVisibility(a.getBoolean(R.styleable.ActivityBarControl_showhome, true));
 	}
 	
 	/**
