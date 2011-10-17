@@ -12,7 +12,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
-import android.view.View;
 
 /**
  * CampaignFilterActivity can be extended by classes which have a campaign filter
@@ -26,16 +25,17 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 
 	protected FilterControl mCampaignFilter;
 	protected String mDefaultCampaign;
-
+	
 	@Override
 	public void onContentChanged() {
 		super.onContentChanged();
+
+		setLoadingVisibility(true);
 
 		mCampaignFilter = (FilterControl) findViewById(R.id.campaign_filter);
 		if(mCampaignFilter == null)
 			throw new RuntimeException("Your activity must have a FilterControl with the id campaign_filter");
 
-		mCampaignFilter.setVisibility(View.INVISIBLE);
 		mCampaignFilter.setOnChangeListener(new FilterControl.FilterChangeListener() {
 
 			@Override
@@ -70,8 +70,8 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-		mCampaignFilter.setVisibility(View.VISIBLE);
-		
+		setLoadingVisibility(false);
+
 		// Populate the filter
 		mCampaignFilter.populate(data, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
 		mCampaignFilter.add(0, new Pair<String,String>("All Campaigns", null));

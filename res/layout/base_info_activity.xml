@@ -4,39 +4,11 @@
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	
-	<!-- this framelayout allows the loading view to overlap the content view -->
+
+	<include layout="@layout/entity_header" />
+
 	<FrameLayout
+		android:id="@+id/info_container"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
-		
-		<!-- this is the view that contains all the content -->
-		<LinearLayout
-			android:orientation="vertical"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent">
-			
-			<include layout="@layout/entity_header" />
-			
-			<FrameLayout
-				android:id="@+id/info_container"
-				android:layout_width="fill_parent"
-				android:layout_height="fill_parent" />
-			
-		</LinearLayout>
-		
-		<!-- this is the overlay loader that covers up the content -->
-		<FrameLayout android:id="@+id/info_loading_bar"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:layout_gravity="center"
-			android:background="@color/white"
-			android:visibility="gone">
-			
-			<ProgressBar 
-				android:layout_gravity="center"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-		</FrameLayout>
-	</FrameLayout>
+		android:layout_height="fill_parent" />
 </LinearLayout>

@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -67,17 +66,6 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
 		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setCampaignUrn(filter);
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		super.onLoadFinished(loader, data);
-		ensureButtons();
-	}
-
-	private void ensureButtons() {
-		mAllButton.setVisibility(View.VISIBLE);
-		mPendingButton.setVisibility(View.VISIBLE);
 	}
 
 	private void setPendingButtons() {

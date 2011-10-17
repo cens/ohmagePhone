@@ -8,12 +8,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 /**
  * A base activity for all screens. It handles showing the action bar and setting the title correctly as
- * the manifest specifies.
+ * the manifest specifies. This activity also has the {@link #setLoadingVisibility(boolean)} function
+ * which makes it easy to show a loading spinner while you wait for data from a loader or somewhere else.
  * 
  * @author Cameron Ketcham
  *
@@ -49,7 +51,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	public void setContentView() {
 		super.setContentView(initLayout());
 	}
-	
+
 	/**
 	 * We should automatically add the action bar to the view. This function inflates the base activity layout
 	 * which contains the action bar. It also sets the {@link #mActionBar} and {@link #mContainer} fields
@@ -72,9 +74,30 @@ public abstract class BaseActivity extends FragmentActivity {
 	protected ActionBarControl getActionBar() {
 		return mActionBar;
 	}
-	
+
 	protected FrameLayout getContainer() {
 		return mContainer;
+	}
+
+	/**
+	 * Sets whether the progress spinner overlay is covering the content area (e.g. if the view is still loading).
+	 * You're encouraged to call setLoadingVisiblity(true) in your onCreate() and then setLoadingVisibility(false) when
+	 * your content is ready.
+	 * 
+	 * @param isLoading true if the progress spinner overlay should cover the content, false to show the content underneath.
+	 */
+	protected void setLoadingVisibility(boolean isLoading) {
+		View pv = super.findViewById(R.id.info_loading_bar);
+		boolean wasVisible = pv.getVisibility() == View.VISIBLE;
+
+		// do the appropriate animation if the view is disappearing
+		// do nothing if it's not transitioning or if it's being displayed
+		if (wasVisible && !isLoading) {
+			pv.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+		}
+
+		// and finally set the actual visibility of the thing
+		pv.setVisibility(isLoading?View.VISIBLE:View.GONE);
 	}
 
 	/**
