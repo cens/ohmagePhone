@@ -1,17 +1,13 @@
 package org.ohmage.ui;
 
 import org.ohmage.R;
-import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,7 +19,7 @@ import android.view.View;
  * @author cketcham
  *
  */
-public class CampaignFilterActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class CampaignFilterActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
 	protected static final int CAMPAIGN_LOADER = 0;
@@ -34,7 +30,6 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 	@Override
 	public void onContentChanged() {
 		super.onContentChanged();
-		((ActionBarControl)findViewById(R.id.action_bar)).setTitle(getTitle());
 
 		mCampaignFilter = (FilterControl) findViewById(R.id.campaign_filter);
 		if(mCampaignFilter == null)
@@ -91,26 +86,4 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mCampaignFilter.clearAll();
 	}
-	
-    /**
-     * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
-     */
-    public static Bundle intentToFragmentArguments(Intent intent) {
-        Bundle arguments = new Bundle();
-        if (intent == null) {
-            return arguments;
-        }
-
-        final Uri data = intent.getData();
-        if (data != null) {
-            arguments.putParcelable("_uri", data);
-        }
-
-        final Bundle extras = intent.getExtras();
-        if (extras != null) {
-            arguments.putAll(intent.getExtras());
-        }
-
-        return arguments;
-    }
 }

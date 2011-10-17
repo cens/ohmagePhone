@@ -1,7 +1,6 @@
 package org.ohmage.activity;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
@@ -16,7 +15,7 @@ import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
-import android.content.Context;
+
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -27,13 +26,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.imageloader.ImageLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// action bar commands
@@ -69,12 +68,11 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// and create a handler attached to this thread for contentobserver events
 		mHandler = new Handler();
 
-		// inflate the campaign-specific info page into the scrolling framelayout
-		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.survey_info_details, getContentArea(), true);
+		// set the campaign-specific info page
+		setContentView(R.layout.survey_info_details);
 		
 		// and inflate all the possible commands into the button tray
-		inflater.inflate(R.layout.survey_info_buttons, mButtonTray, true);
+		getLayoutInflater().inflate(R.layout.survey_info_buttons, mButtonTray, true);
 		
 		// clear some things to their default values
 		mNotetext.setVisibility(View.GONE);

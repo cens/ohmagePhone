@@ -35,6 +35,9 @@ public class ProfileActivity extends BaseInfoActivity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
+		// make the background of the profile striped to indicate it's not used yet
+		setContentView(R.layout.profile_layout);
+		
 		// set up some generic stuff for the profile, since it's not databound in any respect
 		mContext = this;
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
@@ -74,9 +77,6 @@ public class ProfileActivity extends BaseInfoActivity {
 		
 		updatePasswordButton.setOnClickListener(profileActionListener);
 		logoutWipeButton.setOnClickListener(profileActionListener);
-		
-		// make the background of the profile striped to indicate it's not used yet
-		getContentArea().setBackgroundResource(R.drawable.unused_bkgnd);
 	}
 	
 	

@@ -1,10 +1,6 @@
 package org.ohmage.activity;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.PromptXmlParser;
@@ -23,7 +19,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -33,13 +28,16 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.imageloader.ImageLoader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// helpers
@@ -72,12 +70,10 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		mImageLoader = ImageLoader.get(this);
 		
-		// inflate the campaign-specific info page into the scrolling framelayout
-		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.campaign_info_details, getContentArea(), true);
-		
+		setContentView(R.layout.campaign_info_details);
+
 		// and inflate all the possible commands into the button tray
-		inflater.inflate(R.layout.campaign_info_buttons, mButtonTray, true);
+		getLayoutInflater().inflate(R.layout.campaign_info_buttons, mButtonTray, true);
 		
 		// clear some things to their default values
 		mNotetext.setVisibility(View.GONE);

@@ -5,13 +5,6 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 	
-  	<org.ohmage.controls.ActionBarControl
-		android:id="@+id/action_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		app:showlogo="false"
-		app:title="Info Screen" />
-	
 	<!-- this framelayout allows the loading view to overlap the content view -->
 	<FrameLayout
 		android:layout_width="fill_parent"
@@ -26,7 +19,7 @@
 			<include layout="@layout/entity_header" />
 			
 			<FrameLayout
-				android:id="@+id/root_container"
+				android:id="@+id/info_container"
 				android:layout_width="fill_parent"
 				android:layout_height="fill_parent" />
 			
