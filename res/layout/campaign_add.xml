@@ -12,7 +12,7 @@
 		app:showlogo="false"
 		app:title="Add Campaigns" />
 		
-	<fragment class="org.ohmage.activity.CampaignListFragment"
+	<fragment class="org.ohmage.fragments.CampaignListFragment"
        android:id="@+id/campaigns" 
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
