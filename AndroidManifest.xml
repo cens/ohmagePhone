@@ -61,6 +61,8 @@
 
 		<activity android:name=".activity.ProfileActivity" android:label="@string/title_profile" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+					
+		<activity android:name=".activity.OhmagePreferenceActivity" android:theme="@android:style/Theme.Black" />
 
 		<!-- 
 		================================================

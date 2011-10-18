@@ -7,6 +7,7 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -100,6 +101,24 @@ public class Models {
 		
 		public static File getCampaignImageDir(Context context, String campaignUrn) {
 			return new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
+		}
+
+		/**
+		 * Launch the Trigger list for this campaign
+		 * @param context
+		 * @param campaignUrn
+		 */
+		public static void launchTriggerActivity(Context context, String campaignUrn) {
+			List<String> surveyTitles = new ArrayList<String>();
+			
+			// grab a list of surveys for this campaign
+			Cursor surveys = context.getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
+			
+			while (surveys.moveToNext()) {
+				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
+			}
+			
+			TriggerFramework.launchTriggersActivity(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 		}
 	}
 

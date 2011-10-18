@@ -9,10 +9,8 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.xmlpull.v1.XmlPullParserException;
@@ -35,8 +33,6 @@ import android.widget.TextView;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -162,16 +158,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								startActivity(intent);
 								break;
 							case ACTION_SETUP_TRIGGERS:
-								List<String> surveyTitles = new ArrayList<String>();
-								
-								// grab a list of surveys for this campaign
-								Cursor surveys = getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
-								
-								while (surveys.moveToNext()) {
-									surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
-								}
-								
-								TriggerFramework.launchTriggersActivity(mContext, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
+								Campaign.launchTriggerActivity(CampaignInfoActivity.this, campaignUrn);
 								return;
 						}
 					}

@@ -44,8 +44,10 @@ public class SharedPreferencesHelper {
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
 //	private static final String KEY_CAMPAIGN_NAME = "campaign_name";
-//	private static final String KEY_CAMPAIGN_URN = "campaign_version";
+	private static final String KEY_CAMPAIGN_URN = "campaign_version";
 //	private static final String KEY_SERVER_URL = "server_url";
+
+	private static final String DEFAULT_CAMPAIGN_URN = null;
 	
 	private final SharedPreferences mPreferences;
 	
@@ -128,14 +130,14 @@ public class SharedPreferencesHelper {
 //	public boolean putCampaignName(String campaignName) {
 //		return mPreferences.edit().putString(KEY_CAMPAIGN_NAME, campaignName).commit();
 //	}
-//	
-//	public String getCampaignUrn() {
-//		return mPreferences.getString(KEY_CAMPAIGN_URN, "");
-//	}
-//	
-//	public boolean putCampaignUrn(String campaignVersion) {
-//		return mPreferences.edit().putString(KEY_CAMPAIGN_URN, campaignVersion).commit();
-//	}
+	
+	public String getCampaignUrn() {
+		return mPreferences.getString(KEY_CAMPAIGN_URN, DEFAULT_CAMPAIGN_URN);
+	}
+	
+	public boolean putCampaignUrn(String campaignVersion) {
+		return mPreferences.edit().putString(KEY_CAMPAIGN_URN, campaignVersion).commit();
+	}
 //	
 //	public String getServerUrl() {
 //		return mPreferences.getString(KEY_SERVER_URL, DEFAULT_SERVER_URL);

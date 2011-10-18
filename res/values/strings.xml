@@ -47,4 +47,8 @@
 
   <!-- Maps -->
   <string name="maps_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
+  
+  <!-- Preferences -->
+  <string name="preferences_reminders_setup_title">Reminders</string>
+  <string name="preferences_reminders_setup_summary">Set up reminders so you never forget to take a survey</string>
 </resources>
