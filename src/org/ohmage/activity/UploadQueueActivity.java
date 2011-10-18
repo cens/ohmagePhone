@@ -1,15 +1,19 @@
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.ohmage.R;
-import org.ohmage.activity.ResponseListFragment.OnResponseActionListener;
+import org.ohmage.adapters.ResponseListCursorAdapter;
+import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.fragments.ResponseListFragment;
+import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.service.UploadService;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
+import org.ohmage.ui.CampaignFilterActivity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -20,7 +24,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -46,7 +49,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
 		if (getUploadingResponseListFragment() != null) {
-			getUploadingResponseListFragment().setFilters(filter, null);
+			getUploadingResponseListFragment().setCampaignUrn(filter);
 		}
 	}
 

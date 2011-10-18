@@ -21,7 +21,7 @@ import org.ohmage.activity.CampaignListActivity;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.HelpActivity;
 import org.ohmage.activity.ProfileActivity;
-import org.ohmage.activity.RHTabHost;
+import org.ohmage.activity.ResponseHistoryActivity;
 import org.ohmage.activity.SurveyListActivity;
 import org.ohmage.activity.UploadQueueActivity;
 import org.ohmage.test.helper.FilterBarHelper;
@@ -81,7 +81,7 @@ public class DashboardActivityFlowTest extends ActivityInstrumentationTestCase2<
 	@Smoke
 	public void testFlowResponseHistory() {
 		solo.clickOnText("Response[ \\n]+History");
-		solo.assertCurrentActivity("Expected Response History", RHTabHost.class);
+		solo.assertCurrentActivity("Expected Response History", ResponseHistoryActivity.class);
 		solo.searchText(FilterBarHelper.ALL_CAMPAIGNS, true);
 		solo.searchText(FilterBarHelper.ALL_SURVEYS, true);
 		solo.goBack();

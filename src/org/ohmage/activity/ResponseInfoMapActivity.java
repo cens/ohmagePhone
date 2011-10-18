@@ -2,6 +2,7 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.fragments.ResponseMapFragment;
+import org.ohmage.ui.BaseActivity;
 
 import android.content.ContentUris;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ public class ResponseInfoMapActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		setContentView();
 
 		FragmentManager fm = getSupportFragmentManager();
 

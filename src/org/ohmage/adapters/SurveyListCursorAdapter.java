@@ -1,6 +1,7 @@
-package org.ohmage.activity;
+package org.ohmage.adapters;
 
 import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Survey;

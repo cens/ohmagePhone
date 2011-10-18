@@ -4,20 +4,13 @@
   android:orientation="vertical"
   android:layout_width="match_parent"
   android:layout_height="match_parent">
-  
-  	<org.ohmage.controls.ActionBarControl
-		android:id="@+id/action_bar"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:showlogo="false"
-		app:title="Surveys" />
 		
 	<org.ohmage.controls.FilterControl
 		android:id="@+id/campaign_filter"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content" />
 		
-	<fragment class="org.ohmage.activity.SurveyListFragment"
+	<FrameLayout
 		android:id="@+id/surveys" 
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -31,14 +24,12 @@
             android:layout_width="0dp" android:layout_height="wrap_content"
             android:text="@string/surveys_all"
             android:background="@drawable/tab_bg_unselected"
-            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp"
-            android:visibility="invisible" />
+            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp"/>
         <Button android:id="@+id/pending_surveys_button"
             android:layout_width="0dp" android:layout_height="wrap_content"
             android:text="@string/surveys_pending"
             android:background="@drawable/tab_bg_unselected"
-            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp"
-            android:visibility="invisible" />
+            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp" />
     </LinearLayout>
     
 </LinearLayout>

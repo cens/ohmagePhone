@@ -1,4 +1,4 @@
-package org.ohmage.activity;
+package org.ohmage.adapters;
 
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Campaigns;

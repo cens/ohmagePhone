@@ -1,36 +1,34 @@
-package org.ohmage.activity;
+package org.ohmage.fragments;
 
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.activity.UploadQueueActivity;
+import org.ohmage.adapters.ResponseListCursorAdapter;
+import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Tables;
+import org.ohmage.db.DbProvider;
 import org.ohmage.db.Models.Response;
+import org.ohmage.fragments.FilterableListFragment;
 
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-public class ResponseListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor>{
+public class ResponseListFragment extends FilterableListFragment implements SubActionClickListener {
 	
 	private static final String TAG = "ResponseListFragment";
 
 	private ResponseListCursorAdapter mAdapter;
 	private OnResponseActionListener mListener;
 
-	private String mCampaignUrnFilter;
-	private String mSurveyIdFilter;
-
-	private Long mStartDateFilter;
-	private Long mEndDateFilter;
-	
 	public interface OnResponseActionListener {
         public void onResponseActionView(Uri responseUri);
         public void onResponseActionUpload(Uri responseUri);
@@ -53,6 +51,8 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 
 		// Start out with a progress indicator.
 		setListShown(false);
+		
+		getLoaderManager().initLoader(0, null, this);
 	}
 	
 	@Override
@@ -131,30 +131,22 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 	}
 
 	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Uri queryUri;
+	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
 
-		// Filter the uri
-		if(mCampaignUrnFilter == null) {
-			queryUri = Responses.CONTENT_URI;
-		} else {
-			if(mSurveyIdFilter == null) 
-				queryUri = Campaigns.buildResponsesUri(mCampaignUrnFilter);
-			else
-				queryUri = Campaigns.buildResponsesUri(mCampaignUrnFilter, mSurveyIdFilter);
-		}
-
-		// Set the date filter selection
+		// Set the campaign filter selection
 		StringBuilder selection = new StringBuilder();
-		if(mStartDateFilter != null)
-			selection.append(Responses.RESPONSE_TIME + " > " + mStartDateFilter);
-		if(mEndDateFilter != null) {
-			if(selection.length() != 0)
-				selection.append(" AND ");
-			selection.append(Responses.RESPONSE_TIME + " < " + mEndDateFilter);
-		}
+		if(getCampaignUrn() != null)
+			selection.append(DbProvider.Qualified.RESPONSES_CAMPAIGN_URN + "='" + getCampaignUrn() + "' AND ");
 
-		return new CursorLoader(getActivity(), queryUri, ResponseQuery.PROJECTION, selection.toString(), null, Responses.RESPONSE_TIME + " DESC");
+		// Set the survey filter selection
+		if(getSurveyId() != null)
+			selection.append(DbProvider.Qualified.RESPONSES_SURVEY_ID + "='" + getSurveyId() + "' AND ");
+		
+		// Set the date filter selection
+		selection.append(Responses.RESPONSE_TIME + " >= " + getStartBounds() + " AND ");
+		selection.append(Responses.RESPONSE_TIME + " <= " + getEndBounds());
+
+		return new CursorLoader(getActivity(), Responses.CONTENT_URI, ResponseQuery.PROJECTION, selection.toString(), null, Responses.RESPONSE_TIME + " DESC");
 	}
 
 	@Override
@@ -172,41 +164,6 @@ public class ResponseListFragment extends ListFragment implements SubActionClick
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);
-	}
-
-	/**
-	 * Specify that this list should only show responses for a certain campaign or survey.
-	 * If campaignUrn is null, the surveyId will be ignored
-	 * If the surveyId is null, it will show responses from any survey from the specified campaign
-	 * @param campaignUrn
-	 * @param surveyId
-	 */
-	public void setFilters(String campaignUrn, String surveyId) {
-		mCampaignUrnFilter = campaignUrn;
-		mSurveyIdFilter = surveyId;
-		getLoaderManager().restartLoader(0, null, this);
-	}
-
-	public void setCampaignFilter(String campaignUrn) {
-		mCampaignUrnFilter = campaignUrn;
-		getLoaderManager().restartLoader(0, null, this);
-	}
-	
-	public void setSurveyFilter(String surveyId) {
-		mSurveyIdFilter = surveyId;
-		getLoaderManager().restartLoader(0, null, this);
-	}
-	
-	/**
-	 * Specify date bounds for the responses that will be shown. If either startDateFilter
-	 * or endDateFilter is null, that bound will be ignored. No date bound will be set if both are null
-	 * @param startDateFilter
-	 * @param endDateFilter
-	 */
-	public void setDateBounds(Long startDateFilter, Long endDateFilter) {
-		mStartDateFilter = startDateFilter;
-		mEndDateFilter = endDateFilter;
-		getLoaderManager().restartLoader(0, null, this);
 	}
 	
 	/**

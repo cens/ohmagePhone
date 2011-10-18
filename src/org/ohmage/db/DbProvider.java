@@ -10,7 +10,6 @@ import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.utils.SelectionBuilder;
-import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentProvider;
@@ -658,7 +657,7 @@ public class DbProvider extends ContentProvider {
 	 * {@link DbContract} fields that are fully qualified with a specific
 	 * parent {@link Tables}. Used when needed to work around SQL ambiguity.
 	 */
-	private interface Qualified {
+	public interface Qualified {
 		String SURVEYS_CAMPAIGN_URN = Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN;
 		String RESPONSES_CAMPAIGN_URN = Tables.RESPONSES + "." + Responses.CAMPAIGN_URN;
 		String RESPONSES_SURVEY_ID = Tables.RESPONSES + "." + Responses.SURVEY_ID;

@@ -1,8 +1,9 @@
-package org.ohmage.activity;
+package org.ohmage.adapters;
 
 import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 

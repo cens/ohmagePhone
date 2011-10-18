@@ -15,13 +15,7 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.google.android.imageloader.ImageLoader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,11 +25,12 @@ import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.ui.BaseInfoActivity;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -44,7 +39,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -54,12 +48,18 @@ import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.imageloader.ImageLoader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * This Activity is used to display Information for an individual response. It
@@ -79,6 +79,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		setContentFragment(new ResponsePromptsFragment());
+		
 		mImageLoader = ImageLoader.get(this);
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
@@ -86,15 +88,6 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		// and inflate all the possible commands into the button tray
 		inflater.inflate(R.layout.response_info_buttons, mButtonTray, true);
 
-		FragmentManager fm = getSupportFragmentManager();
-
-		// Create the list fragment and add it as our sole content.
-		if (fm.findFragmentById(R.id.root_container) == null) {
-
-			ResponsePromptsFragment list = new ResponsePromptsFragment();
-
-			fm.beginTransaction().add(R.id.root_container, list, "list").commit();
-		}
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
 		getSupportLoaderManager().initLoader(0, null, this);

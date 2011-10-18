@@ -1,15 +1,13 @@
-package org.ohmage.activity;
+package org.ohmage.ui;
 
 import org.ohmage.R;
-import android.os.Bundle;
-import android.view.LayoutInflater;
+
+import android.support.v4.app.Fragment;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -19,7 +17,7 @@ import android.widget.TextView;
  * @author faisal
  *
  */
-public abstract class BaseInfoActivity extends BaseActivity {
+public abstract class BaseInfoActivity extends BaseSingleFragmentActivity {
 	// fields in the entity info header, populated by onContentChanged()
 	protected View mEntityHeader;
 	protected TextView mHeadertext;
@@ -27,10 +25,44 @@ public abstract class BaseInfoActivity extends BaseActivity {
 	protected TextView mNotetext;
 	protected ImageView mIconView;
 	protected LinearLayout mButtonTray;
-	
+	private FrameLayout mContainer;
+
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.base_info_activity, container, false);
+	public void setContentView(final int layoutResID) {
+		View rootView = initLayout();
+		getLayoutInflater().inflate(layoutResID, mContainer, true);
+		super.setContentView(rootView);
+	}
+
+	@Override
+	public void setContentView(View view) {
+		View rootView = initLayout();
+		mContainer.addView(view);
+		super.setContentView(rootView);
+	}
+
+	@Override
+	public void setContentView() {
+		super.setContentView(initLayout());
+	}
+
+	/**
+	 * We should automatically add the info header view
+	 * @return the root view
+	 */
+	private View initLayout() {
+		LinearLayout baseLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.base_info_activity, null);
+		mContainer = (FrameLayout) baseLayout.findViewById(R.id.info_container);
+		return baseLayout;
+	}
+
+	@Override
+	protected FrameLayout getContainer() {
+		return mContainer;
+	}
+
+	public Fragment getFragment() {
+		return getSupportFragmentManager().findFragmentById(R.id.info_container);
 	}
 
 	@Override
@@ -63,26 +95,5 @@ public abstract class BaseInfoActivity extends BaseActivity {
 				child.setVisibility((currentVis == View.INVISIBLE || currentVis == View.GONE)?View.VISIBLE:View.GONE);
 			}
 		});
-	}
-	
-	/**
-	 * Sets whether the progress spinner overlay is covering the content area (e.g. if the view is still loading).
-	 * You're encouraged to call setLoadingVisiblity(true) in your onCreate() and then setLoadingVisibility(false) when
-	 * your content is ready.
-	 * 
-	 * @param isLoading true if the progress spinner overlay should cover the content, false to show the content underneath.
-	 */
-	protected void setLoadingVisibility(boolean isLoading) {
-		View pv = (View) findViewById(R.id.info_loading_bar);
-		boolean wasVisible = pv.getVisibility() == View.VISIBLE;
-		
-		// do the appropriate animation if the view is disappearing
-		// do nothing if it's not transitioning or if it's being displayed
-		if (wasVisible && !isLoading) {
-			pv.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
-		}
-		
-		// and finally set the actual visibility of the thing
-		pv.setVisibility(isLoading?View.VISIBLE:View.GONE);
 	}
 }

@@ -1,45 +1,41 @@
-package org.ohmage.activity;
+package org.ohmage.ui;
 
 import org.ohmage.R;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
+
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
-import android.view.View;
 
 /**
  * CampaignFilterActivity can be extended by classes which have a campaign filter
  * @author cketcham
  *
  */
-public class CampaignFilterActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class CampaignFilterActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
 	protected static final int CAMPAIGN_LOADER = 0;
 
-	/**
-	 * Filters the response list by the given campaign uri
-	 */
-	public static final String EXTRA_CAMPAIGN_URN = "extra_campaign_urn";
-
 	protected FilterControl mCampaignFilter;
 	protected String mDefaultCampaign;
-
+	
 	@Override
 	public void onContentChanged() {
 		super.onContentChanged();
+
+		setLoadingVisibility(true);
 
 		mCampaignFilter = (FilterControl) findViewById(R.id.campaign_filter);
 		if(mCampaignFilter == null)
 			throw new RuntimeException("Your activity must have a FilterControl with the id campaign_filter");
 
-		mCampaignFilter.setVisibility(View.INVISIBLE);
 		mCampaignFilter.setOnChangeListener(new FilterControl.FilterChangeListener() {
 
 			@Override
@@ -49,20 +45,16 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 			}
 		});
 
-		mDefaultCampaign = getIntent().getStringExtra(EXTRA_CAMPAIGN_URN);
+		mDefaultCampaign = getIntent().getStringExtra(CampaignFilter.EXTRA_CAMPAIGN_URN);
+		
+		if(mDefaultCampaign == null)
+			mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", null));
 
 		getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
 	}
 	
-	@Override
-	public void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		
-		initLoading();
-	}
-
-	protected void initLoading() {
-		onCampaignFilterChanged(mDefaultCampaign);
+	public String getCampaignUrn() {
+		return mCampaignFilter.getValue();
 	}
 
 	protected void onCampaignFilterChanged(String filter) {
@@ -77,8 +69,8 @@ public class CampaignFilterActivity extends FragmentActivity implements LoaderMa
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		// Now that the campaigns loaded, we can show the filters
-		mCampaignFilter.setVisibility(View.VISIBLE);
+
+		setLoadingVisibility(false);
 
 		// Populate the filter
 		mCampaignFilter.populate(data, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);

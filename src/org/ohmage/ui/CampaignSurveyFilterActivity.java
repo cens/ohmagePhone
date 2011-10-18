@@ -1,8 +1,9 @@
-package org.ohmage.activity;
+package org.ohmage.ui;
 
 import org.ohmage.R;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -20,12 +21,6 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 
 
 	protected static final int SURVEY_LOADER = 1;
-
-	/**
-	 * Filters the response list by the given survey id. If {@link #EXTRA_SURVEY_ID} is not
-	 * specified, this extra will be ignored. No checking will be done to make sure this survey is valid
-	 */
-	public static final String EXTRA_SURVEY_ID = "extra_survey_id";
 
 	protected FilterControl mSurveyFilter;
 	protected String mDefaultSurvey;
@@ -48,11 +43,19 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 			}
 		});
 
-		mDefaultSurvey = getIntent().getStringExtra(EXTRA_SURVEY_ID);
+		mDefaultSurvey = getIntent().getStringExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID);
 		//		mDefaultSurvey = "alcohol";
 
-		if(mDefaultCampaign != null)
+		if(mDefaultCampaign != null) {
 			getSupportLoaderManager().initLoader(SURVEY_LOADER, null, this);
+		}
+		
+		if(mDefaultSurvey == null)
+			mSurveyFilter.add(0, new Pair<String, String>("All Surveys", null));
+	}
+	
+	public String getSurveyId() {
+		return mSurveyFilter.getValue();
 	}
 
 	@Override
@@ -85,14 +88,12 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-		// Now that the campaigns loaded, we can show the filters
 		mCampaignFilter.setVisibility(View.VISIBLE);
 		mSurveyFilter.setVisibility(View.VISIBLE);
-
+		
 		switch(loader.getId()) {
 			case CAMPAIGN_LOADER:
 				super.onLoadFinished(loader, data);
-				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", null));
 
 				break;
 			case SURVEY_LOADER:
@@ -112,7 +113,10 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		super.onLoaderReset(loader);
-		mSurveyFilter.clearAll();
+		if(loader.getId() == SURVEY_LOADER) {
+			mSurveyFilter.clearAll();
+		} else {
+			super.onLoaderReset(loader);
+		}
 	}
 }

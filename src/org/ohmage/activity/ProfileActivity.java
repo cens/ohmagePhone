@@ -5,6 +5,7 @@ import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
+import org.ohmage.ui.BaseInfoActivity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -33,6 +34,9 @@ public class ProfileActivity extends BaseInfoActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		
+		// make the background of the profile striped to indicate it's not used yet
+		setContentView(R.layout.profile_layout);
 		
 		// set up some generic stuff for the profile, since it's not databound in any respect
 		mContext = this;
@@ -73,9 +77,6 @@ public class ProfileActivity extends BaseInfoActivity {
 		
 		updatePasswordButton.setOnClickListener(profileActionListener);
 		logoutWipeButton.setOnClickListener(profileActionListener);
-		
-		// make the background of the profile striped to indicate it's not used yet
-		getContentArea().setBackgroundResource(R.drawable.unused_bkgnd);
 	}
 	
 	

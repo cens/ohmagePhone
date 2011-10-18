@@ -8,15 +8,21 @@
   
   <!-- Titles -->
   <!-- main screen titles -->
-  <string name="title_campaigns">Campaigns</string>
+  <string name="title_campaigns">My Campaigns</string>
   <string name="title_surveys">Surveys</string>
   <string name="title_response_history">Response History</string>
-  <string name="title_response_history_dash">Response\nHistory</string>
   <string name="title_upload_queue">Upload Queue</string>
-  <string name="title_upload_queue_dash">Upload\nQueue</string>
   <string name="title_profile">Profile</string>
   <string name="title_settings">Settings</string>
   <string name="title_help">Help</string>
+  
+  <!-- Dashboard entries -->
+  <string name="dashboard_campaigns">Campaigns</string>
+  <string name="dashboard_surveys">Surveys</string>
+  <string name="dashboard_response_history">Response\nHistory</string>
+  <string name="dashboard_upload_queue">Upload\nQueue</string>
+  <string name="dashboard_profile">Profile</string>
+  <string name="dashboard_help">Help</string>
   
   <!-- subscreen titles -->
   <string name="title_add_campaign">Add Campaign</string>

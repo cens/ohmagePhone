@@ -20,9 +20,10 @@
 	<color name="hyperlink">#ffff549f</color>
 	<color name="background_1">#ffffffff</color>
 	
-	<drawable name="calendar_focused">#FCBA1E</drawable>
-	<drawable name="calendar_pressed">#FCBA1E</drawable>
-	<drawable name="normal">#FFFFFF</drawable>
-	
-	<drawable name="button_pressed">#FCBA1E</drawable>
+	<color name="calendar_focused">#FCBA1E</color>
+	<color name="calendar_pressed">#FCBA1E</color>
+	<color name="calendar_today">#FAE5C0</color>
+	<color name="normal">#FFFFFF</color>
+
+	<color name="button_pressed">#FCBA1E</color>
 </resources>

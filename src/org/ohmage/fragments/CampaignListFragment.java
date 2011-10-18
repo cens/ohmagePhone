@@ -1,5 +1,8 @@
-package org.ohmage.activity;
+package org.ohmage.fragments;
 
+import org.ohmage.activity.CampaignAddActivity;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.adapters.CampaignListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 

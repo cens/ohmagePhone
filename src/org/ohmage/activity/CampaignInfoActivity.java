@@ -1,10 +1,6 @@
 package org.ohmage.activity;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.PromptXmlParser;
@@ -17,11 +13,12 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.glue.TriggerFramework;
+import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -31,13 +28,16 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.imageloader.ImageLoader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	// helpers
@@ -70,12 +70,10 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		mImageLoader = ImageLoader.get(this);
 		
-		// inflate the campaign-specific info page into the scrolling framelayout
-		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.campaign_info_details, getContentArea(), true);
-		
+		setContentView(R.layout.campaign_info_details);
+
 		// and inflate all the possible commands into the button tray
-		inflater.inflate(R.layout.campaign_info_buttons, mButtonTray, true);
+		getLayoutInflater().inflate(R.layout.campaign_info_buttons, mButtonTray, true);
 		
 		// clear some things to their default values
 		mNotetext.setVisibility(View.GONE);
@@ -155,12 +153,12 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 						switch (commandID) {
 							case ACTION_TAKE_SURVEY:
 								intent = new Intent(mContext, SurveyListActivity.class);
-								intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
+								intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 								startActivity(intent);
 								break;
 							case ACTION_VIEW_RESPHISTORY:
-								intent = new Intent(mContext, RHTabHost.class);
-								intent.putExtra(RHTabHost.EXTRA_CAMPAIGN_URN, campaignUrn);
+								intent = new Intent(mContext, ResponseHistoryActivity.class);
+								intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 								startActivity(intent);
 								break;
 							case ACTION_SETUP_TRIGGERS:
@@ -186,7 +184,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent(mContext, SurveyListActivity.class);
-						intent.putExtra(CampaignFilterActivity.EXTRA_CAMPAIGN_URN, campaignUrn);
+						intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 						startActivity(intent);
 					}
 				});

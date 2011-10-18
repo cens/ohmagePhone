@@ -173,7 +173,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 		mLoaderHelper.waitForLoader();
 
 		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DELETED);
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
 		mLoaderHelper.setEntityContentValues(values);
 
 		assertEquals("deleted on server", mStatusValue.getText());
@@ -206,7 +206,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 		mLoaderHelper.waitForLoader();
 
 		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DELETED);
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
 		mLoaderHelper.setEntityContentValues(values);
 		assertEquals("deleted on server", mStatusValue.getText());
 		assertEquals(false, mErrorBox.getVisibility() == View.VISIBLE);

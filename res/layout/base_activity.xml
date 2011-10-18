@@ -12,7 +12,28 @@
 		app:showlogo="false"/>
 
 	<FrameLayout
-		android:id="@+id/root_container"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
+		android:layout_height="fill_parent">
+
+		<!-- this is the view that contains all the content -->
+		<FrameLayout
+			android:id="@+id/root_container"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent" />
+
+		<!-- this is the overlay loader that covers up the content -->
+		<FrameLayout android:id="@+id/info_loading_bar"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:layout_gravity="center"
+			android:background="@color/white"
+			android:visibility="gone">
+			
+			<ProgressBar 
+				android:layout_gravity="center"
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+		</FrameLayout>
+	</FrameLayout>
 </LinearLayout>
