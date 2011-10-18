@@ -115,6 +115,12 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		getSupportLoaderManager().initLoader(1, null, this);
 	}
 	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+	
 	protected void populateCommands(final String surveyID, final String campaignUrn, final String surveyTitle, final String surveySubmitText, int campaignStatus) {
 		// first remove all the commands from the action bar...
 		ActionBarControl actionBar = getActionBar();
@@ -127,7 +133,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// this applies both to the action bar and to the command tray
 		if (campaignStatus == Campaign.STATUS_READY) {
 			actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
-			// actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
+			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
 			
 			// route the actions to the appropriate places
 			actionBar.setOnActionListener(new ActionListener() {
