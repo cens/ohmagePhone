@@ -123,7 +123,10 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 		//Add overlays to the map
 		List<Overlay> mapOverlays = getMapView().getOverlays();
 		Drawable drawable = this.getResources().getDrawable(R.drawable.pens1);
+		if(mItemizedOverlay != null)
+			mItemizedOverlay.clearBalloon();
 		mItemizedOverlay = new MapViewItemizedOverlay(drawable, getMapView());
+		mItemizedOverlay.setBalloonBottomOffset(40);
 
 		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
 			Double lat = cursor.getDouble(ResponseMapQuery.LOCATION_LATITUDE);
@@ -135,7 +138,6 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 			String id = cursor.getString(ResponseMapQuery.ID);
 
 			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text, (mResponseId != null) ? null : id);
-			mItemizedOverlay.setBalloonBottomOffset(40);
 			mItemizedOverlay.addOverlay(overlayItem);
 		}
 
