@@ -26,6 +26,7 @@ import org.ohmage.triggers.glue.TriggerFramework;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
@@ -151,6 +152,10 @@ public class OhmageApplication extends Application {
     }
     
     public static File getImageDirectory(Context context) {
-    	return new File(context.getExternalCacheDir(), "images");
+    	try {
+        	return new File(context.getExternalCacheDir(), "images");
+    	} catch(NoSuchMethodError e) {
+    		return new File(Environment.getExternalStorageDirectory(), "Android/data/org.ohmage/cache/images");
+    	}
     }
 }
