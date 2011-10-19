@@ -46,7 +46,7 @@ public class SharedPreferencesHelper {
 	private static final String KEY_CAMPAIGN_URN = "campaign_version";
 //	private static final String KEY_SERVER_URL = "server_url";
 
-	private static final String DEFAULT_CAMPAIGN_URN = null;
+	private static final String DEFAULT_CAMPAIGN_URN = "urn:mo:chipts";
 	
 	private final SharedPreferences mPreferences;
 	

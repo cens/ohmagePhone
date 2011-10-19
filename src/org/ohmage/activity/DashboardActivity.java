@@ -3,6 +3,7 @@ package org.ohmage.activity;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.ui.BaseActivity;
 
 import android.content.Context;
@@ -52,13 +53,7 @@ public class DashboardActivity extends BaseActivity {
 		mUploadQueueBtn.setOnClickListener(buttonListener);
 		mProfileBtn.setOnClickListener(buttonListener);
 		mHelpBtn.setOnClickListener(buttonListener);
-		
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
-			mCampaignBtn.setVisibility(View.GONE);
-		} else {
-			mCampaignBtn.setVisibility(View.VISIBLE);
-		}
-		
+
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		
 		// refresh campaigns
@@ -67,6 +62,31 @@ public class DashboardActivity extends BaseActivity {
 		}
 	}
 	
+	private void ensureUI() {
+		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			mCampaignBtn.setVisibility(View.GONE);
+		} else {
+			mCampaignBtn.setVisibility(View.VISIBLE);
+		}
+		
+		UserPreferencesHelper userPrefs = new UserPreferencesHelper(this);
+		
+		if(userPrefs.showProfile())
+			mProfileBtn.setVisibility(View.VISIBLE);
+		else
+			mProfileBtn.setVisibility(View.GONE);
+
+		if(userPrefs.showFeedback())
+			mFeedbackBtn.setVisibility(View.VISIBLE);
+		else
+			mFeedbackBtn.setVisibility(View.GONE);
+		
+		if(userPrefs.showUploadQueue())
+			mUploadQueueBtn.setVisibility(View.VISIBLE);
+		else
+			mUploadQueueBtn.setVisibility(View.GONE);
+	}
+
 	private void refreshCampaigns() {
 		mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
 		new CampaignReadTask(this) {
@@ -92,6 +112,8 @@ public class DashboardActivity extends BaseActivity {
 		
 		//This is to prevent users from clicking an icon multiple times when there is delay on Dashboard somehow.
 		enableAllButtons();
+		
+		ensureUI();
 	}
 	
 	private void enableAllButtons(){

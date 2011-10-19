@@ -48,7 +48,13 @@
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<activity android:name=".activity.CampaignListActivity" android:label="@string/title_campaigns" 
-					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
+			<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/vnd.ohmage.campaign" />
+            </intent-filter>
+		</activity>
 
 		<activity android:name=".activity.CampaignAddActivity" android:label="@string/title_add_campaign" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
@@ -63,6 +69,7 @@
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 					
 		<activity android:name=".activity.OhmagePreferenceActivity" android:theme="@android:style/Theme.Black" />
+		<activity android:name=".activity.AdminSettingsActivity" android:theme="@android:style/Theme.Black" />
 
 		<!-- 
 		================================================

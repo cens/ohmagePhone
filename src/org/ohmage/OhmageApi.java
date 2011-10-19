@@ -15,12 +15,7 @@
  ******************************************************************************/
 package org.ohmage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPOutputStream;
+import edu.ucla.cens.systemlog.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -52,7 +47,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import edu.ucla.cens.systemlog.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 public class OhmageApi {
 	private static final String TAG = "OhmageApi";
@@ -71,7 +72,7 @@ public class OhmageApi {
 	private static final String IMAGE_READ_PATH = "app/image/read";
 	
 	public OhmageApi(Context context) {
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+//		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
 //		serverUrl = prefs.getServerUrl();
 	}
 	
@@ -447,7 +448,7 @@ public class OhmageApi {
 	        nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrn));
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return (CampaignXmlResponse)parseXmlResponse(doHttpPost(url, formEntity, GZIP));
+			return parseXmlResponse(doHttpPost(url, formEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			CampaignXmlResponse candidate = new CampaignXmlResponse();

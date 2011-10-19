@@ -51,4 +51,9 @@
   <!-- Preferences -->
   <string name="preferences_reminders_setup_title">Reminders</string>
   <string name="preferences_reminders_setup_summary">Set up reminders so you never forget to take a survey</string>
+  <string name="preferences_update_password_title">Update Password</string>
+  <string name="preferences_update_password_summary">Update your password if you get an Authentication Error</string>
+  <string name="preferences_logout_title">Logout and Wipe</string>
+  <string name="preferences_logout_summary">Logging out will remove all data from the phone including any data that has not been uploaded</string>
+  <string name="admin_settings">Admin Settings</string>
 </resources>
