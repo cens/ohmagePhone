@@ -43,14 +43,12 @@ public class ActionBarControl extends LinearLayout {
 		
 		mActivity = (Activity)context;
 		
-		// set up some basic layout parameters, like width x height and background
-		LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, 50);
-		this.setLayoutParams(params);
-		this.setBackgroundResource(R.drawable.title_bkgnd);
-		
 		// load up the elements of the actionbar from controls_actionbar.xml
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.controls_actionbar, this, true);
+		
+		// set up some basic layout parameters, like width x height and background
+		this.setBackgroundResource(R.drawable.title_bkgnd);
 		
 		// gather member references
 		mTitleText = (TextView) findViewById(R.id.controls_actionbar_title);

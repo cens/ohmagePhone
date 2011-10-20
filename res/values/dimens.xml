@@ -5,6 +5,8 @@
 	<dimen name="entity_icon_width">60dp</dimen>
 	<dimen name="entity_icon_height">60dp</dimen>
 	<dimen name="entity_button_height">35dp</dimen>	
+	
+	<dimen name="actionbar_height">68px</dimen>
 
     <!-- body content -->
 	<dimen name="gutter">10dp</dimen>
