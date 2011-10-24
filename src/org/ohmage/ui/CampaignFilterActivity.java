@@ -52,7 +52,15 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 
 		getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
 	}
-	
+
+	@Override
+	public void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+		if(mDefaultCampaign != null)
+			onCampaignFilterChanged(mDefaultCampaign);
+	}
+
 	public String getCampaignUrn() {
 		return mCampaignFilter.getValue();
 	}
