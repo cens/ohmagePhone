@@ -4,6 +4,7 @@ import org.ohmage.R;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
+
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -53,7 +54,15 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 		if(mDefaultSurvey == null)
 			mSurveyFilter.add(0, new Pair<String, String>("All Surveys", null));
 	}
-	
+
+	@Override
+	public void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+		if(mDefaultSurvey != null)
+			onSurveyFilterChanged(mDefaultSurvey);
+	}
+
 	public String getSurveyId() {
 		return mSurveyFilter.getValue();
 	}

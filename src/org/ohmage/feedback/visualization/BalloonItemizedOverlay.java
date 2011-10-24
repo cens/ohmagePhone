@@ -29,7 +29,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -162,6 +164,16 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		mc.animateTo(point);
 		
 		return true;
+	}
+	
+	/**
+	 * Remove the balloon from the map view
+	 */
+	public void clearBalloon() {
+		if(balloonView != null) {
+			if(balloonView.getParent() instanceof ViewGroup)
+				((ViewGroup) balloonView.getParent()).removeView(balloonView);
+		}
 	}
 	
 	/**
