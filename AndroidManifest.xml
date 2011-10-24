@@ -199,6 +199,7 @@
 	    	</intent-filter>
 	    </receiver>
 
+	    <activity android:name=".activity.AdminPincodeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <!-- 
         ******************************************************
