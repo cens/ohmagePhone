@@ -199,16 +199,16 @@ public class UploadService extends WakefulIntentService {
 					
 					if (isAuthenticationError) {
 						errorStatusCode = Response.STATUS_ERROR_AUTHENTICATION;
-					} else if (errorCode.equals("0700")) {
+					} else if ("0700".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_NO_EXIST);
-					} else if (errorCode.equals("0707")) {
+					} else if ("0707".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_INVALID_USER_ROLE;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_INVALID_USER_ROLE);
-					} else if (errorCode.equals("0703")) {
+					} else if ("0703".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_STOPPED);
-					} else if (errorCode.equals("0710")) {
+					} else if ("0710".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_OUT_OF_DATE);
 					} else {
