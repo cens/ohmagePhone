@@ -60,7 +60,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 29;
+	private static final int DB_VERSION = 30;
 	
 	private final Context mContext;
 
@@ -227,32 +227,10 @@ public class DbHelper extends SQLiteOpenHelper {
 		// --- set up the triggers to implement cascading deletes, too
 		// --------
 
-		// annoyingly, sqlite 3.5.9 doesn't support recursive triggers.
-		// we must first disable them before running these statements,
-		// and each trigger has to delete everything associated w/the entity in
-		// question
-		db.execSQL("PRAGMA recursive_triggers = off");
-
 		// delete everything associated with a campaign when it's removed
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.CAMPAIGNS
 				+ "_cascade_del AFTER DELETE ON " + Tables.CAMPAIGNS
 				+ " BEGIN "
-
-				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE "
-				+ SurveyPrompts._ID + " IN (" + " SELECT "
-				+ Tables.SURVEY_PROMPTS + "." + SurveyPrompts._ID + " FROM "
-				+ Tables.SURVEY_PROMPTS + " SP" + " INNER JOIN "
-				+ Tables.SURVEYS + " S ON S." + Surveys._ID + "=SP."
-				+ SurveyPrompts.SURVEY_PID + " WHERE S." + Surveys.CAMPAIGN_URN
-				+ "=old." + Campaigns.CAMPAIGN_URN + "); "
-
-				+ "DELETE from " + Tables.PROMPT_RESPONSES + " WHERE "
-				+ PromptResponses._ID + " IN (" + " SELECT "
-				+ Tables.PROMPT_RESPONSES + "." + PromptResponses._ID + " FROM "
-				+ Tables.PROMPT_RESPONSES + " PR" + " INNER JOIN "
-				+ Tables.RESPONSES + " R ON R." + Responses._ID + "=PR."
-				+ PromptResponses.RESPONSE_ID + " WHERE R."
-				+ Responses.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.SURVEYS + " WHERE "
 				+ Surveys.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
