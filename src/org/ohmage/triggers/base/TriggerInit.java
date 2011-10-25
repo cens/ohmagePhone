@@ -15,12 +15,19 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.R;
+import org.ohmage.Utilities;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.config.NotifConfig;
 import org.ohmage.triggers.notif.NotifDesc;
 import org.ohmage.triggers.notif.Notifier;
 import org.ohmage.triggers.types.location.LocTrigMapsActivity;
+import org.ohmage.triggers.types.location.LocationTrigger;
+import org.ohmage.triggers.types.time.TimeTrigger;
 import org.ohmage.triggers.utils.TrigPrefManager;
 
 import android.content.BroadcastReceiver;
@@ -178,5 +185,91 @@ public class TriggerInit {
 		NotifDesc.setGlobalDesc(context, NotifConfig.defaultConfig);
 		
 		return true;
+	}
+
+	/**
+	 * <p>Adds default triggers read from R.raw.triggers in json format</p>
+	 *
+	 * <p>Examples:</p>
+	 * <ul>
+	 * <li>1) A time trigger for a specific survey in a campaign that goes off at 2:26 every day</li>
+	 * <li>2) A time trigger for a specific survey in a campaign that goes off at 3:30pm every day, but has a start and end time range of 3:00pm to 4:00pm</li>
+	 * <li>3) A time trigger for two different surveys in a campaign that goes off randomly between 3:00pm and 4:00pm every day</li>
+	 * <li>4) A location trigger for Home</li>
+	 * <li>5) A location trigger for Work that will only go off if you go there between 3:00pm and 4:00pm</li>
+	 * <li>6) A location trigger for Work that will go off at 4:00pm even if the location is not reached</li>
+	 * </ul>
+	 * <pre>
+	 * {@code
+	 * {
+	 * 	"triggers":[
+	 * 		{
+	 * 		"campaign_urn":"urn:mo:chipts",
+	 * 		"type":"TimeTrigger",
+	 * 		"description":{"time":"14:26","repeat":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]},
+	 * 		"action":{"surveys":["General Feeling Today"]}
+	 * 		},
+	 *
+	 * 		{
+	 * 		"campaign_urn":"urn:mo:chipts",
+	 * 		"type":"TimeTrigger",
+	 * 		"description":{"start":"15:00","end":"16:00","time":"15:30","repeat":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]},
+	 * 		"action":{"surveys":["General Feeling Today"]}
+	 * 		},
+	 *
+	 * 		{
+	 * 		"campaign_urn":"urn:mo:chipts",
+	 * 		"type":"TimeTrigger",
+	 * 		"description":{"start":"15:00","end":"16:00","time":"random","repeat":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]},
+	 * 		"action":{"surveys":["General Feeling Today","Medication"]}
+	 * 		},
+	 *
+	 * 		{
+	 * 		"campaign_urn":"urn:mo:chipts",
+	 * 		"type":"LocationTrigger",
+	 * 		"description":{"location":"Home","min_reentry_interval":120},
+	 * 		"action":{"surveys":["General Feeling Today","Medication"]}
+	 * 		},
+	 *
+	 * 		{
+	 * 		"campaign_urn":"urn:mo:chipts",
+	 * 		"type":"LocationTrigger",
+	 * 		"description":{"time_range":{"trigger_always":false,"start":"15:00","end":"16:00"},"location":"Work","min_reentry_interval":120},
+	 * 		"action":{"surveys":["General Feeling Today","Medication"]}
+	 * 		},
+	 *
+	 * 		{
+	 * 		"campaign_urn":"urn:mo:chipts",
+	 * 		"type":"LocationTrigger",
+	 * 		"description":{"time_range":{"trigger_always":true,"start":"15:00","end":"16:00"},"location":"Work","min_reentry_interval":120},
+	 * 		"action":{"surveys":["Medication"]}
+	 * 		}
+	 * 	]
+	 * }</pre>
+	 * @param context
+	 * @param camapaignUrn - filter for triggers which have this campaignUrn (set to null for no filtering)
+	 */
+	public static void addDefaultTriggers(Context context, String campaignUrn) {
+		try {
+			JSONArray triggersList = new JSONObject(Utilities.convertStreamToString(context.getResources().openRawResource(R.raw.triggers))).getJSONArray("triggers");
+			for(int i=0;i<triggersList.length();i++) {
+				JSONObject trigger = triggersList.getJSONObject(i);
+				if(campaignUrn == null || campaignUrn.equals(trigger.getString("campaign_urn"))) {
+					String type = trigger.getString("type");
+					if("TimeTrigger".equals(type)) {
+						TimeTrigger time = new TimeTrigger();
+						time.addNewTrigger(context, trigger.getString("campaign_urn"), trigger.getString("description"), trigger.getString("action"));
+					} else if("LocationTrigger".equals(type)) {
+						LocationTrigger location = new LocationTrigger();
+						location.addNewTrigger(context, trigger.getString("campaign_urn"), trigger.getString("description"), trigger.getString("action"));
+					} else {
+						throw new RuntimeException("Unsupported trigger type");
+					}
+				}
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

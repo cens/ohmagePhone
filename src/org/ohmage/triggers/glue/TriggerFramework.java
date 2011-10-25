@@ -115,5 +115,9 @@ public class TriggerFramework {
 		
 		return TriggerInit.resetTriggersAndSettings(context, campaignUrn);
 	}
+
+	public static void setDefaultTriggers(Context context, String campaignUrn) {
+		TriggerInit.addDefaultTriggers(context, campaignUrn);
+	}
 }
 

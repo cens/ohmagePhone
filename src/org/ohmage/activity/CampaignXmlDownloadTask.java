@@ -12,6 +12,7 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.FeedbackService;
+import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -98,7 +99,8 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 		super.onPostExecute(response);
 		
 		if (response.getResult() == Result.SUCCESS) {
-			
+			// setup initial triggers for this campaign
+			TriggerFramework.setDefaultTriggers(getActivity(), mCampaignUrn);
 		} else if (response.getResult() == Result.FAILURE) {
 			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
 			
