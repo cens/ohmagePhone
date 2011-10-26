@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 public class OhmagePreferenceActivity extends PreferenceActivity  {
 
@@ -27,13 +29,11 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	private PreferenceScreen mAdmin;
 
 	private UserPreferencesHelper mUserPreferenceHelper;
-	private SharedPreferencesHelper mPreferencesHelper;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mPreferencesHelper = new SharedPreferencesHelper(this);
 		mUserPreferenceHelper = new UserPreferencesHelper(this);
 
 		// Load the preferences from an XML resource
@@ -46,7 +46,11 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Campaign.launchTriggerActivity(OhmagePreferenceActivity.this, mPreferencesHelper.getCampaignUrn());
+					String urn = Campaign.getSingleCampaign(OhmagePreferenceActivity.this);
+					if(!TextUtils.isEmpty(urn))
+						Campaign.launchTriggerActivity(OhmagePreferenceActivity.this, Campaign.getSingleCampaign(OhmagePreferenceActivity.this));
+					else
+						Toast.makeText(OhmagePreferenceActivity.this, "Invalid campaign setup", Toast.LENGTH_LONG).show();
 					return true;
 				}
 			});
@@ -75,7 +79,9 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 		Preference campaignUrnStatus = findPreference(STATUS_CAMPAIGN_URN);
 		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
 			campaignUrnStatus.setTitle("Single-Campaign Mode");
-			campaignUrnStatus.setSummary(mPreferencesHelper.getCampaignUrn());
+			campaignUrnStatus.setSummary(Campaign.getSingleCampaign(this));
+			if(campaignUrnStatus.getSummary() == null)
+				campaignUrnStatus.setSummary("Unknown");
 		} else {
 			campaignUrnStatus.setTitle("Multi-Campaign Mode");
 			campaignUrnStatus.setSummary(null);

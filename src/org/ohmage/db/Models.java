@@ -120,6 +120,18 @@ public class Models {
 			
 			TriggerFramework.launchTriggersActivity(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 		}
+
+		/**
+		 * Returns the uri of the first ready campaign in the db which should be the campaign used in single campaign mode
+		 * @param context
+		 * @return the urn of the first ready campaign from the db, or null
+		 */
+		public static String getSingleCampaign(Context context) {
+			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN }, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, null);
+			if(campaign.moveToFirst())
+				return campaign.getString(0);
+			return null;
+		}
 	}
 
 	public final static class Survey {
