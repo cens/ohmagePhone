@@ -16,6 +16,7 @@
 package org.ohmage.triggers.ui;
 
 import org.ohmage.R;
+import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.base.TriggerDB;
@@ -26,14 +27,12 @@ import org.ohmage.triggers.notif.NotifEditActivity;
 import org.ohmage.triggers.notif.NotifSettingsActivity;
 import org.ohmage.triggers.notif.Notifier;
 import org.ohmage.triggers.utils.TrigPrefManager;
-import org.ohmage.triggers.utils.TrigTextInput;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -84,9 +83,9 @@ public class TriggerListActivity extends ListActivity
 	private static final int DIALOG_ID_PREFERENCES = 1;
 	private static final int DIALOG_ID_ACTION_SEL = 2;
 	private static final int DIALOG_ID_DELETE = 3;
-	private static final int DIALOG_ID_ADMIN_PASS = 4;
 	
 	private static final int REQ_EDIT_NOTIF = 0;
+	private static final int ADMIN_REQUESTED = 1;
 	
 	private Cursor mCursor;
 	private TriggerDB mDb;
@@ -96,6 +95,11 @@ public class TriggerListActivity extends ListActivity
 	private int mDialogTrigId = -1;
 	private String mDialogText = null; 
 	private boolean[] mActSelected = null;
+
+	/**
+	 * Instead of having a shared preference admin mode, we want admin mode to end once the user leaves the activity
+	 */
+	private boolean mAdminMode = false;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -166,6 +170,7 @@ public class TriggerListActivity extends ListActivity
 		outState.putInt(KEY_SAVE_DIALOG_TRIG_ID, mDialogTrigId);
 		outState.putBooleanArray(KEY_SAVE_SEL_ACTIONS, mActSelected);
 		outState.putString(KEY_SAVE_DIALOG_TEXT, mDialogText);
+		outState.putBoolean(KEY_ADMIN_MODE, mAdminMode);
 	}
 	
 	@Override
@@ -175,6 +180,7 @@ public class TriggerListActivity extends ListActivity
 		mDialogTrigId = state.getInt(KEY_SAVE_DIALOG_TRIG_ID, -1);
 		mActSelected = state.getBooleanArray(KEY_SAVE_SEL_ACTIONS);
 		mDialogText = state.getString(KEY_SAVE_DIALOG_TEXT);
+		mAdminMode = state.getBoolean(KEY_ADMIN_MODE);
 	}
 	
 	private void updateGUIWithAdminStatus(boolean status) {
@@ -366,66 +372,16 @@ public class TriggerListActivity extends ListActivity
     }
 	
 	private boolean isAdminLoggedIn() {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
-														MODE_PRIVATE);
-		//Let the app be in admin mode the very first time
-		return pref.getBoolean(KEY_ADMIN_MODE, true);
+		return mAdminMode;
 	}
 	
 	private void setAdminMode(boolean enable) {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
-														MODE_PRIVATE);
-		SharedPreferences.Editor editor = pref.edit();
-		editor.putBoolean(KEY_ADMIN_MODE, enable);
-		editor.commit();
-		
-		updateGUIWithAdminStatus(enable);
+		if(mAdminMode != enable) {
+			mAdminMode  = enable;
+			updateGUIWithAdminStatus(enable);
+		}
 	}
 
-	private Dialog createAdminPassDialog() {
-		TrigTextInput ti = new TrigTextInput(this);
-		ti.setNumberMode(true);
-		ti.setPasswordMode(true);
-		ti.setAllowEmptyText(false);
-		ti.setPositiveButtonText("Login");
-		ti.setNegativeButtonText("Cancel");
-		ti.setTitle("Admin password?");
-		
-		if(mDialogText != null) {
-			ti.setText(mDialogText);
-		}
-		
-		ti.setOnTextChangedListener(new TrigTextInput.onTextChangedListener() {
-			@Override
-			public boolean onTextChanged(TrigTextInput textInput, String text) {
-				mDialogText = text;
-				return true;
-			}
-		});
-		
-		ti.setOnClickListener(new TrigTextInput.onClickListener() {
-			
-			@Override
-			public void onClick(TrigTextInput ti, int which) {
-				if(which == TrigTextInput.BUTTON_POSITIVE) {
-					
-					if(ti.getText().equals(TrigUserConfig.adminPass)) {
-						setAdminMode(true);
-						Toast.makeText(TriggerListActivity.this, 
-								"Logged in", Toast.LENGTH_SHORT)
-								.show();
-					}
-					else {
-						Toast.makeText(TriggerListActivity.this, 
-										"Wrong password", Toast.LENGTH_SHORT)
-							 .show();
-					}
-				}
-			}
-		});
-		
-		return ti.createDialog();
-	}
 	private Dialog createDeleteConfirmDialog(int trigId) {
 		
 		return new AlertDialog.Builder(this)
@@ -554,9 +510,6 @@ public class TriggerListActivity extends ListActivity
 			
 		case DIALOG_ID_DELETE:
 			return createDeleteConfirmDialog(mDialogTrigId);
-		
-		case DIALOG_ID_ADMIN_PASS:
-			return createAdminPassDialog();
 		}
 		
 		return null;
@@ -632,8 +585,7 @@ public class TriggerListActivity extends ListActivity
 	    	case MENU_ID_ADMIN_LOGIN:
 	    		
 	    		mDialogText = null;
-	    		removeDialog(DIALOG_ID_ADMIN_PASS);
-	    		showDialog(DIALOG_ID_ADMIN_PASS);
+				startActivityForResult(new Intent(this, AdminPincodeActivity.class), ADMIN_REQUESTED);
 	    		return true;
 	    		
 	    	case MENU_ID_ADMIN_LOGOFF:
@@ -649,23 +601,30 @@ public class TriggerListActivity extends ListActivity
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		
-		if(requestCode == REQ_EDIT_NOTIF && data != null) {
-			String desc = data.getStringExtra(NotifEditActivity.KEY_NOTIF_CONFIG);
-			
-			if(desc != null) {
-				NotifDesc.setGlobalDesc(this, desc);
-				mDb.updateAllNotificationDescriptions(desc);
-				
-				
-				//Update any notification if required
-				Notifier.refreshNotification(this, mCampaignUrn, true);
-			}
+
+		switch(requestCode) {
+			case ADMIN_REQUESTED:
+				setAdminMode(resultCode == RESULT_OK);
+			case REQ_EDIT_NOTIF:
+				if(data != null) {
+					String desc = data.getStringExtra(NotifEditActivity.KEY_NOTIF_CONFIG);
+
+					if(desc != null) {
+						NotifDesc.setGlobalDesc(this, desc);
+						mDb.updateAllNotificationDescriptions(desc);
+
+
+						//Update any notification if required
+						Notifier.refreshNotification(this, mCampaignUrn, true);
+					}
+				}
+				break;
+			default:
+				super.onActivityResult(requestCode, resultCode, data);
+
 		}
-		
-		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
