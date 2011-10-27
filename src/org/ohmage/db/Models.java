@@ -127,7 +127,27 @@ public class Models {
 		 * @return the urn of the first ready campaign from the db, or null
 		 */
 		public static String getSingleCampaign(Context context) {
-			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN }, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, null);
+			return getFirstCampaign(context, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null);
+		}
+
+		/**
+		 * Returns the uri of the first campaign in the db which should be the campaign used in single campaign mode.
+		 * @param context
+		 * @return the urn of the first campaign from the db, or null
+		 */
+		public static String getFirstAvaliableCampaign(Context context) {
+			return getFirstCampaign(context, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE + " OR " + Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null);
+		}
+
+		/**
+		 * Helper method for return the first campaign urn given where and args
+		 * @param context
+		 * @param where
+		 * @param args
+		 * @return the urn of the first campaign
+		 */
+		public static String getFirstCampaign(Context context, String where, String[] args) {
+			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN }, where, args, Campaigns.CAMPAIGN_CREATED + " DESC");
 			if(campaign.moveToFirst())
 				return campaign.getString(0);
 			return null;

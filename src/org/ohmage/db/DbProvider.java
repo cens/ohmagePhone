@@ -233,6 +233,12 @@ public class DbProvider extends ContentProvider {
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
+		// If we are looking at campaigns we need to see what has changed to do some state management
+		Cursor oldCampaigns = null;
+		if(sUriMatcher.match(uri) == MatcherTypes.CAMPAIGN_BY_URN || sUriMatcher.match(uri) == MatcherTypes.CAMPAIGNS) {
+			oldCampaigns = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
+		}
+
 		// we assume we've matched it correctly, so proceed with the update
 		count = builder.update(db, values);
 		
@@ -252,14 +258,13 @@ public class DbProvider extends ContentProvider {
 				case MatcherTypes.CAMPAIGNS:
 					// process each element in the update set to maintain ref integrity across entities that don't support it
 					// (e.g. triggers and surveys + responses, since they don't respond to updates, only deletes)
-					Cursor c = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
-					while (c.moveToNext()) {
-						// remove triggers for campaigns that are not ready
-						if (c.getInt(1) != Campaign.STATUS_READY)
-							TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
+					while (oldCampaigns != null && oldCampaigns.moveToNext()) {
+						// remove triggers for campaigns that have changed from ready to something else
+						if (oldCampaigns.getInt(1) == Campaign.STATUS_READY && values.containsKey(Campaigns.CAMPAIGN_STATUS) && values.getAsInteger(Campaigns.CAMPAIGN_STATUS) != Campaign.STATUS_READY)
+							TriggerFramework.resetTriggerSettings(getContext(), oldCampaigns.getString(0));
 						// update xml-related entities (surveys, surveyprompts) if the xml for these items is changed
 						if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
-							dbHelper.populateSurveysFromCampaignXML(db, c.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
+							dbHelper.populateSurveysFromCampaignXML(db, oldCampaigns.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 					}
 					
 					// notify on the related entity URIs
@@ -302,16 +307,14 @@ public class DbProvider extends ContentProvider {
 				// build a list of icons associated w/this campaign to delete
 				// also clear triggers associated with this campaign before deletion
 				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_ICON, Campaigns.CAMPAIGN_STATUS }, null);
-				if(c.moveToFirst()) {
-					while(c.moveToNext()) {
-						// append this icon to the list of delete candidates
-						if(c.getString(1) != null)
-							iconUrls.add(c.getString(1));
-						
-						// remove the associated triggers, too, if it's not a remote campaign
-						if (c.getInt(2) != Campaign.STATUS_REMOTE)
-							TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
-					}
+				while(c.moveToNext()) {
+					// append this icon to the list of delete candidates
+					if(c.getString(1) != null)
+						iconUrls.add(c.getString(1));
+
+					// remove the associated triggers, too, if it's not a remote campaign
+					if (c.getInt(2) != Campaign.STATUS_REMOTE)
+						TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
 				}
 				c.close();
 		}

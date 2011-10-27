@@ -17,13 +17,14 @@ import org.ohmage.db.Models.Campaign;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.slezica.tools.async.ManagedAsyncTask;
+import java.util.concurrent.ExecutionException;
 
 class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadResponse>{
 	
@@ -57,7 +58,7 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 			cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE, null);
 			
 			//build list of urns of all downloaded (local) campaigns
-			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns._ID, Campaigns.CAMPAIGN_URN}, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN}, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
 			cursor.moveToFirst();
 			
 			ArrayList<String> localCampaignUrns = new ArrayList<String>();
@@ -72,6 +73,10 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
     		
     		cursor.close();
     		
+			// The old urn thats used for single campaign mode. This has to be determined before the new data is downloaded in case the
+			// state changes. This is used to determine if there is a better choice for the single campaign mode after the download is complete.
+			String oldUrn = Campaign.getSingleCampaign(getActivity());
+
     		ArrayList<ContentValues> allCampaignValues = new ArrayList<ContentValues>();
 
 			try { // parse response
@@ -133,7 +138,38 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 				ContentValues values = new ContentValues();
 				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_VAGUE);
 				cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + urn + "'" , null);
-			}				
+			}
+
+			// If we are in single campaign mode, we should automatically download the xml for the best campaign
+			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+				String newUrn = Campaign.getFirstAvaliableCampaign(getActivity());
+
+				// If the campaign changed we should download its xml
+				if(!TextUtils.isEmpty(newUrn) && !newUrn.equals(oldUrn)) {
+					// Just remove the old campaign completely to get rid of all surveys and other stuff
+					if(!TextUtils.isEmpty(oldUrn)) {
+						cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[] { oldUrn });
+					}
+
+					// Download the new xml
+					CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getActivity(), newUrn);
+					campaignDownloadTask.execute(username, hashedPassword);
+					try {
+						campaignDownloadTask.get();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					// All campaigns which aren't ready should just be ignored, so they are set to remote
+					ContentValues values = new ContentValues();
+					values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+					cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_READY, null);
+				}
+			}
 		} 
 		
 		return response;
