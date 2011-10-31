@@ -2,6 +2,7 @@ package org.ohmage.fragments;
 
 
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.SurveyListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
@@ -98,7 +99,10 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		if (mShowPending) {
 			setEmptyText(getString(R.string.surveys_empty_pending));
 		} else {
-			setEmptyText(getString(R.string.surveys_empty_all));
+			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+				setEmptyText(getString(R.string.single_campaign_error));
+			else
+				setEmptyText(getString(R.string.surveys_empty_all));
 		}
 	}
 
