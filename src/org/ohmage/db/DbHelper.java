@@ -52,6 +52,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
 
@@ -572,6 +573,10 @@ public class DbHelper extends SQLiteOpenHelper {
 			// should always reflect the state of the campaign XML, valid or not
 			db.delete(Tables.SURVEYS, Surveys.CAMPAIGN_URN + "=?",
 					new String[] { campaignUrn });
+
+			// We don't need to do anything else if there is no xml
+			if(TextUtils.isEmpty(campaignXML))
+				return true;
 
 			// do a pass over the XML to gather surveys and survey prompts
 			XmlPullParser xpp = Xml.newPullParser();
