@@ -41,13 +41,13 @@
 	<style name="InfoSectionLabel">
 		<item name="android:gravity">right</item>
 		<item name="android:textStyle">bold</item>
-		<item name="android:padding">5dp</item>
+		<item name="android:padding">6dp</item>
 	</style>
 	
 	<style name="InfoSectionValue">
 		<item name="android:drawablePadding">3dp</item>
 		<item name="android:textStyle">normal</item>
-		<item name="android:padding">5dp</item>
+		<item name="android:padding">6dp</item>
 	</style>
 	
 	<style name="InfoSectionDetails">

@@ -65,7 +65,8 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 			break;
 			
 		case Campaign.STATUS_READY:
-			actionButton.setImageResource(R.drawable.ic_menu_compose);
+			// actionButton.setImageResource(R.drawable.ic_menu_compose);
+			actionButton.setImageResource(R.drawable.subaction_surveys_list);
 			break;
 			
 		case Campaign.STATUS_STOPPED:

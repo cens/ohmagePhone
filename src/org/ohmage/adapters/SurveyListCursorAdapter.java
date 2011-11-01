@@ -59,15 +59,18 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		switch (status) {
 		case Survey.STATUS_NORMAL:
 			if (anytime) {
-				actionButton.setImageResource(R.drawable.ic_menu_pencil_yellow);
+				// actionButton.setImageResource(R.drawable.ic_menu_pencil_yellow);
+				actionButton.setImageResource(R.drawable.subaction_survey_ready);
 			} else {
-				actionButton.setImageResource(R.drawable.ic_menu_pencil_grey);
+				// actionButton.setImageResource(R.drawable.ic_menu_pencil_grey);
+				actionButton.setImageResource(R.drawable.subaction_survey_disabled);
 				actionButton.setEnabled(false);
 			}
 			break;
 			
 		case Survey.STATUS_TRIGGERED:
-			actionButton.setImageResource(R.drawable.ic_menu_pencil_green);
+			// actionButton.setImageResource(R.drawable.ic_menu_pencil_green);
+			actionButton.setImageResource(R.drawable.subaction_survey_pending);
 			break;
 			
 		default:
