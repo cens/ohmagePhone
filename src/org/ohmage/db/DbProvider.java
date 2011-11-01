@@ -197,7 +197,8 @@ public class DbProvider extends ContentProvider {
 				// notify on the related entity URIs
 				cr.notifyChange(Responses.CONTENT_URI, null);
 				cr.notifyChange(PromptResponses.CONTENT_URI, null);
-				
+				cr.notifyChange(Campaigns.buildCampaignUri(campaignUrn), null);
+
 				break;
 			case MatcherTypes.CAMPAIGNS:
 				insertID = dbHelper.addCampaign(db, values);
@@ -260,6 +261,7 @@ public class DbProvider extends ContentProvider {
 					// notify on the related entity URIs
 					cr.notifyChange(Responses.CONTENT_URI, null);
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:

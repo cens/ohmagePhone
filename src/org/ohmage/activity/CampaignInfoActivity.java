@@ -8,13 +8,14 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -50,6 +51,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 	
 	// state vars
 	private int mCampaignStatus; // status code for campaign as of last refresh
+	private int mLocalResponses;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -180,27 +182,36 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				@Override
 				public void onClick(View v) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-					builder.setMessage("Are you sure that you want to remove this campaign? Any data that you haven't uploaded will be lost!")
-						.setCancelable(false)
-						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					if(mLocalResponses != 0) {
+						builder.setMessage(Html.fromHtml(getResources().getQuantityString(R.plurals.campaign_info_remote, mLocalResponses, mLocalResponses)));
+						builder.setNeutralButton("Upload", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								// set this campaign as "remote" and exit out of here
-								ContentValues cv = new ContentValues();
-								cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
-								cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
-								getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-								mContext.finish();
-							}
-						})
-						.setNegativeButton("No", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.cancel();
+								Intent uploadQueue = new Intent(CampaignInfoActivity.this, UploadQueueActivity.class);
+								uploadQueue.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
+								startActivity(uploadQueue);
 							}
 						});
-						AlertDialog alert = builder.create();
-						alert.show();
+					} else {
+						builder.setMessage("Are you sure that you want to remove this campaign?");
+					}
+
+					builder.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							// set this campaign as "remote" and exit out of here
+							Campaign.setRemote(CampaignInfoActivity.this, campaignUrn);
+							mContext.finish();
+						}
+					})
+					.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+					});
+					AlertDialog alert = builder.create();
+					alert.show();
 				}
 			});
 		}
@@ -340,6 +351,10 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// and getting the number of responses submitted for this campaign
 		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn), null, null, null, null);
 		mResponsesValue.setText(responses.getCount() + " response(s) submitted");
+
+		Cursor localResponses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn), new String[] { Responses._ID },
+				Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
+		mLocalResponses = localResponses.getCount();
 
 		// get the number of triggers for this campaign
 		TriggerDB trigDB = new TriggerDB(mContext);

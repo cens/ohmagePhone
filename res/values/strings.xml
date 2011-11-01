@@ -57,4 +57,10 @@
   <string name="preferences_logout_title">Logout and Wipe</string>
   <string name="preferences_logout_summary">Logging out will remove all data from the phone including any data that has not been uploaded</string>
   <string name="admin_settings">Admin Settings</string>
+
+  <!-- Campaign Info -->
+  <plurals name="campaign_info_remote">
+    <item quantity="one">Are you sure that you want to remove this campaign? There is <b>1 response</b> which hasn\'t been uploaded.</item>
+    <item quantity="other">Are you sure that you want to remove this campaign? There are <b>%d responses</b> which haven\'t been uploaded.</item>
+  </plurals>
 </resources>

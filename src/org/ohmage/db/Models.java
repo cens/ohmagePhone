@@ -152,6 +152,18 @@ public class Models {
 				return campaign.getString(0);
 			return null;
 		}
+
+		/**
+		 * Sets the campaign to remote and removes surveys
+		 * @param campaignUrn
+		 */
+		public static void setRemote(Context context, String campaignUrn) {
+			ContentValues cv = new ContentValues();
+			cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+			cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
+			context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
+			context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
+		}
 	}
 
 	public final static class Survey {

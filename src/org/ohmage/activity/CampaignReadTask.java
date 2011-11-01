@@ -146,9 +146,9 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 
 				// If the campaign changed we should download its xml
 				if(!TextUtils.isEmpty(newUrn) && !newUrn.equals(oldUrn)) {
-					// Just remove the old campaign completely to get rid of all surveys and other stuff
+					// Set campaign to remote to get rid of all surveys and other stuff
 					if(!TextUtils.isEmpty(oldUrn)) {
-						cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[] { oldUrn });
+						Campaign.setRemote(getActivity(), oldUrn);
 					}
 
 					// Download the new xml
