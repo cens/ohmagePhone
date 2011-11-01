@@ -234,9 +234,17 @@ public class DbProvider extends ContentProvider {
 		builder.where(selection, selectionArgs);
 		
 		// If we are looking at campaigns we need to see what has changed to do some state management
-		Cursor oldCampaigns = null;
 		if(sUriMatcher.match(uri) == MatcherTypes.CAMPAIGN_BY_URN || sUriMatcher.match(uri) == MatcherTypes.CAMPAIGNS) {
-			oldCampaigns = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
+			Cursor oldCampaigns = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
+
+			while (oldCampaigns != null && oldCampaigns.moveToNext()) {
+				// remove triggers for campaigns that have changed from ready to something else
+				if (oldCampaigns.getInt(1) == Campaign.STATUS_READY && values.containsKey(Campaigns.CAMPAIGN_STATUS) && values.getAsInteger(Campaigns.CAMPAIGN_STATUS) != Campaign.STATUS_READY)
+					TriggerFramework.resetTriggerSettings(getContext(), oldCampaigns.getString(0));
+				// update xml-related entities (surveys, surveyprompts) if the xml for these items is changed
+				if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
+					dbHelper.populateSurveysFromCampaignXML(db, oldCampaigns.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
+			}
 		}
 
 		// we assume we've matched it correctly, so proceed with the update
@@ -256,17 +264,6 @@ public class DbProvider extends ContentProvider {
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
-					// process each element in the update set to maintain ref integrity across entities that don't support it
-					// (e.g. triggers and surveys + responses, since they don't respond to updates, only deletes)
-					while (oldCampaigns != null && oldCampaigns.moveToNext()) {
-						// remove triggers for campaigns that have changed from ready to something else
-						if (oldCampaigns.getInt(1) == Campaign.STATUS_READY && values.containsKey(Campaigns.CAMPAIGN_STATUS) && values.getAsInteger(Campaigns.CAMPAIGN_STATUS) != Campaign.STATUS_READY)
-							TriggerFramework.resetTriggerSettings(getContext(), oldCampaigns.getString(0));
-						// update xml-related entities (surveys, surveyprompts) if the xml for these items is changed
-						if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
-							dbHelper.populateSurveysFromCampaignXML(db, oldCampaigns.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
-					}
-					
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);
