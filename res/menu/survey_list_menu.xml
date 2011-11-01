@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item 
+		android:id="@+id/trigger_settings"
+        android:title="Triggers"
+        android:enabled="true" />
+        
+    <item 
+		android:id="@+id/mobility_settings"
+        android:title="Mobility"
+        android:visible="false" />
+        
+    <item 
+		android:id="@+id/location_trace_settings"
+        android:title="Location tracing"
+        android:visible="false" />
+        
+    <item 
+		android:id="@+id/status"
+        android:title="Status" 
+        android:visible="false" />
+        
+</menu>

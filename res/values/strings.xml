@@ -1,9 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="hello">Hello World!</string>
-  <string name="app_name">Andwellness</string>
+  <string name="app_name">ohmage</string>
   <string name="prefs">PreferenceFile</string> 
   <string name="mobilityservicestarted">Mobility service is running.</string> 
-  <string name="mobilityservicestopped">Mobility service is not running.</string> 
+  <string name="mobilityservicestopped">Mobility service is not running.</string>
+  
+  <!-- Titles -->
+  <!-- main screen titles -->
+  <string name="title_campaigns">My Campaigns</string>
+  <string name="title_surveys">Surveys</string>
+  <string name="title_response_history">Response History</string>
+  <string name="title_upload_queue">Upload Queue</string>
+  <string name="title_profile">Profile</string>
+  <string name="title_settings">Settings</string>
+  <string name="title_help">Help</string>
+  
+  <!-- Dashboard entries -->
+  <string name="dashboard_campaigns">Campaigns</string>
+  <string name="dashboard_surveys">Surveys</string>
+  <string name="dashboard_response_history">Response\nHistory</string>
+  <string name="dashboard_upload_queue">Upload\nQueue</string>
+  <string name="dashboard_profile">Profile</string>
+  <string name="dashboard_help">Help</string>
+  
+  <!-- subscreen titles -->
+  <string name="title_add_campaign">Add Campaign</string>
+  <string name="title_response">Response</string>
+  <string name="title_campaign_info">Campaign Info</string> 
+  <string name="title_survey_info">Survey Info</string>
+  
+  <!-- Help -->
+  <string name="help_goto_dashboard">Dashboard</string> 
+  <string name="help_goto_filter">Filter</string>
+  <string name="help_goto_list">List</string>
+  
+  <!-- Surveys -->
+  <string name="surveys_all">All</string> 
+  <string name="surveys_pending">Pending</string>
+  <string name="surveys_empty_all">There are no surveys to display.\n\nAfter selecting campaigns to participate in, you can view a list of their surveys here.</string>
+  <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey triggers via each campaign\'s information screen.</string>
+  
+  <!-- Upload Queue -->
+  <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>
+  <string name="upload_queue_response_waiting_for_gps">This response is currently waiting for a GPS location before it is uploaded. You can force the response to upload now or continue to wait for the location.</string>
 
+  <!-- Maps -->
+  <string name="maps_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
 </resources>

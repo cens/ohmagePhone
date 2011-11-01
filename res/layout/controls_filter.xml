@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+	<Button
+		android:id="@+id/controls_filter_prev"
+		android:text="&lt;"
+		android:textSize="28dp"
+		android:textStyle="bold"
+		android:textColor="@color/black"
+		android:background="@drawable/controls_filter_button"
+		android:layout_gravity="center_vertical"
+		android:layout_width="55dp"
+		android:layout_height="40dp"
+		/>
+	<!--<ImageView style="@style/TitleBarSeparator" />-->
+	
+	<Button
+		android:id="@+id/controls_filter_current"
+		android:layout_weight="0.6"
+		android:textColor="@color/black"
+		android:background="@drawable/controls_filter_button"
+		android:textSize="20dp"
+		android:gravity="center"
+		android:layout_gravity="center_vertical"
+		android:layout_width="fill_parent"
+		android:layout_height="40dp"
+		android:ellipsize="marquee"
+		android:maxLines="1"
+		android:marqueeRepeatLimit="marquee_forever"
+		/>
+	
+	<!--<ImageView style="@style/TitleBarSeparator" />-->
+	<Button
+		android:id="@+id/controls_filter_next"
+		android:text="&gt;"
+		android:textSize="28dp"
+		android:textStyle="bold"
+		android:textColor="@color/black"
+		android:background="@drawable/controls_filter_button"
+		android:layout_gravity="center_vertical"
+		android:layout_width="55dp"
+		android:layout_height="40dp"
+		/>
+</merge>

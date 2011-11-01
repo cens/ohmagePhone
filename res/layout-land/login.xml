@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+	android:background="#F2F2F2">
+	<RelativeLayout 
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent">
+
+		<TextView android:id="@+id/logo" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="10dp"
+			android:layout_marginBottom="3dp" 
+			android:textColor="#489024"
+			android:textStyle="bold" 
+			android:textSize="35sp" 
+			android:text="@string/app_name" />
+			
+		<TextView android:id="@+id/version"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/logo"
+			android:layout_centerHorizontal="true"
+			android:layout_marginBottom="20dp"
+			android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		<TextView android:id="@+id/user_label" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/version"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_marginRight="3dp"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textColor="#1476AF"
+			android:text="Username:" />
+			
+		<EditText android:id="@+id/user_input" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/version"
+			android:layout_toRightOf="@id/user_label"
+			android:layout_alignBaseline="@id/user_label"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="5dp"
+			android:layout_marginBottom="2dp"
+			android:inputType="textEmailAddress" />
+
+		<TextView android:id="@+id/password_label" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/user_input"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textColor="#1476AF"
+			android:text="Password:" />
+			
+		<EditText android:id="@+id/password" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/user_input"
+			android:layout_toRightOf="@id/password_label"
+			android:layout_alignBaseline="@id/password_label"
+			android:layout_alignLeft="@id/user_input"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="5dp"
+			android:inputType="textPassword"
+			android:layout_marginBottom="5dp" />
+		
+		<Button android:id="@+id/login" 
+			android:layout_width="120dp"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/password"
+			android:layout_alignRight="@id/password"
+			android:text="Login" />
+
+	</RelativeLayout>
+</ScrollView>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<campaign>
+	<campaignUrn>urn:andwellness:adhd</campaignUrn>
+	<campaignName>ADHD</campaignName>
+	<!-- <campaignVersion>1.0</campaignVersion> -->
+	<serverUrl>http://131.179.144.93:8080/</serverUrl>
+	<surveys>
+		<survey>
+			<id>adhd_study_questions</id>
+			<title>Daily</title>
+			<description>An ADHD game, a set of survey questions, and a second ADHD game.</description>
+			<submitText>Thank you for completing the survey!</submitText>
+			<showSummary>true</showSummary>
+			<editSummary>true</editSummary>
+			<summaryText>summaryText</summaryText>
+			<anytime>true</anytime>
+			<contentList>
+				<prompt>
+					<id>game</id>
+					<displayType>event</displayType>
+					<displayLabel>ADHD Game</displayLabel>
+					<promptText>Press the button below to play the game.</promptText>
+					<abbreviatedText>abbreviatedText</abbreviatedText>
+					<explanationText>explanationText</explanationText>
+					<promptType>remote_activity</promptType>
+					<properties>
+						<property>
+							<key>package</key>
+							<label>edu.ucla.cens.ADHD.Game</label>
+						</property>
+						<property>
+							<key>activity</key>
+							<label>edu.ucla.cens.ADHD.Game.Game</label>
+						</property>
+						<property>
+							<key>action</key>
+							<label>edu.ucla.cens.ADHD.Game.LAUNCH</label>
+						</property>
+						<property>
+							<key>autolaunch</key>
+							<label>false</label>
+						</property>
+						<property>
+							<key>retries</key>
+							<label>10</label>
+						</property>
+					</properties>
+					<skippable>false</skippable>
+				</prompt>
+			</contentList>
+		</survey>
+	</surveys>
+</campaign>

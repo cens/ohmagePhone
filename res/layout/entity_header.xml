@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/entity_header_content"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/entity_header_background"
+	android:padding="@dimen/gutter">
+	
+	<ImageView
+		android:id="@+id/entity_icon"
+		android:layout_width="@dimen/entity_icon_width"
+		android:layout_height="@dimen/entity_icon_height"
+		android:src="@drawable/icon"
+		android:background="@drawable/entity_icon_background"
+		android:layout_alignParentLeft="true"
+		android:scaleType="centerInside"
+		android:layout_marginTop="4dip"
+		android:layout_marginRight="@dimen/gutter" />
+	<TextView
+		android:id="@+id/entity_header"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		style="@style/TextHeader"
+		android:layout_toRightOf="@id/entity_icon" />
+	<TextView
+		android:id="@+id/entity_header_sub1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		style="@style/TextHeaderSub"
+		android:layout_marginTop="@dimen/gutter_thin"
+		android:layout_below="@id/entity_header"
+		android:layout_alignLeft="@id/entity_header" />
+	<TextView
+		android:id="@+id/entity_header_sub2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		style="@style/TextHeaderSub" 
+		android:layout_below="@id/entity_header_sub1"
+		android:layout_alignLeft="@id/entity_header" />
+		
+	<!--
+	a "tray" which stores custom buttons, left to right.
+	the implementing activity needs to fill this up.
+	-->
+	<LinearLayout
+		android:id="@+id/entity_header_tray"
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/halfgutter"
+		android:layout_alignParentRight="true"
+		android:layout_below="@+id/entity_icon">
+	</LinearLayout>
+	
+</RelativeLayout>
+

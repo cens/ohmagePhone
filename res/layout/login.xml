@@ -1,68 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:background="@drawable/background">
-	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:background="@drawable/background">
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+	android:background="#F2F2F2">
+	<RelativeLayout 
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent">
 
-		<TextView android:id="@+id/logo" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:layout_marginBottom="25px"
-			android:background="@drawable/background" android:textColor="@drawable/textcolor"
-			android:textStyle="bold" android:textSize="35sp" android:gravity="center"
+		<TextView android:id="@+id/logo" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="30dp"
+			android:layout_marginBottom="10dp" 
+			android:textColor="#489024"
+			android:textStyle="bold" 
+			android:textSize="35sp" 
 			android:text="@string/app_name" />
-
-		<TextView android:id="@+id/tv1" android:visibility="invisible"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="Email:" android:layout_below="@id/logo"
-			android:layout_marginTop="10px" android:paddingLeft="5px"
-			android:background="@drawable/background" android:textColor="@drawable/textcolor" />
-		<EditText android:id="@+id/email" android:visibility="invisible"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_below="@id/logo" android:layout_marginLeft="75px"
-			android:inputType="textEmailAddress" android:height="40px" />
-
-		<TextView android:id="@+id/user_label" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:text="Username:"
-			android:layout_below="@id/email" android:layout_marginTop="10px"
-			android:paddingLeft="5px" android:background="@drawable/background"
-			android:textColor="@drawable/textcolor" />
-		<EditText android:id="@+id/user_input" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:layout_below="@id/email"
-			android:layout_marginLeft="75px" android:inputType="textEmailAddress"
-			android:height="40px" />
-
-		<TextView android:id="@+id/tv2" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:text="Password:"
-			android:layout_below="@id/user_input" android:layout_marginTop="10px"
-			android:paddingLeft="5px" android:background="@drawable/background"
-			android:textColor="@drawable/textcolor" />
-		<EditText android:id="@+id/password" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:layout_below="@id/user_input"
-			android:layout_marginLeft="75px" android:inputType="textPassword"
-			android:height="40px" />
-
-		<TextView android:id="@+id/pass2_label" android:visibility="invisible"
-			android:layout_width="75px" android:layout_height="wrap_content"
-			android:layout_below="@id/password" android:text="Confirm Pass:"
-			android:layout_marginTop="10px" android:paddingLeft="5px"
-			android:background="@drawable/background" android:textColor="@drawable/textcolor" />
-		<EditText android:id="@+id/password2" android:visibility="invisible"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_below="@id/password" android:layout_marginLeft="75px"
-			android:inputType="textPassword" android:height="40px" />
-
-		
-
-		<Button android:id="@+id/login" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="Login"
-			android:layout_below="@id/password2"
-			android:layout_alignParentRight="true" />
-
+			
 		<TextView android:id="@+id/version"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/login"
-			android:layout_centerHorizontal="true" />
+			android:layout_below="@id/logo"
+			android:layout_centerHorizontal="true"
+			android:layout_marginBottom="40dp"
+			android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		<TextView android:id="@+id/user_label" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/version"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_marginRight="3dp"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textColor="#1476AF"
+			android:text="Username:" />
+			
+		<EditText android:id="@+id/user_input" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/version"
+			android:layout_toRightOf="@id/user_label"
+			android:layout_alignBaseline="@id/user_label"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="5dp"
+			android:layout_marginBottom="5dp"
+			android:inputType="textEmailAddress" />
+
+		<TextView android:id="@+id/password_label" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/user_input"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textColor="#1476AF"
+			android:text="Password:" />
+			
+		<EditText android:id="@+id/password" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/user_input"
+			android:layout_toRightOf="@id/password_label"
+			android:layout_alignBaseline="@id/password_label"
+			android:layout_alignLeft="@id/user_input"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="5dp"
+			android:inputType="textPassword"
+			android:layout_marginBottom="10dp" />
+		
+		<Button android:id="@+id/login" 
+			android:layout_width="120dp"
+			android:layout_height="wrap_content" 
+			android:layout_below="@id/password"
+			android:layout_alignRight="@id/password"
+			android:text="Login" />
+
 	</RelativeLayout>
 </ScrollView>

@@ -13,6 +13,7 @@
 		android:background="#01AD49"/>
 		
 	<TextView
+		android:focusable="false"
 		android:id="@+id/survey_title_text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -26,12 +27,14 @@
 		android:text="Survey Title" />
 		
 	<LinearLayout
+		android:focusable="false"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right|center_vertical"
 		android:layout_marginRight="10dp"
 		android:gravity="right"
-		android:orientation="vertical">
+		android:orientation="vertical"
+		android:visibility="gone">
 		
 		<TextView
 			android:id="@+id/survey_last_taken_date_text"
@@ -53,4 +56,13 @@
 		
 	</LinearLayout>
 		
+	<Button 
+		android:id="@+id/feedback_button"
+		android:focusable="false"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="center_vertical"
+        android:text="Feed\nback"
+        android:visibility="gone" />
 </LinearLayout>

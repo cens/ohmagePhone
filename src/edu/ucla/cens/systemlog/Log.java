@@ -1,10 +1,22 @@
+/*******************************************************************************
+ * Copyright 2011 The Regents of the University of California
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.ucla.cens.systemlog;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
-
-
 
 public class Log {
 	
@@ -37,31 +49,12 @@ public class Log {
     public static void initialize(Context context, String appName) {
     	mContext = context.getApplicationContext();
     	mAppName = appName;
-    	
-    	try {
-			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
-			mPackageInstalled = true;
-		} catch (NameNotFoundException e) {
-			android.util.Log.e(TAG, "SystemLog not installed");
-			mPackageInstalled = false;
-		}
     }
     
     private static boolean logMessage(String logLevel, String tag, String msg) {
     	if(mContext == null || mAppName == null) {
     		android.util.Log.e(TAG, "SystemLog not initialized");
     		return false;
-    	}
-    	
-    	//if systemlog is uninstalled after the initialize call, no logcat logging will happen
-    	if (!mPackageInstalled) {
-    		try {
-    			mContext.getPackageManager().getPackageInfo("edu.ucla.cens.systemlog", 0);
-    			mPackageInstalled = true;
-    		} catch (NameNotFoundException e) {
-    			mPackageInstalled = false;
-    			return false;
-    		}
     	}
     	
     	Intent i = new Intent(ACTION_LOG_MESSAGE);
@@ -71,7 +64,9 @@ public class Log {
 		i.putExtra(KEY_TAG, tag);
 		i.putExtra(KEY_MSG, msg);
 		
-		mContext.startService(i);
+		if (mContext.startService(i) == null ) {
+			return false;
+		}
 
     	return true;
     }

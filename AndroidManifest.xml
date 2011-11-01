@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="edu.ucla.cens.andwellness"
-	android:versionCode="1"
-	android:versionName="2.0">
+	package="org.ohmage"
+	android:versionName="2.7 beta" android:versionCode="11100702">
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -17,114 +16,212 @@
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-	
-    <application android:name=".AndWellnessApplication" android:icon="@drawable/icon" android:label="@string/app_name">
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-		<activity android:name=".activity.SurveyActivity" android:launchMode="standard"
-			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
-			<!--<intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-		--></activity>
+	<application
+		android:name="OhmageApplication"
+		android:theme="@android:style/Theme.Light.NoTitleBar"
+		android:icon="@drawable/icon"
+		android:label="@string/app_name">
+    
+		<activity android:name=".activity.DashboardActivity"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 		
-		<activity android:name=".activity.SurveyListActivity" android:theme="@android:style/Theme.Light" android:label="AndWellness Surveys"
-			android:taskAffinity="" android:launchMode="singleTask" android:clearTaskOnLaunch="true">
+		<activity android:name=".activity.LoginActivity">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 		</activity>
+
+		<!-- 
+		================================================
+		=== dashboard-level activities (and direct sub-activities)
+		================================================
+		-->
+		<activity
+			android:name=".activity.SurveyActivity"
+			android:launchMode="standard"
+			android:windowSoftInputMode="adjustResize" />
+
+		<activity android:name=".activity.SurveyListActivity" android:label="@string/title_surveys" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+
+		<activity android:name=".activity.CampaignListActivity" android:label="@string/title_campaigns" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+
+		<activity android:name=".activity.CampaignAddActivity" android:label="@string/title_add_campaign" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+
+		<activity
+			android:name=".activity.UploadQueueActivity"
+			android:label="@string/title_upload_queue"
+			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
+			android:launchMode="singleTask" />
+
+		<activity android:name=".activity.ProfileActivity" android:label="@string/title_profile" 
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+
+		<!-- 
+		================================================
+		=== entity info activities
+		================================================
+		-->
+		<activity android:name=".activity.CampaignInfoActivity" android:label="@string/title_campaign_info"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
+	    	<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.campaign" />
+            </intent-filter>
+		</activity>
+		
+		<activity android:name=".activity.SurveyInfoActivity" android:label="@string/title_survey_info"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
+	    	<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.survey" />
+            </intent-filter>
+		</activity>
+		
+	    <activity android:name=".activity.ResponseInfoActivity" android:label="@string/title_response"
+	    			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
+	    	<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.response" />
+            </intent-filter>
+		</activity>
+		
+		<!-- 
+		================================================
+		=== special-purpose activities
+		================================================
+		-->
+
+		<activity android:name=".activity.HelpActivity"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+
+		<activity android:name=".activity.ResponseInfoMapActivity" android:label="@string/title_response"
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
+			<intent-filter>
+                <action android:name="ohmage.intent.action.VIEW_MAP" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.response" />
+            </intent-filter>
+		</activity>
+		
+		<activity android:name=".activity.ResponseHistoryActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+
+		<activity android:name=".activity.ResponseListActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+
+		<activity android:name=".activity.LauncherActivity" android:label="@string/app_name">
+			<!--
+			<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+             -->
+		</activity>
+		
+		<activity android:name=".activity.TestActivity" android:label="@string/app_name">
+		</activity>
 		
 		<receiver android:name=".service.TriggerNotificationReceiver">
     		<intent-filter>
-        		<action android:name="edu.ucla.cens.andwellness.triggers.TRIGGER_NOTIFICATION"/>
+        		<action android:name="org.ohmage.triggers.TRIGGER_NOTIFICATION"/>
         	</intent-filter>
     	</receiver>
     
-    <activity android:name=".activity.LoginActivity" android:label="AndWellness Login">
-    </activity>
-    
-    <activity android:name=".activity.StatusActivity" android:label="AndWellness Status">
-    </activity>
-    
-    <receiver android:name=".service.BootReceiver">
-    	<intent-filter>
-    		<action android:name="android.intent.action.BOOT_COMPLETED"/>
-    	</intent-filter>
-    </receiver>
-        
-    <service android:name=".service.UploadService"/>
+	    <activity android:name=".activity.StatusActivity">
+	    </activity>
+
+	    <receiver android:name=".service.BootReceiver">
+	    	<intent-filter>
+	    		<action android:name="android.intent.action.BOOT_COMPLETED"/>
+	    	</intent-filter>
+<!-- 	    	<intent-filter>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppInstalled"/>
+				<action android:name="edu.ucla.cens.Updater.Installer.AppReinstalled"/>
+				<data android:scheme="package" android:host="org.ohmage"/>
+			</intent-filter> -->
+	    </receiver>
+	    
+	    <receiver android:name=".activity.TriggerReceiver">
+			<intent-filter>
+	    		<action android:name="org.ohmage.triggers.SURVEY_LIST_CHANGED"/>
+	    	</intent-filter>
+	    </receiver>
+	        
+	    <service android:name=".service.UploadService"/>
     	
-	<receiver android:name=".service.UploadReceiver">
-		<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.service.ACTION_UPLOAD_ALARM"/>
-    	</intent-filter>
-    	<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.storagemonitor.ACTION_STORAGE_REPORT"/>
-    	</intent-filter>
-    </receiver>
+		<receiver android:name=".service.UploadReceiver">
+			<intent-filter>
+	    		<action android:name="org.ohmage.service.ACTION_UPLOAD_ALARM"/>
+	    	</intent-filter>
+	    	<intent-filter>
+	    		<action android:name="org.ohmage.storagemonitor.ACTION_STORAGE_REPORT"/>
+	    	</intent-filter>
+	    </receiver>
+	    
+	    <service android:name=".service.SurveyGeotagService"/>
+	    
+	 	<receiver android:name=".service.SurveyGeotagTimeoutReceiver">
+			<intent-filter>
+	    		<action android:name="org.ohmage.service.ACTION_GEOTAG_TIMEOUT_ALARM"/>
+	    	</intent-filter>
+	    </receiver>
     
-    <service android:name=".service.SurveyGeotagService"/>
+	    <!--
+	    <receiver android:name=".appwidget.OhmageAppWidgetProvider" >
+		    <intent-filter>
+		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+		    </intent-filter>
+		    <meta-data android:name="android.appwidget.provider"
+		               android:resource="@xml/ohmage_appwidget_info" />
+		</receiver>
+		-->
     
- 	<receiver android:name=".service.SurveyGeotagTimeoutReceiver">
-		<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.service.ACTION_GEOTAG_TIMEOUT_ALARM"/>
-    	</intent-filter>
-    </receiver>
-    
-    <receiver android:name=".appwidget.AndWellnessAppWidgetProvider" >
-	    <intent-filter>
-	        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-	    </intent-filter>
-	    <meta-data android:name="android.appwidget.provider"
-	               android:resource="@xml/andwellness_appwidget_info" />
-	</receiver>
-    
-    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
-                  android:label="Storage Monitor">
-    </activity>
-    
-    <service android:name=".appwidget.StressButtonService"/>
-    
-    <service android:name=".storagemonitor.StorageMonitorService"/>
-    
-    <receiver android:name=".storagemonitor.StorageMonitorAlarmReceiver">
-    	<intent-filter>
-    		<action android:name="edu.ucla.cens.andwellness.storagemonitor.ACTION_STORAGE_MONITOR_ALARM"/>
-    	</intent-filter>
-    </receiver>
-        
-        
+	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
+	                  android:label="Storage Monitor">
+	    </activity>
+	    
+	    <service android:name=".appwidget.StressButtonService"/>
+	    
+	    <service android:name=".storagemonitor.StorageMonitorService"/>
+	    
+	    <receiver android:name=".storagemonitor.StorageMonitorAlarmReceiver">
+	    	<intent-filter>
+	    		<action android:name="org.ohmage.storagemonitor.ACTION_STORAGE_MONITOR_ALARM"/>
+	    	</intent-filter>
+	    </receiver>
+
+
         <!-- 
         ******************************************************
         TRIGGER STUFF START!!
         ******************************************************
         -->
         
-    <activity android:name=".triggers.ui.TriggerListActivity" />
-            
-    
-    <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
-    <activity android:name=".triggers.types.time.TimeTrigEditActivity"
+    	<activity android:name=".triggers.ui.TriggerListActivity" />
+
+    	<!-- Lock the orientation until the TimePicker rotate bug is fixed -->
+    	<activity android:name=".triggers.types.time.TimeTrigEditActivity"
     			  android:screenOrientation="portrait"/>
 		
-    <activity android:name=".triggers.notif.NotifEditActivity"/>
+    	<activity android:name=".triggers.notif.NotifEditActivity"/>
+    	
+    	<activity android:name=".triggers.notif.NotifSettingsActivity"/>
 		
-    <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
+	    <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
 		<activity android:name=".triggers.types.location.LocTrigEditActivity"
-				  android:screenOrientation="portrait"/>
+					  android:screenOrientation="portrait"/>
 		
-    <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
-	<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
-    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
-				  android:screenOrientation="portrait"/>
-		
-		<receiver android:name=".triggers.base.TriggerInit">
-			<intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-		</receiver>
+	    <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
+		<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
+	    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
+					  android:screenOrientation="portrait"/>
 		
 		<receiver android:name=".triggers.base.TriggerTimeReceiver">
 	    	<intent-filter>
@@ -137,7 +234,7 @@
 		
 		<service android:name=".triggers.types.time.TimeTrigService"/>
 		
-    <receiver android:name=".triggers.types.time.TimeTrigService$AlarmReceiver">
+    	<receiver android:name=".triggers.types.time.TimeTrigService$AlarmReceiver">
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.types.time.TimeTriggerAlarm" />
 	    		<data android:scheme="timetrigger" />
@@ -146,22 +243,22 @@
 		
 		<service android:name=".triggers.types.location.LocTrigService"/>
 		
-    <receiver android:name=".triggers.types.location.LocTrigService$AlarmReceiver">
+    	<receiver android:name=".triggers.types.location.LocTrigService$AlarmReceiver">
 	    	<intent-filter>
-	    		<action android:name="edu.ucla.cens.andwellness.triggers.types.location.LocTrigService.TRIGGER_ALWAYS" />
+	    		<action android:name="org.ohmage.triggers.types.location.LocTrigService.TRIGGER_ALWAYS" />
 	    		<data android:scheme="locationtrigger" />
 	    	</intent-filter>
 	    	<intent-filter>
-	    		<action android:name="edu.ucla.cens.andwellness.triggers.types.location.LocTrigService.KEEP_ALIVE" />
+	    		<action android:name="org.ohmage.triggers.types.location.LocTrigService.KEEP_ALIVE" />
 	    	</intent-filter>
 	    	<intent-filter>
-	    		<action android:name="edu.ucla.cens.andwellness.triggers.types.location.LocTrigService.GPS_TIMEOUT" />
+	    		<action android:name="org.ohmage.triggers.types.location.LocTrigService.GPS_TIMEOUT" />
 	    	</intent-filter>
 	    	<intent-filter>
-	    		<action android:name="edu.ucla.cens.andwellness.triggers.types.location.LocTrigService.GPS_SAMPLE" />
+	    		<action android:name="org.ohmage.triggers.types.location.LocTrigService.GPS_SAMPLE" />
 	    	</intent-filter>
 	    	<intent-filter>
-	    		<action android:name="edu.ucla.cens.andwellness.triggers.types.location.LocTrigService.PASS_THROUGH" />
+	    		<action android:name="org.ohmage.triggers.types.location.LocTrigService.PASS_THROUGH" />
 	    	</intent-filter>
 		</receiver>
 		
@@ -176,9 +273,11 @@
 	    	</intent-filter>
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.notif.Notifier.notification_deleted" />
+	    		<data android:scheme="notifier" />
 	    	</intent-filter>
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.notif.Notifier.notification_clicked" />
+	    		<data android:scheme="notifier" />
 	    	</intent-filter>
 		</receiver>
 		
@@ -191,7 +290,7 @@
         -->
 		
     
-    <!-- 
+    	<!-- 
         ******************************************************
         MOBILITY STUFF START!!
         ******************************************************
@@ -199,14 +298,49 @@
     
      
     
-    <!-- 
+    	<!-- 
         ******************************************************
         MOBILITY STUFF END!!
         ******************************************************
         -->
-	</application>
-	
-    <uses-sdk android:minSdkVersion="3" />
+        
+        <!--
+        ******************************************************
+        Feedback: collection service and receiver
+        ******************************************************
+        -->       
 
-	
+	    <service android:name=".feedback.FeedbackService" />
+	    
+	   	<receiver android:name=".feedback.FeedbackSyncReceiver">
+	    	<intent-filter>
+	    		<action android:name="org.ohmage.feedback.ACTION_FBSYNC_ALARM"/>
+	    	</intent-filter>
+	    </receiver>
+	    
+	    <provider android:name=".db.DbProvider"
+	    	android:authorities="org.ohmage.db">
+	    </provider>
+	    
+ 		<activity android:name=".feedback.FBTestActivity" android:label="@string/app_name"
+			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light">
+			<!--
+			<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+			-->
+		</activity>
+
+		<!--
+		******************************************************
+		Feedback: activities
+		******************************************************
+		-->
+
+		<uses-library android:name="com.google.android.maps" />
+
+	</application>
+    <uses-sdk android:minSdkVersion="4" />
+
 </manifest> 

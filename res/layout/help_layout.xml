@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:padding="0dip"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:padding="4dip">
+    </android.support.v4.view.ViewPager>
+
+    <LinearLayout android:orientation="horizontal"
+            android:gravity="center" android:layout_margin="0dp" android:padding="0dp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_weight="0">
+        <Button android:id="@+id/goto_dashboard"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:text="@string/help_goto_dashboard"
+            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp" />
+        <Button android:id="@+id/goto_filter"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:text="@string/help_goto_filter"
+            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp" />
+        <Button android:id="@+id/goto_list"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:text="@string/help_goto_list"
+            android:layout_weight="1" android:textColor="@color/white" android:padding="8dp" />
+    </LinearLayout>
+</LinearLayout>

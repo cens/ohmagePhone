@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
+        
+    <Preference
+        android:key="actions"
+        android:title="Surveys"
+        android:persistent="false"
+        android:summary="None"/>
          
-	<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+	<org.ohmage.triggers.utils.TimePickerPreference
 	    android:key="trigger_time"
 	    android:persistent="false"
 	    android:title="Trigger Time"
@@ -19,28 +25,26 @@
         android:title="Time range"
         android:persistent="false"
         android:summary="Enforce a range for the trigger time" />
-  
-		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+        
+	<CheckBoxPreference
+        android:key="randomize_trigger_time"
+        android:dependency="enable_time_range"
+        android:persistent="false"
+        android:title="Randomize"
+        android:summary="Use random trigger times with in the range" />   
+	        
+		<org.ohmage.triggers.utils.TimePickerPreference
 		    android:key="interval_start_time"
 		    android:dependency="enable_time_range"
 		    android:persistent="false"
 		    android:title="Start Time"
 		    android:summary="Not selected" />
 		    
-		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+		<org.ohmage.triggers.utils.TimePickerPreference
 		    android:key="interval_end_time"
 		    android:dependency="enable_time_range"
 		    android:persistent="false"
 		    android:title="End Time"
 		    android:summary="Not selected" />
-		
-		<CheckBoxPreference
-	        android:key="randomize_trigger_time"
-	        android:dependency="enable_time_range"
-	        android:persistent="false"
-	        android:title="Randomize"
-	        android:summary="Use random trigger times with in the range" />   
-         
-    
-            
+
 </PreferenceScreen>

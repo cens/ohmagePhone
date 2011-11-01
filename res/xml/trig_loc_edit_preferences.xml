@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
-         
-	<edu.ucla.cens.andwellness.triggers.utils.TrigListPreference
+
+	<Preference
+        android:key="actions"
+        android:title="Surveys"
+        android:persistent="false"
+        android:summary="None"/>
+                 
+	<org.ohmage.triggers.utils.TrigListPreference
 	    android:key="trigger_location"
 	    android:persistent="false"
 	    android:title="Trigger location"
@@ -15,14 +21,14 @@
         android:persistent="false"
         android:summary="Trigger only during the following interval" />
         
-		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+		<org.ohmage.triggers.utils.TimePickerPreference
 		    android:key="interval_start_time"
 		    android:dependency="enable_time_range"
 		    android:persistent="false"
 		    android:title="Start Time"
 		    android:summary="(Not selected)" />
 		    
-		<edu.ucla.cens.andwellness.triggers.utils.TimePickerPreference
+		<org.ohmage.triggers.utils.TimePickerPreference
 		    android:key="interval_end_time"
 		    android:dependency="enable_time_range"
 		    android:persistent="false"

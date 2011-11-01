@@ -12,7 +12,7 @@
 	  	android:layout_height="wrap_content"
 	  	android:orientation="horizontal" >
   
-		<edu.ucla.cens.andwellness.NumberPicker
+		<org.ohmage.NumberPicker
 			android:id="@+id/number_picker"
 			android:layout_width="120dp"
 			android:layout_height="wrap_content"/>

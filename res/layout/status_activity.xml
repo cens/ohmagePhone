@@ -15,31 +15,42 @@
   	android:layout_height="wrap_content"
   	android:layout_weight="2">
   	
-  <TextView
-  	android:id="@+id/status_username_label"
-  	android:text="Current user:"
-  	android:layout_width="wrap_content"
-  	android:layout_height="wrap_content"
-  	android:layout_alignParentLeft="true"
-  	android:padding="4dp"
-	android:textAppearance="?android:attr/textAppearanceMedium" />
-  
-  <TextView
-  	android:id="@+id/status_username_text"
-  	android:layout_width="wrap_content"
-  	android:layout_height="wrap_content"
-  	android:layout_below="@id/status_username_label"
-  	android:layout_alignParentLeft="true"
-  	android:padding="4dp"
-	android:textAppearance="?android:attr/textAppearanceMedium" />
-  	
-  <Button
-  	android:id="@+id/status_password_button"
-  	android:text="Change Password"
-  	android:layout_width="wrap_content"
-  	android:layout_height="wrap_content"
-  	android:layout_alignParentRight="true"
-  	android:layout_alignTop="@id/status_username_text" />
+	  <TextView
+	  	android:id="@+id/status_username_label"
+	  	android:text="Current user:"
+	  	android:layout_width="wrap_content"
+	  	android:layout_height="wrap_content"
+	  	android:layout_alignParentLeft="true"
+	  	android:padding="4dp"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
+	  
+	  <TextView
+	  	android:id="@+id/status_username_text"
+	  	android:layout_width="wrap_content"
+	  	android:layout_height="wrap_content"
+	  	android:layout_below="@id/status_username_label"
+	  	android:layout_alignParentLeft="true"
+	  	android:padding="4dp"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
+	  	
+	  <Button
+	  	android:id="@+id/status_password_button"
+	  	android:text="Update password"
+	  	android:layout_width="wrap_content"
+	  	android:layout_height="wrap_content"
+	  	android:layout_alignParentLeft="true"
+	  	android:layout_below="@id/status_username_text"
+	  	android:visibility="visible" />
+	  	
+	  <Button
+	  	android:id="@+id/status_clear_user_button"
+	  	android:text="Logout and wipe all data"
+	  	android:layout_width="wrap_content"
+	  	android:layout_height="wrap_content"
+	  	android:layout_alignParentRight="true"
+	  	android:layout_below="@id/status_username_text"
+	  	android:layout_toRightOf="@id/status_password_button"
+	  	android:visibility="visible" />
   	
   </RelativeLayout>
   

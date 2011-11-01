@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:minHeight="?android:attr/listPreferredItemHeight"
+  android:gravity="center_vertical"
+  android:padding="6dip"
+  android:orientation="horizontal">
+  
+  <ImageButton android:id="@+id/button_add_new"
+  	android:layout_width="40dip"
+	android:layout_height="40dip"
+    android:src="@drawable/green_plus"
+	android:scaleType="fitCenter" />
+  
+  <TextView
+  	android:layout_width="wrap_content"
+  	android:layout_height="wrap_content"
+  	android:paddingLeft="6dp"
+  	android:textAppearance="?android:attr/textAppearanceLarge"
+  	android:text="Add new item" />
+  	
+</LinearLayout>

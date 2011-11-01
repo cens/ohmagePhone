@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button style="@style/InfoButton"
+    	android:id="@+id/campaign_info_button_surveys"
+    	android:text="View Surveys"
+    	android:drawableLeft="@drawable/pencil"
+    	android:visibility="gone" />
+    	
+    <Button style="@style/InfoButton"
+    	android:id="@+id/campaign_info_button_remove"
+    	android:text="Remove"
+    	android:drawableLeft="@drawable/trash"
+    	android:visibility="gone" />
+    	
+    <Button style="@style/InfoButton"
+    	android:id="@+id/campaign_info_button_particpate"
+    	android:text="Participate"
+    	android:drawableLeft="@drawable/plus"
+    	android:visibility="gone" />
+</merge>

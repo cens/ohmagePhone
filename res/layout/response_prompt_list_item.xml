@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	android:id="@+id/prompt_question"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:padding="@dimen/gutter"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<ImageView
+		android:layout_height="15dip"
+		android:layout_width="15dip"
+		android:id="@+id/prompt_icon"
+		android:layout_margin="2dip"
+		android:layout_alignParentRight="true"
+		android:src="@drawable/add_new" />
+	<TextView
+		android:id="@android:id/text1"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceSmall"
+		android:textColor="@color/darkgray"
+		android:shadowColor="#e8e8e8"
+		android:shadowDx="1"
+		android:shadowDy="1"
+		android:shadowRadius="1"
+		android:layout_toLeftOf="@id/prompt_icon"
+		android:text="hi there" />
+
+	<View
+		android:id="@+id/prompt_divider"
+		android:layout_width="match_parent"
+		android:layout_height="2dip"
+		android:background="#89b8db"
+		android:layout_below="@android:id/text1" />
+
+	<FrameLayout
+		android:id="@+id/prompt_value"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/prompt_divider"
+		android:background="@drawable/prompt_response_item_bg">
+		<TextView
+			android:id="@+id/prompt_text_value"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+		<ImageView
+			android:id="@+id/prompt_image_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:adjustViewBounds="true"
+			android:background="@drawable/entity_icon_background"
+			android:padding="3dip"
+			android:maxHeight="250dip"
+			android:src="@android:drawable/ic_dialog_alert" />
+	</FrameLayout>
+
+</RelativeLayout>
