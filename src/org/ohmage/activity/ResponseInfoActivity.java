@@ -153,13 +153,13 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		
 		// Make the map view button status aware so it can provide some useful info about the gps state
 		if(data.getInt(ResponseQuery.STATUS) == Response.STATUS_WAITING_FOR_LOCATION) {
-			mapViewButton.setText("Waiting for Location");
+			mapViewButton.setText(R.string.response_info_gps_wait);
 			mapViewButton.setEnabled(false);
 		} else if(!(SurveyGeotagService.LOCATION_VALID.equals(data.getString(ResponseQuery.LOCATION_STATUS)))) {
-			mapViewButton.setText("Location Not Available");
+			mapViewButton.setText(R.string.response_info_no_location);
 			mapViewButton.setEnabled(false);
 		} else {
-			mapViewButton.setText("View Map");
+			mapViewButton.setText(R.string.response_info_view_map);
 			mapViewButton.setEnabled(true);
 		}
 	}

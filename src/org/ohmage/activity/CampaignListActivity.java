@@ -84,7 +84,7 @@ public class CampaignListActivity extends BaseSingleFragmentActivity implements 
 
 	@Override
 	public void onCampaignActionDownload(String campaignUrn) {
-		Toast.makeText(this, "The Download action should not be exposed in this activity!", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, R.string.campaign_list_download_action_invalid, Toast.LENGTH_SHORT).show();
 		Log.w(TAG, "onCampaignActionDownload should not be exposed in this activity.");
 	}
 
@@ -111,26 +111,26 @@ public class CampaignListActivity extends BaseSingleFragmentActivity implements 
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		
-		String message = "This campaign is unavailable.";
+		int message = R.string.campaign_list_campaign_unavailable;
 		
 		switch (id) {
 		case Campaign.STATUS_STOPPED:
-			message = "This campaign is stopped.";
+			message = R.string.campaign_list_campaign_stopped;
 			break;
 		case Campaign.STATUS_OUT_OF_DATE:
-			message = "This campaign is out of date";
+			message = R.string.campaign_list_campaign_out_of_date;
 			break;
 		case Campaign.STATUS_INVALID_USER_ROLE:
-			message = "Invalid user role.";
+			message = R.string.campaign_list_campaign_invalid_user_role;
 			break;
 		case Campaign.STATUS_NO_EXIST:
-			message = "This campaign no longer exists.";
+			message = R.string.campaign_list_campaign_no_exist;
 			break;
 		}
 		
 		builder.setMessage(message)
 				.setCancelable(true)
-				.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+				.setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -138,7 +138,7 @@ public class CampaignListActivity extends BaseSingleFragmentActivity implements 
 						ContentResolver cr = getContentResolver();
 						cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "= '" + campaignUrnForDialogs + "'", null);
 					}
-				}).setNegativeButton("Ignore", null);
+				}).setNegativeButton(R.string.ignore, null);
 		
 		return builder.create();
 	}

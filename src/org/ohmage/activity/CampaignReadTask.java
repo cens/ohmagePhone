@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -203,19 +204,19 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 			
 			if (isAuthenticationError) {
 				NotificationHelper.showAuthNotification(mContext);
-				Toast.makeText(mContext, "Authentication error while trying to read campaigns from server.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
 			} else {
-				Toast.makeText(mContext, "Unexpected response received from server while trying to read campaigns from server.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
 			}
 			
 		} else if (response.getResult() == Result.HTTP_ERROR) {
 			Log.e(TAG, "http error");
 			
-			Toast.makeText(mContext, "Network error occurred while trying to read campaigns from server.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
 		} else {
 			Log.e(TAG, "internal error");
 			
-			Toast.makeText(mContext, "Internal error occurred while trying to read campaigns from server.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
 		} 
 	}
 }

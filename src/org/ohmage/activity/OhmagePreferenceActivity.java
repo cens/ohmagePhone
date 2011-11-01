@@ -50,7 +50,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 					if(!TextUtils.isEmpty(urn))
 						Campaign.launchTriggerActivity(OhmagePreferenceActivity.this, Campaign.getSingleCampaign(OhmagePreferenceActivity.this));
 					else
-						Toast.makeText(OhmagePreferenceActivity.this, "Invalid campaign setup", Toast.LENGTH_LONG).show();
+						Toast.makeText(OhmagePreferenceActivity.this, R.string.preferences_no_single_campaign, Toast.LENGTH_LONG).show();
 					return true;
 				}
 			});
@@ -78,18 +78,18 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	private void setStatusInfo() {
 		Preference campaignUrnStatus = findPreference(STATUS_CAMPAIGN_URN);
 		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
-			campaignUrnStatus.setTitle("Single-Campaign Mode");
+			campaignUrnStatus.setTitle(R.string.preferences_single_campaign_status);
 			campaignUrnStatus.setSummary(Campaign.getSingleCampaign(this));
 			if(campaignUrnStatus.getSummary() == null)
-				campaignUrnStatus.setSummary("Unknown");
+				campaignUrnStatus.setSummary(R.string.unknown);
 		} else {
-			campaignUrnStatus.setTitle("Multi-Campaign Mode");
+			campaignUrnStatus.setTitle(R.string.preferences_muli_campaign_status);
 			campaignUrnStatus.setSummary(null);
 		}
 
-		findPreference(STATUS_FEEDBACK_VISIBILITY).setSummary(mUserPreferenceHelper.showFeedback() ? "Shown" : "Hidden");
-		findPreference(STATUS_PROFILE_VISIBILITY).setSummary(mUserPreferenceHelper.showProfile() ? "Shown" : "Hidden");
-		findPreference(STATUS_UPLOAD_QUEUE_VISIBILITY).setSummary(mUserPreferenceHelper.showUploadQueue() ? "Shown" : "Hidden");
+		findPreference(STATUS_FEEDBACK_VISIBILITY).setSummary(mUserPreferenceHelper.showFeedback() ? R.string.shown : R.string.hidden);
+		findPreference(STATUS_PROFILE_VISIBILITY).setSummary(mUserPreferenceHelper.showProfile() ? R.string.shown : R.string.hidden);
+		findPreference(STATUS_UPLOAD_QUEUE_VISIBILITY).setSummary(mUserPreferenceHelper.showUploadQueue() ? R.string.shown : R.string.hidden);
 	}
 
 	@Override

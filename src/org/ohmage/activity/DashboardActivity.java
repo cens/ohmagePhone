@@ -172,7 +172,7 @@ public class DashboardActivity extends BaseActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
 		super.onCreateOptionsMenu(menu);
-		menu.add(0,1,0,"Settings");
+		menu.add(0,1,0,R.string.menu_settings);
 		menu.findItem(1).setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}

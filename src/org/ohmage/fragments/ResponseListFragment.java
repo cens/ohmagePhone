@@ -1,5 +1,6 @@
 package org.ohmage.fragments;
 
+import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.activity.UploadQueueActivity;
 import org.ohmage.adapters.ResponseListCursorAdapter;
@@ -40,7 +41,7 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 		super.onActivityCreated(savedInstanceState);
 
 		// Set the empty text
-		setEmptyText("No responses");
+		setEmptyText(getActivity().getString(R.string.response_list_empty));
 
 		// We have no menu items to show in action bar.
 		setHasOptionsMenu(false);

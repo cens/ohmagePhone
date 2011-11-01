@@ -1,5 +1,6 @@
 package org.ohmage.fragments;
 
+import org.ohmage.R;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
 
@@ -41,9 +42,9 @@ public class AdminDialogFragment extends DialogFragment {
 		ti.setNumberMode(true);
 		ti.setPasswordMode(true);
 		ti.setAllowEmptyText(false);
-		ti.setPositiveButtonText("Ok");
-		ti.setNegativeButtonText("Cancel");
-		ti.setTitle("Enter pin code:");
+		ti.setPositiveButtonText(getString(R.string.ok));
+		ti.setNegativeButtonText(getString(R.string.cancel));
+		ti.setTitle(getActivity().getString(R.string.admin_dialog_title));
 
 		ti.setText("");
 
@@ -55,7 +56,7 @@ public class AdminDialogFragment extends DialogFragment {
 					if(ti.getText().equals(TrigUserConfig.adminPass)) {
 						mSuccess = true;
 					} else {
-						Toast.makeText(getActivity(), "Wrong pin code.", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getActivity(), R.string.admin_dialog_invalid_pin, Toast.LENGTH_SHORT).show();
 					}
 				}
 			}

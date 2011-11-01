@@ -17,6 +17,8 @@ package org.ohmage.activity;
 
 import com.slezica.tools.async.ManagedAsyncTask;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.BackgroundManager;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -37,7 +39,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import edu.ucla.cens.systemlog.Log;
 import android.widget.Toast;
 
 import java.util.Arrays;
@@ -76,7 +77,6 @@ public class LoginActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.login);
-		setTitle(getTitle() + " login");
 		
 		// first see if they are already logged in
 		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
@@ -187,107 +187,107 @@ public class LoginActivity extends FragmentActivity {
 		Dialog dialog = super.onCreateDialog(id);
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
 		switch (id) {
-		case DIALOG_FIRST_RUN:
-        	dialogBuilder.setTitle("Welcome")
-        				.setMessage("Disclaimer/Agreement stuff goes here.")
-        				.setCancelable(false)
-        				.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								mPreferencesHelper.setFirstRun(false);
-							}
-						})
-						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								LoginActivity.this.finish();
-							}
-						});
-        	dialog = dialogBuilder.create();
-        	break;
-        	
-		case DIALOG_LOGIN_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to authenticate. Please check username and update the password.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
-								//put extras for specific help on login error
-							}
-						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();        	
-        	break;
-        	
-		case DIALOG_USER_DISABLED:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("This user account has been disabled.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+			case DIALOG_FIRST_RUN:
+				dialogBuilder.setTitle(R.string.eula_title)
+				.setMessage(R.string.eula_text)
+				.setCancelable(false)
+				.setPositiveButton(R.string.eula_accept, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mPreferencesHelper.setFirstRun(false);
+					}
+				})
+				.setNegativeButton(R.string.eula_cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						LoginActivity.this.finish();
+					}
+				});
+				dialog = dialogBuilder.create();
+				break;
+
+			case DIALOG_LOGIN_ERROR:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_invalid_password)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
 								//put extras for specific help on login error
 							}
 						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();        	
-        	break;
-        	
-		case DIALOG_NETWORK_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to communicate with server. Please try again later.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+				//add button for contact
+				dialog = dialogBuilder.create();        	
+				break;
+
+			case DIALOG_USER_DISABLED:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_account_disabled)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
+								//put extras for specific help on login error
+							}
+						})*/;
+				//add button for contact
+				dialog = dialogBuilder.create();        	
+				break;
+
+			case DIALOG_NETWORK_ERROR:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_network_error)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
 								//put extras for specific help on http error
 							}
 						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();
-        	break;
-        
-		case DIALOG_INTERNAL_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("The server returned an unexpected response. Please try again later.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+				//add button for contact
+				dialog = dialogBuilder.create();
+				break;
+
+			case DIALOG_INTERNAL_ERROR:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_server_error)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
 								//put extras for specific help on http error
 							}
 						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();
-        	break;
-        	
-		case DIALOG_LOGIN_PROGRESS: {
-			ProgressDialog pDialog = new ProgressDialog(this);
-			pDialog.setMessage("Authenticating with ohmage servers...");
-			pDialog.setCancelable(false);
-			//pDialog.setIndeterminate(true);
-			dialog = pDialog;
-			break;
+				//add button for contact
+				dialog = dialogBuilder.create();
+				break;
+
+			case DIALOG_LOGIN_PROGRESS: {
+				ProgressDialog pDialog = new ProgressDialog(this);
+				pDialog.setMessage(getString(R.string.login_authenticating));
+				pDialog.setCancelable(false);
+				//pDialog.setIndeterminate(true);
+				dialog = pDialog;
+				break;
+			}
+			case DIALOG_DOWNLOADING_CAMPAIGNS: {
+				ProgressDialog pDialog = new ProgressDialog(this);
+				pDialog.setMessage(getString(R.string.login_download_campaign));
+				pDialog.setCancelable(false);
+				//pDialog.setIndeterminate(true);
+				dialog = pDialog;
+				break;
+			}
 		}
-		case DIALOG_DOWNLOADING_CAMPAIGNS: {
-			ProgressDialog pDialog = new ProgressDialog(this);
-			pDialog.setMessage("Downloading Campaign...");
-			pDialog.setCancelable(false);
-			//pDialog.setIndeterminate(true);
-			dialog = pDialog;
-			break;
-		}
-		}
-		
+
 		return dialog;
 	}
 	
@@ -322,7 +322,7 @@ public class LoginActivity extends FragmentActivity {
 						// get the first available campaign
 						String urn = Campaign.getSingleCampaign(getActivity());
 						if(urn == null)
-							Toast.makeText(getActivity(), "Error downloading campaign", Toast.LENGTH_LONG).show();
+							Toast.makeText(getActivity(), R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
 						else
 							loginFinished(username, hashedPassword);
 						getActivity().dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);

@@ -1,5 +1,6 @@
 package org.ohmage.fragments;
 
+import org.ohmage.R;
 import org.ohmage.activity.CampaignAddActivity;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.CampaignListCursorAdapter;
@@ -45,10 +46,10 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		
 		if (getActivity().getComponentName().getClassName().equals(CampaignAddActivity.class.getName())) {
 			mMode = MODE_ADD_CAMPAIGNS;
-			setEmptyText("No campaigns available at this time.");
+			setEmptyText(getActivity().getString(R.string.campaign_add_list_empty));
 		} else {
 			mMode = MODE_MY_CAMPAIGNS;
-			setEmptyText("You are not participating in any campaigns.\n\nHit the + icon on the top right to view and download avaialable campaigns.");
+			setEmptyText(getActivity().getString(R.string.campaign_list_empty));
 		}
 		
 		mAdapter = new CampaignListCursorAdapter(getActivity(), null, this, 0);

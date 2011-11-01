@@ -592,15 +592,15 @@ public class SurveyActivity extends Activity {
 	}
 	
 	private void showSubmitScreen() {
-		mNextButton.setText("Submit");
-		mPrevButton.setText("Previous");
+		mNextButton.setText(R.string.submit);
+		mPrevButton.setText(R.string.previous);
 		mPrevButton.setVisibility(View.VISIBLE);
 		mSkipButton.setVisibility(View.INVISIBLE);
 		
 		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
 		
-		mPromptText.setText("Survey Complete!");
+		mPromptText.setText(R.string.survey_complete);
 		mProgressBar.setProgress(mProgressBar.getMax());
 		
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -625,8 +625,8 @@ public class SurveyActivity extends Activity {
 		if (mSurveyElements.get(index) instanceof Message) {
 			Message message = (Message)mSurveyElements.get(index);
 			
-			mNextButton.setText("Next");
-			mPrevButton.setText("Previous");
+			mNextButton.setText(R.string.next);
+			mPrevButton.setText(R.string.previous);
 			mSkipButton.setVisibility(View.INVISIBLE);
 			
 			if (index == 0) {
@@ -638,7 +638,7 @@ public class SurveyActivity extends Activity {
 			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
 			
-			mPromptText.setText("Message");
+			mPromptText.setText(R.string.survey_message_title);
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 			
 			mPromptFrame.removeAllViews();
@@ -654,8 +654,8 @@ public class SurveyActivity extends Activity {
 			
 			AbstractPrompt prompt = (AbstractPrompt)mSurveyElements.get(index);
 			
-			mNextButton.setText("Next");
-			mPrevButton.setText("Previous");
+			mNextButton.setText(R.string.next);
+			mPrevButton.setText(R.string.previous);
 						
 			if (index == 0) {
 				mPrevButton.setVisibility(View.INVISIBLE);
@@ -702,11 +702,11 @@ public class SurveyActivity extends Activity {
 			String repeatText = terminator.getFalseLabel();
 			
 			if (terminateText == null || terminateText.equals("")) {
-				terminateText = "Terminate";
+				terminateText = getString(R.string.survey_repeatable_set_terminate);
 			}
 			
 			if (repeatText == null || repeatText.equals("")) {
-				repeatText = "Repeat";
+				repeatText = getString(R.string.survey_repeatable_set_repeat);
 			}
 			
 			mNextButton.setText(terminateText);
@@ -725,7 +725,7 @@ public class SurveyActivity extends Activity {
 			
 			// TODO for now I'm casting, but maybe I should move getters/setters to interface?
 			// or just use a list of AbstractPrompt
-			mPromptText.setText("End of repeatable set");
+			mPromptText.setText(R.string.survey_repeatable_set_title);
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 			
 //			if (terminator.getSkippable().equals("true")) {

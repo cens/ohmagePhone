@@ -248,37 +248,37 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);
 		switch (mCampaignStatus) {
 			case Campaign.STATUS_READY:
-				mStatusValue.setText("participating");
+				mStatusValue.setText(R.string.campaign_status_participating);
 				mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_running, 0, 0, 0);
 				break;
 			case Campaign.STATUS_VAGUE:
-				mStatusValue.setText("not available");
+				mStatusValue.setText(R.string.campaign_status_vague);
 				break;
 			case Campaign.STATUS_REMOTE:
-				mStatusValue.setText("available");
+				mStatusValue.setText(R.string.campaign_status_remote);
 				break;
 			case Campaign.STATUS_OUT_OF_DATE:
-				mStatusValue.setText("out of date");
+				mStatusValue.setText(R.string.campaign_status_out_of_date);
 				break;
 			case Campaign.STATUS_NO_EXIST:
-				mStatusValue.setText("deleted on server");
+				mStatusValue.setText(R.string.campaign_status_no_exist);
 				break;
 			case Campaign.STATUS_STOPPED:
-				mStatusValue.setText("stopped");
+				mStatusValue.setText(R.string.campaign_status_stopped);
 				mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0);
 				mErrorBox.setVisibility(View.VISIBLE);
 				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_stopped)));
 				break;
 			case Campaign.STATUS_INVALID_USER_ROLE:
-				mStatusValue.setText("invalid role");
+				mStatusValue.setText(R.string.campaign_status_invalid_user_role);
 				mErrorBox.setVisibility(View.VISIBLE);
 				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_invalid_role)));
 				break;
 			case Campaign.STATUS_DOWNLOADING:
-				mStatusValue.setText("downloading...");
+				mStatusValue.setText(R.string.campaign_status_downloading);
 				break;
 			default:
-				mStatusValue.setText("unknown status");
+				mStatusValue.setText(R.string.campaign_status_unknown);
 				break;
 		}
 		
@@ -292,7 +292,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				// set the responses by querying the response table
 				// and getting the number of responses submitted for this campaign
 				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn, surveyID), null, null, null, null);
-				mResponsesValue.setText(responses.getCount() + " response(s) submitted");
+				mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
 			}
 		};
 		
@@ -305,7 +305,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		TriggerDB trigDB = new TriggerDB(mContext);
 		if (trigDB.open()) {
 			Cursor triggers = trigDB.getTriggers(campaignUrn, surveyID);
-			mTriggersValue.setText(triggers.getCount() + " trigger(s) configured");
+			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, triggers.getCount(), triggers.getCount()));
 			triggers.close();
 			trigDB.close();
 		}

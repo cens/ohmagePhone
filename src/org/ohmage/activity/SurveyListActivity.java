@@ -91,14 +91,14 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 			intent.putExtra("survey_submit_text", cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUBMIT_TEXT)));
 			startActivity(intent);
 		} else {
-			Toast.makeText(this, "onSurveyActionStart: Error: Empty cursor returned.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.survey_list_invalid_survey, Toast.LENGTH_SHORT).show();
 		}
 		cursor.close();
 	}
 
 	@Override
 	public void onSurveyActionUnavailable(Uri surveyUri) {
-		Toast.makeText(this, "This survey can only be taken when triggered.", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, R.string.survey_list_must_trigger, Toast.LENGTH_SHORT).show();
 	}
 
 }
