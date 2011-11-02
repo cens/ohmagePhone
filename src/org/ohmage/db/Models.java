@@ -11,6 +11,7 @@ import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 
 import java.io.File;
@@ -108,7 +109,7 @@ public class Models {
 		 * @param context
 		 * @param campaignUrn
 		 */
-		public static void launchTriggerActivity(Context context, String campaignUrn) {
+		public static Intent launchTriggerActivity(Context context, String campaignUrn) {
 			List<String> surveyTitles = new ArrayList<String>();
 			
 			// grab a list of surveys for this campaign
@@ -118,7 +119,7 @@ public class Models {
 				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
 			
-			TriggerFramework.launchTriggersActivity(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
+			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 		}
 
 		/**

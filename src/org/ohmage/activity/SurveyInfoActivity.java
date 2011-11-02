@@ -11,7 +11,6 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
@@ -31,10 +30,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+	protected static final int TRIGGER_UPDATE_FINISHED = 0;
+
 	// action bar commands
 	private static final int ACTION_VIEW_RESPHISTORY = 1;
 	private static final int ACTION_SETUP_TRIGGERS = 2;
@@ -55,6 +53,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	private int mCampaignStatus; // status code for campaign as of last refresh
 	private Handler mHandler;
 	private ContentObserver mResponsesObserver;
+
+	private String mSurveyTitle;
+	private String mCampaignUrn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -113,11 +114,15 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// or start a new one.
 		getSupportLoaderManager().initLoader(1, null, this);
 	}
-	
+
 	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch(requestCode) {
+			case TRIGGER_UPDATE_FINISHED:
+				//Triggers might have changed so we update it here
+				setTriggerCount();
+				break;
+		}
 	}
 	
 	protected void populateCommands(final String surveyID, final String campaignUrn, final String surveyTitle, final String surveySubmitText, int campaignStatus) {
@@ -148,16 +153,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 							startActivity(intent);
 							break;
 						case ACTION_SETUP_TRIGGERS:
-							List<String> surveyTitles = new ArrayList<String>();
-							
-							// grab a list of surveys for this campaign
-							Cursor surveys = getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
-							
-							while (surveys.moveToNext()) {
-								surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
-							}
-							
-							TriggerFramework.launchTriggersActivity(mContext, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
+							Intent triggerIntent = Campaign.launchTriggerActivity(mContext, campaignUrn);
+							startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
 							return;
 					}
 				}
@@ -226,8 +223,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 		// populate the views
 		final String surveyID = data.getString(QueryParams.SURVEY_ID);
-		final String campaignUrn = data.getString(QueryParams.CAMPAIGN_URN);
-		String surveyTitle = data.getString(QueryParams.SURVEY_TITLE);
+		mSurveyTitle = data.getString(QueryParams.SURVEY_TITLE);
+		mCampaignUrn = data.getString(QueryParams.CAMPAIGN_URN);
 		String submitText = data.getString(QueryParams.SUBMIT_TEXT);
 
 		// set the header fields first
@@ -294,7 +291,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 				// set the responses by querying the response table
 				// and getting the number of responses submitted for this campaign
-				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn, surveyID), null, null, null, null);
+				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mSurveyTitle, surveyID), null, null, null, null);
 				mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
 			}
 		};
@@ -305,22 +302,26 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mResponsesObserver.onChange(false);
 		
 		// get the number of triggers for this survey
-		TriggerDB trigDB = new TriggerDB(mContext);
-		if (trigDB.open()) {
-			Cursor triggers = trigDB.getSurveyTriggers(campaignUrn, surveyTitle);
-			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, triggers.getCount(), triggers.getCount()));
-			triggers.close();
-			trigDB.close();
-		}
+		setTriggerCount();
 		
 		// and finally populate the action bar + command tray
-		populateCommands(surveyID, campaignUrn, data.getString(QueryParams.TITLE), submitText, mCampaignStatus);
+		populateCommands(surveyID, mCampaignUrn, data.getString(QueryParams.TITLE), submitText, mCampaignStatus);
 
 		// and make the entity header visible (although i assume it already was)
 		mEntityHeader.setVisibility(View.VISIBLE);
 		
 		// finally, show our content
 		setLoadingVisibility(false);
+	}
+
+	public void setTriggerCount() {
+		TriggerDB trigDB = new TriggerDB(mContext);
+		if (trigDB.open()) {
+			Cursor triggers = trigDB.getSurveyTriggers(mCampaignUrn, mSurveyTitle);
+			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, triggers.getCount(), triggers.getCount()));
+			triggers.close();
+			trigDB.close();
+		}
 	}
 
 	@Override

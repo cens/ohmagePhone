@@ -31,6 +31,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final int TRIGGER_UPDATE_FINISHED = 0;
+
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
@@ -52,6 +54,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 	// state vars
 	private int mCampaignStatus; // status code for campaign as of last refresh
 	private int mLocalResponses;
+
+	private String mCampaignUrn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +119,17 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// or start a new one.
 		getSupportLoaderManager().initLoader(0, null, this);
 	}
-	
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch(requestCode) {
+			case TRIGGER_UPDATE_FINISHED:
+				//Triggers might have changed so we update it here
+				setTriggerCount();
+				break;
+		}
+	}
+
 	protected void populateCommands(final String campaignUrn, final int campaignStatus) {
 		// first remove all the commands from the action bar...
 		ActionBarControl actionBar = getActionBar();
@@ -154,7 +168,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								startActivity(intent);
 								break;
 							case ACTION_SETUP_TRIGGERS:
-								Campaign.launchTriggerActivity(CampaignInfoActivity.this, campaignUrn);
+								Intent triggerIntent = Campaign.launchTriggerActivity(mContext, campaignUrn);
+								startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
 								return;
 						}
 					}
@@ -280,11 +295,11 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		if (!data.moveToFirst())
 			return;
 
-		String campaignUrn = data.getString(QueryParams.URN);
+		mCampaignUrn = data.getString(QueryParams.URN);
 
 		// set the header fields first
 		mHeadertext.setText(data.getString(QueryParams.NAME));
-		mSubtext.setText(campaignUrn);
+		mSubtext.setText(mCampaignUrn);
 		mNotetext.setVisibility(View.INVISIBLE);
 
 		final String iconUrl = data.getString(QueryParams.ICON);
@@ -349,30 +364,35 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 		// set the responses by querying the response table
 		// and getting the number of responses submitted for this campaign
-		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn), null, null, null, null);
+		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), null, null, null, null);
 		mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
 
-		Cursor localResponses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn), new String[] { Responses._ID },
+		Cursor localResponses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), new String[] { Responses._ID },
 				Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
 		mLocalResponses = localResponses.getCount();
 
-		// get the number of triggers for this campaign
-		TriggerDB trigDB = new TriggerDB(mContext);
-		if (trigDB.open()) {
-			Cursor triggers = trigDB.getAllTriggers(campaignUrn);
-			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, triggers.getCount(), triggers.getCount()));
-			triggers.close();
-			trigDB.close();
-		}
+		// get the number of triggers for this survey
+		setTriggerCount();
 
 		// and finally populate the action bar + command tray
-		populateCommands(campaignUrn, mCampaignStatus);
+		populateCommands(mCampaignUrn, mCampaignStatus);
 
 		// and make the entity header visible (although i assume it already was)
 		mEntityHeader.setVisibility(View.VISIBLE);
 
 		// finally, show our content
 		setLoadingVisibility(false);
+	}
+
+	private void setTriggerCount() {
+		// get the number of triggers for this campaign
+		TriggerDB trigDB = new TriggerDB(mContext);
+		if (trigDB.open()) {
+			Cursor triggers = trigDB.getAllTriggers(mCampaignUrn);
+			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, triggers.getCount(), triggers.getCount()));
+			triggers.close();
+			trigDB.close();
+		}
 	}
 
 	@Override

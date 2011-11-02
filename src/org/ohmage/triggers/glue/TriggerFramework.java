@@ -58,12 +58,12 @@ public class TriggerFramework {
 	 * is the entry point to the trigger framework. The list of all surveys 
 	 * for which any trigger is to be set must be passed as argument.
 	 */
-	public static void launchTriggersActivity(Context context, String campaignUrn, String[] surveys ) {
+	public static Intent launchTriggersIntent(Context context, String campaignUrn, String[] surveys ) {
 		
 		Intent i = new Intent(context, TriggerListActivity.class);
 		i.putExtra(TriggerListActivity.KEY_CAMPAIGN_URN, campaignUrn);
 		i.putExtra(TriggerListActivity.KEY_ACTIONS, surveys);
-		context.startActivity(i);
+		return i;
 	}
 	
 	/*
