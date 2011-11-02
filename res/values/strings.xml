@@ -2,8 +2,8 @@
 <resources>
 
     <!-- General -->
-    <string name="app_name">ohmage</string>
-    <string name="server_name">ohmage</string>
+    <string name="app_name">mobilize</string>
+    <string name="server_name">mobilize</string>
     <string name="cancel">Cancel</string>
     <string name="remove">Remove</string>
     <string name="upload">Upload</string>
