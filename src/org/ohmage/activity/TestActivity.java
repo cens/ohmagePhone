@@ -92,7 +92,7 @@ public class TestActivity extends Activity {
 				}
 				
 				surveyFilter.populate(items);
-				surveyFilter.add(0, Pair.create("All Surveys", "all"));
+				surveyFilter.add(0, Pair.create(getString(R.string.filter_all_surveys), "all"));
 				
 				surveys.close();
 			}
@@ -101,6 +101,6 @@ public class TestActivity extends Activity {
 		mCR = getContentResolver();
 		Cursor campaigns = mCR.query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
 		campaignFilter.populate(campaigns, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
-		campaignFilter.add(0, Pair.create("All Campaigns", "all"));
+		campaignFilter.add(0, Pair.create(getString(R.string.filter_all_campaigns), "all"));
 	}
 }

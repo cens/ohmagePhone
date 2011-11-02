@@ -24,7 +24,7 @@
 			android:layout_marginLeft="10dp"
 			android:textAppearance="?android:attr/textAppearanceLarge"
 			android:gravity="center_horizontal"
-			android:text="hours ago" />
+			android:text="@string/prompt_hours_ago" />
 		
 	</LinearLayout>
 		

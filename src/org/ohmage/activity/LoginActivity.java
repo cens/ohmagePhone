@@ -231,48 +231,48 @@ public class LoginActivity extends Activity {
 								//put extras for specific help on login error
 							}
 						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();        	
-        	break;
-        	
-		case DIALOG_USER_DISABLED:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("This user account has been disabled.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+				//add button for contact
+				dialog = dialogBuilder.create();        	
+				break;
+
+			case DIALOG_USER_DISABLED:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_account_disabled)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
 								//put extras for specific help on login error
 							}
 						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();        	
-        	break;
-        	
-		case DIALOG_NETWORK_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to communicate with server. Please try again later.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+				//add button for contact
+				dialog = dialogBuilder.create();        	
+				break;
+
+			case DIALOG_NETWORK_ERROR:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_network_error)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
 								//put extras for specific help on http error
 							}
 						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();
-        	break;
-        
-		case DIALOG_INTERNAL_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("The server returned an unexpected response. Please try again later.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+				//add button for contact
+				dialog = dialogBuilder.create();
+				break;
+
+			case DIALOG_INTERNAL_ERROR:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_server_error)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
@@ -285,7 +285,7 @@ public class LoginActivity extends Activity {
         	
 		case DIALOG_LOGIN_PROGRESS:
 			ProgressDialog pDialog = new ProgressDialog(this);
-			pDialog.setMessage("Authenticating with ohmage servers...");
+			pDialog.setMessage(getString(R.string.login_authenticating, getString(R.string.server_name)));
 			pDialog.setCancelable(false);
 			//pDialog.setIndeterminate(true);
 			dialog = pDialog;

@@ -109,7 +109,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		feedbackText = (TextView) layout.findViewById(R.id.prompt_remote_activity_feedback);
 		launchButton = (Button) layout.findViewById(R.id.prompt_remote_activity_replay_button);
 		launchButton.setOnClickListener(this);
-		launchButton.setText((!launched && !autolaunch) ? "Launch" : "Relaunch");
+		launchButton.setText((!launched && !autolaunch) ? R.string.prompt_remote_launch : R.string.prompt_remote_relaunch);
 		
 		if(retries > 0)
 		{
@@ -321,7 +321,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		}
 		else if(!autolaunch)
 		{
-			launchButton.setText("Relaunch");
+			launchButton.setText(R.string.prompt_remote_relaunch);
 			
 			if((retries + 1 - runs) <= 0)
 			{

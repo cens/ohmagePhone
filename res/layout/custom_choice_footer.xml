@@ -14,7 +14,7 @@
   	android:layout_height="wrap_content"
   	android:layout_weight="1"
   	android:textAppearance="?android:attr/textAppearanceLarge"
-  	android:text="Add new choice" />
+	android:text="@string/prompt_custom_single_choice_add" />
   
   <ImageView
   	android:id="@+id/image"

@@ -20,6 +20,6 @@
 		android:layout_marginRight="20dp"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:gravity="center_horizontal"
-		android:text="Use the +/- buttons\nto select a value." />
+		android:text="@string/prompt_select_value" />
 		
 </LinearLayout>

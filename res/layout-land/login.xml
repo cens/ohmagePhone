@@ -35,7 +35,7 @@
 			android:layout_marginRight="3dp"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:textColor="#1476AF"
-			android:text="Username:" />
+			android:text="@string/login_username_title" />
 			
 		<EditText android:id="@+id/user_input" 
 			android:layout_width="wrap_content"
@@ -56,7 +56,7 @@
 			android:layout_marginLeft="5dp"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:textColor="#1476AF"
-			android:text="Password:" />
+			android:text="@string/login_password_title" />
 			
 		<EditText android:id="@+id/password" 
 			android:layout_width="wrap_content"
@@ -75,7 +75,7 @@
 			android:layout_height="wrap_content" 
 			android:layout_below="@id/password"
 			android:layout_alignRight="@id/password"
-			android:text="Login" />
+			android:text="@string/login_submit" />
 
 	</RelativeLayout>
 </ScrollView>

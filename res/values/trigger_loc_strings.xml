@@ -15,11 +15,9 @@
     <string name="locations_on_map">locations on map</string>
     <string name="rename_msg">Rename %s</string>
     <string name="done">Done</string>
-    <string name="cancel">Cancel</string>
     <string name="close">Close</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="ok">OK</string>
     <string name="del_categ_msg">Delete %s? This will remove all the locations and the triggers associated with it.</string>
     <string name="survey_sel_msg">Select the surveys to be triggered at %s</string>
     <string name="maps_tile_default">Press and hold a location on the map to add it to %s. Open menu for more options.</string>

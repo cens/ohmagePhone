@@ -13,6 +13,6 @@
 		android:layout_height="wrap_content"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:gravity="center_horizontal"
-		android:text="Message text should appear here." />
+		android:text="@string/survey_message_text" />
 		
 </LinearLayout>
