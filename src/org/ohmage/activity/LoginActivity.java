@@ -272,7 +272,7 @@ public class LoginActivity extends FragmentActivity {
 
 			case DIALOG_LOGIN_PROGRESS: {
 				ProgressDialog pDialog = new ProgressDialog(this);
-				pDialog.setMessage(getString(R.string.login_authenticating));
+				pDialog.setMessage(getString(R.string.login_authenticating, getString(R.string.server_name)));
 				pDialog.setCancelable(false);
 				//pDialog.setIndeterminate(true);
 				dialog = pDialog;

@@ -19,6 +19,6 @@
   	android:layout_height="wrap_content"
   	android:paddingLeft="6dp"
   	android:textAppearance="?android:attr/textAppearanceLarge"
-  	android:text="Add new item" />
+	android:text="@string/prompt_custom_multi_choice_add" />
   	
 </LinearLayout>

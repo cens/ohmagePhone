@@ -74,9 +74,9 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 		Bundle calendarBundle = intentToFragmentArguments(getIntent());
 		calendarBundle.remove(TimeFilter.EXTRA_DAY);
-		mTabManager.addTab(mTabHost.newTabSpec("calendar").setIndicator(createTabView("Calendar")),
+		mTabManager.addTab(mTabHost.newTabSpec("calendar").setIndicator(createTabView(R.string.response_history_calendar_tab)),
 				ResponseHistoryCalendarFragment.class, calendarBundle);
-		mTabManager.addTab(mTabHost.newTabSpec("map").setIndicator(createTabView("Map")),
+		mTabManager.addTab(mTabHost.newTabSpec("map").setIndicator(createTabView(R.string.response_history_map_tab)),
 				ResponseMapFragment.class, intentToFragmentArguments(getIntent()));
 
 		if (savedInstanceState != null) {
@@ -84,10 +84,10 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 		}
 	}
 
-	private View createTabView(final String text){
+	private View createTabView(final int textResource){
 		View view = LayoutInflater.from(this).inflate(R.layout.rh_tabs_bg, null);
 		TextView tv = (TextView) view.findViewById(R.id.rh_tabs_text);
-		tv.setText(text);
+		tv.setText(textResource);
 		return view;
 	}
 

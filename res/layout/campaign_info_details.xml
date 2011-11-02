@@ -24,7 +24,7 @@
 		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content">
 			<TableRow style="@style/InfoSectionHeader"
 				android:id="@+id/campaign_info_privacy_row">
-				<TextView style="@style/InfoSectionLabel" android:text="privacy:" />
+				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_privacy_title" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_privacy_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
@@ -32,7 +32,7 @@
 			
 			<TableRow style="@style/InfoSectionHeader"
 				android:id="@+id/campaign_info_status_row">
-				<TextView style="@style/InfoSectionLabel" android:text="status:" />
+				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_status_title" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_status_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
@@ -40,7 +40,7 @@
 			
 			<TableRow style="@style/InfoSectionHeader"
 				android:id="@+id/campaign_info_responses_row">
-				<TextView style="@style/InfoSectionLabel" android:text="responses:" />
+				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_responses_title" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_responses_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
@@ -48,7 +48,7 @@
 				
 			<TableRow style="@style/InfoSectionHeader"
 				android:id="@+id/campaign_info_triggers_row">
-				<TextView style="@style/InfoSectionLabel" android:text="triggers:" />
+				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_triggers_title" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_triggers_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"

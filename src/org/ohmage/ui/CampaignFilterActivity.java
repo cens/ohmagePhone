@@ -50,7 +50,7 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 		mDefaultCampaign = getIntent().getStringExtra(CampaignFilter.EXTRA_CAMPAIGN_URN);
 		
 		if(mDefaultCampaign == null)
-			mCampaignFilter.add(0, new Pair<String, String>("All Campaigns", null));
+			mCampaignFilter.add(0, new Pair<String, String>(getString(R.string.filter_all_campaigns), null));
 
 		if(!SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
 			getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
@@ -89,7 +89,7 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 
 		// Populate the filter
 		mCampaignFilter.populate(data, Campaigns.CAMPAIGN_NAME, Campaigns.CAMPAIGN_URN);
-		mCampaignFilter.add(0, new Pair<String,String>("All Campaigns", null));
+		mCampaignFilter.add(0, new Pair<String,String>(getString(R.string.filter_all_campaigns), null));
 
 		if(mDefaultCampaign != null) {
 			mCampaignFilter.setValue(mDefaultCampaign);

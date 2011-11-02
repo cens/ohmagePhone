@@ -50,7 +50,7 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 			setLoadingVisibility(true);
 			getSupportLoaderManager().initLoader(SURVEY_LOADER, null, this);
 		} else {
-			mSurveyFilter.add(0, new Pair<String, String>("All Surveys", null));
+			mSurveyFilter.add(0, new Pair<String, String>(getString(R.string.filter_all_surveys), null));
 		}
 	}
 
@@ -111,7 +111,7 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 
 				// Populate the filter
 				mSurveyFilter.populate(data, Surveys.SURVEY_TITLE, Surveys.SURVEY_ID);
-				mSurveyFilter.add(0, new Pair<String, String>("All Surveys", null));
+				mSurveyFilter.add(0, new Pair<String, String>(getString(R.string.filter_all_surveys), null));
 
 				if(mDefaultSurvey != null) {
 					mSurveyFilter.setValue(mDefaultSurvey);

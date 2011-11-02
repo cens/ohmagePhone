@@ -3,19 +3,19 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <Button style="@style/InfoButton"
     	android:id="@+id/campaign_info_button_surveys"
-    	android:text="View Surveys"
+		android:text="@string/campaign_info_view_surveys"
     	android:drawableLeft="@drawable/pencilpaper"
     	android:visibility="gone" />
     	
     <Button style="@style/InfoButton"
     	android:id="@+id/campaign_info_button_remove"
-    	android:text="Remove"
+		android:text="@string/remove"
     	android:drawableLeft="@drawable/trash"
     	android:visibility="gone" />
     	
     <Button style="@style/InfoButton"
     	android:id="@+id/campaign_info_button_particpate"
-    	android:text="Participate"
+		android:text="@string/campaign_info_participate"
     	android:drawableLeft="@drawable/plus"
     	android:visibility="gone" />
 </merge>

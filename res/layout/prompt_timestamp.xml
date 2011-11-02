@@ -20,7 +20,7 @@
 		android:gravity="center_horizontal"
 		android:layout_marginTop="20dp"
 		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="Change date" />
+		android:text="@string/prompt_timestamp_change_date" />
 		
 	<TextView
 		android:layout_width="200dp"
@@ -28,6 +28,6 @@
 		android:layout_marginTop="20dp"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:gravity="center_horizontal"
-		android:text="Remember to set the correct AM/PM value!" />
+		android:text="@string/prompt_timestamp_set_am_pm" />
 		
 </LinearLayout>

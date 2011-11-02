@@ -41,7 +41,7 @@ public class RepeatableSetTerminator implements SurveyElement, Displayable {
 		//submitText.setText("Thank you for completing the survey!");
 		
 		if (terminationQuestion == null || terminationQuestion.equals("")) {
-			questionText.setText(R.string.repeatable_set_repeat_question);
+			questionText.setText(R.string.prompt_repeatable_set_repeat);
 		} else {
 			questionText.setText(terminationQuestion);
 		}

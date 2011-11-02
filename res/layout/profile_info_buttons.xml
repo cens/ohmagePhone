@@ -6,14 +6,14 @@
 	android:layout_gravity="center">
     <Button style="@style/InfoButton"
     	android:id="@+id/profile_info_button_update_password"
-    	android:text="Update Password"
+		android:text="@string/profile_info_update_password"
     	android:layout_marginRight="5dp"
     	android:textSize="12dp"
     	android:drawableLeft="@drawable/update_password" />
     	
     <Button style="@style/InfoButton"
     	android:id="@+id/profile_info_button_logout_wipe"
-    	android:text="Log Out, Wipe Data"
+		android:text="@string/profile_info_logout"
     	android:textSize="12dp"
     	android:drawableLeft="@drawable/logout_wipe" />
 </merge>

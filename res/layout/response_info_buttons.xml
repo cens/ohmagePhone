@@ -2,6 +2,6 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <Button style="@style/InfoButton"
     	android:id="@+id/response_info_button_view_map"
-    	android:text="View Map"
+		android:text="@string/response_info_view_map"
     	android:drawableLeft="@drawable/location_map" />
 </merge>

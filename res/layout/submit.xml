@@ -13,6 +13,6 @@
 		android:layout_height="wrap_content"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:gravity="center_horizontal"
-		android:text="Submit text should appear here." />
+		android:text="@string/survey_submit_text" />
 		
 </LinearLayout>
