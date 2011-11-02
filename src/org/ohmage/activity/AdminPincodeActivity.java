@@ -1,5 +1,6 @@
 package org.ohmage.activity;
 
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.fragments.AdminDialogFragment;
 import org.ohmage.fragments.AdminDialogFragment.AdminCodeListener;
 
@@ -23,6 +24,13 @@ public class AdminPincodeActivity extends FragmentActivity implements AdminCodeL
 		super.onCreate(savedInstanceState);
 
 		if(savedInstanceState == null) {
+
+			// If we have admin mode set, we don't need to show the pincode
+			if(SharedPreferencesHelper.ADMIN_MODE) {
+				setResult(RESULT_OK);
+				finish();
+			}
+
 			AdminDialogFragment newFragment = new AdminDialogFragment();
 			newFragment.show(getSupportFragmentManager(), "dialog");
 		}
