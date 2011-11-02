@@ -198,7 +198,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 					Surveys.SURVEY_SUBMIT_TEXT,
 					Campaigns.CAMPAIGN_NAME,
 					Campaigns.CAMPAIGN_STATUS,
-					Campaigns.CAMPAIGN_ICON
+					Campaigns.CAMPAIGN_ICON,
+					Surveys.SURVEY_TITLE
 				};
 		
 		final int SURVEY_ID = 0;
@@ -209,6 +210,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		final int CAMPAIGN_NAME = 5;
 		final int CAMPAIGN_STATUS = 6;
 		final int CAMPAIGN_ICON = 7;
+		final int SURVEY_TITLE = 8;
 	}
 
 	@Override
@@ -225,6 +227,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// populate the views
 		final String surveyID = data.getString(QueryParams.SURVEY_ID);
 		final String campaignUrn = data.getString(QueryParams.CAMPAIGN_URN);
+		String surveyTitle = data.getString(QueryParams.SURVEY_TITLE);
 		String submitText = data.getString(QueryParams.SUBMIT_TEXT);
 
 		// set the header fields first
@@ -304,7 +307,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// get the number of triggers for this survey
 		TriggerDB trigDB = new TriggerDB(mContext);
 		if (trigDB.open()) {
-			Cursor triggers = trigDB.getTriggers(campaignUrn, surveyID);
+			Cursor triggers = trigDB.getSurveyTriggers(campaignUrn, surveyTitle);
 			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, triggers.getCount(), triggers.getCount()));
 			triggers.close();
 			trigDB.close();
