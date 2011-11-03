@@ -2,9 +2,11 @@ package org.ohmage.activity;
 
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
@@ -29,6 +31,12 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.admin_preferences);
+
+		// We should make sure the state is always consistant with the UserPrefHelper since the defaults are set there
+		UserPreferencesHelper userPrefHelper = new UserPreferencesHelper(this);
+		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_FEEDBACK)).setChecked(userPrefHelper.showFeedback());
+		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_PROFILE)).setChecked(userPrefHelper.showProfile());
+		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_UPLOAD_QUEUE)).setChecked(userPrefHelper.showUploadQueue());
 
 		mUpdatePassword = (PreferenceScreen) findPreference(KEY_UPDATE_PASSWORD);
 		mUpdatePassword.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
