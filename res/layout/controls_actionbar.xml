@@ -15,7 +15,7 @@
 	<ImageView style="@style/TitleBarLogo"
 		android:id="@+id/controls_actionbar_logo"
 		android:contentDescription="@string/description_logo"
-		android:src="@drawable/dashboard_title_logo" />
+		android:src="@drawable/title_logo_default" />
 	
 	<TextView style="@style/TitleBarText"
 		android:id="@+id/controls_actionbar_title" />
