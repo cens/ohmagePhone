@@ -121,6 +121,10 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 			builder.where(Surveys.SURVEY_STATUS + "=" + Survey.STATUS_TRIGGERED);
 		} 
 		
+		// We don't want to show the food or stress button surveys for NIH
+		builder.where(Surveys.SURVEY_ID + "!=?", "foodButton");
+		builder.where(Surveys.SURVEY_ID + "!=?", "stressButton");
+
 		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Surveys.SURVEY_TITLE);
 	}
 
