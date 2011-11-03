@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="org/ohmage/appwidget/|org/ohmage/appwidget/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="lib/andwellness-condition-parser-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/apache-mime4j-0.6.jar"/>

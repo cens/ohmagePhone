@@ -21,9 +21,14 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
+
+import org.ohmage.CampaignManager;
 import org.ohmage.R;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.activity.SurveyListActivity;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models;
+import org.ohmage.db.Models.Campaign;
 
 public class OhmageAppWidgetProvider extends AppWidgetProvider {
 
@@ -44,8 +49,10 @@ public class OhmageAppWidgetProvider extends AppWidgetProvider {
             
             // Create an Intent to launch foodButton survey
             Intent foodIntent = new Intent(context, SurveyActivity.class);
+            foodIntent.putExtra("campaign_urn", Campaign.getSingleCampaign(context));
             foodIntent.putExtra("survey_id", "foodButton");
-    		foodIntent.putExtra("survey_title", "Food");
+			foodIntent.putExtra("survey_title", "Food");
+			foodIntent.putExtra("survey_submit_text", "Thank you for completing this survey!");
     		foodIntent.setAction("org.ohmagephone.buttons.foodButton");
     		foodIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
             PendingIntent foodPendingIntent = PendingIntent.getActivity(context, 0, foodIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -54,10 +61,11 @@ public class OhmageAppWidgetProvider extends AppWidgetProvider {
             
             // Create an Intent to launch stressButton survey
             Intent stressIntent = new Intent(context, StressButtonService.class);
-            PendingIntent stressPendingIntent = PendingIntent.getService(context, 0, stressIntent, 0);
-            /*Intent stressIntent = new Intent(context, SurveyActivity.class);
+            stressIntent.putExtra("campaign_urn", Campaign.getSingleCampaign(context));
             stressIntent.putExtra("survey_id", "stressButton");
     		stressIntent.putExtra("survey_title", "Stress");
+            PendingIntent stressPendingIntent = PendingIntent.getService(context, 0, stressIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            /*Intent stressIntent = new Intent(context, SurveyActivity.class);
     		stressIntent.setAction("org.ohmagephone.buttons.stressButton");
             PendingIntent stressPendingIntent = PendingIntent.getActivity(context, 0, stressIntent, 0);*/
             // Get the layout for the App Widget and attach an on-click listener to the button

@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.IntentService;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
@@ -41,8 +42,12 @@ import org.ohmage.PromptXmlParser;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Prompt;
+import org.ohmage.prompt.SurveyElement;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.triggers.glue.TriggerFramework;
 import edu.ucla.cens.systemlog.Log;
@@ -85,22 +90,20 @@ public class StressButtonService extends IntentService {
 			return;
 		}
 		
-		List<Prompt> prompts = null;
+		List<SurveyElement> prompts = null;
 		
-		String surveyId = "stressButton";
-        String surveyTitle = "Stress";
+		String campaignUrn = intent.getStringExtra("campaign_urn");
+		String surveyId = intent.getStringExtra("survey_id");
+        String surveyTitle = intent.getStringExtra("survey_title");
         
         try {
-			prompts = PromptXmlParser.parsePrompts(CampaignXmlHelper.loadDefaultCampaign(this), surveyId);
+			prompts = PromptXmlParser.parseSurveyElements(CampaignXmlHelper.loadCampaignXmlFromDb(this, campaignUrn), surveyId);
 		} catch (NotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Error parsing prompts from xml", e);
 		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Error parsing prompts from xml", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Error parsing prompts from xml", e);
 		}
 		
 		if (prompts != null && prompts.size() > 0) {
@@ -108,16 +111,18 @@ public class StressButtonService extends IntentService {
 			startService(new Intent(this, SurveyGeotagService.class));
 	
 			if (((AbstractPrompt)prompts.get(0)).getResponseObject() == null) {
-				Toast.makeText(this, "There is a bug: default value not being set!", Toast.LENGTH_SHORT).show();
+				mHandler.post(new DisplayToast("There is a bug: default value not being set!"));
 			} else {
 				((AbstractPrompt)prompts.get(0)).setDisplayed(true);
 				((AbstractPrompt)prompts.get(0)).setSkipped(false);
-				Log.i(TAG, prompts.get(0).getResponseJson());
-				storeResponse(surveyId, surveyTitle, launchTime, prompts);
+				Log.i(TAG, ((AbstractPrompt)prompts.get(0)).getResponseJson());
+				storeResponse(campaignUrn, surveyId, surveyTitle, launchTime, prompts);
 				//Toast.makeText(this, "Registered stressful event.", Toast.LENGTH_SHORT).show();
 				mHandler.post(new DisplayToast("Registered stressful event!"));
 				
 			}
+		} else {
+			mHandler.post(new DisplayToast("Problem loading stress button survey!"));
 		}
 	}
 	
@@ -147,11 +152,9 @@ public class StressButtonService extends IntentService {
 		}
 	}
 
-	private void storeResponse(String surveyId, String surveyTitle, String launchTime, List<Prompt> prompts) {
+	private void storeResponse(String campaignUrn, String surveyId, String surveyTitle, String launchTime, List<SurveyElement> prompts) {
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
-		String campaign = helper.getCampaignName();
-		String campaignVersion = helper.getCampaignUrn();
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
@@ -170,7 +173,7 @@ public class StressButtonService extends IntentService {
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
 			surveyLaunchContextJson.put("launch_time", launchTime);
-			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, surveyTitle));
+			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, campaignUrn, surveyTitle));
 		} catch (JSONException e1) {
 			throw new RuntimeException(e1);
 		}
@@ -189,11 +192,43 @@ public class StressButtonService extends IntentService {
 		}
 		String response = responseJson.toString();
 		
-		DbHelper dbHelper = new DbHelper(this);
+//		DbHelper dbHelper = new DbHelper(this);
+//		if (loc != null) {
+//			dbHelper.addResponseRow(campaign, campaignVersion, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response);
+//		} else {
+//			dbHelper.addResponseRowWithoutLocation(campaign, campaignVersion, username, date, time, timezone, surveyId, surveyLaunchContext, response);
+//		}
+		
+		Response candidate = new Response();
+		
+		candidate.campaignUrn = campaignUrn;
+		candidate.username = username;
+		candidate.date = date;
+		candidate.time = time;
+		candidate.timezone = timezone;
+		candidate.surveyId = surveyId;
+		candidate.surveyLaunchContext = surveyLaunchContext;
+		candidate.response = response;
+		candidate.status = Response.STATUS_STANDBY;
+		
 		if (loc != null) {
-			dbHelper.addResponseRow(campaign, campaignVersion, username, date, time, timezone, SurveyGeotagService.LOCATION_VALID, loc.getLatitude(), loc.getLongitude(), loc.getProvider(), loc.getAccuracy(), loc.getTime(), surveyId, surveyLaunchContext, response);
+			candidate.locationStatus = SurveyGeotagService.LOCATION_VALID;
+			candidate.locationLatitude = loc.getLatitude();
+			candidate.locationLongitude = loc.getLongitude();
+			candidate.locationProvider = loc.getProvider();
+			candidate.locationAccuracy = loc.getAccuracy();
+			candidate.locationTime = loc.getTime();
 		} else {
-			dbHelper.addResponseRowWithoutLocation(campaign, campaignVersion, username, date, time, timezone, surveyId, surveyLaunchContext, response);
+			candidate.locationStatus = SurveyGeotagService.LOCATION_UNAVAILABLE;
+			candidate.locationLatitude = -1;
+			candidate.locationLongitude = -1;
+			candidate.locationProvider = null;
+			candidate.locationAccuracy = -1;
+			candidate.locationTime = -1;
+			candidate.status = Response.STATUS_WAITING_FOR_LOCATION;
 		}
+
+		ContentResolver cr = getContentResolver();
+		cr.insert(Responses.CONTENT_URI, candidate.toCV());
 	}
 }

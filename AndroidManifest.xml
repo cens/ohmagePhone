@@ -182,7 +182,6 @@
 	    	</intent-filter>
 	    </receiver>
     
-	    <!--
 	    <receiver android:name=".appwidget.OhmageAppWidgetProvider" >
 		    <intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -190,7 +189,6 @@
 		    <meta-data android:name="android.appwidget.provider"
 		               android:resource="@xml/ohmage_appwidget_info" />
 		</receiver>
-		-->
     
 	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
 	                  android:label="Storage Monitor">
