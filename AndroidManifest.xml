@@ -27,8 +27,7 @@
 		<activity android:name=".activity.DashboardActivity"
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 		
-		<activity android:name=".activity.LoginActivity"
-			android:label="@string/title_login">
+		<activity android:name=".activity.LoginActivity">
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
