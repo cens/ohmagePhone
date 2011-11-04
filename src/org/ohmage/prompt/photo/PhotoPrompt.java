@@ -29,11 +29,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -104,13 +106,15 @@ public class PhotoPrompt extends AbstractPrompt {
 			
 			Bitmap source = BitmapFactory.decodeFile(getImageFile().getAbsolutePath());
 			Bitmap scaled;
-			
+
 			if (source.getWidth() > source.getHeight()) {
 				scaled = Bitmap.createScaledBitmap(source, 800, 600, false);
 			} else {
 				scaled = Bitmap.createScaledBitmap(source, 600, 800, false);
-			}			
-			
+			}
+
+			source.recycle();
+
 			try {
 		       FileOutputStream out = new FileOutputStream(getImageFile());
 		       scaled.compress(Bitmap.CompressFormat.JPEG, 80, out);
@@ -120,6 +124,7 @@ public class PhotoPrompt extends AbstractPrompt {
 		       e.printStackTrace();
 			}
 
+			scaled.recycle();
 			((SurveyActivity) context).reloadCurrentPrompt();
 		} 
 	}
@@ -138,7 +143,7 @@ public class PhotoPrompt extends AbstractPrompt {
 		if (isPromptAnswered()) {
 			imageView.setImageBitmap(BitmapFactory.decodeFile(getImageFile().getAbsolutePath()));
 		}
-		
+
 		final Activity act = (Activity) context;
 		
 		button.setOnClickListener(new OnClickListener() {
@@ -165,5 +170,19 @@ public class PhotoPrompt extends AbstractPrompt {
 		File dir = Campaign.getCampaignImageDir(mContext, mContext.getCampaignUrn());
 		dir.mkdirs();
 		return dir;
+	}
+
+	/**
+	 * Recycles the image if it was set
+	 * @param view
+	 */
+	public static void clearView(ViewGroup view) {
+		ImageView imageView = (ImageView) view.findViewById(R.id.image_view);
+		// If there is an old BitmapDrawable we have to recycle it
+		if(imageView != null && imageView.getDrawable() instanceof BitmapDrawable) {
+			Bitmap b = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+			if(b != null)
+				b.recycle();
+		}
 	}
 }

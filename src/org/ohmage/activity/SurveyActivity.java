@@ -685,6 +685,10 @@ public class SurveyActivity extends Activity {
 			} else {
 				mSkipButton.setVisibility(View.INVISIBLE);
 			}
+
+			//If its a photo prompt we need to recycle the image
+			if(mSurveyElements.get(index) instanceof PhotoPrompt)
+				PhotoPrompt.clearView(mPromptFrame);
 			
 			mPromptFrame.removeAllViews();
 			mPromptFrame.addView(prompt.getView(this));
