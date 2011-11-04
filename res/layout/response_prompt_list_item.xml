@@ -12,7 +12,9 @@
 		android:id="@+id/prompt_icon"
 		android:layout_margin="2dip"
 		android:layout_alignParentRight="true"
-		android:src="@drawable/add_new" />
+		android:src="@drawable/add_new"
+		android:visibility="invisible" />
+		
 	<TextView
 		android:id="@android:id/text1"
 		android:layout_width="match_parent"
