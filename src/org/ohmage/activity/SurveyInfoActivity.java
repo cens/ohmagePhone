@@ -248,7 +248,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);
 		switch (mCampaignStatus) {
 			case Campaign.STATUS_READY:
-				mStatusValue.setText(R.string.campaign_status_participating);
+				mStatusValue.setText(R.string.campaign_status_ready);
 				mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_running, 0, 0, 0);
 				break;
 			case Campaign.STATUS_VAGUE:

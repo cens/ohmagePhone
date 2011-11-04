@@ -211,10 +211,9 @@
     <string name="single_campaign_error">There is a problem with the campaign setup. \n\nIf the problem continues, please contact an Administrator.</string>
 
     <!-- Campaign -->
-    <string name="campaign_status_participating">participating</string>
-    <string name="campaign_status_ready">ready</string>
+    <string name="campaign_status_ready">participating</string>
     <string name="campaign_status_vague">not available</string>
-    <string name="campaign_status_remote">available</string>
+    <string name="campaign_status_remote">available for participationn</string>
     <string name="campaign_status_out_of_date">out of date</string>
     <string name="campaign_status_no_exist">deleted on server</string>
     <string name="campaign_status_stopped">stopped</string>

@@ -98,7 +98,8 @@ public class SurveyActivity extends Activity {
 	private String mSurveySubmitText;
 	private String mLaunchTime;
 	private boolean mReachedEnd;
-	
+	private boolean mSurveyFinished = false;
+
 	private String mLastSeenRepeatableSetId;
 	
 	public String getSurveyId() {
@@ -215,6 +216,7 @@ public class SurveyActivity extends Activity {
 			switch (v.getId()) {
 			case R.id.next_button:
 				if (mReachedEnd) {
+					mSurveyFinished = true;
 					storeResponse();
 					TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
@@ -683,6 +685,10 @@ public class SurveyActivity extends Activity {
 			} else {
 				mSkipButton.setVisibility(View.INVISIBLE);
 			}
+
+			//If its a photo prompt we need to recycle the image
+			if(mSurveyElements.get(index) instanceof PhotoPrompt)
+				PhotoPrompt.clearView(mPromptFrame);
 			
 			mPromptFrame.removeAllViews();
 			mPromptFrame.addView(prompt.getView(this));
@@ -1021,5 +1027,16 @@ public class SurveyActivity extends Activity {
 		i.putExtra(Responses.RESPONSE_JSON, response);
 
 		this.sendBroadcast(i);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		// If we are finishing, but the survey was not completed we should clean up any data
+		if(isFinishing() && !mSurveyFinished) {
+			for(SurveyElement element : mSurveyElements)
+				if (element instanceof PhotoPrompt)
+					((PhotoPrompt) element).clearImage();
+		}
 	}
 }

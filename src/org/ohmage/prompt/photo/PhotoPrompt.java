@@ -29,11 +29,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -41,6 +43,7 @@ public class PhotoPrompt extends AbstractPrompt {
 
 	String mResolution;
 	String uuid;
+	private SurveyActivity mContext;
 	
 	//ImageView imageView;
 	//Bitmap mBitmap;
@@ -53,10 +56,20 @@ public class PhotoPrompt extends AbstractPrompt {
 		this.mResolution = res;
 	}
 	
+	/**
+	 * Deletes the image from the file system if it was taken
+	 */
+	public void clearImage() {
+		if(isPromptAnswered()) {
+			getImageFile().delete();
+		}
+	}
+
 	@Override
 	protected void clearTypeSpecificResponseData() {
+		// Delete the old file
+		clearImage();
 		uuid = null;
-		//mBitmap = null;
 	}
 	
 	/**
@@ -91,31 +104,27 @@ public class PhotoPrompt extends AbstractPrompt {
 	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			
-			if (uuid == null) {
-				uuid = UUID.randomUUID().toString();
-			}
-			
-			final File tmpFile = new File(getCampaignImageDir((SurveyActivity) context), "/temp.jpg");
-			Bitmap source = BitmapFactory.decodeFile(tmpFile.getAbsolutePath());
+			Bitmap source = BitmapFactory.decodeFile(getImageFile().getAbsolutePath());
 			Bitmap scaled;
-			
+
 			if (source.getWidth() > source.getHeight()) {
 				scaled = Bitmap.createScaledBitmap(source, 800, 600, false);
 			} else {
 				scaled = Bitmap.createScaledBitmap(source, 600, 800, false);
-			}			
-			
+			}
+
+			source.recycle();
+
 			try {
-		       FileOutputStream out = new FileOutputStream(new File(getCampaignImageDir((SurveyActivity) context), "/temp" + uuid + ".jpg"));
+		       FileOutputStream out = new FileOutputStream(getImageFile());
 		       scaled.compress(Bitmap.CompressFormat.JPEG, 80, out);
 		       out.flush();
 		       out.close();
 			} catch (Exception e) {
 		       e.printStackTrace();
 			}
-			
-			tmpFile.delete();
 
+			scaled.recycle();
 			((SurveyActivity) context).reloadCurrentPrompt();
 		} 
 	}
@@ -123,19 +132,18 @@ public class PhotoPrompt extends AbstractPrompt {
 	@Override
 	public View getView(Context context) {
 		
+		mContext = (SurveyActivity) context;
+
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.prompt_photo, null);
 		
 		ImageButton button = (ImageButton) layout.findViewById(R.id.photo_button);
 		ImageView imageView = (ImageView) layout.findViewById(R.id.image_view);
 		
-		final File imageDir = getCampaignImageDir((SurveyActivity) context);
-		imageDir.mkdirs();
-		
-		if (uuid != null) {
-			imageView.setImageBitmap(BitmapFactory.decodeFile(new File(imageDir, "/temp" + uuid + ".jpg").getAbsolutePath()));
+		if (isPromptAnswered()) {
+			imageView.setImageBitmap(BitmapFactory.decodeFile(getImageFile().getAbsolutePath()));
 		}
-		
+
 		final Activity act = (Activity) context;
 		
 		button.setOnClickListener(new OnClickListener() {
@@ -143,7 +151,7 @@ public class PhotoPrompt extends AbstractPrompt {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(imageDir, "/temp.jpg")));
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getImageFile()));
 				act.startActivityForResult(intent, 1);
 
 			}
@@ -152,8 +160,29 @@ public class PhotoPrompt extends AbstractPrompt {
 		return layout;
 	}
 	
-	private static File getCampaignImageDir(SurveyActivity context) {
-		return Campaign.getCampaignImageDir(context, context.getCampaignUrn());
+	private File getImageFile() {
+		if(uuid == null)
+			uuid = UUID.randomUUID().toString();
+		return new File(getCampaignImageDir(), "/temp" + uuid + ".jpg");
 	}
 
+	private File getCampaignImageDir() {
+		File dir = Campaign.getCampaignImageDir(mContext, mContext.getCampaignUrn());
+		dir.mkdirs();
+		return dir;
+	}
+
+	/**
+	 * Recycles the image if it was set
+	 * @param view
+	 */
+	public static void clearView(ViewGroup view) {
+		ImageView imageView = (ImageView) view.findViewById(R.id.image_view);
+		// If there is an old BitmapDrawable we have to recycle it
+		if(imageView != null && imageView.getDrawable() instanceof BitmapDrawable) {
+			Bitmap b = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+			if(b != null)
+				b.recycle();
+		}
+	}
 }
