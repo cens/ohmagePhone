@@ -153,7 +153,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 							startActivity(intent);
 							break;
 						case ACTION_SETUP_TRIGGERS:
-							Intent triggerIntent = Campaign.launchTriggerActivity(mContext, campaignUrn);
+							Intent triggerIntent = Campaign.launchTriggerIntent(mContext, campaignUrn);
 							startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
 							return;
 					}

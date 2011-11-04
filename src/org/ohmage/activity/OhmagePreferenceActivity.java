@@ -47,9 +47,10 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					String urn = Campaign.getSingleCampaign(OhmagePreferenceActivity.this);
-					if(!TextUtils.isEmpty(urn))
-						Campaign.launchTriggerActivity(OhmagePreferenceActivity.this, Campaign.getSingleCampaign(OhmagePreferenceActivity.this));
-					else
+					if(!TextUtils.isEmpty(urn)) {
+						Intent triggers = Campaign.launchTriggerIntent(OhmagePreferenceActivity.this, Campaign.getSingleCampaign(OhmagePreferenceActivity.this));
+						startActivity(triggers);
+					} else
 						Toast.makeText(OhmagePreferenceActivity.this, R.string.preferences_no_single_campaign, Toast.LENGTH_LONG).show();
 					return true;
 				}
