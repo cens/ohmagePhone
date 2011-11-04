@@ -1,7 +1,9 @@
 package org.ohmage.fragments;
 
 import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Responses;
@@ -75,9 +77,9 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 				int overlayListSize = mItemizedOverlay.size();
 				if(overlayListSize > 0){
 					if(mPinIndex < (overlayListSize-1)){
-						mPinIndex++;
-						mItemizedOverlay.onTap(mPinIndex % overlayListSize);
-						mMapPinIdxButton.setText(""+(mPinIndex+1)+"/"+overlayListSize);
+						mPinIndex = (mPinIndex + 1) % overlayListSize;
+						mItemizedOverlay.onTap(mPinIndex);
+						setNavigatorButtons();
 					}
 				}
 			}
@@ -90,9 +92,9 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 				int overlayListSize = mItemizedOverlay.size();
 				if(overlayListSize > 0){
 					if(mPinIndex > 0){
-						mPinIndex--;
-						mItemizedOverlay.onTap(mPinIndex % overlayListSize);
-						mMapPinIdxButton.setText(""+(mPinIndex+1)+"/"+overlayListSize);	
+						mPinIndex = (mPinIndex - 1) % overlayListSize;
+						mItemizedOverlay.onTap(mPinIndex);
+						setNavigatorButtons();
 					}
 				}
 			}
@@ -126,6 +128,18 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 		if(mItemizedOverlay != null)
 			mItemizedOverlay.clearBalloon();
 		mItemizedOverlay = new MapViewItemizedOverlay(drawable, getMapView());
+		mItemizedOverlay.setOnFocusChangeListener(new ItemizedOverlay.OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChanged(ItemizedOverlay overlay, OverlayItem newFocus) {
+				mPinIndex = overlay.getLastFocusedIndex();
+				if(newFocus == null) {
+					mPinIndex = -1;
+					mItemizedOverlay.hideBalloon();
+				}
+				setNavigatorButtons();
+			}
+		});
 		mItemizedOverlay.setBalloonBottomOffset(40);
 
 		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
@@ -194,5 +208,12 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 		public static final int TITLE = 4;
 		public static final int CAMPAIGN_URN = 5;
 		public static final int DATE = 6;
+	}
+
+	public void setNavigatorButtons() {
+		if(mPinIndex == -1)
+			mMapPinIdxButton.setText(null);
+		else
+			mMapPinIdxButton.setText(""+(mPinIndex+1)+"/"+mItemizedOverlay.size());
 	}
 }
