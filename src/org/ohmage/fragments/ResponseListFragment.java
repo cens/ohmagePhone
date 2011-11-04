@@ -11,7 +11,7 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.DbProvider;
 import org.ohmage.db.Models.Response;
-import org.ohmage.fragments.FilterableListFragment;
+import org.ohmage.db.utils.SelectionBuilder;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -134,20 +134,22 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
 
-		// Set the campaign filter selection
-		StringBuilder selection = new StringBuilder();
-		if(getCampaignUrn() != null)
-			selection.append(DbProvider.Qualified.RESPONSES_CAMPAIGN_URN + "='" + getCampaignUrn() + "' AND ");
+		SelectionBuilder selection = new SelectionBuilder();
 
+		// Set the campaign filter selection
+		if(getCampaignUrn() != null)
+			selection.where(DbProvider.Qualified.RESPONSES_CAMPAIGN_URN + "=?", getCampaignUrn());
 		// Set the survey filter selection
 		if(getSurveyId() != null)
-			selection.append(DbProvider.Qualified.RESPONSES_SURVEY_ID + "='" + getSurveyId() + "' AND ");
+			selection.where(DbProvider.Qualified.RESPONSES_SURVEY_ID + "=?", getSurveyId());
 		
 		// Set the date filter selection
-		selection.append(Responses.RESPONSE_TIME + " >= " + getStartBounds() + " AND ");
-		selection.append(Responses.RESPONSE_TIME + " <= " + getEndBounds());
+		if(!ignoreTimeBounds()) {
+			selection.where(Responses.RESPONSE_TIME + " >= " + getStartBounds());
+			selection.where(Responses.RESPONSE_TIME + " <= " + getEndBounds());
+		}
 
-		return new CursorLoader(getActivity(), Responses.CONTENT_URI, ResponseQuery.PROJECTION, selection.toString(), null, Responses.RESPONSE_TIME + " DESC");
+		return new CursorLoader(getActivity(), Responses.CONTENT_URI, ResponseQuery.PROJECTION, selection.getSelection(), selection.getSelectionArgs(), Responses.RESPONSE_TIME + " DESC");
 	}
 
 	@Override
@@ -174,5 +176,12 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 	 */
 	protected ResponseListCursorAdapter createAdapter() {
 		return new ResponseListCursorAdapter(getActivity(), null, 0);
+	}
+
+	/**
+	 * @return true if there should be no time filtering for this type of response fragment
+	 */
+	protected boolean ignoreTimeBounds() {
+		return false;
 	}
 }
