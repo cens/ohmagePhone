@@ -112,6 +112,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 			
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
+			intent.putExtra("upload_surveys", true);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}
 	};
@@ -124,6 +125,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		
 		Intent intent = new Intent(this, UploadService.class);
 		intent.setData(responseUri);
+		intent.putExtra("upload_surveys", true);
 		WakefulIntentService.sendWakefulWork(this, intent);
 	}
 

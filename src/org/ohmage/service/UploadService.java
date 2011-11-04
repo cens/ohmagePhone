@@ -33,15 +33,20 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
 public class UploadService extends WakefulIntentService {
 	
 	private static final String TAG = "UploadService";
+	
+	public static final String MOBILITY_UPLOAD_STARTED = "org.ohmage.MOBILITY_UPLOAD_STARTED";
+	public static final String MOBILITY_UPLOAD_FINISHED = "org.ohmage.MOBILITY_UPLOAD_FINISHED";
 
 	public UploadService() {
 		super(TAG);
@@ -50,6 +55,16 @@ public class UploadService extends WakefulIntentService {
 	@Override
 	protected void doWakefulWork(Intent intent) {
 		
+		if (intent.getBooleanExtra("upload_surveys", false)) {
+			uploadSurveyResponses(intent);
+		}
+		
+		if (intent.getBooleanExtra("upload_mobility", false)) {
+			uploadMobility(intent);
+		}
+	}
+
+	private void uploadSurveyResponses(Intent intent) {
 		String serverUrl = SharedPreferencesHelper.DEFAULT_SERVER_URL;
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
@@ -63,7 +78,7 @@ public class UploadService extends WakefulIntentService {
 		DbHelper dbHelper = new DbHelper(this);
 		
 		Uri dataUri = intent.getData();
-				
+		
 		ContentResolver cr = getContentResolver();
 		
 		String [] projection = new String [] {
@@ -199,21 +214,25 @@ public class UploadService extends WakefulIntentService {
 					
 					if (isAuthenticationError) {
 						errorStatusCode = Response.STATUS_ERROR_AUTHENTICATION;
+
 					} else if ("0700".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_NO_EXIST);
+
 					} else if ("0707".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_INVALID_USER_ROLE;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_INVALID_USER_ROLE);
+
 					} else if ("0703".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_STOPPED);
+
 					} else if ("0710".equals(errorCode)) {
 						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_OUT_OF_DATE);
 					} else {
 						errorStatusCode = Response.STATUS_ERROR_OTHER;
-					} 
+					}
 					
 					break;
 
@@ -246,5 +265,152 @@ public class UploadService extends WakefulIntentService {
 		}
 	}
 	
-	
+	private void uploadMobility(Intent intent) {
+		
+		sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_STARTED));
+		
+		boolean uploadSensorData = true;
+		
+		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		
+		String username = helper.getUsername();
+		String hashedPassword = helper.getHashedPassword();
+		Long lastMobilityUploadTimestamp = helper.getLastMobilityUploadTimestamp();
+		
+		Long now = System.currentTimeMillis();
+		Cursor c = MobilityInterface.getMobilityCursor(this, lastMobilityUploadTimestamp);
+		
+		OhmageApi.UploadResponse response = new OhmageApi.UploadResponse(OhmageApi.Result.SUCCESS, null);
+		
+		if (c != null && c.getCount() > 0) {
+			
+			Log.i(TAG, "There are " + String.valueOf(c.getCount()) + " mobility points to upload.");
+			
+			c.moveToFirst();
+			
+			int remainingCount = c.getCount();
+			int limit = 60;
+			
+			while (remainingCount > 0) {
+				
+				if (remainingCount < limit) {
+					limit = remainingCount;
+				}
+				
+				Log.i(TAG, "Attempting to upload a batch with " + String.valueOf(limit) + " mobility points.");
+				
+				JSONArray mobilityJsonArray = new JSONArray();
+				
+				for (int i = 0; i < limit; i++) {
+					JSONObject mobilityPointJson = new JSONObject();
+					
+					try {
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						Long time = c.getLong(c.getColumnIndex(MobilityInterface.KEY_TIME));
+						if (i == limit - 1) {
+							lastMobilityUploadTimestamp = time;
+						}
+						mobilityPointJson.put("date", dateFormat.format(new Date(time)));
+						mobilityPointJson.put("time", time);
+						mobilityPointJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
+						if (uploadSensorData) {
+							mobilityPointJson.put("subtype", "sensor_data");
+							JSONObject dataJson = new JSONObject();
+							dataJson.put("mode", c.getString(c.getColumnIndex(MobilityInterface.KEY_MODE)));
+							
+							try {
+								dataJson.put("speed", Float.parseFloat(c.getString(c.getColumnIndex(MobilityInterface.KEY_SPEED))));
+							} catch (NumberFormatException e) {
+								dataJson.put("speed", "NaN");
+							} catch (JSONException e) {
+								dataJson.put("speed", "NaN");
+							}
+							
+							String accelDataString = c.getString(c.getColumnIndex(MobilityInterface.KEY_ACCELDATA));
+							if (accelDataString == null || accelDataString.equals("")) {
+								accelDataString = "[]";
+							}
+							dataJson.put("accel_data", new JSONArray(accelDataString));
+							
+							String wifiDataString = c.getString(c.getColumnIndex(MobilityInterface.KEY_WIFIDATA));
+							if (wifiDataString == null || wifiDataString.equals("")) {
+								wifiDataString = "{}";
+							}
+							dataJson.put("wifi_data", new JSONObject(wifiDataString));
+							
+							mobilityPointJson.put("data", dataJson);
+						} else {
+							mobilityPointJson.put("subtype", "mode_only");
+							mobilityPointJson.put("mode", c.getString(c.getColumnIndex(MobilityInterface.KEY_MODE)));
+						}
+						String locationStatus = c.getString(c.getColumnIndex(MobilityInterface.KEY_STATUS));
+						mobilityPointJson.put("location_status", locationStatus);
+						if (! locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
+							JSONObject locationJson = new JSONObject();
+							
+							try {
+								locationJson.put("latitude", Double.parseDouble(c.getString(c.getColumnIndex(MobilityInterface.KEY_LATITUDE))));
+							} catch (NumberFormatException e) {
+								locationJson.put("latitude", "NaN");
+							} catch (JSONException e) {
+								locationJson.put("latitude", "NaN");
+							}
+							
+							try {
+								locationJson.put("longitude", Double.parseDouble(c.getString(c.getColumnIndex(MobilityInterface.KEY_LONGITUDE))));
+							} catch (NumberFormatException e) {
+								locationJson.put("longitude", "NaN");
+							}  catch (JSONException e) {
+								locationJson.put("longitude", "NaN");
+							}
+							
+							locationJson.put("provider", c.getString(c.getColumnIndex(MobilityInterface.KEY_PROVIDER)));
+							
+							try {
+								locationJson.put("accuracy", Float.parseFloat(c.getString(c.getColumnIndex(MobilityInterface.KEY_ACCURACY))));
+							} catch (NumberFormatException e) {
+								locationJson.put("accuracy", "NaN");
+							} catch (JSONException e) {
+								locationJson.put("accuracy", "NaN");
+							}
+							
+							locationJson.put("timestamp", dateFormat.format(new Date(Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_LOC_TIMESTAMP))))));
+							
+							mobilityPointJson.put("location", locationJson);
+						}
+						
+					} catch (JSONException e) {
+						Log.e(TAG, "error creating mobility json", e);
+						NotificationHelper.showMobilityErrorNotification(this);
+						throw new RuntimeException(e);
+					}
+					
+					mobilityJsonArray.put(mobilityPointJson);
+					
+					c.moveToNext();
+				}
+				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+				OhmageApi api = new OhmageApi(this);
+				response = api.mobilityUpload(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
+				
+				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
+					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
+					helper.putLastMobilityUploadTimestamp(lastMobilityUploadTimestamp);
+					remainingCount -= limit;
+					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
+				} else {
+					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
+//					handleErrors(response, null);
+					NotificationHelper.showMobilityErrorNotification(this);
+					break;						
+				}
+			}
+			
+			c.close();
+		} else {
+			Log.i(TAG, "No mobility points to upload.");
+		}
+		
+		sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_FINISHED));
+	}
 }

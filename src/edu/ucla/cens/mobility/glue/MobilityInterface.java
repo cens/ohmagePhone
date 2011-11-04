@@ -1,24 +1,15 @@
-/*******************************************************************************
- * Copyright 2011 The Regents of the University of California
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 package edu.ucla.cens.mobility.glue;
 
+import java.net.URI;
+
+import android.R;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
 import android.widget.Toast;
@@ -69,6 +60,67 @@ public class MobilityInterface
 		{
 			Toast.makeText(context, "There was an error. Please verify that Mobility has been installed.", Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	public static void stopMobility(Context context)
+	{
+//		SharedPreferences settings = context.getSharedPreferences(Mobility.MOBILITY, Context.MODE_PRIVATE);
+//		if (settings.getBoolean(MobilityControl.MOBILITY_ON, false))
+//		{
+//			Mobility.stop(context.getApplicationContext());
+//		}
+	}
+	
+	public static void startMobility(Context context)
+	{
+//		SharedPreferences settings = context.getSharedPreferences(Mobility.MOBILITY, Context.MODE_PRIVATE);
+//		if (!settings.getBoolean(MobilityControl.MOBILITY_ON, false))
+//		{
+//			Mobility.start(context.getApplicationContext());
+//		}
+	}
+	
+	/**
+	 * Set the rate in seconds to 300, 60, 30, or 15.
+	 * @param context
+	 * @param intervalInSeconds This must be 300, 60, 30, or 15.
+	 * @return true if successful, false otherwise
+	 */
+	public static boolean changeMobilityRate(Context context, int intervalInSeconds)
+	{
+//		for (int rate : new int [] {300, 60, 30, 15})
+//			if (intervalInSeconds == rate)
+//			{
+//				SharedPreferences settings = context.getSharedPreferences(Mobility.MOBILITY, Context.MODE_PRIVATE);
+//				Editor editor = settings.edit();
+//				editor.putInt(Mobility.SAMPLE_RATE, intervalInSeconds);
+//				editor.commit();
+//				if (settings.getBoolean(MobilityControl.MOBILITY_ON, false))
+//				{
+//					stopMobility(context);
+//					startMobility(context);
+//				}
+//				return true;
+//			}
+		return false;
+	}
+	
+	public static boolean isMobilityOn(Context context)
+	{
+//				SharedPreferences settings = context.getSharedPreferences(Mobility.MOBILITY, Context.MODE_PRIVATE);
+//				
+//				return settings.getBoolean(MobilityControl.MOBILITY_ON, false);
+				
+				return false;
+				
+	}
+	
+	public static int getMobilityInterval(Context context)
+	{
+//				SharedPreferences settings = context.getSharedPreferences(Mobility.MOBILITY, Context.MODE_PRIVATE);
+//				
+//				return settings.getInt(Mobility.SAMPLE_RATE, 60);
+				return 60;
 	}
 	
 }
