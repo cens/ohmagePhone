@@ -12,7 +12,7 @@
         android:persistent="false"
         android:title="Admin Settings" />
 
-    <PreferenceScreen android:title="Status" >
+    <PreferenceCategory android:title="Status" >
 
         <PreferenceScreen
             style="?android:attr/preferenceInformationStyle"
@@ -53,6 +53,6 @@
             android:persistent="false"
             android:summary="Hidden"
             android:title="Mobility" />
-    </PreferenceScreen>
+    </PreferenceCategory>
 
 </PreferenceScreen>
