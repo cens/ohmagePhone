@@ -29,6 +29,7 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.ui.BaseInfoActivity;
 
@@ -248,7 +249,9 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			 * @return the view type
 			 */
 			public int getItemViewType(Cursor cursor) {
-				if("photo".equals(getItemPromptType(cursor)))
+				if("photo".equals(getItemPromptType(cursor)) &&
+						//If the image was skipped, we should just show the text value of SKIPPED
+						!AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE))))
 					return IMAGE_RESPONSE;
 				else
 					return TEXT_RESPONSE;
