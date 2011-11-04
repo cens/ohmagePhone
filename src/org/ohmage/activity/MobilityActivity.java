@@ -127,9 +127,11 @@ public class MobilityActivity extends BaseActivity {
 			if (UploadService.MOBILITY_UPLOAD_STARTED.equals(action)) {
 				MobilityActivity.this.getActionBar().setProgressVisible(true);
 				MobilityActivity.this.mUploadButton.setEnabled(false);
+				MobilityActivity.this.mUploadButton.setText("Uploading...");
 			} else if (UploadService.MOBILITY_UPLOAD_FINISHED.equals(action)) {
 				MobilityActivity.this.getActionBar().setProgressVisible(false);
 				MobilityActivity.this.mUploadButton.setEnabled(true);
+				MobilityActivity.this.mUploadButton.setText("Upload Now");
 				MobilityActivity.this.updateViews();
 			}
 		}
