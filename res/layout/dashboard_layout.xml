@@ -33,12 +33,12 @@
 		style="@style/HomeButton"
 		android:drawableTop="@drawable/dashboard_profile"
 		android:text="@string/dashboard_profile" />
-
+		
 	<Button
-		android:id="@+id/dash_help_btn"
+		android:id="@+id/dash_mobility_btn"
 		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_help"
-		android:text="@string/dashboard_help" />
+		android:drawableTop="@drawable/dashboard_mobility"
+		android:text="@string/dashboard_mobility" />
 
 	<Button
 		android:id="@+id/dash_settings_btn"
@@ -46,5 +46,11 @@
 		android:drawableTop="@drawable/dashboard_settings"
 		android:text="@string/title_settings"
 		android:visibility="gone" />
+	
+	<Button
+		android:id="@+id/dash_help_btn"
+		style="@style/HomeButton"
+		android:drawableTop="@drawable/dashboard_help"
+		android:text="@string/dashboard_help" />
 
 </org.ohmage.widget.DashboardLayout>

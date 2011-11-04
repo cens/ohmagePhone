@@ -24,10 +24,12 @@ public class UserPreferencesHelper {
 	private static final boolean DEFAULT_SHOW_FEEDBACK = false;
 	private static final boolean DEFAULT_SHOW_PROFILE = false;
 	private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = false;
+	private static final boolean DEFAULT_SHOW_MOBILITY = true;
 
 	public static final String KEY_SHOW_FEEDBACK = "key_show_feedback";
 	public static final String KEY_SHOW_PROFILE = "key_show_profile";
 	public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
+	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
 
 	private final SharedPreferences mPreferences;
 
@@ -49,5 +51,9 @@ public class UserPreferencesHelper {
 	
 	public boolean showUploadQueue() {
 		return mPreferences.getBoolean(KEY_SHOW_UPLOAD_QUEUE, DEFAULT_SHOW_UPLOAD_QUEUE);
+	}
+	
+	public boolean showMobility() {
+		return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
 	}
 }

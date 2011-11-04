@@ -25,6 +25,7 @@ public class DashboardActivity extends BaseActivity {
 	private Button mUploadQueueBtn;
 	private Button mProfileBtn;
 	private Button mHelpBtn;
+	private Button mMobilityBtn;
 	private Button mSettingsBtn;
 
 	private SharedPreferencesHelper mSharedPreferencesHelper;
@@ -44,6 +45,7 @@ public class DashboardActivity extends BaseActivity {
 		mUploadQueueBtn = (Button) findViewById(R.id.dash_uploadqueue_btn);
 		mProfileBtn = (Button) findViewById(R.id.dash_profile_btn);
 		mHelpBtn = (Button) findViewById(R.id.dash_help_btn);
+		mMobilityBtn = (Button) findViewById(R.id.dash_mobility_btn);
 
 		DashboardButtonListener buttonListener = new DashboardButtonListener();
 
@@ -53,6 +55,7 @@ public class DashboardActivity extends BaseActivity {
 		mUploadQueueBtn.setOnClickListener(buttonListener);
 		mProfileBtn.setOnClickListener(buttonListener);
 		mHelpBtn.setOnClickListener(buttonListener);
+		mMobilityBtn.setOnClickListener(buttonListener);
 
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		
@@ -85,6 +88,11 @@ public class DashboardActivity extends BaseActivity {
 			mUploadQueueBtn.setVisibility(View.VISIBLE);
 		else
 			mUploadQueueBtn.setVisibility(View.GONE);
+		
+		if(userPrefs.showMobility())
+			mMobilityBtn.setVisibility(View.VISIBLE);
+		else
+			mMobilityBtn.setVisibility(View.GONE);
 	}
 
 	private void refreshCampaigns() {
@@ -123,6 +131,7 @@ public class DashboardActivity extends BaseActivity {
 		mUploadQueueBtn.setClickable(true);
 		mProfileBtn.setClickable(true);
 		mHelpBtn.setClickable(true);
+		mMobilityBtn.setClickable(true);
 	}
 	
 	private void disableAllButtons(){
@@ -131,7 +140,8 @@ public class DashboardActivity extends BaseActivity {
 		mFeedbackBtn.setClickable(false);
 		mUploadQueueBtn.setClickable(false);
 		mProfileBtn.setClickable(false);
-		mHelpBtn.setClickable(false);		
+		mHelpBtn.setClickable(false);	
+		mMobilityBtn.setClickable(false);
 	}
 	
 	protected class DashboardButtonListener implements OnClickListener {		
@@ -164,6 +174,10 @@ public class DashboardActivity extends BaseActivity {
 
 				case R.id.dash_help_btn:
 					startActivity(new Intent(c, HelpActivity.class));
+					break;
+					
+				case R.id.dash_mobility_btn:
+					startActivity(new Intent(c, MobilityActivity.class));
 					break;
 			}
 		}

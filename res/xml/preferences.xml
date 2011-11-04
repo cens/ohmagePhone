@@ -45,6 +45,14 @@
             android:persistent="false"
             android:summary="Hidden"
             android:title="Upload Queue" />
+            
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_mobility_visibility"
+            android:persistent="false"
+            android:summary="Hidden"
+            android:title="Mobility" />
     </PreferenceScreen>
 
 </PreferenceScreen>
