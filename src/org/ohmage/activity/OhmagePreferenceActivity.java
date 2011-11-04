@@ -22,6 +22,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	private static final String STATUS_FEEDBACK_VISIBILITY = "status_feedback_visibility";
 	private static final String STATUS_PROFILE_VISIBILITY = "status_profile_visibility";
 	private static final String STATUS_UPLOAD_QUEUE_VISIBILITY = "status_upload_queue_visibility";
+	private static final String STATUS_MOBILITY_VISIBILITY = "status_mobility_visibility";
 
 	protected static final int CODE_ADMIN_SETTINGS = 0;
 
@@ -91,6 +92,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 		findPreference(STATUS_FEEDBACK_VISIBILITY).setSummary(mUserPreferenceHelper.showFeedback() ? R.string.shown : R.string.hidden);
 		findPreference(STATUS_PROFILE_VISIBILITY).setSummary(mUserPreferenceHelper.showProfile() ? R.string.shown : R.string.hidden);
 		findPreference(STATUS_UPLOAD_QUEUE_VISIBILITY).setSummary(mUserPreferenceHelper.showUploadQueue() ? R.string.shown : R.string.hidden);
+		findPreference(STATUS_MOBILITY_VISIBILITY).setSummary(mUserPreferenceHelper.showMobility() ? R.string.shown : R.string.hidden);
 	}
 
 	@Override
