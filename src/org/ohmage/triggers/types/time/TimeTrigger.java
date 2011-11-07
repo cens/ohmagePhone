@@ -30,13 +30,10 @@ public class TimeTrigger extends TriggerBase {
 	private static final String DEBUG_TAG = "TimeTrigger";
 	
 	private static final String TRIGGER_TYPE = "TimeTrigger";	
-	//TODO localize
-	private static final String DISP_NAME = "Time Trigger";
 	
 	@Override
-	public String getTriggerTypeDisplayName() {
-		
-		return DISP_NAME;
+	public String getTriggerTypeDisplayName(Context context) {
+		return context.getString(R.string.trigger_time_display_name);
 	}
 
 	@Override

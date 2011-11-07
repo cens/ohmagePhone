@@ -138,7 +138,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			}
 			else {
 				getPreferenceScreen().setEnabled(false);
-				Toast.makeText(this, "Invalid trigger settings!", 
+				Toast.makeText(this, R.string.trigger_invalid_settings,
 								Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -328,7 +328,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		// randPref.setChecked(SharedPreferencesHelper.TRIGGERS_TIMERANGE_ALWAYS_RANDOM && rangePref.isChecked());
 		
 		if(rangePref.isChecked()) {
-			trigTimePref.setSummary("Random");
+			trigTimePref.setSummary(R.string.trigger_time_randomized);
 			trigTimePref.setEnabled(false);
 		}
 		else {
@@ -357,7 +357,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		if (mActDesc.getSurveys().length > 0) {
 			actionsPref.setSummary(stringArrayToString(mActDesc.getSurveys()));
 		} else {
-			actionsPref.setSummary("None");
+			actionsPref.setSummary(R.string.trigger_no_actions);
 		}
 		
 	}
@@ -377,9 +377,9 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		updateRepeatStatusArray();
 		mRepeatDialog = new AlertDialog.Builder(this)
-					.setTitle("Select days")
-					.setPositiveButton("Done", this)
-					.setNegativeButton("Cancel", this)
+					.setTitle(R.string.trigger_time_select_days)
+					.setPositiveButton(R.string.done, this)
+					.setNegativeButton(R.string.cancel, this)
 					.setMultiChoiceItems(mDays, mRepeatStatus, this)
 					.create();
 		
@@ -387,23 +387,18 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	}
 	
 	private Dialog createInvalidTimeAlert() {
-		final String msg =  "Make sure that\n\n" +
-							"- the End Time is after the Start Time\n";
-
 		return new AlertDialog.Builder(this)
-					.setTitle("Invalid time settings!")
-					.setNegativeButton("Cancel", null)
-					.setMessage(msg)
+					.setTitle(R.string.trigger_time_invalid_settings)
+					.setNegativeButton(R.string.cancel, null)
+					.setMessage(R.string.trigger_time_invalid_text)
 					.create();
 	}
 	
 	private Dialog createNoSurveysSelectedAlert() {
-		final String msg =  "Make sure that at least one survey is selected";
-		
 		return new AlertDialog.Builder(this)
-					.setTitle("No survey selected!")
-					.setNegativeButton("Cancel", null)
-					.setMessage(msg)
+					.setTitle(R.string.trigger_time_no_survey_selected)
+					.setNegativeButton(R.string.cancel, null)
+					.setMessage(R.string.trigger_time_no_survey_selected_text)
 					.create();
 	}
 	
@@ -491,8 +486,8 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		AlertDialog.Builder builder = 
 	 			new AlertDialog.Builder(this)
-			   .setTitle("Select surveys")
-			   .setNegativeButton("Cancel", null)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
 			   .setMultiChoiceItems(mActions, mActSelected, 
 					   new DialogInterface.OnMultiChoiceClickListener() {
 				
@@ -505,7 +500,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			});
 
 		if(mAdminMode || TrigUserConfig.editTriggerActions) {
-			 builder.setPositiveButton("Done", 
+			 builder.setPositiveButton(R.string.done,
 					 new DialogInterface.OnClickListener() {
 				
 				@Override

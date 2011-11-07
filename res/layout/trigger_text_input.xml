@@ -28,7 +28,7 @@
 			android:layout_marginLeft="5dip"
 			android:layout_marginRight="10dip"
 			android:layout_weight="0.5"
-			android:text="Done">
+			android:text="@string/done">
 		</Button>
 		
 		<Button android:id="@+id/text_input_negative" 
@@ -37,7 +37,7 @@
 			android:layout_weight="0.5"
 			android:layout_marginRight="5dip"
 			android:layout_marginLeft="10dip"
-			android:text="Cancel">
+			android:text="@string/cancel">
 		</Button>
 	</LinearLayout>
 

@@ -32,8 +32,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -180,7 +178,7 @@ public class NotifEditActivity extends ListActivity
 			private View getRepeatHeaderView(LayoutInflater inflater, int pos) {
 				View view = inflater.inflate(R.layout.trigger_add_new, null);
 				TextView tv = (TextView) view.findViewById(R.id.add_new_label);
-				tv.setText("Reminders");
+				tv.setText(R.string.trigger_notification_reminder_title);
 				
 				ImageButton bAdd = (ImageButton) view.findViewById(R.id.button_add_new);
 				bAdd.setOnClickListener(NotifEditActivity.this);

@@ -291,7 +291,7 @@ public class LocTrigMapsActivity extends MapActivity
     	Dialog dialog = new Dialog(this);
 
     	dialog.setContentView(R.layout.trigger_loc_maps_tips);
-    	dialog.setTitle("Defining locations");
+		dialog.setTitle(R.string.trigger_loc_defining_locations);
     	dialog.setOwnerActivity(this);
     	dialog.show();
     	
@@ -412,9 +412,9 @@ public class LocTrigMapsActivity extends MapActivity
     	
     	menu.removeItem(MENU_SATELLITE_ID);
     	
-    	String txt = "Satellite mode";
+		int txt = R.string.trigger_loc_menu_satellite_mode;
         if(mMapView.isSatellite()) {
-        	txt = "Map mode";
+			txt = R.string.trigger_loc_menu_map_mode;
         }
          
         menu.add(0, MENU_SATELLITE_ID, 3, txt)
@@ -436,8 +436,7 @@ public class LocTrigMapsActivity extends MapActivity
     		
             List<String> provs = mLocMan.getProviders(true);
             if(provs == null || provs.size() == 0) {
-            	Toast.makeText(this, "Location provideres " +
-            			"are disabled in settings!", Toast.LENGTH_SHORT)
+				Toast.makeText(this, R.string.trigger_loc_location_providers_disabled, Toast.LENGTH_SHORT)
             		 .show();
             	return true;
             }
@@ -1272,8 +1271,8 @@ public class LocTrigMapsActivity extends MapActivity
 			AlertDialog dialog = new AlertDialog.Builder(context)
 			.setTitle(R.string.exisiting_loc)
 			.setMessage(R.string.delete_loc)
-			.setPositiveButton(R.string.yes, this)
-			.setNegativeButton(R.string.no, this)
+			.setPositiveButton(R.string.delete, this)
+			.setNegativeButton(R.string.cancel, this)
 			.create();
 			dialog.show();
 			dialog.setOwnerActivity(LocTrigMapsActivity.this);

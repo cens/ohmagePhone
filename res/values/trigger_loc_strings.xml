@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading_locations">Loading locations...</string>
+
+    <string name="trigger_loc_display_name">Location Trigger</string>
     <string name="menu_open_maps">Open maps</string>
-    <string name="menu_edit_trigger">Modify triggers</string>
     <string name="menu_my_loc">My location</string>
     <string name="menu_search">Search</string>
     <string name="menu_delete">Delete</string>
     <string name="menu_rename">Rename</string>
     <string name="menu_help">Help</string>
     <string name="determining_loc">Trying to determine your location...</string>
-    <string name="gps_disabled">GPS is disabled in phone settings</string>
     <string name="gps_out">GPS out of service</string>
     <string name="location_on_map">location on map</string>
     <string name="locations_on_map">locations on map</string>
     <string name="rename_msg">Rename %s</string>
-    <string name="done">Done</string>
-    <string name="close">Close</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="del_categ_msg">Delete %s? This will remove all the locations and the triggers associated with it.</string>
-    <string name="survey_sel_msg">Select the surveys to be triggered at %s</string>
     <string name="maps_tile_default">Press and hold a location on the map to add it to %s. Open menu for more options.</string>
     <string name="maps_title_focused">Press and hold the red circle and drag it to change its size. Press and hold the red marker to delete it.</string>
     <string name="maps_title_nofocus">Tap a red marker to view the area covered by it. Press and hold a red marker to delete it.</string>
@@ -29,20 +22,36 @@
     <string name="search_addr_title">Enter address to search</string>
     <string name="exisiting_loc">Existing location</string>
     <string name="delete_loc">Delete this location?</string>
-    <string name="loading_approx_addr">Loading approximate address...</string>
     <string name="no_addr_found">No address found</string>
-    <string name="unable_fetch_addr">Unable to fetch the address</string>
     <string name="loc_overlap_title">Location overlap</string>
     <string name="loc_overlap_msg">This location is too close to %s. Choose a different location</string>
     <string name="loc_too_big_msg">The size of this location cannot be increased further as it gets too close to %s. Choose a different location</string>
     <string name="searching_msg">Searching, Please wait...</string>
     <string name="search_fail">Search failed!</string>
-    <string name="maps_help_title">Managing your locations</string>
-    <string name="maps_help_text">This is the help text</string>
-    
+    <string name="trigger_loc_loading_address">Loading approximate address...</string>
+    <string name="trigger_loc_address_error">Unable to fetch the address!\n</string>
+    <string name="trigger_loc_defining_locations">Defining locations</string>
+    <string name="trigger_loc_menu_satellite_mode">Satellite mode</string>
+    <string name="trigger_loc_menu_map_mode">Map mode</string>
+    <string name="trigger_loc_location_providers_disabled">Location providers are disabled in settings!</string>
+    <string name="trigger_loc_remove_location_text">All the locations and triggers associated with this place will be removed</string>
+    <string name="trigger_loc_title">Trigger location</string>
+    <string name="trigger_loc_manage_locations">Manage Locations</string>
+    <string name="trigger_loc_no_location_selected">(Not selected)</string>
+    <string name="trigger_loc_time_range_summary">Trigger only during the following interval</string>
+    <string name="trigger_loc_always_title">Trigger always</string>
+    <string name="trigger_loc_always_text">Trigger at End Time even if the location is not reached</string>
+    <string name="trigger_loc_min_reentry_title">Minimum re-entry interval</string>
+    <string name="trigger_loc_min_reenetry_text">30 minutes</string>
+    <string name="trigger_loc_add_place_hint">Type to add a new place</string>
+    <string name="trigger_loc_add_place">Add</string>
+    <string name="trigger_loc_manage_places_summary">Tap on a place to view it on the maps. Press and hold a place for more options</string>
+    <string name="trigger_loc_map_tips_hide">Do not show this message again</string>
+    <string name="trigger_loc_add_location">Add this location</string>
+
     <string-array name="trigger_builtin_places">
         <item>Home</item>
         <item>Work</item>
-    </string-array> 
-    
+    </string-array>
+
 </resources>

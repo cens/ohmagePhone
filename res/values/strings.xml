@@ -17,6 +17,8 @@
     <string name="retry_now">Retry Now</string>
     <string name="retry_later">Retry Later</string>
     <string name="delete">Delete</string>
+    <string name="done">Done</string>
+    <string name="close">Close</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>

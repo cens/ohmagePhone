@@ -116,7 +116,7 @@ public class TriggerListActivity extends ListActivity
 		mTrigMap = new TriggerTypeMap();
 		
 		TextView tv = (TextView) findViewById(R.id.add_new_label);
-		tv.setText("Triggers");
+		tv.setText(R.string.triggers_title);
 		
 		ImageButton bAdd = (ImageButton) findViewById(R.id.button_add_new);
 		bAdd.setOnClickListener(this);
@@ -152,7 +152,7 @@ public class TriggerListActivity extends ListActivity
 		//Display message and exit if there are no supported 
 		//trigger types
 		if(mTrigMap.getAllTriggers().size() == 0) {
-			Toast.makeText(this, "No supported trigger types!", 
+			Toast.makeText(this, R.string.trigger_nothing_supported,
 					Toast.LENGTH_SHORT).show();
 			
 			finish();
@@ -391,10 +391,10 @@ public class TriggerListActivity extends ListActivity
 	private Dialog createDeleteConfirmDialog(int trigId) {
 		
 		return new AlertDialog.Builder(this)
-					.setNegativeButton("No", null)
-					.setTitle("Confirm delete")
-					.setMessage("Delete trigger?")
-					.setPositiveButton("Yes", 
+					.setNegativeButton(R.string.cancel, null)
+					.setTitle(R.string.trigger_delete_title)
+					.setMessage(R.string.trigger_delete_text)
+					.setPositiveButton(R.string.delete,
 								new DialogInterface.OnClickListener() {
 						
 						@Override
@@ -425,8 +425,8 @@ public class TriggerListActivity extends ListActivity
 		
 		AlertDialog.Builder builder = 
 	 			new AlertDialog.Builder(this)
-			   .setTitle("Select surveys")
-			   .setNegativeButton("Cancel", null)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
 			   .setMultiChoiceItems(mActions, mActSelected, 
 					   new DialogInterface.OnMultiChoiceClickListener() {
 				
@@ -439,7 +439,7 @@ public class TriggerListActivity extends ListActivity
 			});
 
 		if(isAdminLoggedIn() || TrigUserConfig.editTriggerActions) {
-			 builder.setPositiveButton("Done", 
+			 builder.setPositiveButton(R.string.done,
 					 new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -463,7 +463,7 @@ public class TriggerListActivity extends ListActivity
 	
 	private Dialog createAddNewSelDialog() {
 		TriggerTypeSelector typeSel = new TriggerTypeSelector(this);
-		typeSel.setTitle("Create new");
+		typeSel.setTitle(R.string.trigger_create);
 		typeSel.setOnClickListener(new TriggerTypeSelector.OnClickListener() {
 			
 			@Override
@@ -479,7 +479,7 @@ public class TriggerListActivity extends ListActivity
 	
 	private Dialog createEditPrefSelDialog() {
 		TriggerTypeSelector typeSel = new TriggerTypeSelector(this);
-		typeSel.setTitle("Edit preferences");
+		typeSel.setTitle(R.string.trigger_preferences);
 		typeSel.setOnClickListener(new TriggerTypeSelector.OnClickListener() {
 			
 			@Override
@@ -534,11 +534,11 @@ public class TriggerListActivity extends ListActivity
 		boolean adminMode = isAdminLoggedIn();
 		if(!TRIGGER_ADMIN_MODE) {
 			if(!adminMode) {
-				menu.add(0, MENU_ID_ADMIN_LOGIN, 0, "Admin access")
+				menu.add(0, MENU_ID_ADMIN_LOGIN, 0, R.string.trigger_menu_admin_turn_on)
 				.setIcon(R.drawable.ic_menu_login);
 			}
 			else {
-				menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, "Logoff admin")
+				menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, R.string.trigger_menu_admin_turn_off)
 				.setIcon(R.drawable.ic_menu_login);
 			}
 		}
@@ -548,7 +548,7 @@ public class TriggerListActivity extends ListActivity
 		for(TriggerBase trig : mTrigMap.getAllTriggers()) {
 			
 			if(trig.hasSettings()) {
-				menu.add(0, MENU_ID_SETTINGS, 0, "Preferences")
+				menu.add(0, MENU_ID_SETTINGS, 0, R.string.trigger_menu_preferences)
 					.setIcon(R.drawable.ic_menu_preferences)
 					.setEnabled(adminMode || TrigUserConfig.editTriggerSettings);
 				
@@ -556,11 +556,11 @@ public class TriggerListActivity extends ListActivity
 			}
 		}
 	    
-		menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, "Notification settings")
+		menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, R.string.trigger_menu_notifications)
 			.setIcon(R.drawable.ic_menu_notification)
 			.setEnabled(adminMode || TrigUserConfig.editNotificationSettings);
 		
-		menu.add(0, MENU_ID_RINGTONE_SETTINGS, 0, "Ringtone settings")
+		menu.add(0, MENU_ID_RINGTONE_SETTINGS, 0, R.string.trigger_menu_ringtone)
 		.setIcon(R.drawable.ic_menu_ringtone)
 		.setEnabled(true);
 	    
@@ -599,7 +599,7 @@ public class TriggerListActivity extends ListActivity
 	    	case MENU_ID_ADMIN_LOGOFF:
 	    		
 	    		setAdminMode(false);
-	    		Toast.makeText(this, "Logged off", Toast.LENGTH_SHORT)
+				Toast.makeText(this, R.string.trigger_admin_logged_off, Toast.LENGTH_SHORT)
 	    			 .show();
 	    		return true;
 	    }
@@ -637,7 +637,7 @@ public class TriggerListActivity extends ListActivity
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
-		menu.add(0, MENU_ID_DELETE_TRIGGER, 0, "Delete")
+		menu.add(0, MENU_ID_DELETE_TRIGGER, 0, R.string.trigger_menu_delete)
 			.setEnabled(isAdminLoggedIn() || TrigUserConfig.removeTrigers);
 	}
 	
