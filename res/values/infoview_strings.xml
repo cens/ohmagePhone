@@ -16,56 +16,57 @@
 	<!-- explanatory text sections -->
 	<string name="campaign_info_privacy_details">
 		<![CDATA[
-		the <b>privacy</b> of the campaign determines in part who can view the data that you upload.<br /><br />
-		
-		a campaign may be in one of two privacy states:<br />
-		* <b>private</b>, only you and the administrator can see your data<br />
-		* <b>shared</b>, administrators, authors, and analysts can see your public data
+		The <b>privacy</b> of the campaign determines who can view the shared data associated with the campaign.
+		Remember, all data is private until you mark it shared on-line.<br /><br />
+
+		A campaign may be in one of two privacy states:<br />
+		* <b>private</b>: only you and the administrator can see your data, even if it is shared.<br />
+		* <b>shared</b>: administrators, authors and analysis can see your shared data.<br />
 		]]>
 	</string>
 
 	<string name="campaign_info_status_details">
 		<![CDATA[
-		the above displays the status of the campaign.<br /><br >
-		
-		normally this is either <b>available</b>, meaning that you can start participating
-		in the campaign, or <b>ready</b>, meaning that you can submit surveys for the campaign.
-		any other status indicates that there\'s a problem with the campaign.
+		The above displays the status of the campaign. <br /><br />
+
+		Normally, you are either <b>participating</b> in a campaign, meaning the associated surveys are available
+		for you to complete on your phone, or the campaign is <b>available for participation</b> meaning that you
+		can download the campaign and its surveys to your phone. Any other status indicates that there\'s a problem with the campaign.
 		]]>
 	</string>
 	
 	<string name="survey_info_status_details">
 		<![CDATA[
-		the above displays the status of the campaign to which this survey belongs.<br /><br />
-		
-		normally this is <b>ready</b>, meaning that you can submit a survey for the campaign.
-		any other status indicates that there\'s a problem with the campaign.
+		The above displays the status of the campaign to which this survey belongs.<br /><br />
+
+		Normally, this is <b>participating</b>, meaning that you can submit a survey for the campaign.
+		Any other status indicates that there\'s a problem with the campaign.
 		]]>
 	</string>
 	
 	<string name="campaign_info_responses_details">
 		<![CDATA[
-		the above count is the number of survey responses you\'ve submitted for any survey in this campaign.
+		The above count is the number of responses you have submitted for all surveys in this campaign.
 		]]>
 	</string>
 	
 	<string name="survey_info_responses_details">
 		<![CDATA[
-		the above count is the number of survey responses you\'ve submitted for this survey.
+		The above count is the number of responses you have submitted for this survey.
 		]]>
 	</string>
 	
 	<string name="campaign_info_triggers_details">
 		<![CDATA[
-		the above count is the number of triggers configured for this campaign.<br /><br />
+		The above count is the number of triggers configured for this campaign.<br /><br />
 		
-		tap the bell icon in the action bar to configure the triggers.
+		Tap the bell icon in the action bar to configure the triggers.
 		]]>
 	</string>
 	
 	<string name="survey_info_triggers_details">
 		<![CDATA[
-		the above count is the number of triggers configured for this survey.
+		The above count is the number of triggers configured for this survey.
 		]]>
 	</string>
 </resources>

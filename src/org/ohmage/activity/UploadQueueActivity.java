@@ -103,6 +103,11 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 			loader.setSelection(selection.toString());
 			return loader;
 		}
+
+		@Override
+		protected boolean ignoreTimeBounds() {
+			return true;
+		}
 	}
 	
 	private final OnClickListener mUploadAllListener = new OnClickListener() {
