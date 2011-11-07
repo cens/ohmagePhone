@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="trigger_loc_display_name">Location Trigger</string>
+    <string name="trigger_loc_display_name">Location Reminder</string>
     <string name="menu_open_maps">Open maps</string>
     <string name="menu_my_loc">My location</string>
     <string name="menu_search">Search</string>
@@ -34,13 +34,13 @@
     <string name="trigger_loc_menu_satellite_mode">Satellite mode</string>
     <string name="trigger_loc_menu_map_mode">Map mode</string>
     <string name="trigger_loc_location_providers_disabled">Location providers are disabled in settings!</string>
-    <string name="trigger_loc_remove_location_text">All the locations and triggers associated with this place will be removed</string>
-    <string name="trigger_loc_title">Trigger location</string>
+    <string name="trigger_loc_remove_location_text">All the locations and reminders associated with this place will be removed</string>
+    <string name="trigger_loc_title">Reminder location</string>
     <string name="trigger_loc_manage_locations">Manage Locations</string>
     <string name="trigger_loc_no_location_selected">(Not selected)</string>
-    <string name="trigger_loc_time_range_summary">Trigger only during the following interval</string>
-    <string name="trigger_loc_always_title">Trigger always</string>
-    <string name="trigger_loc_always_text">Trigger at End Time even if the location is not reached</string>
+    <string name="trigger_loc_time_range_summary">Show Reminder only during the following interval</string>
+    <string name="trigger_loc_always_title">Always show Reminder</string>
+    <string name="trigger_loc_always_text">Show Reminder at End Time even if the location is not reached</string>
     <string name="trigger_loc_min_reentry_title">Minimum re-entry interval</string>
     <string name="trigger_loc_min_reenetry_text">30 minutes</string>
     <string name="trigger_loc_add_place_hint">Type to add a new place</string>
