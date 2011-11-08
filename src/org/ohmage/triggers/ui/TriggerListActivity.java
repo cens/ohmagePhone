@@ -16,7 +16,6 @@
 package org.ohmage.triggers.ui;
 
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.base.TriggerBase;
@@ -105,7 +104,7 @@ public class TriggerListActivity extends ListActivity
 	/**
 	 * Set the default admin mode. If it is true, we don't need to show the admin menu
 	 */
-	public static boolean TRIGGER_ADMIN_MODE = SharedPreferencesHelper.ADMIN_MODE;
+	public static boolean TRIGGER_ADMIN_MODE = true;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
