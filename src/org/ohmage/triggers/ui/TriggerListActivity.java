@@ -16,6 +16,7 @@
 package org.ohmage.triggers.ui;
 
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.base.TriggerBase;
@@ -99,7 +100,12 @@ public class TriggerListActivity extends ListActivity
 	/**
 	 * Instead of having a shared preference admin mode, we want admin mode to end once the user leaves the activity
 	 */
-	private boolean mAdminMode = false;
+	private boolean mAdminMode = TRIGGER_ADMIN_MODE;
+
+	/**
+	 * Set the default admin mode. If it is true, we don't need to show the admin menu
+	 */
+	public static boolean TRIGGER_ADMIN_MODE = SharedPreferencesHelper.ADMIN_MODE;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -526,13 +532,15 @@ public class TriggerListActivity extends ListActivity
 		menu.removeItem(MENU_ID_SETTINGS);
 		
 		boolean adminMode = isAdminLoggedIn();
-		if(!adminMode) {
-			menu.add(0, MENU_ID_ADMIN_LOGIN, 0, "Admin access")
-		    		.setIcon(R.drawable.ic_menu_login);
-		}
-		else {
-			menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, "Logoff admin")
-		 		.setIcon(R.drawable.ic_menu_login);
+		if(!TRIGGER_ADMIN_MODE) {
+			if(!adminMode) {
+				menu.add(0, MENU_ID_ADMIN_LOGIN, 0, "Admin access")
+				.setIcon(R.drawable.ic_menu_login);
+			}
+			else {
+				menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, "Logoff admin")
+				.setIcon(R.drawable.ic_menu_login);
+			}
 		}
 		
 		//Add 'preferences' menu item only if there is at least
