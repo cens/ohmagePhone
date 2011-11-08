@@ -25,14 +25,16 @@
         android:title="Time range"
         android:persistent="false"
         android:summary="Enforce a range for the trigger time" />
-        
+       
+	<!-- 
 	<CheckBoxPreference
         android:key="randomize_trigger_time"
         android:dependency="enable_time_range"
         android:persistent="false"
         android:title="Randomize"
         android:summary="Use random trigger times with in the range" />   
-	        
+	 -->
+	 
 		<org.ohmage.triggers.utils.TimePickerPreference
 		    android:key="interval_start_time"
 		    android:dependency="enable_time_range"

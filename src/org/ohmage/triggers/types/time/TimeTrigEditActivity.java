@@ -18,6 +18,7 @@ package org.ohmage.triggers.types.time;
 import java.util.LinkedHashMap;
 
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.ui.TriggerListActivity;
@@ -56,7 +57,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	private static final String KEY_SAVE_REPEAT_STATUS = "repeat_status";
 	
 	private static final String PREF_KEY_TRIGGER_TIME = "trigger_time";
-	private static final String PREF_KEY_RANDOMIZE = "randomize_trigger_time";
+	// private static final String PREF_KEY_RANDOMIZE = "randomize_trigger_time";
 	private static final String PREF_KEY_ENABLE_RANGE = "enable_time_range";
 	private static final String PREF_KEY_START_TIME = "interval_start_time";
 	private static final String PREF_KEY_END_TIME = "interval_end_time";
@@ -171,13 +172,12 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		mExitListener = listener;
 	}
 	
+	@SuppressWarnings("unused")
 	private void initializeGUI() {
 		TimePickerPreference trigTimePref = (TimePickerPreference) getPreferenceScreen()
 		 					.findPreference(PREF_KEY_TRIGGER_TIME);
-		CheckBoxPreference rangePref = (CheckBoxPreference) getPreferenceScreen()
-							.findPreference(PREF_KEY_ENABLE_RANGE);
-		CheckBoxPreference randPref = (CheckBoxPreference) getPreferenceScreen()
-							.findPreference(PREF_KEY_RANDOMIZE);
+		CheckBoxPreference rangePref = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_RANGE);
+		// CheckBoxPreference randPref = (CheckBoxPreference) findPreference(PREF_KEY_RANDOMIZE);
 		TimePickerPreference startPref = (TimePickerPreference) getPreferenceScreen()
 							.findPreference(PREF_KEY_START_TIME);
 		TimePickerPreference endPref = (TimePickerPreference) getPreferenceScreen()
@@ -186,12 +186,14 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		if(mTrigDesc.isRangeEnabled()) {
 			rangePref.setChecked(true);
 			
-			if(mTrigDesc.isRandomized()) {
+			/*
+			if(mTrigDesc.isRandomized() || SharedPreferencesHelper.TRIGGERS_TIMERANGE_ALWAYS_RANDOM) {
 				randPref.setChecked(true);
 			}
 			else {
 				trigTimePref.setTime(mTrigDesc.getTriggerTime());
 			}
+			*/
 			
 			startPref.setTime(mTrigDesc.getRangeStart());
 			endPref.setTime(mTrigDesc.getRangeEnd());
@@ -216,7 +218,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		if(!mAdminMode && !TrigUserConfig.editTimeTriggerRange) {
 
-			randPref.setEnabled(false);
+			// randPref.setEnabled(false);
 		}
 		
 		if(!mAdminMode && !TrigUserConfig.editTimeTriggerRange) {
@@ -248,11 +250,10 @@ public class TimeTrigEditActivity extends PreferenceActivity
 					.setEnabled(mAdminMode || TrigUserConfig.editTimeTrigger);
 	}
 	
+	@SuppressWarnings("unused")
 	private void udateTriggerDesc() {
-		CheckBoxPreference rangePref = (CheckBoxPreference) getPreferenceScreen()
-		 									.findPreference(PREF_KEY_ENABLE_RANGE);
-		CheckBoxPreference randPref = (CheckBoxPreference) getPreferenceScreen()
-											.findPreference(PREF_KEY_RANDOMIZE);
+		CheckBoxPreference rangePref = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_RANGE);
+		// CheckBoxPreference randPref = (CheckBoxPreference) findPreference(PREF_KEY_RANDOMIZE);
 		TimePickerPreference timePref = (TimePickerPreference) getPreferenceScreen()
 		 									.findPreference(PREF_KEY_TRIGGER_TIME);
 		TimePickerPreference startPref = (TimePickerPreference) getPreferenceScreen()
@@ -264,13 +265,18 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		if(rangePref.isChecked()) {
 			mTrigDesc.setRangeEnabled(true);
 			
-			if(randPref.isChecked()) {
+			/*
+			if(randPref.isChecked() || SharedPreferencesHelper.TRIGGERS_TIMERANGE_ALWAYS_RANDOM) {
 				mTrigDesc.setRandomized(true);
 			}
 			else {
 				mTrigDesc.setRandomized(false);
 				mTrigDesc.setTriggerTime(timePref.getTime());
 			}
+			*/
+			
+			// FAISAL: now we're always random when rangePref is true
+			mTrigDesc.setRandomized(true);
 			
 			mTrigDesc.setRangeStart(startPref.getTime());
 			mTrigDesc.setRangeEnd(endPref.getTime());
@@ -315,13 +321,13 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		TimePickerPreference trigTimePref = (TimePickerPreference) getPreferenceScreen()
 											 .findPreference(PREF_KEY_TRIGGER_TIME);
 		
-		CheckBoxPreference rangePref = (CheckBoxPreference) getPreferenceScreen()
-										.findPreference(PREF_KEY_ENABLE_RANGE);
+		CheckBoxPreference rangePref = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_RANGE);
+		// CheckBoxPreference randPref = (CheckBoxPreference) findPreference(PREF_KEY_RANDOMIZE);
 		
-		CheckBoxPreference randPref = (CheckBoxPreference) getPreferenceScreen()
-			.findPreference(PREF_KEY_RANDOMIZE);
+		// if triggers_timerange_always_random is set, then make randPref = rangePref
+		// randPref.setChecked(SharedPreferencesHelper.TRIGGERS_TIMERANGE_ALWAYS_RANDOM && rangePref.isChecked());
 		
-		if(rangePref.isChecked() && randPref.isChecked()) {
+		if(rangePref.isChecked()) {
 			trigTimePref.setSummary("Random");
 			trigTimePref.setEnabled(false);
 		}
@@ -382,9 +388,8 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	
 	private Dialog createInvalidTimeAlert() {
 		final String msg =  "Make sure that\n\n" +
-							"- the End Time is after the Start Time\n" +
-							"- the Trigger Time is between Start Time & End Time";
-		
+							"- the End Time is after the Start Time\n";
+
 		return new AlertDialog.Builder(this)
 					.setTitle("Invalid time settings!")
 					.setNegativeButton("Cancel", null)
@@ -421,8 +426,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	@Override
 	public boolean onPreferenceClick(Preference pref) {
 		
-		if(pref.getKey().equals(PREF_KEY_RANDOMIZE) ||
-		   pref.getKey().equals(PREF_KEY_ENABLE_RANGE)) {
+		if(pref.getKey().equals(PREF_KEY_ENABLE_RANGE)) {
 			updateTriggerTimePrefStatus();
 		} else if(pref.getKey().equals(PREF_KEY_REPEAT_DAYS)) {
 			removeDialog(DIALOG_ID_REPEAT_SEL);
