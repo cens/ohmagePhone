@@ -168,7 +168,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								startActivity(intent);
 								break;
 							case ACTION_SETUP_TRIGGERS:
-								Intent triggerIntent = Campaign.launchTriggerActivity(mContext, campaignUrn);
+								Intent triggerIntent = Campaign.launchTriggerIntent(mContext, campaignUrn);
 								startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
 								return;
 						}

@@ -12,7 +12,7 @@
         android:persistent="false"
         android:title="Admin Settings" />
 
-    <PreferenceScreen android:title="Status" >
+    <PreferenceCategory android:title="Status" >
 
         <PreferenceScreen
             style="?android:attr/preferenceInformationStyle"
@@ -45,6 +45,14 @@
             android:persistent="false"
             android:summary="Hidden"
             android:title="Upload Queue" />
-    </PreferenceScreen>
+            
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_mobility_visibility"
+            android:persistent="false"
+            android:summary="Hidden"
+            android:title="Mobility" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

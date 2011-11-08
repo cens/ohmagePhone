@@ -153,7 +153,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 							startActivity(intent);
 							break;
 						case ACTION_SETUP_TRIGGERS:
-							Intent triggerIntent = Campaign.launchTriggerActivity(mContext, campaignUrn);
+							Intent triggerIntent = Campaign.launchTriggerIntent(mContext, campaignUrn);
 							startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
 							return;
 					}
@@ -248,7 +248,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);
 		switch (mCampaignStatus) {
 			case Campaign.STATUS_READY:
-				mStatusValue.setText(R.string.campaign_status_participating);
+				mStatusValue.setText(R.string.campaign_status_ready);
 				mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_running, 0, 0, 0);
 				break;
 			case Campaign.STATUS_VAGUE:

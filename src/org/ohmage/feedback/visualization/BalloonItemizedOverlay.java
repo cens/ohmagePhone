@@ -55,10 +55,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 	private View clickRegion;
 	private int viewOffset;
 	final MapController mc;
-	private Button mMapPinNext;
-	private Button mMapPinPrevious;
-	private Context mContext;
-	
+
 	/**
 	 * Create a new BalloonItemizedOverlay
 	 * 
@@ -70,28 +67,8 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		this.mapView = mapView;
 		viewOffset = 0;
 		mc = mapView.getController();
-		mContext = mapView.getContext();
-		
-//		mMapPinNext = (Button) mapView.getRootView().findViewById(R.id.map_pin_next);
-//		mMapPinPrevious = (Button) mapView.getRootView().findViewById(R.id.map_pin_previous);
-//		
-//		mMapPinNext.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				Toast.makeText(mContext, "Hello next ", Toast.LENGTH_SHORT).show();
-//			}
-//		});
-//		
-//		mMapPinPrevious.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				Toast.makeText(mContext, "Hello previous", Toast.LENGTH_SHORT).show();
-//			}
-//		});
 	}
-	
+
 	/**
 	 * Set the horizontal distance between the marker and the bottom of the information
 	 * balloon. The default is 0 which works well for center bounded markers. If your
@@ -131,7 +108,13 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		
 		if (balloonView == null) {
 			balloonView = new BalloonOverlayView(mapView.getContext(), viewOffset);
-			clickRegion = (View) balloonView.findViewById(R.id.balloon_inner_layout);
+			balloonView.setOnBalloonClosedListener(new BalloonOverlayView.OnBalloonClosedListener() {
+				@Override
+				public void onBalloonClosed(BalloonOverlayView view) {
+					setFocus(null);
+				}
+			});
+			clickRegion = balloonView.findViewById(R.id.balloon_inner_layout);
 			isRecycled = false;
 		} else {
 			isRecycled = true;
@@ -144,7 +127,11 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 			hideOtherBalloons(mapOverlays);
 		}
 		
-		balloonView.setData(createItem(index));
+		OverlayItem item = createItem(index);
+		if(getFocus() == null)
+			setFocus(item);
+
+		balloonView.setData(item);
 		
 		MapView.LayoutParams params = new MapView.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,
@@ -179,7 +166,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 	/**
 	 * Sets the visibility of this overlay's balloon view to GONE. 
 	 */
-	private void hideBalloon() {
+	public void hideBalloon() {
 		if (balloonView != null) {
 			balloonView.setVisibility(View.GONE);
 		}

@@ -27,6 +27,12 @@
             android:summaryOff="Show Upload Queue on Dashboard"
             android:summaryOn="Hide Upload Queue from Dashboard"
             android:title="Show Upload Queue" />
+            
+        <CheckBoxPreference
+            android:key="key_show_mobility"
+            android:summaryOff="Show Mobility on Dashboard"
+            android:summaryOn="Hide Mobility from Dashboard"
+            android:title="Show Mobility" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Account Management" >

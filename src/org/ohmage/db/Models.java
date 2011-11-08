@@ -109,7 +109,7 @@ public class Models {
 		 * @param context
 		 * @param campaignUrn
 		 */
-		public static Intent launchTriggerActivity(Context context, String campaignUrn) {
+		public static Intent launchTriggerIntent(Context context, String campaignUrn) {
 			List<String> surveyTitles = new ArrayList<String>();
 			
 			// grab a list of surveys for this campaign
