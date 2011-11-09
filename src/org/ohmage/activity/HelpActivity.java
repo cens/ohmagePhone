@@ -16,111 +16,54 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
+import org.ohmage.ui.BaseActivity;
+import org.ohmage.ui.TabsAdapter;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.webkit.WebView;
-import android.widget.Button;
+import android.widget.TabHost;
 
 /**
  * Help activity uses a view pager to show different help screens
  * @author cketcham
  *
  */
-public class HelpActivity extends FragmentActivity {
-	static final int NUM_ITEMS = 3;
+public class HelpActivity extends BaseActivity {
 	static final String URLS[] =  {
 		"file:///android_asset/about_dashboard.html",
 		"file:///android_asset/about_filter.html",
 		"file:///android_asset/about_lists.html"
 	};
 
-	MyAdapter mAdapter;
+    TabHost mTabHost;
+    ViewPager  mViewPager;
+    TabsAdapter mTabsAdapter;
 
-	ViewPager mPager;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.help_layout);
+        setContentView(R.layout.help_layout);
+        mTabHost = (TabHost)findViewById(android.R.id.tabhost);
+        mTabHost.setup();
 
-		mAdapter = new MyAdapter(getSupportFragmentManager());
+        mViewPager = (ViewPager)findViewById(R.id.pager);
 
-		mPager = (ViewPager)findViewById(R.id.pager);
-		mPager.setAdapter(mAdapter);
+        mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
-		// Watch for button clicks.
-		// this generic handler can be used for each of the buttons
-		OnClickListener pagerListener = new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				switch (v.getId()) {
-					case R.id.goto_dashboard:
-						mPager.setCurrentItem(0); break;
-					case R.id.goto_filter:
-						mPager.setCurrentItem(1); break;
-					case R.id.goto_list:
-						mPager.setCurrentItem(2); break;
-				}
-			}
-		};
-		
-		// gather references to our tab buttons
-		final Button dashButton = (Button)findViewById(R.id.goto_dashboard);
-		final Button filterButton = (Button)findViewById(R.id.goto_filter);
-		final Button listButton = (Button)findViewById(R.id.goto_list);
-		
-		// set all the buttons to use the generic pager listener
-		dashButton.setOnClickListener(pagerListener);
-		filterButton.setOnClickListener(pagerListener);
-		listButton.setOnClickListener(pagerListener);
-		
-		// update the button selection based on the current page
-		mPager.setOnPageChangeListener(new OnPageChangeListener() {
-			@Override
-			public void onPageSelected(int position) {
-				// set the current item to be selected and all others to be deselected
-				dashButton.setBackgroundResource((position == 0)?R.drawable.tab_bg_selected:R.drawable.tab_bg_unselected);
-				filterButton.setBackgroundResource((position == 1)?R.drawable.tab_bg_selected:R.drawable.tab_bg_unselected);
-				listButton.setBackgroundResource((position == 2)?R.drawable.tab_bg_selected:R.drawable.tab_bg_unselected);
-			}
-			
-			// the below two aren't used, but they're abstract so we have to define them
-			@Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-			@Override public void onPageScrollStateChanged(int state) { }
-		});
-		
-		// set the buttons to their default states on load
-		int position = 0;
-		dashButton.setBackgroundResource((position == 0)?R.drawable.tab_bg_selected:R.drawable.tab_bg_unselected);
-		filterButton.setBackgroundResource((position == 1)?R.drawable.tab_bg_selected:R.drawable.tab_bg_unselected);
-		listButton.setBackgroundResource((position == 2)?R.drawable.tab_bg_selected:R.drawable.tab_bg_unselected);
-	}
+        mTabsAdapter.addTab("Dashboard",WebViewFragment.class, WebViewFragment.instanceBundle(URLS[0]));
+        mTabsAdapter.addTab("Filter",WebViewFragment.class, WebViewFragment.instanceBundle(URLS[1]));
+        mTabsAdapter.addTab("List",WebViewFragment.class, WebViewFragment.instanceBundle(URLS[2]));
 
-	public static class MyAdapter extends FragmentPagerAdapter {
-		public MyAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public int getCount() {
-			return NUM_ITEMS;
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			return WebViewFragment.newInstance(URLS[position]);
-		}
-	}
+        if (savedInstanceState != null) {
+            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+        }
+    }
 
 	public static class WebViewFragment extends Fragment {
 
@@ -131,12 +74,19 @@ public class HelpActivity extends FragmentActivity {
 		 */
 		static WebViewFragment newInstance(String url) {
 			WebViewFragment f = new WebViewFragment();
+			f.setArguments(instanceBundle(url));
+			return f;
+		}
 
+		/**
+		 * Create the bundle for a new instance of WebViewFragment
+		 * @param url
+		 * @return the bundle which will show this url
+		 */
+		static Bundle instanceBundle(String url) {
 			Bundle args = new Bundle();
 			args.putString("url", url);
-			f.setArguments(args);
-
-			return f;
+			return args;
 		}
 
 		/**
@@ -161,4 +111,10 @@ public class HelpActivity extends FragmentActivity {
 			return webView;
 		}
 	}
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("tab", mTabHost.getCurrentTabTag());
+    }
 }
