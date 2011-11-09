@@ -105,7 +105,10 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 	
 	private void setShowPending() {
 		if (mShowPending) {
-			setEmptyText(getString(R.string.surveys_empty_pending));
+			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+				setEmptyText(getString(R.string.surveys_empty_pending_single));
+			else
+				setEmptyText(getString(R.string.surveys_empty_pending));
 		} else {
 			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
 				setEmptyText(getString(R.string.single_campaign_error));
