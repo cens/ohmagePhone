@@ -31,6 +31,12 @@ import android.widget.ListView;
  */
 public class SurveyListFragment extends FilterableListFragment implements SubActionClickListener {
 
+	/**
+	 * Pass in the arguments to determine if this should show the pending surveys or all surveys.
+	 * true for pending, false for all
+	 */
+	public static final String KEY_PENDING = "key_pending";
+
 	private static final String TAG = "SurveyListFragment";
 		
 	private boolean mShowPending = false;
@@ -49,6 +55,8 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 
 		super.onActivityCreated(savedInstanceState);
 		
+		if(getArguments() != null)
+			mShowPending = getArguments().getBoolean(KEY_PENDING, false);
         setShowPending();
 		
 		mAdapter = new SurveyListCursorAdapter(getActivity(), null, this, 0);
