@@ -58,15 +58,15 @@
 	
 	<string name="campaign_info_triggers_details">
 		<![CDATA[
-		The above count is the number of triggers configured for this campaign.<br /><br />
+		The above count is the number of reminders configured for this campaign.<br /><br />
 		
-		Tap the bell icon in the action bar to configure the triggers.
+		Tap the bell icon in the action bar to configure the reminders.
 		]]>
 	</string>
 	
 	<string name="survey_info_triggers_details">
 		<![CDATA[
-		The above count is the number of triggers configured for this survey.
+		The above count is the number of reminders configured for this survey.
 		]]>
 	</string>
 </resources>

@@ -356,7 +356,7 @@ public abstract class TriggerBase {
 	 * the user when a new trigger is to be created or when the settings
 	 * are to be modified. 
 	 */
-	public abstract String getTriggerTypeDisplayName();
+	public abstract String getTriggerTypeDisplayName(Context context);
 	
 	/*
 	 * Get the title of a specific trigger description of this type. 

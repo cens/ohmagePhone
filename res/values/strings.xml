@@ -17,6 +17,8 @@
     <string name="retry_now">Retry Now</string>
     <string name="retry_later">Retry Later</string>
     <string name="delete">Delete</string>
+    <string name="done">Done</string>
+    <string name="close">Close</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -99,7 +101,7 @@
     <string name="survey_repeatable_set_terminate">Terminate</string>
     <string name="survey_repeatable_set_repeat">Repeat</string>
     <string name="survey_repeatable_set_title">End of repeatable set</string>
-    <string name="survey_list_must_trigger">This survey can only be taken when triggered.</string>
+    <string name="survey_list_must_trigger">This survey can only be taken when a reminder goes off.</string>
     <string name="survey_list_invalid_survey">onSurveyActionStart: Error: Empty cursor returned.</string>
     <string name="prompt_repeatable_set_repeat">Would you like to repeat the set?</string>
     <string name="prompt_remote_launch">Launch</string>
@@ -171,7 +173,7 @@
     <string name="campaign_info_privacy_title">privacy:</string>
     <string name="campaign_info_status_title">status:</string>
     <string name="campaign_info_responses_title">responses:</string>
-    <string name="campaign_info_triggers_title">triggers:</string>
+    <string name="campaign_info_triggers_title">reminders:</string>
 
     <plurals name="campaign_info_remote">
         <item quantity="one">Are you sure that you want to remove this campaign? There is <b>1 response</b> which hasn\'t been uploaded.</item>
@@ -182,8 +184,8 @@
         <item quantity="other">%d responses submitted</item>
     </plurals>
     <plurals name="campaign_info_trigger_count">
-        <item quantity="one">1 trigger configured</item>
-        <item quantity="other">%d triggers configured</item>
+        <item quantity="one">1 reminder configured</item>
+        <item quantity="other">%d reminders configured</item>
     </plurals>
 
     <!-- Response Info -->
@@ -197,7 +199,7 @@
     <string name="survey_info_description_test">this is a test description</string>
     <string name="survey_info_status_title">status:</string>
     <string name="survey_info_responses_title">responses:</string>
-    <string name="survey_info_triggers_title">triggers:</string>
+    <string name="survey_info_triggers_title">reminders:</string>
 
     <!-- Profile Info -->
     <string name="profile_info_update_password">Update Password</string>
@@ -207,13 +209,14 @@
     <string name="surveys_all">All</string>
     <string name="surveys_pending">Pending</string>
     <string name="surveys_empty_all">There are no surveys to display.\n\nAfter selecting campaigns to participate in, you can view a list of their surveys here.</string>
-    <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey triggers via each campaign\'s information screen.</string>
+    <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey reminders via each campaign\'s information screen.</string>
+    <string name="surveys_empty_pending_single">You have no pending surveys.\n\nYou can manage survey reminders via the Settings on the Dashboard.</string>
     <string name="single_campaign_error">There is a problem with the campaign setup. \n\nIf the problem continues, please contact an Administrator.</string>
 
     <!-- Campaign -->
     <string name="campaign_status_ready">participating</string>
     <string name="campaign_status_vague">not available</string>
-    <string name="campaign_status_remote">available for participationn</string>
+    <string name="campaign_status_remote">available for participation</string>
     <string name="campaign_status_out_of_date">out of date</string>
     <string name="campaign_status_no_exist">deleted on server</string>
     <string name="campaign_status_stopped">stopped</string>

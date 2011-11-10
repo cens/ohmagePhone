@@ -12,7 +12,7 @@
 		xmlns:android="http://schemas.android.com/apk/res/android">
 		
 		<Button 
-			android:text="Add this location"
+			android:text="@string/trigger_loc_add_location"
 			android:id="@+id/balloon_add_loc"
 			android:layout_alignParentTop="true"
 			android:layout_alignParentRight="true"
@@ -21,7 +21,7 @@
 			android:layout_height="fill_parent">
 		</Button>
 		
-		<TextView android:text="Loading approximate address..." 
+		<TextView android:text="@string/trigger_loc_loading_address"
 			android:layout_alignParentTop="true"
 			android:layout_alignParentLeft="true"
 			

@@ -113,7 +113,7 @@
 		================================================
 		-->
 
-		<activity android:name=".activity.HelpActivity"
+		<activity android:name=".activity.HelpActivity" android:label="@string/title_help"
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<activity android:name=".activity.ResponseInfoMapActivity" android:label="@string/title_response"

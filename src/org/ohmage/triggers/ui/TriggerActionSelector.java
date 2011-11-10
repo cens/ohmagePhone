@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage.triggers.ui;
 
+import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
 
@@ -75,12 +76,12 @@ public class TriggerActionSelector
 	public Dialog createDialog(Context context, boolean adminMode) {
 		 AlertDialog.Builder builder = 
 			 			new AlertDialog.Builder(context)
-					   .setTitle("Select surveys")
-					   .setNegativeButton("Cancel", this)
+					   .setTitle(R.string.trigger_select_actions)
+					   .setNegativeButton(R.string.cancel, this)
 					   .setMultiChoiceItems(mActions, mSelected, this);
 		 
 		 if(adminMode || TrigUserConfig.editTriggerActions) {
-			 builder.setPositiveButton("Done", this);
+			 builder.setPositiveButton(R.string.done, this);
 		 }
 		 
 			

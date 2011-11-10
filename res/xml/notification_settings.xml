@@ -7,12 +7,12 @@
   		android:showDefault="true"
   		android:showSilent="true"
   		android:key="notification_ringtone"
-  		android:title="Trigger Sound" />
+		android:title="@string/trigger_notification_sound_title" />
   		
   	<ListPreference
   		android:entries="@array/notification_vibration_entries"
   		android:entryValues="@array/notification_vibration_values"
-  		android:title="Vibration Duration"
+		android:title="@string/trigger_notification_vibration_duration"
   		android:key="notification_vibration"
   		android:defaultValue="2000" />
   		
