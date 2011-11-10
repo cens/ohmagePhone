@@ -400,8 +400,23 @@ public class UploadService extends WakefulIntentService {
 					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
 				} else {
 					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
-//					handleErrors(response, null);
-					NotificationHelper.showMobilityErrorNotification(this);
+					
+					switch (response.getResult()) {
+					case FAILURE:
+						Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+						NotificationHelper.showMobilityErrorNotification(this);
+						break;
+						
+					case INTERNAL_ERROR:
+						Log.e(TAG, "Upload failed due to unknown internal error");
+						NotificationHelper.showMobilityErrorNotification(this);
+						break;
+						
+					case HTTP_ERROR:
+						Log.e(TAG, "Upload failed due to network error");
+						break;
+					}
+					
 					break;						
 				}
 			}
