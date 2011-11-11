@@ -40,6 +40,7 @@ public class SharedPreferencesHelper {
 	private static final String KEY_IS_AUTHENTICATED = "is_authenticated";
 	private static final String KEY_IS_DISABLED = "is_disabled";
 	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
+	private static final String KEY_LOGIN_TIMESTAMP = "login_timestamp";
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
@@ -102,6 +103,14 @@ public class SharedPreferencesHelper {
 	
 	public boolean putLastMobilityUploadTimestamp(Long timestamp) {
 		return mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
+	}
+	
+	public Long getLoginTimestamp() {
+		return mPreferences.getLong(KEY_LOGIN_TIMESTAMP, 0);
+	}
+	
+	public boolean putLoginTimestamp(Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LOGIN_TIMESTAMP, timestamp).commit();
 	}
 	
 	public Long getLastSurveyTimestamp(String surveyId) {

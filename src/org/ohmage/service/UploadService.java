@@ -275,10 +275,13 @@ public class UploadService extends WakefulIntentService {
 		
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
-		Long lastMobilityUploadTimestamp = helper.getLastMobilityUploadTimestamp();
+		long uploadAfterTimestamp = helper.getLastMobilityUploadTimestamp();
+		if (uploadAfterTimestamp == 0) {
+			uploadAfterTimestamp = helper.getLoginTimestamp();
+		}
 		
 		Long now = System.currentTimeMillis();
-		Cursor c = MobilityInterface.getMobilityCursor(this, lastMobilityUploadTimestamp);
+		Cursor c = MobilityInterface.getMobilityCursor(this, uploadAfterTimestamp);
 		
 		OhmageApi.UploadResponse response = new OhmageApi.UploadResponse(OhmageApi.Result.SUCCESS, null);
 		
@@ -308,7 +311,7 @@ public class UploadService extends WakefulIntentService {
 						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 						Long time = c.getLong(c.getColumnIndex(MobilityInterface.KEY_TIME));
 						if (i == limit - 1) {
-							lastMobilityUploadTimestamp = time;
+							uploadAfterTimestamp = time;
 						}
 						mobilityPointJson.put("date", dateFormat.format(new Date(time)));
 						mobilityPointJson.put("time", time);
@@ -395,7 +398,7 @@ public class UploadService extends WakefulIntentService {
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
-					helper.putLastMobilityUploadTimestamp(lastMobilityUploadTimestamp);
+					helper.putLastMobilityUploadTimestamp(uploadAfterTimestamp);
 					remainingCount -= limit;
 					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
 				} else {
