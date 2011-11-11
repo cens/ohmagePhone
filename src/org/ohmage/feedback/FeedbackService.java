@@ -14,7 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.OhmageApi;
-import org.ohmage.OhmageApplication;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.OhmageApi.ImageReadResponse;
 import org.ohmage.OhmageApi.Result;
@@ -24,14 +23,17 @@ import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
+
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Log;
+import java.util.HashMap;
 
 public class FeedbackService extends WakefulIntentService {
 	private static final String TAG = "FeedbackService";
@@ -170,8 +172,8 @@ public class FeedbackService extends WakefulIntentService {
 			JSONArray data = apiResponse.getData();
 			
 			// also maintain a list of photo UUIDs that may or may not be on the device
-			// this is campaign-specific, which is why it's happening in this loop over the campaigns
-			ArrayList<String> photoUUIDs = new ArrayList<String>();
+			// this is campaign-response-specific, which is why it's happening in this loop over the campaigns
+			HashMap<String, ArrayList<String>> responsePhotos = new HashMap<String, ArrayList<String>>();
 			
 			// if they have nothing on the server, data may be null
 			// if that's the case, don't do anything
@@ -189,6 +191,7 @@ public class FeedbackService extends WakefulIntentService {
 			for (int i = 0; i < data.length(); ++i) {
 				Log.v(TAG, "Processing record " + (i+1) + "/" + data.length());
 				
+				ArrayList<String> photoUUIDs = new ArrayList<String>();
 				try {
 					JSONObject survey = data.getJSONObject(i);
 
@@ -305,7 +308,7 @@ public class FeedbackService extends WakefulIntentService {
 								newItem.put("value", value);
 								
 								// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
-								if (curItem.getString("prompt_type").equalsIgnoreCase("photo") && !value.equalsIgnoreCase("NOT_DISPLAYED")) {
+								if (curItem.getString("prompt_type").equalsIgnoreCase("photo") && !value.equalsIgnoreCase(AbstractPrompt.NOT_DISPLAYED_VALUE) && !value.equalsIgnoreCase(AbstractPrompt.SKIPPED_VALUE)) {
 									photoUUIDs.add(value);
 								}
 							} catch (JSONException e) {
@@ -325,7 +328,8 @@ public class FeedbackService extends WakefulIntentService {
 					// note that we mark this entry as "remote", meaning it came from the server
 
 					try {
-						cr.insert(Responses.CONTENT_URI, candidate.toCV());
+						Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
+						responsePhotos.put(Responses.getResponseId(responseUri), photoUUIDs);
 					}
 					catch(Exception e) {
 						// display some note in the log that this failed
@@ -350,46 +354,41 @@ public class FeedbackService extends WakefulIntentService {
 			// === 3b. download image data mentioned in responses
 			// ==================================================================
 			
-			// get the image cache directory for this campaign and ensure it exists
-			File photoDir = new File(OhmageApplication.getImageDirectory(this), c.mUrn.replace(':', '_'));
-			photoDir.mkdirs();
-			
 			// now that we're done inserting all that data from the server
 			// let's see if we already have all the photos that were mentioned in the responses
-			for (String photoUUID : photoUUIDs) {
-				// check if it doesn't already exist in our photos directory
-				// FIXME: figure out how to tell if it's a jpg or a png!
-				// we only seem to be able to do that after we do the call :\
-				File photo = new File(photoDir, photoUUID + ".png");
-				
-				Log.v(TAG, "Checking photo w/UUID " + photoUUID + "...");
-				
-				if (!photo.exists()) {
-					// it doesn't exist, so we have to download it :(
-					ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, null);
-				
-					// if it succeeded, it contains data that we should save as the photo file above
-					try {
-						if (ir != null && ir.getResult() == Result.SUCCESS) {
-							photo.createNewFile();
-							FileOutputStream photoWriter = new FileOutputStream(photo);
-							photoWriter.write(ir.getData());
-							photoWriter.close();
-							
-							Log.v(TAG, "Downloaded photo w/UUID " + photoUUID);
+			for (String responseId : responsePhotos.keySet()) {
+				for(String photoUUID : responsePhotos.get(responseId)) {
+					File photo = Response.getResponsesImage(this, c.mUrn, responseId, photoUUID);
+
+					Log.v(TAG, "Checking photo w/UUID " + photoUUID + "...");
+
+					if (!photo.exists()) {
+						// it doesn't exist, so we have to download it :(
+						ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, null);
+
+						// if it succeeded, it contains data that we should save as the photo file above
+						try {
+							if (ir != null && ir.getResult() == Result.SUCCESS) {
+								photo.createNewFile();
+								FileOutputStream photoWriter = new FileOutputStream(photo);
+								photoWriter.write(ir.getData());
+								photoWriter.close();
+
+								Log.v(TAG, "Downloaded photo w/UUID " + photoUUID);
+							}
+							else
+								Log.e(TAG, "Unable to save photo w/UUID " + photoUUID + ": " + ir.getResult().toString());
 						}
-						else
-							Log.e(TAG, "Unable to save photo w/UUID " + photoUUID + ": " + ir.getResult().toString());
+						catch (IOException e) {
+							Log.e(TAG, "Unable to save photo w/UUID " + photoUUID, e);
+							return;
+						}
 					}
-					catch (IOException e) {
-						Log.e(TAG, "Unable to save photo w/UUID " + photoUUID, e);
-						return;
-					}	
+					else
+						Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
 				}
-				else
-					Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
+
 			}
-			
 			// done with this campaign! on to the next one...
 		}
 		
@@ -403,47 +402,5 @@ public class FeedbackService extends WakefulIntentService {
 		prefs.putLastFeedbackRefreshTimestamp(thisRefresh);
 		
 		Log.v(TAG, "Feedback service complete");
-	}
-	
-	public static boolean ensurePhotoExists(Context context, String campaignUrn, String photoUUID) {
-		// get the image directory for this campaign and ensure it exists
-		File photoDir = new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
-		photoDir.mkdirs();
-
-		// check if it doesn't already exist in our photos directory
-		// FIXME: same issue with the photo possibly not being a png as mentioned above
-		File photo = new File(photoDir, photoUUID + ".png");
-		
-		if (!photo.exists()) {
-			// it doesn't exist, so we have to download it :(
-			
-			// assemble all the resources to connect to the server
-			// and then do so!
-			OhmageApi api = new OhmageApi(context);
-			SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-			String username = prefs.getUsername();
-			String hashedPassword = prefs.getHashedPassword();
-			
-			ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, photoUUID, null);
-		
-			// if it succeeded, it contains data that we should save as the photo file above
-			try {
-				if (ir != null && ir.getResult() == Result.SUCCESS) {
-					photo.createNewFile();
-					FileOutputStream photoWriter = new FileOutputStream(photo);
-					photoWriter.write(ir.getData());
-					photoWriter.close();
-					
-					return true; // we downloaded it successfuly
-				}
-				else
-					return false; // we were unable to download it for some reason
-			}
-			catch (IOException e) {
-				return false; // something went wrong while downloading it
-			}	
-		}
-		
-		return true; // it was already there!
 	}
 }

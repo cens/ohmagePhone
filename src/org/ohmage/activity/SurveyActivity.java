@@ -16,8 +16,6 @@
 package org.ohmage.activity;
 
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,7 +35,6 @@ import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
@@ -64,6 +61,7 @@ import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -833,35 +831,7 @@ public class SurveyActivity extends Activity {
 	}
 	
 	private void storeResponse() {
-		
-		//finalize photos
-		for (int i = 0; i < mSurveyElements.size(); i++) {
-			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
-				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
-				final String uuid = (String) photoPrompt.getResponseObject();
-				
-				if (photoPrompt.isDisplayed() && !photoPrompt.isSkipped()) {
-					File [] files = Campaign.getCampaignImageDir(this, mCampaignUrn).listFiles(new FilenameFilter() {
-						
-						@Override
-						public boolean accept(File dir, String filename) {
-							if (filename.contains("temp" + uuid)) {
-								return true;
-							} else {
-								return false;
-							}
-						}
-					});
-					
-					for (File f : files) {
-						f.renameTo(new File(Campaign.getCampaignImageDir(this, mCampaignUrn), uuid + ".jpg"));
-						
-						// TODO: add thumbnail generation, oddly enough as a png
-					}
-				}
-			}
-		}
-		
+
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -997,7 +967,16 @@ public class SurveyActivity extends Activity {
 		}
 
 		ContentResolver cr = getContentResolver();
-		cr.insert(Responses.CONTENT_URI, candidate.toCV());
+		Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
+
+		// finalize photos now that we have the responseUri
+		// the photos are initially in the campaign dir, until the response is saved
+		for (int i = 0; i < mSurveyElements.size(); i++) {
+			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
+				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
+				photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
+			}
+		}
 		
 		// create an intent and broadcast it to any interested receivers
 		Intent i = new Intent("org.ohmage.SURVEY_COMPLETE");

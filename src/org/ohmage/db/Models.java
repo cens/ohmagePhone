@@ -1,6 +1,8 @@
 package org.ohmage.db;
 
 import org.ohmage.OhmageApplication;
+import org.ohmage.OhmageCache;
+import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -15,13 +17,27 @@ import android.content.Intent;
 import android.database.Cursor;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Models {
 
-	public final static class Campaign {
+	public static class DbModel {
+		public long _id;
+
+		/**
+		 * Db models should delete any external files associated with it here.
+		 * This is called by {@link DbProvider#delete(android.net.Uri, String, String[])}
+		 */
+		public void cleanUp(Context context) { }
+
+	}
+
+	public final static class Campaign extends DbModel {
 
 		public static final int STATUS_READY = 0;
 		public static final int STATUS_REMOTE = 1;
@@ -36,7 +52,6 @@ public class Models {
 		public static final String PRIVACY_SHARED = "shared";
 		public static final String PRIVACY_PRIVATE = "private";
 
-		public long _id;
 		public String mUrn;
 		public String mName;
 		public String mDescription;
@@ -95,13 +110,19 @@ public class Models {
 			values.put(Campaigns.CAMPAIGN_PRIVACY, mPrivacy);
 			return values;
 		}
-		
-		public File getImageDir(Context context) {
-			return getCampaignImageDir(context, this.mUrn);
+
+		public static File getCampaignImageDir(Context context, String campaignUrn) {
+			File f = new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
+			f.mkdirs();
+			return f;
 		}
 		
-		public static File getCampaignImageDir(Context context, String campaignUrn) {
-			return new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
+		private File getCampaignImageDir(Context context) {
+			return getCampaignImageDir(context, mUrn);
+		}
+		
+		public static File getCampaignImage(Context context, String campaignUrn, String uuid) {
+			return new File(Campaign.getCampaignImageDir(context, campaignUrn), "temp" + uuid);
 		}
 
 		/**
@@ -165,14 +186,35 @@ public class Models {
 			context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 			context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 		}
+
+		@Override
+		public void cleanUp(Context context) {
+			if (mStatus != Campaign.STATUS_REMOTE)
+				TriggerFramework.resetTriggerSettings(context, mUrn);
+
+			try {
+				if(mIcon != null)
+					OhmageCache.getCachedFile(context, new URI(mIcon)).delete();
+			}catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				if(getCampaignImageDir(context).exists())
+					Utilities.delete(getCampaignImageDir(context));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
-	public final static class Survey {
+	public final static class Survey extends DbModel {
 
 		public static final int STATUS_NORMAL = 0;
 		public static final int STATUS_TRIGGERED = 1;
 
-		public long _id;
 		public String mSurveyID;
 		public String mCampaignUrn;
 		public String mTitle;
@@ -240,9 +282,8 @@ public class Models {
         }
 	}
 
-	public final static class SurveyPrompt {
+	public final static class SurveyPrompt extends DbModel {
 
-		public long _id;
 		public long mSurveyPID;
 		public String mSurveyID;
 		public String mCompositeID;
@@ -298,7 +339,7 @@ public class Models {
 		}
 	}
 
-	public final static class Response {
+	public final static class Response extends DbModel {
 
 		public static final int STATUS_UPLOADED = 0;
 		public static final int STATUS_UPLOADING = 1;
@@ -314,7 +355,6 @@ public class Models {
 		public static final int STATUS_ERROR_CAMPAIGN_OUT_OF_DATE = 11;
 		public static final int STATUS_ERROR_HTTP = 12;
 
-		public long _id;
 		/** the campaign URN for which to record the survey response */
 		public String campaignUrn;
 		public String username;
@@ -413,11 +453,57 @@ public class Models {
 				throw new UnsupportedOperationException("The SHA1 algorithm is not available, can't make a response CV", e);
 			}
 		}
+
+		public static File getResponsesImageDir(Context context, String campaignUrn, String id) {
+			File f = new File(Campaign.getCampaignImageDir(context, campaignUrn), id);
+			f.mkdirs();
+			return f;
+		}
+
+		/**
+		 * Returns the image for a given uuid for this response id and campaign. Usually it is in the response dir
+		 * but it also checks the old locations and moves them if appropriate
+		 * @param context
+		 * @param campaignUrn
+		 * @param id
+		 * @param uuid
+		 * @return the image file
+		 */
+		public static File getResponsesImage(Context context, String campaignUrn, String id, final String uuid) {
+			File image = new File(Response.getResponsesImageDir(context, campaignUrn, id), uuid);
+
+			// If the image isnt there for some reason, maybe its in the old location under the campaign urn
+			if(image == null || !image.exists()) {
+				File jpgImage = new File(Campaign.getCampaignImageDir(context, campaignUrn), uuid + ".jpg");
+				if(jpgImage != null && jpgImage.exists())
+					jpgImage.renameTo(image);
+				else {
+					File pngImage = new File(Campaign.getCampaignImageDir(context, campaignUrn), uuid + ".png");
+					if(pngImage != null && pngImage.exists())
+						pngImage.renameTo(image);
+				}
+			}
+			return image;
+		}
+
+		private File getResponseImageDir(Context context) {
+			return getResponsesImageDir(context, campaignUrn, String.valueOf(_id));
+		}
+
+		@Override
+		public void cleanUp(Context context) {
+			try {
+				if(getResponseImageDir(context).exists())
+					Utilities.delete(getResponseImageDir(context));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
-	public final static class PromptResponse {
+	public final static class PromptResponse extends DbModel {
 
-		public long _id;
 		public long mResponseID;
 		public String mCompositeID;
 		public String mPromptID;
