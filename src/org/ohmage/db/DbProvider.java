@@ -1,14 +1,15 @@
 package org.ohmage.db;
 
-import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.DbModel;
+import org.ohmage.db.Models.Response;
 import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.triggers.glue.TriggerFramework;
 
@@ -20,9 +21,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A ContentProvider which makes the contents of the campaign, survey, and response
@@ -297,25 +297,29 @@ public class DbProvider extends ContentProvider {
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
-		// Depending on the type of the thing deleted, we may have to delete the icon associated with it
-		// We need to know what the url is before we delete it
-		HashSet<String> iconUrls = new HashSet<String>();
+		// Depending on the type of the thing deleted, we may have to do some clean up
+		ArrayList<Models.DbModel> models = new ArrayList<Models.DbModel>();
 		switch (sUriMatcher.match(uri)) {
+			case MatcherTypes.RESPONSE_BY_PID:
+			case MatcherTypes.RESPONSES:
+				models.addAll(Response.fromCursor(builder.query(db, null, null)));
+				break;
 			case MatcherTypes.CAMPAIGN_BY_URN:
 			case MatcherTypes.CAMPAIGNS:
-				// build a list of icons associated w/this campaign to delete
-				// also clear triggers associated with this campaign before deletion
-				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_ICON, Campaigns.CAMPAIGN_STATUS }, null);
-				while(c.moveToNext()) {
-					// append this icon to the list of delete candidates
-					if(c.getString(1) != null)
-						iconUrls.add(c.getString(1));
+				List<Campaign> campaigns = Campaign.fromCursor(builder.query(db, null, null));
+				models.addAll(campaigns);
 
-					// remove the associated triggers, too, if it's not a remote campaign
-					if (c.getInt(2) != Campaign.STATUS_REMOTE)
-						TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
+				// Also clean up all the responses for these campaigns
+				SelectionBuilder responseQuery = buildSelection(Responses.CONTENT_URI, true);
+				// this first where clause makes it so not adding any campaigns returns an empty cursor
+				// Only if the campaign is not remote do we have to delete the responses for it
+				responseQuery.where(Responses._ID + "=-1", SelectionBuilder.OR);
+				for(Campaign campaign : campaigns) {
+					if (campaign.mStatus != Campaign.STATUS_REMOTE)
+						responseQuery.where(Responses.CAMPAIGN_URN + "=?", SelectionBuilder.OR, campaign.mUrn);
 				}
-				c.close();
+				models.addAll(Response.fromCursor(responseQuery.query(db, null, null)));
+				break;
 		}
 		
 		// we assume we've matched it correctly, so proceed with the delete
@@ -335,26 +339,6 @@ public class DbProvider extends ContentProvider {
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
-					// Delete the icon if it is on the sdcard and no other campaigns reference that url
-					for(String iconUrl : iconUrls) {
-						db.beginTransaction();
-						try {
-							Cursor c = db.query(Tables.CAMPAIGNS, new String [] { "_id" }, Campaigns.CAMPAIGN_ICON + "=?", new String[] { iconUrl }, null, null, null);
-							if(c.getCount() == 0) {
-								try {
-									OhmageCache.getCachedFile(getContext(), new URI(iconUrl)).delete();
-								} catch (URISyntaxException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								c.close();
-							}
-							db.setTransactionSuccessful();
-						} finally {
-							db.endTransaction();
-						}
-					}	
-
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);
@@ -363,11 +347,16 @@ public class DbProvider extends ContentProvider {
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
 			}
-			
+
 			// we should always notify on our own uri regardless
 			cr.notifyChange(uri, null);
+
+			// Clean up the data associated with each of the models we deleted
+			for(DbModel model : models) {
+				model.cleanUp(getContext());
+			}
 		}
-		
+
 		return count;
 	}
 	

@@ -27,13 +27,11 @@ import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.ui.BaseInfoActivity;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -57,7 +55,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -190,7 +187,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			// Create an empty adapter we will use to display the loaded data.
 			mAdapter = new PromptResponsesAdapter(getActivity(), null,  new String[] {
 				SurveyPrompts.SURVEY_PROMPT_TEXT, PromptResponses.PROMPT_RESPONSE_VALUE }, new int[] {
-				android.R.id.text1, R.id.prompt_value }, 0);
+				android.R.id.text1, R.id.prompt_value }, 0, getResponseId());
 
 			setListAdapter(mAdapter);
 
@@ -203,8 +200,12 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		@Override
 		public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 			return new CursorLoader(getActivity(),
-					Responses.buildPromptResponsesUri(ContentUris.parseId(getActivity().getIntent().getData())),
+					Responses.buildPromptResponsesUri(Long.valueOf(getResponseId())),
 					null, PromptResponses.PROMPT_RESPONSE_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
+		}
+
+		public String getResponseId() {
+			return Responses.getResponseId(getActivity().getIntent().getData());
 		}
 
 		@Override
@@ -228,11 +229,13 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			public static final int TEXT_RESPONSE = 0;
 			public static final int IMAGE_RESPONSE = 1;
+			private final String mResponseId;
 
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
-					int[] to, int flags) {
+					int[] to, int flags, String responseId) {
 				super(context, R.layout.response_prompt_list_item, c, from, to, flags);
 				setViewBinder(this);
+				mResponseId = responseId;
 			}
 
 			@Override
@@ -313,19 +316,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						// We don't know if the file is .jpg or .png
-						// This list will match the first part of the filename which should be unique
-						File [] files = Campaign.getCampaignImageDir(mContext, campaignUrn).listFiles(new FilenameFilter() {
-							
-							@Override
-							public boolean accept(File dir, String filename) {
-								return filename.startsWith(value);
-							}
-						});
+						File file = Response.getResponsesImage(mContext, campaignUrn, mResponseId, value);
 
-						if(files.length > 0 && files[0].exists()) {
+						if(file != null && file.exists()) {
 							try {
-								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(files[0]));
+								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
 								((ImageView) view.getTag()).setImageBitmap(img);
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
