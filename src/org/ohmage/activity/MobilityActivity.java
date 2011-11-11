@@ -26,6 +26,9 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.format.DateFormat;
@@ -41,9 +44,14 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class MobilityActivity extends BaseActivity {
+public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cursor> {
 	
 	private static final String TAG = "MobilityActivity";
+	
+	private static final int RECENT_LOADER = 0;
+	private static final int ALL_LOADER = 1;
+	private static final int UPLOAD_LOADER = 2;
+	
 	private ListView mMobilityList;
 	private TextView mTotalCountText;
 	private TextView mUploadCountText;
@@ -53,6 +61,8 @@ public class MobilityActivity extends BaseActivity {
 	private RadioButton mInterval1Radio;
 	private RadioButton mInterval5Radio;
 	private Button mSettingsButton;
+	
+	private SimpleCursorAdapter mAdapter;
 	
 	private SharedPreferencesHelper mPrefHelper;
 	private IMobility mMobility = null;
@@ -95,18 +105,18 @@ public class MobilityActivity extends BaseActivity {
 			
 			mPrefHelper = new SharedPreferencesHelper(this);
 			
-			getActionBar().addActionBarCommand(1, "refresh", R.drawable.dashboard_title_refresh);
-			
-			getActionBar().setOnActionListener(new ActionListener() {
-				@Override
-				public void onActionClicked(int commandID) {
-					switch(commandID) {
-						case 1:
-							updateViews();
-							break;
-					}
-				}
-			});
+//			getActionBar().addActionBarCommand(1, "refresh", R.drawable.dashboard_title_refresh);
+//			
+//			getActionBar().setOnActionListener(new ActionListener() {
+//				@Override
+//				public void onActionClicked(int commandID) {
+//					switch(commandID) {
+//						case 1:
+//							updateViews();
+//							break;
+//					}
+//				}
+//			});
 			
 			TextView emptyView = new TextView(this);
 			emptyView.setText("No mobility points recorded in last 10 mins.");
@@ -114,18 +124,24 @@ public class MobilityActivity extends BaseActivity {
 			
 			mMobilityList.setEnabled(false);
 			
-			long timestamp = System.currentTimeMillis() - 5 * 60 * 1000;
-			
-			Cursor c = MobilityInterface.getMobilityCursor(this, timestamp);
-			
 			String [] from = new String[] {MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME};
 			int [] to = new int[] {R.id.text1, R.id.text2};
 			
-			SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.mobility_list_item, c, from, to, 0);
+			mAdapter = new SimpleCursorAdapter(this, R.layout.mobility_list_item, null, from, to, 0);
+			mMobilityList.setAdapter(mAdapter);
 			
-			mMobilityList.setAdapter(adapter);
+			mTotalCountText.setText("-");
+			mUploadCountText.setText("-");
+			long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
+			if (lastMobilityUploadTimestamp == 0) {
+				mLastUploadText.setText("-");
+			} else {
+				mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
+			}
 			
-			updateViews();
+			getSupportLoaderManager().initLoader(RECENT_LOADER, null, this);
+			getSupportLoaderManager().initLoader(ALL_LOADER, null, this);
+			getSupportLoaderManager().initLoader(UPLOAD_LOADER, null, this);
 			
 			mMobilityToggle.setEnabled(false);
 			mInterval1Radio.setEnabled(false);
@@ -133,13 +149,13 @@ public class MobilityActivity extends BaseActivity {
 			
 			mUploadButton.setOnClickListener(mUploadListener);
 			
-			mSettingsButton.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					MobilityInterface.showMobilityOptions(MobilityActivity.this);
-				}
-			});
+//			mSettingsButton.setOnClickListener(new OnClickListener() {
+//				
+//				@Override
+//				public void onClick(View v) {
+//					MobilityInterface.showMobilityOptions(MobilityActivity.this);
+//				}
+//			});
 			
 			bindService(new Intent(IMobility.class.getName()), mConnection, Context.BIND_AUTO_CREATE);
 			isBound = true;
@@ -167,15 +183,6 @@ public class MobilityActivity extends BaseActivity {
 			unbindService(mConnection);
 		}
 	}
-
-	private void updateViews() {
-		mTotalCountText.setText(String.valueOf(getMobilityCount()));
-		
-		Long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-		
-		mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
-		mUploadCountText.setText(String.valueOf(getMobilityCount(lastMobilityUploadTimestamp)));
-	}
 	
 	private BroadcastReceiver mMobilityUploadReceiver = new BroadcastReceiver() {
 		
@@ -191,33 +198,35 @@ public class MobilityActivity extends BaseActivity {
 				MobilityActivity.this.getActionBar().setProgressVisible(false);
 				MobilityActivity.this.mUploadButton.setEnabled(true);
 				MobilityActivity.this.mUploadButton.setText("Upload Now");
-				MobilityActivity.this.updateViews();
+				Long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
+				mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
+				getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
 			}
 		}
 	};
 
-	private int getMobilityCount() {
-		Cursor c = MobilityInterface.getMobilityCursor(this, new Long(0));
-		if (c == null) {
-			return 0;
-		} else {
-			int count = c.getCount();
-			c.close();
-			return count;
-		}
-	}
-	
-	private int getMobilityCount(Long timestamp) {
-		
-		Cursor c = MobilityInterface.getMobilityCursor(this, timestamp);
-		if (c == null) {
-			return 0;
-		} else {
-			int count = c.getCount();
-			c.close();
-			return count;
-		}
-	}
+//	private int getMobilityCount() {
+//		Cursor c = MobilityInterface.getMobilityCursor(this, new Long(0));
+//		if (c == null) {
+//			return 0;
+//		} else {
+//			int count = c.getCount();
+//			c.close();
+//			return count;
+//		}
+//	}
+//	
+//	private int getMobilityCount(Long timestamp) {
+//		
+//		Cursor c = MobilityInterface.getMobilityCursor(this, timestamp);
+//		if (c == null) {
+//			return 0;
+//		} else {
+//			int count = c.getCount();
+//			c.close();
+//			return count;
+//		}
+//	}
 	
 	private final OnClickListener mUploadListener = new OnClickListener() {
 		
@@ -313,4 +322,67 @@ public class MobilityActivity extends BaseActivity {
 			}
 		};
 	};
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+		long timestamp = 0;
+		switch (id) {
+		case RECENT_LOADER:
+//			return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
+			timestamp = System.currentTimeMillis() - 5 * 60 * 1000;
+			break;
+
+		case ALL_LOADER:
+//			return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
+			timestamp = 0;
+			break;
+			
+		case UPLOAD_LOADER:
+//			return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
+			timestamp = mPrefHelper.getLastMobilityUploadTimestamp();
+			break;
+			
+		default:
+			return null;
+		}
+		
+		return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		
+		switch (loader.getId()) {
+		case RECENT_LOADER:
+			mAdapter.swapCursor(data);
+			break;
+
+		case ALL_LOADER:
+			mTotalCountText.setText(String.valueOf(data.getCount()));
+			break;
+			
+		case UPLOAD_LOADER:
+			mUploadCountText.setText(String.valueOf(data.getCount()));
+			break;
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		
+		switch (loader.getId()) {
+		case RECENT_LOADER:
+			mAdapter.swapCursor(null);
+			break;
+
+		case ALL_LOADER:
+			mTotalCountText.setText("-");
+			break;
+			
+		case UPLOAD_LOADER:
+			mUploadCountText.setText("-");
+			break;
+		}
+	}
 }

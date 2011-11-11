@@ -375,7 +375,7 @@ public class LoginActivity extends FragmentActivity {
 		//save creds
 		mPreferencesHelper.putUsername(username);
 		mPreferencesHelper.putHashedPassword(hashedPassword);
-		mPreferencesHelper.putLastMobilityUploadTimestamp(System.currentTimeMillis());
+		mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
 
 		//clear related notifications
 		//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
