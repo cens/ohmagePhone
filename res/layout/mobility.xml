@@ -16,7 +16,7 @@
 		android:paddingRight="@dimen/gutter"
 		android:paddingLeft="@dimen/gutter" >
 		
-		<!-- <ToggleButton
+		<ToggleButton
 			android:id="@+id/mobility_toggle"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
@@ -61,13 +61,14 @@
 		          	
 		    	</RadioGroup>
 			
-		</LinearLayout> -->
+		</LinearLayout>
 		
 		<Button 
 			android:id="@+id/settings_button"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Mobility Settings"/>
+			android:text="Mobility Settings"
+			android:visibility="gone"/>
 		
 	</LinearLayout>
   

@@ -322,7 +322,7 @@ public class LocTrigSettingsActivity extends ListActivity
     	case DIALOG_DELETE:
     		AlertDialog dialog = 
     			new AlertDialog.Builder(this)
-	    	    .setPositiveButton(R.string.yes, 
+				.setPositiveButton(R.string.delete,
 	    	    				   new DialogInterface.OnClickListener() {
 					
 					@Override
@@ -332,11 +332,9 @@ public class LocTrigSettingsActivity extends ListActivity
 						}
 					}
 				})
-	    	    .setNegativeButton(R.string.no, null)
-	    	    .setTitle("Delete " + mDb.getCategoryName(mDialogCategId) + "?")
-	    	    .setMessage("All the locations and triggers " +
-						  	"associated with this place will be " +
-				  			"removed")
+				.setNegativeButton(R.string.cancel, null)
+				.setTitle(R.string.delete + mDb.getCategoryName(mDialogCategId) + "?")
+				.setMessage(R.string.trigger_loc_remove_location_text)
 	    	    .create();
     		return dialog;
     		
@@ -346,7 +344,7 @@ public class LocTrigSettingsActivity extends ListActivity
     		ti.setPositiveButtonText(getString(R.string.done));
 			ti.setNegativeButtonText(getString(R.string.cancel));
 			String name = mDb.getCategoryName(mDialogCategId);
-    		ti.setTitle("Rename " + name);
+			ti.setTitle(getString(R.string.rename_msg, name));
     		if(mDialogText != null) {
     			ti.setText(mDialogText);
 

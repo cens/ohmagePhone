@@ -28,7 +28,7 @@
 		
 		<Button
 			android:id="@+id/button_maps_done"
-			android:text="Done"
+			android:text="@string/done"
 			android:layout_weight="0.5"
 			android:minWidth="150px"
 			android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
         android:layout_height="fill_parent"
         android:enabled="true"
         android:clickable="true"
-        android:apiKey="0v-wLH9cxlVNOB44oEtk8JZqXonZiOl07xmMsRA"
+        android:apiKey="@string/maps_api_key"
         />
  	
 </LinearLayout>

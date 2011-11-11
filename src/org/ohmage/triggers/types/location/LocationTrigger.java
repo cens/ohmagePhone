@@ -42,10 +42,7 @@ public class LocationTrigger extends TriggerBase {
 	//This string must be unique across all trigger types 
 	//registered with the framework.
 	private static final String TRIGGER_TYPE = "LocationTrigger";
-	
-	//TODO localize
-	private static final String DISP_NAME = "Location Trigger";
-	
+
 	private static final String KEY_PLACES = "places";
 	private static final String KEY_NAME = "name";
 	private static final String KEY_LOCATIONS = "locations";
@@ -56,9 +53,8 @@ public class LocationTrigger extends TriggerBase {
 	/* IMPLEMENTATION OF THE ABSTRACT FUNCTIONS */
 	
 	@Override
-	public String getTriggerTypeDisplayName() {
-		
-		return DISP_NAME;
+	public String getTriggerTypeDisplayName(Context context) {
+		return context.getString(R.string.trigger_loc_display_name);
 	}
 
 	@Override

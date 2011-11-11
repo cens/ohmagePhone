@@ -26,4 +26,7 @@
 	<color name="normal">#FFFFFF</color>
 
 	<color name="button_pressed">#FCBA1E</color>
+
+	<color name="tab_background_color">#ff3c3c3c</color>
+	<color name="transparent_white">#bbffffff</color>
 </resources>

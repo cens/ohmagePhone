@@ -27,7 +27,7 @@
 	    	android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
 	        android:gravity="center_vertical|center_horizontal"
-	        android:text="(No triggers)"
+	        android:text="@string/trigger_empty_list"
 	        android:textAppearance="?android:attr/textAppearanceLarge"
 	    />
 	 

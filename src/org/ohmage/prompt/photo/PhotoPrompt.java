@@ -22,6 +22,7 @@ import java.util.UUID;
 import org.ohmage.R;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.app.Activity;
@@ -163,13 +164,14 @@ public class PhotoPrompt extends AbstractPrompt {
 	private File getImageFile() {
 		if(uuid == null)
 			uuid = UUID.randomUUID().toString();
-		return new File(getCampaignImageDir(), "/temp" + uuid + ".jpg");
+		return Campaign.getCampaignImage(mContext, mContext.getCampaignUrn(), uuid);
 	}
 
-	private File getCampaignImageDir() {
-		File dir = Campaign.getCampaignImageDir(mContext, mContext.getCampaignUrn());
-		dir.mkdirs();
-		return dir;
+	public void saveImageFile(String responseId) {
+		File image = getImageFile();
+		if(image != null && image.exists()) {
+			image.renameTo(Response.getResponsesImage(mContext, mContext.getCampaignUrn(), responseId, uuid));
+		}
 	}
 
 	/**

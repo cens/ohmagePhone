@@ -185,7 +185,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 			}
 			else {
 				getPreferenceScreen().setEnabled(false);
-				Toast.makeText(this, "Invalid trigger settings!", 
+				Toast.makeText(this, R.string.trigger_invalid_settings,
 								Toast.LENGTH_SHORT).show();
 			}
 		}

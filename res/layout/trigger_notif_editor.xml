@@ -28,7 +28,7 @@
 			android:layout_marginRight="20px"
 			android:layout_marginBottom="5px"
 			android:layout_weight="0.5"
-			android:text="Done">
+			android:text="@string/done">
 		</Button>
 		
 		<Button android:id="@+id/notif_edit_cancel" 
@@ -38,7 +38,7 @@
 			android:layout_marginRight="20px"
 			android:layout_marginLeft="20px"
 			android:layout_marginBottom="5px"
-			android:text="Cancel">
+			android:text="@string/cancel">
 		</Button>
 		
 	</LinearLayout>
