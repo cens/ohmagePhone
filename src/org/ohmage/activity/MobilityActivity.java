@@ -2,18 +2,11 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.controls.ActionBarControl.ActionListener;
+import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.service.UploadService;
 import org.ohmage.ui.BaseActivity;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.mobility.glue.IMobility;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
-import edu.ucla.cens.systemlog.Log;
-
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,20 +22,23 @@ import android.os.RemoteException;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.mobility.glue.IMobility;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Log;
 
 public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cursor> {
 	
@@ -105,18 +101,20 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			
 			mPrefHelper = new SharedPreferencesHelper(this);
 			
-//			getActionBar().addActionBarCommand(1, "refresh", R.drawable.dashboard_title_refresh);
-//			
-//			getActionBar().setOnActionListener(new ActionListener() {
-//				@Override
-//				public void onActionClicked(int commandID) {
-//					switch(commandID) {
-//						case 1:
-//							updateViews();
-//							break;
-//					}
-//				}
-//			});
+			getActionBar().addActionBarCommand(1, "refresh", R.drawable.dashboard_title_refresh);
+			
+			getActionBar().setOnActionListener(new ActionBarControl.ActionListener() {
+				@Override
+				public void onActionClicked(int commandID) {
+					switch(commandID) {
+						case 1:
+							getSupportLoaderManager().restartLoader(RECENT_LOADER, null, MobilityActivity.this);
+							getSupportLoaderManager().restartLoader(ALL_LOADER, null, MobilityActivity.this);
+							getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
+							break;
+					}
+				}
+			});
 			
 			TextView emptyView = new TextView(this);
 			emptyView.setText("No mobility points recorded in last 10 mins.");
