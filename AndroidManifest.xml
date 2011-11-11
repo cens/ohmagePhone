@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.ohmage"
-	android:versionName="2.8 beta (NIH)" android:versionCode="11110400">
+    package="org.ohmage"
+    android:versionCode="11111000"
+    android:versionName="2.8 beta (NIH)" >
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
