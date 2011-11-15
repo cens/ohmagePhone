@@ -74,9 +74,12 @@ public class OhmageMapFragment extends MapFragment {
 
 	private void setMapCenterToCurrentLocation(){
 		//Set MapCenter to current location
+		Location currentLocation = null;
 		LocationManager locMan = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 		String provider = locMan.getBestProvider(new Criteria(), true);
-		Location currentLocation = locMan.getLastKnownLocation(provider);
+		if (provider != null) {
+			currentLocation = locMan.getLastKnownLocation(provider);
+		}
 
 		GeoPoint point = new GeoPoint(34065009, -118443413);
 		if(currentLocation != null) //If location is not available, then set the map center to UCLA
