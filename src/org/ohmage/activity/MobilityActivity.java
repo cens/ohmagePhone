@@ -126,6 +126,24 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			int [] to = new int[] {R.id.text1, R.id.text2};
 			
 			mAdapter = new SimpleCursorAdapter(this, R.layout.mobility_list_item, null, from, to, 0);
+			mAdapter.setViewBinder( new android.support.v4.widget.SimpleCursorAdapter.ViewBinder() {
+				
+				@Override
+				public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+					switch (view.getId()) {
+					case R.id.text1:
+						((TextView)view).setText(cursor.getString(columnIndex));
+						return true;
+					
+					case R.id.text2:
+						long time = cursor.getLong(columnIndex);
+						((TextView)view).setText(DateFormat.format("MM/dd/yy h:mmaa", time));
+						return true;
+					}
+					return false;
+				}
+			});
+			
 			mMobilityList.setAdapter(mAdapter);
 			
 			mTotalCountText.setText("-");
@@ -320,6 +338,14 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			}
 		};
 	};
+	
+	public interface MobilityQuery {
+		String[] PROJECTION = { 
+				MobilityInterface.KEY_ROWID, 
+				MobilityInterface.KEY_MODE, 
+				MobilityInterface.KEY_TIME
+		};
+	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -345,7 +371,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			return null;
 		}
 		
-		return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
+		return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME + " DESC");
 	}
 
 	@Override
