@@ -324,7 +324,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		mErrorBox.setVisibility(View.GONE);
 
 		// set many things on the view according to the campaign status, too
-		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0); // start out with nothing drawn
+		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_status_other, 0, 0, 0); // start out a default gray sphere
 		mCampaignStatus = data.getInt(QueryParams.STATUS);
 		switch (mCampaignStatus) {
 			case Campaign.STATUS_READY:
