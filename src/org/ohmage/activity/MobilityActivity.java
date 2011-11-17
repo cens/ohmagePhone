@@ -54,7 +54,6 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 	private TextView mUploadCountText;
 	private TextView mLastUploadText;
 	private Button mUploadButton;
-//	private ToggleButton mMobilityToggle;
 	private RadioButton mOffRadio;
 	private RadioButton mInterval1Radio;
 	private RadioButton mInterval5Radio;
@@ -73,8 +72,9 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		
 		try {
 			ApplicationInfo info = getPackageManager().getApplicationInfo("edu.ucla.cens.mobility", 0 );
+			ApplicationInfo info2 = getPackageManager().getApplicationInfo("edu.ucla.cens.accelservice", 0 );
 			
-			if (info != null) {
+			if (info != null && info2 != null) {
 				isMobilityInstalled = true;
 			}
 		} catch( PackageManager.NameNotFoundException e ) {
@@ -83,19 +83,18 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		    
 		if (! isMobilityInstalled) {
 			TextView view = new TextView(this);
-			view.setText("Mobility is not installed on this device.");
+			view.setText("Please make sure the Mobility and AccelService packages are installed.");
 			view.setTextAppearance(this, android.R.attr.textAppearanceLarge);
 			view.setGravity(Gravity.CENTER);
 			setContentView(view);
 		} else {
-			setContentView(R.layout.mobility);
+			setContentView(R.layout.mobility2);
 			
 			mMobilityList = (ListView) findViewById(R.id.mobility_list);
 			mTotalCountText = (TextView) findViewById(R.id.mobility_total);
 			mUploadCountText = (TextView) findViewById(R.id.mobility_count);
 			mLastUploadText = (TextView) findViewById(R.id.last_upload);
 			mUploadButton = (Button) findViewById(R.id.upload_button);
-//			mMobilityToggle = (ToggleButton) findViewById(R.id.mobility_toggle);
 			mOffRadio = (RadioButton) findViewById(R.id.radio_off);
 			mInterval1Radio = (RadioButton) findViewById(R.id.radio_1min);
 			mInterval5Radio = (RadioButton) findViewById(R.id.radio_5min);
@@ -105,7 +104,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			TextView emptyView = (TextView) findViewById(R.id.empty);
 			mMobilityList.setEmptyView(emptyView);
 			
-			mMobilityList.setEnabled(false);
+//			mMobilityList.setEnabled(false);
 			
 			String [] from = new String[] {MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME};
 			int [] to = new int[] {R.id.text1, R.id.text2};
@@ -143,10 +142,6 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			getSupportLoaderManager().initLoader(RECENT_LOADER, null, this);
 			getSupportLoaderManager().initLoader(ALL_LOADER, null, this);
 			getSupportLoaderManager().initLoader(UPLOAD_LOADER, null, this);
-			
-//			mMobilityToggle.setEnabled(false);
-//			mInterval1Radio.setEnabled(false);
-//			mInterval5Radio.setEnabled(false);
 			
 			mOffRadio.setChecked(true);
 			
@@ -243,55 +238,28 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 				mInterval5Radio.setChecked(true);
 			}
 			
-//			mMobilityToggle.setEnabled(true);
-//			mInterval1Radio.setEnabled(true);
-//			mInterval5Radio.setEnabled(true);
-			
-			mOffRadio.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					try {
-						mMobility.stopMobility();
-					} catch (RemoteException e) {
-						Log.e(TAG, "Unable to stop mobility", e);
-					}					
-				}
-			});
-			
-//			mMobilityToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//				
-//				@Override
-//				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//					
-//					if (isChecked) {
-//						try {
-//							mMobility.startMobility();
-//						} catch (RemoteException e) {
-//							Log.e(TAG, "Unable to start mobility", e);
-//						}
-//					} else {
-//						try {
-//							mMobility.stopMobility();
-//						} catch (RemoteException e) {
-//							Log.e(TAG, "Unable to stop mobility", e);
-//						}
-//					}
-//				}
-//			});
-			
-			mInterval1Radio.setOnClickListener(mIntervalListener);
-			mInterval5Radio.setOnClickListener(mIntervalListener);
+			mOffRadio.setOnClickListener(mRadioListener);			
+			mInterval1Radio.setOnClickListener(mRadioListener);
+			mInterval5Radio.setOnClickListener(mRadioListener);
 		}
 		
-		OnClickListener mIntervalListener = new OnClickListener() {
+		OnClickListener mRadioListener = new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				
 				int newInterval = -1;
+				int oldInterval = -1;
 				
 				switch (v.getId()) {
+				case R.id.radio_off:
+					try {
+						mMobility.stopMobility();
+					} catch (RemoteException e) {
+						Log.e(TAG, "Unable to stop mobility", e);
+					}
+					return;
+					
 				case R.id.radio_1min:
 					newInterval = 60;
 					break;
@@ -302,8 +270,14 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 				}
 				
 				try {
-					mMobility.changeMobilityRate(newInterval);
-					mMobility.startMobility();
+					oldInterval = mMobility.getMobilityInterval();
+					if (newInterval != oldInterval) {
+						mMobility.changeMobilityRate(newInterval);
+					}
+					
+					if (! mMobility.isMobilityOn()) {
+						mMobility.startMobility();
+					}
 				} catch (RemoteException e) {
 					Log.e(TAG, "Unable to change mobility interval", e);
 				}

@@ -126,46 +126,80 @@
 			android:shadowDx="1"
 			android:shadowDy="1"
 			android:shadowRadius="1"
-			android:text="Total number of mobility points in database" />
-	
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="2dip"
-			android:background="#89b8db" />
-	
-		<TextView
-			android:id="@+id/mobility_total"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="@drawable/prompt_response_item_bg" />
+			android:text="Number of mobility points:" />
+	  	
+	  	<LinearLayout 
+	  	    android:orientation="horizontal"
+	  		android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+				
+	  	    <LinearLayout
+			  	android:orientation="vertical"
+			  	android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1">
 			
-		<View 
-			android:layout_width="match_parent"
-			android:layout_height="10dp"/>
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:textColor="@color/darkgray"
+					android:shadowColor="#e8e8e8"
+					android:shadowDx="1"
+					android:shadowDy="1"
+					android:shadowRadius="1"
+					android:text="To upload" />
 			
-		<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:textColor="@color/darkgray"
-			android:shadowColor="#e8e8e8"
-			android:shadowDx="1"
-			android:shadowDy="1"
-			android:shadowRadius="1"
-			android:text="Number of mobility points to upload" />
-	
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="2dip"
-			android:background="#89b8db" />
-	
-		<TextView
-			android:id="@+id/mobility_count"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="@drawable/prompt_response_item_bg" />
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="2dip"
+					android:background="#89b8db" />
 			
-		<View 
+				<TextView
+					android:id="@+id/mobility_count"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:background="@drawable/prompt_response_item_bg" />
+				
+			</LinearLayout>
+			
+	  	        <View 
+				android:layout_width="10dp"
+				android:layout_height="match_parent"/>
+				
+	  	    <LinearLayout
+			  	android:orientation="vertical"
+			  	android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1">
+	  	    
+		  	    <TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:textColor="@color/darkgray"
+					android:shadowColor="#e8e8e8"
+					android:shadowDx="1"
+					android:shadowDy="1"
+					android:shadowRadius="1"
+					android:text="In database" />
+			
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="2dip"
+					android:background="#89b8db" />
+			
+				<TextView
+					android:id="@+id/mobility_total"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:background="@drawable/prompt_response_item_bg" />
+			
+			</LinearLayout>
+	  	    
+	  	</LinearLayout>
+			
+ 		<View 
 			android:layout_width="match_parent"
 			android:layout_height="10dp"/>
 			

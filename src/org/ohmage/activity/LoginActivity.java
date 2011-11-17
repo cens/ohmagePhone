@@ -375,7 +375,6 @@ public class LoginActivity extends FragmentActivity {
 		//save creds
 		mPreferencesHelper.putUsername(username);
 		mPreferencesHelper.putHashedPassword(hashedPassword);
-		mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
 
 		//clear related notifications
 		//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
@@ -399,6 +398,7 @@ public class LoginActivity extends FragmentActivity {
 			//show intro dialog
 			//showDialog(DIALOG_FIRST_RUN);
 			mPreferencesHelper.setFirstRun(false);
+			mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
 		} else {
 			Log.i(TAG, "this is not the first run");
 		}

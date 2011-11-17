@@ -23,4 +23,5 @@
     
     <!-- Upload Layout -->
     <dimen name="upload_all_container_height">50dp</dimen>
+    <dimen name="upload_mobility_container_height">65dp</dimen>
 </resources>
