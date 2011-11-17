@@ -339,9 +339,13 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				break;
 			case Campaign.STATUS_OUT_OF_DATE:
 				mStatusValue.setText(R.string.campaign_status_out_of_date);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_outofdate)));
 				break;
 			case Campaign.STATUS_NO_EXIST:
 				mStatusValue.setText(R.string.campaign_status_no_exist);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_no_exist)));
 				break;
 			case Campaign.STATUS_STOPPED:
 				mStatusValue.setText(R.string.campaign_status_stopped);
