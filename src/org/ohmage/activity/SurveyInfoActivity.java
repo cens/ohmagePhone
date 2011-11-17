@@ -291,8 +291,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 				// set the responses by querying the response table
 				// and getting the number of responses submitted for this campaign
-				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mSurveyTitle, surveyID), null, null, null, null);
+				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn, surveyID), null, null, null, null);
 				mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
+				responses.close();
 			}
 		};
 		
