@@ -244,7 +244,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mErrorBox.setVisibility(View.GONE);
 		
 		// set many things on the view according to the campaign status, too
-		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_status_other, 0, 0, 0); // start out a default gray sphere
+		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0); // start out a default gray sphere
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);
 		switch (mCampaignStatus) {
 			case Campaign.STATUS_READY:
