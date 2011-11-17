@@ -134,10 +134,12 @@ public class Models {
 			List<String> surveyTitles = new ArrayList<String>();
 			
 			// grab a list of surveys for this campaign
-			Cursor surveys = context.getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
+			Cursor surveys = context.getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), new String[] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE }, null, null, null);
 			
 			while (surveys.moveToNext()) {
-				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
+				String id = surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_ID));
+				if(!id.equals("foodButton") && !id.equals("stressButton"))
+					surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
 			
 			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
