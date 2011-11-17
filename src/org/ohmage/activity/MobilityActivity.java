@@ -27,6 +27,7 @@ import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
@@ -53,10 +54,9 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 	private TextView mUploadCountText;
 	private TextView mLastUploadText;
 	private Button mUploadButton;
-	private ToggleButton mMobilityToggle;
+	private RadioButton mOffRadio;
 	private RadioButton mInterval1Radio;
 	private RadioButton mInterval5Radio;
-	private Button mSettingsButton;
 	
 	private SimpleCursorAdapter mAdapter;
 	
@@ -72,8 +72,9 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		
 		try {
 			ApplicationInfo info = getPackageManager().getApplicationInfo("edu.ucla.cens.mobility", 0 );
+			ApplicationInfo info2 = getPackageManager().getApplicationInfo("edu.ucla.cens.accelservice", 0 );
 			
-			if (info != null) {
+			if (info != null && info2 != null) {
 				isMobilityInstalled = true;
 			}
 		} catch( PackageManager.NameNotFoundException e ) {
@@ -82,50 +83,51 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		    
 		if (! isMobilityInstalled) {
 			TextView view = new TextView(this);
-			view.setText("Mobility is not installed on this device.");
+			view.setText("Please make sure the Mobility and AccelService packages are installed.");
 			view.setTextAppearance(this, android.R.attr.textAppearanceLarge);
 			view.setGravity(Gravity.CENTER);
 			setContentView(view);
 		} else {
-			setContentView(R.layout.mobility);
+			setContentView(R.layout.mobility2);
 			
 			mMobilityList = (ListView) findViewById(R.id.mobility_list);
 			mTotalCountText = (TextView) findViewById(R.id.mobility_total);
 			mUploadCountText = (TextView) findViewById(R.id.mobility_count);
 			mLastUploadText = (TextView) findViewById(R.id.last_upload);
 			mUploadButton = (Button) findViewById(R.id.upload_button);
-			mMobilityToggle = (ToggleButton) findViewById(R.id.mobility_toggle);
+			mOffRadio = (RadioButton) findViewById(R.id.radio_off);
 			mInterval1Radio = (RadioButton) findViewById(R.id.radio_1min);
 			mInterval5Radio = (RadioButton) findViewById(R.id.radio_5min);
-			mSettingsButton = (Button) findViewById(R.id.settings_button);
 			
 			mPrefHelper = new SharedPreferencesHelper(this);
 			
-			getActionBar().addActionBarCommand(1, "refresh", R.drawable.dashboard_title_refresh);
-			
-			getActionBar().setOnActionListener(new ActionBarControl.ActionListener() {
-				@Override
-				public void onActionClicked(int commandID) {
-					switch(commandID) {
-						case 1:
-							getSupportLoaderManager().restartLoader(RECENT_LOADER, null, MobilityActivity.this);
-							getSupportLoaderManager().restartLoader(ALL_LOADER, null, MobilityActivity.this);
-							getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
-							break;
-					}
-				}
-			});
-			
-			TextView emptyView = new TextView(this);
-			emptyView.setText("No mobility points recorded in last 10 mins.");
+			TextView emptyView = (TextView) findViewById(R.id.empty);
 			mMobilityList.setEmptyView(emptyView);
 			
-			mMobilityList.setEnabled(false);
+//			mMobilityList.setEnabled(false);
 			
 			String [] from = new String[] {MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME};
 			int [] to = new int[] {R.id.text1, R.id.text2};
 			
 			mAdapter = new SimpleCursorAdapter(this, R.layout.mobility_list_item, null, from, to, 0);
+			mAdapter.setViewBinder( new android.support.v4.widget.SimpleCursorAdapter.ViewBinder() {
+				
+				@Override
+				public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+					switch (view.getId()) {
+					case R.id.text1:
+						((TextView)view).setText(cursor.getString(columnIndex));
+						return true;
+					
+					case R.id.text2:
+						long time = cursor.getLong(columnIndex);
+						((TextView)view).setText(DateFormat.format("h:mmaa", time));
+						return true;
+					}
+					return false;
+				}
+			});
+			
 			mMobilityList.setAdapter(mAdapter);
 			
 			mTotalCountText.setText("-");
@@ -141,19 +143,9 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			getSupportLoaderManager().initLoader(ALL_LOADER, null, this);
 			getSupportLoaderManager().initLoader(UPLOAD_LOADER, null, this);
 			
-			mMobilityToggle.setEnabled(false);
-			mInterval1Radio.setEnabled(false);
-			mInterval5Radio.setEnabled(false);
+			mOffRadio.setChecked(true);
 			
 			mUploadButton.setOnClickListener(mUploadListener);
-			
-//			mSettingsButton.setOnClickListener(new OnClickListener() {
-//				
-//				@Override
-//				public void onClick(View v) {
-//					MobilityInterface.showMobilityOptions(MobilityActivity.this);
-//				}
-//			});
 			
 			bindService(new Intent(IMobility.class.getName()), mConnection, Context.BIND_AUTO_CREATE);
 			isBound = true;
@@ -202,29 +194,6 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			}
 		}
 	};
-
-//	private int getMobilityCount() {
-//		Cursor c = MobilityInterface.getMobilityCursor(this, new Long(0));
-//		if (c == null) {
-//			return 0;
-//		} else {
-//			int count = c.getCount();
-//			c.close();
-//			return count;
-//		}
-//	}
-//	
-//	private int getMobilityCount(Long timestamp) {
-//		
-//		Cursor c = MobilityInterface.getMobilityCursor(this, timestamp);
-//		if (c == null) {
-//			return 0;
-//		} else {
-//			int count = c.getCount();
-//			c.close();
-//			return count;
-//		}
-//	}
 	
 	private final OnClickListener mUploadListener = new OnClickListener() {
 		
@@ -252,57 +221,45 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			mMobility = IMobility.Stub.asInterface(service);
 			
 			int interval = -1;
+			boolean isMobilityOn = false;
 			
 			try {
-				mMobilityToggle.setChecked(mMobility.isMobilityOn());
+				isMobilityOn = mMobility.isMobilityOn();
 				interval = mMobility.getMobilityInterval();
 			} catch (RemoteException e) {
 				Log.e(TAG, "Unable to read mobility state", e);
 			}
 			
-			if (interval == 60) {
+			if (! isMobilityOn) {
+				mOffRadio.setChecked(true);
+			} else if (interval == 60) {
 				mInterval1Radio.setChecked(true);
 			} else if (interval == 300) {
 				mInterval5Radio.setChecked(true);
 			}
 			
-			mMobilityToggle.setEnabled(true);
-			mInterval1Radio.setEnabled(true);
-			mInterval5Radio.setEnabled(true);
-			
-			mMobilityToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-				
-				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					
-					if (isChecked) {
-						try {
-							mMobility.startMobility();
-						} catch (RemoteException e) {
-							Log.e(TAG, "Unable to start mobility", e);
-						}
-					} else {
-						try {
-							mMobility.stopMobility();
-						} catch (RemoteException e) {
-							Log.e(TAG, "Unable to stop mobility", e);
-						}
-					}
-				}
-			});
-			
-			mInterval1Radio.setOnClickListener(mIntervalListener);
-			mInterval5Radio.setOnClickListener(mIntervalListener);
+			mOffRadio.setOnClickListener(mRadioListener);			
+			mInterval1Radio.setOnClickListener(mRadioListener);
+			mInterval5Radio.setOnClickListener(mRadioListener);
 		}
 		
-		OnClickListener mIntervalListener = new OnClickListener() {
+		OnClickListener mRadioListener = new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				
 				int newInterval = -1;
+				int oldInterval = -1;
 				
 				switch (v.getId()) {
+				case R.id.radio_off:
+					try {
+						mMobility.stopMobility();
+					} catch (RemoteException e) {
+						Log.e(TAG, "Unable to stop mobility", e);
+					}
+					return;
+					
 				case R.id.radio_1min:
 					newInterval = 60;
 					break;
@@ -313,13 +270,28 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 				}
 				
 				try {
-					mMobility.changeMobilityRate(newInterval);
+					oldInterval = mMobility.getMobilityInterval();
+					if (newInterval != oldInterval) {
+						mMobility.changeMobilityRate(newInterval);
+					}
+					
+					if (! mMobility.isMobilityOn()) {
+						mMobility.startMobility();
+					}
 				} catch (RemoteException e) {
 					Log.e(TAG, "Unable to change mobility interval", e);
 				}
 			}
 		};
 	};
+	
+	public interface MobilityQuery {
+		String[] PROJECTION = { 
+				MobilityInterface.KEY_ROWID, 
+				MobilityInterface.KEY_MODE, 
+				MobilityInterface.KEY_TIME
+		};
+	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -327,25 +299,17 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		long timestamp = 0;
 		switch (id) {
 		case RECENT_LOADER:
-//			return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
-			timestamp = System.currentTimeMillis() - 5 * 60 * 1000;
-			break;
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-5 minutes') || '500'", null, MobilityInterface.KEY_TIME + " DESC");
 
 		case ALL_LOADER:
-//			return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
-			timestamp = 0;
-			break;
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, null, null, null);
 			
 		case UPLOAD_LOADER:
-//			return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
-			timestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-			break;
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(mPrefHelper.getLastMobilityUploadTimestamp())}, null);
 			
 		default:
 			return null;
 		}
-		
-		return new CursorLoader(this, MobilityInterface.CONTENT_URI, new String [] {MobilityInterface.KEY_ROWID, MobilityInterface.KEY_MODE, MobilityInterface.KEY_TIME}, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(timestamp)}, MobilityInterface.KEY_TIME);
 	}
 
 	@Override
