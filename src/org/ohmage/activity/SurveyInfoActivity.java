@@ -4,6 +4,7 @@ import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
@@ -136,7 +137,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// now, depending on the context, we can regenerate our commands
 		// this applies both to the action bar and to the command tray
 		if (campaignStatus == Campaign.STATUS_READY) {
-			actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
+			// only add response history if show feedback is true
+			if(new UserPreferencesHelper(this).showFeedback())
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
 			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
 			
 			// route the actions to the appropriate places
@@ -244,7 +247,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mErrorBox.setVisibility(View.GONE);
 		
 		// set many things on the view according to the campaign status, too
-		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_status_other, 0, 0, 0); // start out a default gray sphere
+		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0); // start out a default gray sphere
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);
 		switch (mCampaignStatus) {
 			case Campaign.STATUS_READY:
@@ -259,9 +262,13 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				break;
 			case Campaign.STATUS_OUT_OF_DATE:
 				mStatusValue.setText(R.string.campaign_status_out_of_date);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_outofdate)));
 				break;
 			case Campaign.STATUS_NO_EXIST:
 				mStatusValue.setText(R.string.campaign_status_no_exist);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_no_exist)));
 				break;
 			case Campaign.STATUS_STOPPED:
 				mStatusValue.setText(R.string.campaign_status_stopped);
@@ -291,8 +298,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 				// set the responses by querying the response table
 				// and getting the number of responses submitted for this campaign
-				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mSurveyTitle, surveyID), null, null, null, null);
+				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn, surveyID), null, null, null, null);
 				mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
+				responses.close();
 			}
 		};
 		

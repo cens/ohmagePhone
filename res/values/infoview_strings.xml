@@ -13,6 +13,18 @@
 		]]>
 	</string>
 	
+	<string name="campaign_info_errorbox_outofdate">
+		<![CDATA[
+		<b>warning:</b> this campaign is <b>out of date</b>.
+		]]>
+	</string>
+	
+	<string name="campaign_info_errorbox_no_exist">
+		<![CDATA[
+		<b>warning:</b> this campaign has been <b>deleted</b> on the server; refreshing will remove this campaign.
+		]]>
+	</string>
+	
 	<!-- explanatory text sections -->
 	<string name="campaign_info_privacy_details">
 		<![CDATA[
