@@ -87,6 +87,9 @@ public class OhmageApplication extends Application {
 		//clear shared prefs
 		new SharedPreferencesHelper(this).clearAll();
 		
+		//clear user prefs
+		new UserPreferencesHelper(this).clearAll();
+
 		//clear db
 		new DbHelper(this).clearAll();
 		
