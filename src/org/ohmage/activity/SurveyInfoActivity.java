@@ -4,6 +4,7 @@ import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
@@ -136,7 +137,9 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// now, depending on the context, we can regenerate our commands
 		// this applies both to the action bar and to the command tray
 		if (campaignStatus == Campaign.STATUS_READY) {
-			actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
+			// only add response history if show feedback is true
+			if(new UserPreferencesHelper(this).showFeedback())
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
 			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
 			
 			// route the actions to the appropriate places
