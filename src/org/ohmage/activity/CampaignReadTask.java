@@ -1,6 +1,7 @@
 package org.ohmage.activity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,18 +60,18 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 			cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE, null);
 			
 			//build list of urns of all downloaded (local) campaigns
-			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN}, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_CREATED}, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
 			cursor.moveToFirst();
 			
-			ArrayList<String> localCampaignUrns = new ArrayList<String>();
+			HashMap<String, Campaign> localCampaignUrns = new HashMap<String, Campaign>();
 			
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			String urn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
-    			localCampaignUrns.add(urn);
-    			
-    			cursor.moveToNext();
-    		}
+			for (int i = 0; i < cursor.getCount(); i++) {
+				Campaign c = new Campaign();
+				c.mUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
+				c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
+				localCampaignUrns.put(c.mUrn, c);
+				cursor.moveToNext();
+			}
     		
     		cursor.close();
     		
@@ -98,17 +99,24 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 						c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
 						boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
 						
-						if (localCampaignUrns.remove(c.mUrn)) { //campaign has already been downloaded
+						if (localCampaignUrns.containsKey(c.mUrn)) { //campaign has already been downloaded
+
+							Campaign old = localCampaignUrns.get(c.mUrn);
+							localCampaignUrns.remove(c.mUrn);
 							
 							ContentValues values = new ContentValues();
 							// FAISAL: include things here that may change at any time on the server
 							values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
 							
 							if (running) { //campaign is running
-								
-								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+
+								if(!c.mCreationTimestamp.equals(old.mCreationTimestamp))
+									values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
+								else
+									values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+
 								cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
-								
+
 							} else { //campaign is stopped
 								
 								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_STOPPED);
@@ -135,9 +143,9 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 			cr.bulkInsert(Campaigns.CONTENT_URI, vals);
 			
 			//leftover local campaigns were not returned by campaign read, therefore must be in some unavailable state
-			for (String urn : localCampaignUrns) { 
+			for (String urn : localCampaignUrns.keySet()) {
 				ContentValues values = new ContentValues();
-				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_VAGUE);
+				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
 				cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + urn + "'" , null);
 			}
 

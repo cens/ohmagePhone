@@ -176,12 +176,23 @@ public class Models {
 		}
 
 		/**
-		 * Sets the campaign to remote and removes surveys
+		 * Sets the campaign to {@link Campaign#STATUS_REMOTE}. Also removes surveys and responses.
+		 * @param context
 		 * @param campaignUrn
 		 */
 		public static void setRemote(Context context, String campaignUrn) {
+			setRemote(context, campaignUrn, Campaign.STATUS_REMOTE);
+		}
+
+		/**
+		 * Sets the campaign to a remote status. Also removes surveys and responses.
+		 * @param context
+		 * @param campaignUrn
+		 * @param status
+		 */
+		public static void setRemote(Context context, String campaignUrn, int status) {
 			ContentValues cv = new ContentValues();
-			cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+			cv.put(Campaigns.CAMPAIGN_STATUS, status);
 			cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
 			context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 			context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
