@@ -3,8 +3,11 @@ package org.ohmage.activity;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.json.JSONException;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Response;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
@@ -26,7 +29,7 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.slezica.tools.async.ManagedAsyncTask;
 
-class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXmlResponse>{
+class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, Response>{
 	
 	private static final String TAG = "CampaignXmlDownloadTask";
 		
@@ -50,10 +53,27 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 	}
 
 	@Override
-	protected CampaignXmlResponse doInBackground(String... params) {
+	protected Response doInBackground(String... params) {
 		String username = (String) params[0];
 		String hashedPassword = (String) params[1];
 		OhmageApi api = new OhmageApi(mContext);
+		ContentResolver cr = mContext.getContentResolver();
+
+		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "short", mCampaignUrn);
+
+		if(campaignResponse.getResult() == Result.SUCCESS) {
+			ContentValues values = new ContentValues();
+			// Update campaign created timestamp when we download xml
+			try {
+				values.put(Campaigns.CAMPAIGN_CREATED, campaignResponse.getData().getJSONObject(mCampaignUrn).getString("creation_timestamp"));
+				cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
+			} catch (JSONException e) {
+				Log.e(TAG, "Error parsing json data for " + mCampaignUrn, e);
+			}
+		} else {
+			return campaignResponse;
+		}
+
 		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
@@ -61,7 +81,6 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String downloadTimestamp = dateFormat.format(new Date());
 		
-			ContentResolver cr = mContext.getContentResolver();
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_URN, mCampaignUrn);
 			values.put(Campaigns.CAMPAIGN_DOWNLOADED, downloadTimestamp);
@@ -85,8 +104,6 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 				WakefulIntentService.sendWakefulWork(mContext, fbIntent);
 			}
 		} else { 
-			
-			ContentResolver cr = mContext.getContentResolver();
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
 			cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
@@ -96,7 +113,7 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 	}
 	
 	@Override
-	protected void onPostExecute(CampaignXmlResponse response) {
+	protected void onPostExecute(Response response) {
 		super.onPostExecute(response);
 		
 		if (response.getResult() == Result.SUCCESS) {
