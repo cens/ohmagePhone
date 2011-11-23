@@ -71,7 +71,8 @@
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 					
 		<activity android:name=".activity.MobilityActivity" android:label="@string/title_mobility" 
-					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
+					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
+					android:launchMode="singleTask">
 			<intent-filter>
 				<action android:name="edu.ucla.cens.mobility.control"/>
 				<category android:name="android.intent.category.DEFAULT" />
