@@ -60,6 +60,7 @@ public class ActionBarControl extends LinearLayout {
 			@Override
 			public void onClick(View v) {
 				mActivity.startActivity(new Intent(mActivity, DashboardActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+				mActivity.finish();
 			}
 		});
 		
