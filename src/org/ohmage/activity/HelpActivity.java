@@ -61,7 +61,7 @@ public class HelpActivity extends BaseActivity {
         mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
 		mTabsAdapter.addTab("Dashboard",DashboardWebViewFragment.class, null);
-		mTabsAdapter.addTab("Filter",WebViewFragment.class, WebViewFragment.instanceBundle(URLS[0]));
+		mTabsAdapter.addTab("Filter",FilterWebViewFragment.class, WebViewFragment.instanceBundle(URLS[0]));
 		mTabsAdapter.addTab("List",WebViewFragment.class, WebViewFragment.instanceBundle(URLS[1]));
 
         if (savedInstanceState != null) {
@@ -75,17 +75,11 @@ public class HelpActivity extends BaseActivity {
 	 * @author cketcham
 	 *
 	 */
-	public static class DashboardWebViewFragment extends DataWebViewFragment {
+	public static class DashboardWebViewFragment extends AssetWebViewFragment {
 
 		@Override
-		protected StringBuilder createData() {
-			try {
-				return new StringBuilder(Utilities.convertStreamToString(getActivity().getResources().getAssets().open("about_sectioned.html")));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
+		protected String assetFile() {
+			return "about_sectioned.html";
 		}
 
 		@Override
@@ -114,6 +108,27 @@ public class HelpActivity extends BaseActivity {
 
 		private void addSection(StringBuilder builder, String icon, int title, int text) {
 			builder.insert(builder.length() - 8, getString(R.string.help_dashboard_section, "file:///android_res/drawable/" + icon, getString(title), getString(text)));
+		}
+	}
+
+	public static class FilterWebViewFragment extends AssetWebViewFragment {
+
+		private static final String FILTER_SUB = "{filter_image}";
+		private static final String FILTER_SINGLE_CAMPAIGN = "file:///android_asset/filters_single.jpg";
+		private static final String FILTER_MULTI_CAMPAIGN = "file:///android_asset/filters.jpg";
+
+		@Override
+		protected String assetFile() {
+			return "about_filter.html";
+		}
+
+		@Override
+		protected void loadData(StringBuilder data) {
+			int start = data.indexOf(FILTER_SUB);
+			String image = FILTER_SINGLE_CAMPAIGN;
+			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+				image = FILTER_MULTI_CAMPAIGN;
+			data.replace(start, start + FILTER_SUB.length(), image);
 		}
 	}
 
@@ -164,7 +179,7 @@ public class HelpActivity extends BaseActivity {
 		}
 	}
 
-	public abstract static class DataWebViewFragment extends Fragment {
+	public abstract static class AssetWebViewFragment extends Fragment {
 
 		/**
 		 * The Fragment's UI is a webview with optional extra data
@@ -183,18 +198,30 @@ public class HelpActivity extends BaseActivity {
 		}
 
 		/**
+		 * Creates the asset data string
+		 * @return the data string
+		 */
+		private StringBuilder createData() {
+			try {
+				return new StringBuilder(Utilities.convertStreamToString(getActivity().getResources().getAssets().open(assetFile())));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		/**
 		 * The content can come only from the url, or we can create some sort of datastream here
 		 * @return
 		 */
-		protected StringBuilder createData() {
-			return null;
-		}
+		protected abstract String assetFile();
 
 		/**
 		 * The data stream for this webview can be manipulated here
 		 * @param data
 		 */
-		protected void loadData(StringBuilder data) {}
+		protected abstract void loadData(StringBuilder data);
 	}
 
     @Override
