@@ -123,7 +123,7 @@
     <string name="prompt_custom_single_choice_add">Add new choice</string>
     <string name="prompt_custom_multi_choice_add">Add new item</string>
     <string name="prompt_hours_ago">hours ago</string>
-    <string name="prompt_select_value">Use the +/- buttons\\nto select a value.</string>
+    <string name="prompt_select_value">Use the +/- buttons\nto select a value.</string>
     <string name="prompt_timestamp_change_date">Change date</string>
     <string name="prompt_timestamp_set_am_pm">Remember to set the correct AM/PM value!</string>
 
