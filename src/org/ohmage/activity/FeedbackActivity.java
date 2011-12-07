@@ -17,6 +17,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import java.util.List;
 import java.util.Random;
@@ -37,15 +38,15 @@ public class FeedbackActivity extends BaseActivity {
 		setContentView(R.layout.feedback_layout);
 
 		if (getSupportFragmentManager().findFragmentById(R.id.chart1) == null) {
-			setChart("Exercise Frequency", FAKE_DATA1, R.id.chart1);
+			setChart("Exercise Frequency", FAKE_DATA1, R.id.chart1_title, R.id.chart1);
 		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.chart2) == null) {
-			setChart("Healthy Diet", FAKE_DATA2, R.id.chart2);
+			setChart("Healthy Diet", FAKE_DATA2, R.id.chart2_title, R.id.chart2);
 		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.chart3) == null) {
-			setChart("Random Graph", Utilities.randomData(30, 9), R.id.chart3);
+			setChart("Random Graph", Utilities.randomData(30, 9), R.id.chart3_title, R.id.chart3);
 		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.feedback_response_graph) == null) {
@@ -56,11 +57,11 @@ public class FeedbackActivity extends BaseActivity {
 
 	}
 
-	private void setChart(String title, double[] data, int chartId) {
+	private void setChart(String title, double[] data, int chartTitleId, int chartId) {
 		SparkLine chart = new SparkLine(this, title, data);
+		((TextView) findViewById(chartTitleId)).setText(chart.getRenderer().getChartTitle());
 		ChartFragment f = ChartFragment.newInstance(chart);
 		getSupportFragmentManager().beginTransaction().add(chartId, f).commit();
-
 	}
 
 	private BarChart buildResponseFrequencyGraph() {
