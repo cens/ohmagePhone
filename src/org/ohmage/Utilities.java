@@ -100,25 +100,6 @@ public class Utilities {
     }
 
 	/**
-	 * Calculates the average, min, and max of an array of doubles
-	 * @param ds
-	 * @return an array formatted as [ average, min, max ]
-	 */
-	public static double[] stats(double...ds) {
-		double sum = 0.0;
-		double min = Double.MAX_VALUE;
-		double max = Double.MIN_VALUE;
-		for (int i = 0; i < ds.length; i++) {
-			sum += ds[i];
-			if(ds[i] < min)
-				min = ds[i];
-			if(ds[i] > max)
-				max = ds[i];
-		}
-		return new double[]{ sum / ds.length, min, max };
-	}
-
-	/**
 	 * Generates an array of random doubles that are useful when graphing
 	 * @param length
 	 * @param max
