@@ -18,65 +18,27 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:paddingLeft="10dip"
                 android:paddingRight="10dip" >
 
-                <RelativeLayout
-                    android:layout_width="210px"
-                    android:layout_height="45dp"
-                    android:layout_gravity="center_vertical" >
-
-                    <TextView
-                        android:id="@+id/textView1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
-                        android:gravity="center_vertical"
-                        android:text="Exercise" />
-
-                    <FrameLayout
-                        android:id="@+id/chart2"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_margin="4dp"
-                        android:layout_toRightOf="@+id/textView1" />
-                </RelativeLayout>
-
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="1dp"
+                <FrameLayout
+                    android:id="@+id/chart1"
+                    android:layout_width="65dp"
                     android:layout_height="fill_parent"
-                    android:layout_margin="3dp"
-                    android:layout_toRightOf="@+id/chart2"
-                    android:background="@color/lightgray" />
+                    android:layout_margin="4dp" />
 
-                <RelativeLayout
-                    android:layout_width="210px"
-                    android:layout_height="45dp"
-                    android:layout_gravity="center_vertical" >
-
-                    <TextView
-                        android:id="@+id/textView2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
-                        android:gravity="center_vertical"
-                        android:text="Diet" />
-
-                    <FrameLayout
-                        android:id="@+id/chart1"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_alignTop="@+id/chart2"
-                        android:layout_margin="4dp"
-                        android:layout_toRightOf="@+id/textView2" />
-                </RelativeLayout>
+                <FrameLayout
+                    android:id="@+id/chart2"
+                    android:layout_width="65dp"
+                    android:layout_height="fill_parent"
+                    android:layout_margin="4dp" />
 
                 <FrameLayout
                     android:id="@+id/chart3"
                     android:layout_width="65dp"
                     android:layout_height="fill_parent"
-                    android:layout_margin="4dp"
-                    android:visibility="gone" />
+                    android:layout_margin="4dp" />
             </LinearLayout>
 
             <Button
