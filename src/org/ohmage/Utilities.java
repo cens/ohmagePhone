@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 
 public class Utilities {
@@ -97,4 +98,38 @@ public class Utilities {
         }
         return sb.toString();
     }
+
+	/**
+	 * Calculates the average, min, and max of an array of doubles
+	 * @param ds
+	 * @return an array formatted as [ average, min, max ]
+	 */
+	public static double[] stats(double...ds) {
+		double sum = 0.0;
+		double min = Double.MAX_VALUE;
+		double max = Double.MIN_VALUE;
+		for (int i = 0; i < ds.length; i++) {
+			sum += ds[i];
+			if(ds[i] < min)
+				min = ds[i];
+			if(ds[i] > max)
+				max = ds[i];
+		}
+		return new double[]{ sum / ds.length, min, max };
+	}
+
+	/**
+	 * Generates an array of random doubles that are useful when graphing
+	 * @param length
+	 * @param max
+	 * @return
+	 */
+	public static double[] randomData(int length, double max) {
+		double[] values = new double[length];
+
+		Random r = new Random();
+		for (int i = 0; i < values.length; i++)
+			values[i] = Math.abs(r.nextDouble() * max);
+		return values;
+	}
 }

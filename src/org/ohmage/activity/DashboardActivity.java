@@ -160,7 +160,7 @@ public class DashboardActivity extends BaseActivity {
 					break;
 					
 				case R.id.dash_feedback_btn:
-					startActivity(new Intent(DashboardActivity.this, ResponseHistoryActivity.class));
+					startActivity(new Intent(DashboardActivity.this, FeedbackActivity.class));
 					break;
 					
 				case R.id.dash_uploadqueue_btn:
