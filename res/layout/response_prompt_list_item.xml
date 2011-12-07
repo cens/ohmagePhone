@@ -32,7 +32,7 @@
 		android:id="@+id/prompt_divider"
 		android:layout_width="match_parent"
 		android:layout_height="2dip"
-		android:background="#89b8db"
+		android:background="@color/highlight"
 		android:layout_below="@android:id/text1" />
 
 	<FrameLayout
