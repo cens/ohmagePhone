@@ -60,7 +60,7 @@ public abstract class XYChart extends AbstractChart {
   /** The canvas center point. */
   private Point mCenter;
   /** The visible chart area, in screen coordinates. */
-  private Rect mScreenR;
+  transient private Rect mScreenR;
   /** The calculated range. */
   private Map<Integer, double[]> mCalcRange = new HashMap<Integer, double[]>();
 
@@ -68,7 +68,7 @@ public abstract class XYChart extends AbstractChart {
    * The clickable areas for all points. The array index is the series index,
    * and the RectF list index is the point index in that series.
    */
-  private Map<Integer, List<RectF>> clickableAreas = new HashMap<Integer, List<RectF>>();
+  transient private Map<Integer, List<RectF>> clickableAreas = new HashMap<Integer, List<RectF>>();
 
   protected XYChart() {
   }
