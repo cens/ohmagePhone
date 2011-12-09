@@ -318,7 +318,7 @@ public abstract class XYChart extends AbstractChart {
               paint.setColor(mRenderer.getLabelsColor());
               if (axisAlign == Align.LEFT) {
                 canvas.drawLine(left + getLabelLinePos(axisAlign), yLabel, left, yLabel, paint);
-                drawText(canvas, getLabel(label), left, yLabel - 2, paint, mRenderer
+                drawText(canvas, getLabel(label), left-5, yLabel+getRenderer().getLabelsTextSize()/2.0f-2, paint, mRenderer
                     .getYLabelsAngle());
               } else {
                 canvas.drawLine(right, yLabel, right + getLabelLinePos(axisAlign), yLabel, paint);
@@ -359,7 +359,7 @@ public abstract class XYChart extends AbstractChart {
               if (or == Orientation.HORIZONTAL) {
                 if (axisAlign == Align.LEFT) {
                   canvas.drawLine(left + getLabelLinePos(axisAlign), yLabel, left, yLabel, paint);
-                  drawText(canvas, label, left, yLabel - 2, paint, mRenderer.getYLabelsAngle());
+                  drawText(canvas, label, left-5,  yLabel+getRenderer().getLabelsTextSize()/2.0f-2, paint, mRenderer.getYLabelsAngle());
                 } else {
                   canvas.drawLine(right, yLabel, right + getLabelLinePos(axisAlign), yLabel, paint);
                   drawText(canvas, label, right, yLabel - 2, paint, mRenderer.getYLabelsAngle());
