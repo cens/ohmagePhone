@@ -99,6 +99,11 @@
             android:name=".activity.FeedbackActivity"
             android:screenOrientation="portrait" />
 
+		<activity
+            android:configChanges="orientation|keyboardHidden"
+            android:name=".activity.ChartFeedbackActivity"
+            android:screenOrientation="portrait" />
+
 		<!-- 
 		================================================
 		=== entity info activities

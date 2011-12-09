@@ -30,5 +30,6 @@
 	<color name="tab_background_color">#ff3c3c3c</color>
 	<color name="transparent_white">#bbffffff</color>
 
+	<color name="gold">#EEA93F</color>
 	<color name="highlight">#89b8db</color>
 </resources>

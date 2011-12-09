@@ -13,9 +13,12 @@ import org.ohmage.charts.SparkLine;
 import org.ohmage.Utilities;
 import org.ohmage.ui.BaseActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
@@ -53,7 +56,20 @@ public class FeedbackActivity extends BaseActivity {
 			getSupportFragmentManager().beginTransaction().add(R.id.feedback_response_graph, f)
 					.commit();
 		}
+	}
 
+	@Override
+	public void onContentChanged() {
+		super.onContentChanged();
+
+		Button b = (Button) findViewById(R.id.feedback_charts_more);
+		b.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(FeedbackActivity.this, ChartFeedbackActivity.class));
+			}
+		});
 	}
 
 	private void setChart(String title, double[] data, int chartTitleId, int chartId) {
