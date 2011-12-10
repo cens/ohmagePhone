@@ -251,4 +251,6 @@
     <string name="campaign_xml_network_error">Network error occurred while trying to download campaign xml.</string>
     <string name="campaign_xml_internal_error">Internal error occurred while trying to download campaign xml.</string>
 
+    <!-- Feedback Charts -->
+    <string name="feedback_chart_list_empty">No charts</string>
 </resources>
