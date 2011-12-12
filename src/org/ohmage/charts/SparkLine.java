@@ -11,8 +11,14 @@ import android.content.Context;
 
 public class SparkLine extends TimeChart {
 
-	public SparkLine(Context context, String title, double[] values) {
-		super(buildDataSet(values), buildRenderer(context, title));
+	public SparkLine(Context context, double[] values, int color, int fillColor) {
+		this(context, values);
+		getRenderer().getSeriesRendererAt(0).setColor(color);
+		((XYSeriesRenderer)getRenderer().getSeriesRendererAt(0)).setFillBelowLineColor(fillColor);
+	}
+
+	public SparkLine(Context context, double[] values) {
+		super(buildDataSet(values), new SparkLineRenderer(context));
 	}
 
 	private static XYMultipleSeriesDataset buildDataSet(double[] values) {
@@ -24,25 +30,24 @@ public class SparkLine extends TimeChart {
 		return dataSet;
 	}
 
-	private static XYMultipleSeriesRenderer buildRenderer(Context context, String title) {
-		XYMultipleSeriesRenderer multipleRenderer = new XYMultipleSeriesRenderer();
-		final XYSeriesRenderer renderer = new XYSeriesRenderer();
-		renderer.setFillBelowLine(true);
-		renderer.setFillBelowLineColor(context.getResources().getColor(R.color.highlight));
-		renderer.setLineWidth(2.0f);
-		renderer.setColor(context.getResources().getColor(R.color.powderkegblue));
-		multipleRenderer.addSeriesRenderer(renderer);
-		multipleRenderer.setChartTitle(title);
-		multipleRenderer.setShowAxes(false);
-		multipleRenderer.setShowLabels(false);
-		multipleRenderer.setShowLegend(false);
-		multipleRenderer.setShowGrid(false);
-		multipleRenderer.setShowLegend(false);
-		multipleRenderer.setMargins(new int[] {
-				0, 0, 0, 0
-		});
-		multipleRenderer.setPanEnabled(false, false);
-		multipleRenderer.setZoomEnabled(false, false);
-		return multipleRenderer;
+	public static class SparkLineRenderer extends XYMultipleSeriesRenderer {
+		public SparkLineRenderer(Context context) {
+			final XYSeriesRenderer renderer = new XYSeriesRenderer();
+			renderer.setColor(context.getResources().getColor(R.color.powderkegblue));
+			renderer.setFillBelowLine(true);
+			renderer.setFillBelowLineColor(context.getResources().getColor(R.color.highlight));
+			renderer.setLineWidth(2.0f);
+			addSeriesRenderer(renderer);
+			setShowAxes(false);
+			setShowLabels(false);
+			setShowLegend(false);
+			setShowGrid(false);
+			setShowLegend(false);
+			setMargins(new int[] {
+					0, 0, 0, 0
+			});
+			setPanEnabled(false, false);
+			setZoomEnabled(false, false);
+		}
 	}
 }

@@ -32,15 +32,15 @@ public class FeedbackActivity extends BaseActivity {
 		setContentView(R.layout.feedback_layout);
 
 		if (getSupportFragmentManager().findFragmentById(R.id.chart1) == null) {
-			setChart("Exercise Frequency", FAKE_DATA1, R.id.chart1_title, R.id.chart1);
+			setChart("Exercise Frequency", FAKE_DATA1, R.id.chart1_title, R.id.chart1, R.color.powderkegblue, R.color.light_blue);
 		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.chart2) == null) {
-			setChart("Healthy Diet", FAKE_DATA2, R.id.chart2_title, R.id.chart2);
+			setChart("Healthy Diet", FAKE_DATA2, R.id.chart2_title, R.id.chart2, R.color.dark_green, R.color.light_green);
 		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.chart3) == null) {
-			setChart("Random Graph", Utilities.randomData(30, 9), R.id.chart3_title, R.id.chart3);
+			setChart("Random Graph", Utilities.randomData(30, 9), R.id.chart3_title, R.id.chart3, R.color.dark_purple, R.color.light_purple);
 		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.feedback_response_graph) == null) {
@@ -64,10 +64,10 @@ public class FeedbackActivity extends BaseActivity {
 		});
 	}
 
-	private void setChart(String title, double[] data, int chartTitleId, int chartId) {
-		SparkLine chart = new SparkLine(this, title, data);
+	private void setChart(String title, double[] data, int chartTitleId, int chartId, int colorId, int fillColorId) {
+		SparkLine chart = new SparkLine(this, data, getResources().getColor(colorId), getResources().getColor(fillColorId));
 		chart.getRenderer().setInScroll(true);
-		((TextView) findViewById(chartTitleId)).setText(chart.getRenderer().getChartTitle());
+		((TextView) findViewById(chartTitleId)).setText(title);
 		ChartFragment f = ChartFragment.newInstance(chart);
 		getSupportFragmentManager().beginTransaction().add(chartId, f).commit();
 	}
