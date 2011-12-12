@@ -4,6 +4,7 @@ import org.achartengine.GraphicalView;
 import org.ohmage.R;
 import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;
+import org.ohmage.charts.Histogram.HistogramRenderer;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -17,6 +18,14 @@ import android.widget.TextView;
 import java.text.NumberFormat;
 
 public class ChartListAdapter extends CursorAdapter{
+
+	private final int[] colors = new int[] {
+		mContext.getResources().getColor(R.color.light_purple),
+		mContext.getResources().getColor(R.color.light_red),
+		mContext.getResources().getColor(R.color.light_blue),
+		mContext.getResources().getColor(R.color.light_green),
+		mContext.getResources().getColor(R.color.light_yellow)
+	};
 
 	private final LayoutInflater mInflater;
 
@@ -38,8 +47,8 @@ public class ChartListAdapter extends CursorAdapter{
 		chart.removeAllViews();
 		HistogramRenderer renderer = new HistogramRenderer(context);
 		renderer.setInScroll(true);
+		renderer.getSeriesRendererAt(0).setColor(colors[cursor.getPosition()%colors.length]);
 		chart.addView(new GraphicalView(context, new Histogram(context, renderer, data)));
-
 	}
 
 	@Override
