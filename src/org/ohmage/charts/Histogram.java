@@ -159,7 +159,7 @@ public class Histogram extends BarChart {
 		public HistogramRenderer(Context context) {
 			final XYSeriesRenderer renderer = new XYSeriesRenderer();
 			renderer.setLineWidth(1.0f);
-			renderer.setColor(context.getResources().getColor(R.color.highlight));
+			renderer.setColor(context.getResources().getColor(R.color.light_blue));
 			addSeriesRenderer(renderer);
 			setMarginsColor(Color.WHITE);
 			setPanEnabled(false, false);
