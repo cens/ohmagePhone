@@ -21,7 +21,6 @@ import org.achartengine.chart.XYChart;
 import org.achartengine.model.Point;
 import org.achartengine.model.SeriesSelection;
 import org.achartengine.renderer.DefaultRenderer;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.tools.FitZoom;
 import org.achartengine.tools.PanListener;
 import org.achartengine.tools.Zoom;
@@ -103,10 +102,10 @@ public class GraphicalView extends View {
           .getResourceAsStream("image/zoom-1.png"));
     }
 
-    if (mRenderer instanceof XYMultipleSeriesRenderer
-        && ((XYMultipleSeriesRenderer) mRenderer).getMarginsColor() == XYMultipleSeriesRenderer.NO_COLOR) {
-      ((XYMultipleSeriesRenderer) mRenderer).setMarginsColor(mPaint.getColor());
-    }
+//    if (mRenderer instanceof XYMultipleSeriesRenderer
+//        && ((XYMultipleSeriesRenderer) mRenderer).getMarginsColor() == XYMultipleSeriesRenderer.NO_COLOR) {
+//      ((XYMultipleSeriesRenderer) mRenderer).setMarginsColor(mPaint.getColor());
+//    }
     if (mRenderer.isZoomEnabled() && mRenderer.isZoomButtonsVisible()
         || mRenderer.isExternalZoomEnabled()) {
       mZoomIn = new Zoom(mChart, true, mRenderer.getZoomRate());
