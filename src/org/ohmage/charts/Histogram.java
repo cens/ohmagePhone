@@ -161,7 +161,6 @@ public class Histogram extends BarChart {
 			renderer.setLineWidth(1.0f);
 			renderer.setColor(context.getResources().getColor(R.color.light_blue));
 			addSeriesRenderer(renderer);
-			setMarginsColor(Color.WHITE);
 			setPanEnabled(false, false);
 			setZoomEnabled(false, false);
 			setYLabelsAlign(Align.RIGHT);
