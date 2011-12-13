@@ -49,5 +49,13 @@
             android:summary="@string/preferences_logout_summary"
             android:title="@string/preferences_logout_title" />
     </PreferenceCategory>
+    
+    <PreferenceCategory android:title="Debugging" >
+        <PreferenceScreen
+            android:key="key_querytest"
+            android:persistent="false"
+            android:summary="@string/preferences_querytest_summary"
+            android:title="@string/preferences_querytest_title" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

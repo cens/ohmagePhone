@@ -148,6 +148,11 @@
 		<activity android:name=".activity.TestActivity" android:label="@string/app_name">
 		</activity>
 		
+		<!-- allows queries against the contentprovider to be tested -->
+		<activity android:name=".activity.QueryTestActivity" android:label="@string/app_name"
+			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light">
+		</activity>
+		
 		<receiver android:name=".service.TriggerNotificationReceiver">
     		<intent-filter>
         		<action android:name="org.ohmage.triggers.TRIGGER_NOTIFICATION"/>
@@ -332,16 +337,6 @@
 	    <provider android:name=".db.DbProvider"
 	    	android:authorities="org.ohmage.db">
 	    </provider>
-	    
- 		<activity android:name=".feedback.FBTestActivity" android:label="@string/app_name"
-			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light">
-			<!--
-			<intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-			-->
-		</activity>
 
 		<!--
 		******************************************************
