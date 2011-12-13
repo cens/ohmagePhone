@@ -6,15 +6,19 @@ import org.ohmage.R;
 import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;
 import org.ohmage.charts.SparkLine;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.ui.BaseActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.Random;
+import java.util.Arrays;
+import java.util.Calendar;
 
 public class FeedbackActivity extends BaseActivity {
 
@@ -25,6 +29,8 @@ public class FeedbackActivity extends BaseActivity {
 	public static final double[] FAKE_DATA2 = new double[] {
 			1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5
 	};
+
+	private static final String TAG = "FeedbackActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,14 @@ public class FeedbackActivity extends BaseActivity {
 				startActivity(new Intent(FeedbackActivity.this, ChartFeedbackActivity.class));
 			}
 		});
+		b = (Button) findViewById(R.id.feedback_response_history_more);
+		b.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(FeedbackActivity.this, ResponseHistoryActivity.class));
+			}
+		});
 	}
 
 	private void setChart(String title, double[] data, int chartTitleId, int chartId, int colorId, int fillColorId) {
@@ -75,13 +89,21 @@ public class FeedbackActivity extends BaseActivity {
 	private Histogram buildResponseFrequencyGraph() {
 
 		double[] values = new double[10];
+		Arrays.fill(values, 0);
 
-		double max = 0;
-		Random r = new Random();
-		for (int i = 0; i < values.length; i++) {
-			values[i] = Math.abs(r.nextInt() % 6);
-			if (values[i] > max)
-				max = values[i];
+		// Queries for the responses which were taken in the last 10 days
+		// Some extra responses may slip into this query for exampl if we are querying at 1pm and they happened
+		// after 1pm on the day before the last day we are including. However these responses will not be included
+		// in the histogram
+		Cursor c = managedQuery(Responses.CONTENT_URI, new String[] { Responses.RESPONSE_TIME },
+				Responses.RESPONSE_TIME + ">" + (Calendar.getInstance().getTimeInMillis() - values.length * DateUtils.DAY_IN_MILLIS), null,
+				Responses.RESPONSE_TIME + " DESC");
+
+		for(int i=0;i<values.length;i++) {
+			while(c.moveToNext() && DateUtils.isToday(c.getLong(0) + DateUtils.DAY_IN_MILLIS * i)) {
+				values[i]++;
+			}
+			c.moveToPrevious();
 		}
 
 		Histogram.HistogramRenderer renderer = new Histogram.HistogramRenderer(this);
