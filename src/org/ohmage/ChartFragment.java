@@ -9,14 +9,19 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 public class ChartFragment extends Fragment {
 
 	private static final String CHART = "chart";
 
-	private AbstractChart mChart;
-	private GraphicalView mView;
+	private GraphicalView mGraph;
 
+	/**
+	 * Creates a new instance of a chart fragment for the given chart
+	 * @param chart
+	 * @return the chart fragment
+	 */
 	public static ChartFragment newInstance(AbstractChart chart) {
 		ChartFragment fragment = new ChartFragment();
 		Bundle args = new Bundle();
@@ -26,21 +31,42 @@ public class ChartFragment extends Fragment {
 		return fragment;
 	}
 
+	/**
+	 * Creates a new instance of the chart fragment which will be in a loading state
+	 * @return the chart fragment
+	 */
+	public static ChartFragment newInstance() {
+		return new ChartFragment();
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (getArguments() == null || !getArguments().containsKey(CHART))
-			throw new RuntimeException("A chart fragment must contain a specified chart");
-
-		mChart = (AbstractChart) getArguments().getSerializable(CHART);
-		mView = new GraphicalView(getActivity(), mChart);
+		// Was the chart passed in the bundle or should we expect it later
+		if (getArguments() != null && getArguments().containsKey(CHART)) {
+			setChart((AbstractChart) getArguments().getSerializable(CHART));
+		}
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		if(mView.getParent() != null)
-			((ViewGroup)mView.getParent()).removeView(mView);
-		return mView;
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		FrameLayout view = new FrameLayout(getActivity());
+		if(mGraph != null) {
+			view.addView(mGraph);
+		}
+		return view;
+	}
+
+	/**
+	 * Provide the chart for this fragment
+	 */
+	public void setChart(AbstractChart chart) {
+		mGraph = new GraphicalView(getActivity(), chart);
+		if(getView() != null) {
+			((ViewGroup) getView()).removeAllViews();
+			((ViewGroup) getView()).addView(mGraph);
+		}
 	}
 }
