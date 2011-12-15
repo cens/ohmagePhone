@@ -124,7 +124,6 @@ public class UploadService extends WakefulIntentService {
 			final ArrayList<String> photoUUIDs = new ArrayList<String>();
             
 			try {
-				responseJson.put("timestamp", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_DATE)));
 				responseJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
 				responseJson.put("timezone", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
 				String locationStatus = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
