@@ -312,7 +312,7 @@ public class UploadService extends WakefulIntentService {
 						if (i == limit - 1) {
 							uploadAfterTimestamp = time;
 						}
-						mobilityPointJson.put("date", dateFormat.format(new Date(time)));
+						
 						mobilityPointJson.put("time", time);
 						mobilityPointJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
 						if (uploadSensorData) {
@@ -376,7 +376,8 @@ public class UploadService extends WakefulIntentService {
 								locationJson.put("accuracy", "NaN");
 							}
 							
-							locationJson.put("timestamp", dateFormat.format(new Date(Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_LOC_TIMESTAMP))))));
+							locationJson.put("time", Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_LOC_TIMESTAMP))));
+							locationJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
 							
 							mobilityPointJson.put("location", locationJson);
 						}
