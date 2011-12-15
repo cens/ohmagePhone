@@ -308,11 +308,12 @@ public class UploadService extends WakefulIntentService {
 					
 					try {
 						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						Long time = c.getLong(c.getColumnIndex(MobilityInterface.KEY_TIME));
+						Long time = Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_TIME)));
 						if (i == limit - 1) {
 							uploadAfterTimestamp = time;
 						}
 						
+						mobilityPointJson.put("id", c.getString(c.getColumnIndex(MobilityInterface.KEY_ID)));
 						mobilityPointJson.put("time", time);
 						mobilityPointJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
 						if (uploadSensorData) {
