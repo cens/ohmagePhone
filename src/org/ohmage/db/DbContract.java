@@ -296,5 +296,17 @@ public class DbContract {
 		public static String getSurveyPromptId(Uri uri) {
 			return uri.getPathSegments().get(6);
 		}
+
+		public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID) {
+			return BASE_CONTENT_URI.buildUpon()
+					.appendPath(PATH_CAMPAIGNS)
+					.appendPath(campaignUrn)
+					.appendPath(PATH_SURVEYS)
+					.appendPath(surveyID)
+					.appendPath(PATH_RESPONSES)
+					.appendPath(PATH_PROMPTS)
+					.appendPath(promptID)
+					.build();
+		}
 	}
 }

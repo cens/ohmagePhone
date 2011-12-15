@@ -435,7 +435,7 @@ public class DbProvider extends ContentProvider {
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/prompts", MatcherTypes.SURVEY_SURVEYPROMPTS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
-		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
+		// matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
@@ -534,15 +534,12 @@ public class DbProvider extends ContentProvider {
 				final String surveyId = Surveys.getSurveyId(uri);
 				final String promptId = PromptResponses.getSurveyPromptId(uri);
 
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
-						.mapToTable(PromptResponses._ID, Tables.PROMPT_RESPONSES)
-						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
-						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
-						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
-						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
+				return builder.table(Tables.PROMPT_RESPONSES)
+						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
+						.where(PromptResponses.COMPOSITE_ID + "=?", campaignUrn + ":" + surveyId)
 						.where(PromptResponses.PROMPT_ID + "=?", promptId);
-			}	
+			}
+			/* // FAISAL: disabled until i can figure out how to do aggregates with a builder 
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE: {
 				if (nonQuery)
 					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
@@ -574,6 +571,7 @@ public class DbProvider extends ContentProvider {
 						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
 						.where(PromptResponses.PROMPT_ID + "=?", promptId);
 			}
+			*/
 			case MatcherTypes.SURVEYS: {
 				return builder.table(Tables.SURVEYS);
 			}
