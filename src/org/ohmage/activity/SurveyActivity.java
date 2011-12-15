@@ -94,7 +94,7 @@ public class SurveyActivity extends Activity {
 	private String mSurveyId;
 	private String mSurveyTitle;
 	private String mSurveySubmitText;
-	private String mLaunchTime;
+	private long mLaunchTime;
 	private boolean mReachedEnd;
 	private boolean mSurveyFinished = false;
 
@@ -123,7 +123,7 @@ public class SurveyActivity extends Activity {
         
         	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     		Calendar now = Calendar.getInstance();
-    		mLaunchTime = dateFormat.format(now.getTime());
+    		mLaunchTime = now.getTimeInMillis();
     		
     		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
     		
@@ -193,11 +193,11 @@ public class SurveyActivity extends Activity {
 	private class NonConfigurationInstance {
 		List<SurveyElement> surveyElements;
 		int index;
-		String launchTime;
+		long launchTime;
 		boolean reachedEnd;
 		String lastSeenRepeatableSetId;
 		
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, String launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
@@ -853,6 +853,7 @@ public class SurveyActivity extends Activity {
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
 			surveyLaunchContextJson.put("launch_time", mLaunchTime);
+			surveyLaunchContextJson.put("launch_timezone)", timezone);
 			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mCampaignUrn, mSurveyTitle));
 		} catch (JSONException e) {
 			Log.e(TAG, "JSONException when trying to generate survey launch context json", e);
