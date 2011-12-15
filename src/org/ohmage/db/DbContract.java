@@ -88,6 +88,8 @@ public class DbContract {
 		String RESPONSE_STATUS = "response_status";
 		/** read-only, a hash that uniquely identifies this response */
 		String RESPONSE_HASHCODE = "response_hashcode";
+		/** read-only, a UUID that uniquely identifies this response */
+		String RESPONSE_UUID = "response_uuid";
     }
     
     interface PromptResponseColumns {

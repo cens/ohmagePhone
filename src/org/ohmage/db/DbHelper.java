@@ -162,6 +162,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.RESPONSES + " ("
 				+ Responses._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ Responses.RESPONSE_UUID + " TEXT, "
 				+ Responses.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
 				+ Responses.RESPONSE_USERNAME + " TEXT, "
 				+ Responses.RESPONSE_DATE + " TEXT, "

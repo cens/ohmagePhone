@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -940,6 +941,7 @@ public class SurveyActivity extends Activity {
 		// insert the response, which indirectly populates the prompt response tables, etc.
 		Response candidate = new Response();
 		
+		candidate.uuid = UUID.randomUUID().toString();
 		candidate.campaignUrn = mCampaignUrn;
 		candidate.username = username;
 		candidate.date = date;
