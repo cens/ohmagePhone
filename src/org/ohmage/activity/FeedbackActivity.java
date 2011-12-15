@@ -12,6 +12,9 @@ import org.ohmage.ui.BaseActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +23,7 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.Calendar;
 
-public class FeedbackActivity extends BaseActivity {
+public class FeedbackActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	public static final double[] FAKE_DATA1 = new double[] {
 			1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0
@@ -31,6 +34,8 @@ public class FeedbackActivity extends BaseActivity {
 	};
 
 	private static final String TAG = "FeedbackActivity";
+
+	private static final int LOADER_RESPONSE_HISTOGRAM = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +55,9 @@ public class FeedbackActivity extends BaseActivity {
 		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.feedback_response_graph) == null) {
-			ChartFragment f = ChartFragment.newInstance(buildResponseFrequencyGraph());
-			getSupportFragmentManager().beginTransaction().add(R.id.feedback_response_graph, f)
-					.commit();
+			ChartFragment f = ChartFragment.newInstance();
+			getSupportFragmentManager().beginTransaction().add(R.id.feedback_response_graph, f).commit();
+			getSupportLoaderManager().initLoader(LOADER_RESPONSE_HISTOGRAM, null, this);
 		}
 	}
 
@@ -86,27 +91,36 @@ public class FeedbackActivity extends BaseActivity {
 		getSupportFragmentManager().beginTransaction().add(chartId, f).commit();
 	}
 
-	private Histogram buildResponseFrequencyGraph() {
-
-		double[] values = new double[10];
-		Arrays.fill(values, 0);
-
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		// Queries for the responses which were taken in the last 10 days
 		// Some extra responses may slip into this query for exampl if we are querying at 1pm and they happened
 		// after 1pm on the day before the last day we are including. However these responses will not be included
 		// in the histogram
-		Cursor c = managedQuery(Responses.CONTENT_URI, new String[] { Responses.RESPONSE_TIME },
-				Responses.RESPONSE_TIME + ">" + (Calendar.getInstance().getTimeInMillis() - values.length * DateUtils.DAY_IN_MILLIS), null,
+		return new CursorLoader(FeedbackActivity.this, Responses.CONTENT_URI, new String[] { Responses.RESPONSE_TIME },
+				Responses.RESPONSE_TIME + ">" + (Calendar.getInstance().getTimeInMillis() - 10 * DateUtils.DAY_IN_MILLIS), null,
 				Responses.RESPONSE_TIME + " DESC");
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		// Nothing to do?
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+		double[] values = new double[10];
+		Arrays.fill(values, 0);
 
 		for(int i=0;i<values.length;i++) {
-			while(c.moveToNext() && DateUtils.isToday(c.getLong(0) + DateUtils.DAY_IN_MILLIS * i)) {
+			while(data.moveToNext() && DateUtils.isToday(data.getLong(0) + DateUtils.DAY_IN_MILLIS * i)) {
 				values[i]++;
 			}
-			c.moveToPrevious();
+			data.moveToPrevious();
 		}
 
-		Histogram.HistogramRenderer renderer = new Histogram.HistogramRenderer(this);
+		Histogram.HistogramRenderer renderer = new Histogram.HistogramRenderer(FeedbackActivity.this);
 		renderer.setMargins(new int[] {
 				30, 35, 15, 30
 		});
@@ -114,6 +128,8 @@ public class FeedbackActivity extends BaseActivity {
 		renderer.setYTitle("# of Responses");
 		renderer.setInScroll(true);
 
-		return new Histogram(this, renderer, values);
+		ChartFragment chart = (ChartFragment) getSupportFragmentManager().findFragmentById(R.id.feedback_response_graph);
+		chart.setChart(new Histogram(this, renderer, values));
 	}
+
 }
