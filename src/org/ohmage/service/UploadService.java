@@ -83,6 +83,7 @@ public class UploadService extends WakefulIntentService {
 		
 		String [] projection = new String [] {
 										Tables.RESPONSES + "." + Responses._ID,
+										Responses.RESPONSE_UUID,
 										Responses.RESPONSE_DATE,
 										Responses.RESPONSE_TIME,
 										Responses.RESPONSE_TIMEZONE,

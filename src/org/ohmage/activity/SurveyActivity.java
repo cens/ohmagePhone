@@ -803,11 +803,11 @@ public class SurveyActivity extends Activity {
 						dataPoint.setValue(dataPointValue);
 					} else if (PromptType.multi_choice_custom.equals(dataPoint.getPromptType())) {
 						JSONArray jsonArray;
-						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
+						ArrayList<String> dataPointValue = new ArrayList<String>();
 						try {
 							jsonArray = (JSONArray)prompt.getResponseObject();
 							for (int j = 0; j < jsonArray.length(); j++) {
-								dataPointValue.add((Integer)jsonArray.get(j));
+								dataPointValue.add((String)jsonArray.get(j));
 							}
 						} catch (JSONException e) {
 							// TODO Auto-generated catch block
@@ -854,7 +854,7 @@ public class SurveyActivity extends Activity {
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
 			surveyLaunchContextJson.put("launch_time", mLaunchTime);
-			surveyLaunchContextJson.put("launch_timezone)", timezone);
+			surveyLaunchContextJson.put("launch_timezone", timezone);
 			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mCampaignUrn, mSurveyTitle));
 		} catch (JSONException e) {
 			Log.e(TAG, "JSONException when trying to generate survey launch context json", e);
