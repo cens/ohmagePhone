@@ -80,6 +80,8 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 				startActivity(new Intent(FeedbackActivity.this, ResponseHistoryActivity.class));
 			}
 		});
+
+		setLoadingVisibility(true);
 	}
 
 	private void setChart(String title, double[] data, int chartTitleId, int chartId, int colorId, int fillColorId) {
@@ -125,6 +127,8 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 
 		ChartFragment chart = (ChartFragment) getSupportFragmentManager().findFragmentById(R.id.feedback_response_graph);
 		chart.setChart(new Histogram(this, renderer, values));
+
+		setLoadingVisibility(false);
 	}
 
 }
