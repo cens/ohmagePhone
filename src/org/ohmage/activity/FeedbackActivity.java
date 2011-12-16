@@ -21,7 +21,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Arrays;
-import java.util.Calendar;
 
 public class FeedbackActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -93,13 +92,9 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		// Queries for the responses which were taken in the last 10 days
-		// Some extra responses may slip into this query for exampl if we are querying at 1pm and they happened
-		// after 1pm on the day before the last day we are including. However these responses will not be included
-		// in the histogram
-		return new CursorLoader(FeedbackActivity.this, Responses.CONTENT_URI, new String[] { Responses.RESPONSE_TIME },
-				Responses.RESPONSE_TIME + ">" + (Calendar.getInstance().getTimeInMillis() - 10 * DateUtils.DAY_IN_MILLIS), null,
-				Responses.RESPONSE_TIME + " DESC");
+		return new CursorLoader(FeedbackActivity.this, Responses.CONTENT_URI,
+				new String[] { Responses.RESPONSE_TIME },
+				null, null, Responses.RESPONSE_TIME + " DESC");
 	}
 
 	@Override
