@@ -16,88 +16,12 @@
                 android:text="CHARTS" />
 
             <LinearLayout
+                android:id="@+id/feedback_chart_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingLeft="10dip"
-                android:paddingRight="10dip" >
-
-                <RelativeLayout
-                    android:id="@+id/feedback_chart1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="5dp" >
-
-                    <TextView
-                        android:id="@+id/chart1_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:paddingRight="4dp" />
-
-                    <FrameLayout
-                        android:id="@+id/chart1"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_margin="4dp"
-                        android:layout_toRightOf="@id/chart1_title" />
-                </RelativeLayout>
-
-                <View
-                    android:layout_width="fill_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/lightergray" />
-
-                <RelativeLayout
-                    android:id="@+id/feedback_chart2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="5dp" >
-
-                    <TextView
-                        android:id="@+id/chart2_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:paddingRight="4dp" />
-
-                    <FrameLayout
-                        android:id="@+id/chart2"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_margin="4dp"
-                        android:layout_toRightOf="@id/chart2_title" />
-                </RelativeLayout>
-
-                <View
-                    android:layout_width="fill_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/lightergray" />
-
-                <RelativeLayout
-                    android:id="@+id/feedback_chart3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="5dp" >
-
-                    <TextView
-                        android:id="@+id/chart3_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:paddingRight="4dp" />
-
-                    <FrameLayout
-                        android:id="@+id/chart3"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_margin="4dp"
-                        android:layout_toRightOf="@id/chart3_title" />
-                </RelativeLayout>
-            </LinearLayout>
+                android:paddingRight="10dip" />
 
             <Button
                 android:id="@+id/feedback_charts_more"
