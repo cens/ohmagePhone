@@ -2,7 +2,6 @@ package org.ohmage.activity;
 
 import com.google.android.imageloader.ImageLoader;
 
-import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
@@ -242,19 +241,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				public void onClick(View v) {
 					// when clicked, it fires off a download task,
 					// waits for it to finish, then goes back to the list when it's done
-					(new CampaignXmlDownloadTask(mContext, campaignUrn) {
-						@Override
-						protected void onPostExecute(CampaignXmlResponse response) {
-							// TODO Auto-generated method stub
-							super.onPostExecute(response);
-							
-							// take us to my campaigns so we can see the entry in all its newfound glory
-							/*
-							startActivity(new Intent(mContext, CampaignListActivity.class));
-							mContext.finish();
-							*/
-						}
-					})
+					new CampaignXmlDownloadTask(mContext, campaignUrn)
 					.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
 				}
 			});

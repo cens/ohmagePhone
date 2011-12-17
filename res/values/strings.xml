@@ -90,6 +90,20 @@
     <string name="help_goto_dashboard">Dashboard</string>
     <string name="help_goto_filter">Filter</string>
     <string name="help_goto_list">List</string>
+    <string name="help_dashboard_header_text">The Dashboard makes it easy to get to campaigns, surveys, and your response history&lt;br/></string>
+    <string name="help_dashboard_section">&lt;h2>&lt;img src=%1$s>%2$s&lt;/h2>&lt;p>%3$s&lt;/p></string>
+    <string name="help_dashboard_campaigns_title">Campaigns</string>
+    <string name="help_dashboard_campaigns_text">On the &lt;b>Campaign List&lt;/b> screen you can see the campaigns you are participating in (which have already been downloaded to the phone) as well as campaigns available for participation (which are on the server, available to be downloaded to the phone). You can access information about the campaigns you are participating in, as well as set up triggered reminders.</string>
+    <string name="help_dashboard_surveys_title">Surveys</string>
+    <string name="help_dashboard_surveys_text">On the &lt;b>Survey List&lt;/b> screen you can see and take surveys from all the campaigns you are participating in.</string>
+    <string name="help_dashboard_response_history_title">Response History</string>
+    <string name="help_dashboard_response_history_text">On the &lt;b>Response History&lt;/b> screen you can see calendar and map views of your response history.</string>
+    <string name="help_dashboard_upload_queue_title">Upload Queue</string>
+    <string name="help_dashboard_upload_queue_text">In the &lt;b>Upload Queue&lt;/b> you can manage the upload status of the responses you have just completed.</string>
+    <string name="help_dashboard_profile_title">Profile</string>
+    <string name="help_dashboard_profile_text">On the &lt;b>Profile&lt;/b> screen you can update your password, or logout and wipe your data.</string>
+    <string name="help_dashboard_mobility_title">Mobility</string>
+    <string name="help_dashboard_mobility_text">On the &lt;b>Mobility&lt;/b> screen you can see your mobility data.</string>
 
     <!-- Survey / Prompts -->
     <string name="survey_complete">Survey Complete!</string>
@@ -109,7 +123,7 @@
     <string name="prompt_custom_single_choice_add">Add new choice</string>
     <string name="prompt_custom_multi_choice_add">Add new item</string>
     <string name="prompt_hours_ago">hours ago</string>
-    <string name="prompt_select_value">Use the +/- buttons\\nto select a value.</string>
+    <string name="prompt_select_value">Use the +/- buttons\nto select a value.</string>
     <string name="prompt_timestamp_change_date">Change date</string>
     <string name="prompt_timestamp_set_am_pm">Remember to set the correct AM/PM value!</string>
 
