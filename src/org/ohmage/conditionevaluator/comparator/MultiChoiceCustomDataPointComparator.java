@@ -32,22 +32,28 @@ import org.ohmage.conditionevaluator.DataPoint;
  *
  */
 public class MultiChoiceCustomDataPointComparator extends AbstractDataPointComparator {
+	
+	// The methods here all need to be updated to support conditions after changes made due to 2.9 api changes
+	// dataPoint.getValue() will now return a List of Strings instead of Integers
+	// the integer keys for those strings need to be looked up in the campaign config
+	// then the keys can be compared to the value parameter (after casting to Integer)
 
 	@Override
 	boolean equals(DataPoint dataPoint, String value) {
-		// Run through all the responses, if any of them are true assume the whole thing is true
-        Integer valueToCompare = Integer.parseInt(value);
-        Integer dataPointValue = null;
-        @SuppressWarnings("unchecked")
-        List<Integer> dataPointValues = (List<Integer>) dataPoint.getValue();
-        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
-        while (dataPointValuesIterator.hasNext()) {
-            dataPointValue = dataPointValuesIterator.next();
-            
-            if (dataPointValue.compareTo(valueToCompare) == 0) {
-                return true;
-            }
-        }
+//		// Run through all the responses, if any of them are true assume the whole thing is true
+//        Integer valueToCompare = Integer.parseInt(value);
+//        Integer dataPointValue = null;
+//        @SuppressWarnings("unchecked")
+//        List<Integer> dataPointValues = (List<Integer>) dataPoint.getValue();
+//        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
+//        while (dataPointValuesIterator.hasNext()) {
+//            dataPointValue = dataPointValuesIterator.next();
+//            
+//            if (dataPointValue.compareTo(valueToCompare) == 0) {
+//                return true;
+//            }
+//        }
+//		return false;
 		return false;
 	}
 
@@ -81,20 +87,21 @@ public class MultiChoiceCustomDataPointComparator extends AbstractDataPointCompa
 
 	@Override
 	boolean notEquals(DataPoint dataPoint, String value) {
-		// Run through all the responses, if any of them are true assume the whole thing is true
-		Integer valueToCompare = Integer.parseInt(value);
-        Integer dataPointValue = null;
-        @SuppressWarnings("unchecked")
-        List<Integer> dataPointValues = (List<Integer>) dataPoint.getValue();
-        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
-        while (dataPointValuesIterator.hasNext()) {
-            dataPointValue = dataPointValuesIterator.next();
-            
-            if (dataPointValue.compareTo(valueToCompare) == 0) {
-                return false;
-            }
-        }
-		return true;
+//		// Run through all the responses, if any of them are true assume the whole thing is true
+//		Integer valueToCompare = Integer.parseInt(value);
+//        Integer dataPointValue = null;
+//        @SuppressWarnings("unchecked")
+//        List<Integer> dataPointValues = (List<Integer>) dataPoint.getValue();
+//        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
+//        while (dataPointValuesIterator.hasNext()) {
+//            dataPointValue = dataPointValuesIterator.next();
+//            
+//            if (dataPointValue.compareTo(valueToCompare) == 0) {
+//                return false;
+//            }
+//        }
+//		return true;
+		return false;
 	}
 
 }
