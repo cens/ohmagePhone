@@ -977,7 +977,9 @@ public class SurveyActivity extends Activity {
 		for (int i = 0; i < mSurveyElements.size(); i++) {
 			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
 				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
-				photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
+				if (photoPrompt.isPromptAnswered()) {
+					photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
+				}
 			}
 		}
 		
