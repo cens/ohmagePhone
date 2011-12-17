@@ -21,12 +21,20 @@ public class SparklineAdapter extends ArrayAdapter<ChartItem> {
 		public double[] data;
 		public int color;
 		public int fill;
+		public Integer min;
+		public Integer max;
 
-		public ChartItem(String t, double[] d, int c, int f) {
+		public ChartItem(String t, double[] d, int c, int f, Integer min, Integer max) {
 			title = t;
 			data = d;
 			color = c;
 			fill = f;
+			this.min = min;
+			this.max = max;
+		}
+
+		public ChartItem(String t, double[] d, int c, int f) {
+			this(t, d, c, f, 0, null);
 		}
 
 		@Override
@@ -37,6 +45,9 @@ public class SparklineAdapter extends ArrayAdapter<ChartItem> {
 		public AbstractChart getChart(Context context) {
 			SparkLine chart = new SparkLine(context, data, context.getResources().getColor(color), context.getResources().getColor(fill));
 			chart.getRenderer().setInScroll(true);
+			chart.getRenderer().setYAxisMin(min);
+			if(max != null)
+				chart.getRenderer().setYAxisMax(max);
 			return chart;
 		}
 

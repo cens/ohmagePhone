@@ -84,24 +84,24 @@ public class RecentChartFragment extends Fragment implements LoaderManager.Loade
 			if("Morning".equals(surveyId) || "Mid Day".equals(surveyId) || "Late Afternoon".equals(surveyId)) {
 				double[] stressData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "howStressed");
 				if(stressData.length > 1)
-					mAdapter.add(new ChartItem("Stress Amount", stressData, R.color.dark_red, R.color.light_red));
+					mAdapter.add(new ChartItem("Stress Amount", stressData, R.color.dark_red, R.color.light_red, 1, 5));
 
 				double[] foodData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "foodQuality");
 				if(foodData.length > 1)
-					mAdapter.add(new ChartItem("Food Quality", foodData, R.color.powderkegblue, R.color.light_blue));
+					mAdapter.add(new ChartItem("Food Quality", foodData, R.color.powderkegblue, R.color.light_blue, 0, 2));
 
 				double[] foodAmountData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "foodHowMuch");
 				if(foodAmountData.length > 1)
-					mAdapter.add(new ChartItem("Food Amount", foodAmountData, R.color.powderkegblue, R.color.light_blue));
+					mAdapter.add(new ChartItem("Food Amount", foodAmountData, R.color.powderkegblue, R.color.light_blue, 0, 2));
 
 			} else if("Bedtime".equals(surveyId)) {
 				double[] exerciseData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "didYouExercise");
 				if(exerciseData.length > 1)
-					mAdapter.add(new ChartItem("Exercise", exerciseData, R.color.dark_green, R.color.light_green));
+					mAdapter.add(new ChartItem("Exercise", exerciseData, R.color.dark_green, R.color.light_green, 0, 1));
 
 				double[] aloneData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "timeForYourself");
 				if(aloneData.length > 1)
-					mAdapter.add(new ChartItem("Time For Yourself", aloneData, R.color.dark_purple, R.color.light_purple));
+					mAdapter.add(new ChartItem("Time For Yourself", aloneData, R.color.dark_purple, R.color.light_purple, 0, 4));
 			}
 
 			if(!mAdapter.isEmpty()) {
