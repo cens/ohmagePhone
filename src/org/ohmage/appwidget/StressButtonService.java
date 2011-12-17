@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,9 +75,8 @@ public class StressButtonService extends IntentService {
 		Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		vibrator.vibrate(100);
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
-		String launchTime = dateFormat.format(now.getTime());
+		long launchTime = now.getTimeInMillis();
 		
 		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
 		
@@ -152,7 +152,7 @@ public class StressButtonService extends IntentService {
 		}
 	}
 
-	private void storeResponse(String campaignUrn, String surveyId, String surveyTitle, String launchTime, List<SurveyElement> prompts) {
+	private void storeResponse(String campaignUrn, String surveyId, String surveyTitle, long launchTime, List<SurveyElement> prompts) {
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
@@ -173,6 +173,7 @@ public class StressButtonService extends IntentService {
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
 			surveyLaunchContextJson.put("launch_time", launchTime);
+			surveyLaunchContextJson.put("launch_timezone", timezone);
 			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, campaignUrn, surveyTitle));
 		} catch (JSONException e1) {
 			throw new RuntimeException(e1);
@@ -201,6 +202,7 @@ public class StressButtonService extends IntentService {
 		
 		Response candidate = new Response();
 		
+		candidate.uuid = UUID.randomUUID().toString();
 		candidate.campaignUrn = campaignUrn;
 		candidate.username = username;
 		candidate.date = date;
