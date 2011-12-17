@@ -35,7 +35,9 @@ public class SparklineAdapter extends ArrayAdapter<ChartItem> {
 		}
 
 		public AbstractChart getChart(Context context) {
-			return new SparkLine(context, data, context.getResources().getColor(color), context.getResources().getColor(fill));
+			SparkLine chart = new SparkLine(context, data, context.getResources().getColor(color), context.getResources().getColor(fill));
+			chart.getRenderer().setInScroll(true);
+			return chart;
 		}
 
 		public GraphicalView getGraph(Context context) {
