@@ -4,6 +4,7 @@ package org.ohmage.fragments;
 import org.ohmage.R;
 import org.ohmage.adapters.SparklineAdapter;
 import org.ohmage.adapters.SparklineAdapter.ChartItem;
+import org.ohmage.charts.SparkLine;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 
@@ -21,6 +22,11 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 
 public class RecentChartFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+	/**
+	 * The maximum number of points shown in each {@link SparkLine}
+	 */
+	private static final int MAX_DATA_POINTS = 20;
 
 	/**
 	 * Creates a new instance of the recent chart fragment
@@ -128,16 +134,16 @@ public class RecentChartFragment extends Fragment implements LoaderManager.Loade
 	private double[] getData(String campaignUrn, String promptId) {
 		Cursor promptResponses = getActivity().managedQuery(PromptResponses.getPromptsByCampaign(campaignUrn, promptId), new String[] { PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE }, null, null, null);
 		ArrayList<Integer> data = new ArrayList<Integer>();
-		for(int j=0;j<promptResponses.getCount();j++) {
-			if(promptResponses.moveToNext()) {
+		promptResponses.moveToLast();
+		promptResponses.move(-MAX_DATA_POINTS);
+		while(promptResponses.moveToNext()) {
+			try {
+				data.add(Integer.parseInt(promptResponses.getString(0)));
+			} catch(NumberFormatException e)	{
 				try {
-					data.add(Integer.parseInt(promptResponses.getString(0)));
-				} catch(NumberFormatException e)	{
-					try {
-						data.add(Integer.parseInt(promptResponses.getString(1)));
-					} catch(NumberFormatException e2)	{
-						// Don't add anything
-					}
+					data.add(Integer.parseInt(promptResponses.getString(1)));
+				} catch(NumberFormatException e2)	{
+					// Don't add anything
 				}
 			}
 		}
