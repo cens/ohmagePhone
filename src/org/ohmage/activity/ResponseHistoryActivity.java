@@ -28,12 +28,19 @@ import java.util.Calendar;
  * 
  * <p>The {@link ResponseHistoryActivity} accepts {@link CampaignFilter#EXTRA_CAMPAIGN_URN}, {@link CampaignSurveyFilter# EXTRA_SURVEY_ID},
  *  {@link TimeFilter#EXTRA_MONTH}, and {@link TimeFilter#EXTRA_YEAR} as extras</p>
+ *  
+ * <p>The {@link #EXTRA_SHOW_MAP} boolean flag can also be passed which indicates that the map should be shown first
  * @author cketcham
  *
  */
 public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 	private static final String TAG = "RHTabHost";
+
+	/**
+	 * Set this extra to true if you want to see the map instead of the calendar at first
+	 */
+	public static final String EXTRA_SHOW_MAP = "show_map";
 
 	TabHost mTabHost;
 	TabManager mTabManager;
@@ -81,6 +88,8 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 		if (savedInstanceState != null) {
 			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+		} else if(getIntent().getBooleanExtra(EXTRA_SHOW_MAP, false)) {
+			mTabHost.setCurrentTabByTag("map");
 		}
 	}
 

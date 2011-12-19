@@ -77,12 +77,20 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 				startActivity(new Intent(FeedbackActivity.this, ChartFeedbackActivity.class));
 			}
 		});
-		b = (Button) findViewById(R.id.feedback_response_history_more);
+		b = (Button) findViewById(R.id.feedback_response_history_calendar);
 		b.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(FeedbackActivity.this, ResponseHistoryActivity.class));
+			}
+		});
+		b = (Button) findViewById(R.id.feedback_response_history_map);
+		b.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(FeedbackActivity.this, ResponseHistoryActivity.class).putExtra(ResponseHistoryActivity.EXTRA_SHOW_MAP, true));
 			}
 		});
 
