@@ -83,6 +83,7 @@ public class UploadService extends WakefulIntentService {
 		
 		String [] projection = new String [] {
 										Tables.RESPONSES + "." + Responses._ID,
+										Responses.RESPONSE_UUID,
 										Responses.RESPONSE_DATE,
 										Responses.RESPONSE_TIME,
 										Responses.RESPONSE_TIMEZONE,
@@ -124,7 +125,7 @@ public class UploadService extends WakefulIntentService {
 			final ArrayList<String> photoUUIDs = new ArrayList<String>();
             
 			try {
-				responseJson.put("timestamp", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_DATE)));
+				responseJson.put("survey_key", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
 				responseJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
 				responseJson.put("timezone", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
 				String locationStatus = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
@@ -135,9 +136,8 @@ public class UploadService extends WakefulIntentService {
 					locationJson.put("longitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
 					locationJson.put("provider", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER)));
 					locationJson.put("accuracy", cursor.getFloat(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
-					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-					String locationTimestamp = dateFormat.format(new Date(cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME))));
-					locationJson.put("timestamp", locationTimestamp);
+					locationJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
+					locationJson.put("timezone", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
 					responseJson.put("location", locationJson);
 				}
 				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
@@ -309,11 +309,12 @@ public class UploadService extends WakefulIntentService {
 					
 					try {
 						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						Long time = c.getLong(c.getColumnIndex(MobilityInterface.KEY_TIME));
+						Long time = Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_TIME)));
 						if (i == limit - 1) {
 							uploadAfterTimestamp = time;
 						}
-						mobilityPointJson.put("date", dateFormat.format(new Date(time)));
+						
+						mobilityPointJson.put("id", c.getString(c.getColumnIndex(MobilityInterface.KEY_ID)));
 						mobilityPointJson.put("time", time);
 						mobilityPointJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
 						if (uploadSensorData) {
@@ -377,7 +378,8 @@ public class UploadService extends WakefulIntentService {
 								locationJson.put("accuracy", "NaN");
 							}
 							
-							locationJson.put("timestamp", dateFormat.format(new Date(Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_LOC_TIMESTAMP))))));
+							locationJson.put("time", Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_LOC_TIMESTAMP))));
+							locationJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
 							
 							mobilityPointJson.put("location", locationJson);
 						}
