@@ -81,7 +81,7 @@
     <!-- Dashboard entries -->
     <string name="dashboard_campaigns">Campaigns</string>
     <string name="dashboard_surveys">Surveys</string>
-    <string name="dashboard_response_history">Response\nHistory</string>
+    <string name="dashboard_response_history">Feedback</string>
     <string name="dashboard_upload_queue">Upload\nQueue</string>
     <string name="dashboard_profile">Profile</string>
     <string name="dashboard_help">Help</string>
