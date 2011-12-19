@@ -294,9 +294,14 @@ public class DbContract {
 		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		
-    	/** Read Prompt id from {@link PromptResponses} {@link Uri}. */
+	/** Read Prompt id from {@link PromptResponses} {@link Uri}. which has a survey */
 		public static String getSurveyPromptId(Uri uri) {
 			return uri.getPathSegments().get(6);
+		}
+
+	/** Read Prompt id from {@link PromptResponses} {@link Uri}. */
+		public static String getPromptId(Uri uri) {
+			return uri.getPathSegments().get(4);
 		}
 
 		public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID) {
@@ -305,6 +310,25 @@ public class DbContract {
 					.appendPath(campaignUrn)
 					.appendPath(PATH_SURVEYS)
 					.appendPath(surveyID)
+					.appendPath(PATH_RESPONSES)
+					.appendPath(PATH_PROMPTS)
+					.appendPath(promptID)
+					.build();
+		}
+
+		/**
+		 * Returns the prompts for a specific promptID
+		 *
+		 * This uri is only useful in certain circumstances where the same prompt is used
+		 * for more than one survey like it is in NIH
+		 * @param campaignUrn
+		 * @param promptID
+		 * @return
+		 */
+		public static Uri getPromptsByCampaign(String campaignUrn, String promptID) {
+			return BASE_CONTENT_URI.buildUpon()
+					.appendPath(PATH_CAMPAIGNS)
+					.appendPath(campaignUrn)
 					.appendPath(PATH_RESPONSES)
 					.appendPath(PATH_PROMPTS)
 					.appendPath(promptID)
