@@ -20,19 +20,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="10dip"
-                android:paddingRight="10dip" />
+                android:padding="10dp" />
 
             <Button
                 android:id="@+id/feedback_charts_more"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/InfoButton"
+                android:text="More Charts"
+                android:drawableLeft="@null"
                 android:layout_gravity="right"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/entity_action_button"
-                android:paddingLeft="7dp"
-                android:paddingRight="7dp"
-                android:text="More" />
+                android:layout_marginRight="12dip" />
 
             <TextView
                 style="@style/ContentHeader"
@@ -46,16 +42,24 @@
                 android:layout_marginRight="4dp"
                 android:layout_marginTop="4dp" />
 
-            <Button
-                android:id="@+id/feedback_response_history_more"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/entity_action_button"
-                android:paddingLeft="7dp"
-                android:paddingRight="7dp"
-                android:text="More" />
+                android:gravity="right"
+                android:paddingRight="12dip" >
+
+                <Button
+                    android:id="@+id/feedback_response_history_calendar"
+                    style="@style/InfoButton"
+                    android:drawableLeft="@drawable/ic_info_calendar"
+                    android:text="View Calendar" />
+
+                <Button
+                    android:id="@+id/feedback_response_history_map"
+                    style="@style/InfoButton"
+                    android:drawableLeft="@drawable/location_map"
+                    android:text="View Map" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
