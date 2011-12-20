@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -94,7 +95,7 @@ public class SurveyActivity extends Activity {
 	private String mSurveyId;
 	private String mSurveyTitle;
 	private String mSurveySubmitText;
-	private String mLaunchTime;
+	private long mLaunchTime;
 	private boolean mReachedEnd;
 	private boolean mSurveyFinished = false;
 
@@ -123,7 +124,7 @@ public class SurveyActivity extends Activity {
         
         	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     		Calendar now = Calendar.getInstance();
-    		mLaunchTime = dateFormat.format(now.getTime());
+    		mLaunchTime = now.getTimeInMillis();
     		
     		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
     		
@@ -193,11 +194,11 @@ public class SurveyActivity extends Activity {
 	private class NonConfigurationInstance {
 		List<SurveyElement> surveyElements;
 		int index;
-		String launchTime;
+		long launchTime;
 		boolean reachedEnd;
 		String lastSeenRepeatableSetId;
 		
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, String launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
@@ -802,11 +803,11 @@ public class SurveyActivity extends Activity {
 						dataPoint.setValue(dataPointValue);
 					} else if (PromptType.multi_choice_custom.equals(dataPoint.getPromptType())) {
 						JSONArray jsonArray;
-						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
+						ArrayList<String> dataPointValue = new ArrayList<String>();
 						try {
 							jsonArray = (JSONArray)prompt.getResponseObject();
 							for (int j = 0; j < jsonArray.length(); j++) {
-								dataPointValue.add((Integer)jsonArray.get(j));
+								dataPointValue.add((String)jsonArray.get(j));
 							}
 						} catch (JSONException e) {
 							// TODO Auto-generated catch block
@@ -853,6 +854,7 @@ public class SurveyActivity extends Activity {
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
 			surveyLaunchContextJson.put("launch_time", mLaunchTime);
+			surveyLaunchContextJson.put("launch_timezone", timezone);
 			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mCampaignUrn, mSurveyTitle));
 		} catch (JSONException e) {
 			Log.e(TAG, "JSONException when trying to generate survey launch context json", e);
@@ -939,6 +941,7 @@ public class SurveyActivity extends Activity {
 		// insert the response, which indirectly populates the prompt response tables, etc.
 		Response candidate = new Response();
 		
+		candidate.uuid = UUID.randomUUID().toString();
 		candidate.campaignUrn = mCampaignUrn;
 		candidate.username = username;
 		candidate.date = date;
@@ -974,7 +977,9 @@ public class SurveyActivity extends Activity {
 		for (int i = 0; i < mSurveyElements.size(); i++) {
 			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
 				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
-				photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
+				if (photoPrompt.isPromptAnswered()) {
+					photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
+				}
 			}
 		}
 		

@@ -1,29 +1,17 @@
 package edu.ucla.cens.mobility.glue;
 
-import java.net.URI;
-
-import edu.ucla.cens.systemlog.Log;
-
-import android.R;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.widget.Toast;
 
 public class MobilityInterface
 {
-	private static final String TAG = "MobilityInterface";
-	
 	public static final String KEY_MODE = "mode";
+	public static final String KEY_ID = "id";
 	public static final String KEY_SPEED = "speed";
 	public static final String KEY_STATUS = "status";
 	public static final String KEY_LOC_TIMESTAMP = "location_timestamp";
@@ -36,13 +24,11 @@ public class MobilityInterface
 	public static final String KEY_TIME = "time";
 	public static final String KEY_LATITUDE = "latitude";
 	public static final String KEY_LONGITUDE = "longitude";
-	private static String [] columns = {KEY_ROWID, KEY_MODE, KEY_SPEED, KEY_STATUS, KEY_LOC_TIMESTAMP, KEY_ACCURACY, KEY_PROVIDER, KEY_WIFIDATA, KEY_ACCELDATA, KEY_TIME, KEY_TIMEZONE, KEY_LATITUDE, KEY_LONGITUDE};
+	private static String [] columns = {KEY_ROWID, KEY_ID, KEY_MODE, KEY_SPEED, KEY_STATUS, KEY_LOC_TIMESTAMP, KEY_ACCURACY, KEY_PROVIDER, KEY_WIFIDATA, KEY_ACCELDATA, KEY_TIME, KEY_TIMEZONE, KEY_LATITUDE, KEY_LONGITUDE};
 	// Content provider strings
 	public static final String AUTHORITY = "edu.ucla.cens.mobility.MobilityContentProvider";
 	public static final String PATH_MOBILITY = "mobility";
 	public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY + "/" + PATH_MOBILITY);
-
-	
 	/**
 	 * Helper function to get cursor to data with only the last retrieved timestamp.
 	 * @param timestamp
@@ -58,6 +44,7 @@ public class MobilityInterface
 	
 	public static void showMobilityOptions(Context context)
 	{
+//		context.startActivity(new Intent(context, MobilityControl.class));
 		try
 		{
 			final Intent intentDeviceTest = new Intent("android.intent.action.MAIN");                
@@ -69,4 +56,7 @@ public class MobilityInterface
 			Toast.makeText(context, "There was an error. Please verify that Mobility has been installed.", Toast.LENGTH_SHORT).show();
 		}
 	}
+	
+	
+	
 }

@@ -78,6 +78,9 @@ import java.util.List;
  * campaigns/{urn}/surveys/{sid}/responses
  * -- query: returns all responses for the survey specified by {sid} within the campaign specified by {urn}
  * 
+ * campaigns/{urn}/responses/prompts/{pid}
+ * -- query: returns all prompts of the given {pid} within the campaign specified by {urn}
+ *
  * campaigns/{urn}/surveys/{sid}/responses/prompts/{pid}
  * -- query: returns all prompts of the given {pid} for the survey specified by {sid} within the campaign specified by {urn}
  * 
@@ -110,6 +113,7 @@ public class DbProvider extends ContentProvider {
 		int CAMPAIGN_BY_URN = 14;
 		int SURVEY_SURVEYPROMPTS = 15;
 		int SURVEYPROMPTS = 16;
+		int CAMPAIGN_RESPONSES_PROMPTS_BY_ID = 17;
 	}
 
 	@Override
@@ -150,6 +154,7 @@ public class DbProvider extends ContentProvider {
             // PROMPTS
             case MatcherTypes.PROMPTS:
             case MatcherTypes.RESPONSE_PROMPTS:
+            case MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
             	return PromptResponses.CONTENT_TYPE;
@@ -435,6 +440,7 @@ public class DbProvider extends ContentProvider {
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/prompts", MatcherTypes.SURVEY_SURVEYPROMPTS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses/prompts/*", MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID);
 		// matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
@@ -537,6 +543,18 @@ public class DbProvider extends ContentProvider {
 				return builder.table(Tables.PROMPT_RESPONSES)
 						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
 						.where(PromptResponses.COMPOSITE_ID + "=?", campaignUrn + ":" + surveyId)
+						.where(PromptResponses.PROMPT_ID + "=?", promptId);
+			}
+			case MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID: {
+				if (nonQuery)
+					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
+
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+				final String promptId = PromptResponses.getPromptId(uri);
+
+				return builder.table(Tables.PROMPT_RESPONSES)
+						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
+						.where(PromptResponses.COMPOSITE_ID + " LIKE ?", campaignUrn + ":%")
 						.where(PromptResponses.PROMPT_ID + "=?", promptId);
 			}
 			/* // FAISAL: disabled until i can figure out how to do aggregates with a builder 

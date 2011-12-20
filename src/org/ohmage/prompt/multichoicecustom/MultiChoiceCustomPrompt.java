@@ -103,9 +103,9 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		JSONArray jsonArray = new JSONArray();
 		for (int index : mSelectedIndexes) {
 			if (index >= 0 && index < mChoices.size()) {
-				jsonArray.put(Integer.decode(mChoices.get(index).key));
+				jsonArray.put(mChoices.get(index).label);
 			} else if (index < mChoices.size() + mCustomChoices.size()) {
-				jsonArray.put(Integer.decode(mCustomChoices.get(index - mChoices.size()).key));
+				jsonArray.put(mCustomChoices.get(index - mChoices.size()).label);
 			}
 		}
 		return jsonArray;
@@ -122,36 +122,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 	
 	@Override
 	protected Object getTypeSpecificExtrasObject() {
-		JSONArray jsonArray = new JSONArray();
-		for (KVLTriplet choice : mChoices) {
-			JSONObject jsonChoice = new JSONObject();
-			try {
-				jsonChoice.put("choice_id", Integer.decode(choice.key));
-				jsonChoice.put("choice_value", choice.label);
-			} catch (NumberFormatException e) {
-				Log.e(TAG, "NumberFormatException when trying to parse custom choice key", e);
-				return null;
-			} catch (JSONException e) {
-				Log.e(TAG, "JSONException when trying to generate custom_choices json", e);
-				return null;
-			}
-			jsonArray.put(jsonChoice);
-		}
-		for (KVLTriplet choice : mCustomChoices) {
-			JSONObject jsonChoice = new JSONObject();
-			try {
-				jsonChoice.put("choice_id", Integer.decode(choice.key));
-				jsonChoice.put("choice_value", choice.label);
-			} catch (NumberFormatException e) {
-				Log.e(TAG, "NumberFormatException when trying to parse custom choice key", e);
-				return null;
-			} catch (JSONException e) {
-				Log.e(TAG, "JSONException when trying to generate custom_choices json", e);
-				return null;
-			}
-			jsonArray.put(jsonChoice);
-		}
-		return jsonArray;
+		return null;
 	}
 	
 	private View mFooterView;

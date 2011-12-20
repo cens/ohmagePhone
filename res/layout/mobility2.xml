@@ -85,7 +85,7 @@
 			android:shadowDx="1"
 			android:shadowDy="1"
 			android:shadowRadius="1"
-			android:text="Most recent mobility modes (last 5 minutes)" />
+			android:text="Most recent mobility modes (last 20 minutes)" />
 	
 		<View
 			android:layout_width="match_parent"

@@ -367,6 +367,7 @@ public class Models {
 		public static final int STATUS_ERROR_HTTP = 12;
 
 		/** the campaign URN for which to record the survey response */
+		public String uuid;
 		public String campaignUrn;
 		public String username;
 		public String date;
@@ -401,6 +402,7 @@ public class Models {
 
 				Response r = new Response();
 				r._id = cursor.getLong(cursor.getColumnIndex(Responses._ID));
+				r.uuid = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID));
 				r.campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 				r.username = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_USERNAME));
 				r.date = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_DATE));
@@ -433,6 +435,7 @@ public class Models {
 			try {
 				ContentValues values = new ContentValues();
 
+				values.put(Responses.RESPONSE_UUID, uuid);
 				values.put(Responses.CAMPAIGN_URN, campaignUrn);
 				values.put(Responses.RESPONSE_USERNAME, username);
 				values.put(Responses.RESPONSE_DATE, date);

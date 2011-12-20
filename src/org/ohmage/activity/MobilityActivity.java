@@ -110,6 +110,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			int [] to = new int[] {R.id.text1, R.id.text2};
 			
 			mAdapter = new SimpleCursorAdapter(this, R.layout.mobility_list_item, null, from, to, 0);
+			
 			mAdapter.setViewBinder( new android.support.v4.widget.SimpleCursorAdapter.ViewBinder() {
 				
 				@Override
@@ -296,16 +297,19 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-		long timestamp = 0;
 		switch (id) {
 		case RECENT_LOADER:
-			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-5 minutes') || '500'", null, MobilityInterface.KEY_TIME + " DESC");
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-20 minutes') || '500'", null, MobilityInterface.KEY_TIME + " DESC");
 
 		case ALL_LOADER:
 			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, null, null, null);
 			
 		case UPLOAD_LOADER:
-			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(mPrefHelper.getLastMobilityUploadTimestamp())}, null);
+			long uploadAfterTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
+			if (uploadAfterTimestamp == 0) {
+				uploadAfterTimestamp = mPrefHelper.getLoginTimestamp();
+			}
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(uploadAfterTimestamp)}, null);
 			
 		default:
 			return null;
