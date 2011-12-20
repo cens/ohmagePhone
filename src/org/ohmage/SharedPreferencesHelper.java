@@ -22,7 +22,7 @@ public class SharedPreferencesHelper {
 	
 	public static final String CLIENT_STRING = "android";
 
-	public static final String DEFAULT_SERVER_URL = "https://dev.andwellness.org/";
+	public static final String DEFAULT_SERVER_URL = "https://dev.mobilizingcs.org/";
 	public static final boolean IS_SINGLE_CAMPAIGN = true;
 	public static final boolean ALLOWS_FEEDBACK = false;
 	public static final boolean ADMIN_MODE = false;
