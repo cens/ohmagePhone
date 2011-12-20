@@ -61,7 +61,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 30;
+	private static final int DB_VERSION = 31;
 	
 	private final Context mContext;
 
