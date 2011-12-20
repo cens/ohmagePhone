@@ -22,7 +22,7 @@
 
 	<application
 		android:name="OhmageApplication"
-		android:theme="@android:style/Theme.Light.NoTitleBar"
+		android:theme="@style/OhmageTheme"
 		android:icon="@drawable/icon"
 		android:label="@string/app_name">
     
