@@ -1,7 +1,8 @@
-package org.ohmage.feedback;
+package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
+import org.ohmage.feedback.FeedbackService;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -27,7 +28,7 @@ import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-public class FBTestActivity extends Activity {
+public class QueryTestActivity extends Activity {
 	private static final int CONTEXT_COPY = 1;
 	private Button mQueryButton;
 	private EditText mQueryTextBox;
@@ -38,7 +39,7 @@ public class FBTestActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.fbtest);
+		setContentView(R.layout.querytest);
 		
 		// set ourselves for the click listener
 		me = this;

@@ -5,6 +5,7 @@ import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -15,9 +16,11 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 
 	private static final String KEY_UPDATE_PASSWORD = "key_update_password";
 	private static final String KEY_LOGOUT = "key_logout";
+	private static final String KEY_QUERY_TEST = "key_querytest";
 
 	private PreferenceScreen mUpdatePassword;
 	private PreferenceScreen mLogout;
+	private PreferenceScreen mQueryTest;
 
 	private AccountHelper mAccountHelper;
 
@@ -55,6 +58,16 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				mAccountHelper.logout();
+				return true;
+			}
+		});
+		
+		mQueryTest = (PreferenceScreen) findPreference(KEY_QUERY_TEST);
+		mQueryTest.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(getBaseContext(), QueryTestActivity.class));
 				return true;
 			}
 		});

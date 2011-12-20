@@ -83,20 +83,13 @@ public class DbHelper extends SQLiteOpenHelper {
 				
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String
 				.format(
-						"%1$s inner join %2$s on %1$s.%5$s=%2$s.%6$s "
-								+ "inner join %3$s on %3$s.%9$s=%2$s.%8$s and %3$s.%10$s=%2$s.%7$s "
-								+ "inner join %4$s on %4$s.%11$s=%2$s.%7$s",
+						"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
 						PROMPT_RESPONSES, // 1
 						RESPONSES, // 2
-						SURVEYS, // 3
-						CAMPAIGNS, // 4
-						PromptResponses.RESPONSE_ID, // 5
-						Responses._ID, // 6
-						Responses.CAMPAIGN_URN, // 7
-						Responses.SURVEY_ID, // 8
-						Surveys.SURVEY_ID, // 9
-						Surveys.CAMPAIGN_URN, // 10
-						Campaigns.CAMPAIGN_URN); // 11
+						PromptResponses.RESPONSE_ID, // 3
+						Responses._ID, // 4
+						Responses.CAMPAIGN_URN, // 5
+						Responses.SURVEY_ID); // 6
 
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format(
 				"distinct %1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
