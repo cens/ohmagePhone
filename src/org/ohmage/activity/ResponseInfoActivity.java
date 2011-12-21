@@ -229,6 +229,15 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			public static final int TEXT_RESPONSE = 0;
 			public static final int IMAGE_RESPONSE = 1;
+			public static final int HOURSBEFORENOW_RESPONSE = 2;
+			public static final int TIMESTAMP_RESPONSE = 3;
+			public static final int MULTICHOICE_RESPONSE = 4;
+			public static final int MULTICHOICE_CUSTOM_RESPONSE = 5;
+			public static final int SINGLECHOICE_RESPONSE = 6;
+			public static final int SINGLECHOICE_CUSTOM_RESPONSE = 7;
+			public static final int NUMBER_RESPONSE = 8;
+			public static final int REMOTE_RESPONSE = 9;
+			public static final int UNKNOWN_RESPONSE = 10;
 			private final String mResponseId;
 
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
@@ -252,12 +261,32 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			 * @return the view type
 			 */
 			public int getItemViewType(Cursor cursor) {
-				if("photo".equals(getItemPromptType(cursor)) &&
+				String promptType = getItemPromptType(cursor);
+				
+				if("photo".equals(promptType) &&
 						//If the image was skipped, we should just show the text value of SKIPPED
 						!AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE))))
 					return IMAGE_RESPONSE;
-				else
+				else if ("text".equals(promptType))
 					return TEXT_RESPONSE;
+				else if ("hours_before_now".equals(promptType))
+					return HOURSBEFORENOW_RESPONSE;
+				else if ("timestamp".equals(promptType))
+					return TIMESTAMP_RESPONSE;
+				else if ("single_choice".equals(promptType))
+					return SINGLECHOICE_RESPONSE;
+				else if ("single_choice_custom".equals(promptType))
+					return SINGLECHOICE_CUSTOM_RESPONSE;
+				else if ("multi_choice".equals(promptType))
+					return MULTICHOICE_RESPONSE;
+				else if ("multi_choice_custom".equals(promptType))
+					return MULTICHOICE_CUSTOM_RESPONSE;
+				else if ("number".equals(promptType))
+					return NUMBER_RESPONSE;
+				else if ("remote_activity".equals(promptType))
+					return REMOTE_RESPONSE;
+				else
+					return UNKNOWN_RESPONSE;
 			}
 
 			/**
@@ -276,19 +305,58 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				View image = view.findViewById(R.id.prompt_image_value);
 				View text = view.findViewById(R.id.prompt_text_value);
 				View value = view.findViewById(R.id.prompt_value);
-				switch(getItemViewType(cursor)) {
+				ImageView icon = (ImageView) view.findViewById(R.id.prompt_icon);
+				
+				int itemViewType = getItemViewType(cursor);
+				
+				// set the icon for each prompt type
+				switch(itemViewType) {
 					case IMAGE_RESPONSE:
-						image.setVisibility(View.VISIBLE);
-						text.setVisibility(View.GONE);
-						value.setTag(image);
-						value.setBackgroundResource(R.drawable.prompt_response_image_item_bg);
+						icon.setImageResource(R.drawable.prompttype_photo);
+						break;
+					case HOURSBEFORENOW_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_hoursbeforenow);
+						break;
+					case TIMESTAMP_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_timestamp);
+						break;
+					case MULTICHOICE_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_multichoice);
+						break;
+					case MULTICHOICE_CUSTOM_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_multichoice_custom);
+						break;
+					case SINGLECHOICE_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_singlechoice);
+						break;
+					case SINGLECHOICE_CUSTOM_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_singlechoice_custom);
+						break;
+					case NUMBER_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_number);
+						break;
+					case REMOTE_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_remote);
 						break;
 					case TEXT_RESPONSE:
-						image.setVisibility(View.GONE);
-						text.setVisibility(View.VISIBLE);
-						value.setTag(text);
+						icon.setImageResource(R.drawable.prompttype_text);
 						break;
 				}
+				
+				// now set up how they're actually displayed
+				// there are only two categories: image and non-image (i.e. text)
+				if (itemViewType != IMAGE_RESPONSE) {
+					image.setVisibility(View.GONE);
+					text.setVisibility(View.VISIBLE);
+					value.setTag(text);
+				}
+				else {
+					image.setVisibility(View.VISIBLE);
+					text.setVisibility(View.GONE);
+					value.setTag(image);
+					value.setBackgroundResource(R.drawable.prompt_response_image_item_bg);
+				}
+				
 				return view;
 			}
 
@@ -337,7 +405,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 								for(int i=0;i<choices.length();i++) {
 									if(i != 0)
 										builder.append("\n");
-									builder.append("¥ ");
+									builder.append("ï¿½ ");
 									builder.append(choices.get(i));
 								}
 								((TextView) view.getTag()).setText(builder.toString());
