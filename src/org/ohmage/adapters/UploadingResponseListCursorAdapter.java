@@ -3,6 +3,7 @@ package org.ohmage.adapters;
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 
 import android.content.Context;
@@ -10,6 +11,8 @@ import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
 public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapter {
@@ -43,20 +46,49 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		
 		int status = c.getInt(c.getColumnIndex(Responses.RESPONSE_STATUS));
 		
+		// first off, clear animation for any non-animating states
+		if (status != Response.STATUS_UPLOADING &&
+			status != Response.STATUS_WAITING_FOR_LOCATION &&
+			status != Response.STATUS_QUEUED)
+			actionButton.clearAnimation();
+		
 		switch (status) {
 		case Response.STATUS_STANDBY:
-			actionButton.setImageResource(R.drawable.ic_menu_upload);
+			// actionButton.setImageResource(R.drawable.ic_menu_upload);
+			actionButton.setImageResource(R.drawable.subaction_upload_response);
 			break;
 			
 		case Response.STATUS_QUEUED:
-			actionButton.setImageResource(R.drawable.ic_menu_upload_you_tube);
+			// actionButton.setImageResource(R.drawable.ic_menu_upload_you_tube);
+			actionButton.setImageResource(R.drawable.subaction_queued_response);
+			
+			// makes the queued indicator fade in and out gently
+			Animation queuedPulse = AnimationUtils.loadAnimation(context, R.anim.gentle_pulse);
+			queuedPulse.setRepeatCount(Animation.INFINITE);
+			actionButton.startAnimation(queuedPulse);
+			
 			break;
+			
 		case Response.STATUS_UPLOADING:
-			actionButton.setImageResource(R.drawable.spinner_black_48);
+			actionButton.setImageResource(R.drawable.spinner_white_48);
+
+			// makes the progress indicator rotate
+			// this will be stopped next state change, assuming we're not still uploading
+			Animation rotation = AnimationUtils.loadAnimation(context, R.anim.clockwise_rotation);
+			rotation.setRepeatCount(Animation.INFINITE);
+			actionButton.startAnimation(rotation);
+			
 			break;
 			
 		case Response.STATUS_WAITING_FOR_LOCATION:
-			actionButton.setImageResource(R.drawable.ic_menu_recent_history);
+			// actionButton.setImageResource(R.drawable.ic_menu_recent_history);
+			actionButton.setImageResource(R.drawable.subaction_location_pending_question);
+			
+			// makes the missing location indicator fade in and out gently
+			Animation pulse = AnimationUtils.loadAnimation(context, R.anim.gentle_pulse);
+			pulse.setRepeatCount(Animation.INFINITE);
+			actionButton.startAnimation(pulse);
+			
 			break;
 			
 		case Response.STATUS_ERROR_AUTHENTICATION:
@@ -66,7 +98,8 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		case Response.STATUS_ERROR_INVALID_USER_ROLE:
 		case Response.STATUS_ERROR_HTTP:
 		case Response.STATUS_ERROR_OTHER:
-			actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
+			// actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
+			actionButton.setImageResource(R.drawable.subaction_campaign_broken);
 			break;
 			
 		case Response.STATUS_UPLOADED:

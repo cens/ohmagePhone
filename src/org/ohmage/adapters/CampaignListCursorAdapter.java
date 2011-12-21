@@ -14,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,9 +61,14 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		
 		int status = cursor.getInt(cursor.getColumnIndex(Campaigns.CAMPAIGN_STATUS));
 		
+		// first off, clear animation for any non-animating states
+		if (status != Campaign.STATUS_DOWNLOADING)
+			actionButton.clearAnimation();
+		
 		switch (status) {
 		case Campaign.STATUS_REMOTE:
-			actionButton.setImageResource(R.drawable.ic_menu_add);
+			// actionButton.setImageResource(R.drawable.ic_menu_add);
+			actionButton.setImageResource(R.drawable.subaction_campaign_download);
 			break;
 			
 		case Campaign.STATUS_READY:
@@ -74,11 +81,21 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		case Campaign.STATUS_INVALID_USER_ROLE:
 		case Campaign.STATUS_NO_EXIST:
 		case Campaign.STATUS_VAGUE:
-			actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
+			// actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
+			actionButton.setImageResource(R.drawable.subaction_campaign_broken);
 			break;
 			
 		case Campaign.STATUS_DOWNLOADING:
-			actionButton.setImageResource(R.drawable.spinner_black_48);
+			actionButton.setImageResource(R.drawable.spinner_white_48);
+			
+			if (actionButton.getAnimation() == null) {
+				// makes the progress indicator rotate
+				// this will be stopped next state change, assuming we're not still downloading
+				Animation rotation = AnimationUtils.loadAnimation(context, R.anim.clockwise_rotation);
+				rotation.setRepeatCount(Animation.INFINITE);
+				actionButton.startAnimation(rotation);
+			}
+
 			break;
 			
 		default:
