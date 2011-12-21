@@ -426,6 +426,13 @@ public class TriggerListActivity extends ListActivity
 	 			new AlertDialog.Builder(this)
 			   .setTitle(R.string.trigger_select_actions)
 			   .setNegativeButton(R.string.cancel, null)
+			   .setView(new ActionSelectorView(getBaseContext(), mActions, mActSelected));
+		
+		/*
+		AlertDialog.Builder builder = 
+	 			new AlertDialog.Builder(this)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
 			   .setMultiChoiceItems(mActions, mActSelected, 
 					   new DialogInterface.OnMultiChoiceClickListener() {
 				
@@ -436,6 +443,7 @@ public class TriggerListActivity extends ListActivity
 					mActSelected[which] = isChecked;
 				}
 			});
+		*/
 
 		if(isAdminLoggedIn() || TrigUserConfig.editTriggerActions) {
 			 builder.setPositiveButton(R.string.done,

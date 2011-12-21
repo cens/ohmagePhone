@@ -21,6 +21,7 @@ import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.ui.ActionSelectorView;
 import org.ohmage.triggers.ui.TriggerListActivity;
 import org.ohmage.triggers.utils.TimePickerPreference;
 
@@ -36,8 +37,16 @@ import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class TimeTrigEditActivity extends PreferenceActivity 
@@ -476,7 +485,6 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	}
 	
 	private Dialog createEditActionDialog() {
-		
 		if(mActSelected == null) {
 			mActSelected = new boolean[mActions.length];
 			for(int i = 0; i < mActSelected.length; i++) {
@@ -484,6 +492,13 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			}
 		}
 		
+		AlertDialog.Builder builder = 
+	 			new AlertDialog.Builder(this)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
+			   .setView(new ActionSelectorView(getBaseContext(), mActions, mActSelected));
+		
+		/*
 		AlertDialog.Builder builder = 
 	 			new AlertDialog.Builder(this)
 			   .setTitle(R.string.trigger_select_actions)
@@ -498,6 +513,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 					mActSelected[which] = isChecked;
 				}
 			});
+		*/
 
 		if(mAdminMode || TrigUserConfig.editTriggerActions) {
 			 builder.setPositiveButton(R.string.done,
@@ -518,7 +534,6 @@ public class TimeTrigEditActivity extends PreferenceActivity
 				}
 			});
 		}
-
 	
 		return builder.create();
 	}

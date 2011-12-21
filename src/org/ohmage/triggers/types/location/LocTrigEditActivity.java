@@ -18,6 +18,7 @@ package org.ohmage.triggers.types.location;
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.ui.ActionSelectorView;
 import org.ohmage.triggers.ui.TriggerListActivity;
 import org.ohmage.triggers.utils.TimePickerPreference;
 import org.ohmage.triggers.utils.TrigListPreference;
@@ -488,6 +489,13 @@ private Dialog createEditActionDialog() {
 		
 		AlertDialog.Builder builder = 
 	 			new AlertDialog.Builder(this)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
+			   .setView(new ActionSelectorView(getBaseContext(), mActions, mActSelected));
+		
+		/*
+		AlertDialog.Builder builder = 
+	 			new AlertDialog.Builder(this)
 			   .setTitle("Select surveys")
 			   .setNegativeButton("Cancel", null)
 			   .setMultiChoiceItems(mActions, mActSelected, 
@@ -500,6 +508,7 @@ private Dialog createEditActionDialog() {
 					mActSelected[which] = isChecked;
 				}
 			});
+		*/
 
 		if(mAdminMode || TrigUserConfig.editTriggerActions) {
 			 builder.setPositiveButton("Done", 
