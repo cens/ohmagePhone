@@ -64,6 +64,9 @@ public class TriggerListActivity extends ListActivity
 		TriggerListActivity.class.getName() + ".campain_urn";
 	public static final String KEY_ACTIONS = 
 		TriggerListActivity.class.getName() + ".actions";
+	// pass survey names through here to preselect them in the trigger creation page
+	public static final String KEY_PRESELECTED_ACTIONS = 
+			TriggerListActivity.class.getName() + ".preselected_actions";
 	public static final String KEY_ADMIN_MODE = 
 		TriggerListActivity.class.getName() + ".admin_mode";
 	private static final String KEY_SAVE_DIALOG_TRIG_ID = 
@@ -92,6 +95,7 @@ public class TriggerListActivity extends ListActivity
 	private TriggerDB mDb;
 	private TriggerTypeMap mTrigMap;
 	private String[] mActions;
+	private String[] mPreselectedActions; // actions which will be preselected in a new trigger window
 	private String mCampaignUrn;
 	private int mDialogTrigId = -1;
 	private String mDialogText = null; 
@@ -130,6 +134,12 @@ public class TriggerListActivity extends ListActivity
 			Log.e(DEBUG_TAG, "TriggerListActivity: Invoked with out passing surveys");
 			finish();
 			return;
+		}
+		
+		// gather any preselected actions that were specified
+		// we'll feed these to the trigger create activity later to preselect certain actions
+		if (i.hasExtra(KEY_PRESELECTED_ACTIONS)) {
+			mPreselectedActions = i.getStringArrayExtra(KEY_PRESELECTED_ACTIONS);
 		}
 		
 		if(i.hasExtra(KEY_CAMPAIGN_URN)) {
@@ -477,7 +487,7 @@ public class TriggerListActivity extends ListActivity
 			@Override
 			public void onClick(String trigType) {
 				mTrigMap.getTrigger(trigType)
-						.launchTriggerCreateActivity(TriggerListActivity.this, mCampaignUrn, mActions,
+						.launchTriggerCreateActivity(TriggerListActivity.this, mCampaignUrn, mActions, mPreselectedActions,
 													 isAdminLoggedIn());
 			}
 		});

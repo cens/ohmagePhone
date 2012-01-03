@@ -117,7 +117,7 @@ public class LocationTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String [] actions, boolean adminMode) {
+	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String [] actions, String[] preselectedActions, boolean adminMode) {
 
 		//Register a listener with the editor
 		//activity to listen for the 'done' event
@@ -137,6 +137,8 @@ public class LocationTrigger extends TriggerBase {
 		Intent i = new Intent(context, LocTrigEditActivity.class);
 		i.putExtra(LocTrigEditActivity.KEY_ADMIN_MODE, adminMode);
 		i.putExtra(TriggerListActivity.KEY_ACTIONS, actions);
+		if (preselectedActions != null)
+			i.putExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS, preselectedActions);
 		context.startActivity(i);
 	}
 

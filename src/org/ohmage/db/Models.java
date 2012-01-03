@@ -291,6 +291,25 @@ public class Models {
         	
         	return values;
         }
+        
+		/**
+		 * Launch the Trigger list for the campaign to which this survey belongs with a list of surveys selected by default.
+		 * @param context
+		 * @param campaignUrn the campaign URN from which to read the list of surveys that will be selectable from the list
+		 * @param selectedSurveys an array of surveys which will be preselected when creating a new trigger
+		 */
+		public static Intent launchTriggerIntent(Context context, String campaignUrn, String[] selectedSurveys) {
+			List<String> surveyTitles = new ArrayList<String>();
+			
+			// grab a list of surveys for this campaign
+			Cursor surveys = context.getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
+			
+			while (surveys.moveToNext()) {
+				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
+			}
+			
+			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]), selectedSurveys);
+		}
 	}
 
 	public final static class SurveyPrompt extends DbModel {

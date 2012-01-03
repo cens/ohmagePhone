@@ -67,6 +67,20 @@ public class TriggerFramework {
 	}
 	
 	/*
+	 * Launch the activity which displays the main trigger list.
+	 * 
+	 * Same as above, except that this variant allows an array of surveys to be
+	 * passed which will be preselected when a new trigger is created from the
+	 * trigger list activity.
+	 */
+	public static Intent launchTriggersIntent(Context context, String campaignUrn, String[] surveys, String[] selectedSurveys) {
+		
+		Intent i = launchTriggersIntent(context, campaignUrn, surveys);
+		i.putExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS, selectedSurveys);
+		return i;
+	}
+	
+	/*
 	 * Get the list of all surveys which are active currently.
 	 */
 	public static String[] getActiveSurveys(Context context, String campaignUrn) {

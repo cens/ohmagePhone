@@ -190,6 +190,19 @@ public class LocTrigEditActivity extends PreferenceActivity
 								Toast.LENGTH_SHORT).show();
 			}
 		}
+		
+		// if there are any preselected actions specified when the activity is first created
+		// and there's currently nothing in the action description, load the selected options
+		// into the action description as if they were previously selected
+		if (savedInstanceState == null && mActDesc.getCount() <= 0 && getIntent().hasExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS)) {
+			String[] preselectedActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS);
+
+			for (int i = 0; i < preselectedActions.length; ++i) {
+				mActDesc.addSurvey(preselectedActions[i]);
+			}
+			
+			updateActionsPrefStatus();
+		}
     }
 	
 	@Override

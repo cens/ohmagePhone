@@ -11,6 +11,7 @@ import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Survey;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
@@ -156,7 +157,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 							startActivity(intent);
 							break;
 						case ACTION_SETUP_TRIGGERS:
-							Intent triggerIntent = Campaign.launchTriggerIntent(mContext, campaignUrn);
+							Intent triggerIntent = Survey.launchTriggerIntent(mContext, campaignUrn, new String[] { surveyTitle });
 							startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
 							return;
 					}

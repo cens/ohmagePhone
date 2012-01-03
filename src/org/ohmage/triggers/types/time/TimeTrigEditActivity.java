@@ -139,7 +139,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		mAdminMode = getIntent().getBooleanExtra(KEY_ADMIN_MODE, false);
 		
-		if(config != null) {	
+		if(config != null) {
 			mTrigId = getIntent().getIntExtra(KEY_TRIG_ID, 0);
 			
 			if(mTrigDesc.loadString(config) && mActDesc.loadString(action)) {
@@ -158,6 +158,19 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			   					.toArray(new String[repeatList.size()]);
 			mRepeatStatus = new boolean[mDays.length];
 			updateRepeatStatusArray();
+			
+			// if there are any preselected actions specified when the activity is first created
+			// and there's currently nothing in the action description, load the selected options
+			// into the action description as if they were previously selected
+			if (mActDesc.getCount() <= 0 && getIntent().hasExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS)) {
+				String[] preselectedActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS);
+
+				for (int i = 0; i < preselectedActions.length; ++i) {
+					mActDesc.addSurvey(preselectedActions[i]);
+				}
+				
+				updateActionsPrefStatus();
+			}
 		}
 		else {
 			mDays = savedInstanceState.getStringArray(KEY_SAVE_DAYS);
