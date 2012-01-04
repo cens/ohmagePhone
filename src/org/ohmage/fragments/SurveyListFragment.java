@@ -19,8 +19,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * <p>The {@link SurveyListFragment} shows a list of surveys</p>
@@ -58,6 +60,11 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		if(getArguments() != null)
 			mShowPending = getArguments().getBoolean(KEY_PENDING, false);
         setShowPending();
+        
+        // style the empty text
+		TextView emptyView = (TextView)getListView().getEmptyView();
+		emptyView.setGravity(Gravity.LEFT);
+		emptyView.setPadding(25, 25, 25, 0);
 		
 		mAdapter = new SurveyListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);

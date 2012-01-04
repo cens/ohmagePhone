@@ -17,8 +17,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class CampaignListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor> {
 	
@@ -52,6 +54,11 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 			setEmptyText(getActivity().getString(R.string.campaign_list_empty));
 		}
 		
+		// style the empty text, too
+		TextView emptyView = (TextView)getListView().getEmptyView();
+		emptyView.setGravity(Gravity.LEFT);
+		emptyView.setPadding(25, 25, 25, 0);
+		
 		mAdapter = new CampaignListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
 		
@@ -60,6 +67,9 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		
 		getLoaderManager().initLoader(0, null, this);
 	}
+	
+	// TODO: we may need to override onCreateView here to load up a layout with a customized empty text view, too
+	// consult FilterableListFragment for an example
 
 	@Override
     public void onAttach(Activity activity) {
