@@ -4,6 +4,7 @@ import org.ohmage.service.SurveyGeotagService;
 
 import android.content.ContentUris;
 import android.net.Uri;
+import android.net.Uri.Builder;
 import android.provider.BaseColumns;
 
 /**
@@ -333,6 +334,23 @@ public class DbContract {
 					.appendPath(PATH_PROMPTS)
 					.appendPath(promptID)
 					.build();
+		}
+
+		/**
+		 * Returns prompts for a list of promptIDs
+		 * @param campaignUrn
+		 * @param promptIDs
+		 * @return
+		 */
+		public static Uri getPromptsByCampaign(String campaignUrn, String... promptIDs) {
+			Builder builder = BASE_CONTENT_URI.buildUpon()
+					.appendPath(PATH_CAMPAIGNS)
+					.appendPath(campaignUrn)
+					.appendPath(PATH_RESPONSES)
+					.appendPath(PATH_PROMPTS);
+			for(String prompt : promptIDs)
+				builder.appendQueryParameter("pid", prompt);
+			return builder.build();
 		}
 	}
 }

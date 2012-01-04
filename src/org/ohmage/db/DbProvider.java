@@ -84,6 +84,9 @@ import java.util.List;
  * campaigns/{urn}/surveys/{sid}/responses/prompts/{pid}
  * -- query: returns all prompts of the given {pid} for the survey specified by {sid} within the campaign specified by {urn}
  * 
+ * campaigns/{urn}/responses/prompts?pids="pid1, pid2"
+ * -- query: returns all prompts of the given pids within the campaign specified by {urn}
+ * 
  * campaigns/{urn}/surveys/{sid}/responses/prompts/{pid}/{agg}
  * -- query: returns an aggregate function {agg} (one of "avg", "count", "max", "min, "total") for
  * -- the prompts of the given {pid} for the survey specified by {sid} within the campaign specified by {urn}
@@ -441,6 +444,7 @@ public class DbProvider extends ContentProvider {
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses/prompts/*", MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses/prompts", MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID);
 		// matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
@@ -550,12 +554,20 @@ public class DbProvider extends ContentProvider {
 					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
 
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
-				final String promptId = PromptResponses.getPromptId(uri);
+				ArrayList<String> pids = new ArrayList<String>();
+				pids.addAll(uri.getQueryParameters("pid"));
+				if(pids.isEmpty()) {
+					pids.add(PromptResponses.getPromptId(uri));
+				}
 
-				return builder.table(Tables.PROMPT_RESPONSES)
+				builder.table(Tables.PROMPT_RESPONSES)
 						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
 						.where(PromptResponses.COMPOSITE_ID + " LIKE ?", campaignUrn + ":%")
-						.where(PromptResponses.PROMPT_ID + "=?", promptId);
+						.where(PromptResponses.PROMPT_ID + "=?", pids.get(0));
+				for(int i=1;i<pids.size();i++)
+					builder.where(PromptResponses.PROMPT_ID + "=?", SelectionBuilder.OR, pids.get(i));
+
+				return builder;
 			}
 			/* // FAISAL: disabled until i can figure out how to do aggregates with a builder 
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE: {
