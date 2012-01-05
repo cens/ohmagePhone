@@ -50,6 +50,7 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		public void onSurveyActionView(Uri surveyUri);
         public void onSurveyActionStart(Uri surveyUri);
         public void onSurveyActionUnavailable(Uri surveyUri);
+        public void onSurveyActionError(Uri surveyUri, int status);
     }
 	
 	@Override
@@ -96,8 +97,10 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 	
 	@Override
 	public void onSubActionClicked(Uri uri) {
-		
-		mListener.onSurveyActionStart(uri);
+		if(uri == null)
+			mListener.onSurveyActionError(uri, 0);
+		else
+			mListener.onSurveyActionStart(uri);
 		
 //		mListener.onSurveyActionUnavailable();
 	}
@@ -132,7 +135,7 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		SelectionBuilder builder = new SelectionBuilder();
 		
 		if (getCampaignUrn() != null) {
-			builder.where(Surveys.CAMPAIGN_URN + "= ?", getCampaignUrn());
+			baseUri = Campaigns.buildSurveysUri(getCampaignUrn());
 		}
 		
 		if (mShowPending) {

@@ -228,6 +228,7 @@
     <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey reminders via each campaign\'s information screen.</string>
     <string name="surveys_empty_pending_single">You have no pending surveys.\n\nYou can manage survey reminders via the Settings on the Dashboard.</string>
     <string name="single_campaign_error">There is a problem with the campaign setup. \n\nIf the problem continues, please contact an Administrator.</string>
+	<string name="survey_list_campaign_error">The campaign this survey belongs to is stopped, or otherwise unavailable. Please make sure the campaign it belongs to is up to date.</string>
 
     <!-- Campaign -->
     <string name="campaign_status_ready">participating</string>

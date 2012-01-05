@@ -484,8 +484,13 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.CAMPAIGN_SURVEYS: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 
-				return builder.table(Tables.SURVEYS)
-						.where(Surveys.CAMPAIGN_URN + "=?", campaignUrn);
+				if(nonQuery)
+					return builder.table(Tables.SURVEYS)
+							.where(Surveys.CAMPAIGN_URN + "=?", campaignUrn);
+
+				return builder.table(Tables.SURVEY_JOIN_CAMPAIGNS)
+						.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS)
+						.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn);
 			}
 			case MatcherTypes.SURVEY_BY_ID: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
@@ -591,7 +596,11 @@ public class DbProvider extends ContentProvider {
 			}
 			*/
 			case MatcherTypes.SURVEYS: {
-				return builder.table(Tables.SURVEYS);
+				if(nonQuery)
+					return builder.table(Tables.SURVEYS);
+
+				return builder.table(Tables.SURVEY_JOIN_CAMPAIGNS)
+						.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS);
 			}
 			case MatcherTypes.SURVEYPROMPTS: {
 				return builder.table(Tables.SURVEY_PROMPTS);
