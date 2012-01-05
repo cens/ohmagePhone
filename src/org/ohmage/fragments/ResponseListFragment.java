@@ -20,8 +20,10 @@ import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class ResponseListFragment extends FilterableListFragment implements SubActionClickListener {
 	
@@ -42,6 +44,12 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 
 		// Set the empty text
 		setEmptyText(getActivity().getString(R.string.response_list_empty));
+		
+		// style the empty text, too
+		TextView emptyView = (TextView)getListView().getEmptyView();
+		emptyView.setGravity(Gravity.LEFT);
+		emptyView.setPadding(25, 25, 25, 0);
+		
 
 		// We have no menu items to show in action bar.
 		setHasOptionsMenu(false);

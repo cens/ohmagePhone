@@ -19,8 +19,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * <p>The {@link SurveyListFragment} shows a list of surveys</p>
@@ -48,6 +50,7 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		public void onSurveyActionView(Uri surveyUri);
         public void onSurveyActionStart(Uri surveyUri);
         public void onSurveyActionUnavailable(Uri surveyUri);
+        public void onSurveyActionError(Uri surveyUri, int status);
     }
 	
 	@Override
@@ -58,6 +61,11 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		if(getArguments() != null)
 			mShowPending = getArguments().getBoolean(KEY_PENDING, false);
         setShowPending();
+        
+        // style the empty text
+		TextView emptyView = (TextView)getListView().getEmptyView();
+		emptyView.setGravity(Gravity.LEFT);
+		emptyView.setPadding(25, 25, 25, 0);
 		
 		mAdapter = new SurveyListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
@@ -89,8 +97,10 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 	
 	@Override
 	public void onSubActionClicked(Uri uri) {
-		
-		mListener.onSurveyActionStart(uri);
+		if(uri == null)
+			mListener.onSurveyActionError(uri, 0);
+		else
+			mListener.onSurveyActionStart(uri);
 		
 //		mListener.onSurveyActionUnavailable();
 	}
@@ -125,7 +135,7 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		SelectionBuilder builder = new SelectionBuilder();
 		
 		if (getCampaignUrn() != null) {
-			builder.where(Surveys.CAMPAIGN_URN + "= ?", getCampaignUrn());
+			baseUri = Campaigns.buildSurveysUri(getCampaignUrn());
 		}
 		
 		if (mShowPending) {
@@ -136,7 +146,7 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 		builder.where(Surveys.SURVEY_ID + "!=?", "foodButton");
 		builder.where(Surveys.SURVEY_ID + "!=?", "stressButton");
 
-		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Surveys.SURVEY_TITLE);
+		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Surveys._ID);
 	}
 
 	@Override

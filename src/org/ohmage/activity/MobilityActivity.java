@@ -16,6 +16,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -247,41 +248,60 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		OnClickListener mRadioListener = new OnClickListener() {
 			
 			@Override
-			public void onClick(View v) {
-				
-				int newInterval = -1;
-				int oldInterval = -1;
-				
-				switch (v.getId()) {
-				case R.id.radio_off:
-					try {
-						mMobility.stopMobility();
-					} catch (RemoteException e) {
-						Log.e(TAG, "Unable to stop mobility", e);
-					}
-					return;
+			public void onClick(final View v) {
+				// do the update in an asynctask so the UI doesn't block
+				(new AsyncTask<Void, Void, Void>() {
+					protected void onPreExecute() {
+						mOffRadio.setEnabled(false);
+						mInterval1Radio.setEnabled(false);
+						mInterval5Radio.setEnabled(false);
+					};
 					
-				case R.id.radio_1min:
-					newInterval = 60;
-					break;
+					@Override
+					protected Void doInBackground(Void... params) {
+						int newInterval = -1;
+						int oldInterval = -1;
+						
+						switch (v.getId()) {
+						case R.id.radio_off:
+							try {
+								mMobility.stopMobility();
+							} catch (RemoteException e) {
+								Log.e(TAG, "Unable to stop mobility", e);
+							}
+							return null;
+							
+						case R.id.radio_1min:
+							newInterval = 60;
+							break;
 
-				case R.id.radio_5min:
-					newInterval = 300;
-					break;
-				}
-				
-				try {
-					oldInterval = mMobility.getMobilityInterval();
-					if (newInterval != oldInterval) {
-						mMobility.changeMobilityRate(newInterval);
-					}
+						case R.id.radio_5min:
+							newInterval = 300;
+							break;
+						}
+						
+						try {
+							oldInterval = mMobility.getMobilityInterval();
+							if (newInterval != oldInterval) {
+								mMobility.changeMobilityRate(newInterval);
+							}
+							
+							if (! mMobility.isMobilityOn()) {
+								mMobility.startMobility();
+							}
+						} catch (RemoteException e) {
+							Log.e(TAG, "Unable to change mobility interval", e);
+						}
+						
+						return null;
+					};
 					
-					if (! mMobility.isMobilityOn()) {
-						mMobility.startMobility();
-					}
-				} catch (RemoteException e) {
-					Log.e(TAG, "Unable to change mobility interval", e);
-				}
+					protected void onPostExecute(Void result) {
+						mOffRadio.setEnabled(true);
+						mInterval1Radio.setEnabled(true);
+						mInterval5Radio.setEnabled(true);
+					};
+				}).execute();
 			}
 		};
 	};
@@ -296,18 +316,19 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		long loginTimestamp = mPrefHelper.getLoginTimestamp();
 
 		switch (id) {
 		case RECENT_LOADER:
-			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-20 minutes') || '500'", null, MobilityInterface.KEY_TIME + " DESC");
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-20 minutes') || '500' AND " + MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(loginTimestamp)}, MobilityInterface.KEY_TIME + " DESC");
 
 		case ALL_LOADER:
-			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, null, null, null);
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(loginTimestamp)}, null);
 			
 		case UPLOAD_LOADER:
 			long uploadAfterTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 			if (uploadAfterTimestamp == 0) {
-				uploadAfterTimestamp = mPrefHelper.getLoginTimestamp();
+				uploadAfterTimestamp = loginTimestamp;
 			}
 			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(uploadAfterTimestamp)}, null);
 			

@@ -94,6 +94,12 @@ public class DbHelper extends SQLiteOpenHelper {
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format(
 				"distinct %1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
 				SURVEYS, SurveyPrompts.SURVEY_ID, Surveys.SURVEY_ID);
+
+		String SURVEY_JOIN_CAMPAIGNS =
+				Tables.SURVEYS
+				+ " join " + Tables.CAMPAIGNS
+					+ " on " + Tables.CAMPAIGNS + "." + Campaigns.CAMPAIGN_URN + "=" + Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN;
+
 	}
 
 	interface Subqueries {

@@ -17,6 +17,7 @@ package org.ohmage;
 
 import edu.ucla.cens.systemlog.Log;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -47,6 +48,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.Build;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -668,7 +670,9 @@ public class OhmageApi {
 	    
 	    HttpClient httpClient = new DefaultHttpClient(manager, params);
 	    HttpPost httpPost = new HttpPost(url);
-		
+	    
+	    // include the device in the user-agent string
+	    httpPost.addHeader("user-agent", Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.VERSION.RELEASE + ")");
 	    
 	    	if (gzip) {
 	    		try {

@@ -76,7 +76,12 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(getActivity(), PromptResponses.getPromptsByCampaign(Campaign.getFirstAvaliableCampaign(getActivity()), mPrompts),
+		Campaign campaign = Campaign.getFirstAvaliableCampaign(getActivity());
+		if(campaign == null) {
+			getActivity().finish();
+			return null;
+		}
+		return new CursorLoader(getActivity(), PromptResponses.getPromptsByCampaign(campaign.mUrn, mPrompts),
 				new String[] { Responses.RESPONSE_TIME, PromptResponses.PROMPT_ID, PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE },
 				null, null, Responses.RESPONSE_TIME + " DESC");
 	}

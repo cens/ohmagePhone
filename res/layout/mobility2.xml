@@ -126,7 +126,7 @@
 			android:shadowDx="1"
 			android:shadowDy="1"
 			android:shadowRadius="1"
-			android:text="Number of mobility points:" />
+			android:text="Number of mobility points since last login:" />
 	  	
 	  	<LinearLayout 
 	  	    android:orientation="horizontal"

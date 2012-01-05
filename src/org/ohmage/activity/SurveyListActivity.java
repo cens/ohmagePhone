@@ -8,6 +8,8 @@ import org.ohmage.ui.CampaignFilterActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
 import org.ohmage.ui.TabManager;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,6 +25,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 	static final String TAG = "SurveyListActivity";
 	public static final String EXTRA_SHOW_PENDING = "extra_show_pending";
+	private static final int DIALOG_ERROR_ID = 0;
 
 	TabHost mTabHost;
 	TabManager mTabManager;
@@ -110,5 +113,30 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 	@Override
 	public void onSurveyActionUnavailable(Uri surveyUri) {
 		Toast.makeText(this, R.string.survey_list_must_trigger, Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onSurveyActionError(Uri surveyUri, int status) {
+		showDialog(DIALOG_ERROR_ID);
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateDialog(int, android.os.Bundle)
+	 */
+	@Override
+	protected Dialog onCreateDialog(final int id, Bundle args) {
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		switch (id) {
+			case DIALOG_ERROR_ID:
+				builder.setMessage(R.string.survey_list_campaign_error);
+				break;
+		}
+
+		builder.setCancelable(true).setNegativeButton(R.string.ok, null);
+
+
+		return builder.create();
 	}
 }

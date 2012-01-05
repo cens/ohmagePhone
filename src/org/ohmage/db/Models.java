@@ -151,29 +151,29 @@ public class Models {
 		 * @return the urn of the first ready campaign from the db, or null
 		 */
 		public static String getSingleCampaign(Context context) {
-			return getFirstCampaign(context, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null);
-		}
-
-		/**
-		 * Returns the uri of the first campaign in the db which should be the campaign used in single campaign mode.
-		 * @param context
-		 * @return the urn of the first campaign from the db, or null
-		 */
-		public static String getFirstAvaliableCampaign(Context context) {
-			return getFirstCampaign(context, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE + " OR " + Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null);
-		}
-
-		/**
-		 * Helper method for return the first campaign urn given where and args
-		 * @param context
-		 * @param where
-		 * @param args
-		 * @return the urn of the first campaign
-		 */
-		public static String getFirstCampaign(Context context, String where, String[] args) {
-			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN }, where, args, Campaigns.CAMPAIGN_CREATED + " DESC");
+			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN },
+					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, Campaigns.CAMPAIGN_CREATED + " DESC");
 			if(campaign.moveToFirst())
 				return campaign.getString(0);
+			return null;
+		}
+
+		/**
+		 * Returns the first campaign in the db which should be the campaign used in single campaign mode.
+		 * @param context
+		 * @return the first campaign from the db, or null
+		 */
+		public static Campaign getFirstAvaliableCampaign(Context context) {
+			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS },
+					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE + " OR " +
+					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY + " OR " +
+					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_OUT_OF_DATE, null, Campaigns.CAMPAIGN_CREATED + " DESC");
+			if(campaign.moveToFirst()) {
+				Campaign c = new Campaign();
+				c.mUrn = campaign.getString(0);
+				c.mStatus = campaign.getInt(1);
+				return c;
+			}
 			return null;
 		}
 
@@ -293,6 +293,25 @@ public class Models {
         	
         	return values;
         }
+        
+		/**
+		 * Launch the Trigger list for the campaign to which this survey belongs with a list of surveys selected by default.
+		 * @param context
+		 * @param campaignUrn the campaign URN from which to read the list of surveys that will be selectable from the list
+		 * @param selectedSurveys an array of surveys which will be preselected when creating a new trigger
+		 */
+		public static Intent launchTriggerIntent(Context context, String campaignUrn, String[] selectedSurveys) {
+			List<String> surveyTitles = new ArrayList<String>();
+			
+			// grab a list of surveys for this campaign
+			Cursor surveys = context.getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
+			
+			while (surveys.moveToNext()) {
+				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
+			}
+			
+			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]), selectedSurveys);
+		}
 	}
 
 	public final static class SurveyPrompt extends DbModel {

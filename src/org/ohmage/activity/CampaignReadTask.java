@@ -107,22 +107,14 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 							ContentValues values = new ContentValues();
 							// FAISAL: include things here that may change at any time on the server
 							values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
-							
-							if (running) { //campaign is running
 
-								if(!c.mCreationTimestamp.equals(old.mCreationTimestamp))
-									values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
-								else
-									values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+							if(!c.mCreationTimestamp.equals(old.mCreationTimestamp))
+								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
+							else
+								values.put(Campaigns.CAMPAIGN_STATUS, (running) ? Campaign.STATUS_READY : Campaign.STATUS_STOPPED);
 
-								cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
+							cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
 
-							} else { //campaign is stopped
-								
-								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_STOPPED);
-								cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
-							}
-							
 						} else { //campaign has not been downloaded
 							
 							if (running) { //campaign is running
@@ -151,26 +143,27 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 
 			// If we are in single campaign mode, we should automatically download the xml for the best campaign
 			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
-				String newUrn = Campaign.getFirstAvaliableCampaign(getActivity());
+				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getActivity());
 
-				// If the campaign changed we should download its xml
-				if(!TextUtils.isEmpty(newUrn) && !newUrn.equals(oldUrn)) {
-					// Set campaign to remote to get rid of all surveys and other stuff
+				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it
+				if(newCampaign == null || TextUtils.isEmpty(newCampaign.mUrn) || !newCampaign.mUrn.equals(oldUrn) || newCampaign.mStatus == Campaign.STATUS_OUT_OF_DATE) {
 					if(!TextUtils.isEmpty(oldUrn)) {
 						Campaign.setRemote(getActivity(), oldUrn);
 					}
 
 					// Download the new xml
-					CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getActivity(), newUrn);
-					campaignDownloadTask.execute(username, hashedPassword);
-					try {
-						campaignDownloadTask.get();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
+						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getActivity(), newCampaign.mUrn);
+						campaignDownloadTask.execute(username, hashedPassword);
+						try {
+							campaignDownloadTask.get();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 
 					// All campaigns which aren't ready should just be ignored, so they are set to remote
