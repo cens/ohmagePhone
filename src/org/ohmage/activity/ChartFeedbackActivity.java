@@ -43,7 +43,7 @@ public class ChartFeedbackActivity extends BaseActivity {
 		private final int mLength = 4;
 
 		private final String[] mTitles = {
-				"Recent",
+				"All",
 				"Diet",
 				"Stress",
 				"Exercise"
@@ -68,7 +68,22 @@ public class ChartFeedbackActivity extends BaseActivity {
 
 		@Override
 		public Fragment getItem(int position) {
-			return ChartListFragment.newInstance(position);
+			return ChartListFragment.newInstance(getPrompts(position));
+		}
+
+		private String[] getPrompts(int position) {
+			switch(position) {
+				case 0:
+					return new String[] { "foodQuality", "foodHowMuch", "howStressed", "timeForYourself", "didYouExercise" };
+				case 1:
+					return new String[] { "foodQuality", "foodHowMuch" };
+				case 2:
+					return new String[] { "howStressed", "timeForYourself" };
+				case 3:
+					return new String[] { "didYouExercise" };
+				default:
+					throw new RuntimeException("Invalid position");
+			}
 		}
 	}
 }
