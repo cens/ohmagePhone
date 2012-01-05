@@ -139,7 +139,7 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 			builder.where(Surveys.SURVEY_STATUS + "=" + Survey.STATUS_TRIGGERED);
 		} 
 		
-		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Surveys.SURVEY_TITLE);
+		return new CursorLoader(getActivity(), baseUri, null, builder.getSelection(), builder.getSelectionArgs(), Surveys._ID);
 	}
 
 	@Override
