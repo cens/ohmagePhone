@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Random;
 
 
@@ -102,20 +103,44 @@ public class Utilities {
 	/**
 	 * Calculates the average, min, and max of an array of doubles
 	 * @param ds
-	 * @return an array formatted as [ average, min, max ]
+	 * @return an array formatted as [ min, max, average per week, average ]
 	 */
 	public static double[] stats(double...ds) {
+		return stats(null, ds);
+	}
+
+	/**
+	 * Calculates the average, min, and max of an array of doubles
+	 * @param mapper  a {@link DataMapper} which maps data to values for this array
+	 * @param ds
+	 * @return an array formatted as [ min, max, average per week, average ]
+	 */
+	public static double[] stats(DataMapper mapper, double...ds) {
+		if(mapper == null)
+			mapper = linearDataMapper;
 		double sum = 0.0;
 		double min = Double.MAX_VALUE;
 		double max = Double.MIN_VALUE;
 		for (int i = 0; i < ds.length; i++) {
-			sum += ds[i];
-			if(ds[i] < min)
-				min = ds[i];
-			if(ds[i] > max)
-				max = ds[i];
+			double value = mapper.translate(ds[i]);
+			sum += value;
+			if(value < min)
+				min = value;
+			if(value > max)
+				max = value;
 		}
-		return new double[]{ sum / ds.length, min, max };
+		return new double[]{ min, max, sum / ds.length, sum / (ds.length / 7.0) };
+	}
+
+	public static final DataMapper linearDataMapper = new DataMapper() {
+		@Override
+		public double translate(double d) {
+			return d;
+		}
+	};
+
+	public interface DataMapper {
+		public double translate(double d);
 	}
 
 	/**
@@ -131,5 +156,18 @@ public class Utilities {
 		for (int i = 0; i < values.length; i++)
 			values[i] = Math.abs(r.nextDouble() * max);
 		return values;
+	}
+
+	/**
+	 * Converts an array of numbers to an array of doubles that can be used by
+	 * the histogram and sparkline charts
+	 * @param data
+	 * @return
+	 */
+	public static double[] toArray(List<? extends Number> data) {
+		double[] ret = new double[data.size()];
+		for(int i=0;i<ret.length;i++)
+			ret[i] = data.get(i).doubleValue();
+		return ret;
 	}
 }

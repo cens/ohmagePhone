@@ -568,5 +568,42 @@ public class Models {
         	
         	return values;
         }
+
+		/**
+		 * Parses integer data points to be used with a chart. This function expects
+		 * all prompts in the cursor to be the same
+		 * @param cursor
+		 * @param limit
+		 * @return
+		 */
+		public static double[] getIntegerData(Cursor cursor, int limit) {
+			ArrayList<Integer> data = new ArrayList<Integer>();
+			cursor.moveToLast();
+			cursor.move(-limit);
+			Integer value;
+			while(cursor.moveToNext()) {
+				value = getIntegerPoint(cursor);
+				if(value != null)
+					data.add(value);
+			}
+			return Utilities.toArray(data);
+		}
+
+		/**
+		 * Parses an integer point for a cursor
+		 * @param cursor a {@link PromptResponses} cursor which has been moved to the correct position
+		 * @return the integer value associated with that point if there is one, null otherwise
+		 */
+		public static Integer getIntegerPoint(Cursor cursor) {
+			try {
+				return Integer.parseInt(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)));
+			} catch(NumberFormatException e)	{
+				try {
+					return Integer.parseInt(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE)));
+				} catch(NumberFormatException e2)	{
+					return null;
+				}
+			}
+		}
 	}
 }

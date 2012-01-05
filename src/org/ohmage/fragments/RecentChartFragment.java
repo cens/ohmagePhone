@@ -3,10 +3,11 @@ package org.ohmage.fragments;
 
 import org.ohmage.R;
 import org.ohmage.adapters.SparklineAdapter;
-import org.ohmage.adapters.SparklineAdapter.ChartItem;
+import org.ohmage.adapters.SparklineAdapter.SparkLineChartItem;
 import org.ohmage.charts.SparkLine;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -18,8 +19,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-
-import java.util.ArrayList;
 
 public class RecentChartFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -90,24 +89,24 @@ public class RecentChartFragment extends Fragment implements LoaderManager.Loade
 			if("Morning".equals(surveyId) || "Mid Day".equals(surveyId) || "Late Afternoon".equals(surveyId)) {
 				double[] stressData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "howStressed");
 				if(stressData.length > 1)
-					mAdapter.add(new ChartItem("Stress Amount", stressData, R.color.dark_red, R.color.light_red, 1, 5));
+					mAdapter.add(new SparkLineChartItem("Stress Amount", stressData, R.color.dark_red, R.color.light_red, 1, 5));
 
 				double[] foodData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "foodQuality");
 				if(foodData.length > 1)
-					mAdapter.add(new ChartItem("Food Quality", foodData, R.color.powderkegblue, R.color.light_blue, 0, 2));
+					mAdapter.add(new SparkLineChartItem("Food Quality", foodData, R.color.powderkegblue, R.color.light_blue, 0, 2));
 
 				double[] foodAmountData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "foodHowMuch");
 				if(foodAmountData.length > 1)
-					mAdapter.add(new ChartItem("Food Amount", foodAmountData, R.color.powderkegblue, R.color.light_blue, 0, 2));
+					mAdapter.add(new SparkLineChartItem("Food Quantity", foodAmountData, R.color.powderkegblue, R.color.light_blue, 0, 2));
 
 			} else if("Bedtime".equals(surveyId)) {
 				double[] exerciseData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "didYouExercise");
 				if(exerciseData.length > 1)
-					mAdapter.add(new ChartItem("Exercise", exerciseData, R.color.dark_green, R.color.light_green, 0, 1));
+					mAdapter.add(new SparkLineChartItem("Did Exercise", exerciseData, R.color.dark_green, R.color.light_green, 0, 1));
 
 				double[] aloneData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "timeForYourself");
 				if(aloneData.length > 1)
-					mAdapter.add(new ChartItem("Time For Yourself", aloneData, R.color.dark_purple, R.color.light_purple, 0, 4));
+					mAdapter.add(new SparkLineChartItem("Time For Yourself", aloneData, R.color.dark_purple, R.color.light_purple, 0, 4));
 			}
 
 			if(!mAdapter.isEmpty()) {
@@ -124,30 +123,8 @@ public class RecentChartFragment extends Fragment implements LoaderManager.Loade
 		mAdapter.clear();
 	}
 
-	private double[] toArray(ArrayList<? extends Number> data) {
-		double[] ret = new double[data.size()];
-		for(int i=0;i<ret.length;i++)
-			ret[i] = data.get(i).doubleValue();
-		return ret;
-	}
-
 	private double[] getData(String campaignUrn, String promptId) {
 		Cursor promptResponses = getActivity().managedQuery(PromptResponses.getPromptsByCampaign(campaignUrn, promptId), new String[] { PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE }, null, null, null);
-		ArrayList<Integer> data = new ArrayList<Integer>();
-		promptResponses.moveToLast();
-		promptResponses.move(-MAX_DATA_POINTS);
-		while(promptResponses.moveToNext()) {
-			try {
-				data.add(Integer.parseInt(promptResponses.getString(0)));
-			} catch(NumberFormatException e)	{
-				try {
-					data.add(Integer.parseInt(promptResponses.getString(1)));
-				} catch(NumberFormatException e2)	{
-					// Don't add anything
-				}
-			}
-		}
-
-		return toArray(data);
+		return Models.PromptResponse.getIntegerData(promptResponses, MAX_DATA_POINTS);
 	}
 }

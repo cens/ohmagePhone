@@ -1,77 +1,36 @@
 package org.ohmage.adapters;
 
-import org.achartengine.GraphicalView;
-import org.achartengine.chart.AbstractChart;
 import org.ohmage.R;
-import org.ohmage.adapters.SparklineAdapter.ChartItem;
+import org.ohmage.adapters.SparklineAdapter.SparkLineChartItem;
 import org.ohmage.charts.SparkLine;
 
 import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SparklineAdapter extends ArrayAdapter<ChartItem> {
+public class SparklineAdapter extends SimpleChartListAdapter<SparkLineChartItem> {
 
-	public static class ChartItem {
-		public String title;
-		public double[] data;
-		public int color;
+	public static class SparkLineChartItem extends SimpleChartListAdapter.ChartItem<SparkLine>{
+
 		public int fill;
-		public Integer min;
-		public Integer max;
 
-		public ChartItem(String t, double[] d, int c, int f, Integer min, Integer max) {
-			title = t;
-			data = d;
-			color = c;
-			fill = f;
-			this.min = min;
-			this.max = max;
-		}
-
-		public ChartItem(String t, double[] d, int c, int f) {
-			this(t, d, c, f, 0, null);
+		public SparkLineChartItem(String title, double[] data, int color, int fill, Integer min, Integer max) {
+			super(title, data, color, min, max);
+			this.fill = fill;
 		}
 
 		@Override
-		public String toString() {
-			return title;
-		}
-
-		public AbstractChart getChart(Context context) {
-			SparkLine chart = new SparkLine(context, data, context.getResources().getColor(color), context.getResources().getColor(fill));
-			chart.getRenderer().setInScroll(true);
-			chart.getRenderer().setYAxisMin(min);
-			if(max != null)
-				chart.getRenderer().setYAxisMax(max);
-			return chart;
-		}
-
-		public GraphicalView getGraph(Context context) {
-			return new GraphicalView(context, getChart(context));
+		public SparkLine makeChart(Context context) {
+			return new SparkLine(context, data, context.getResources().getColor(color), context.getResources().getColor(fill));
 		}
 	}
 
 	public SparklineAdapter(Context context) {
-		super(context, R.layout.feedback_chart, R.id.chart_title, new ArrayList<ChartItem>());
+		super(context, R.layout.feedback_chart, R.id.chart_title, new ArrayList<SparkLineChartItem>());
 	}
 
-	public SparklineAdapter(Context context, List<ChartItem> objects) {
+	public SparklineAdapter(Context context, List<SparkLineChartItem> objects) {
 		super(context, R.layout.feedback_chart, R.id.chart_title, objects);
-	}
-
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View view = super.getView(position, convertView, parent);
-
-		ViewGroup chartContainer = (ViewGroup) view.findViewById(R.id.chart);
-		chartContainer.removeAllViews();
-		chartContainer.addView(getItem(position).getGraph(getContext()));
-
-		return view;
 	}
 }
