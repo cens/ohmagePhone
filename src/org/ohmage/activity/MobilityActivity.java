@@ -316,18 +316,19 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		long loginTimestamp = mPrefHelper.getLoginTimestamp();
 
 		switch (id) {
 		case RECENT_LOADER:
-			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-20 minutes') || '500'", null, MobilityInterface.KEY_TIME + " DESC");
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-20 minutes') || '500' AND " + MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(loginTimestamp)}, MobilityInterface.KEY_TIME + " DESC");
 
 		case ALL_LOADER:
-			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, null, null, null);
+			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(loginTimestamp)}, null);
 			
 		case UPLOAD_LOADER:
 			long uploadAfterTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 			if (uploadAfterTimestamp == 0) {
-				uploadAfterTimestamp = mPrefHelper.getLoginTimestamp();
+				uploadAfterTimestamp = loginTimestamp;
 			}
 			return new CursorLoader(this, MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(uploadAfterTimestamp)}, null);
 			
