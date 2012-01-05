@@ -4,6 +4,7 @@ package org.ohmage.activity;
 import org.ohmage.ChartFragment;
 import org.ohmage.R;
 import org.ohmage.charts.Histogram;
+import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.fragments.RecentChartFragment;
 import org.ohmage.ui.BaseActivity;
@@ -122,7 +123,7 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 			data.moveToPrevious();
 		}
 
-		Histogram.HistogramRenderer renderer = new Histogram.HistogramRenderer(FeedbackActivity.this);
+		HistogramRenderer renderer = new HistogramRenderer(FeedbackActivity.this);
 		renderer.setMargins(new int[] {
 				30, 35, 15, 30
 		});

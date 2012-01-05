@@ -533,7 +533,7 @@ public abstract class XYChart extends AbstractChart {
    * @param paint the paint to be used for drawing
    * @param extraAngle the text angle
    */
-  protected void drawText(Canvas canvas, String text, float x, float y, Paint paint,
+  public void drawText(Canvas canvas, String text, float x, float y, Paint paint,
       float extraAngle) {
     float angle = -mRenderer.getOrientation().getAngle() + extraAngle;
     if (angle != 0) {
@@ -573,7 +573,7 @@ public abstract class XYChart extends AbstractChart {
    * @param label the input label value
    * @return the label without the useless fraction digit
    */
-  protected String getLabel(double label) {
+  public String getLabel(double label) {
     String text = "";
     if (label == Math.round(label)) {
       text = Math.round(label) + "";
@@ -632,7 +632,7 @@ public abstract class XYChart extends AbstractChart {
    * @param minX the minimum value on the X axis in the chart
    * @param maxX the maximum value on the X axis in the chart
    */
-  protected void drawXTextLabels(Double[] xTextLabelLocations, Canvas canvas, Paint paint, 
+  public void drawXTextLabels(Double[] xTextLabelLocations, Canvas canvas, Paint paint, 
       boolean showLabels, int left, int top, int bottom, double xPixelsPerUnit, double minX, double maxX) {
     boolean showCustomTextGrid = mRenderer.isShowCustomTextGrid();
     if (showLabels) {

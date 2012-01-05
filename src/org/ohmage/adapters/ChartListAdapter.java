@@ -4,7 +4,7 @@ import org.achartengine.GraphicalView;
 import org.ohmage.R;
 import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;
-import org.ohmage.charts.Histogram.HistogramRenderer;
+import org.ohmage.charts.HistogramBase.HistogramRenderer;
 
 import android.content.Context;
 import android.database.Cursor;

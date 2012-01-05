@@ -1,25 +1,23 @@
 
 package org.ohmage.charts;
 
-import org.achartengine.chart.BarChart;
-import org.achartengine.model.TimeSeries;
+import org.achartengine.chart.BubbleChart;
 import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.ohmage.charts.HistogramBase.HistogramRenderer;
+import org.achartengine.model.XYValueSeries;
+import org.ohmage.charts.HistogramBase.CleanRenderer;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-import java.util.Date;
 import java.util.List;
 
 /**
- * This is a histogram which can show days on the x-axis and a value on the y-axis.
+ * This is a bubble histogram which can show days on the x-axis and a value on the y-axis.
  * @author cketcham
  *
  */
-public class Histogram extends BarChart {
+public class HistogramBubble extends BubbleChart {
 
 	transient private HistogramBase mBase;
 
@@ -32,18 +30,18 @@ public class Histogram extends BarChart {
 	 * in the array is the value for 'today'. The second to last entry should be
 	 * 'yesterday' etc.
 	 */
-	public Histogram(Context context, HistogramRenderer renderer,  double[] values) {
-		super(buildDataSet(values), (renderer != null ? renderer : new HistogramRenderer(context)), BarChart.Type.DEFAULT);
+	public HistogramBubble(Context context, CleanRenderer renderer,  List<int[]> values) {
+		super(buildDataSet(values), (renderer != null ? renderer : new CleanRenderer()));
 		mBase = new HistogramBase(this);
 		mBase.fitData();
 		mBase.setDateFormat("MMM d");
 	}
 
-	public Histogram(Context context, double[] values) {
+	public HistogramBubble(Context context, List<int[]> values) {
 		this(context, null, values);
 	}
 
-	public Histogram(Context context, HistogramRenderer renderer, double[] data, int color) {
+	public HistogramBubble(Context context, CleanRenderer renderer, List<int[]> data, int color) {
 		this(context, renderer, data);
 		getRenderer().getSeriesRendererAt(0).setColor(context.getResources().getColor(color));
 	}
@@ -67,37 +65,18 @@ public class Histogram extends BarChart {
 	 * @param values
 	 * @return
 	 */
-	private static XYMultipleSeriesDataset buildDataSet(double[] values) {
+	private static XYMultipleSeriesDataset buildDataSet(List<int[]> values) {
 		XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
-		XYSeries series = new XYSeries("");
-		for (int i = 0; i < values.length; i++)
-			series.add(-i, values[i]);
+		XYValueSeries series = new XYValueSeries("");
+
+		for(int i=0;i < values.size(); i++) {
+			int[] dp = values.get(i);
+			for(int j=0;j<dp.length;j++)
+				series.add(-i, j, dp[j]);
+		}
+
 		dataSet.addSeries(series);
 		return dataSet;
 	}
 
-	/**
-	 * Builds an XY multiple time dataset using the provided values.
-	 * 
-	 * @param titles the series titles
-	 * @param xValues the values for the X axis
-	 * @param yValues the values for the Y axis
-	 * @return the XY multiple time dataset
-	 */
-	protected XYMultipleSeriesDataset buildDateDataset(String[] titles, List<Date[]> xValues,
-			List<double[]> yValues) {
-		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-		int length = titles.length;
-		for (int i = 0; i < length; i++) {
-			TimeSeries series = new TimeSeries(titles[i]);
-			Date[] xV = xValues.get(i);
-			double[] yV = yValues.get(i);
-			int seriesLength = xV.length;
-			for (int k = 0; k < seriesLength; k++) {
-				series.add(xV[k], yV[k]);
-			}
-			dataset.addSeries(series);
-		}
-		return dataset;
-	}
 }
