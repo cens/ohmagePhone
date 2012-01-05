@@ -35,7 +35,7 @@ public class BubbleChart extends XYChart {
   /** The legend shape width. */
   private static final int SHAPE_WIDTH = 10;
   /** The minimum bubble size. */
-  private static final int MIN_BUBBLE_SIZE = 0;
+  private static final int MIN_BUBBLE_SIZE = 3;
   /** The maximum bubble size. */
   private static final int MAX_BUBBLE_SIZE = 6;
 
@@ -62,7 +62,8 @@ public class BubbleChart extends XYChart {
    * @param yAxisValue the minimum value of the y axis
    * @param seriesIndex the index of the series currently being drawn
    */
-  public void drawSeries(Canvas canvas, Paint paint, float[] points,
+  @Override
+public void drawSeries(Canvas canvas, Paint paint, float[] points,
       SimpleSeriesRenderer seriesRenderer, float yAxisValue, int seriesIndex) {
     XYSeriesRenderer renderer = (XYSeriesRenderer) seriesRenderer;
     paint.setColor(renderer.getColor());
@@ -71,9 +72,11 @@ public class BubbleChart extends XYChart {
     XYValueSeries series = (XYValueSeries) mDataset.getSeriesAt(seriesIndex);
     double max = series.getMaxValue();
 
-    double coef = MAX_BUBBLE_SIZE / max;
+    double coef = (max > MAX_BUBBLE_SIZE) ? max / MAX_BUBBLE_SIZE : 1;
     for (int i = 0; i < length; i += 2) {
-      double size = series.getValue(i / 2) * coef + MIN_BUBBLE_SIZE;
+      double size = series.getValue(i / 2) * coef;
+      if(size != 0)
+    	  size += MIN_BUBBLE_SIZE;
       drawCircle(canvas, paint, points[i], points[i + 1], (float) size);
     }
   }
@@ -83,10 +86,12 @@ public class BubbleChart extends XYChart {
     int length = points.length;
     XYValueSeries series = (XYValueSeries) mDataset.getSeriesAt(seriesIndex);
     double max = series.getMaxValue();
-    double coef = MAX_BUBBLE_SIZE / max;
+    double coef = (max > MAX_BUBBLE_SIZE) ? max / MAX_BUBBLE_SIZE : 1;
     RectF[] ret = new RectF[length / 2];
     for (int i = 0; i < length; i += 2) {
-      double size = series.getValue(i / 2) * coef + MIN_BUBBLE_SIZE;
+      double size = series.getValue(i / 2) * coef;
+      if(size != 0)
+    	  size += MIN_BUBBLE_SIZE;
       ret[i / 2] = new RectF(points[i] - (float) size, points[i + 1] - (float) size, points[i]
           + (float) size, points[i + 1] + (float) size);
     }
@@ -99,7 +104,8 @@ public class BubbleChart extends XYChart {
    * @param seriesIndex the series index
    * @return the legend shape width
    */
-  public int getLegendShapeWidth(int seriesIndex) {
+  @Override
+public int getLegendShapeWidth(int seriesIndex) {
     return SHAPE_WIDTH;
   }
 
@@ -113,7 +119,8 @@ public class BubbleChart extends XYChart {
    * @param seriesIndex the series index
    * @param paint the paint to be used for drawing
    */
-  public void drawLegendShape(Canvas canvas, SimpleSeriesRenderer renderer, float x, float y,
+  @Override
+public void drawLegendShape(Canvas canvas, SimpleSeriesRenderer renderer, float x, float y,
       int seriesIndex, Paint paint) {
     paint.setStyle(Style.FILL);
     drawCircle(canvas, paint, x + SHAPE_WIDTH, y, 3);
@@ -137,7 +144,8 @@ public class BubbleChart extends XYChart {
    * 
    * @return the chart type
    */
-  public String getChartType() {
+  @Override
+public String getChartType() {
     return TYPE;
   }
 
