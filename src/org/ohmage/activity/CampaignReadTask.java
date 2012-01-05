@@ -152,16 +152,18 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 					}
 
 					// Download the new xml
-					CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getActivity(), newCampaign.mUrn);
-					campaignDownloadTask.execute(username, hashedPassword);
-					try {
-						campaignDownloadTask.get();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
+						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getActivity(), newCampaign.mUrn);
+						campaignDownloadTask.execute(username, hashedPassword);
+						try {
+							campaignDownloadTask.get();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 
 					// All campaigns which aren't ready should just be ignored, so they are set to remote
