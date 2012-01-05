@@ -252,7 +252,9 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 				// do the update in an asynctask so the UI doesn't block
 				(new AsyncTask<Void, Void, Void>() {
 					protected void onPreExecute() {
+						mOffRadio.setEnabled(false);
 						mInterval1Radio.setEnabled(false);
+						mInterval5Radio.setEnabled(false);
 					};
 					
 					@Override
@@ -295,7 +297,9 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 					};
 					
 					protected void onPostExecute(Void result) {
+						mOffRadio.setEnabled(true);
 						mInterval1Radio.setEnabled(true);
+						mInterval5Radio.setEnabled(true);
 					};
 				}).execute();
 			}
