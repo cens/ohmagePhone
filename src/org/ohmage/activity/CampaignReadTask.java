@@ -147,7 +147,10 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 
 				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it
 				if(newCampaign == null || TextUtils.isEmpty(newCampaign.mUrn) || !newCampaign.mUrn.equals(oldUrn) || newCampaign.mStatus == Campaign.STATUS_OUT_OF_DATE) {
+
 					if(!TextUtils.isEmpty(oldUrn)) {
+						// If we are removing the old campaign show the notification
+						NotificationHelper.showNotification(getActivity(), getActivity().getString(R.string.single_campaign_changed_title), getActivity().getString(R.string.single_campaign_changed_message));
 						Campaign.setRemote(getActivity(), oldUrn);
 					}
 
