@@ -63,4 +63,18 @@ public class NotificationHelper {
 		note.setLatestEventInfo(context, title, body, pendingIntent);
 		noteManager.notify(3, note);
 	}
+
+	public static void showNotification(Context context, String title, String message) {
+		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification note = new Notification();
+
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+		note.icon = android.R.drawable.stat_notify_error;
+		note.tickerText = title;
+		note.defaults |= Notification.DEFAULT_ALL;
+		note.when = System.currentTimeMillis();
+		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
+		note.setLatestEventInfo(context, title, message, pendingIntent);
+		noteManager.notify(4, note);
+	}
 }

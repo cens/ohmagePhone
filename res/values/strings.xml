@@ -251,4 +251,7 @@
     <string name="campaign_xml_network_error">Network error occurred while trying to download campaign xml.</string>
     <string name="campaign_xml_internal_error">Internal error occurred while trying to download campaign xml.</string>
 
+    <!-- Single Campaign Mode -->
+    <string name="single_campaign_changed_title">Campaign changed</string>
+    <string name="single_campaign_changed_message">The campaign you were participating in has changed. Any responses and charts associated with the old campaign have been removed.</string>
 </resources>
