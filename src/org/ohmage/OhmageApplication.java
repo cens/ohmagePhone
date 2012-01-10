@@ -24,6 +24,7 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -53,6 +54,8 @@ public class OhmageApplication extends Application {
     private ImageLoader mImageLoader;
 
 	private static OhmageApplication self;
+
+	private static ContentResolver mFakeContentResolver;
     
 	@Override
 	public void onCreate() {
@@ -169,11 +172,26 @@ public class OhmageApplication extends Application {
     	}
     }
 
+	public static void setFakeContentResolver(ContentResolver resolver) {
+		mFakeContentResolver = resolver;
+	}
+
+	public static ContentResolver getFakeContentResolver() {
+		return mFakeContentResolver;
+	}
+
+	@Override
+	public ContentResolver getContentResolver() {
+		if(mFakeContentResolver != null)
+			return mFakeContentResolver;
+		return super.getContentResolver();
+	}
+
 	/**
 	 * Static reference from the Application to return the context
 	 * @return the application context
 	 */
-	public static Context getContext() {
+	public static Application getContext() {
 		return self;
 	}
 
