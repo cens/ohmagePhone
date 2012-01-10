@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.slezica.tools.async.ManagedAsyncTask;
 
 import edu.ucla.cens.systemlog.Log;
@@ -26,10 +27,12 @@ import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.feedback.FeedbackService;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -324,7 +327,21 @@ public class LoginActivity extends FragmentActivity {
 						if(urn == null)
 							Toast.makeText(getActivity(), R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
 						else
+						{
 							loginFinished(username, hashedPassword);
+							
+							// ensure that there's data for the currently selected campaign
+							if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+								// create an intent to fire off the feedback service
+								Context appContext = getApplicationContext();
+								Intent fbIntent = new Intent(appContext, FeedbackService.class);
+								// annotate the request with the current campaign's URN
+								fbIntent.putExtra("campaign_urn", urn);
+								// and go!
+								WakefulIntentService.sendWakefulWork(appContext, fbIntent);
+							}
+						}
+						
 						getActivity().dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
 					}
 				}.execute(username, hashedPassword);
