@@ -49,8 +49,8 @@ import android.test.suitebuilder.annotation.Smoke;
  */
 public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCase2<CampaignInfoActivity> {
 
-	private static final String CAMPAIGN_URN = "urn:mo:chipts";
-	private static final String CAMPAIGN_NAME = "CHIPTS (Mo)";
+	private static final String CAMPAIGN_URN = "urn:andwellness:moms";
+	private static final String CAMPAIGN_NAME = "Moms";
 
 	private static final int INDEX_IMAGE_BUTTON_OHMAGE_HOME = 0;
 	private static final int INDEX_IMAGE_BUTTON_RESPONSE_HISTORY = 1;
