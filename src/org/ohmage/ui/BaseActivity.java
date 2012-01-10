@@ -94,7 +94,8 @@ public abstract class BaseActivity extends FragmentActivity {
 		// do nothing if it's not transitioning or if it's being displayed
 		if (wasVisible && !isLoading) {
 			pv.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
-		}
+		} else
+			pv.clearAnimation();
 
 		// and finally set the actual visibility of the thing
 		pv.setVisibility(isLoading?View.VISIBLE:View.GONE);

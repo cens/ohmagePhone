@@ -15,30 +15,35 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import java.util.Arrays;
+import com.slezica.tools.async.ManagedAsyncTask;
+
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.db.Models.Campaign;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import edu.ucla.cens.systemlog.Log;
+import android.widget.Toast;
 
-public class LoginActivity extends Activity {
+import java.util.Arrays;
+
+public class LoginActivity extends FragmentActivity {
 	
 	public static final String TAG = "LoginActivity";
 	
@@ -54,15 +59,16 @@ public class LoginActivity extends Activity {
     private static final int DIALOG_LOGIN_PROGRESS = 4;
     private static final int DIALOG_INTERNAL_ERROR = 5;
     private static final int DIALOG_USER_DISABLED = 6;
+	private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 7;
 
 	private static final int LOGIN_FINISHED = 0;
+
 	
 	private EditText mUsernameEdit;
 	private EditText mPasswordEdit;
 	private Button mLoginButton;
 	private TextView mVersionText;
 	private SharedPreferencesHelper mPreferencesHelper;
-	private LoginTask mTask;
 
 	private boolean mUpdateCredentials;
 
@@ -71,7 +77,6 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.login);
-		setTitle(getTitle() + " login");
 		
 		// first see if they are already logged in
 		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
@@ -103,14 +108,8 @@ public class LoginActivity extends Activity {
         mLoginButton.setOnClickListener(mClickListener);
         
         mPreferencesHelper = new SharedPreferencesHelper(this);
-        
-        Object retained = getLastNonConfigurationInstance();
-        
-        if (retained instanceof LoginTask) {
-        	Log.i(TAG, "creating after configuration changed, restored LoginTask instance");
-        	mTask = (LoginTask) retained;
-        	mTask.setActivity(this);
-        } else {
+
+        if (savedInstanceState == null) {
         	Log.i(TAG, "creating from scratch");
         	
         	//clear login fail notification (if such notification existed) 
@@ -162,17 +161,6 @@ public class LoginActivity extends Activity {
         	}
         }
 	}
-	
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		Log.i(TAG, "configuration change");
-		if (mTask != null) {
-			Log.i(TAG, "retaining LoginTask instance");
-			mTask.setActivity(null);
-			return mTask;
-		}
-		return null;
-	}
 
 	private final OnClickListener mClickListener = new OnClickListener() {
 		
@@ -191,8 +179,7 @@ public class LoginActivity extends Activity {
 		String username = mUsernameEdit.getText().toString();
 		String password = mPasswordEdit.getText().toString();
 		
-		mTask = new LoginTask(LoginActivity.this);
-		mTask.execute(username, password);
+		new LoginTask(LoginActivity.this).execute(username, password);
 	}
 	
 	@Override
@@ -200,31 +187,31 @@ public class LoginActivity extends Activity {
 		Dialog dialog = super.onCreateDialog(id);
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
 		switch (id) {
-		case DIALOG_FIRST_RUN:
-        	dialogBuilder.setTitle("Welcome")
-        				.setMessage("Disclaimer/Agreement stuff goes here.")
-        				.setCancelable(false)
-        				.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								mPreferencesHelper.setFirstRun(false);
-							}
-						})
-						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								LoginActivity.this.finish();
-							}
-						});
-        	dialog = dialogBuilder.create();
-        	break;
-        	
-		case DIALOG_LOGIN_ERROR:
-        	dialogBuilder.setTitle("Error")
-        				.setMessage("Unable to authenticate. Please check username and update the password.")
-        				.setCancelable(true)
-        				.setPositiveButton("OK", null)
-        				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
+			case DIALOG_FIRST_RUN:
+				dialogBuilder.setTitle(R.string.eula_title)
+				.setMessage(R.string.eula_text)
+				.setCancelable(false)
+				.setPositiveButton(R.string.eula_accept, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mPreferencesHelper.setFirstRun(false);
+					}
+				})
+				.setNegativeButton(R.string.eula_cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						LoginActivity.this.finish();
+					}
+				});
+				dialog = dialogBuilder.create();
+				break;
+
+			case DIALOG_LOGIN_ERROR:
+				dialogBuilder.setTitle(R.string.login_error)
+				.setMessage(R.string.login_invalid_password)
+				.setCancelable(true)
+				.setPositiveButton(R.string.ok, null)
+				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
@@ -279,26 +266,33 @@ public class LoginActivity extends Activity {
 								//put extras for specific help on http error
 							}
 						})*/;
-        	//add button for contact
-        	dialog = dialogBuilder.create();
-        	break;
-        	
-		case DIALOG_LOGIN_PROGRESS:
-			ProgressDialog pDialog = new ProgressDialog(this);
-			pDialog.setMessage(getString(R.string.login_authenticating, getString(R.string.server_name)));
-			pDialog.setCancelable(false);
-			//pDialog.setIndeterminate(true);
-			dialog = pDialog;
-        	break;
+				//add button for contact
+				dialog = dialogBuilder.create();
+				break;
+
+			case DIALOG_LOGIN_PROGRESS: {
+				ProgressDialog pDialog = new ProgressDialog(this);
+				pDialog.setMessage(getString(R.string.login_authenticating, getString(R.string.server_name)));
+				pDialog.setCancelable(false);
+				//pDialog.setIndeterminate(true);
+				dialog = pDialog;
+				break;
+			}
+			case DIALOG_DOWNLOADING_CAMPAIGNS: {
+				ProgressDialog pDialog = new ProgressDialog(this);
+				pDialog.setMessage(getString(R.string.login_download_campaign));
+				pDialog.setCancelable(false);
+				//pDialog.setIndeterminate(true);
+				dialog = pDialog;
+				break;
+			}
 		}
-		
+
 		return dialog;
 	}
 	
-	private void onLoginTaskDone(OhmageApi.AuthenticateResponse response, String username) {
-		
-		mTask = null;
-		
+	private void onLoginTaskDone(OhmageApi.AuthenticateResponse response, final String username) {
+
 		try {
 			dismissDialog(DIALOG_LOGIN_PROGRESS);
 		} catch (IllegalArgumentException e) {
@@ -310,44 +304,33 @@ public class LoginActivity extends Activity {
 		case SUCCESS:
 			Log.i(TAG, "login success");
 			
-			String hashedPassword = response.getHashedPassword();
-			//save creds
-			mPreferencesHelper.putUsername(username);
-			mPreferencesHelper.putHashedPassword(hashedPassword);
-			mPreferencesHelper.putLastMobilityUploadTimestamp(System.currentTimeMillis());
+			final String hashedPassword = response.getHashedPassword();
 			
-			//clear related notifications
-			//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
-			//makes more sense to clear notification on launch, so moved to oncreate
-			
-			//start services
-			//set alarms
-			//register receivers
-			//BackgroundManager.initAuthComponents(this);
-			
-			
-			
-			boolean isFirstRun = mPreferencesHelper.isFirstRun();
-            
-			if (isFirstRun) {
-            	Log.i(TAG, "this is the first run");
-            	
-            	BackgroundManager.initComponents(this);
-            	
-            	//cancel get started notification. this works regardless of how we start the app (notification or launcher)
-            	//NotificationHelper.cancel(this, NotificationHelper.NOTIFY_GET_STARTED, null);
-            	
-            	//show intro dialog
-            	//showDialog(DIALOG_FIRST_RUN);
-            	mPreferencesHelper.setFirstRun(false);
-            } else {
-            	Log.i(TAG, "this is not the first run");
-            }
-			
-			if(mUpdateCredentials)
-				finish();
-			else
-				startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
+			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+				// Download the single campaign
+				new CampaignReadTask(this) {
+
+					@Override
+					protected void onPreExecute() {
+						super.onPreExecute();
+						showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+					}
+
+					@Override
+					protected void onPostExecute(CampaignReadResponse response) {
+						super.onPostExecute(response);
+						// get the first available campaign
+						String urn = Campaign.getSingleCampaign(getActivity());
+						if(urn == null)
+							Toast.makeText(getActivity(), R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
+						else
+							loginFinished(username, hashedPassword);
+						getActivity().dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+					}
+				}.execute(username, hashedPassword);
+			} else {
+				loginFinished(username, hashedPassword);
+			}
 			break;
 		case FAILURE:
 			Log.e(TAG, "login failure");
@@ -386,7 +369,46 @@ public class LoginActivity extends Activity {
 			break;
 		}
 	}
-	
+
+	private void loginFinished(String username, String hashedPassword) {
+
+		//save creds
+		mPreferencesHelper.putUsername(username);
+		mPreferencesHelper.putHashedPassword(hashedPassword);
+
+		//clear related notifications
+		//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
+		//makes more sense to clear notification on launch, so moved to oncreate
+
+		//start services
+		//set alarms
+		//register receivers
+		//BackgroundManager.initAuthComponents(this);
+
+		boolean isFirstRun = mPreferencesHelper.isFirstRun();
+
+		if (isFirstRun) {
+			Log.i(TAG, "this is the first run");
+
+			BackgroundManager.initComponents(this);
+
+			//cancel get started notification. this works regardless of how we start the app (notification or launcher)
+			//NotificationHelper.cancel(this, NotificationHelper.NOTIFY_GET_STARTED, null);
+
+			//show intro dialog
+			//showDialog(DIALOG_FIRST_RUN);
+			mPreferencesHelper.setFirstRun(false);
+			mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
+		} else {
+			Log.i(TAG, "this is not the first run");
+		}
+
+		if(mUpdateCredentials)
+			finish();
+		else
+			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
+	}
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch(requestCode) {
@@ -398,29 +420,19 @@ public class LoginActivity extends Activity {
 		}
 	}
 	
-	private static class LoginTask extends AsyncTask<String, Void, OhmageApi.AuthenticateResponse>{
-		
-		private LoginActivity mActivity;
-		private boolean mIsDone = false;
+	private static class LoginTask extends ManagedAsyncTask<String, Void, OhmageApi.AuthenticateResponse>{
+
 		private String mUsername;
 		private String mPassword;
-		private OhmageApi.AuthenticateResponse mResponse = null;
 
-		private LoginTask(LoginActivity activity) {
-			this.mActivity = activity;
+		public LoginTask(FragmentActivity activity) {
+			super(activity);
 		}
 		
-		public void setActivity(LoginActivity activity) {
-			this.mActivity = activity;
-			if (mIsDone) {
-				notifyTaskDone();
-			}
-		}
-
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			mActivity.showDialog(DIALOG_LOGIN_PROGRESS);
+			getActivity().showDialog(DIALOG_LOGIN_PROGRESS);
 		}
 
 		@Override
@@ -440,7 +452,7 @@ public class LoginActivity extends Activity {
 //		        	e.printStackTrace();
 //		        }
 //			}
-			OhmageApi api = new OhmageApi(mActivity);
+			OhmageApi api = new OhmageApi(getActivity());
 			return api.authenticate(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 
@@ -448,15 +460,7 @@ public class LoginActivity extends Activity {
 		protected void onPostExecute(OhmageApi.AuthenticateResponse response) {
 			super.onPostExecute(response);
 			
-			mResponse = response;
-			mIsDone = true;
-			notifyTaskDone();			
-		}
-		
-		private void notifyTaskDone() {
-			if (mActivity != null) {
-				mActivity.onLoginTaskDone(mResponse, mUsername);
-			}
+			((LoginActivity) getActivity()).onLoginTaskDone(response, mUsername);
 		}
 	}
 }

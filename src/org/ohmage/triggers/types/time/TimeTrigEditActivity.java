@@ -18,8 +18,10 @@ package org.ohmage.triggers.types.time;
 import java.util.LinkedHashMap;
 
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.ui.ActionSelectorView;
 import org.ohmage.triggers.ui.TriggerListActivity;
 import org.ohmage.triggers.utils.TimePickerPreference;
 
@@ -35,8 +37,16 @@ import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class TimeTrigEditActivity extends PreferenceActivity 
@@ -56,7 +66,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	private static final String KEY_SAVE_REPEAT_STATUS = "repeat_status";
 	
 	private static final String PREF_KEY_TRIGGER_TIME = "trigger_time";
-	private static final String PREF_KEY_RANDOMIZE = "randomize_trigger_time";
+	// private static final String PREF_KEY_RANDOMIZE = "randomize_trigger_time";
 	private static final String PREF_KEY_ENABLE_RANGE = "enable_time_range";
 	private static final String PREF_KEY_START_TIME = "interval_start_time";
 	private static final String PREF_KEY_END_TIME = "interval_end_time";
@@ -129,7 +139,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		mAdminMode = getIntent().getBooleanExtra(KEY_ADMIN_MODE, false);
 		
-		if(config != null) {	
+		if(config != null) {
 			mTrigId = getIntent().getIntExtra(KEY_TRIG_ID, 0);
 			
 			if(mTrigDesc.loadString(config) && mActDesc.loadString(action)) {
@@ -137,7 +147,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			}
 			else {
 				getPreferenceScreen().setEnabled(false);
-				Toast.makeText(this, "Invalid trigger settings!", 
+				Toast.makeText(this, R.string.trigger_invalid_settings,
 								Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -148,6 +158,19 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			   					.toArray(new String[repeatList.size()]);
 			mRepeatStatus = new boolean[mDays.length];
 			updateRepeatStatusArray();
+			
+			// if there are any preselected actions specified when the activity is first created
+			// and there's currently nothing in the action description, load the selected options
+			// into the action description as if they were previously selected
+			if (mActDesc.getCount() <= 0 && getIntent().hasExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS)) {
+				String[] preselectedActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS);
+
+				for (int i = 0; i < preselectedActions.length; ++i) {
+					mActDesc.addSurvey(preselectedActions[i]);
+				}
+				
+				updateActionsPrefStatus();
+			}
 		}
 		else {
 			mDays = savedInstanceState.getStringArray(KEY_SAVE_DAYS);
@@ -171,13 +194,12 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		mExitListener = listener;
 	}
 	
+	@SuppressWarnings("unused")
 	private void initializeGUI() {
 		TimePickerPreference trigTimePref = (TimePickerPreference) getPreferenceScreen()
 		 					.findPreference(PREF_KEY_TRIGGER_TIME);
-		CheckBoxPreference rangePref = (CheckBoxPreference) getPreferenceScreen()
-							.findPreference(PREF_KEY_ENABLE_RANGE);
-		CheckBoxPreference randPref = (CheckBoxPreference) getPreferenceScreen()
-							.findPreference(PREF_KEY_RANDOMIZE);
+		CheckBoxPreference rangePref = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_RANGE);
+		// CheckBoxPreference randPref = (CheckBoxPreference) findPreference(PREF_KEY_RANDOMIZE);
 		TimePickerPreference startPref = (TimePickerPreference) getPreferenceScreen()
 							.findPreference(PREF_KEY_START_TIME);
 		TimePickerPreference endPref = (TimePickerPreference) getPreferenceScreen()
@@ -186,12 +208,14 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		if(mTrigDesc.isRangeEnabled()) {
 			rangePref.setChecked(true);
 			
-			if(mTrigDesc.isRandomized()) {
+			/*
+			if(mTrigDesc.isRandomized() || SharedPreferencesHelper.TRIGGERS_TIMERANGE_ALWAYS_RANDOM) {
 				randPref.setChecked(true);
 			}
 			else {
 				trigTimePref.setTime(mTrigDesc.getTriggerTime());
 			}
+			*/
 			
 			startPref.setTime(mTrigDesc.getRangeStart());
 			endPref.setTime(mTrigDesc.getRangeEnd());
@@ -216,7 +240,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		if(!mAdminMode && !TrigUserConfig.editTimeTriggerRange) {
 
-			randPref.setEnabled(false);
+			// randPref.setEnabled(false);
 		}
 		
 		if(!mAdminMode && !TrigUserConfig.editTimeTriggerRange) {
@@ -248,11 +272,10 @@ public class TimeTrigEditActivity extends PreferenceActivity
 					.setEnabled(mAdminMode || TrigUserConfig.editTimeTrigger);
 	}
 	
+	@SuppressWarnings("unused")
 	private void udateTriggerDesc() {
-		CheckBoxPreference rangePref = (CheckBoxPreference) getPreferenceScreen()
-		 									.findPreference(PREF_KEY_ENABLE_RANGE);
-		CheckBoxPreference randPref = (CheckBoxPreference) getPreferenceScreen()
-											.findPreference(PREF_KEY_RANDOMIZE);
+		CheckBoxPreference rangePref = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_RANGE);
+		// CheckBoxPreference randPref = (CheckBoxPreference) findPreference(PREF_KEY_RANDOMIZE);
 		TimePickerPreference timePref = (TimePickerPreference) getPreferenceScreen()
 		 									.findPreference(PREF_KEY_TRIGGER_TIME);
 		TimePickerPreference startPref = (TimePickerPreference) getPreferenceScreen()
@@ -264,13 +287,18 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		if(rangePref.isChecked()) {
 			mTrigDesc.setRangeEnabled(true);
 			
-			if(randPref.isChecked()) {
+			/*
+			if(randPref.isChecked() || SharedPreferencesHelper.TRIGGERS_TIMERANGE_ALWAYS_RANDOM) {
 				mTrigDesc.setRandomized(true);
 			}
 			else {
 				mTrigDesc.setRandomized(false);
 				mTrigDesc.setTriggerTime(timePref.getTime());
 			}
+			*/
+			
+			// FAISAL: now we're always random when rangePref is true
+			mTrigDesc.setRandomized(true);
 			
 			mTrigDesc.setRangeStart(startPref.getTime());
 			mTrigDesc.setRangeEnd(endPref.getTime());
@@ -315,14 +343,14 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		TimePickerPreference trigTimePref = (TimePickerPreference) getPreferenceScreen()
 											 .findPreference(PREF_KEY_TRIGGER_TIME);
 		
-		CheckBoxPreference rangePref = (CheckBoxPreference) getPreferenceScreen()
-										.findPreference(PREF_KEY_ENABLE_RANGE);
+		CheckBoxPreference rangePref = (CheckBoxPreference) findPreference(PREF_KEY_ENABLE_RANGE);
+		// CheckBoxPreference randPref = (CheckBoxPreference) findPreference(PREF_KEY_RANDOMIZE);
 		
-		CheckBoxPreference randPref = (CheckBoxPreference) getPreferenceScreen()
-			.findPreference(PREF_KEY_RANDOMIZE);
+		// if triggers_timerange_always_random is set, then make randPref = rangePref
+		// randPref.setChecked(SharedPreferencesHelper.TRIGGERS_TIMERANGE_ALWAYS_RANDOM && rangePref.isChecked());
 		
-		if(rangePref.isChecked() && randPref.isChecked()) {
-			trigTimePref.setSummary("Random");
+		if(rangePref.isChecked()) {
+			trigTimePref.setSummary(R.string.trigger_time_randomized);
 			trigTimePref.setEnabled(false);
 		}
 		else {
@@ -351,7 +379,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		if (mActDesc.getSurveys().length > 0) {
 			actionsPref.setSummary(stringArrayToString(mActDesc.getSurveys()));
 		} else {
-			actionsPref.setSummary("None");
+			actionsPref.setSummary(R.string.trigger_no_actions);
 		}
 		
 	}
@@ -371,9 +399,9 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		updateRepeatStatusArray();
 		mRepeatDialog = new AlertDialog.Builder(this)
-					.setTitle("Select days")
-					.setPositiveButton("Done", this)
-					.setNegativeButton("Cancel", this)
+					.setTitle(R.string.trigger_time_select_days)
+					.setPositiveButton(R.string.done, this)
+					.setNegativeButton(R.string.cancel, this)
 					.setMultiChoiceItems(mDays, mRepeatStatus, this)
 					.create();
 		
@@ -381,24 +409,18 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	}
 	
 	private Dialog createInvalidTimeAlert() {
-		final String msg =  "Make sure that\n\n" +
-							"- the End Time is after the Start Time\n" +
-							"- the Trigger Time is between Start Time & End Time";
-		
 		return new AlertDialog.Builder(this)
-					.setTitle("Invalid time settings!")
-					.setNegativeButton("Cancel", null)
-					.setMessage(msg)
+					.setTitle(R.string.trigger_time_invalid_settings)
+					.setNegativeButton(R.string.cancel, null)
+					.setMessage(R.string.trigger_time_invalid_text)
 					.create();
 	}
 	
 	private Dialog createNoSurveysSelectedAlert() {
-		final String msg =  "Make sure that at least one survey is selected";
-		
 		return new AlertDialog.Builder(this)
-					.setTitle("No survey selected!")
-					.setNegativeButton("Cancel", null)
-					.setMessage(msg)
+					.setTitle(R.string.trigger_time_no_survey_selected)
+					.setNegativeButton(R.string.cancel, null)
+					.setMessage(R.string.trigger_time_no_survey_selected_text)
 					.create();
 	}
 	
@@ -421,8 +443,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	@Override
 	public boolean onPreferenceClick(Preference pref) {
 		
-		if(pref.getKey().equals(PREF_KEY_RANDOMIZE) ||
-		   pref.getKey().equals(PREF_KEY_ENABLE_RANGE)) {
+		if(pref.getKey().equals(PREF_KEY_ENABLE_RANGE)) {
 			updateTriggerTimePrefStatus();
 		} else if(pref.getKey().equals(PREF_KEY_REPEAT_DAYS)) {
 			removeDialog(DIALOG_ID_REPEAT_SEL);
@@ -477,7 +498,6 @@ public class TimeTrigEditActivity extends PreferenceActivity
 	}
 	
 	private Dialog createEditActionDialog() {
-		
 		if(mActSelected == null) {
 			mActSelected = new boolean[mActions.length];
 			for(int i = 0; i < mActSelected.length; i++) {
@@ -487,8 +507,15 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		AlertDialog.Builder builder = 
 	 			new AlertDialog.Builder(this)
-			   .setTitle("Select surveys")
-			   .setNegativeButton("Cancel", null)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
+			   .setView(new ActionSelectorView(getBaseContext(), mActions, mActSelected));
+		
+		/*
+		AlertDialog.Builder builder = 
+	 			new AlertDialog.Builder(this)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
 			   .setMultiChoiceItems(mActions, mActSelected, 
 					   new DialogInterface.OnMultiChoiceClickListener() {
 				
@@ -499,9 +526,10 @@ public class TimeTrigEditActivity extends PreferenceActivity
 					mActSelected[which] = isChecked;
 				}
 			});
+		*/
 
 		if(mAdminMode || TrigUserConfig.editTriggerActions) {
-			 builder.setPositiveButton("Done", 
+			 builder.setPositiveButton(R.string.done,
 					 new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -519,7 +547,6 @@ public class TimeTrigEditActivity extends PreferenceActivity
 				}
 			});
 		}
-
 	
 		return builder.create();
 	}

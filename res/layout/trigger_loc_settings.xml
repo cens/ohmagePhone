@@ -12,7 +12,7 @@
 	    android:paddingLeft="6dip"
 	    android:maxLines="2"
 		android:ellipsize="end"
-		android:text="Tap on a place to view it on the maps. Press and hold a place for more options"
+		android:text="@string/trigger_loc_manage_places_summary"
 	    android:textAppearance="?android:attr/textAppearanceMedium" 
 	    style="?android:attr/listSeparatorTextViewStyle" />
 	
@@ -39,14 +39,14 @@
 		  	android:ellipsize="end"
 		  	android:inputType="text"
 		  	android:layout_height="fill_parent"
-		  	android:hint="Type to add a new place"
+			android:hint="@string/trigger_loc_add_place_hint"
 		  	android:textAppearance="?android:attr/textAppearanceMedium"
 		/>
 		  
 		
 		<Button
 			android:id="@+id/trigger_button_add_categ"
-			android:text="Add"
+			android:text="@string/trigger_loc_add_place"
 			android:layout_width="wrap_content"
 		   	android:layout_weight="0.3"
 		  	android:layout_height="fill_parent"

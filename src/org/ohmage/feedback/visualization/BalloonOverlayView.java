@@ -46,9 +46,14 @@ import com.google.android.maps.OverlayItem;
  */
 public class BalloonOverlayView extends FrameLayout {
 
-	private LinearLayout layout;
-	private TextView title;
-	private TextView snippet;
+	public interface OnBalloonClosedListener {
+		public void onBalloonClosed(BalloonOverlayView view);
+	}
+
+	private final LinearLayout layout;
+	private final TextView title;
+	private final TextView snippet;
+	private OnBalloonClosedListener mClosedListner;
 
 	/**
 	 * Create a new BalloonOverlayView.
@@ -73,8 +78,11 @@ public class BalloonOverlayView extends FrameLayout {
 
 		ImageView close = (ImageView) v.findViewById(R.id.close_img_button);
 		close.setOnClickListener(new OnClickListener() {
+			@Override
 			public void onClick(View v) {
 				layout.setVisibility(GONE);
+				if(mClosedListner != null)
+					mClosedListner.onBalloonClosed(BalloonOverlayView.this);
 			}
 		});
 
@@ -108,6 +116,10 @@ public class BalloonOverlayView extends FrameLayout {
 			snippet.setVisibility(GONE);
 		}
 		
+	}
+
+	public void setOnBalloonClosedListener(OnBalloonClosedListener onBalloonClosedListener) {
+		mClosedListner = onBalloonClosedListener;
 	}
 
 }

@@ -16,7 +16,7 @@
 	
 	<CheckBox 
 		android:id="@+id/check_do_not_show"
-		android:text="Do not show this message again" 
+		android:text="@string/trigger_loc_map_tips_hide"
 		android:layout_above="@+id/button_close"
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent" />
@@ -24,7 +24,7 @@
 	<Button 
 		android:id="@+id/button_close"
 		android:layout_marginTop="10dip"
-		android:text="Close" 
+		android:text="@string/close"
 		android:layout_alignParentBottom="true" 
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent" />

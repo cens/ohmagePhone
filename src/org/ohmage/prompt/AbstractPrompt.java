@@ -36,6 +36,9 @@ import org.ohmage.prompt.timestamp.TimestampPrompt;
 
 public abstract class AbstractPrompt implements Prompt {
 
+	public static final String SKIPPED_VALUE = "SKIPPED";
+	public static final String NOT_DISPLAYED_VALUE = "NOT_DISPLAYED";
+
 	// TODO change private to protected
 	protected String mId;
 	protected String mPromptType;
@@ -77,11 +80,12 @@ public abstract class AbstractPrompt implements Prompt {
 		}
 	}
 	
+	@Override
 	public Object getResponseObject() {
 		if (!isDisplayed()) {
-			return "NOT_DISPLAYED";
+			return NOT_DISPLAYED_VALUE;
 		} else if (isSkipped()) {
-			return "SKIPPED";
+			return SKIPPED_VALUE;
 		} else {
 			return getTypeSpecificResponseObject();
 		}

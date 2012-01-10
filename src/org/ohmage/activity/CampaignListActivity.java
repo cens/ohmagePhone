@@ -84,7 +84,7 @@ public class CampaignListActivity extends BaseSingleFragmentActivity implements 
 
 	@Override
 	public void onCampaignActionDownload(String campaignUrn) {
-		Toast.makeText(this, "The Download action should not be exposed in this activity!", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, R.string.campaign_list_download_action_invalid, Toast.LENGTH_SHORT).show();
 		Log.w(TAG, "onCampaignActionDownload should not be exposed in this activity.");
 	}
 
@@ -107,39 +107,42 @@ public class CampaignListActivity extends BaseSingleFragmentActivity implements 
 	 * @see android.app.Activity#onCreateDialog(int, android.os.Bundle)
 	 */
 	@Override
-	protected Dialog onCreateDialog(int id, Bundle args) {
-		
+	protected Dialog onCreateDialog(final int id, Bundle args) {
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		
-		String message = "This campaign is unavailable.";
-		
+
 		switch (id) {
 		case Campaign.STATUS_STOPPED:
-			message = "This campaign is stopped.";
+			builder.setMessage(R.string.campaign_list_campaign_stopped);
 			break;
 		case Campaign.STATUS_OUT_OF_DATE:
-			message = "This campaign is out of date";
+			builder.setMessage(R.string.campaign_list_campaign_out_of_date);
 			break;
 		case Campaign.STATUS_INVALID_USER_ROLE:
-			message = "Invalid user role.";
+			builder.setMessage(R.string.campaign_list_campaign_invalid_user_role);
 			break;
 		case Campaign.STATUS_NO_EXIST:
-			message = "This campaign no longer exists.";
+			builder.setMessage(R.string.campaign_list_campaign_no_exist);
 			break;
+		default:
+			builder.setMessage(R.string.campaign_list_campaign_unavailable);
 		}
-		
-		builder.setMessage(message)
-				.setCancelable(true)
-				.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						
-						ContentResolver cr = getContentResolver();
-						cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "= '" + campaignUrnForDialogs + "'", null);
-					}
-				}).setNegativeButton("Ignore", null);
-		
+
+		builder.setCancelable(true)
+		.setNegativeButton(R.string.ignore, null)
+		.setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(id == Campaign.STATUS_OUT_OF_DATE)
+					Campaign.setRemote(CampaignListActivity.this, campaignUrnForDialogs);
+				else {
+					ContentResolver cr = getContentResolver();
+					cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[] { campaignUrnForDialogs });
+				}
+			}
+		});
+
 		return builder.create();
 	}
 	

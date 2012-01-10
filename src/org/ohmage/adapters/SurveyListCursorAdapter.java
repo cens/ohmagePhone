@@ -4,6 +4,7 @@ import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Survey;
 
 import android.content.Context;
@@ -37,6 +38,7 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
 		
 		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
+		final int campaignStatus = cursor.getInt(cursor.getColumnIndex(Campaigns.CAMPAIGN_STATUS));
 		final String surveyId = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
 		
 		iconImage.setVisibility(View.GONE);
@@ -47,7 +49,11 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 			
 			@Override
 			public void onClick(View v) {
-				mListener.onSubActionClicked(Campaigns.buildSurveysUri(campaignUrn, surveyId));
+				if(campaignStatus == Campaign.STATUS_READY) {
+					mListener.onSubActionClicked(Campaigns.buildSurveysUri(campaignUrn, surveyId));
+				} else {
+					mListener.onSubActionClicked(null);
+				}
 			}
 		});
 		
@@ -56,24 +62,31 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		int status = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_STATUS));
 		boolean anytime = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_ANYTIME)) == 0 ? false : true;
 		
-		switch (status) {
-		case Survey.STATUS_NORMAL:
-			if (anytime) {
-				actionButton.setImageResource(R.drawable.ic_menu_pencil_yellow);
-			} else {
-				actionButton.setImageResource(R.drawable.ic_menu_pencil_grey);
-				actionButton.setEnabled(false);
+		if(campaignStatus == Campaign.STATUS_READY) {
+			switch (status) {
+				case Survey.STATUS_NORMAL:
+					if (anytime) {
+						// actionButton.setImageResource(R.drawable.ic_menu_pencil_yellow);
+						actionButton.setImageResource(R.drawable.subaction_survey_ready);
+					} else {
+						// actionButton.setImageResource(R.drawable.ic_menu_pencil_grey);
+						actionButton.setImageResource(R.drawable.subaction_survey_disabled);
+						actionButton.setEnabled(false);
+					}
+					break;
+
+				case Survey.STATUS_TRIGGERED:
+					// actionButton.setImageResource(R.drawable.ic_menu_pencil_green);
+					actionButton.setImageResource(R.drawable.subaction_survey_pending);
+					break;
+
+				default:
+					//campaign is in some unknown state!
+					actionButton.setVisibility(View.INVISIBLE);
+					break;
 			}
-			break;
-			
-		case Survey.STATUS_TRIGGERED:
-			actionButton.setImageResource(R.drawable.ic_menu_pencil_green);
-			break;
-			
-		default:
-			//campaign is in some unknown state!
-			actionButton.setVisibility(View.INVISIBLE);
-			break;
+		} else {
+			actionButton.setImageResource(R.drawable.subaction_survey_disabled);
 		}
 	}
 

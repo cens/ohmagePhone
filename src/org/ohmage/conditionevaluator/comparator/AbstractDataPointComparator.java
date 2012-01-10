@@ -16,6 +16,7 @@
 package org.ohmage.conditionevaluator.comparator;
 
 import org.ohmage.conditionevaluator.DataPoint;
+import org.ohmage.prompt.AbstractPrompt;
 
 /**
  * Base class for prompt-type-specific data point comparators.
@@ -42,7 +43,7 @@ public abstract class AbstractDataPointComparator implements DataPointComparator
 	    // If the data point is SKIPPED, then immediately return false UNLESS the condition is "=="
 	    // and the value is skipped (A SKIPPED data point can equal "SKIPPED")
 	    if (dataPoint.isSkipped()) {
-	        if ("==".equals(condition) && "SKIPPED".equals(value)) {
+	        if ("==".equals(condition) && AbstractPrompt.SKIPPED_VALUE.equals(value)) {
 	            return true;
 	        }
 	        else {
@@ -50,7 +51,7 @@ public abstract class AbstractDataPointComparator implements DataPointComparator
 	        }
 	    }
 	    
-	    if (value.equalsIgnoreCase("SKIPPED")) {
+	    if (value.equalsIgnoreCase(AbstractPrompt.SKIPPED_VALUE)) {
 	    	if ("==".equals(condition)) {
 	    		return dataPoint.isSkipped();
 	    	} else if ("!=".equals(condition)) {

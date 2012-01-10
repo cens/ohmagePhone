@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.ohmage.prompt.remoteactivity;
 
-import java.util.Iterator;
+import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +36,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import edu.ucla.cens.systemlog.Log;
+
+import java.util.Iterator;
 
 /**
  * Prompt that will launch a remote Activity that can either be part of this

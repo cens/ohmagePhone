@@ -85,9 +85,8 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 	}
 
 	private View createTabView(final int textResource){
-		View view = LayoutInflater.from(this).inflate(R.layout.rh_tabs_bg, null);
-		TextView tv = (TextView) view.findViewById(R.id.rh_tabs_text);
-		tv.setText(textResource);
+		TextView view = (TextView) LayoutInflater.from(this).inflate(R.layout.tab_indicator, mTabHost.getTabWidget(), false);
+		view.setText(getString(textResource).toUpperCase());
 		return view;
 	}
 

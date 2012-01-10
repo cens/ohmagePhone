@@ -3,8 +3,12 @@ package org.ohmage.activity;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.json.JSONException;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Response;
+import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
@@ -12,6 +16,7 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.FeedbackService;
+import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -24,7 +29,7 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.slezica.tools.async.ManagedAsyncTask;
 
-class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXmlResponse>{
+class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, Response>{
 	
 	private static final String TAG = "CampaignXmlDownloadTask";
 		
@@ -48,10 +53,27 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 	}
 
 	@Override
-	protected CampaignXmlResponse doInBackground(String... params) {
+	protected Response doInBackground(String... params) {
 		String username = (String) params[0];
 		String hashedPassword = (String) params[1];
 		OhmageApi api = new OhmageApi(mContext);
+		ContentResolver cr = mContext.getContentResolver();
+
+		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "short", mCampaignUrn);
+
+		if(campaignResponse.getResult() == Result.SUCCESS) {
+			ContentValues values = new ContentValues();
+			// Update campaign created timestamp when we download xml
+			try {
+				values.put(Campaigns.CAMPAIGN_CREATED, campaignResponse.getData().getJSONObject(mCampaignUrn).getString("creation_timestamp"));
+				cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
+			} catch (JSONException e) {
+				Log.e(TAG, "Error parsing json data for " + mCampaignUrn, e);
+			}
+		} else {
+			return campaignResponse;
+		}
+
 		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
@@ -59,7 +81,6 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String downloadTimestamp = dateFormat.format(new Date());
 		
-			ContentResolver cr = mContext.getContentResolver();
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_URN, mCampaignUrn);
 			values.put(Campaigns.CAMPAIGN_DOWNLOADED, downloadTimestamp);
@@ -83,8 +104,6 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 				WakefulIntentService.sendWakefulWork(mContext, fbIntent);
 			}
 		} else { 
-			
-			ContentResolver cr = mContext.getContentResolver();
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
 			cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
@@ -94,11 +113,12 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 	}
 	
 	@Override
-	protected void onPostExecute(CampaignXmlResponse response) {
+	protected void onPostExecute(Response response) {
 		super.onPostExecute(response);
 		
 		if (response.getResult() == Result.SUCCESS) {
-			
+			// setup initial triggers for this campaign
+			TriggerFramework.setDefaultTriggers(getActivity(), mCampaignUrn);
 		} else if (response.getResult() == Result.FAILURE) {
 			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
 			
@@ -121,19 +141,19 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 			
 			if (isAuthenticationError) {
 				NotificationHelper.showAuthNotification(mContext);
-				Toast.makeText(mContext, "Authentication error while trying to download campaign xml.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, R.string.campaign_xml_auth_error, Toast.LENGTH_SHORT).show();
 			} else {
-				Toast.makeText(mContext, "Unexpected response received from server while trying to download campaign xml.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, R.string.campaign_xml_unexpected_response, Toast.LENGTH_SHORT).show();
 			}
 			
 		} else if (response.getResult() == Result.HTTP_ERROR) {
 			Log.e(TAG, "http error");
 			
-			Toast.makeText(mContext, "Network error occurred while trying to download campaign xml.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, R.string.campaign_xml_network_error, Toast.LENGTH_SHORT).show();
 		} else {
 			Log.e(TAG, "internal error");
 			
-			Toast.makeText(mContext, "Internal error occurred while trying to download campaign xml.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, R.string.campaign_xml_internal_error, Toast.LENGTH_SHORT).show();
 		} 
 	}
 }

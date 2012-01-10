@@ -16,14 +16,13 @@
 package org.ohmage.activity;
 
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +36,6 @@ import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
@@ -64,6 +62,7 @@ import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,9 +95,10 @@ public class SurveyActivity extends Activity {
 	private String mSurveyId;
 	private String mSurveyTitle;
 	private String mSurveySubmitText;
-	private String mLaunchTime;
+	private long mLaunchTime;
 	private boolean mReachedEnd;
-	
+	private boolean mSurveyFinished = false;
+
 	private String mLastSeenRepeatableSetId;
 	
 	public String getSurveyId() {
@@ -124,7 +124,7 @@ public class SurveyActivity extends Activity {
         
         	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     		Calendar now = Calendar.getInstance();
-    		mLaunchTime = dateFormat.format(now.getTime());
+    		mLaunchTime = now.getTimeInMillis();
     		
     		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
     		
@@ -194,11 +194,11 @@ public class SurveyActivity extends Activity {
 	private class NonConfigurationInstance {
 		List<SurveyElement> surveyElements;
 		int index;
-		String launchTime;
+		long launchTime;
 		boolean reachedEnd;
 		String lastSeenRepeatableSetId;
 		
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, String launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
@@ -215,6 +215,7 @@ public class SurveyActivity extends Activity {
 			switch (v.getId()) {
 			case R.id.next_button:
 				if (mReachedEnd) {
+					mSurveyFinished = true;
 					storeResponse();
 					TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
@@ -592,15 +593,15 @@ public class SurveyActivity extends Activity {
 	}
 	
 	private void showSubmitScreen() {
-		mNextButton.setText("Submit");
-		mPrevButton.setText("Previous");
+		mNextButton.setText(R.string.submit);
+		mPrevButton.setText(R.string.previous);
 		mPrevButton.setVisibility(View.VISIBLE);
 		mSkipButton.setVisibility(View.INVISIBLE);
 		
 		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
 		
-		mPromptText.setText("Survey Complete!");
+		mPromptText.setText(R.string.survey_complete);
 		mProgressBar.setProgress(mProgressBar.getMax());
 		
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -625,8 +626,8 @@ public class SurveyActivity extends Activity {
 		if (mSurveyElements.get(index) instanceof Message) {
 			Message message = (Message)mSurveyElements.get(index);
 			
-			mNextButton.setText("Next");
-			mPrevButton.setText("Previous");
+			mNextButton.setText(R.string.next);
+			mPrevButton.setText(R.string.previous);
 			mSkipButton.setVisibility(View.INVISIBLE);
 			
 			if (index == 0) {
@@ -638,7 +639,7 @@ public class SurveyActivity extends Activity {
 			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
 			
-			mPromptText.setText("Message");
+			mPromptText.setText(R.string.survey_message_title);
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 			
 			mPromptFrame.removeAllViews();
@@ -654,8 +655,8 @@ public class SurveyActivity extends Activity {
 			
 			AbstractPrompt prompt = (AbstractPrompt)mSurveyElements.get(index);
 			
-			mNextButton.setText("Next");
-			mPrevButton.setText("Previous");
+			mNextButton.setText(R.string.next);
+			mPrevButton.setText(R.string.previous);
 						
 			if (index == 0) {
 				mPrevButton.setVisibility(View.INVISIBLE);
@@ -683,6 +684,10 @@ public class SurveyActivity extends Activity {
 			} else {
 				mSkipButton.setVisibility(View.INVISIBLE);
 			}
+
+			//If its a photo prompt we need to recycle the image
+			if(mSurveyElements.get(index) instanceof PhotoPrompt)
+				PhotoPrompt.clearView(mPromptFrame);
 			
 			mPromptFrame.removeAllViews();
 			mPromptFrame.addView(prompt.getView(this));
@@ -702,11 +707,11 @@ public class SurveyActivity extends Activity {
 			String repeatText = terminator.getFalseLabel();
 			
 			if (terminateText == null || terminateText.equals("")) {
-				terminateText = "Terminate";
+				terminateText = getString(R.string.survey_repeatable_set_terminate);
 			}
 			
 			if (repeatText == null || repeatText.equals("")) {
-				repeatText = "Repeat";
+				repeatText = getString(R.string.survey_repeatable_set_repeat);
 			}
 			
 			mNextButton.setText(terminateText);
@@ -725,7 +730,7 @@ public class SurveyActivity extends Activity {
 			
 			// TODO for now I'm casting, but maybe I should move getters/setters to interface?
 			// or just use a list of AbstractPrompt
-			mPromptText.setText("End of repeatable set");
+			mPromptText.setText(R.string.survey_repeatable_set_title);
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 			
 //			if (terminator.getSkippable().equals("true")) {
@@ -798,11 +803,11 @@ public class SurveyActivity extends Activity {
 						dataPoint.setValue(dataPointValue);
 					} else if (PromptType.multi_choice_custom.equals(dataPoint.getPromptType())) {
 						JSONArray jsonArray;
-						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
+						ArrayList<String> dataPointValue = new ArrayList<String>();
 						try {
 							jsonArray = (JSONArray)prompt.getResponseObject();
 							for (int j = 0; j < jsonArray.length(); j++) {
-								dataPointValue.add((Integer)jsonArray.get(j));
+								dataPointValue.add((String)jsonArray.get(j));
 							}
 						} catch (JSONException e) {
 							// TODO Auto-generated catch block
@@ -827,35 +832,7 @@ public class SurveyActivity extends Activity {
 	}
 	
 	private void storeResponse() {
-		
-		//finalize photos
-		for (int i = 0; i < mSurveyElements.size(); i++) {
-			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
-				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
-				final String uuid = (String) photoPrompt.getResponseObject();
-				
-				if (photoPrompt.isDisplayed() && !photoPrompt.isSkipped()) {
-					File [] files = Campaign.getCampaignImageDir(this, mCampaignUrn).listFiles(new FilenameFilter() {
-						
-						@Override
-						public boolean accept(File dir, String filename) {
-							if (filename.contains("temp" + uuid)) {
-								return true;
-							} else {
-								return false;
-							}
-						}
-					});
-					
-					for (File f : files) {
-						f.renameTo(new File(Campaign.getCampaignImageDir(this, mCampaignUrn), uuid + ".jpg"));
-						
-						// TODO: add thumbnail generation, oddly enough as a png
-					}
-				}
-			}
-		}
-		
+
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -877,6 +854,7 @@ public class SurveyActivity extends Activity {
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
 			surveyLaunchContextJson.put("launch_time", mLaunchTime);
+			surveyLaunchContextJson.put("launch_timezone", timezone);
 			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mCampaignUrn, mSurveyTitle));
 		} catch (JSONException e) {
 			Log.e(TAG, "JSONException when trying to generate survey launch context json", e);
@@ -963,6 +941,7 @@ public class SurveyActivity extends Activity {
 		// insert the response, which indirectly populates the prompt response tables, etc.
 		Response candidate = new Response();
 		
+		candidate.uuid = UUID.randomUUID().toString();
 		candidate.campaignUrn = mCampaignUrn;
 		candidate.username = username;
 		candidate.date = date;
@@ -991,7 +970,18 @@ public class SurveyActivity extends Activity {
 		}
 
 		ContentResolver cr = getContentResolver();
-		cr.insert(Responses.CONTENT_URI, candidate.toCV());
+		Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
+
+		// finalize photos now that we have the responseUri
+		// the photos are initially in the campaign dir, until the response is saved
+		for (int i = 0; i < mSurveyElements.size(); i++) {
+			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
+				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
+				if (photoPrompt.isPromptAnswered()) {
+					photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
+				}
+			}
+		}
 		
 		// create an intent and broadcast it to any interested receivers
 		Intent i = new Intent("org.ohmage.SURVEY_COMPLETE");
@@ -1021,5 +1011,16 @@ public class SurveyActivity extends Activity {
 		i.putExtra(Responses.RESPONSE_JSON, response);
 
 		this.sendBroadcast(i);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		// If we are finishing, but the survey was not completed we should clean up any data
+		if(isFinishing() && !mSurveyFinished) {
+			for(SurveyElement element : mSurveyElements)
+				if (element instanceof PhotoPrompt)
+					((PhotoPrompt) element).clearImage();
+		}
 	}
 }

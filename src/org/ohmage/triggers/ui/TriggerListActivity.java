@@ -16,6 +16,8 @@
 package org.ohmage.triggers.ui;
 
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.base.TriggerDB;
@@ -26,14 +28,12 @@ import org.ohmage.triggers.notif.NotifEditActivity;
 import org.ohmage.triggers.notif.NotifSettingsActivity;
 import org.ohmage.triggers.notif.Notifier;
 import org.ohmage.triggers.utils.TrigPrefManager;
-import org.ohmage.triggers.utils.TrigTextInput;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,6 +64,9 @@ public class TriggerListActivity extends ListActivity
 		TriggerListActivity.class.getName() + ".campain_urn";
 	public static final String KEY_ACTIONS = 
 		TriggerListActivity.class.getName() + ".actions";
+	// pass survey names through here to preselect them in the trigger creation page
+	public static final String KEY_PRESELECTED_ACTIONS = 
+			TriggerListActivity.class.getName() + ".preselected_actions";
 	public static final String KEY_ADMIN_MODE = 
 		TriggerListActivity.class.getName() + ".admin_mode";
 	private static final String KEY_SAVE_DIALOG_TRIG_ID = 
@@ -84,18 +87,29 @@ public class TriggerListActivity extends ListActivity
 	private static final int DIALOG_ID_PREFERENCES = 1;
 	private static final int DIALOG_ID_ACTION_SEL = 2;
 	private static final int DIALOG_ID_DELETE = 3;
-	private static final int DIALOG_ID_ADMIN_PASS = 4;
 	
 	private static final int REQ_EDIT_NOTIF = 0;
+	private static final int ADMIN_REQUESTED = 1;
 	
 	private Cursor mCursor;
 	private TriggerDB mDb;
 	private TriggerTypeMap mTrigMap;
 	private String[] mActions;
+	private String[] mPreselectedActions; // actions which will be preselected in a new trigger window
 	private String mCampaignUrn;
 	private int mDialogTrigId = -1;
 	private String mDialogText = null; 
 	private boolean[] mActSelected = null;
+
+	/**
+	 * Instead of having a shared preference admin mode, we want admin mode to end once the user leaves the activity
+	 */
+	private boolean mAdminMode = TRIGGER_ADMIN_MODE;
+
+	/**
+	 * Set the default admin mode. If it is true, we don't need to show the admin menu
+	 */
+	public static boolean TRIGGER_ADMIN_MODE = SharedPreferencesHelper.ADMIN_MODE;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,7 +120,7 @@ public class TriggerListActivity extends ListActivity
 		mTrigMap = new TriggerTypeMap();
 		
 		TextView tv = (TextView) findViewById(R.id.add_new_label);
-		tv.setText("Triggers");
+		tv.setText(R.string.triggers_title);
 		
 		ImageButton bAdd = (ImageButton) findViewById(R.id.button_add_new);
 		bAdd.setOnClickListener(this);
@@ -120,6 +134,12 @@ public class TriggerListActivity extends ListActivity
 			Log.e(DEBUG_TAG, "TriggerListActivity: Invoked with out passing surveys");
 			finish();
 			return;
+		}
+		
+		// gather any preselected actions that were specified
+		// we'll feed these to the trigger create activity later to preselect certain actions
+		if (i.hasExtra(KEY_PRESELECTED_ACTIONS)) {
+			mPreselectedActions = i.getStringArrayExtra(KEY_PRESELECTED_ACTIONS);
 		}
 		
 		if(i.hasExtra(KEY_CAMPAIGN_URN)) {
@@ -142,7 +162,7 @@ public class TriggerListActivity extends ListActivity
 		//Display message and exit if there are no supported 
 		//trigger types
 		if(mTrigMap.getAllTriggers().size() == 0) {
-			Toast.makeText(this, "No supported trigger types!", 
+			Toast.makeText(this, R.string.trigger_nothing_supported,
 					Toast.LENGTH_SHORT).show();
 			
 			finish();
@@ -166,6 +186,7 @@ public class TriggerListActivity extends ListActivity
 		outState.putInt(KEY_SAVE_DIALOG_TRIG_ID, mDialogTrigId);
 		outState.putBooleanArray(KEY_SAVE_SEL_ACTIONS, mActSelected);
 		outState.putString(KEY_SAVE_DIALOG_TEXT, mDialogText);
+		outState.putBoolean(KEY_ADMIN_MODE, mAdminMode);
 	}
 	
 	@Override
@@ -175,6 +196,7 @@ public class TriggerListActivity extends ListActivity
 		mDialogTrigId = state.getInt(KEY_SAVE_DIALOG_TRIG_ID, -1);
 		mActSelected = state.getBooleanArray(KEY_SAVE_SEL_ACTIONS);
 		mDialogText = state.getString(KEY_SAVE_DIALOG_TEXT);
+		mAdminMode = state.getBoolean(KEY_ADMIN_MODE);
 	}
 	
 	private void updateGUIWithAdminStatus(boolean status) {
@@ -366,73 +388,23 @@ public class TriggerListActivity extends ListActivity
     }
 	
 	private boolean isAdminLoggedIn() {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
-														MODE_PRIVATE);
-		//Let the app be in admin mode the very first time
-		return pref.getBoolean(KEY_ADMIN_MODE, true);
+		return mAdminMode;
 	}
 	
 	private void setAdminMode(boolean enable) {
-		SharedPreferences pref = getSharedPreferences(PREF_FILE_NAME + "_" + "GLOBAL", 
-														MODE_PRIVATE);
-		SharedPreferences.Editor editor = pref.edit();
-		editor.putBoolean(KEY_ADMIN_MODE, enable);
-		editor.commit();
-		
-		updateGUIWithAdminStatus(enable);
+		if(mAdminMode != enable) {
+			mAdminMode  = enable;
+			updateGUIWithAdminStatus(enable);
+		}
 	}
 
-	private Dialog createAdminPassDialog() {
-		TrigTextInput ti = new TrigTextInput(this);
-		ti.setNumberMode(true);
-		ti.setPasswordMode(true);
-		ti.setAllowEmptyText(false);
-		ti.setPositiveButtonText("Login");
-		ti.setNegativeButtonText("Cancel");
-		ti.setTitle("Admin password?");
-		
-		if(mDialogText != null) {
-			ti.setText(mDialogText);
-		}
-		
-		ti.setOnTextChangedListener(new TrigTextInput.onTextChangedListener() {
-			@Override
-			public boolean onTextChanged(TrigTextInput textInput, String text) {
-				mDialogText = text;
-				return true;
-			}
-		});
-		
-		ti.setOnClickListener(new TrigTextInput.onClickListener() {
-			
-			@Override
-			public void onClick(TrigTextInput ti, int which) {
-				if(which == TrigTextInput.BUTTON_POSITIVE) {
-					
-					if(ti.getText().equals(TrigUserConfig.adminPass)) {
-						setAdminMode(true);
-						Toast.makeText(TriggerListActivity.this, 
-								"Logged in", Toast.LENGTH_SHORT)
-								.show();
-					}
-					else {
-						Toast.makeText(TriggerListActivity.this, 
-										"Wrong password", Toast.LENGTH_SHORT)
-							 .show();
-					}
-				}
-			}
-		});
-		
-		return ti.createDialog();
-	}
 	private Dialog createDeleteConfirmDialog(int trigId) {
 		
 		return new AlertDialog.Builder(this)
-					.setNegativeButton("No", null)
-					.setTitle("Confirm delete")
-					.setMessage("Delete trigger?")
-					.setPositiveButton("Yes", 
+					.setNegativeButton(R.string.cancel, null)
+					.setTitle(R.string.trigger_delete_title)
+					.setMessage(R.string.trigger_delete_text)
+					.setPositiveButton(R.string.delete,
 								new DialogInterface.OnClickListener() {
 						
 						@Override
@@ -463,8 +435,15 @@ public class TriggerListActivity extends ListActivity
 		
 		AlertDialog.Builder builder = 
 	 			new AlertDialog.Builder(this)
-			   .setTitle("Select surveys")
-			   .setNegativeButton("Cancel", null)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
+			   .setView(new ActionSelectorView(getBaseContext(), mActions, mActSelected));
+		
+		/*
+		AlertDialog.Builder builder = 
+	 			new AlertDialog.Builder(this)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
 			   .setMultiChoiceItems(mActions, mActSelected, 
 					   new DialogInterface.OnMultiChoiceClickListener() {
 				
@@ -475,9 +454,10 @@ public class TriggerListActivity extends ListActivity
 					mActSelected[which] = isChecked;
 				}
 			});
+		*/
 
 		if(isAdminLoggedIn() || TrigUserConfig.editTriggerActions) {
-			 builder.setPositiveButton("Done", 
+			 builder.setPositiveButton(R.string.done,
 					 new DialogInterface.OnClickListener() {
 				
 				@Override
@@ -501,13 +481,13 @@ public class TriggerListActivity extends ListActivity
 	
 	private Dialog createAddNewSelDialog() {
 		TriggerTypeSelector typeSel = new TriggerTypeSelector(this);
-		typeSel.setTitle("Create new");
+		typeSel.setTitle(R.string.trigger_create);
 		typeSel.setOnClickListener(new TriggerTypeSelector.OnClickListener() {
 			
 			@Override
 			public void onClick(String trigType) {
 				mTrigMap.getTrigger(trigType)
-						.launchTriggerCreateActivity(TriggerListActivity.this, mCampaignUrn, mActions,
+						.launchTriggerCreateActivity(TriggerListActivity.this, mCampaignUrn, mActions, mPreselectedActions,
 													 isAdminLoggedIn());
 			}
 		});
@@ -517,7 +497,7 @@ public class TriggerListActivity extends ListActivity
 	
 	private Dialog createEditPrefSelDialog() {
 		TriggerTypeSelector typeSel = new TriggerTypeSelector(this);
-		typeSel.setTitle("Edit preferences");
+		typeSel.setTitle(R.string.trigger_preferences);
 		typeSel.setOnClickListener(new TriggerTypeSelector.OnClickListener() {
 			
 			@Override
@@ -554,9 +534,6 @@ public class TriggerListActivity extends ListActivity
 			
 		case DIALOG_ID_DELETE:
 			return createDeleteConfirmDialog(mDialogTrigId);
-		
-		case DIALOG_ID_ADMIN_PASS:
-			return createAdminPassDialog();
 		}
 		
 		return null;
@@ -573,13 +550,15 @@ public class TriggerListActivity extends ListActivity
 		menu.removeItem(MENU_ID_SETTINGS);
 		
 		boolean adminMode = isAdminLoggedIn();
-		if(!adminMode) {
-			menu.add(0, MENU_ID_ADMIN_LOGIN, 0, "Admin access")
-		    		.setIcon(R.drawable.ic_menu_login);
-		}
-		else {
-			menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, "Logoff admin")
-		 		.setIcon(R.drawable.ic_menu_login);
+		if(!TRIGGER_ADMIN_MODE) {
+			if(!adminMode) {
+				menu.add(0, MENU_ID_ADMIN_LOGIN, 0, R.string.trigger_menu_admin_turn_on)
+				.setIcon(R.drawable.ic_menu_login);
+			}
+			else {
+				menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, R.string.trigger_menu_admin_turn_off)
+				.setIcon(R.drawable.ic_menu_login);
+			}
 		}
 		
 		//Add 'preferences' menu item only if there is at least
@@ -587,7 +566,7 @@ public class TriggerListActivity extends ListActivity
 		for(TriggerBase trig : mTrigMap.getAllTriggers()) {
 			
 			if(trig.hasSettings()) {
-				menu.add(0, MENU_ID_SETTINGS, 0, "Preferences")
+				menu.add(0, MENU_ID_SETTINGS, 0, R.string.trigger_menu_preferences)
 					.setIcon(R.drawable.ic_menu_preferences)
 					.setEnabled(adminMode || TrigUserConfig.editTriggerSettings);
 				
@@ -595,11 +574,11 @@ public class TriggerListActivity extends ListActivity
 			}
 		}
 	    
-		menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, "Notification settings")
+		menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, R.string.trigger_menu_notifications)
 			.setIcon(R.drawable.ic_menu_notification)
 			.setEnabled(adminMode || TrigUserConfig.editNotificationSettings);
 		
-		menu.add(0, MENU_ID_RINGTONE_SETTINGS, 0, "Ringtone settings")
+		menu.add(0, MENU_ID_RINGTONE_SETTINGS, 0, R.string.trigger_menu_ringtone)
 		.setIcon(R.drawable.ic_menu_ringtone)
 		.setEnabled(true);
 	    
@@ -632,14 +611,13 @@ public class TriggerListActivity extends ListActivity
 	    	case MENU_ID_ADMIN_LOGIN:
 	    		
 	    		mDialogText = null;
-	    		removeDialog(DIALOG_ID_ADMIN_PASS);
-	    		showDialog(DIALOG_ID_ADMIN_PASS);
+				startActivityForResult(new Intent(this, AdminPincodeActivity.class), ADMIN_REQUESTED);
 	    		return true;
 	    		
 	    	case MENU_ID_ADMIN_LOGOFF:
 	    		
 	    		setAdminMode(false);
-	    		Toast.makeText(this, "Logged off", Toast.LENGTH_SHORT)
+				Toast.makeText(this, R.string.trigger_admin_logged_off, Toast.LENGTH_SHORT)
 	    			 .show();
 	    		return true;
 	    }
@@ -649,28 +627,35 @@ public class TriggerListActivity extends ListActivity
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		
-		if(requestCode == REQ_EDIT_NOTIF && data != null) {
-			String desc = data.getStringExtra(NotifEditActivity.KEY_NOTIF_CONFIG);
-			
-			if(desc != null) {
-				NotifDesc.setGlobalDesc(this, desc);
-				mDb.updateAllNotificationDescriptions(desc);
-				
-				
-				//Update any notification if required
-				Notifier.refreshNotification(this, mCampaignUrn, true);
-			}
+
+		switch(requestCode) {
+			case ADMIN_REQUESTED:
+				setAdminMode(resultCode == RESULT_OK);
+			case REQ_EDIT_NOTIF:
+				if(data != null) {
+					String desc = data.getStringExtra(NotifEditActivity.KEY_NOTIF_CONFIG);
+
+					if(desc != null) {
+						NotifDesc.setGlobalDesc(this, desc);
+						mDb.updateAllNotificationDescriptions(desc);
+
+
+						//Update any notification if required
+						Notifier.refreshNotification(this, mCampaignUrn, true);
+					}
+				}
+				break;
+			default:
+				super.onActivityResult(requestCode, resultCode, data);
+
 		}
-		
-		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
-		menu.add(0, MENU_ID_DELETE_TRIGGER, 0, "Delete")
+		menu.add(0, MENU_ID_DELETE_TRIGGER, 0, R.string.trigger_menu_delete)
 			.setEnabled(isAdminLoggedIn() || TrigUserConfig.removeTrigers);
 	}
 	

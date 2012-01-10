@@ -52,6 +52,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
 
@@ -60,7 +61,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 29;
+	private static final int DB_VERSION = 31;
 	
 	private final Context mContext;
 
@@ -82,24 +83,23 @@ public class DbHelper extends SQLiteOpenHelper {
 				
 		String PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS = String
 				.format(
-						"%1$s inner join %2$s on %1$s.%5$s=%2$s.%6$s "
-								+ "inner join %3$s on %3$s.%9$s=%2$s.%8$s and %3$s.%10$s=%2$s.%7$s "
-								+ "inner join %4$s on %4$s.%11$s=%2$s.%7$s",
+						"%1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s",
 						PROMPT_RESPONSES, // 1
 						RESPONSES, // 2
-						SURVEYS, // 3
-						CAMPAIGNS, // 4
-						PromptResponses.RESPONSE_ID, // 5
-						Responses._ID, // 6
-						Responses.CAMPAIGN_URN, // 7
-						Responses.SURVEY_ID, // 8
-						Surveys.SURVEY_ID, // 9
-						Surveys.CAMPAIGN_URN, // 10
-						Campaigns.CAMPAIGN_URN); // 11
+						PromptResponses.RESPONSE_ID, // 3
+						Responses._ID, // 4
+						Responses.CAMPAIGN_URN, // 5
+						Responses.SURVEY_ID); // 6
 
 		String SURVEY_PROMPTS_JOIN_SURVEYS = String.format(
 				"distinct %1$s inner join %2$s on %1$s.%3$s=%2$s.%4$s", SURVEY_PROMPTS,
 				SURVEYS, SurveyPrompts.SURVEY_ID, Surveys.SURVEY_ID);
+
+		String SURVEY_JOIN_CAMPAIGNS =
+				Tables.SURVEYS
+				+ " join " + Tables.CAMPAIGNS
+					+ " on " + Tables.CAMPAIGNS + "." + Campaigns.CAMPAIGN_URN + "=" + Tables.SURVEYS + "." + Surveys.CAMPAIGN_URN;
+
 	}
 
 	interface Subqueries {
@@ -161,6 +161,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.RESPONSES + " ("
 				+ Responses._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ Responses.RESPONSE_UUID + " TEXT, "
 				+ Responses.CAMPAIGN_URN + " TEXT, " // cascade delete from campaigns
 				+ Responses.RESPONSE_USERNAME + " TEXT, "
 				+ Responses.RESPONSE_DATE + " TEXT, "
@@ -227,32 +228,10 @@ public class DbHelper extends SQLiteOpenHelper {
 		// --- set up the triggers to implement cascading deletes, too
 		// --------
 
-		// annoyingly, sqlite 3.5.9 doesn't support recursive triggers.
-		// we must first disable them before running these statements,
-		// and each trigger has to delete everything associated w/the entity in
-		// question
-		db.execSQL("PRAGMA recursive_triggers = off");
-
 		// delete everything associated with a campaign when it's removed
 		db.execSQL("CREATE TRIGGER IF NOT EXISTS " + Tables.CAMPAIGNS
 				+ "_cascade_del AFTER DELETE ON " + Tables.CAMPAIGNS
 				+ " BEGIN "
-
-				+ "DELETE from " + Tables.SURVEY_PROMPTS + " WHERE "
-				+ SurveyPrompts._ID + " IN (" + " SELECT "
-				+ Tables.SURVEY_PROMPTS + "." + SurveyPrompts._ID + " FROM "
-				+ Tables.SURVEY_PROMPTS + " SP" + " INNER JOIN "
-				+ Tables.SURVEYS + " S ON S." + Surveys._ID + "=SP."
-				+ SurveyPrompts.SURVEY_PID + " WHERE S." + Surveys.CAMPAIGN_URN
-				+ "=old." + Campaigns.CAMPAIGN_URN + "); "
-
-				+ "DELETE from " + Tables.PROMPT_RESPONSES + " WHERE "
-				+ PromptResponses._ID + " IN (" + " SELECT "
-				+ Tables.PROMPT_RESPONSES + "." + PromptResponses._ID + " FROM "
-				+ Tables.PROMPT_RESPONSES + " PR" + " INNER JOIN "
-				+ Tables.RESPONSES + " R ON R." + Responses._ID + "=PR."
-				+ PromptResponses.RESPONSE_ID + " WHERE R."
-				+ Responses.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "); "
 
 				+ "DELETE from " + Tables.SURVEYS + " WHERE "
 				+ Surveys.CAMPAIGN_URN + "=old." + Campaigns.CAMPAIGN_URN + "; "
@@ -594,6 +573,10 @@ public class DbHelper extends SQLiteOpenHelper {
 			// should always reflect the state of the campaign XML, valid or not
 			db.delete(Tables.SURVEYS, Surveys.CAMPAIGN_URN + "=?",
 					new String[] { campaignUrn });
+
+			// We don't need to do anything else if there is no xml
+			if(TextUtils.isEmpty(campaignXML))
+				return true;
 
 			// do a pass over the XML to gather surveys and survey prompts
 			XmlPullParser xpp = Xml.newPullParser();

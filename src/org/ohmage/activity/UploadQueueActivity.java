@@ -3,6 +3,7 @@ package org.ohmage.activity;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
@@ -44,6 +45,9 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		mUploadAll = (Button) findViewById(R.id.upload_button);
 		
 		mUploadAll.setOnClickListener(mUploadAllListener);
+
+		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+			ensureButtons();
 	}
 	
 	@Override
@@ -99,6 +103,11 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 			loader.setSelection(selection.toString());
 			return loader;
 		}
+
+		@Override
+		protected boolean ignoreTimeBounds() {
+			return true;
+		}
 	}
 	
 	private final OnClickListener mUploadAllListener = new OnClickListener() {
@@ -108,6 +117,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 			
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
+			intent.putExtra("upload_surveys", true);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}
 	};
@@ -120,6 +130,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		
 		Intent intent = new Intent(this, UploadService.class);
 		intent.setData(responseUri);
+		intent.putExtra("upload_surveys", true);
 		WakefulIntentService.sendWakefulWork(this, intent);
 	}
 
@@ -147,53 +158,53 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		
-		String message = "An error occurred while trying attempting to upload this response.";
+		int message = R.string.upload_queue_response_error;
 		
 		
 		switch (id) {
 		case Response.STATUS_ERROR_AUTHENTICATION:
-			message = "Unable to authenticate. Please update your credentials via the Profile screen.";
+			message = R.string.upload_queue_auth_error;
 			break;
 		case Response.STATUS_ERROR_CAMPAIGN_NO_EXIST:
-			message = "The campaign this survey response belongs to no longer exists.";
+			message = R.string.upload_queue_campaign_no_exist;
 			break;
 		case Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE:
-			message = "The campaign this survey response belongs to is out of date.";
+			message = R.string.upload_queue_campaign_out_of_date;
 			break;
 		case Response.STATUS_ERROR_CAMPAIGN_STOPPED:
-			message = "The campaign this survey response belongs to is no longer running.";
+			message = R.string.upload_queue_campaign_stopped;
 			break;
 		case Response.STATUS_ERROR_INVALID_USER_ROLE:
-			message = "Your user role does not permit you to upload responses for this campaign.";
+			message = R.string.upload_queue_invalid_user_role;
 			break;
 		case Response.STATUS_ERROR_HTTP:
-			message = "Unable to connect to the server.";
+			message = R.string.upload_queue_network_error;
 			break;
 		case Response.STATUS_WAITING_FOR_LOCATION:
 			builder.setMessage(R.string.upload_queue_response_waiting_for_gps)
 			.setCancelable(true)
-			.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+			.setPositiveButton(R.string.upload, new DialogInterface.OnClickListener() {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 
 					queueForUpload(responseUriForDialogs);
 				}
-			}).setNegativeButton("Wait", null);
+			}).setNegativeButton(R.string.wait, null);
 
 			return builder.create();
 		}
 		
 		builder.setMessage(message)
 				.setCancelable(true)
-				.setPositiveButton("Retry Now", new DialogInterface.OnClickListener() {
+				.setPositiveButton(R.string.retry_now, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						
 						queueForUpload(responseUriForDialogs);
 					}
-				}).setNeutralButton("Retry Later", new DialogInterface.OnClickListener() {
+				}).setNeutralButton(R.string.retry_later, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -202,7 +213,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 						cv.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
 						cr.update(responseUriForDialogs, cv, null, null);
 					}
-				}).setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+				}).setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {

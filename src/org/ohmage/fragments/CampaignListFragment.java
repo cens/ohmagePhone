@@ -1,5 +1,6 @@
 package org.ohmage.fragments;
 
+import org.ohmage.R;
 import org.ohmage.activity.CampaignAddActivity;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.CampaignListCursorAdapter;
@@ -16,8 +17,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class CampaignListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor> {
 	
@@ -45,11 +48,16 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		
 		if (getActivity().getComponentName().getClassName().equals(CampaignAddActivity.class.getName())) {
 			mMode = MODE_ADD_CAMPAIGNS;
-			setEmptyText("No campaigns available at this time.");
+			setEmptyText(getActivity().getString(R.string.campaign_add_list_empty));
 		} else {
 			mMode = MODE_MY_CAMPAIGNS;
-			setEmptyText("You are not participating in any campaigns.\n\nHit the + icon on the top right to view and download avaialable campaigns.");
+			setEmptyText(getActivity().getString(R.string.campaign_list_empty));
 		}
+		
+		// style the empty text, too
+		TextView emptyView = (TextView)getListView().getEmptyView();
+		emptyView.setGravity(Gravity.LEFT);
+		emptyView.setPadding(25, 25, 25, 0);
 		
 		mAdapter = new CampaignListCursorAdapter(getActivity(), null, this, 0);
 		setListAdapter(mAdapter);
@@ -59,6 +67,9 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 		
 		getLoaderManager().initLoader(0, null, this);
 	}
+	
+	// TODO: we may need to override onCreateView here to load up a layout with a customized empty text view, too
+	// consult FilterableListFragment for an example
 
 	@Override
     public void onAttach(Activity activity) {

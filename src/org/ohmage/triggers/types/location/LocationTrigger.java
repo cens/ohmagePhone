@@ -42,10 +42,7 @@ public class LocationTrigger extends TriggerBase {
 	//This string must be unique across all trigger types 
 	//registered with the framework.
 	private static final String TRIGGER_TYPE = "LocationTrigger";
-	
-	//TODO localize
-	private static final String DISP_NAME = "Location Trigger";
-	
+
 	private static final String KEY_PLACES = "places";
 	private static final String KEY_NAME = "name";
 	private static final String KEY_LOCATIONS = "locations";
@@ -56,9 +53,8 @@ public class LocationTrigger extends TriggerBase {
 	/* IMPLEMENTATION OF THE ABSTRACT FUNCTIONS */
 	
 	@Override
-	public String getTriggerTypeDisplayName() {
-		
-		return DISP_NAME;
+	public String getTriggerTypeDisplayName(Context context) {
+		return context.getString(R.string.trigger_loc_display_name);
 	}
 
 	@Override
@@ -121,7 +117,7 @@ public class LocationTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String [] actions, boolean adminMode) {
+	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String [] actions, String[] preselectedActions, boolean adminMode) {
 
 		//Register a listener with the editor
 		//activity to listen for the 'done' event
@@ -141,6 +137,8 @@ public class LocationTrigger extends TriggerBase {
 		Intent i = new Intent(context, LocTrigEditActivity.class);
 		i.putExtra(LocTrigEditActivity.KEY_ADMIN_MODE, adminMode);
 		i.putExtra(TriggerListActivity.KEY_ACTIONS, actions);
+		if (preselectedActions != null)
+			i.putExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS, preselectedActions);
 		context.startActivity(i);
 	}
 

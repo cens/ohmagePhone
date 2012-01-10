@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceScreen android:title="Campaign Management" >
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="content://org.ohmage.db/campaigns" />
+    </PreferenceScreen>
+
+    <PreferenceCategory android:title="User Action Management" >
+
+        <CheckBoxPreference
+            android:key="key_show_feedback"
+            android:summaryOff="Show Feedback including the Response History"
+            android:summaryOn="Hide Feedback including the Response History"
+            android:title="Show Feedback" />
+
+        <CheckBoxPreference
+            android:key="key_show_profile"
+            android:summaryOff="Show Profile on Dashboard"
+            android:summaryOn="Hide Profile from Dashboard"
+            android:title="Show Profile" />
+
+        <CheckBoxPreference
+            android:key="key_show_upload_queue"
+            android:summaryOff="Show Upload Queue on Dashboard"
+            android:summaryOn="Hide Upload Queue from Dashboard"
+            android:title="Show Upload Queue" />
+            
+        <CheckBoxPreference
+            android:key="key_show_mobility"
+            android:summaryOff="Show Mobility on Dashboard"
+            android:summaryOn="Hide Mobility from Dashboard"
+            android:title="Show Mobility" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Account Management" >
+
+        <PreferenceScreen
+            android:key="key_update_password"
+            android:persistent="false"
+            android:summary="@string/preferences_update_password_summary"
+            android:title="@string/preferences_update_password_title" />
+
+        <PreferenceScreen
+            android:key="key_logout"
+            android:persistent="false"
+            android:summary="@string/preferences_logout_summary"
+            android:title="@string/preferences_logout_title" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="Debugging" >
+        <PreferenceScreen
+            android:key="key_querytest"
+            android:persistent="false"
+            android:summary="@string/preferences_querytest_summary"
+            android:title="@string/preferences_querytest_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
