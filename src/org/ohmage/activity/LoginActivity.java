@@ -21,6 +21,7 @@ import com.slezica.tools.async.ManagedAsyncTask;
 import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
+import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApplication;
@@ -306,6 +307,7 @@ public class LoginActivity extends FragmentActivity {
 		switch (response.getResult()) {
 		case SUCCESS:
 			Log.i(TAG, "login success");
+			NotificationHelper.hideAuthNotification(this);
 			
 			final String hashedPassword = response.getHashedPassword();
 			
