@@ -148,7 +148,14 @@ public class SurveyActivity extends Activity {
         		} catch (IOException e) {
         			Log.e(TAG, "Error parsing prompts from xml", e);
         		}
-        		
+
+		if(mSurveyElements == null) {
+			// If there are no survey elements, something is wrong
+			finish();
+			Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT);
+			return;
+		}
+
         		//mResponses = new ArrayList<PromptResponse>(mPrompts.size());
     			startService(new Intent(this, SurveyGeotagService.class));
 

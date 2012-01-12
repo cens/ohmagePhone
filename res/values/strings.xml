@@ -106,6 +106,7 @@
     <string name="help_dashboard_mobility_text">On the &lt;b>Mobility&lt;/b> screen you can see your mobility data.</string>
 
     <!-- Survey / Prompts -->
+    <string name="invalid_survey">Invalid Survey</string>
     <string name="survey_complete">Survey Complete!</string>
     <string name="survey_submit_text">Submit text should appear here.</string>
     <string name="survey_title">Survey Title</string>
