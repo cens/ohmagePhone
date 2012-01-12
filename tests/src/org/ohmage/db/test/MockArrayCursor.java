@@ -60,10 +60,11 @@ public abstract class MockArrayCursor<T> extends EmptyMockCursor {
 
 	@Override
 	public final int getColumnIndex(String columnName) {
+		columnName = getColumnString(columnName);
 		if(mProjection == null)
 			return getLocalColumnIndex(columnName);
 		for(int i=0;i<mProjection.length;i++)
-			if(mProjection[i].equals(columnName))
+			if(mProjection[i].equals(columnName) || mProjection[i].endsWith("."+columnName))
 				return i;
 		return COLUMN_IGNORE;
 	}
@@ -83,8 +84,15 @@ public abstract class MockArrayCursor<T> extends EmptyMockCursor {
 	 */
 	private int mapColumnIndex(int columnIndex) {
 		if(mProjection != null)
-			return getLocalColumnIndex(mProjection[columnIndex]);
+			return getLocalColumnIndex(getColumnString(mProjection[columnIndex]));
 		return columnIndex;
+	}
+
+	private String getColumnString(String columnName) {
+		if(columnName.contains(".")) {
+			return columnName.split("\\.")[1];
+		}
+		return columnName;
 	}
 
 	@Override

@@ -1,7 +1,9 @@
 
 package org.ohmage.db.test;
 
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Response;
 import org.ohmage.service.SurveyGeotagService;
 
@@ -17,6 +19,8 @@ public class ResponseCursor extends MockArrayCursor<Response> {
 	private static final int COLUMN_TIMEZONE = 5;
 	private static final int COLUMN_SURVEY_ID = 6;
 	private static final int COLUMN_TIME = 7;
+	private static final int COLUMN_SURVEY_TITLE = 8;
+	private static final int COLUMN_CAMPAIGN_NAME = 9;
 
 	public ResponseCursor(String[] projection, Response... responses) {
 		super(projection, responses);
@@ -40,6 +44,10 @@ public class ResponseCursor extends MockArrayCursor<Response> {
 			return COLUMN_SURVEY_ID;
 		else if (Responses.RESPONSE_TIME.equals(columnName))
 			return COLUMN_TIME;
+		else if (Surveys.SURVEY_TITLE.equals(columnName))
+			return COLUMN_SURVEY_TITLE;
+		else if (Campaigns.CAMPAIGN_NAME.equals(columnName))
+			return COLUMN_CAMPAIGN_NAME;
 		return COLUMN_IGNORE;
 	}
 
@@ -64,7 +72,7 @@ public class ResponseCursor extends MockArrayCursor<Response> {
 			case COLUMN_SURVEY_ID:
 				return getObject().surveyId;
 			default:
-				return "";
+				return getStringDefault(columnIndex);
 		}
 	}
 
@@ -81,6 +89,10 @@ public class ResponseCursor extends MockArrayCursor<Response> {
 				return MOCK_CAMPAIGN_URN;
 			case COLUMN_ID:
 				return "1";
+			case COLUMN_SURVEY_TITLE:
+				return "Survey Title";
+			case COLUMN_CAMPAIGN_NAME:
+				return "Campaign Name";
 			default:
 				return "";
 		}
