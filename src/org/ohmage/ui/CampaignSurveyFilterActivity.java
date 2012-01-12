@@ -3,6 +3,7 @@ package org.ohmage.ui;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.FilterControl;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 
@@ -87,8 +88,8 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 					campaignFilter = mDefaultCampaign;
 
 				if(campaignFilter != null)
-					return new CursorLoader(this, Surveys.CONTENT_URI, new String [] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE },
-							Surveys.CAMPAIGN_URN + "=?", new String[] { campaignFilter }, Surveys.SURVEY_TITLE);
+					return new CursorLoader(this, Campaigns.buildSurveysUri(campaignFilter), new String [] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE },
+							null, null, Surveys.SURVEY_TITLE);
 				else
 					return new CursorLoader(this, Surveys.CONTENT_URI, new String [] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE },
 							null, null, Surveys.SURVEY_TITLE);
