@@ -64,11 +64,11 @@ public class NotificationHelper {
 		noteManager.notify(3, note);
 	}
 
-	public static void showNotification(Context context, String title, String message) {
+	public static void showNotification(Context context, String title, String message, Intent intent) {
 		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification note = new Notification();
 
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		note.icon = android.R.drawable.stat_notify_error;
 		note.tickerText = title;
 		note.defaults |= Notification.DEFAULT_ALL;

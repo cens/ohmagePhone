@@ -1,31 +1,32 @@
 package org.ohmage.activity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.slezica.tools.async.ManagedAsyncTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
-import org.ohmage.OhmageApi.CampaignReadResponse;
-import org.ohmage.OhmageApi.Result;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.slezica.tools.async.ManagedAsyncTask;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadResponse>{
@@ -150,7 +151,10 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 
 					if(!TextUtils.isEmpty(oldUrn)) {
 						// If we are removing the old campaign show the notification
-						NotificationHelper.showNotification(getActivity(), getActivity().getString(R.string.single_campaign_changed_title), getActivity().getString(R.string.single_campaign_changed_message));
+						Intent intent = new Intent(getActivity(), ErrorDialogActivity.class);
+						intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getActivity().getString(R.string.single_campaign_changed_title));
+						intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getActivity().getString(R.string.single_campaign_changed_message));
+						NotificationHelper.showNotification(getActivity(), getActivity().getString(R.string.single_campaign_changed_title), getActivity().getString(R.string.click_more_info), intent);
 						Campaign.setRemote(getActivity(), oldUrn);
 					}
 

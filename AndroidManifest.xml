@@ -241,6 +241,7 @@
 	    </receiver>
 
 	    <activity android:name=".activity.AdminPincodeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+	    <activity android:name=".activity.ErrorDialogActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <!-- 
         ******************************************************
