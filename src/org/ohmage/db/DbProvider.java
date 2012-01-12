@@ -552,7 +552,7 @@ public class DbProvider extends ContentProvider {
 				return builder.table(Tables.PROMPT_RESPONSES)
 						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
 						.where(PromptResponses.COMPOSITE_ID + "=?", campaignUrn + ":" + surveyId)
-						.where(PromptResponses.PROMPT_ID + "=?", promptId);
+						.where(PromptResponses.PROMPT_ID + "LIKE ?", promptId + "%");
 			}
 			case MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID: {
 				if (nonQuery)
@@ -568,9 +568,9 @@ public class DbProvider extends ContentProvider {
 				builder.table(Tables.PROMPT_RESPONSES)
 						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
 						.where(PromptResponses.COMPOSITE_ID + " LIKE ?", campaignUrn + ":%")
-						.where(PromptResponses.PROMPT_ID + "=?", pids.get(0));
+						.where(PromptResponses.PROMPT_ID + " LIKE ?", pids.get(0) + "%");
 				for(int i=1;i<pids.size();i++)
-					builder.where(PromptResponses.PROMPT_ID + "=?", SelectionBuilder.OR, pids.get(i));
+					builder.where(PromptResponses.PROMPT_ID + " LIKE ?", SelectionBuilder.OR, pids.get(i) + "%");
 
 				return builder;
 			}
