@@ -36,6 +36,7 @@ public class ResponseListCursorAdapter extends CursorAdapter {
 		
 		surveyText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
+		campaignText.setVisibility(View.GONE);
 		
 		long millis = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME));
 		timeText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_TIME));

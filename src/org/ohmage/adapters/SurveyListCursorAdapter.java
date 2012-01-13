@@ -44,6 +44,7 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		iconImage.setVisibility(View.GONE);
 		titleText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(campaignUrn);
+		campaignText.setVisibility(View.GONE);
 		actionButton.setFocusable(false);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
