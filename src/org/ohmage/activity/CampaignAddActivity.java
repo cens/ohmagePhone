@@ -28,7 +28,7 @@ public class CampaignAddActivity extends BaseSingleFragmentActivity implements O
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentFragment(new CampaignListFragment());
+		setContentFragment(CampaignListFragment.newInstance(CampaignListFragment.MODE_ADD_CAMPAIGNS));
 		
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		
