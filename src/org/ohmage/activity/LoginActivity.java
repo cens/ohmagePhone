@@ -15,7 +15,6 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.slezica.tools.async.ManagedAsyncTask;
 
 import edu.ucla.cens.systemlog.Log;
@@ -28,16 +27,16 @@ import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.feedback.FeedbackService;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -313,40 +312,31 @@ public class LoginActivity extends FragmentActivity {
 			
 			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
 				// Download the single campaign
-				new CampaignReadTask(this) {
+				getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
 
 					@Override
-					protected void onPreExecute() {
-						super.onPreExecute();
+					public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
 						showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+						return new CampaignReadTask(LoginActivity.this, username, hashedPassword);
 					}
 
 					@Override
-					protected void onPostExecute(CampaignReadResponse response) {
-						super.onPostExecute(response);
-						// get the first available campaign
-						String urn = Campaign.getSingleCampaign(getActivity());
+					public void onLoadFinished(Loader<CampaignReadResponse> loader,
+							CampaignReadResponse data) {
+						String urn = Campaign.getSingleCampaign(LoginActivity.this);
 						if(urn == null)
-							Toast.makeText(getActivity(), R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
-						else
-						{
+							Toast.makeText(LoginActivity.this, R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
+						else {
 							loginFinished(username, hashedPassword);
-							
-							// ensure that there's data for the currently selected campaign
-							if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
-								// create an intent to fire off the feedback service
-								Context appContext = getApplicationContext();
-								Intent fbIntent = new Intent(appContext, FeedbackService.class);
-								// annotate the request with the current campaign's URN
-								fbIntent.putExtra("campaign_urn", urn);
-								// and go!
-								WakefulIntentService.sendWakefulWork(appContext, fbIntent);
-							}
 						}
 						
-						getActivity().dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+						dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
 					}
-				}.execute(username, hashedPassword);
+
+					@Override
+					public void onLoaderReset(Loader<CampaignReadResponse> loader) {
+					}
+				}).forceLoad();
 			} else {
 				loginFinished(username, hashedPassword);
 			}

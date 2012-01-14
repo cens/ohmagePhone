@@ -1,18 +1,17 @@
 package org.ohmage.activity;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.json.JSONException;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
+import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
-import org.ohmage.OhmageApi.CampaignXmlResponse;
-import org.ohmage.OhmageApi.Result;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.feedback.FeedbackService;
@@ -22,44 +21,34 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-import com.slezica.tools.async.ManagedAsyncTask;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, Response>{
-	
+public class CampaignXmlDownloadTask extends AsyncTaskLoader<Response> {
+
 	private static final String TAG = "CampaignXmlDownloadTask";
-		
-	private Context mContext;
-	private String mCampaignUrn;
 	
-	public CampaignXmlDownloadTask(FragmentActivity activity, String campaignUrn) {
-		super(activity);
-		mContext = activity.getApplicationContext();
-		mCampaignUrn = campaignUrn;
-	}
+    private final String mUsername;
+	private final String mHashedPassword;
+	private final String mCampaignUrn;
 
-	@Override
-	protected void onPreExecute() {
-		super.onPreExecute();
+	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
+        super(context);
+        mCampaignUrn = campaignUrn;
+        mUsername = username;
+        mHashedPassword = hashedPassword;
+    }
 
-		ContentResolver cr = mContext.getContentResolver();
-		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
-		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
-	}
+    @Override
+    public Response loadInBackground() {
+		OhmageApi api = new OhmageApi(getContext());
+		ContentResolver cr = getContext().getContentResolver();
 
-	@Override
-	protected Response doInBackground(String... params) {
-		String username = (String) params[0];
-		String hashedPassword = (String) params[1];
-		OhmageApi api = new OhmageApi(mContext);
-		ContentResolver cr = mContext.getContentResolver();
-
-		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mHashedPassword, "android", "short", mCampaignUrn);
 
 		if(campaignResponse.getResult() == Result.SUCCESS) {
 			ContentValues values = new ContentValues();
@@ -74,7 +63,7 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, Response>{
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaignUrn);
+		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mHashedPassword, "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
@@ -97,11 +86,11 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, Response>{
 			
 			if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
 				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(mContext, FeedbackService.class);
+				Intent fbIntent = new Intent(getContext(), FeedbackService.class);
 				// annotate the request with the current campaign's URN
 				fbIntent.putExtra("campaign_urn", mCampaignUrn);
 				// and go!
-				WakefulIntentService.sendWakefulWork(mContext, fbIntent);
+				WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
 			}
 		} else { 
 			ContentValues values = new ContentValues();
@@ -110,15 +99,14 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, Response>{
 		}
 		
 		return response;
-	}
-	
-	@Override
-	protected void onPostExecute(Response response) {
-		super.onPostExecute(response);
-		
+    }
+
+    @Override
+    public void deliverResult(Response response) {
+
 		if (response.getResult() == Result.SUCCESS) {
 			// setup initial triggers for this campaign
-			TriggerFramework.setDefaultTriggers(getActivity(), mCampaignUrn);
+			TriggerFramework.setDefaultTriggers(getContext(), mCampaignUrn);
 		} else if (response.getResult() == Result.FAILURE) {
 			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
 			
@@ -136,24 +124,36 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, Response>{
 			}
 			
 			if (isUserDisabled) {
-				new SharedPreferencesHelper(mContext).setUserDisabled(true);
+				new SharedPreferencesHelper(getContext()).setUserDisabled(true);
 			}
 			
 			if (isAuthenticationError) {
-				NotificationHelper.showAuthNotification(mContext);
-				Toast.makeText(mContext, R.string.campaign_xml_auth_error, Toast.LENGTH_SHORT).show();
+				NotificationHelper.showAuthNotification(getContext());
+				Toast.makeText(getContext(), R.string.campaign_xml_auth_error, Toast.LENGTH_SHORT).show();
 			} else {
-				Toast.makeText(mContext, R.string.campaign_xml_unexpected_response, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getContext(), R.string.campaign_xml_unexpected_response, Toast.LENGTH_SHORT).show();
 			}
 			
 		} else if (response.getResult() == Result.HTTP_ERROR) {
 			Log.e(TAG, "http error");
 			
-			Toast.makeText(mContext, R.string.campaign_xml_network_error, Toast.LENGTH_SHORT).show();
+			Toast.makeText(getContext(), R.string.campaign_xml_network_error, Toast.LENGTH_SHORT).show();
 		} else {
 			Log.e(TAG, "internal error");
 			
-			Toast.makeText(mContext, R.string.campaign_xml_internal_error, Toast.LENGTH_SHORT).show();
+			Toast.makeText(getContext(), R.string.campaign_xml_internal_error, Toast.LENGTH_SHORT).show();
 		} 
-	}
+
+        super.deliverResult(response);
+    }
+
+    @Override
+    protected void onStartLoading() {
+		ContentResolver cr = getContext().getContentResolver();
+		ContentValues values = new ContentValues();
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
+		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
+
+		forceLoad();
+    }
 }

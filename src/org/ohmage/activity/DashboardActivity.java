@@ -9,6 +9,8 @@ import org.ohmage.ui.BaseActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -97,21 +99,24 @@ public class DashboardActivity extends BaseActivity {
 
 	private void refreshCampaigns() {
 		mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
-		new CampaignReadTask(this) {
+		getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
 
 			@Override
-			protected void onPreExecute() {
-				super.onPreExecute();
+			public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
 				getActionBar().setProgressVisible(true);
+				return new CampaignReadTask(DashboardActivity.this, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
 			}
 
 			@Override
-			protected void onPostExecute(CampaignReadResponse response) {
-				super.onPostExecute(response);
+			public void onLoadFinished(Loader<CampaignReadResponse> loader,
+					CampaignReadResponse data) {
 				getActionBar().setProgressVisible(false);
 			}
-			
-		}.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
+
+			@Override
+			public void onLoaderReset(Loader<CampaignReadResponse> loader) {
+			}
+		}).forceLoad();
 	}
 	
 	@Override

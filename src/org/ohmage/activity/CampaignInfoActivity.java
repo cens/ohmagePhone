@@ -241,8 +241,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				public void onClick(View v) {
 					// when clicked, it fires off a download task,
 					// waits for it to finish, then goes back to the list when it's done
-					new CampaignXmlDownloadTask(mContext, campaignUrn)
-					.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
+					new CampaignXmlDownloadTask(CampaignInfoActivity.this, campaignUrn, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword()).startLoading();
 				}
 			});
 		}
