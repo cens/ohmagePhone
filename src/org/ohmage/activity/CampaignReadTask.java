@@ -16,6 +16,7 @@ import org.ohmage.db.Models.Campaign;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.content.AsyncTaskLoader;
 import android.text.TextUtils;
@@ -142,7 +143,10 @@ public class CampaignReadTask extends AsyncTaskLoader<CampaignReadResponse> {
 
 					if(!TextUtils.isEmpty(oldUrn)) {
 						// If we are removing the old campaign show the notification
-						NotificationHelper.showNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.single_campaign_changed_message));
+						Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
+						intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getContext().getString(R.string.single_campaign_changed_title));
+						intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getContext().getString(R.string.single_campaign_changed_message));
+						NotificationHelper.showNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
 						Campaign.setRemote(getContext(), oldUrn);
 					}
 
