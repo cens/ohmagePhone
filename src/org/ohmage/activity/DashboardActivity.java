@@ -4,6 +4,7 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.async.CampaignReadTask;
 import org.ohmage.ui.BaseActivity;
 
 import android.content.Context;

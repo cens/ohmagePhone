@@ -15,9 +15,7 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import com.slezica.tools.async.ManagedAsyncTask;
-
-import edu.ucla.cens.systemlog.Log;
+import java.util.Arrays;
 
 import org.ohmage.BackgroundManager;
 import org.ohmage.NotificationHelper;
@@ -26,6 +24,7 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
 
 import android.app.AlertDialog;
@@ -44,7 +43,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Arrays;
+import com.slezica.tools.async.ManagedAsyncTask;
+
+import edu.ucla.cens.systemlog.Log;
 
 public class LoginActivity extends FragmentActivity {
 	
@@ -163,6 +164,30 @@ public class LoginActivity extends FragmentActivity {
         		Log.i(TAG, "no saved username");
         	}
         }
+
+        mCampaignDownloadTask = (CampaignReadTask) getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
+
+			@Override
+			public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
+				return new CampaignReadTask(LoginActivity.this, null, null);
+			}
+
+			@Override
+			public void onLoadFinished(Loader<CampaignReadResponse> loader,
+					CampaignReadResponse data) {
+				String urn = Campaign.getSingleCampaign(LoginActivity.this);
+				if(urn == null)
+					Toast.makeText(LoginActivity.this, R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
+				else {
+					loginFinished(((CampaignReadTask) loader).getUsername(), ((CampaignReadTask) loader).getHashedPassword());
+				}
+				dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+			}
+
+			@Override
+			public void onLoaderReset(Loader<CampaignReadResponse> loader) {
+			}
+		});
 	}
 
 	private final OnClickListener mClickListener = new OnClickListener() {
@@ -177,6 +202,8 @@ public class LoginActivity extends FragmentActivity {
 			}
 		}
 	};
+
+	private CampaignReadTask mCampaignDownloadTask;
 
 	private void doLogin() {
 		String username = mUsernameEdit.getText().toString();
@@ -312,31 +339,9 @@ public class LoginActivity extends FragmentActivity {
 			
 			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
 				// Download the single campaign
-				getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
-
-					@Override
-					public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-						showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
-						return new CampaignReadTask(LoginActivity.this, username, hashedPassword);
-					}
-
-					@Override
-					public void onLoadFinished(Loader<CampaignReadResponse> loader,
-							CampaignReadResponse data) {
-						String urn = Campaign.getSingleCampaign(LoginActivity.this);
-						if(urn == null)
-							Toast.makeText(LoginActivity.this, R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
-						else {
-							loginFinished(username, hashedPassword);
-						}
-						
-						dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
-					}
-
-					@Override
-					public void onLoaderReset(Loader<CampaignReadResponse> loader) {
-					}
-				}).forceLoad();
+				showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+				mCampaignDownloadTask.setCredentials(username, hashedPassword);
+				mCampaignDownloadTask.forceLoad();
 			} else {
 				loginFinished(username, hashedPassword);
 			}

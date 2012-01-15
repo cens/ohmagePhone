@@ -1,4 +1,7 @@
-package org.ohmage.activity;
+package org.ohmage.async;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,6 +13,7 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
+import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 
@@ -18,33 +22,29 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v4.content.AsyncTaskLoader;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * A custom Loader that loads all of the installed applications.
  */
-public class CampaignReadTask extends AsyncTaskLoader<CampaignReadResponse> {
-	private final String mUsername;
-	private final String mHashedPassword;
+public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadResponse> {
 
 	private static final String TAG = "CampaignReadTask";
 
-	public CampaignReadTask(Context context, String username, String hashedPassword) {
+	public CampaignReadTask(Context context) {
 		super(context);
-		mUsername = username;
-		mHashedPassword = hashedPassword;
+	}
+
+	public CampaignReadTask(Context context, String username, String hashedPassword) {
+		super(context, username, hashedPassword);
 	}
 
 	@Override
 	public CampaignReadResponse loadInBackground() {
 		OhmageApi api = new OhmageApi(getContext());
-		CampaignReadResponse response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mHashedPassword, "android", "short", null);
+		CampaignReadResponse response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -153,7 +153,7 @@ public class CampaignReadTask extends AsyncTaskLoader<CampaignReadResponse> {
 					// Download the new xml
 					//TODO: download new xml!
 					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
-						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, mUsername, mHashedPassword);
+						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
 						campaignDownloadTask.startLoading();
 						campaignDownloadTask.waitForLoader();
 					}

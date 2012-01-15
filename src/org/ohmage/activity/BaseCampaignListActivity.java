@@ -4,6 +4,8 @@ package org.ohmage.activity;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.async.CampaignReadTask;
+import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;

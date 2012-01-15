@@ -1,6 +1,7 @@
-package org.ohmage.activity;
+package org.ohmage.async;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.json.JSONException;
 import org.ohmage.NotificationHelper;
@@ -21,26 +22,20 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-public class CampaignXmlDownloadTask extends AsyncTaskLoader<Response> {
+public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 	private static final String TAG = "CampaignXmlDownloadTask";
-	
-    private final String mUsername;
-	private final String mHashedPassword;
+
 	private final String mCampaignUrn;
 
 	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
-        super(context);
+        super(context, username, hashedPassword);
         mCampaignUrn = campaignUrn;
-        mUsername = username;
-        mHashedPassword = hashedPassword;
     }
 
     @Override
@@ -48,7 +43,7 @@ public class CampaignXmlDownloadTask extends AsyncTaskLoader<Response> {
 		OhmageApi api = new OhmageApi(getContext());
 		ContentResolver cr = getContext().getContentResolver();
 
-		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mHashedPassword, "android", "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
 
 		if(campaignResponse.getResult() == Result.SUCCESS) {
 			ContentValues values = new ContentValues();
@@ -63,7 +58,7 @@ public class CampaignXmlDownloadTask extends AsyncTaskLoader<Response> {
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mHashedPassword, "android", mCampaignUrn);
+		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
@@ -149,11 +144,13 @@ public class CampaignXmlDownloadTask extends AsyncTaskLoader<Response> {
 
     @Override
     protected void onStartLoading() {
-		ContentResolver cr = getContext().getContentResolver();
-		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
-		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
+    	if(hasAuthentication()) {
+    		ContentResolver cr = getContext().getContentResolver();
+    		ContentValues values = new ContentValues();
+    		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
+    		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
 
-		forceLoad();
+    		forceLoad();
+    	}
     }
 }
