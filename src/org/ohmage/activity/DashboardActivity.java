@@ -63,9 +63,7 @@ public class DashboardActivity extends BaseActivity {
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		
 		// refresh campaigns
-		if(mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 < System.currentTimeMillis()) {
-			refreshCampaigns();
-		}
+		refreshCampaigns();
 	}
 	
 	private void ensureUI() {
@@ -99,25 +97,29 @@ public class DashboardActivity extends BaseActivity {
 	}
 
 	private void refreshCampaigns() {
-		mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
 		getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
 
 			@Override
 			public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-				getActionBar().setProgressVisible(true);
-				return new CampaignReadTask(DashboardActivity.this, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
+				if(mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 < System.currentTimeMillis()) {
+					getActionBar().setProgressVisible(true);
+					return new CampaignReadTask(DashboardActivity.this, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
+
+				}
+				return null;
 			}
 
 			@Override
 			public void onLoadFinished(Loader<CampaignReadResponse> loader,
 					CampaignReadResponse data) {
+				mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
 				getActionBar().setProgressVisible(false);
 			}
 
 			@Override
 			public void onLoaderReset(Loader<CampaignReadResponse> loader) {
 			}
-		}).forceLoad();
+		});
 	}
 	
 	@Override
