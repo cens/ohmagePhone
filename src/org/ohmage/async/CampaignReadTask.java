@@ -1,6 +1,7 @@
-package org.ohmage.activity;
+package org.ohmage.async;
 
-import com.slezica.tools.async.ManagedAsyncTask;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +13,7 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
+import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 
@@ -20,52 +22,42 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
+/**
+ * A custom Loader that loads all of the installed applications.
+ */
+public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadResponse> {
 
-class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadResponse>{
-	
 	private static final String TAG = "CampaignReadTask";
-		
-	private final Context mContext;
-//	private final Context mActivity;
 
-	public CampaignReadTask(FragmentActivity activity) {
-		super(activity);
-//		mActivity = activity;
-		mContext = activity.getApplicationContext();
+	public CampaignReadTask(Context context) {
+		super(context);
 	}
-	
-	@Override
-	protected void onPreExecute() {
-		super.onPreExecute();
+
+	public CampaignReadTask(Context context, String username, String hashedPassword) {
+		super(context, username, hashedPassword);
 	}
 
 	@Override
-	protected CampaignReadResponse doInBackground(String... params) {
-		String username = params[0];
-		String hashedPassword = params[1];
-		OhmageApi api = new OhmageApi(mContext);
-		CampaignReadResponse response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "short", null);
-		
+	public CampaignReadResponse loadInBackground() {
+		OhmageApi api = new OhmageApi(getContext());
+		CampaignReadResponse response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
+
 		if (response.getResult() == Result.SUCCESS) {
-			ContentResolver cr = mContext.getContentResolver();
-			
+			ContentResolver cr = getContext().getContentResolver();
+
 			//delete all remote campaigns from content provider
 			cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE, null);
-			
+
 			//build list of urns of all downloaded (local) campaigns
 			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_CREATED}, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
 			cursor.moveToFirst();
-			
+
 			HashMap<String, Campaign> localCampaignUrns = new HashMap<String, Campaign>();
-			
+
 			for (int i = 0; i < cursor.getCount(); i++) {
 				Campaign c = new Campaign();
 				c.mUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
@@ -73,18 +65,18 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 				localCampaignUrns.put(c.mUrn, c);
 				cursor.moveToNext();
 			}
-    		
-    		cursor.close();
-    		
+
+			cursor.close();
+
 			// The old urn thats used for single campaign mode. This has to be determined before the new data is downloaded in case the
 			// state changes. This is used to determine if there is a better choice for the single campaign mode after the download is complete.
-			String oldUrn = Campaign.getSingleCampaign(getActivity());
+			String oldUrn = Campaign.getSingleCampaign(getContext());
 
-    		ArrayList<ContentValues> allCampaignValues = new ArrayList<ContentValues>();
+			ArrayList<ContentValues> allCampaignValues = new ArrayList<ContentValues>();
 
 			try { // parse response
 				JSONArray jsonItems = response.getMetadata().getJSONArray("items");
-			
+
 				for(int i = 0; i < jsonItems.length(); i++) {
 					Campaign c = new Campaign();
 					JSONObject data = response.getData();
@@ -99,12 +91,12 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 						c.mPrivacy = data.getJSONObject(c.mUrn).optString("privacy_state", Campaign.PRIVACY_UNKNOWN);
 						c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
 						boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
-						
+
 						if (localCampaignUrns.containsKey(c.mUrn)) { //campaign has already been downloaded
 
 							Campaign old = localCampaignUrns.get(c.mUrn);
 							localCampaignUrns.remove(c.mUrn);
-							
+
 							ContentValues values = new ContentValues();
 							// FAISAL: include things here that may change at any time on the server
 							values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
@@ -117,10 +109,10 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 							cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
 
 						} else { //campaign has not been downloaded
-							
+
 							if (running) { //campaign is running
-								
-//								cr.insert(Campaigns.CONTENT_URI, c.toCV()); //insert remote campaign into content provider
+
+								//								cr.insert(Campaigns.CONTENT_URI, c.toCV()); //insert remote campaign into content provider
 								allCampaignValues.add(c.toCV());
 							}
 						}
@@ -131,10 +123,10 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing response json: 'items' key doesn't exist or is not a JSONArray", e);
 			}
-			
+
 			ContentValues [] vals = allCampaignValues.toArray(new ContentValues[allCampaignValues.size()]);
 			cr.bulkInsert(Campaigns.CONTENT_URI, vals);
-			
+
 			//leftover local campaigns were not returned by campaign read, therefore must be in some unavailable state
 			for (String urn : localCampaignUrns.keySet()) {
 				ContentValues values = new ContentValues();
@@ -144,33 +136,26 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 
 			// If we are in single campaign mode, we should automatically download the xml for the best campaign
 			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
-				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getActivity());
+				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
 
 				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it
 				if(newCampaign == null || TextUtils.isEmpty(newCampaign.mUrn) || !newCampaign.mUrn.equals(oldUrn) || newCampaign.mStatus == Campaign.STATUS_OUT_OF_DATE) {
 
 					if(!TextUtils.isEmpty(oldUrn)) {
 						// If we are removing the old campaign show the notification
-						Intent intent = new Intent(getActivity(), ErrorDialogActivity.class);
-						intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getActivity().getString(R.string.single_campaign_changed_title));
-						intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getActivity().getString(R.string.single_campaign_changed_message));
-						NotificationHelper.showNotification(getActivity(), getActivity().getString(R.string.single_campaign_changed_title), getActivity().getString(R.string.click_more_info), intent);
-						Campaign.setRemote(getActivity(), oldUrn);
+						Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
+						intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getContext().getString(R.string.single_campaign_changed_title));
+						intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getContext().getString(R.string.single_campaign_changed_message));
+						NotificationHelper.showNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
+						Campaign.setRemote(getContext(), oldUrn);
 					}
 
 					// Download the new xml
+					//TODO: download new xml!
 					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
-						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getActivity(), newCampaign.mUrn);
-						campaignDownloadTask.execute(username, hashedPassword);
-						try {
-							campaignDownloadTask.get();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
+						campaignDownloadTask.startLoading();
+						campaignDownloadTask.waitForLoader();
 					}
 
 					// All campaigns which aren't ready should just be ignored, so they are set to remote
@@ -180,51 +165,51 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 				}
 			}
 		} 
-		
+
 		return response;
 	}
-	
-	@Override
-	protected void onPostExecute(CampaignReadResponse response) {
-		super.onPostExecute(response);	
-		
+
+	@Override 
+	public void deliverResult(CampaignReadResponse response) {
+		super.deliverResult(response);
+
 		if (response.getResult() == Result.SUCCESS) {
-			
+
 		} else if (response.getResult() == Result.FAILURE) {
 			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-			
+
 			boolean isAuthenticationError = false;
 			boolean isUserDisabled = false;
-			
+
 			for (String code : response.getErrorCodes()) {
 				if (code.charAt(1) == '2') {
 					isAuthenticationError = true;
-					
+
 					if (code.equals("0201")) {
 						isUserDisabled = true;
 					}
 				}
 			}
-			
+
 			if (isUserDisabled) {
-				new SharedPreferencesHelper(mContext).setUserDisabled(true);
+				new SharedPreferencesHelper(getContext()).setUserDisabled(true);
 			}
-			
+
 			if (isAuthenticationError) {
-				NotificationHelper.showAuthNotification(mContext);
-				Toast.makeText(mContext, R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
+				NotificationHelper.showAuthNotification(getContext());
+				Toast.makeText(getContext(), R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
 			} else {
-				Toast.makeText(mContext, R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getContext(), R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
 			}
-			
+
 		} else if (response.getResult() == Result.HTTP_ERROR) {
 			Log.e(TAG, "http error");
-			
-			Toast.makeText(mContext, R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
+
+			Toast.makeText(getContext(), R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
 		} else {
 			Log.e(TAG, "internal error");
-			
-			Toast.makeText(mContext, R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
+
+			Toast.makeText(getContext(), R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
 		} 
 	}
 }

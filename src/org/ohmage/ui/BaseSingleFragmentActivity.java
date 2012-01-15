@@ -21,7 +21,8 @@ public abstract class BaseSingleFragmentActivity extends BaseActivity {
 
 		// Create the list fragment and add it as our sole content.
 		if (fm.findFragmentById(containerId) == null) {
-			fragment.setArguments(intentToFragmentArguments(getIntent()));
+			if(fragment.getArguments() == null)
+				fragment.setArguments(intentToFragmentArguments(getIntent()));
 			fm.beginTransaction().add(containerId, fragment).commit();
 		}
 	}

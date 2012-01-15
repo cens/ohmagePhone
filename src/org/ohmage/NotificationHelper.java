@@ -30,6 +30,12 @@ public class NotificationHelper {
 		noteManager.notify(1, note);
 	}
 
+	public static void hideAuthNotification(Context context) {
+		NotificationManager notifMan = (NotificationManager)context.getSystemService(
+										Context.NOTIFICATION_SERVICE);
+		notifMan.cancel(1);
+	}
+
 	public static void showUploadErrorNotification(Context context) {
 		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification note = new Notification();

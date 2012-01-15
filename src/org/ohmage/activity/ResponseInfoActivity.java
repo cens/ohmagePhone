@@ -362,8 +362,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			@Override
 			public int getViewTypeCount() {
-				// One view type for text, another for images
-				return 2;
+				return 10;
 			}
 
 			@Override
