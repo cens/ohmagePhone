@@ -17,47 +17,45 @@ package org.ohmage.activity.test;
 
 import com.jayway.android.robotium.solo.Solo;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApplication;
 import org.ohmage.activity.CampaignInfoActivity;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.ResponseHistoryActivity;
 import org.ohmage.activity.SurveyListActivity;
+import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.test.helper.FilterBarHelper;
-import org.ohmage.test.helper.LoaderHelper;
+import org.ohmage.db.test.CampaignContentProvider;
+import org.ohmage.db.test.CampaignCursor;
+import org.ohmage.db.test.NotifyingMockContentResolver;
 import org.ohmage.triggers.ui.TriggerListActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.Smoke;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>This class contains tests for the {@link CampaignInfoActivity}</p>
  * 
- * <p>There are Helper methods which are used for dealing with a Loader. I try and
- * destroy a loader in between tests, and I try and wait for the loader to finish when
- * I expect it to be loading data. There are some problems where the loader with say it
- * is done loading, but the new data wont be there. I am guessing it is because
- * there was an old loading request which happened to finish right before the new one?
- * Or I start to wait too soon and it decides it is finished since it hasn't got another
- * load request yet.. I'm not sure.</p>
+ * <p>TODO: add tests which check what happens for different network connectivity states when trying to participate</p>
  * 
  * @author cketcham
  *
  */
 public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCase2<CampaignInfoActivity> {
 
-	private static final String CAMPAIGN_URN = "urn:andwellness:moms";
-	private static final String CAMPAIGN_NAME = "Moms";
-
 	private static final int INDEX_IMAGE_BUTTON_OHMAGE_HOME = 0;
 	private static final int INDEX_IMAGE_BUTTON_RESPONSE_HISTORY = 1;
 	private static final int INDEX_IMAGE_BUTTON_TRIGGERS = 2;
 
 	private Solo solo;
-	private LoaderHelper mLoaderHelper;
+	private CampaignContentProvider provider;
 
 	public CampaignInfoActivityFlowTest() {
 		super(CampaignInfoActivity.class);
@@ -66,10 +64,17 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		setActivityIntent(new Intent(Intent.ACTION_VIEW, Campaigns.buildCampaignUri(CAMPAIGN_URN)));
+		setActivityIntent(new Intent(Intent.ACTION_VIEW, Campaigns.buildCampaignUri("blah")));
 
+		getInstrumentation().waitForIdleSync();
+
+		NotifyingMockContentResolver fake = new NotifyingMockContentResolver(this);
+
+		provider = new CampaignContentProvider(OhmageApplication.getContext(), DbContract.CONTENT_AUTHORITY);
+		provider.addToContentResolver(fake);
+
+		OhmageApplication.setFakeContentResolver(fake);
 		solo = new Solo(getInstrumentation(), getActivity());
-		mLoaderHelper = new LoaderHelper(getActivity(), this);
 	}
 
 	@Override
@@ -82,37 +87,35 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 		getActivity().finish(); 
 		super.tearDown();
 	}
-	
-	public void testPreconditions() {
-		Cursor entity = mLoaderHelper.getEntity();
-		assertTrue("We should be getting one item from the db", entity.getCount() == 1);
+
+	private Campaign getBasicCampaign() {
+		Campaign c = new Campaign();
+		c.mStatus = Campaign.STATUS_READY;
+		c.mUrn = CampaignCursor.DEFAULT_CAMPAIGN_URN;
+		return c;
 	}
 
 	@Smoke
 	public void testFlowHomeButtonActionBar() {
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_OHMAGE_HOME);
 		solo.assertCurrentActivity("Expected Dashboard", DashboardActivity.class);
+		solo.goBack();
 	}
 
 	@Smoke
 	public void testFlowResponseHistoryActionBar() {
-		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
-		mLoaderHelper.setEntityContentValues(values);
-		
+		provider.setCampaign(getBasicCampaign());
+
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_RESPONSE_HISTORY);
 		solo.assertCurrentActivity("Expected Response History", ResponseHistoryActivity.class);
-		solo.searchText(CAMPAIGN_NAME, true);
-		solo.searchText(FilterBarHelper.ALL_SURVEYS, true);
+		assertEquals(CampaignCursor.DEFAULT_CAMPAIGN_URN, solo.getCurrentActivity().getIntent().getStringExtra(CampaignFilter.EXTRA_CAMPAIGN_URN));
 		solo.goBack();
 	}
 
 	@Smoke
 	public void testFlowTriggerButtonActionBar() {
-		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
-		mLoaderHelper.setEntityContentValues(values);
-		
+		provider.setCampaign(getBasicCampaign());
+
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_TRIGGERS);
 		solo.assertCurrentActivity("Expected Triggers list", TriggerListActivity.class);
 		solo.goBack();
@@ -120,33 +123,66 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 
 	@Smoke
 	public void testViewSurveys() {
-		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
-		mLoaderHelper.setEntityContentValues(values);
+		provider.setCampaign(getBasicCampaign());
+
 		solo.clickOnText("View Surveys");
 		solo.assertCurrentActivity("Expected Surveys list", SurveyListActivity.class);
-		solo.searchText(CAMPAIGN_NAME, true);
+		assertEquals(CampaignCursor.DEFAULT_CAMPAIGN_URN, solo.getCurrentActivity().getIntent().getStringExtra(CampaignFilter.EXTRA_CAMPAIGN_URN));
 		solo.goBack();
 	}
 
 	@Smoke
 	public void testRemove() {
-		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
-		mLoaderHelper.setEntityContentValues(values);
+		provider.setCampaign(getBasicCampaign());
+
 		solo.clickOnText("Remove");
-		solo.clickOnText("Yes");
-		solo.assertCurrentActivity("Expected to stay on CampaignInfoActivity", CampaignInfoActivity.class);
+		solo.clickOnText("Remove");
 		solo.searchText("available");
 	}
 
 	@Smoke
 	public void testParticipate() {
-		ContentValues values = new ContentValues();
-		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE );
-		mLoaderHelper.setEntityContentValues(values);
+		Campaign c = getBasicCampaign();
+		c.mStatus = Campaign.STATUS_REMOTE;
+		provider.setCampaign(c);
+		final CountDownLatch downloadWait = new CountDownLatch(1);
+		OhmageApplication.setOhmageApi(new OhmageApi() {
+			@Override
+			public CampaignReadResponse campaignRead(String serverUrl, String username, String hashedPassword, String client, String outputFormat, String campaignUrnList) {
+				CampaignReadResponse response = new CampaignReadResponse();
+				response.setResponseStatus(Result.SUCCESS, null);
+
+				JSONObject data = new JSONObject();
+				JSONObject campaignObject = new JSONObject();
+				try {
+					campaignObject.put("creation_timestamp", "0");
+					data.put(CampaignCursor.DEFAULT_CAMPAIGN_URN, campaignObject);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				response.setData(data);
+				return response;
+			}
+
+			@Override
+			public CampaignXmlResponse campaignXmlRead(String serverUrl, String username, String hashedPassword, String client, String campaignUrn) {
+				CampaignXmlResponse response = new CampaignXmlResponse();
+				response.setResponseStatus(Result.SUCCESS, null);
+				try {
+					downloadWait.await();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return response;
+			}
+		});
+
 		solo.clickOnText("Participate");
 		solo.assertCurrentActivity("Expected to stay on CampaignInfoActivity", CampaignInfoActivity.class);
-		solo.searchText("ready");
+		assertTrue(solo.searchText("downloading"));
+		downloadWait.countDown();
+		assertTrue(solo.searchText("participating"));
 	}
 }
