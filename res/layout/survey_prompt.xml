@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:fillViewport="true" >
 
     <LinearLayout
-        android:id="@+id/prompt_content"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical" >
@@ -15,6 +15,11 @@
             android:layout_width="fill_parent"
             android:layout_height="1dp"
             android:background="#adaaad" />
+
+        <FrameLayout
+            android:id="@+id/prompt_content"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
     </LinearLayout>
 
 </ScrollView>

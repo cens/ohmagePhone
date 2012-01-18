@@ -713,9 +713,8 @@ public class SurveyActivity extends Activity {
 					mSurveyElements.get(index) instanceof MultiChoicePrompt ||
 					mSurveyElements.get(index) instanceof MultiChoiceCustomPrompt)) {
 				LinearLayout.inflate(this, R.layout.survey_prompt, mPromptFrame);
-				View view = mPromptFrame.getChildAt(0);
-				content = (ViewGroup) view.findViewById(R.id.prompt_content);
-				TextView p = (TextView) view.findViewById(R.id.prompt_question);
+				content = (ViewGroup) mPromptFrame.findViewById(R.id.prompt_content);
+				TextView p = (TextView) mPromptFrame.findViewById(R.id.prompt_question);
 				p.setText(prompt.getPromptText());
 			}
 
