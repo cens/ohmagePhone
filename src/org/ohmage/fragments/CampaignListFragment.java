@@ -1,7 +1,6 @@
 package org.ohmage.fragments;
 
 import org.ohmage.R;
-import org.ohmage.activity.CampaignAddActivity;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.CampaignListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
@@ -11,6 +10,7 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -28,6 +28,8 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 	
 	public static final int MODE_MY_CAMPAIGNS = 0;
 	public static final int MODE_ADD_CAMPAIGNS = 1;
+
+	private static final String EXTRA_MODE = "extra_mode";
 	
 	private int mMode = MODE_MY_CAMPAIGNS;
 	
@@ -41,19 +43,30 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
         public void onCampaignActionError(String campaignUrn, int status);
     }
 
+	public static Fragment newInstance(int mode) {
+		CampaignListFragment f = new CampaignListFragment();
+		Bundle args = new Bundle();
+		args.putInt(EXTRA_MODE, mode);
+		f.setArguments(args);
+		return f;
+	}
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-
 		super.onActivityCreated(savedInstanceState);
 		
-		if (getActivity().getComponentName().getClassName().equals(CampaignAddActivity.class.getName())) {
-			mMode = MODE_ADD_CAMPAIGNS;
-			setEmptyText(getActivity().getString(R.string.campaign_add_list_empty));
-		} else {
-			mMode = MODE_MY_CAMPAIGNS;
-			setEmptyText(getActivity().getString(R.string.campaign_list_empty));
+		if(getArguments() != null && getArguments().containsKey(EXTRA_MODE))
+			mMode = getArguments().getInt(EXTRA_MODE);
+
+		switch(mMode) {
+			case MODE_ADD_CAMPAIGNS:
+				setEmptyText(getActivity().getString(R.string.campaign_add_list_empty));
+				break;
+			case MODE_MY_CAMPAIGNS:
+				setEmptyText(getActivity().getString(R.string.campaign_list_empty));
+				break;
 		}
-		
+
 		// style the empty text, too
 		TextView emptyView = (TextView)getListView().getEmptyView();
 		emptyView.setGravity(Gravity.LEFT);

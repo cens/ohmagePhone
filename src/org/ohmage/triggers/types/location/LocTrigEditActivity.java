@@ -43,6 +43,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.Arrays;
+
 /*
  * Editor activity for location based trigger. This activity is
  * invoked for creating a new location trigger and also for editing
@@ -114,38 +116,6 @@ public class LocTrigEditActivity extends PreferenceActivity
 			finish();
 			return;
 		}
-		
-		initializeCategories();
-		TrigListPreference locPref = (TrigListPreference) getPreferenceScreen()
-										.findPreference(PREF_KEY_LOCATION);
-		locPref.setEntries(mCategories);
-		locPref.setEntryValues(mCategories);
-		
-		if(mCategories.length == 0) {
-			locPref.setEnabled(false);
-		}
-		else {
-			locPref.setValue(mCategories[0]);
-			locPref.setSummary(mCategories[0]);
-		}
-		
-		//The cancel button prompts the user to
-		//launch the settings activity
-		locPref.setOnCancelListener(
-				new TrigListPreference.onCancelListener() {
-			
-			@Override
-			public void onCancel() {
-				//TODO - currently this exits this activity
-				//In order to come back to this screen after editing
-				//locations, we need to reinitialize the UI as there
-				//could be changes in the location list. Also, the currently
-				//selected location might have been deleted.
-				new LocationTrigger().launchSettingsEditActivity(
-						LocTrigEditActivity.this, mAdminMode);
-				LocTrigEditActivity.this.finish();
-			}
-		});
 
 		PreferenceScreen screen = getPreferenceScreen();
 		int prefCount = screen.getPreferenceCount();
@@ -205,6 +175,38 @@ public class LocTrigEditActivity extends PreferenceActivity
 		}
     }
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		initializeCategories();
+		TrigListPreference locPref = (TrigListPreference) getPreferenceScreen()
+										.findPreference(PREF_KEY_LOCATION);
+		locPref.setEntries(mCategories);
+		locPref.setEntryValues(mCategories);
+
+		if(mCategories.length == 0) {
+			locPref.setEnabled(false);
+		}
+		else {
+			if(locPref.getValue() == null || !Arrays.asList(mCategories).contains(locPref.getValue())) {
+				locPref.setValue(mCategories[0]);
+				locPref.setSummary(mCategories[0]);
+			}
+		}
+
+		//The cancel button prompts the user to
+		//launch the settings activity
+		locPref.setOnCancelListener(
+				new TrigListPreference.onCancelListener() {
+
+			@Override
+			public void onCancel() {
+				new LocationTrigger().launchSettingsEditActivity(LocTrigEditActivity.this, mAdminMode);
+			}
+		});
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);

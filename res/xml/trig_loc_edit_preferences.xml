@@ -32,7 +32,7 @@
 		    android:key="interval_end_time"
 		    android:dependency="enable_time_range"
 		    android:persistent="false"
-		    android:title="@string/trigger_time_start_title"
+		    android:title="@string/trigger_time_end_title"
 		    android:summary="@string/trigger_time_not_selected" />
 		
 		<CheckBoxPreference

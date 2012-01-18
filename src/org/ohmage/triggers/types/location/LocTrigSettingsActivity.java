@@ -333,7 +333,7 @@ public class LocTrigSettingsActivity extends ListActivity
 					}
 				})
 				.setNegativeButton(R.string.cancel, null)
-				.setTitle(R.string.delete + mDb.getCategoryName(mDialogCategId) + "?")
+				.setTitle(getString(R.string.delete_msg, mDb.getCategoryName(mDialogCategId) + "?"))
 				.setMessage(R.string.trigger_loc_remove_location_text)
 	    	    .create();
     		return dialog;
