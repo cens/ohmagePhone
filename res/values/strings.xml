@@ -130,6 +130,7 @@
     <string name="prompt_select_value">Use the +/- buttons\nto select a value.</string>
     <string name="prompt_timestamp_change_date">Change date</string>
     <string name="prompt_timestamp_set_am_pm">Remember to set the correct AM/PM value!</string>
+    <string name="prompt_text_hint">Tap this box or slide out the keyboard (if exists) to start typing.</string>
 
     <!-- Upload Queue -->
     <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>
