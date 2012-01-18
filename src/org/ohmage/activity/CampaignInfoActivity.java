@@ -287,7 +287,6 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// set the header fields first
 		mHeadertext.setText(data.getString(QueryParams.NAME));
 		mSubtext.setText(mCampaignUrn);
-		mNotetext.setVisibility(View.INVISIBLE);
 
 		final String iconUrl = data.getString(QueryParams.ICON);
 		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {

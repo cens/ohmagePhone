@@ -6,7 +6,7 @@
 		<item name="android:textStyle">bold</item>
 		<item name="android:textColor">@color/body_text_1</item>
 		<!-- <item name="android:maxLines">?attr/textHeaderMaxLines</item> -->
-		<item name="android:maxLines">3</item>
+		<item name="android:maxLines">2</item>
 		<item name="android:ellipsize">end</item>
 	</style>
 
@@ -14,6 +14,7 @@
 		<item name="android:textSize">@dimen/text_size_small</item>
 		<item name="android:textStyle">normal</item>
 		<item name="android:textColor">@color/body_text_2</item>
+		<item name="android:maxLines">2</item>
 	</style>
 
 	<style name="TextHeader2">
