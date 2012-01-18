@@ -189,12 +189,12 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 					ArrayList<String> keys = new ArrayList<String>(); 
 					for (KVLTriplet choice : mChoices) {
 						keys.add(choice.key.trim());
-						if(mEnteredText.trim().equals(choice.label))
+						if(mEnteredText.trim().toLowerCase().equals(choice.label.toLowerCase()))
 							duplicate = true;
 					}
 					for (KVLTriplet choice : mCustomChoices) {
 						keys.add(choice.key.trim());
-						if(mEnteredText.trim().equals(choice.label))
+						if(mEnteredText.trim().toLowerCase().equals(choice.label.toLowerCase()))
 							duplicate = true;
 					}
 					while ( keys.contains(String.valueOf(choiceId))) {
