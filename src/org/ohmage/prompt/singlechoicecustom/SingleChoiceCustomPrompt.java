@@ -45,6 +45,7 @@ import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -281,7 +282,11 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 				return true;
 			}
 		});
-		
+
+		TextView promptText = (TextView) LinearLayout.inflate(context, R.layout.survey_prompt_question, null);
+		promptText.setText(getPromptText());
+		mListView.addHeaderView(promptText);
+
 		mListView.setAdapter(adapter);
 		
 		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()) {
