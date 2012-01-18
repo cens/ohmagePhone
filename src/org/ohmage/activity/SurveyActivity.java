@@ -36,6 +36,7 @@ import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
@@ -113,7 +114,12 @@ public class SurveyActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			mCampaignUrn = Campaign.getSingleCampaign(this);
+		} else {
+			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+        }
+
         mSurveyId = getIntent().getStringExtra("survey_id");
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
@@ -136,6 +142,7 @@ public class SurveyActivity extends Activity {
     			Log.i(TAG, "no credentials saved, so launch Login");
     			startActivity(new Intent(this, LoginActivity.class));
     			finish();
+				return;
     		} else {
     			mSurveyElements = null;
                 

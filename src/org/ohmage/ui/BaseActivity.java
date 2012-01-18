@@ -1,12 +1,16 @@
 package org.ohmage.ui;
 
+import org.ohmage.AccountHelper;
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -22,8 +26,28 @@ import android.widget.LinearLayout;
  */
 public abstract class BaseActivity extends FragmentActivity {
 
+	private static final String TAG = "BaseActivity";
+
 	private ActionBarControl mActionBar;
 	private FrameLayout mContainer;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+
+		if (preferencesHelper.isUserDisabled()) {
+			((OhmageApplication) getApplication()).resetAll();
+		}
+
+		if (!preferencesHelper.isAuthenticated()) {
+			Log.i(TAG, "no credentials saved, so launch Login");
+			startActivity(AccountHelper.getLoginIntent(this));
+			finish();
+			return;
+		}
+	}
 
 	@Override
 	public void onContentChanged() {
