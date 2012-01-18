@@ -143,14 +143,10 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     }
 
     @Override
-    protected void onStartLoading() {
-    	if(hasAuthentication()) {
-    		ContentResolver cr = getContext().getContentResolver();
-    		ContentValues values = new ContentValues();
-    		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
-    		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
-
-    		forceLoad();
-    	}
+    protected void onForceLoad() {
+		ContentResolver cr = getContext().getContentResolver();
+		ContentValues values = new ContentValues();
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
+		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null);
     }
 }
