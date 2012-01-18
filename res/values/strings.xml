@@ -124,6 +124,8 @@
     <string name="prompt_remote_relaunch">Relaunch</string>
     <string name="prompt_custom_single_choice_add">Add new choice</string>
     <string name="prompt_custom_multi_choice_add">Add new item</string>
+    <string name="prompt_custom_choice_duplicate">Duplicate choices are not allowed</string>
+    <string name="prompt_custom_choice_db_open_error">Error opening custom choice db</string>
     <string name="prompt_hours_ago">hours ago</string>
     <string name="prompt_select_value">Use the +/- buttons\nto select a value.</string>
     <string name="prompt_timestamp_change_date">Change date</string>

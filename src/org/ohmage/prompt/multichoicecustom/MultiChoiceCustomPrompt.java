@@ -184,19 +184,29 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 					
+					boolean duplicate = false;
 					int choiceId = 100;
 					ArrayList<String> keys = new ArrayList<String>(); 
 					for (KVLTriplet choice : mChoices) {
 						keys.add(choice.key.trim());
+						if(mEnteredText.trim().equals(choice.label))
+							duplicate = true;
 					}
 					for (KVLTriplet choice : mCustomChoices) {
 						keys.add(choice.key.trim());
+						if(mEnteredText.trim().equals(choice.label))
+							duplicate = true;
 					}
 					while ( keys.contains(String.valueOf(choiceId))) {
 						choiceId++;
 					}
 					
-					if (dbAdapter.open()) {
+
+					if(duplicate) {
+						Toast.makeText(v.getContext(), v.getContext().getString(R.string.prompt_custom_choice_duplicate), Toast.LENGTH_SHORT).show();
+					} else if(!dbAdapter.open()) {
+						Toast.makeText(v.getContext(), v.getContext().getString(R.string.prompt_custom_choice_db_open_error), Toast.LENGTH_SHORT).show();
+					} else {
 						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getId());
 						dbAdapter.close();
 					}
