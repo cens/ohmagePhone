@@ -144,6 +144,8 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     protected void onForceLoad() {
+		super.onForceLoad();
+
 		ContentResolver cr = getContext().getContentResolver();
 		ContentValues values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
