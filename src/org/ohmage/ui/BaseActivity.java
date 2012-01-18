@@ -71,7 +71,7 @@ public abstract class BaseActivity extends FragmentActivity {
 		return mContainer.findViewById(id);
 	}
 
-	protected ActionBarControl getActionBar() {
+	public ActionBarControl getActionBar() {
 		return mActionBar;
 	}
 
