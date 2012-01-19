@@ -1,22 +1,18 @@
 package org.ohmage.service;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.CampaignManager;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
-import org.ohmage.Utilities;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.activity.CampaignListActivity;
-import org.ohmage.activity.LoginActivity;
-import org.ohmage.activity.UploadQueueActivity;
+import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -26,20 +22,16 @@ import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import edu.ucla.cens.mobility.glue.MobilityInterface;
-import edu.ucla.cens.systemlog.Log;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 public class UploadService extends WakefulIntentService {
 	
@@ -175,10 +167,10 @@ public class UploadService extends WakefulIntentService {
 			
 			OhmageApi.UploadResponse response = api.surveyUpload(serverUrl, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), photos);
 			
-			if (response.getResult() == Result.SUCCESS) {
-				dbHelper.setResponseRowUploaded(responseId);
-			} else {
-				int errorStatusCode = Response.STATUS_ERROR_OTHER;
+			int responseStatus = Response.STATUS_UPLOADED;
+
+			if (response.getResult() != Result.SUCCESS) {
+				responseStatus = Response.STATUS_ERROR_OTHER;
 				
 				switch (response.getResult()) {
 				case FAILURE:
@@ -213,47 +205,47 @@ public class UploadService extends WakefulIntentService {
 					}
 					
 					if (isAuthenticationError) {
-						errorStatusCode = Response.STATUS_ERROR_AUTHENTICATION;
+						responseStatus = Response.STATUS_ERROR_AUTHENTICATION;
 
 					} else if ("0700".equals(errorCode)) {
-						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
+						responseStatus = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_NO_EXIST);
 
 					} else if ("0707".equals(errorCode)) {
-						errorStatusCode = Response.STATUS_ERROR_INVALID_USER_ROLE;
+						responseStatus = Response.STATUS_ERROR_INVALID_USER_ROLE;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_INVALID_USER_ROLE);
 
 					} else if ("0703".equals(errorCode)) {
-						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
+						responseStatus = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_STOPPED);
 
 					} else if ("0710".equals(errorCode)) {
-						errorStatusCode = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
+						responseStatus = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
 						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_OUT_OF_DATE);
 					} else {
-						errorStatusCode = Response.STATUS_ERROR_OTHER;
+						responseStatus = Response.STATUS_ERROR_OTHER;
 					}
 					
 					break;
 
 				case INTERNAL_ERROR:
 					uploadErrorOccurred = true;
-					errorStatusCode = Response.STATUS_ERROR_OTHER;
+					responseStatus = Response.STATUS_ERROR_OTHER;
 					break;
 					
 				case HTTP_ERROR:
-					errorStatusCode = Response.STATUS_ERROR_HTTP;
+					responseStatus = Response.STATUS_ERROR_HTTP;
 					break;
 				}
-				
-				ContentValues cv2 = new ContentValues();
-				cv2.put(Responses.RESPONSE_STATUS, errorStatusCode);
-				cr.update(Responses.buildResponseUri(responseId), cv2, null, null);
 			}
-			
+
+			ContentValues cv2 = new ContentValues();
+			cv2.put(Responses.RESPONSE_STATUS, responseStatus);
+			cr.update(Responses.buildResponseUri(responseId), cv2, null, null);
+
 			cursor.moveToNext();
 		}
-		
+
 		cursor.close();
 		
 		if (isBackground) {
