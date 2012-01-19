@@ -99,6 +99,14 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     @Override
     public void deliverResult(Response response) {
 
+		if(response.getResult() != Result.SUCCESS) {
+			// revert the db back to remote
+			ContentResolver cr = getContext().getContentResolver();
+			ContentValues values = new ContentValues();
+			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+			cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null);
+		}
+
 		if (response.getResult() == Result.SUCCESS) {
 			// setup initial triggers for this campaign
 			TriggerFramework.setDefaultTriggers(getContext(), mCampaignUrn);
