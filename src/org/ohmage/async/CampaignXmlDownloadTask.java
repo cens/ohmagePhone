@@ -40,7 +40,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     public Response loadInBackground() {
-		OhmageApi api = new OhmageApi(getContext());
+		OhmageApi api = new OhmageApi();
 		ContentResolver cr = getContext().getContentResolver();
 
 		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);

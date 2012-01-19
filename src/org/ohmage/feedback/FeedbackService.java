@@ -68,7 +68,7 @@ public class FeedbackService extends WakefulIntentService {
 		// ==================================================================
 		
 		// grab an instance of the api connector so we can do calls to the server for responses
-		OhmageApi api = new OhmageApi(this);
+		OhmageApi api = new OhmageApi();
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();

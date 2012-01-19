@@ -74,7 +74,7 @@ public class UploadService extends WakefulIntentService {
 		boolean uploadErrorOccurred = false;
 		boolean authErrorOccurred = false;
 		
-		OhmageApi api = new OhmageApi(this);
+		OhmageApi api = new OhmageApi();
 		DbHelper dbHelper = new DbHelper(this);
 		
 		Uri dataUri = intent.getData();
@@ -395,7 +395,7 @@ public class UploadService extends WakefulIntentService {
 					c.moveToNext();
 				}
 				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-				OhmageApi api = new OhmageApi(this);
+				OhmageApi api = new OhmageApi();
 				response = api.mobilityUpload(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
