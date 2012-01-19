@@ -127,7 +127,6 @@
     <string name="prompt_custom_choice_duplicate">Duplicate choices are not allowed</string>
     <string name="prompt_custom_choice_db_open_error">Error opening custom choice db</string>
     <string name="prompt_hours_ago">hours ago</string>
-    <string name="prompt_select_value">Use the +/- buttons\nto select a value.</string>
     <string name="prompt_timestamp_change_date">Change date</string>
     <string name="prompt_timestamp_set_am_pm">Remember to set the correct AM/PM value!</string>
     <string name="prompt_text_hint">Tap this box or slide out the keyboard (if exists) to start typing.</string>
