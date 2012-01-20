@@ -234,8 +234,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// set the header fields first
 		mHeadertext.setText(data.getString(QueryParams.TITLE));
 		mSubtext.setText(data.getString(QueryParams.CAMPAIGN_NAME));
-		mSubtext.setVisibility(View.INVISIBLE);
-		mNotetext.setVisibility(View.INVISIBLE);
+		mSubtext.setVisibility(View.GONE);
+		mNotetext.setVisibility(View.GONE);
 		
 		final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
 		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {

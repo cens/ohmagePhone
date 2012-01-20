@@ -472,7 +472,7 @@ public class LoginActivity extends FragmentActivity {
 //		        	e.printStackTrace();
 //		        }
 //			}
-			OhmageApi api = new OhmageApi(getActivity());
+			OhmageApi api = new OhmageApi();
 			return api.authenticate(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 
