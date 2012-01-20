@@ -36,6 +36,7 @@ import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
@@ -67,6 +68,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -82,7 +84,7 @@ public class SurveyActivity extends Activity {
 	
 	private TextView mSurveyTitleText;
 	private ProgressBar mProgressBar;
-	private TextView mPromptText;
+	private TextView mPromptInfoText;
 	private FrameLayout mPromptFrame;
 	private Button mPrevButton;
 	private Button mSkipButton;
@@ -113,7 +115,12 @@ public class SurveyActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			mCampaignUrn = Campaign.getSingleCampaign(this);
+		} else {
+			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+        }
+
         mSurveyId = getIntent().getStringExtra("survey_id");
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
@@ -136,6 +143,7 @@ public class SurveyActivity extends Activity {
     			Log.i(TAG, "no credentials saved, so launch Login");
     			startActivity(new Intent(this, LoginActivity.class));
     			finish();
+				return;
     		} else {
     			mSurveyElements = null;
                 
@@ -175,7 +183,7 @@ public class SurveyActivity extends Activity {
         
         mSurveyTitleText = (TextView) findViewById(R.id.survey_title_text);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mPromptText = (TextView) findViewById(R.id.prompt_text);
+        mPromptInfoText = (TextView) findViewById(R.id.prompt_info_text);
         mPromptFrame = (FrameLayout) findViewById(R.id.prompt_frame);
         mPrevButton = (Button) findViewById(R.id.prev_button);
         mSkipButton = (Button) findViewById(R.id.skip_button);
@@ -606,9 +614,10 @@ public class SurveyActivity extends Activity {
 		mSkipButton.setVisibility(View.INVISIBLE);
 		
 		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
+		imm.hideSoftInputFromWindow(mPromptFrame.getWindowToken(), 0);
 		
-		mPromptText.setText(R.string.survey_complete);
+		mPromptInfoText.setText(R.string.survey_complete);
+		mPromptInfoText.setVisibility(View.VISIBLE);
 		mProgressBar.setProgress(mProgressBar.getMax());
 		
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -644,9 +653,10 @@ public class SurveyActivity extends Activity {
 			}
 			
 			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
+			imm.hideSoftInputFromWindow(mPromptFrame.getWindowToken(), 0);
 			
-			mPromptText.setText(R.string.survey_message_title);
+			mPromptInfoText.setText(R.string.survey_message_title);
+			mPromptInfoText.setVisibility(View.VISIBLE);
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 			
 			mPromptFrame.removeAllViews();
@@ -674,14 +684,14 @@ public class SurveyActivity extends Activity {
 			// someone needs to check condition before showing prompt
 			
 			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
+			imm.hideSoftInputFromWindow(mPromptFrame.getWindowToken(), 0);
 			
 			prompt.setDisplayed(true);
 			prompt.setSkipped(false);
 			
 			// TODO for now I'm casting, but maybe I should move getters/setters to interface?
 			// or just use a list of AbstractPrompt
-			mPromptText.setText(prompt.getPromptText());
+			mPromptInfoText.setVisibility(View.GONE);
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 			
 			if (prompt.getSkippable().equals("true")) {
@@ -695,10 +705,21 @@ public class SurveyActivity extends Activity {
 			//If its a photo prompt we need to recycle the image
 			if(mSurveyElements.get(index) instanceof PhotoPrompt)
 				PhotoPrompt.clearView(mPromptFrame);
-			
+
 			mPromptFrame.removeAllViews();
-			mPromptFrame.addView(prompt.getView(this));
-			//mPromptFrame.invalidate();
+			ViewGroup content = mPromptFrame;
+			if(!(mSurveyElements.get(index) instanceof SingleChoicePrompt ||
+					mSurveyElements.get(index) instanceof SingleChoiceCustomPrompt ||
+					mSurveyElements.get(index) instanceof MultiChoicePrompt ||
+					mSurveyElements.get(index) instanceof MultiChoiceCustomPrompt)) {
+				LinearLayout.inflate(this, R.layout.survey_prompt, mPromptFrame);
+				content = (ViewGroup) mPromptFrame.findViewById(R.id.prompt_content);
+				TextView p = (TextView) mPromptFrame.findViewById(R.id.prompt_question);
+				p.setText(prompt.getPromptText());
+			}
+
+			content.addView(prompt.getView(this));
+
 		} else {
 			Log.e(TAG, "trying to showPrompt for element that is not a prompt!");
 		}
@@ -730,14 +751,15 @@ public class SurveyActivity extends Activity {
 			}
 			
 			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
+			imm.hideSoftInputFromWindow(mPromptFrame.getWindowToken(), 0);
 			
 			//terminator.setDisplayed(true);
 			//terminator.setSkipped(false);
 			
 			// TODO for now I'm casting, but maybe I should move getters/setters to interface?
 			// or just use a list of AbstractPrompt
-			mPromptText.setText(R.string.survey_repeatable_set_title);
+			mPromptInfoText.setText(R.string.survey_repeatable_set_title);
+			mPromptInfoText.setVisibility(View.VISIBLE);
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 			
 //			if (terminator.getSkippable().equals("true")) {

@@ -17,7 +17,6 @@ package org.ohmage;
 
 import edu.ucla.cens.systemlog.Log;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -47,7 +46,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.os.Build;
 
 import java.io.ByteArrayOutputStream;
@@ -72,12 +70,7 @@ public class OhmageApi {
 	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
 	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
 	private static final String IMAGE_READ_PATH = "app/image/read";
-	
-	public OhmageApi(Context context) {
-//		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-//		serverUrl = prefs.getServerUrl();
-	}
-	
+
 	public static enum Result {
 		SUCCESS,
 		FAILURE,

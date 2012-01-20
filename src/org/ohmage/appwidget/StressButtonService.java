@@ -15,16 +15,23 @@
  ******************************************************************************/
 package org.ohmage.appwidget;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.UUID;
+import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.CampaignXmlHelper;
+import org.ohmage.OhmageApplication;
+import org.ohmage.PromptXmlParser;
+import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.activity.LoginActivity;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.SurveyElement;
+import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.IntentService;
@@ -37,21 +44,13 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.widget.Toast;
-import org.ohmage.OhmageApplication;
-import org.ohmage.CampaignXmlHelper;
-import org.ohmage.PromptXmlParser;
-import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.activity.LoginActivity;
-import org.ohmage.db.DbHelper;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.AbstractPrompt;
-import org.ohmage.prompt.Prompt;
-import org.ohmage.prompt.SurveyElement;
-import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.triggers.glue.TriggerFramework;
-import edu.ucla.cens.systemlog.Log;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.UUID;
 
 public class StressButtonService extends IntentService {
 	
@@ -72,9 +71,6 @@ public class StressButtonService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		
-		Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		vibrator.vibrate(100);
-		
 		Calendar now = Calendar.getInstance();
 		long launchTime = now.getTimeInMillis();
 		
@@ -90,9 +86,16 @@ public class StressButtonService extends IntentService {
 			return;
 		}
 		
+		Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		vibrator.vibrate(100);
+
 		List<SurveyElement> prompts = null;
 		
+
 		String campaignUrn = intent.getStringExtra("campaign_urn");
+		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			campaignUrn = Campaign.getSingleCampaign(this);
+		}
 		String surveyId = intent.getStringExtra("survey_id");
         String surveyTitle = intent.getStringExtra("survey_title");
         

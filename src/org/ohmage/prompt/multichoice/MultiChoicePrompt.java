@@ -30,10 +30,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter.ViewBinder;
+import android.widget.TextView;
 
 public class MultiChoicePrompt extends AbstractPrompt {
 	
@@ -124,7 +126,11 @@ public class MultiChoicePrompt extends AbstractPrompt {
 				return true;
 			}
 		});
-		
+
+		TextView promptText = (TextView) LinearLayout.inflate(context, R.layout.survey_prompt_question, null);
+		promptText.setText(getPromptText());
+		listView.addHeaderView(promptText);
+
 		listView.setAdapter(adapter);
 		
 		if (mSelectedIndexes.size() > 0) {

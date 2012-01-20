@@ -18,6 +18,7 @@ public class NotificationHelper {
 		
 		Intent intentToLaunch = new Intent(context, LoginActivity.class);
 		intentToLaunch.putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true);
+		intentToLaunch.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
 		String title = "Authentication error!";
 		String body = "Tap here to re-enter credentials.";

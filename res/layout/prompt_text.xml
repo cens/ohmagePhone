@@ -12,6 +12,6 @@
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:gravity="top"
-		android:hint="Slide out the keyboard or tap this box to start typing." />
+		android:hint="@string/prompt_text_hint" />
 		
 </LinearLayout>

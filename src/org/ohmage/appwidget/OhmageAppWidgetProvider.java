@@ -22,16 +22,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
-import org.ohmage.CampaignManager;
 import org.ohmage.R;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.activity.SurveyListActivity;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.Models;
-import org.ohmage.db.Models.Campaign;
-
 public class OhmageAppWidgetProvider extends AppWidgetProvider {
 
+	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         final int N = appWidgetIds.length;
 
@@ -49,7 +45,6 @@ public class OhmageAppWidgetProvider extends AppWidgetProvider {
             
             // Create an Intent to launch foodButton survey
             Intent foodIntent = new Intent(context, SurveyActivity.class);
-            foodIntent.putExtra("campaign_urn", Campaign.getSingleCampaign(context));
             foodIntent.putExtra("survey_id", "foodButton");
 			foodIntent.putExtra("survey_title", "Food");
 			foodIntent.putExtra("survey_submit_text", "Thank you for completing this survey!");
@@ -61,7 +56,6 @@ public class OhmageAppWidgetProvider extends AppWidgetProvider {
             
             // Create an Intent to launch stressButton survey
             Intent stressIntent = new Intent(context, StressButtonService.class);
-            stressIntent.putExtra("campaign_urn", Campaign.getSingleCampaign(context));
             stressIntent.putExtra("survey_id", "stressButton");
     		stressIntent.putExtra("survey_title", "Stress");
             PendingIntent stressPendingIntent = PendingIntent.getService(context, 0, stressIntent, PendingIntent.FLAG_CANCEL_CURRENT);

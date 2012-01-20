@@ -43,7 +43,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 
 	@Override
 	public CampaignReadResponse loadInBackground() {
-		OhmageApi api = new OhmageApi(getContext());
+		OhmageApi api = new OhmageApi();
 		CampaignReadResponse response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {

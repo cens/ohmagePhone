@@ -190,6 +190,14 @@ public class LoginActivity extends FragmentActivity {
 		});
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		// Hide any notifications since we started the login activity
+		NotificationHelper.hideAuthNotification(this);
+	}
+
 	private final OnClickListener mClickListener = new OnClickListener() {
 		
 		@Override
@@ -333,8 +341,6 @@ public class LoginActivity extends FragmentActivity {
 		switch (response.getResult()) {
 		case SUCCESS:
 			Log.i(TAG, "login success");
-			NotificationHelper.hideAuthNotification(this);
-			
 			final String hashedPassword = response.getHashedPassword();
 			
 			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
@@ -466,7 +472,7 @@ public class LoginActivity extends FragmentActivity {
 //		        	e.printStackTrace();
 //		        }
 //			}
-			OhmageApi api = new OhmageApi(getActivity());
+			OhmageApi api = new OhmageApi();
 			return api.authenticate(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 
