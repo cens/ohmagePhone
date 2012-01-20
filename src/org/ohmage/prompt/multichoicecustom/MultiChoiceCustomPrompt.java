@@ -101,10 +101,10 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 	protected Object getTypeSpecificResponseObject() {
 		JSONArray jsonArray = new JSONArray();
 		for (int index : mSelectedIndexes) {
-			if (index >= 0 && index < mChoices.size()) {
-				jsonArray.put(mChoices.get(index).label);
-			} else if (index < mChoices.size() + mCustomChoices.size()) {
-				jsonArray.put(mCustomChoices.get(index - mChoices.size()).label);
+			if (index >= 1 && index <= mChoices.size()) {
+				jsonArray.put(mChoices.get(index-1).label);
+			} else if (index <= mChoices.size() + mCustomChoices.size()) {
+				jsonArray.put(mCustomChoices.get(index - mChoices.size() - 1).label);
 			}
 		}
 		return jsonArray;
@@ -292,7 +292,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		
 		if (mSelectedIndexes.size() > 0) {
 			for (int index : mSelectedIndexes) {
-				if (index >= 0 && index < mChoices.size() + mCustomChoices.size())
+				if (index >= 1 && index <= mChoices.size() + mCustomChoices.size())
 					mListView.setItemChecked(index, true);
 			}
 		}

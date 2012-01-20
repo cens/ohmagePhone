@@ -192,7 +192,7 @@ public class Models {
 				cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
 				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
 				context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-				campaign.get(0).deleteAssociatedData(context);
+				campaign.get(0).cleanUp(context);
 			}
 		}
 
@@ -201,15 +201,6 @@ public class Models {
 			if (mStatus != Campaign.STATUS_REMOTE)
 				TriggerFramework.resetTriggerSettings(context, mUrn);
 
-			deleteAssociatedData(context);
-		}
-
-		/**
-		 * Deletes data that could change if there are updates to the server. So anything we have cached
-		 * wont be valid if we download the campaign again.
-		 * @param context
-		 */
-		private void deleteAssociatedData(Context context) {
 			try {
 				if(mIcon != null)
 					OhmageCache.getCachedFile(context, new URI(mIcon)).delete();

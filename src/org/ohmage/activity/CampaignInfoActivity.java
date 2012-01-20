@@ -57,6 +57,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	private String mCampaignUrn;
 
+	private int mTriggerCount;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -197,8 +199,20 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				@Override
 				public void onClick(View v) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+					StringBuilder message = new StringBuilder(getString(R.string.campaign_info_remove_text));
+
+					if(mTriggerCount != 0) {
+						message.append(" ");
+						message.append(getString(R.string.campaign_info_remove_campaign_reminders));
+					}
 					if(mLocalResponses != 0) {
-						builder.setMessage(Html.fromHtml(getResources().getQuantityString(R.plurals.campaign_info_remote, mLocalResponses, mLocalResponses)));
+						if(mTriggerCount != 0) {
+							message.append(" ");
+							message.append(Html.fromHtml(getResources().getQuantityString(R.plurals.campaign_info_remove_campaign_responses_w_reminders, mLocalResponses, mLocalResponses)));
+						} else {
+							message.append(" ");
+							message.append(Html.fromHtml(getResources().getQuantityString(R.plurals.campaign_info_remove_campaign_responses, mLocalResponses, mLocalResponses)));
+						}
 						builder.setNeutralButton(R.string.upload, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
@@ -207,9 +221,10 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								startActivity(uploadQueue);
 							}
 						});
-					} else {
-						builder.setMessage(R.string.campaign_info_remove_text);
 					}
+					if(mTriggerCount != 0 || mLocalResponses != 0)
+						message.append(".");
+					builder.setMessage(message);
 
 					builder.setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
 						@Override
@@ -379,7 +394,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		TriggerDB trigDB = new TriggerDB(mContext);
 		if (trigDB.open()) {
 			Cursor triggers = trigDB.getAllTriggers(mCampaignUrn);
-			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, triggers.getCount(), triggers.getCount()));
+			mTriggerCount = triggers.getCount();
+			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, mTriggerCount, mTriggerCount));
 			triggers.close();
 			trigDB.close();
 		}
