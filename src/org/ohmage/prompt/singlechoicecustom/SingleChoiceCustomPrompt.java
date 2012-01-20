@@ -85,17 +85,17 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 	 */
 	@Override
 	public boolean isPromptAnswered() {
-		return((mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) ||
-			   (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()));
+		return((mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size()) ||
+			   (mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size() + mCustomChoices.size()));
 	}
 	
 	@Override
 	protected Object getTypeSpecificResponseObject() {
 		
-		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
-			return mChoices.get(mSelectedIndex).label;
-		} else if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()) {
-			return mCustomChoices.get(mSelectedIndex - mChoices.size()).label;
+		if (mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size()) {
+			return mChoices.get(mSelectedIndex-1).label;
+		} else if (mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size() + mCustomChoices.size()) {
+			return mCustomChoices.get(mSelectedIndex - mChoices.size() - 1).label;
 		} else {
 			return null;
 		}
@@ -207,7 +207,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 					
 					showAddItemControls(context, false);
 					
-					mSelectedIndex = mListView.getCount() - 1;
+					mSelectedIndex = mListView.getCount();
 					
 					((SurveyActivity)context).reloadCurrentPrompt();
 				} else {
@@ -286,7 +286,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 
 		mListView.setAdapter(adapter);
 		
-		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()) {
+		if (isPromptAnswered()) {
 			mListView.setItemChecked(mSelectedIndex, true);
 		}
 		

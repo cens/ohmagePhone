@@ -78,8 +78,8 @@ public class MultiChoicePrompt extends AbstractPrompt {
 	protected Object getTypeSpecificResponseObject() {
 		JSONArray jsonArray = new JSONArray();
 		for (int index : mSelectedIndexes) {
-			if (index >= 0 && index < mChoices.size())
-				jsonArray.put(Integer.decode(mChoices.get(index).key));
+			if (index >= 1 && index <= mChoices.size())
+				jsonArray.put(Integer.decode(mChoices.get(index-1).key));
 		}
 		return jsonArray;
 	}
@@ -135,7 +135,7 @@ public class MultiChoicePrompt extends AbstractPrompt {
 		
 		if (mSelectedIndexes.size() > 0) {
 			for (int index : mSelectedIndexes) {
-				if (index >= 0 && index < mChoices.size())
+				if (index >= 1 && index <= mChoices.size())
 					listView.setItemChecked(index, true);
 			}
 		}
