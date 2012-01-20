@@ -19,7 +19,6 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
-import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 
 import android.content.ContentResolver;
@@ -209,19 +208,12 @@ public class UploadService extends WakefulIntentService {
 
 					} else if ("0700".equals(errorCode)) {
 						responseStatus = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
-						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_NO_EXIST);
-
 					} else if ("0707".equals(errorCode)) {
 						responseStatus = Response.STATUS_ERROR_INVALID_USER_ROLE;
-						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_INVALID_USER_ROLE);
-
 					} else if ("0703".equals(errorCode)) {
 						responseStatus = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
-						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_STOPPED);
-
 					} else if ("0710".equals(errorCode)) {
 						responseStatus = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
-						dbHelper.updateCampaignStatus(campaignUrn, Campaign.STATUS_OUT_OF_DATE);
 					} else {
 						responseStatus = Response.STATUS_ERROR_OTHER;
 					}

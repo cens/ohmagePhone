@@ -14,7 +14,6 @@ import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -128,12 +127,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				if(id == Campaign.STATUS_OUT_OF_DATE)
-					Campaign.setRemote(BaseCampaignListActivity.this, campaignUrnForDialogs);
-				else {
-					ContentResolver cr = getContentResolver();
-					cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[] { campaignUrnForDialogs });
-				}
+				Campaign.setRemote(BaseCampaignListActivity.this, campaignUrnForDialogs);
 			}
 		});
 
