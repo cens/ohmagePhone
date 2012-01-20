@@ -76,13 +76,13 @@ public class SingleChoicePrompt extends AbstractPrompt {
 	 */
 	@Override
 	public boolean isPromptAnswered() {
-		return(mSelectedIndex >= 0 && mSelectedIndex < mChoices.size());
+		return(mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size());
 	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
-		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
-			return Integer.decode(mChoices.get(mSelectedIndex).key);
+		if (isPromptAnswered()) {
+			return Integer.decode(mChoices.get(mSelectedIndex-1).key);
 		} else {
 			return null;
 		}
@@ -166,7 +166,7 @@ public class SingleChoicePrompt extends AbstractPrompt {
 
 		listView.setAdapter(adapter);
 		
-		if (mSelectedIndex >= 0 && mSelectedIndex < listView.getCount()) {
+		if (isPromptAnswered()) {
 			listView.setItemChecked(mSelectedIndex, true);
 		}
 		
