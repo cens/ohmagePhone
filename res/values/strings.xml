@@ -194,11 +194,17 @@
     <string name="campaign_info_status_title">status:</string>
     <string name="campaign_info_responses_title">responses:</string>
     <string name="campaign_info_triggers_title">reminders:</string>
+    <string name="campaign_info_remove_campaign_reminders">Any custom reminders will also be removed</string>
 
-    <plurals name="campaign_info_remote">
-        <item quantity="one">Are you sure that you want to remove this campaign? There is <b>1 response</b> which hasn\'t been uploaded.</item>
-        <item quantity="other">Are you sure that you want to remove this campaign? There are <b>%d responses</b> which haven\'t been uploaded.</item>
+    <plurals name="campaign_info_remove_campaign_responses_w_reminders">
+        <item quantity="one">along with <b>1 response</b> which hasn\'t been uploaded</item>
+        <item quantity="other">along with <b>%d responses</b> which haven\'t been uploaded</item>
     </plurals>
+    <plurals name="campaign_info_remove_campaign_responses">
+        <item quantity="one">There is <b>1 response</b> which hasn\'t been uploaded which will also be removed</item>
+        <item quantity="other">There are <b>%d responses</b> which haven\'t been uploaded which will also be removed</item>
+    </plurals>
+
     <plurals name="campaign_info_response_count">
         <item quantity="one">1 response submitted</item>
         <item quantity="other">%d responses submitted</item>
