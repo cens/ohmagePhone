@@ -192,7 +192,11 @@ public class SurveyActivity extends Activity {
         mPrevButton.setOnClickListener(mClickListener);
         mSkipButton.setOnClickListener(mClickListener);
         mNextButton.setOnClickListener(mClickListener);
-        
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
         mSurveyTitleText.setText(mSurveyTitle);
         if (mReachedEnd == false) {
         	showElement(mCurrentPosition);
