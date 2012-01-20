@@ -168,7 +168,10 @@ public class UploadService extends WakefulIntentService {
 			
 			int responseStatus = Response.STATUS_UPLOADED;
 
-			if (response.getResult() != Result.SUCCESS) {
+			if (response.getResult() == Result.SUCCESS) {
+				NotificationHelper.hideUploadErrorNotification(this);
+				NotificationHelper.hideAuthNotification(this);
+			} else {
 				responseStatus = Response.STATUS_ERROR_OTHER;
 				
 				switch (response.getResult()) {
@@ -387,6 +390,8 @@ public class UploadService extends WakefulIntentService {
 					helper.putLastMobilityUploadTimestamp(uploadAfterTimestamp);
 					remainingCount -= limit;
 					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
+
+					NotificationHelper.hideMobilityErrorNotification(this);
 				} else {
 					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
 					
