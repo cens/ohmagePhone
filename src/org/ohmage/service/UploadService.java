@@ -69,7 +69,11 @@ public class UploadService extends WakefulIntentService {
 		DbHelper dbHelper = new DbHelper(this);
 		
 		Uri dataUri = intent.getData();
-		
+		if(!Responses.isResponseUri(dataUri)) {
+			Log.e(TAG, "Upload service can only be called with a response URI");
+			return;
+		}
+
 		ContentResolver cr = getContentResolver();
 		
 		String [] projection = new String [] {
