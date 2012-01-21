@@ -185,6 +185,10 @@
     <string name="preferences_muli_campaign_status">Multi-Campaign Mode</string>
     <string name="shown">Shown</string>
     <string name="hidden">Hidden</string>
+    <string name="preferences_response_history_title">Response History</string>
+    <string name="preferences_profile_title">Profile</string>
+    <string name="preferences_upload_queue_title">Upload Queue</string>
+    <string name="preferences_mobility_title">Mobility</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
