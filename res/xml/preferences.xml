@@ -20,6 +20,13 @@
             android:key="status_campaign_urn"
             android:persistent="false" />
 
+       <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_server_url"
+            android:persistent="false"
+            android:title="Server Url" />
+
         <PreferenceScreen
             style="?android:attr/preferenceInformationStyle"
             android:enabled="false"

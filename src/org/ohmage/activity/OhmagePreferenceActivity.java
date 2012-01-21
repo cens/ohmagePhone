@@ -19,6 +19,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	private static final String KEY_ADMIN_SETTINGS = "key_admin_settings";
 
 	private static final String STATUS_CAMPAIGN_URN = "status_campaign_urn";
+	private static final String STATUS_SERVER_URL = "status_server_url";
 	private static final String STATUS_FEEDBACK_VISIBILITY = "status_feedback_visibility";
 	private static final String STATUS_PROFILE_VISIBILITY = "status_profile_visibility";
 	private static final String STATUS_UPLOAD_QUEUE_VISIBILITY = "status_upload_queue_visibility";
@@ -69,6 +70,8 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 				return true;
 			}
 		});
+
+		findPreference(STATUS_SERVER_URL).setSummary(SharedPreferencesHelper.DEFAULT_SERVER_URL);
 	}
 
 	@Override
