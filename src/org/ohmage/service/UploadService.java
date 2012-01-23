@@ -33,7 +33,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class UploadService extends WakefulIntentService {
-	
+
+	/** Extra to tell the upload service to upload mobility points */
+	public static final String EXTRA_UPLOAD_MOBILITY = "upload_mobility";
+
+	/** Extra to tell the upload service to upload surveys */
+	public static final String EXTRA_UPLOAD_SURVEYS = "upload_surveys";
+
+	/** Extra to tell the upload service if it is running in the background */
+	public static final String EXTRA_BACKGROUND = "is_background";
+
 	private static final String TAG = "UploadService";
 	
 	public static final String MOBILITY_UPLOAD_STARTED = "org.ohmage.MOBILITY_UPLOAD_STARTED";
@@ -46,11 +55,11 @@ public class UploadService extends WakefulIntentService {
 	@Override
 	protected void doWakefulWork(Intent intent) {
 		
-		if (intent.getBooleanExtra("upload_surveys", false)) {
+		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
 			uploadSurveyResponses(intent);
 		}
 		
-		if (intent.getBooleanExtra("upload_mobility", false)) {
+		if (intent.getBooleanExtra(EXTRA_UPLOAD_MOBILITY, false)) {
 			uploadMobility(intent);
 		}
 	}
@@ -61,7 +70,7 @@ public class UploadService extends WakefulIntentService {
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
-		boolean isBackground = intent.getBooleanExtra("is_background", false);
+		boolean isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 		boolean uploadErrorOccurred = false;
 		boolean authErrorOccurred = false;
 		
