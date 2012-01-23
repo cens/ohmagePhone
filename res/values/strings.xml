@@ -220,8 +220,11 @@
 
     <!-- Response Info -->
     <string name="response_info_gps_wait">Waiting for Location</string>
-    <string name="response_info_no_location">Location Not Available</string>
+    <string name="response_info_no_location">Location Unavailable</string>
     <string name="response_info_view_map">View Map</string>
+    <string name="response_info_upload">Upload</string>
+    <string name="response_info_uploading">Uploading...</string>
+    <string name="response_info_upload_error">Upload Error</string>
 
     <!-- Survey Info -->
     <string name="survey_info_take_survey">Take Survey</string>
