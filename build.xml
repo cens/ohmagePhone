@@ -60,6 +60,19 @@
 	</target>
 -->
 
+	<!-- ********** git specific targets ********** -->
+
+	<target name="tag-release">
+		<sequential>
+			<git-checkout-local branch="cuttingedge" dir="." />
+			<git-tag tagName="mdev-${manifest.versionName}-multi" dir="." />
+			<git-checkout-local branch="NIH" dir="." />
+			<git-tag tagName="mdev-${manifest.versionName}-NIH" dir="." />
+			<git-checkout-local branch="NIH-release" dir="." />
+			<git-tag tagName="pilots-${manifest.versionName}-NIH" dir="." />
+		</sequential>
+	</target>
+
 	<!-- ********** cuttingedge specific targets ********** -->
 
 	<target name="-checkout-cuttingedge">
