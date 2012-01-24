@@ -1,3 +1,4 @@
 gen
 bin
 .DS_Store
+local.properties
