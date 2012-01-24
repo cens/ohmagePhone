@@ -104,7 +104,7 @@
 	</target>
 
 	<target name="NIH-release"
-				depends="-checkout-NIH-release, -set-release-mode, -set-files-NIH-release, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				depends="-checkout-NIH-release, -set-files-NIH-release, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
 				if="has.keystore"
 				description="Builds the NIH-release application">
 			<release />
@@ -149,7 +149,7 @@
 	<macrodef name="set-release-output-file">
 		<attribute name="name" />
 		<sequential>
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-@{name}-@{manifest.versionCode}-SIGNED.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-@{name}-${manifest.versionCode}-SIGNED.apk" />
 		</sequential>
 	</macrodef>
 
