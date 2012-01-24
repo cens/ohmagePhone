@@ -3,6 +3,7 @@ package org.ohmage.fragments;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 
 import android.content.Context;
@@ -106,7 +107,10 @@ public class OhmageMapFragment extends MapFragment {
 
 	@Override
 	protected String getMapsApiKey() {
-		return getString(R.string.maps_api_key);
+		if(OhmageApplication.isDebugBuild())
+			return getString(R.string.maps_debug_api_key);
+		else
+			return getString(R.string.maps_release_api_key);
 	}
 
 }
