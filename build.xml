@@ -70,6 +70,10 @@
 			<git-tag tagName="mdev-${manifest.versionName}-NIH" dir="." />
 			<git-checkout-local branch="NIH-release" dir="." />
 			<git-tag tagName="pilots-${manifest.versionName}-NIH" dir="." />
+			<git-checkout-local branch="internal-multi" dir="." />
+			<git-tag tagName="internal-${manifest.versionName}-multi" dir="." />
+			<git-checkout-local branch="internal-single" dir="." />
+			<git-tag tagName="internal-${manifest.versionName}-single" dir="." />
 		</sequential>
 	</target>
 
@@ -120,6 +124,42 @@
 				depends="-checkout-NIH-release, -set-files-NIH-release, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
 				if="has.keystore"
 				description="Builds the NIH-release application">
+			<release />
+	</target>
+
+	<!-- ********** internal-multi specific targets ********** -->
+
+	<target name="-checkout-internal-multi">
+		<git-checkout-local branch="internal-multi" dir="." />
+	</target>
+
+	<target name="-set-files-internal-multi" depends="-set-mode-check">
+		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-internal-multi-unaligned-SIGNED.apk" />
+		<set-release-output-file name="internal-multi" />
+	</target>
+
+	<target name="internal-multi"
+				depends="-checkout-internal-multi, -set-files-internal-multi, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				if="has.keystore"
+				description="Builds the internal-multi application">
+			<release />
+	</target>
+
+	<!-- ********** internal-single specific targets ********** -->
+
+	<target name="-checkout-internal-single">
+		<git-checkout-local branch="internal-single" dir="." />
+	</target>
+
+	<target name="-set-files-internal-single" depends="-set-mode-check">
+		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-internal-single-unaligned-SIGNED.apk" />
+		<set-release-output-file name="internal-single" />
+	</target>
+
+	<target name="internal-single"
+				depends="-checkout-internal-single, -set-files-internal-single, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				if="has.keystore"
+				description="Builds the internal-single application">
 			<release />
 	</target>
 
