@@ -1,0 +1,36 @@
+<project name="Ant Build Script with Git Support">
+
+	<macrodef name="git">
+		<attribute name="command" />
+		<attribute name="options" default="" />
+		<attribute name="dir" default="" />
+		<attribute name="failerror" default="false" />
+		<element name="args" optional="true" />
+		<sequential>
+			<echo message="git dir @{dir}" />
+			<echo message="git @{command}" />
+			<exec executable="git" dir="@{dir}" failonerror="@{failerror}">
+				<arg line="@{command} @{options}" />
+				<args />
+			</exec>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="git-checkout-local">
+		<attribute name="branch" />
+		<attribute name="dir" />
+		<attribute name="options" default=""  />
+		<attribute name="failerror" default="false" />
+		<sequential>
+			<git command="checkout" dir="@{dir}" options="@{options}" failerror="@{failerror}" >
+				<args>
+					<arg value="@{branch}" />
+				</args>
+			</git>
+			<waitfor maxwait="15" maxwaitunit="second" timeoutproperty="build.timeout">
+				<resourcecontains resource=".git/HEAD" substring="@{branch}" />
+			</waitfor>
+		</sequential>
+	</macrodef>
+
+</project>
