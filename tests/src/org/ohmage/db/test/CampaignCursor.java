@@ -8,6 +8,7 @@ public class CampaignCursor extends MockArrayCursor<Campaign> {
 	private static final int COLUMN_CAMPAIGN_URN = 0;
 	private static final int COLUMN_CAMPAIGN_NAME = 1;
 	private static final int COLUMN_CAMPAIGN_STATUS = 2;
+	private static final int COLUMN_CAMPAIGN_PRIVACY = 3;
 
 	public static final String DEFAULT_CAMPAIGN_URN = "urn:fake:campaign";
 
@@ -23,6 +24,8 @@ public class CampaignCursor extends MockArrayCursor<Campaign> {
 			return COLUMN_CAMPAIGN_NAME;
 		else if (Campaigns.CAMPAIGN_STATUS.equals(columnName))
 			return COLUMN_CAMPAIGN_STATUS;
+		else if (Campaigns.CAMPAIGN_PRIVACY.equals(columnName))
+			return COLUMN_CAMPAIGN_PRIVACY;
 		return COLUMN_IGNORE;
 	}
 
@@ -33,6 +36,8 @@ public class CampaignCursor extends MockArrayCursor<Campaign> {
 				return getObject().mUrn;
 			case COLUMN_CAMPAIGN_NAME:
 				return getObject().mName;
+			case COLUMN_CAMPAIGN_PRIVACY:
+				return getObject().mPrivacy;
 			default:
 				return "";
 		}
