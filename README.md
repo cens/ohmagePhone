@@ -14,3 +14,7 @@ Build Instructions
 2. Generate the local.properties file by running (`android update project -p <project_path>`)
 3. Run the project in eclipse or build the project with (`ant debug`) or (`ant release`) if
 you want to sign it with a release key.
+
+If you are trying to build in eclipse and have a problem where the Config.java file can't be
+found, make sure you clean the project as this will cause the Config.java file to be generated
+with the values in ant.properties
