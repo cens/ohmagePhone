@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.ui.BaseActivity;
@@ -86,7 +86,7 @@ public class HelpActivity extends BaseActivity {
 		protected void loadData(StringBuilder data) {
 			data.insert(data.length() - 8, getString(R.string.help_dashboard_header_text));
 
-			if(!SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+			if(!Config.IS_SINGLE_CAMPAIGN)
 				addSection(data, "dash_campaigns.png", R.string.help_dashboard_campaigns_title, R.string.help_dashboard_campaigns_text);
 
 			UserPreferencesHelper userPrefs = new UserPreferencesHelper(getActivity());
@@ -126,7 +126,7 @@ public class HelpActivity extends BaseActivity {
 		protected void loadData(StringBuilder data) {
 			int start = data.indexOf(FILTER_SUB);
 			String image = FILTER_SINGLE_CAMPAIGN;
-			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+			if(Config.IS_SINGLE_CAMPAIGN)
 				image = FILTER_MULTI_CAMPAIGN;
 			data.replace(start, start + FILTER_SUB.length(), image);
 		}

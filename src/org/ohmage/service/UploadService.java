@@ -8,6 +8,7 @@ import edu.ucla.cens.systemlog.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
@@ -65,7 +66,7 @@ public class UploadService extends WakefulIntentService {
 	}
 
 	private void uploadSurveyResponses(Intent intent) {
-		String serverUrl = SharedPreferencesHelper.DEFAULT_SERVER_URL;
+		String serverUrl = Config.DEFAULT_SERVER_URL;
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
@@ -396,7 +397,7 @@ public class UploadService extends WakefulIntentService {
 				}
 				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 				OhmageApi api = new OhmageApi();
-				response = api.mobilityUpload(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
+				response = api.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");

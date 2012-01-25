@@ -65,15 +65,9 @@
 	<target name="tag-release">
 		<sequential>
 			<git-checkout-local branch="cuttingedge" dir="." />
-			<git-tag tagName="mdev-${manifest.versionName}-multi" dir="." />
+			<git-tag tagName="${ant.project.name}-${manifest.versionName}-cuttingedge" dir="." />
 			<git-checkout-local branch="NIH" dir="." />
-			<git-tag tagName="mdev-${manifest.versionName}-NIH" dir="." />
-			<git-checkout-local branch="NIH-release" dir="." />
-			<git-tag tagName="pilots-${manifest.versionName}-NIH" dir="." />
-			<git-checkout-local branch="internal-multi" dir="." />
-			<git-tag tagName="internal-${manifest.versionName}-multi" dir="." />
-			<git-checkout-local branch="internal-single" dir="." />
-			<git-tag tagName="internal-${manifest.versionName}-single" dir="." />
+			<git-tag tagName="${ant.project.name}-${manifest.versionName}-NIH" dir="." />
 		</sequential>
 	</target>
 
@@ -84,13 +78,23 @@
 	</target>
 
 	<target name="-set-files-cuttingedge" depends="-set-mode-check">
-		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-cuttingedge-unaligned.apk" />
-		<set-output-file name="mdev-multi" />
+		<set-output-file name="cuttingedge" />
 	</target>
 
-	<target name="cuttingedge" depends="-checkout-cuttingedge, -set-files-cuttingedge, -do-debug"
+	<target name="cuttingedge" depends="-checkout-cuttingedge, -set-files-cuttingedge, gen-config, -do-debug"
 				description="Builds the application for cuttingedge">
 		<record-build-info />
+	</target>
+
+	<target name="-set-files-cuttingedge-release" depends="-set-mode-check">
+		<set-release-output-file name="cuttingedge" />
+	</target>
+
+	<target name="cuttingedge-release"
+				depends="-checkout-cuttingedge, -set-files-cuttingedge-release, -set-release-mode, gen-config, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				if="has.keystore"
+				description="Builds the cuttingedge-release application">
+			<release name="cuttingedge" />
 	</target>
 
 	<!-- ********** NIH specific targets ********** -->
@@ -100,76 +104,33 @@
 	</target>
 
 	<target name="-set-files-NIH" depends="-set-mode-check">
-		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-NIH-unaligned.apk" />
-		<set-output-file name="mdev-NIH" />
+		<set-output-file name="NIH" />
 	</target>
 
-	<target name="NIH" depends="-checkout-NIH, -set-files-NIH, -do-debug"
+	<target name="NIH" depends="-checkout-NIH, -set-files-NIH, gen-config, -do-debug"
 				description="Builds the application for NIH">
 		<record-build-info />
 	</target>
 
-	<!-- ********** NIH-release specific targets ********** -->
-
-	<target name="-checkout-NIH-release">
-		<git-checkout-local branch="NIH-release" dir="." />
-	</target>
-
 	<target name="-set-files-NIH-release" depends="-set-mode-check">
 		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-NIH-release-unaligned-SIGNED.apk" />
-		<set-release-output-file name="pilots-NIH" />
+		<set-release-output-file name="NIH" />
 	</target>
 
 	<target name="NIH-release"
-				depends="-checkout-NIH-release, -set-files-NIH-release, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				depends="-checkout-NIH, -set-files-NIH-release, -set-release-mode, gen-config, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
 				if="has.keystore"
 				description="Builds the NIH-release application">
-			<release />
-	</target>
-
-	<!-- ********** internal-multi specific targets ********** -->
-
-	<target name="-checkout-internal-multi">
-		<git-checkout-local branch="internal-multi" dir="." />
-	</target>
-
-	<target name="-set-files-internal-multi" depends="-set-mode-check">
-		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-internal-multi-unaligned-SIGNED.apk" />
-		<set-release-output-file name="internal-multi" />
-	</target>
-
-	<target name="internal-multi"
-				depends="-checkout-internal-multi, -set-files-internal-multi, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
-				if="has.keystore"
-				description="Builds the internal-multi application">
-			<release />
-	</target>
-
-	<!-- ********** internal-single specific targets ********** -->
-
-	<target name="-checkout-internal-single">
-		<git-checkout-local branch="internal-single" dir="." />
-	</target>
-
-	<target name="-set-files-internal-single" depends="-set-mode-check">
-		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-internal-single-unaligned-SIGNED.apk" />
-		<set-release-output-file name="internal-single" />
-	</target>
-
-	<target name="internal-single"
-				depends="-checkout-internal-single, -set-files-internal-single, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
-				if="has.keystore"
-				description="Builds the internal-single application">
-			<release />
+			<release name="NIH" />
 	</target>
 
 	<!-- Helper functions -->
 
 	<macrodef name="release">
+		<attribute name="name" />
 		<sequential>
 			<do-only-if-not-library elseText="Library project: do not create apk..." >
 				<sequential>
-					<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-release-unaligned.apk" />
 
 					<!-- Signs the APK -->
 					<echo>Signing final apk...</echo>
@@ -195,14 +156,17 @@
 	<macrodef name="set-output-file">
 		<attribute name="name" />
 		<sequential>
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-@{name}-${manifest.versionCode}.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-unaligned.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}.apk" />
 		</sequential>
 	</macrodef>
 
 	<macrodef name="set-release-output-file">
 		<attribute name="name" />
 		<sequential>
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-@{name}-${manifest.versionCode}-SIGNED.apk" />
+			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-unaligned-SIGNED.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-packaged-SIGNED.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-SIGNED.apk" />
 		</sequential>
 	</macrodef>
 
@@ -216,4 +180,6 @@
 			output="manifest.versionName" />
 
 	<import file="git-build.xml" />
+
+	<import file="gen-config.xml" />
 </project>

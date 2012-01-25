@@ -25,6 +25,9 @@ import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
 import android.os.Handler;
@@ -48,11 +51,15 @@ public class OhmageApplication extends Application {
             32 * 1024 * 1024);
 
     private ImageLoader mImageLoader;
+
+	private static OhmageApplication self;
     
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
+		self = this;
+
 		Log.i(TAG, "onCreate()");
 		
 		edu.ucla.cens.systemlog.Log.initialize(this, "Ohmage");
@@ -161,4 +168,30 @@ public class OhmageApplication extends Application {
     		return new File(Environment.getExternalStorageDirectory(), "Android/data/org.ohmage/cache/images");
     	}
     }
+
+	/**
+	 * Static reference from the Application to return the context
+	 * @return the application context
+	 */
+	public static Context getContext() {
+		return self;
+	}
+
+	/**
+	 * Determines if we are running on release or debug
+	 * @return true if we are running Debug
+	 * @throws Exception
+	 */
+	public static boolean isDebugBuild()
+	{
+		PackageManager pm = getContext().getPackageManager();
+		PackageInfo pi;
+		try {
+			pi = pm.getPackageInfo(getContext().getPackageName(), 0);
+			return ((pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

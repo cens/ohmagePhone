@@ -2,8 +2,8 @@ package org.ohmage.activity;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
@@ -47,7 +47,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		
 		mUploadAll.setOnClickListener(mUploadAllListener);
 
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+		if(Config.IS_SINGLE_CAMPAIGN)
 			ensureButtons();
 	}
 	

@@ -1,9 +1,9 @@
 package org.ohmage.async;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.json.JSONException;
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -25,7 +25,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
@@ -43,7 +44,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 		OhmageApi api = new OhmageApi();
 		ContentResolver cr = getContext().getContentResolver();
 
-		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = api.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
 
 		if(campaignResponse.getResult() == Result.SUCCESS) {
 			ContentValues values = new ContentValues();
@@ -58,7 +59,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
+		CampaignXmlResponse response =  api.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
@@ -79,7 +80,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				//update occurred successfully
 			}
 			
-			if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+			if (Config.ALLOWS_FEEDBACK) {
 				// create an intent to fire off the feedback service
 				Intent fbIntent = new Intent(getContext(), FeedbackService.class);
 				// annotate the request with the current campaign's URN

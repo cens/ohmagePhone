@@ -15,9 +15,12 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import java.util.Arrays;
+import com.slezica.tools.async.ManagedAsyncTask;
+
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -43,9 +46,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.slezica.tools.async.ManagedAsyncTask;
-
-import edu.ucla.cens.systemlog.Log;
+import java.util.Arrays;
 
 public class LoginActivity extends FragmentActivity {
 	
@@ -343,7 +344,7 @@ public class LoginActivity extends FragmentActivity {
 			Log.i(TAG, "login success");
 			final String hashedPassword = response.getHashedPassword();
 			
-			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			if(Config.IS_SINGLE_CAMPAIGN) {
 				// Download the single campaign
 				showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
 				mCampaignDownloadTask.setCredentials(username, hashedPassword);
@@ -473,7 +474,7 @@ public class LoginActivity extends FragmentActivity {
 //		        }
 //			}
 			OhmageApi api = new OhmageApi();
-			return api.authenticate(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
+			return api.authenticate(Config.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 
 		@Override
