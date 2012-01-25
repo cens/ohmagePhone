@@ -1,11 +1,9 @@
 package org.ohmage.async;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -26,6 +24,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * A custom Loader that loads all of the installed applications.
  */
@@ -44,7 +45,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 	@Override
 	public CampaignReadResponse loadInBackground() {
 		OhmageApi api = new OhmageApi();
-		CampaignReadResponse response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
+		CampaignReadResponse response = api.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -135,7 +136,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			}
 
 			// If we are in single campaign mode, we should automatically download the xml for the best campaign
-			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+			if(Config.IS_SINGLE_CAMPAIGN) {
 				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
 
 				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it

@@ -27,7 +27,8 @@
     <string name="menu_satellite">Satellite</string>
 
     <!-- Maps -->
-    <string name="maps_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
+    <string name="maps_debug_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
+    <string name="maps_release_api_key">0v-wLH9cxlVMxbPMFw81x2mmbeUcsS9rHCFTgkQ</string>
 
     <!-- EULA -->
     <string name="eula_title">Welcome</string>
@@ -186,6 +187,10 @@
     <string name="preferences_muli_campaign_status">Multi-Campaign Mode</string>
     <string name="shown">Shown</string>
     <string name="hidden">Hidden</string>
+    <string name="preferences_response_history_title">Response History</string>
+    <string name="preferences_profile_title">Profile</string>
+    <string name="preferences_upload_queue_title">Upload Queue</string>
+    <string name="preferences_mobility_title">Mobility</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
@@ -217,8 +222,11 @@
 
     <!-- Response Info -->
     <string name="response_info_gps_wait">Waiting for Location</string>
-    <string name="response_info_no_location">Location Not Available</string>
+    <string name="response_info_no_location">Location Unavailable</string>
     <string name="response_info_view_map">View Map</string>
+    <string name="response_info_upload">Upload</string>
+    <string name="response_info_uploading">Uploading...</string>
+    <string name="response_info_upload_error">Upload Error</string>
 
     <!-- Survey Info -->
     <string name="survey_info_take_survey">Take Survey</string>

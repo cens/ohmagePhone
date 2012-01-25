@@ -361,20 +361,6 @@ public class DbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Removes survey responses (and their associated prompts) for the given
-	 * campaign.
-	 * 
-	 * @param campaignUrn
-	 *            the campaign URN for which to remove the survey responses
-	 * @return
-	 */
-	public boolean removeResponseRows(String campaignUrn) {
-		ContentResolver cr = mContext.getContentResolver();
-		return cr.delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "='"
-				+ campaignUrn + "'", null) > 0;
-	}
-
-	/**
 	 * Removes survey responses that are "stale" for the given campaignUrn.
 	 * 
 	 * Staleness is defined as a survey response whose source field is "remote",
@@ -396,18 +382,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		// etc.)
 		ContentResolver cr = mContext.getContentResolver();
 		return cr.delete(Responses.CONTENT_URI, whereClause, null);
-	}
-
-	/**
-	 * Removes survey responses that are "stale" for all campaigns.
-	 * 
-	 * Staleness is defined as a survey response whose source field is "remote",
-	 * or a response whose source field is "local" and uploaded field is 1.
-	 * 
-	 * @return
-	 */
-	public int removeStaleResponseRows() {
-		return removeStaleResponseRows(null);
 	}
 
 	/**

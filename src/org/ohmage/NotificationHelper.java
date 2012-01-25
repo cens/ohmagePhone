@@ -32,9 +32,7 @@ public class NotificationHelper {
 	}
 
 	public static void hideAuthNotification(Context context) {
-		NotificationManager notifMan = (NotificationManager)context.getSystemService(
-										Context.NOTIFICATION_SERVICE);
-		notifMan.cancel(1);
+		hideNotification(context, 1);
 	}
 
 	public static void showUploadErrorNotification(Context context) {
@@ -53,7 +51,11 @@ public class NotificationHelper {
 		note.setLatestEventInfo(context, title, body, pendingIntent);
 		noteManager.notify(2, note);
 	}
-	
+
+	public static void hideUploadErrorNotification(Context context) {
+		hideNotification(context, 2);
+	}
+
 	public static void showMobilityErrorNotification(Context context) {
 		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification note = new Notification();
@@ -71,6 +73,10 @@ public class NotificationHelper {
 		noteManager.notify(3, note);
 	}
 
+	public static void hideMobilityErrorNotification(Context context) {
+		hideNotification(context, 3);
+	}
+
 	public static void showNotification(Context context, String title, String message, Intent intent) {
 		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification note = new Notification();
@@ -83,5 +89,10 @@ public class NotificationHelper {
 		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
 		note.setLatestEventInfo(context, title, message, pendingIntent);
 		noteManager.notify(4, note);
+	}
+
+	private static void hideNotification(Context context, int id) {
+		NotificationManager notifMan = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+		notifMan.cancel(id);
 	}
 }

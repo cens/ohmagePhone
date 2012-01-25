@@ -1,7 +1,7 @@
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
 import org.ohmage.ui.BaseActivity;
@@ -61,7 +61,7 @@ public class DashboardActivity extends BaseActivity {
 	}
 
 	private void ensureUI() {
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(Config.IS_SINGLE_CAMPAIGN) {
 			mCampaignBtn.setVisibility(View.GONE);
 		} else {
 			mCampaignBtn.setVisibility(View.VISIBLE);

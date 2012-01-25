@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.CampaignXmlHelper;
+import org.ohmage.Config;
 import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.SharedPreferencesHelper;
@@ -93,7 +94,7 @@ public class StressButtonService extends IntentService {
 		
 
 		String campaignUrn = intent.getStringExtra("campaign_urn");
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(Config.IS_SINGLE_CAMPAIGN) {
 			campaignUrn = Campaign.getSingleCampaign(this);
 		}
 		String surveyId = intent.getStringExtra("survey_id");
@@ -136,6 +137,7 @@ public class StressButtonService extends IntentService {
 			mText = text;
 		}
 
+		@Override
 		public void run(){
 			/*LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View layout = inflater.inflate(R.layout.stress_button_toast, null);

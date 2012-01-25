@@ -53,7 +53,7 @@ public class BackgroundManager {
 		Log.i(TAG, "started storage monitor service");
 		
 		// FAISAL: feedback service repeating alarm registered here
-		if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+		if (Config.ALLOWS_FEEDBACK) {
 			Intent fbServiceSyncIntent = new Intent(FeedbackSyncReceiver.ACTION_FBSYNC_ALARM);
 			PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
 			alarms.cancel(fbServiceSyncPendingIntent);

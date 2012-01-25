@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
 
+import java.util.List;
+
 /**
  * Contract class for interacting with {@link DbProvider}. Defines the kinds of entities
  * managed by the provider, their schemas, and their relationships.
@@ -261,6 +263,14 @@ public class DbContract {
         /** Read ResponseId from {@link Responses} {@link Uri}. */
 		public static String getResponseId(Uri uri) {
 			return uri.getPathSegments().get(1);
+		}
+
+		/** Checks to see if the given uri is a {@link Responses} uri */
+		public static boolean isResponseUri(Uri uri) {
+			if(uri == null)
+				return false;
+			List<String> segments = uri.getPathSegments();
+			return segments != null && segments.size() > 0 && PATH_RESPONSES.equals(segments.get(0));
 		}
 	}
 	

@@ -204,7 +204,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			
 			Intent intent = new Intent(MobilityActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
-			intent.putExtra("upload_mobility", true);
+			intent.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
 			WakefulIntentService.sendWakefulWork(MobilityActivity.this, intent);
 		}
 	};

@@ -1,7 +1,7 @@
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
 
@@ -19,6 +19,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	private static final String KEY_ADMIN_SETTINGS = "key_admin_settings";
 
 	private static final String STATUS_CAMPAIGN_URN = "status_campaign_urn";
+	private static final String STATUS_SERVER_URL = "status_server_url";
 	private static final String STATUS_FEEDBACK_VISIBILITY = "status_feedback_visibility";
 	private static final String STATUS_PROFILE_VISIBILITY = "status_profile_visibility";
 	private static final String STATUS_UPLOAD_QUEUE_VISIBILITY = "status_upload_queue_visibility";
@@ -42,7 +43,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 		mReminders = (PreferenceScreen) findPreference(KEY_REMINDERS);
 
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(Config.IS_SINGLE_CAMPAIGN) {
 			mReminders.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
 				@Override
@@ -69,6 +70,8 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 				return true;
 			}
 		});
+
+		findPreference(STATUS_SERVER_URL).setSummary(Config.DEFAULT_SERVER_URL);
 	}
 
 	@Override
@@ -79,7 +82,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 	private void setStatusInfo() {
 		Preference campaignUrnStatus = findPreference(STATUS_CAMPAIGN_URN);
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(Config.IS_SINGLE_CAMPAIGN) {
 			campaignUrnStatus.setTitle(R.string.preferences_single_campaign_status);
 			campaignUrnStatus.setSummary(Campaign.getSingleCampaign(this));
 			if(campaignUrnStatus.getSummary() == null)

@@ -31,7 +31,9 @@ import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.ResponseActivityHelper;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -72,6 +74,9 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	
 	private ImageLoader mImageLoader;
 	private TextView mapViewButton;
+	private TextView uploadButton;
+	private ResponseActivityHelper mResponseHelper;
+	private int mStatus;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +84,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		
 		setContentFragment(new ResponsePromptsFragment());
 		
+		mResponseHelper = new ResponseActivityHelper(this);
+
 		mImageLoader = ImageLoader.get(this);
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
@@ -97,6 +104,20 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				startActivity(new Intent(OhmageApplication.VIEW_MAP, getIntent().getData()));
 			}
 		});
+
+		uploadButton = (TextView) findViewById(R.id.response_info_button_upload);
+		uploadButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(mStatus == Response.STATUS_STANDBY)
+					mResponseHelper.queueForUpload(getIntent().getData());
+				else {
+					Bundle bundle = new Bundle();
+					bundle.putParcelable(ResponseActivityHelper.KEY_URI, getIntent().getData());
+					showDialog(mStatus, bundle);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -104,6 +125,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		super.onContentChanged();
 
 		mEntityHeader.setVisibility(View.GONE);
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id, Bundle args) {
+		return mResponseHelper.onCreateDialog(id, args);
 	}
 
 	private interface ResponseQuery {
@@ -136,6 +162,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 		final String surveyName = data.getString(ResponseQuery.SURVEY_TITLE);
 		final Long completedDate = data.getLong(ResponseQuery.TIME);
+		mStatus = data.getInt(ResponseQuery.STATUS);
 
 		mHeadertext.setText(surveyName);
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
@@ -150,7 +177,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mEntityHeader.setVisibility(View.VISIBLE);
 		
 		// Make the map view button status aware so it can provide some useful info about the gps state
-		if(data.getInt(ResponseQuery.STATUS) == Response.STATUS_WAITING_FOR_LOCATION) {
+		if(mStatus == Response.STATUS_WAITING_FOR_LOCATION) {
 			mapViewButton.setText(R.string.response_info_gps_wait);
 			mapViewButton.setEnabled(false);
 		} else if(!(SurveyGeotagService.LOCATION_VALID.equals(data.getString(ResponseQuery.LOCATION_STATUS)))) {
@@ -159,6 +186,29 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		} else {
 			mapViewButton.setText(R.string.response_info_view_map);
 			mapViewButton.setEnabled(true);
+		}
+
+		// Make upload button visible if applicable
+		uploadButton.setVisibility(View.VISIBLE);
+		switch(mStatus) {
+			case Response.STATUS_DOWNLOADED:
+			case Response.STATUS_UPLOADED:
+				uploadButton.setVisibility(View.GONE);
+				break;
+			case Response.STATUS_STANDBY:
+			case Response.STATUS_WAITING_FOR_LOCATION:
+				uploadButton.setText(R.string.response_info_upload);
+				uploadButton.setEnabled(true);
+				break;
+			case Response.STATUS_QUEUED:
+			case Response.STATUS_UPLOADING:
+				uploadButton.setText(R.string.response_info_uploading);
+				uploadButton.setEnabled(false);
+				break;
+			default:
+				// Error
+				uploadButton.setText(R.string.response_info_upload_error);
+				uploadButton.setEnabled(true);
 		}
 	}
 

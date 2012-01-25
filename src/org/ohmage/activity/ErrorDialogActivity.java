@@ -1,7 +1,7 @@
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,7 +22,7 @@ public class ErrorDialogActivity extends FragmentActivity {
 		if(savedInstanceState == null) {
 
 			// If we have admin mode set, we don't need to show the pincode
-			if(SharedPreferencesHelper.ADMIN_MODE) {
+			if(Config.ADMIN_MODE) {
 				setResult(RESULT_OK);
 				finish();
 			}

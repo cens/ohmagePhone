@@ -280,9 +280,10 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 			}
 		});
 
-		TextView promptText = (TextView) LinearLayout.inflate(context, R.layout.survey_prompt_question, null);
+		View view = LinearLayout.inflate(context, R.layout.survey_list_prompt, null);
+		TextView promptText = (TextView) view.findViewById(R.id.prompt_question);
 		promptText.setText(getPromptText());
-		mListView.addHeaderView(promptText);
+		mListView.addHeaderView(view, null, false);
 
 		mListView.setAdapter(adapter);
 		

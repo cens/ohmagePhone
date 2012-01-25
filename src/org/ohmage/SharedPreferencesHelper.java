@@ -21,11 +21,6 @@ import android.content.SharedPreferences;
 public class SharedPreferencesHelper {
 	
 	public static final String CLIENT_STRING = "android";
-
-	public static final String DEFAULT_SERVER_URL = "https://dev.mobilizingcs.org/";
-	public static final boolean IS_SINGLE_CAMPAIGN = true;
-	public static final boolean ALLOWS_FEEDBACK = true;
-	public static final boolean ADMIN_MODE = false;
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";

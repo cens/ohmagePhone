@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ohmage" default="help">
+
+	<!-- The local.properties file is created and updated by the 'android' tool.
+		 It contains the path to the SDK. It should *NOT* be checked into
+		 Version Control Systems. -->
+	<loadproperties srcFile="local.properties" />
+
+	<!-- The ant.properties file can be created by you. It is only edited by the
+		 'android' tool to add properties to it.
+		 This is the place to change some Ant specific build properties.
+		 Here are some properties you may want to change/update:
+
+		 source.dir
+			 The name of the source directory. Default is 'src'.
+		 out.dir
+			 The name of the output directory. Default is 'bin'.
+
+		 For other overridable properties, look at the beginning of the rules
+		 files in the SDK, at tools/ant/build.xml
+
+		 Properties related to the SDK location or the project target should
+		 be updated using the 'android' tool with the 'update' action.
+
+		 This file is an integral part of the build system for your
+		 application and should be checked into Version Control Systems.
+
+		 -->
+	<property file="ant.properties" />
+
+	<!-- The project.properties file is created and updated by the 'android'
+		 tool, as well as ADT.
+
+		 This contains project specific properties such as project target, and library
+		 dependencies. Lower level build properties are stored in ant.properties
+		 (or in .classpath for Eclipse projects).
+
+		 This file is an integral part of the build system for your
+		 application and should be checked into Version Control Systems. -->
+	<loadproperties srcFile="project.properties" />
+
+	<!-- quick check on sdk.dir -->
+	<fail
+			message="sdk.dir is missing. Make sure to generate local.properties using 'android update project'"
+			unless="sdk.dir"
+	/>
+
+<!-- extension targets. Uncomment the ones where you want to do custom work
+	 in between standard targets -->
+<!--
+	<target name="-pre-build">
+	</target>
+	<target name="-pre-compile">
+	</target>
+
+	/* This is typically used for code obfuscation.
+	   Compiled code location: ${out.classes.absolute.dir}
+	   If this is not done in place, override ${out.dex.input.absolute.dir} */
+	<target name="-post-compile">
+	</target>
+-->
+
+	<!-- ********** git specific targets ********** -->
+
+	<target name="tag-release">
+		<sequential>
+			<git-checkout-local branch="cuttingedge" dir="." />
+			<git-tag tagName="${ant.project.name}-${manifest.versionName}-cuttingedge" dir="." />
+			<git-checkout-local branch="NIH" dir="." />
+			<git-tag tagName="${ant.project.name}-${manifest.versionName}-NIH" dir="." />
+		</sequential>
+	</target>
+
+	<!-- ********** cuttingedge specific targets ********** -->
+
+	<target name="-checkout-cuttingedge">
+		<git-checkout-local branch="cuttingedge" dir="." />
+	</target>
+
+	<target name="-set-files-cuttingedge" depends="-set-mode-check">
+		<set-output-file name="cuttingedge" />
+	</target>
+
+	<target name="cuttingedge" depends="-checkout-cuttingedge, -set-files-cuttingedge, gen-config, -do-debug"
+				description="Builds the application for cuttingedge">
+		<record-build-info />
+	</target>
+
+	<target name="-set-files-cuttingedge-release" depends="-set-mode-check">
+		<set-release-output-file name="cuttingedge" />
+	</target>
+
+	<target name="cuttingedge-release"
+				depends="-checkout-cuttingedge, -set-files-cuttingedge-release, -set-release-mode, gen-config, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				if="has.keystore"
+				description="Builds the cuttingedge-release application">
+			<release name="cuttingedge" />
+	</target>
+
+	<!-- ********** NIH specific targets ********** -->
+
+	<target name="-checkout-NIH">
+		<git-checkout-local branch="NIH" dir="." />
+	</target>
+
+	<target name="-set-files-NIH" depends="-set-mode-check">
+		<set-output-file name="NIH" />
+	</target>
+
+	<target name="NIH" depends="-checkout-NIH, -set-files-NIH, gen-config, -do-debug"
+				description="Builds the application for NIH">
+		<record-build-info />
+	</target>
+
+	<target name="-set-files-NIH-release" depends="-set-mode-check">
+		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-NIH-release-unaligned-SIGNED.apk" />
+		<set-release-output-file name="NIH" />
+	</target>
+
+	<target name="NIH-release"
+				depends="-checkout-NIH, -set-files-NIH-release, -set-release-mode, gen-config, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				if="has.keystore"
+				description="Builds the NIH-release application">
+			<release name="NIH" />
+	</target>
+
+	<!-- Helper functions -->
+
+	<macrodef name="release">
+		<attribute name="name" />
+		<sequential>
+			<do-only-if-not-library elseText="Library project: do not create apk..." >
+				<sequential>
+
+					<!-- Signs the APK -->
+					<echo>Signing final apk...</echo>
+					<signjar
+							jar="${out.packaged.file}"
+							signedjar="${out.unaligned.file}"
+							keystore="${key.store}"
+							storepass="${key.store.password}"
+							alias="${key.alias}"
+							keypass="${key.alias.password}"
+							verbose="${verbose}" />
+
+					<!-- Zip aligns the APK -->
+					<zipalign-helper in.package="${out.unaligned.file}"
+											   out.package="${out.final.file}" />
+					<echo>Release Package: ${out.final.file}</echo>
+				</sequential>
+			</do-only-if-not-library>
+			<record-build-info />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="set-output-file">
+		<attribute name="name" />
+		<sequential>
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-unaligned.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}.apk" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="set-release-output-file">
+		<attribute name="name" />
+		<sequential>
+			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-unaligned-SIGNED.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-packaged-SIGNED.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-SIGNED.apk" />
+		</sequential>
+	</macrodef>
+
+	<!-- version-tag: custom -->
+	<import file="${sdk.dir}/tools/ant/build.xml" />
+
+	<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionCode"
+			output="manifest.versionCode" />
+
+	<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
+			output="manifest.versionName" />
+
+	<import file="git-build.xml" />
+
+	<import file="gen-config.xml" />
+</project>
