@@ -1,7 +1,7 @@
 package org.ohmage.ui;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
@@ -52,7 +52,7 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 		if(mDefaultCampaign == null)
 			mCampaignFilter.add(0, new Pair<String, String>(getString(R.string.filter_all_campaigns), null));
 
-		if(!SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+		if(!Config.IS_SINGLE_CAMPAIGN)
 			getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
 		else {
 			setLoadingVisibility(false);

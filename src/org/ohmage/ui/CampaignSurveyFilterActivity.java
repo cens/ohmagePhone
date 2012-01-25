@@ -1,7 +1,7 @@
 package org.ohmage.ui;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
@@ -47,7 +47,7 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 		mDefaultSurvey = getIntent().getStringExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID);
 		//		mDefaultSurvey = "alcohol";
 
-		if(mDefaultCampaign != null || SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(mDefaultCampaign != null || Config.IS_SINGLE_CAMPAIGN) {
 			setLoadingVisibility(true);
 			getSupportLoaderManager().initLoader(SURVEY_LOADER, null, this);
 		} else {

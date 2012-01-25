@@ -1,8 +1,8 @@
 package org.ohmage.fragments;
 
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.SurveyListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
@@ -115,12 +115,12 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 	
 	private void setShowPending() {
 		if (mShowPending) {
-			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+			if(Config.IS_SINGLE_CAMPAIGN)
 				setEmptyText(getString(R.string.surveys_empty_pending_single));
 			else
 				setEmptyText(getString(R.string.surveys_empty_pending));
 		} else {
-			if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+			if(Config.IS_SINGLE_CAMPAIGN)
 				setEmptyText(getString(R.string.single_campaign_error));
 			else
 				setEmptyText(getString(R.string.surveys_empty_all));

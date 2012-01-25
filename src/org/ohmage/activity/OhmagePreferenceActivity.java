@@ -1,7 +1,7 @@
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
 
@@ -43,7 +43,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 		mReminders = (PreferenceScreen) findPreference(KEY_REMINDERS);
 
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(Config.IS_SINGLE_CAMPAIGN) {
 			mReminders.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
 				@Override
@@ -71,7 +71,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 			}
 		});
 
-		findPreference(STATUS_SERVER_URL).setSummary(SharedPreferencesHelper.DEFAULT_SERVER_URL);
+		findPreference(STATUS_SERVER_URL).setSummary(Config.DEFAULT_SERVER_URL);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 	private void setStatusInfo() {
 		Preference campaignUrnStatus = findPreference(STATUS_CAMPAIGN_URN);
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(Config.IS_SINGLE_CAMPAIGN) {
 			campaignUrnStatus.setTitle(R.string.preferences_single_campaign_status);
 			campaignUrnStatus.setSummary(Campaign.getSingleCampaign(this));
 			if(campaignUrnStatus.getSummary() == null)
