@@ -338,11 +338,6 @@ public class FeedbackService extends WakefulIntentService {
 					// it's possible that the above will fail, in which case it silently returns -1
 					// we don't do anything differently in that case, so there's no need to check
 				}
-				catch(ParseException e) {
-					// this is a date parse exception, likely thrown from where we parse the utc timestamp
-					Log.e(TAG, "Problem parsing survey response timestamp", e);
-					continue;
-				}
 		        catch (JSONException e) {
 					Log.e(TAG, "Problem parsing response json: " + e.getMessage(), e);
 					continue;
