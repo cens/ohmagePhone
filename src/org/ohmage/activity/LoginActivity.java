@@ -18,6 +18,7 @@ package org.ohmage.activity;
 import java.util.Arrays;
 
 import org.ohmage.BackgroundManager;
+import org.ohmage.Config;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
@@ -441,7 +442,7 @@ public class LoginActivity extends Activity {
 //		        }
 //			}
 			OhmageApi api = new OhmageApi(mActivity);
-			return api.authenticate(SharedPreferencesHelper.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
+			return api.authenticate(Config.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 
 		@Override

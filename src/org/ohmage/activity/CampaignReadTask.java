@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.SharedPreferencesHelper;
@@ -48,7 +49,7 @@ class CampaignReadTask extends ManagedAsyncTask<String, Void, CampaignReadRespon
 		String username = params[0];
 		String hashedPassword = params[1];
 		OhmageApi api = new OhmageApi(mContext);
-		CampaignReadResponse response = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", "short", null);
+		CampaignReadResponse response = api.campaignRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", "short", null);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = mContext.getContentResolver();

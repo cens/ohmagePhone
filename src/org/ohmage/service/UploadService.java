@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.CampaignManager;
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.Utilities;
@@ -50,7 +51,7 @@ public class UploadService extends WakefulIntentService {
 	@Override
 	protected void doWakefulWork(Intent intent) {
 		
-		String serverUrl = SharedPreferencesHelper.DEFAULT_SERVER_URL;
+		String serverUrl = Config.DEFAULT_SERVER_URL;
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();

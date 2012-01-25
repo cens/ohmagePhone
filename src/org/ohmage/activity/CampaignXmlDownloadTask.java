@@ -3,6 +3,7 @@ package org.ohmage.activity;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.SharedPreferencesHelper;
@@ -52,7 +53,7 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 		String username = (String) params[0];
 		String hashedPassword = (String) params[1];
 		OhmageApi api = new OhmageApi(mContext);
-		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaignUrn);
+		CampaignXmlResponse response =  api.campaignXmlRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
@@ -74,7 +75,7 @@ class CampaignXmlDownloadTask extends ManagedAsyncTask<String, Void, CampaignXml
 				//update occurred successfully
 			}
 			
-			if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+			if (Config.ALLOWS_FEEDBACK) {
 				// create an intent to fire off the feedback service
 				Intent fbIntent = new Intent(mContext, FeedbackService.class);
 				// annotate the request with the current campaign's URN
