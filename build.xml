@@ -50,9 +50,10 @@
 <!--
 	<target name="-pre-build">
 	</target>
-	<target name="-pre-compile">
-	</target>
+-->
+	<target name="-pre-compile" depends="gen-config" />
 
+<!--
 	/* This is typically used for code obfuscation.
 	   Compiled code location: ${out.classes.absolute.dir}
 	   If this is not done in place, override ${out.dex.input.absolute.dir} */
@@ -81,7 +82,7 @@
 		<set-output-file name="cuttingedge" />
 	</target>
 
-	<target name="cuttingedge" depends="-checkout-cuttingedge, -set-files-cuttingedge, gen-config, -do-debug"
+	<target name="cuttingedge" depends="-checkout-cuttingedge, -set-files-cuttingedge, -do-debug"
 				description="Builds the application for cuttingedge">
 		<record-build-info />
 	</target>
@@ -91,7 +92,7 @@
 	</target>
 
 	<target name="cuttingedge-release"
-				depends="-checkout-cuttingedge, -set-files-cuttingedge-release, -set-release-mode, gen-config, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				depends="-checkout-cuttingedge, -set-files-cuttingedge-release, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
 				if="has.keystore"
 				description="Builds the cuttingedge-release application">
 			<release name="cuttingedge" />
@@ -107,18 +108,17 @@
 		<set-output-file name="NIH" />
 	</target>
 
-	<target name="NIH" depends="-checkout-NIH, -set-files-NIH, gen-config, -do-debug"
+	<target name="NIH" depends="-checkout-NIH, -set-files-NIH, -do-debug"
 				description="Builds the application for NIH">
 		<record-build-info />
 	</target>
 
 	<target name="-set-files-NIH-release" depends="-set-mode-check">
-		<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-NIH-release-unaligned-SIGNED.apk" />
 		<set-release-output-file name="NIH" />
 	</target>
 
 	<target name="NIH-release"
-				depends="-checkout-NIH, -set-files-NIH-release, -set-release-mode, gen-config, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
+				depends="-checkout-NIH, -set-files-NIH-release, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
 				if="has.keystore"
 				description="Builds the NIH-release application">
 			<release name="NIH" />
