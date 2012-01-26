@@ -68,6 +68,12 @@
 		]]>
 	</string>
 	
+	<string name="survey_info_last_response_details">
+		<![CDATA[
+		This is the date at which you last submitted this survey, if you have submitted it before.
+		]]>
+	</string>
+	
 	<string name="campaign_info_triggers_details">
 		<![CDATA[
 		The above count is the number of reminders configured for this campaign.<br /><br />

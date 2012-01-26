@@ -229,10 +229,11 @@
 
     <!-- Survey Info -->
     <string name="survey_info_take_survey">Take Survey</string>
-    <string name="survey_info_error_test">this is some test error text...</string>
+    <string name="survey_info_error_test">this is test error text</string>
     <string name="survey_info_description_test">this is a test description</string>
     <string name="survey_info_status_title">status:</string>
     <string name="survey_info_responses_title">responses:</string>
+    <string name="survey_info_last_response_title">last response:</string>
     <string name="survey_info_triggers_title">reminders:</string>
 
     <!-- Profile Info -->
