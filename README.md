@@ -6,6 +6,14 @@ analyzes, and visualizes data from both prompted experience samples entered by t
 user, as well as continuous streams of data passively collected from sensors or 
 applications onboard the mobile device. 
 
+Branches
+--------
+
+* master - the latest stable build (might be older)
+* cuttingedge - Contains the newest changes
+* NIH - Defaults to the single campaign version and includes the newest changes and changes
+specific to the NIH campaign including charts and the food/stress button
+
 
 Build Instructions
 ------------------
