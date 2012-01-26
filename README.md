@@ -14,6 +14,20 @@ Branches
 * NIH - Defaults to the single campaign version and includes the newest changes and changes
 specific to the NIH campaign including charts and the food/stress button
 
+Dependencies
+------------
+
+All the external libraries which are needed are included in the libs directory of the project,
+but you will need the android SDK to build.
+
+1. Download and install the the android SDK. Instructions on downloading and installing the
+SDK can be found here: http://developer.android.com/sdk/installing.html. You can skip the parts
+related to eclipse unless you want to setup eclipse as well.
+2. Start the android configuration tool using `/path/to/android-sdk/tools/android`
+3. Select SDK tools and SDK Platform-tools (and the USB driver if you are running on windows).
+4. Under the Android 2.2 (API 8) section, select SDK Platform and Google APIs by Google Inc.
+5. Click Install and install the packages
+6. You are ready to start building!
 
 Build Instructions
 ------------------
@@ -28,18 +42,3 @@ the name of the apk which was shown by the ant command).
 If you are trying to build in eclipse and have a problem where the Config.java file can't be
 found, make sure you clean the project as this will cause the Config.java file to be generated
 with the values in ant.properties
-
-
-Dependencies
-------------
-
-All the external libraries which are needed are included in the libs directory of the project,
-but you will need the android SDK to build. 
-
-1. Download and install the the android SDK. Instructions on downloading and installing the
-SDK can be found here: http://developer.android.com/sdk/installing.html. You can skip the parts
-related to eclipse unless you want to setup eclipse as well.
-2. Use the android command to download the correct components for your system. This means the SDK
-tools, SDK Platform-tools, version 8 of the SDK platform, and Google APIs by Google Inc. (as well
-as the USB driver if you are running on windows).
-3. Then you are ready to start building!
