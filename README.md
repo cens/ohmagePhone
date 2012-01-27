@@ -24,8 +24,8 @@ but you will need the android SDK to build.
 SDK can be found here: http://developer.android.com/sdk/installing.html. You can skip the parts
 related to eclipse unless you want to setup eclipse as well.
 2. Start the android configuration tool using `/path/to/android-sdk/tools/android`
-3. Select SDK tools and SDK Platform-tools (and the USB driver if you are running on windows).
-4. Under the Android 2.2 (API 8) section, select SDK Platform and Google APIs by Google Inc.
+3. Select **SDK tools** and **SDK Platform-tools** (and the USB driver if you are running on windows).
+4. Under the **Android 2.2 (API 8)** section, select **SDK Platform** and **Google APIs by Google Inc**.
 5. Click Install and install the packages
 6. You are ready to start building!
 
