@@ -455,7 +455,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			String campaignUrn = values.getAsString(Campaigns.CAMPAIGN_URN);
 
 			// actually insert the campaign
-			rowId = db.insert(Tables.CAMPAIGNS, null, values);
+			rowId = db.insertWithOnConflict(Tables.CAMPAIGNS, null, values,SQLiteDatabase.CONFLICT_REPLACE);
 
 			if (configurationXml != null) {
 				// xml parsing below, inserts into Surveys and SurveyPrompts

@@ -12,20 +12,25 @@ import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.activity.ErrorDialogActivity;
+import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * A custom Loader that loads all of the installed applications.
@@ -50,20 +55,24 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();
 
-			//delete all remote campaigns from content provider
-			cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE, null);
-
-			//build list of urns of all downloaded (local) campaigns
-			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_CREATED}, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_REMOTE, null, null);
+			//build list of urns of all campaigns
+			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_CREATED, Campaigns.CAMPAIGN_STATUS}, null, null, null);
 			cursor.moveToFirst();
 
 			HashMap<String, Campaign> localCampaignUrns = new HashMap<String, Campaign>();
+			HashSet<String> toDelete = new HashSet<String>();
 
 			for (int i = 0; i < cursor.getCount(); i++) {
-				Campaign c = new Campaign();
-				c.mUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
-				c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
-				localCampaignUrns.put(c.mUrn, c);
+				if(cursor.getInt(2) != Campaign.STATUS_REMOTE) {
+					// Here we store a list of campaigns we have downloaded
+					Campaign c = new Campaign();
+					c.mUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
+					c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
+					localCampaignUrns.put(c.mUrn, c);
+				} else {
+					// Here we store a list of campaigns we may have to delete if the server doesn't return them
+					toDelete.add(cursor.getString(0));
+				}
 				cursor.moveToNext();
 			}
 
@@ -73,7 +82,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			// state changes. This is used to determine if there is a better choice for the single campaign mode after the download is complete.
 			String oldUrn = Campaign.getSingleCampaign(getContext());
 
-			ArrayList<ContentValues> allCampaignValues = new ArrayList<ContentValues>();
+			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
 			try { // parse response
 				JSONArray jsonItems = response.getMetadata().getJSONArray("items");
@@ -107,14 +116,14 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 							else
 								values.put(Campaigns.CAMPAIGN_STATUS, (running) ? Campaign.STATUS_READY : Campaign.STATUS_STOPPED);
 
-							cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + c.mUrn + "'" , null);
+							operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(c.mUrn)).withValues(values).build());
 
 						} else { //campaign has not been downloaded
 
 							if (running) { //campaign is running
-
-								//								cr.insert(Campaigns.CONTENT_URI, c.toCV()); //insert remote campaign into content provider
-								allCampaignValues.add(c.toCV());
+								// We don't need to delete it
+								toDelete.remove(c.mUrn);
+								operations.add(ContentProviderOperation.newInsert(Campaigns.CONTENT_URI).withValues(c.toCV()).build());
 							}
 						}
 					} catch (JSONException e) {
@@ -125,14 +134,25 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 				Log.e(TAG, "Error parsing response json: 'items' key doesn't exist or is not a JSONArray", e);
 			}
 
-			ContentValues [] vals = allCampaignValues.toArray(new ContentValues[allCampaignValues.size()]);
-			cr.bulkInsert(Campaigns.CONTENT_URI, vals);
+			for(String urn : toDelete) {
+				operations.add(ContentProviderOperation.newDelete(Campaigns.buildCampaignUri(urn)).build());
+			}
 
 			//leftover local campaigns were not returned by campaign read, therefore must be in some unavailable state
 			for (String urn : localCampaignUrns.keySet()) {
 				ContentValues values = new ContentValues();
 				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
-				cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + urn + "'" , null);
+				operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn)).withValues(values).build());
+			}
+
+			try {
+				cr.applyBatch(DbContract.CONTENT_AUTHORITY, operations);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (OperationApplicationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 			// If we are in single campaign mode, we should automatically download the xml for the best campaign
