@@ -60,6 +60,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -185,6 +186,7 @@ public class SurveyActivity extends Activity {
         mSurveyTitleText = (TextView) findViewById(R.id.survey_title_text);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mPromptText = (TextView) findViewById(R.id.prompt_text);
+        mPromptText.setMovementMethod(ScrollingMovementMethod.getInstance());
         mPromptFrame = (FrameLayout) findViewById(R.id.prompt_frame);
         mPrevButton = (Button) findViewById(R.id.prev_button);
         mSkipButton = (Button) findViewById(R.id.skip_button);
