@@ -23,6 +23,7 @@ public class CampaignContentProvider extends DelegatingMockContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		switch(OhmageUriMatcher.getMatcher().match(uri)) {
+			case OhmageUriMatcher.CAMPAIGNS:
 			case OhmageUriMatcher.CAMPAIGN_BY_URN:
 				try {
 					latch.await();

@@ -38,6 +38,7 @@ import java.util.HashSet;
 public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadResponse> {
 
 	private static final String TAG = "CampaignReadTask";
+	private OhmageApi mApi;
 
 	public CampaignReadTask(Context context) {
 		super(context);
@@ -49,8 +50,9 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 
 	@Override
 	public CampaignReadResponse loadInBackground() {
-		OhmageApi api = new OhmageApi();
-		CampaignReadResponse response = api.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
+		if(mApi == null)
+			mApi = new OhmageApi();
+		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -232,5 +234,9 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 
 			Toast.makeText(getContext(), R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
 		} 
+	}
+
+	public void setOhmageApi(OhmageApi api) {
+		mApi = api;
 	}
 }
