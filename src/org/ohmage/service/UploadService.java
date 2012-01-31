@@ -49,6 +49,8 @@ public class UploadService extends WakefulIntentService {
 	public static final String MOBILITY_UPLOAD_STARTED = "org.ohmage.MOBILITY_UPLOAD_STARTED";
 	public static final String MOBILITY_UPLOAD_FINISHED = "org.ohmage.MOBILITY_UPLOAD_FINISHED";
 
+	private OhmageApi mApi;
+
 	public UploadService() {
 		super(TAG);
 	}
@@ -56,6 +58,9 @@ public class UploadService extends WakefulIntentService {
 	@Override
 	protected void doWakefulWork(Intent intent) {
 		
+		if(mApi == null)
+			setOhmageApi(new OhmageApi());
+
 		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
 			uploadSurveyResponses(intent);
 		}
@@ -63,6 +68,10 @@ public class UploadService extends WakefulIntentService {
 		if (intent.getBooleanExtra(EXTRA_UPLOAD_MOBILITY, false)) {
 			uploadMobility(intent);
 		}
+	}
+
+	public void setOhmageApi(OhmageApi api) {
+		mApi = api;
 	}
 
 	private void uploadSurveyResponses(Intent intent) {
@@ -75,7 +84,6 @@ public class UploadService extends WakefulIntentService {
 		boolean uploadErrorOccurred = false;
 		boolean authErrorOccurred = false;
 		
-		OhmageApi api = new OhmageApi();
 		DbHelper dbHelper = new DbHelper(this);
 		
 		Uri dataUri = intent.getData();
@@ -110,7 +118,9 @@ public class UploadService extends WakefulIntentService {
 		
 		Cursor cursor = cr.query(dataUri, projection, select, null, null);
 
-		cursor.moveToFirst();
+		// If there is no data we should just return
+		if(cursor == null || !cursor.moveToFirst())
+			return;
 		
 		ContentValues cv = new ContentValues();
 		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
@@ -178,7 +188,7 @@ public class UploadService extends WakefulIntentService {
 				}
 			});
 			
-			OhmageApi.UploadResponse response = api.surveyUpload(serverUrl, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), photos);
+			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), photos);
 			
 			int responseStatus = Response.STATUS_UPLOADED;
 
@@ -396,8 +406,7 @@ public class UploadService extends WakefulIntentService {
 					c.moveToNext();
 				}
 				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-				OhmageApi api = new OhmageApi();
-				response = api.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
+				response = mApi.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
