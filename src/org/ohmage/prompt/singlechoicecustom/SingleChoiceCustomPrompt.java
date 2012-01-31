@@ -40,7 +40,6 @@ import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
@@ -85,17 +84,17 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 	 */
 	@Override
 	public boolean isPromptAnswered() {
-		return((mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size()) ||
-			   (mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size() + mCustomChoices.size()));
+		return((mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) ||
+			   (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()));
 	}
 	
 	@Override
 	protected Object getTypeSpecificResponseObject() {
 		
-		if (mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size()) {
-			return mChoices.get(mSelectedIndex-1).label;
-		} else if (mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size() + mCustomChoices.size()) {
-			return mCustomChoices.get(mSelectedIndex - mChoices.size() - 1).label;
+		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
+			return mChoices.get(mSelectedIndex).label;
+		} else if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()) {
+			return mCustomChoices.get(mSelectedIndex - mChoices.size()).label;
 		} else {
 			return null;
 		}
@@ -207,7 +206,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 					
 					showAddItemControls(context, false);
 					
-					mSelectedIndex = mListView.getCount();
+					mSelectedIndex = mListView.getCount() - 1;
 					
 					((SurveyActivity)context).reloadCurrentPrompt();
 				} else {
@@ -279,15 +278,10 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 				return true;
 			}
 		});
-
-		View view = LinearLayout.inflate(context, R.layout.survey_list_prompt, null);
-		TextView promptText = (TextView) view.findViewById(R.id.prompt_question);
-		promptText.setText(getPromptText());
-		mListView.addHeaderView(view, null, false);
-
+		
 		mListView.setAdapter(adapter);
 		
-		if (isPromptAnswered()) {
+		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()) {
 			mListView.setItemChecked(mSelectedIndex, true);
 		}
 		

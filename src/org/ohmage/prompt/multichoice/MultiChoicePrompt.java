@@ -30,12 +30,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter.ViewBinder;
-import android.widget.TextView;
 
 public class MultiChoicePrompt extends AbstractPrompt {
 	
@@ -78,8 +76,8 @@ public class MultiChoicePrompt extends AbstractPrompt {
 	protected Object getTypeSpecificResponseObject() {
 		JSONArray jsonArray = new JSONArray();
 		for (int index : mSelectedIndexes) {
-			if (index >= 1 && index <= mChoices.size())
-				jsonArray.put(Integer.decode(mChoices.get(index-1).key));
+			if (index >= 0 && index < mChoices.size())
+				jsonArray.put(Integer.decode(mChoices.get(index).key));
 		}
 		return jsonArray;
 	}
@@ -126,17 +124,12 @@ public class MultiChoicePrompt extends AbstractPrompt {
 				return true;
 			}
 		});
-
-		View view = LinearLayout.inflate(context, R.layout.survey_list_prompt, null);
-		TextView promptText = (TextView) view.findViewById(R.id.prompt_question);
-		promptText.setText(getPromptText());
-		listView.addHeaderView(view, null, false);
-
+		
 		listView.setAdapter(adapter);
 		
 		if (mSelectedIndexes.size() > 0) {
 			for (int index : mSelectedIndexes) {
-				if (index >= 1 && index <= mChoices.size())
+				if (index >= 0 && index < mChoices.size())
 					listView.setItemChecked(index, true);
 			}
 		}

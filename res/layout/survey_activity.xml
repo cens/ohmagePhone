@@ -30,14 +30,19 @@
 		android:background="#777777" />
 	
 	<TextView
-  		android:id="@+id/prompt_info_text"
+  		android:id="@+id/prompt_text"
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
   		android:paddingLeft="3dp"
   		android:paddingBottom="4dp"
   		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:text="@string/survey_prompt" />
-
+  		
+  	<View
+  		android:layout_width="fill_parent"
+  		android:layout_height="1dp"
+  		android:background="#adaaad" />
+  		
   	<FrameLayout
   		android:id="@+id/prompt_frame"
   		android:layout_width="fill_parent"

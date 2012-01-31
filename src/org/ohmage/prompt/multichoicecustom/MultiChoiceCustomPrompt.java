@@ -41,7 +41,6 @@ import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
@@ -101,10 +100,10 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 	protected Object getTypeSpecificResponseObject() {
 		JSONArray jsonArray = new JSONArray();
 		for (int index : mSelectedIndexes) {
-			if (index >= 1 && index <= mChoices.size()) {
-				jsonArray.put(mChoices.get(index-1).label);
-			} else if (index <= mChoices.size() + mCustomChoices.size()) {
-				jsonArray.put(mCustomChoices.get(index - mChoices.size() - 1).label);
+			if (index >= 0 && index < mChoices.size()) {
+				jsonArray.put(mChoices.get(index).label);
+			} else if (index < mChoices.size() + mCustomChoices.size()) {
+				jsonArray.put(mCustomChoices.get(index - mChoices.size()).label);
 			}
 		}
 		return jsonArray;
@@ -284,16 +283,11 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 			}
 		});
 		
-		View view = LinearLayout.inflate(context, R.layout.survey_list_prompt, null);
-		TextView promptText = (TextView) view.findViewById(R.id.prompt_question);
-		promptText.setText(getPromptText());
-		mListView.addHeaderView(view, null, false);
-
 		mListView.setAdapter(adapter);
 		
 		if (mSelectedIndexes.size() > 0) {
 			for (int index : mSelectedIndexes) {
-				if (index >= 1 && index <= mChoices.size() + mCustomChoices.size())
+				if (index >= 0 && index < mChoices.size() + mCustomChoices.size())
 					mListView.setItemChecked(index, true);
 			}
 		}
