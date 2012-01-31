@@ -29,12 +29,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter.ViewBinder;
-import android.widget.TextView;
 
 public class SingleChoicePrompt extends AbstractPrompt {
 	
@@ -76,13 +74,13 @@ public class SingleChoicePrompt extends AbstractPrompt {
 	 */
 	@Override
 	public boolean isPromptAnswered() {
-		return(mSelectedIndex >= 1 && mSelectedIndex <= mChoices.size());
+		return(mSelectedIndex >= 0 && mSelectedIndex < mChoices.size());
 	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
-		if (isPromptAnswered()) {
-			return Integer.decode(mChoices.get(mSelectedIndex-1).key);
+		if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
+			return Integer.decode(mChoices.get(mSelectedIndex).key);
 		} else {
 			return null;
 		}
@@ -159,15 +157,10 @@ public class SingleChoicePrompt extends AbstractPrompt {
 				return true;
 			}
 		});
-
-		View view = LinearLayout.inflate(context, R.layout.survey_list_prompt, null);
-		TextView promptText = (TextView) view.findViewById(R.id.prompt_question);
-		promptText.setText(getPromptText());
-		listView.addHeaderView(view, null, false);
-
+		
 		listView.setAdapter(adapter);
 		
-		if (isPromptAnswered()) {
+		if (mSelectedIndex >= 0 && mSelectedIndex < listView.getCount()) {
 			listView.setItemChecked(mSelectedIndex, true);
 		}
 		
