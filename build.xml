@@ -28,6 +28,9 @@
 		 -->
 	<property file="ant.properties" />
 
+	<!-- The default release name for the omage-debug and ohmage-release tasks -->
+	<property name="release.name" value="release" />
+
 	<!-- The project.properties file is created and updated by the 'android'
 		 tool, as well as ADT.
 
@@ -47,11 +50,10 @@
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
 	 in between standard targets -->
-<!--
-	<target name="-pre-build">
-	</target>
--->
-	<target name="-pre-compile" depends="gen-config" />
+
+	<target name="-pre-build" depends="gen-config" />
+
+	<target name="-pre-compile" />
 
 <!--
 	/* This is typically used for code obfuscation.
@@ -61,7 +63,17 @@
 	</target>
 -->
 
-	<!-- ********** git specific targets ********** -->
+	<!-- ********** release specific targets ********** -->
+
+	<target name="ohmage-debug" depends="-set-output-file, debug"
+		description="Builds the debug version of the application">
+	</target>
+
+	<target name="ohmage-release"
+		depends="-set-release-output-file, release"
+		if="has.keystore"
+		description="Builds the release version of the application">
+	</target>
 
 	<target name="tag-release">
 		<sequential>
@@ -72,112 +84,62 @@
 		</sequential>
 	</target>
 
-	<!-- ********** cuttingedge specific targets ********** -->
+	<target name="clean-for-release">
+		<delete>
+			<fileset dir="${out.absolute.dir}" erroronmissingdir="false">
+				<patternset>
+					<include name="${resource.package.file.name}*"/>
+					<include name="classes.dex*"/>
+					<include name="classes/**/*"/>
+					<include name="res/**/*"/>
+					<include name="*packaged*"/>
+					<include name="*unaligned*"/>
+				</patternset>
+			</fileset>
+		</delete>
+		<delete dir="${gen.absolute.dir}" />
+	</target>
 
-	<target name="-checkout-cuttingedge">
+	<!-- ********** git specific targets ********** -->
+
+	<target name="checkout-cuttingedge" depends="clean-for-release">
 		<git-checkout-local branch="cuttingedge" dir="." />
 	</target>
 
-	<target name="-set-files-cuttingedge" depends="-set-mode-check">
-		<set-output-file name="cuttingedge" />
-	</target>
-
-	<target name="cuttingedge" depends="-checkout-cuttingedge, -set-files-cuttingedge, -do-debug"
-				description="Builds the application for cuttingedge">
-		<record-build-info />
-	</target>
-
-	<target name="-set-files-cuttingedge-release" depends="-set-mode-check">
-		<set-release-output-file name="cuttingedge" />
-	</target>
-
-	<target name="cuttingedge-release"
-				depends="-checkout-cuttingedge, -set-files-cuttingedge-release, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
-				if="has.keystore"
-				description="Builds the cuttingedge-release application">
-			<release name="cuttingedge" />
-	</target>
-
-	<!-- ********** NIH specific targets ********** -->
-
-	<target name="-checkout-NIH">
+	<target name="checkout-NIH" depends="clean-for-release">
 		<git-checkout-local branch="NIH" dir="." />
-	</target>
-
-	<target name="-set-files-NIH" depends="-set-mode-check">
-		<set-output-file name="NIH" />
-	</target>
-
-	<target name="NIH" depends="-checkout-NIH, -set-files-NIH, -do-debug"
-				description="Builds the application for NIH">
-		<record-build-info />
-	</target>
-
-	<target name="-set-files-NIH-release" depends="-set-mode-check">
-		<set-release-output-file name="NIH" />
-	</target>
-
-	<target name="NIH-release"
-				depends="-checkout-NIH, -set-files-NIH-release, -set-release-mode, -release-obfuscation-check, -package, -release-prompt-for-password, -release-nosign"
-				if="has.keystore"
-				description="Builds the NIH-release application">
-			<release name="NIH" />
 	</target>
 
 	<!-- Helper functions -->
 
-	<macrodef name="release">
-		<attribute name="name" />
+	<target name="-set-output-file">
 		<sequential>
-			<do-only-if-not-library elseText="Library project: do not create apk..." >
-				<sequential>
-
-					<!-- Signs the APK -->
-					<echo>Signing final apk...</echo>
-					<signjar
-							jar="${out.packaged.file}"
-							signedjar="${out.unaligned.file}"
-							keystore="${key.store}"
-							storepass="${key.store.password}"
-							alias="${key.alias}"
-							keypass="${key.alias.password}"
-							verbose="${verbose}" />
-
-					<!-- Zip aligns the APK -->
-					<zipalign-helper in.package="${out.unaligned.file}"
-											   out.package="${out.final.file}" />
-					<echo>Release Package: ${out.final.file}</echo>
-				</sequential>
-			</do-only-if-not-library>
-			<record-build-info />
+			<read-release-name />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-unaligned.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}.apk" />
 		</sequential>
-	</macrodef>
+	</target>
 
-	<macrodef name="set-output-file">
-		<attribute name="name" />
+	<target name="-set-release-output-file">
 		<sequential>
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-unaligned.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}.apk" />
+			<read-release-name />
+			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-unaligned-SIGNED.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-packaged-SIGNED.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-SIGNED.apk" />
 		</sequential>
-	</macrodef>
+	</target>
 
-	<macrodef name="set-release-output-file">
-		<attribute name="name" />
+	<macrodef name="read-release-name">
 		<sequential>
-			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-unaligned-SIGNED.apk" />
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-packaged-SIGNED.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-@{name}-${manifest.versionCode}-SIGNED.apk" />
-		</sequential>
+			<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionCode"
+				output="manifest.versionCode" />
+			<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
+				output="manifest.versionName" />
+			</sequential>
 	</macrodef>
 
 	<!-- version-tag: custom -->
 	<import file="${sdk.dir}/tools/ant/build.xml" />
-
-	<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionCode"
-			output="manifest.versionCode" />
-
-	<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
-			output="manifest.versionName" />
 
 	<import file="git-build.xml" />
 
