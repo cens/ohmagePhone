@@ -1,23 +1,33 @@
 #!/bin/bash
 # A script which will generate all the packages we currently want to release
+set -e
 
-# first clean
+# start with a clean
 ant clean
 
+# checkout cuttingedge
+ant checkout-cuttingedge
+
 # make mdev multi
-ant cuttingedge
+ant ohmage-debug -Drelease.name=multi
 
 # make internal multi release
-ant cuttingedge-release -Dconfig.admin_mode=false -Dconfig.server.url=https://internal.ohmage.org/ -Dconfig.server.shortname=internal
+ant ohmage-release -Drelease.name=multi -Dconfig.admin_mode=false -Dconfig.server.url=https://internal.ohmage.org/ -Dconfig.server.shortname=internal
+
+# checkout NIH branch
+ant checkout-NIH
 
 # make mdev NIH
-ant NIH
+ant ohmage-debug -Drelease.name=NIH
 
 # make NIH release
-ant NIH-release -Dconfig.server.url=https://pilots.ohmage.org/ -Dconfig.server.shortname=pilots
+ant ohmage-release -Drelease.name=NIH -Dconfig.server.url=https://pilots.ohmage.org/ -Dconfig.server.shortname=pilots
 
 # make internal NIH release
-ant NIH-release -Dconfig.server.url=https://internal.ohmage.org/ -Dconfig.server.shortname=internal
+ant ohmage-release -Drelease.name=NIH -Dconfig.server.url=https://internal.ohmage.org/ -Dconfig.server.shortname=internal
 
 # tag the release
 ant tag-release
+
+# clean everything except the release apks
+ant clean-for-release
