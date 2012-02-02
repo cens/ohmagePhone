@@ -78,6 +78,7 @@
 	<target name="tag-release">
 		<sequential>
 			<git-checkout-local branch="cuttingedge" dir="." />
+			<read-release-name />
 			<git-tag tagName="${ant.project.name}-${manifest.versionName}-cuttingedge" dir="." />
 			<git-checkout-local branch="NIH" dir="." />
 			<git-tag tagName="${ant.project.name}-${manifest.versionName}-NIH" dir="." />
