@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.triggers.config.LocTrigConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
@@ -86,6 +87,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -176,8 +178,11 @@ public class LocTrigMapsActivity extends MapActivity
         mCategId = extras.getInt(LocTrigDB.KEY_ID);
         Log.i(DEBUG_TAG, "Maps: category id = " + mCategId);
         	
-        
-        mMapView = (MapView) findViewById(R.id.mapView);
+        FrameLayout mapContainer = (FrameLayout) findViewById(R.id.mapViewContainer);
+        mMapView = new MapView(this, OhmageApplication.isDebugBuild() ?
+			getString(R.string.maps_debug_api_key) : getString(R.string.maps_release_api_key));
+        mapContainer.addView(mMapView);
+        mMapView.setClickable(true);
         mMapView.setBuiltInZoomControls(true);
         
         //Handle done button and exit this activity
