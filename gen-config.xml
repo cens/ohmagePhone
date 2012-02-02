@@ -11,7 +11,7 @@
 	<!-- Copy Config.java to our source tree, replacing custom tokens with values in build.properties. -->
 	<target name="gen-config">
 
-		<delete file="${out.classes.absolute.dir}/org/ohmage"/>
+		<clean-for-gen-config />
 
 		<!-- Copy the configuration file, replacing tokens in the file. -->
 		<copy file="config/Config.java" todir="${gen.absolute.dir}/org/ohmage" overwrite="true" encoding="utf-8">
@@ -25,6 +25,21 @@
 			</filterset>
 		</copy>
 	</target>
+
+	<macrodef name="clean-for-gen-config">
+		<sequential>
+			<delete>
+				<fileset dir="${out.absolute.dir}">
+					<patternset>
+						<include name="${resource.package.file.name}*"/>
+						<include name="classes.dex*"/>
+						<include name="classes/org/ohmage/**/*"/>
+						<include name="build.prop"/>
+					</patternset>
+				</fileset>
+			</delete>
+		</sequential>
+	</macrodef>
 
 	<!-- version-tag: custom -->
 	<import file="${sdk.dir}/tools/ant/build.xml" />
