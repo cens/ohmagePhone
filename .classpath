@@ -4,7 +4,7 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="libs/andwellness-condition-parser-1.0.jar"/>
 	<classpathentry kind="lib" path="libs/apache-mime4j-0.6.jar"/>
-	<classpathentry kind="lib" path="libs/CWAC-WakefulIntentService.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/CWAC-WakefulIntentService.jar"/>
 	<classpathentry kind="lib" path="libs/httpmime-4.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/jbcrypt-0.3.jar"/>
 	<classpathentry kind="src" path="gen"/>

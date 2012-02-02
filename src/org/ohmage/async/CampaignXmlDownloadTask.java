@@ -10,6 +10,7 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
@@ -41,7 +42,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     public Response loadInBackground() {
-		OhmageApi api = new OhmageApi();
+		OhmageApi api = OhmageApplication.getOhmageApi();
 		ContentResolver cr = getContext().getContentResolver();
 
 		CampaignReadResponse campaignResponse = api.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);

@@ -6,6 +6,7 @@ import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -145,5 +146,12 @@ public abstract class BaseActivity extends FragmentActivity {
 		}
 
 		return arguments;
+	}
+
+	@Override
+	public ContentResolver getContentResolver() {
+		// The Ohmage Application has code which makes it possible to switch content resolvers during testing.
+		// We need to make sure to get the right one here.
+		return getApplication().getContentResolver();
 	}
 }
