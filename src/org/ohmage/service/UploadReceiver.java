@@ -66,9 +66,9 @@ private static final String TAG = "UploadReceiver";
 				
 				Intent i = new Intent(context, UploadService.class);
 				i.setData(Responses.CONTENT_URI);
-				i.putExtra("is_background", true);
-				i.putExtra("upload_mobility", true);
-				i.putExtra("upload_surveys", true);
+				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
+				i.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
+				i.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 				WakefulIntentService.sendWakefulWork(context, i);
 			} else {
 				Log.i(TAG, "Power is low.");
@@ -102,9 +102,9 @@ private static final String TAG = "UploadReceiver";
 				
 				Intent i = new Intent(context, UploadService.class);
 				i.setData(Responses.CONTENT_URI);
-				i.putExtra("is_background", true);
-				i.putExtra("upload_mobility", true);
-				i.putExtra("upload_surveys", true);
+				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
+				i.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
+				i.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 				WakefulIntentService.sendWakefulWork(context, i);
 				
 			} else {

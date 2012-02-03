@@ -8,6 +8,8 @@ import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
+import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
@@ -181,21 +183,17 @@ public class Models {
 		 * @param campaignUrn
 		 */
 		public static void setRemote(Context context, String campaignUrn) {
-			setRemote(context, campaignUrn, Campaign.STATUS_REMOTE);
-		}
+			Cursor cursor = context.getContentResolver().query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_URN + "=?", new String[] { campaignUrn }, null);
+			List<Campaign> campaign = fromCursor(cursor);
 
-		/**
-		 * Sets the campaign to a remote status. Also removes surveys and responses.
-		 * @param context
-		 * @param campaignUrn
-		 * @param status
-		 */
-		public static void setRemote(Context context, String campaignUrn, int status) {
-			ContentValues cv = new ContentValues();
-			cv.put(Campaigns.CAMPAIGN_STATUS, status);
-			cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
-			context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-			context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
+			if(campaign.size() > 0) {
+				ContentValues cv = new ContentValues();
+				cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+				cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
+				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
+				context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
+				campaign.get(0).cleanUp(context);
+			}
 		}
 
 		@Override
@@ -217,6 +215,18 @@ public class Models {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+
+			// Clear custom choices
+			MultiChoiceCustomDbAdapter customMultiChoices = new MultiChoiceCustomDbAdapter(context);
+			if(customMultiChoices.open()) {
+				customMultiChoices.clearCampaign(mUrn);
+				customMultiChoices.close();
+			}
+			SingleChoiceCustomDbAdapter customSingleChoices = new SingleChoiceCustomDbAdapter(context);
+			if(customSingleChoices.open()) {
+				customSingleChoices.clearCampaign(mUrn);
+				customSingleChoices.close();
 			}
 		}
 	}

@@ -1,15 +1,16 @@
 package org.ohmage.async;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.json.JSONException;
+import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
@@ -25,7 +26,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
@@ -40,10 +42,10 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     public Response loadInBackground() {
-		OhmageApi api = new OhmageApi(getContext());
+		OhmageApi api = OhmageApplication.getOhmageApi();
 		ContentResolver cr = getContext().getContentResolver();
 
-		CampaignReadResponse campaignResponse = api.campaignRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = api.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
 
 		if(campaignResponse.getResult() == Result.SUCCESS) {
 			ContentValues values = new ContentValues();
@@ -58,7 +60,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  api.campaignXmlRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
+		CampaignXmlResponse response =  api.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
@@ -79,7 +81,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				//update occurred successfully
 			}
 			
-			if (SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+			if (Config.ALLOWS_FEEDBACK) {
 				// create an intent to fire off the feedback service
 				Intent fbIntent = new Intent(getContext(), FeedbackService.class);
 				// annotate the request with the current campaign's URN
@@ -98,6 +100,14 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     public void deliverResult(Response response) {
+
+		if(response.getResult() != Result.SUCCESS) {
+			// revert the db back to remote
+			ContentResolver cr = getContext().getContentResolver();
+			ContentValues values = new ContentValues();
+			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+			cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null);
+		}
 
 		if (response.getResult() == Result.SUCCESS) {
 			// setup initial triggers for this campaign
@@ -143,14 +153,12 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     }
 
     @Override
-    protected void onStartLoading() {
-    	if(hasAuthentication()) {
-    		ContentResolver cr = getContext().getContentResolver();
-    		ContentValues values = new ContentValues();
-    		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
-    		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
+    protected void onForceLoad() {
+		super.onForceLoad();
 
-    		forceLoad();
-    	}
+		ContentResolver cr = getContext().getContentResolver();
+		ContentValues values = new ContentValues();
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
+		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null);
     }
 }

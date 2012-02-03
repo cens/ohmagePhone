@@ -1,18 +1,14 @@
 package org.ohmage.activity;
 
-import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
-import org.ohmage.async.CampaignReadTask;
+import org.ohmage.async.CampaignReadLoaderCallbacks;
 import org.ohmage.ui.BaseActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,12 +27,12 @@ public class DashboardActivity extends BaseActivity {
 	private Button mMobilityBtn;
 	private Button mSettingsBtn;
 
-	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private CampaignReadLoaderCallbacks mCampaignReadLoader;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.dashboard_layout);
 		getActionBar().setShowLogo(true);
 		
@@ -60,14 +56,12 @@ public class DashboardActivity extends BaseActivity {
 		mHelpBtn.setOnClickListener(buttonListener);
 		mMobilityBtn.setOnClickListener(buttonListener);
 
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
-		
-		// refresh campaigns
-		refreshCampaigns();
+		mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
+		mCampaignReadLoader.onCreate();
 	}
-	
+
 	private void ensureUI() {
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN) {
+		if(Config.IS_SINGLE_CAMPAIGN) {
 			mCampaignBtn.setVisibility(View.GONE);
 		} else {
 			mCampaignBtn.setVisibility(View.VISIBLE);
@@ -96,42 +90,30 @@ public class DashboardActivity extends BaseActivity {
 			mMobilityBtn.setVisibility(View.GONE);
 	}
 
-	private void refreshCampaigns() {
-		getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
-
-			@Override
-			public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-				if(mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 < System.currentTimeMillis()) {
-					getActionBar().setProgressVisible(true);
-					return new CampaignReadTask(DashboardActivity.this, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
-
-				}
-				return null;
-			}
-
-			@Override
-			public void onLoadFinished(Loader<CampaignReadResponse> loader,
-					CampaignReadResponse data) {
-				mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
-				getActionBar().setProgressVisible(false);
-			}
-
-			@Override
-			public void onLoaderReset(Loader<CampaignReadResponse> loader) {
-			}
-		});
-	}
-	
 	@Override
 	protected void onResume(){
 		super.onResume();
-		
+
+		mCampaignReadLoader.onResume();
+
 		//This is to prevent users from clicking an icon multiple times when there is delay on Dashboard somehow.
 		enableAllButtons();
 		
 		ensureUI();
 	}
 	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mCampaignReadLoader.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		mCampaignReadLoader.onRestoreInstanceState(savedInstanceState);
+	}
+
 	private void enableAllButtons(){
 		mCampaignBtn.setClickable(true);
 		mSurveysBtn.setClickable(true);

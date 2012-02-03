@@ -2,8 +2,8 @@ package org.ohmage.activity;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
@@ -15,12 +15,9 @@ import org.ohmage.fragments.ResponseListFragment;
 import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.service.UploadService;
 import org.ohmage.ui.CampaignFilterActivity;
+import org.ohmage.ui.ResponseActivityHelper;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -36,17 +33,21 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 
 	private Button mUploadAll;
 
+	private ResponseActivityHelper mResponseHelper;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.upload_queue_layout);
 		
+		mResponseHelper = new ResponseActivityHelper(this);
+
 		mUploadAll = (Button) findViewById(R.id.upload_button);
 		
 		mUploadAll.setOnClickListener(mUploadAllListener);
 
-		if(SharedPreferencesHelper.IS_SINGLE_CAMPAIGN)
+		if(Config.IS_SINGLE_CAMPAIGN)
 			ensureButtons();
 	}
 	
@@ -117,22 +118,11 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 			
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
-			intent.putExtra("upload_surveys", true);
+			intent.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}
 	};
-	
-	private void queueForUpload(Uri responseUri) {
-		ContentResolver cr = getContentResolver();
-		ContentValues cv = new ContentValues();
-		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
-		cr.update(responseUri, cv, null, null);
-		
-		Intent intent = new Intent(this, UploadService.class);
-		intent.setData(responseUri);
-		intent.putExtra("upload_surveys", true);
-		WakefulIntentService.sendWakefulWork(this, intent);
-	}
+
 
 	@Override
 	public void onResponseActionView(Uri responseUri) {
@@ -141,95 +131,18 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 
 	@Override
 	public void onResponseActionUpload(Uri responseUri) {
-		
-		queueForUpload(responseUri);
+		mResponseHelper.queueForUpload(responseUri);
 	}
 
 	@Override
 	public void onResponseActionError(Uri responseUri, int status) {
-//		Toast.makeText(this, "Showing Error Dialog", Toast.LENGTH_SHORT).show();
 		Bundle bundle = new Bundle();
-		bundle.putString("response_uri", responseUri.toString());
+		bundle.putParcelable(ResponseActivityHelper.KEY_URI, responseUri);
 		showDialog(status, bundle);
 	}
 	
 	@Override
 	protected Dialog onCreateDialog(int id, Bundle args) {
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		
-		int message = R.string.upload_queue_response_error;
-		
-		
-		switch (id) {
-		case Response.STATUS_ERROR_AUTHENTICATION:
-			message = R.string.upload_queue_auth_error;
-			break;
-		case Response.STATUS_ERROR_CAMPAIGN_NO_EXIST:
-			message = R.string.upload_queue_campaign_no_exist;
-			break;
-		case Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE:
-			message = R.string.upload_queue_campaign_out_of_date;
-			break;
-		case Response.STATUS_ERROR_CAMPAIGN_STOPPED:
-			message = R.string.upload_queue_campaign_stopped;
-			break;
-		case Response.STATUS_ERROR_INVALID_USER_ROLE:
-			message = R.string.upload_queue_invalid_user_role;
-			break;
-		case Response.STATUS_ERROR_HTTP:
-			message = R.string.upload_queue_network_error;
-			break;
-		case Response.STATUS_WAITING_FOR_LOCATION:
-			builder.setMessage(R.string.upload_queue_response_waiting_for_gps)
-			.setCancelable(true)
-			.setPositiveButton(R.string.upload, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-
-					queueForUpload(responseUriForDialogs);
-				}
-			}).setNegativeButton(R.string.wait, null);
-
-			return builder.create();
-		}
-		
-		builder.setMessage(message)
-				.setCancelable(true)
-				.setPositiveButton(R.string.retry_now, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						
-						queueForUpload(responseUriForDialogs);
-					}
-				}).setNeutralButton(R.string.retry_later, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						ContentResolver cr = getContentResolver();
-						ContentValues cv = new ContentValues();
-						cv.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
-						cr.update(responseUriForDialogs, cv, null, null);
-					}
-				}).setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						ContentResolver cr = getContentResolver();
-						cr.delete(responseUriForDialogs, null, null);
-					}
-				});
-		
-		return builder.create();
+		return mResponseHelper.onCreateDialog(id, args);
 	}
-
-	@Override
-	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
-		super.onPrepareDialog(id, dialog, args);
-		responseUriForDialogs = Uri.parse(args.getString("response_uri"));
-	}
-	
-	private Uri responseUriForDialogs;
 }

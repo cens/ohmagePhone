@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -101,10 +102,7 @@ public class AccountHelper {
 				mActivity.dismissDialog(DIALOG_WIPE_PROGRESS);
 
 				// then send them on a one-way trip to the login screen
-				Intent intent = new Intent(mActivity, LoginActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				mActivity.startActivity(intent);
+				mActivity.startActivity(getLoginIntent(mActivity));
 				mActivity.finish();
 			}
 
@@ -118,5 +116,12 @@ public class AccountHelper {
 		};
 
 		wipeTask.execute();
+	}
+
+	public static Intent getLoginIntent(Context context) {
+		Intent intent = new Intent(context, LoginActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		return intent;
 	}
 }

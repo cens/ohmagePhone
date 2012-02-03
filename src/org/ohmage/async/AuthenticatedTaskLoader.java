@@ -1,12 +1,11 @@
 package org.ohmage.async;
 
 import android.content.Context;
-import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * A custom Loader that uses a username and password
  */
-public abstract class AuthenticatedTaskLoader<T> extends AsyncTaskLoader<T> {
+public abstract class AuthenticatedTaskLoader<T> extends PauseableTaskLoader<T> {
 	private String mUsername;
 	private String mHashedPassword;
 
@@ -20,17 +19,13 @@ public abstract class AuthenticatedTaskLoader<T> extends AsyncTaskLoader<T> {
 		super(context);
 		mUsername = username;
 		mHashedPassword = hashedPassword;
-	}
-
-	@Override
-    protected void onStartLoading() {
-		if(hasAuthentication())
-		forceLoad();
+		pause(!hasAuthentication());
 	}
 
 	public void setCredentials(String username, String hashedPassword) {
 		mUsername = username;
 		mHashedPassword = hashedPassword;
+		pause(!hasAuthentication());
 	}
 
 	public String getUsername() {
@@ -43,5 +38,11 @@ public abstract class AuthenticatedTaskLoader<T> extends AsyncTaskLoader<T> {
 	
 	protected boolean hasAuthentication() {
 		return mUsername != null && mHashedPassword != null;
+	}
+
+	public void clearCredentials() {
+		mUsername = null;
+		mHashedPassword = null;
+		pause(true);
 	}
 }

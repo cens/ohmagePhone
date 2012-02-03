@@ -16,26 +16,22 @@
 package org.ohmage.activity;
 
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.UUID;
+import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.CampaignXmlHelper;
+import org.ohmage.Config;
 import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.conditionevaluator.DataPoint;
-import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
+import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
@@ -64,6 +60,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -74,7 +71,14 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import edu.ucla.cens.systemlog.Log;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.UUID;
 
 public class SurveyActivity extends Activity {
 	
@@ -113,7 +117,12 @@ public class SurveyActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+		if(Config.IS_SINGLE_CAMPAIGN) {
+			mCampaignUrn = Campaign.getSingleCampaign(this);
+		} else {
+			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+        }
+
         mSurveyId = getIntent().getStringExtra("survey_id");
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
@@ -136,6 +145,7 @@ public class SurveyActivity extends Activity {
     			Log.i(TAG, "no credentials saved, so launch Login");
     			startActivity(new Intent(this, LoginActivity.class));
     			finish();
+				return;
     		} else {
     			mSurveyElements = null;
                 
@@ -176,6 +186,7 @@ public class SurveyActivity extends Activity {
         mSurveyTitleText = (TextView) findViewById(R.id.survey_title_text);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mPromptText = (TextView) findViewById(R.id.prompt_text);
+        mPromptText.setMovementMethod(ScrollingMovementMethod.getInstance());
         mPromptFrame = (FrameLayout) findViewById(R.id.prompt_frame);
         mPrevButton = (Button) findViewById(R.id.prev_button);
         mSkipButton = (Button) findViewById(R.id.skip_button);
@@ -184,7 +195,11 @@ public class SurveyActivity extends Activity {
         mPrevButton.setOnClickListener(mClickListener);
         mSkipButton.setOnClickListener(mClickListener);
         mNextButton.setOnClickListener(mClickListener);
-        
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
         mSurveyTitleText.setText(mSurveyTitle);
         if (mReachedEnd == false) {
         	showElement(mCurrentPosition);

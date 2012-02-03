@@ -20,6 +20,8 @@ import com.jayway.android.robotium.solo.Solo;
 import org.ohmage.activity.CampaignListActivity;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.HelpActivity;
+import org.ohmage.activity.MobilityActivity;
+import org.ohmage.activity.OhmagePreferenceActivity;
 import org.ohmage.activity.ProfileActivity;
 import org.ohmage.activity.ResponseHistoryActivity;
 import org.ohmage.activity.SurveyListActivity;
@@ -105,6 +107,20 @@ public class DashboardActivityFlowTest extends ActivityInstrumentationTestCase2<
 	public void testFlowHelp() {
 		solo.clickOnText("Help");
 		solo.assertCurrentActivity("Expected Help Activity", HelpActivity.class);
+		solo.goBack();
+	}
+
+	@Smoke
+	public void testFlowMobility() {
+		solo.clickOnText("Mobility");
+		solo.assertCurrentActivity("Expected Mobility Activity", MobilityActivity.class);
+		solo.goBack();
+	}
+
+	@Smoke
+	public void testFlowSettings() {
+		solo.clickOnMenuItem("Settings");
+		solo.assertCurrentActivity("Expected Settings Activity", OhmagePreferenceActivity.class);
 		solo.goBack();
 	}
 }

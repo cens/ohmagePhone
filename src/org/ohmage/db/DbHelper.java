@@ -15,30 +15,19 @@
  ******************************************************************************/
 package org.ohmage.db;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.PromptResponse;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.Models.SurveyPrompt;
-import org.ohmage.db.Models.PromptResponse;
 import org.ohmage.service.SurveyGeotagService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -55,6 +44,17 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Stack;
+import java.util.Vector;
 
 public class DbHelper extends SQLiteOpenHelper {
 
@@ -361,20 +361,6 @@ public class DbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Removes survey responses (and their associated prompts) for the given
-	 * campaign.
-	 * 
-	 * @param campaignUrn
-	 *            the campaign URN for which to remove the survey responses
-	 * @return
-	 */
-	public boolean removeResponseRows(String campaignUrn) {
-		ContentResolver cr = mContext.getContentResolver();
-		return cr.delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "='"
-				+ campaignUrn + "'", null) > 0;
-	}
-
-	/**
 	 * Removes survey responses that are "stale" for the given campaignUrn.
 	 * 
 	 * Staleness is defined as a survey response whose source field is "remote",
@@ -396,18 +382,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		// etc.)
 		ContentResolver cr = mContext.getContentResolver();
 		return cr.delete(Responses.CONTENT_URI, whereClause, null);
-	}
-
-	/**
-	 * Removes survey responses that are "stale" for all campaigns.
-	 * 
-	 * Staleness is defined as a survey response whose source field is "remote",
-	 * or a response whose source field is "local" and uploaded field is 1.
-	 * 
-	 * @return
-	 */
-	public int removeStaleResponseRows() {
-		return removeStaleResponseRows(null);
 	}
 
 	/**
@@ -481,7 +455,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			String campaignUrn = values.getAsString(Campaigns.CAMPAIGN_URN);
 
 			// actually insert the campaign
-			rowId = db.insert(Tables.CAMPAIGNS, null, values);
+			rowId = db.insertWithOnConflict(Tables.CAMPAIGNS, null, values,SQLiteDatabase.CONFLICT_REPLACE);
 
 			if (configurationXml != null) {
 				// xml parsing below, inserts into Surveys and SurveyPrompts
@@ -501,29 +475,6 @@ public class DbHelper extends SQLiteOpenHelper {
 		}
 
 		return rowId;
-	}
-
-	public boolean removeCampaign(String urn) {
-		ContentResolver cr = mContext.getContentResolver();
-		return cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "='" + urn + "'",
-				null) > 0;
-	}
-	
-	/**
-	 * Updates the status for a given campaign
-	 * 
-	 * @param campaignUrn
-	 *            the campaign to update
-	 * @param status
-	 *            the status code the campaign should be set to
-	 * @return true if the operation succeeded, false otherwise
-	 */
-	public boolean updateCampaignStatus(String campaignUrn,
-			int status) {
-		ContentValues values = new ContentValues();
-		ContentResolver cr = mContext.getContentResolver();				
-		values.put(Campaigns.CAMPAIGN_STATUS, status);
-		return cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "='" + campaignUrn + "'" , null) > 0;
 	}
 
 	public Campaign getCampaign(String urn) {

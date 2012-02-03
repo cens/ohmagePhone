@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <Button style="@style/InfoButton"
-    	android:id="@+id/response_info_button_view_map"
-		android:text="@string/response_info_view_map"
-    	android:drawableLeft="@drawable/location_map" />
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <Button
+        android:id="@+id/response_info_button_upload"
+        style="@style/InfoButton"
+        android:drawableLeft="@drawable/btn_action_upload"
+        android:text="@string/response_info_upload" />
+
+    <Button
+        android:id="@+id/response_info_button_view_map"
+        style="@style/InfoButton"
+        android:drawableLeft="@drawable/location_map"
+        android:text="@string/response_info_view_map" />
+
 </merge>

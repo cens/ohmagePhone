@@ -27,7 +27,8 @@
     <string name="menu_satellite">Satellite</string>
 
     <!-- Maps -->
-    <string name="maps_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
+    <string name="maps_debug_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
+    <string name="maps_release_api_key">0v-wLH9cxlVMxbPMFw81x2mmbeUcsS9rHCFTgkQ</string>
 
     <!-- EULA -->
     <string name="eula_title">Welcome</string>
@@ -124,10 +125,12 @@
     <string name="prompt_remote_relaunch">Relaunch</string>
     <string name="prompt_custom_single_choice_add">Add new choice</string>
     <string name="prompt_custom_multi_choice_add">Add new item</string>
+    <string name="prompt_custom_choice_duplicate">Duplicate choices are not allowed</string>
+    <string name="prompt_custom_choice_db_open_error">Error opening custom choice db</string>
     <string name="prompt_hours_ago">hours ago</string>
-    <string name="prompt_select_value">Use the +/- buttons\nto select a value.</string>
     <string name="prompt_timestamp_change_date">Change date</string>
     <string name="prompt_timestamp_set_am_pm">Remember to set the correct AM/PM value!</string>
+    <string name="prompt_text_hint">Tap this box or slide out the keyboard (if exists) to start typing.</string>
 
     <!-- Upload Queue -->
     <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>
@@ -183,6 +186,10 @@
     <string name="preferences_muli_campaign_status">Multi-Campaign Mode</string>
     <string name="shown">Shown</string>
     <string name="hidden">Hidden</string>
+    <string name="preferences_response_history_title">Response History</string>
+    <string name="preferences_profile_title">Profile</string>
+    <string name="preferences_upload_queue_title">Upload Queue</string>
+    <string name="preferences_mobility_title">Mobility</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
@@ -192,11 +199,17 @@
     <string name="campaign_info_status_title">status:</string>
     <string name="campaign_info_responses_title">responses:</string>
     <string name="campaign_info_triggers_title">reminders:</string>
+    <string name="campaign_info_remove_campaign_reminders">Any custom reminders will also be removed</string>
 
-    <plurals name="campaign_info_remote">
-        <item quantity="one">Are you sure that you want to remove this campaign? There is <b>1 response</b> which hasn\'t been uploaded.</item>
-        <item quantity="other">Are you sure that you want to remove this campaign? There are <b>%d responses</b> which haven\'t been uploaded.</item>
+    <plurals name="campaign_info_remove_campaign_responses_w_reminders">
+        <item quantity="one">along with <b>1 response</b> which hasn\'t been uploaded</item>
+        <item quantity="other">along with <b>%d responses</b> which haven\'t been uploaded</item>
     </plurals>
+    <plurals name="campaign_info_remove_campaign_responses">
+        <item quantity="one">There is <b>1 response</b> which hasn\'t been uploaded which will also be removed</item>
+        <item quantity="other">There are <b>%d responses</b> which haven\'t been uploaded which will also be removed</item>
+    </plurals>
+
     <plurals name="campaign_info_response_count">
         <item quantity="one">1 response submitted</item>
         <item quantity="other">%d responses submitted</item>
@@ -208,15 +221,19 @@
 
     <!-- Response Info -->
     <string name="response_info_gps_wait">Waiting for Location</string>
-    <string name="response_info_no_location">Location Not Available</string>
+    <string name="response_info_no_location">Location Unavailable</string>
     <string name="response_info_view_map">View Map</string>
+    <string name="response_info_upload">Upload</string>
+    <string name="response_info_uploading">Uploading...</string>
+    <string name="response_info_upload_error">Upload Error</string>
 
     <!-- Survey Info -->
     <string name="survey_info_take_survey">Take Survey</string>
-    <string name="survey_info_error_test">this is some test error text...</string>
+    <string name="survey_info_error_test">this is test error text</string>
     <string name="survey_info_description_test">this is a test description</string>
     <string name="survey_info_status_title">status:</string>
     <string name="survey_info_responses_title">responses:</string>
+    <string name="survey_info_last_response_title">last response:</string>
     <string name="survey_info_triggers_title">reminders:</string>
 
     <!-- Profile Info -->

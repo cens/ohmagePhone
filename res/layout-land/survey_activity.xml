@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/survey_title_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#777777"
+        android:paddingBottom="1dp"
+        android:paddingLeft="3dp"
+        android:paddingTop="2dp"
+        android:text="@string/survey_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ffffff" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:background="#777777"
+        android:max="100"
+        android:paddingBottom="2dp"
+        android:paddingLeft="1dp"
+        android:paddingRight="1dp"
+        android:progress="15" />
+
+    <TextView
+        android:id="@+id/prompt_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        android:paddingBottom="4dp"
+        android:paddingLeft="3dp"
+        android:scrollbars="vertical"
+        android:text="@string/survey_prompt"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#adaaad" />
+
+    <FrameLayout
+        android:id="@+id/prompt_frame"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <View
+            android:id="@+id/placeholder_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#777777"
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp" >
+
+        <Button
+            android:id="@+id/prev_button"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"
+            android:text="@string/previous" />
+
+        <Button
+            android:id="@+id/skip_button"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"
+            android:text="@string/skip" />
+
+        <Button
+            android:id="@+id/next_button"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"
+            android:text="@string/next" />
+    </LinearLayout>
+
+</LinearLayout>

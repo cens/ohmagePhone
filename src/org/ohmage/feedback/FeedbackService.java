@@ -13,6 +13,7 @@ import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.Config;
 import org.ohmage.OhmageApi;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.OhmageApi.ImageReadResponse;
@@ -58,7 +59,7 @@ public class FeedbackService extends WakefulIntentService {
 		
 		Log.v(TAG, "Feedback service starting");
 		
-		if (!SharedPreferencesHelper.ALLOWS_FEEDBACK) {
+		if (!Config.ALLOWS_FEEDBACK) {
 			Log.e(TAG, "Feedback service aborted, because feedback is not allowed in the preferences");
 			return;
 		}
@@ -68,7 +69,7 @@ public class FeedbackService extends WakefulIntentService {
 		// ==================================================================
 		
 		// grab an instance of the api connector so we can do calls to the server for responses
-		OhmageApi api = new OhmageApi(this);
+		OhmageApi api = new OhmageApi();
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
@@ -141,7 +142,7 @@ public class FeedbackService extends WakefulIntentService {
 		for (Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 			
-			SurveyReadResponse apiResponse = api.surveyResponseRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", startDate, endDate);
+			SurveyReadResponse apiResponse = api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", startDate, endDate);
 			
 			// check if it was successful or not
 			String error = null;
@@ -230,9 +231,7 @@ public class FeedbackService extends WakefulIntentService {
 					candidate.username = survey.getString("user");
 					candidate.date = survey.getString("timestamp");
 					candidate.timezone = survey.getString("timezone");
-
-					sdf.setTimeZone(TimeZone.getTimeZone(candidate.timezone));
-					candidate.time = sdf.parse(candidate.date).getTime();
+					candidate.time = survey.getLong("time");
 					
 					// much of the location data is optional, hence the "opt*()" calls
 					candidate.locationStatus = survey.getString("location_status");
@@ -339,11 +338,6 @@ public class FeedbackService extends WakefulIntentService {
 					// it's possible that the above will fail, in which case it silently returns -1
 					// we don't do anything differently in that case, so there's no need to check
 				}
-				catch(ParseException e) {
-					// this is a date parse exception, likely thrown from where we parse the utc timestamp
-					Log.e(TAG, "Problem parsing survey response timestamp", e);
-					continue;
-				}
 		        catch (JSONException e) {
 					Log.e(TAG, "Problem parsing response json: " + e.getMessage(), e);
 					continue;
@@ -364,7 +358,7 @@ public class FeedbackService extends WakefulIntentService {
 
 					if (!photo.exists()) {
 						// it doesn't exist, so we have to download it :(
-						ImageReadResponse ir = api.imageRead(SharedPreferencesHelper.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, null);
+						ImageReadResponse ir = api.imageRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, null);
 
 						// if it succeeded, it contains data that we should save as the photo file above
 						try {

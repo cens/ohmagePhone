@@ -15,13 +15,7 @@
  ******************************************************************************/
 package org.ohmage.prompt.multichoicecustom;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
@@ -33,32 +27,36 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SimpleAdapter.ViewBinder;
-import edu.ucla.cens.systemlog.Log;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MultiChoiceCustomPrompt extends AbstractPrompt {
 	
 private static final String TAG = "MultiChoiceCustomPrompt";
 	
 	private List<KVLTriplet> mChoices;
-	private List<KVLTriplet> mCustomChoices;
+	private final List<KVLTriplet> mCustomChoices;
 	private ArrayList<Integer> mSelectedIndexes;
 	
 	public MultiChoiceCustomPrompt() {
@@ -176,27 +174,36 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 			
 			@Override
 			public void onClick(View v) {
-				
-				if (mEnteredText != null && !mEnteredText.equals("")) {
+				mEnteredText = mEnteredText.trim();
+				if (!TextUtils.isEmpty(mEnteredText)) {
 					MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 					
+					boolean duplicate = false;
 					int choiceId = 100;
 					ArrayList<String> keys = new ArrayList<String>(); 
 					for (KVLTriplet choice : mChoices) {
 						keys.add(choice.key.trim());
+						if(mEnteredText.toLowerCase().equals(choice.label.toLowerCase()))
+							duplicate = true;
 					}
 					for (KVLTriplet choice : mCustomChoices) {
 						keys.add(choice.key.trim());
+						if(mEnteredText.toLowerCase().equals(choice.label.toLowerCase()))
+							duplicate = true;
 					}
 					while ( keys.contains(String.valueOf(choiceId))) {
 						choiceId++;
 					}
 					
-					if (dbAdapter.open()) {
+					if(duplicate) {
+						Toast.makeText(v.getContext(), v.getContext().getString(R.string.prompt_custom_choice_duplicate), Toast.LENGTH_SHORT).show();
+					} else if(!dbAdapter.open()) {
+						Toast.makeText(v.getContext(), v.getContext().getString(R.string.prompt_custom_choice_db_open_error), Toast.LENGTH_SHORT).show();
+					} else {
 						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getId());
 						dbAdapter.close();
 					}

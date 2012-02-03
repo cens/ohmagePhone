@@ -24,7 +24,11 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
 import android.os.Handler;
@@ -48,11 +52,19 @@ public class OhmageApplication extends Application {
             32 * 1024 * 1024);
 
     private ImageLoader mImageLoader;
+
+	private static OhmageApplication self;
+
+	private static ContentResolver mFakeContentResolver;
+
+	private static OhmageApi mOhmageApi;
     
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
+		self = this;
+
 		Log.i(TAG, "onCreate()");
 		
 		edu.ucla.cens.systemlog.Log.initialize(this, "Ohmage");
@@ -161,4 +173,61 @@ public class OhmageApplication extends Application {
     		return new File(Environment.getExternalStorageDirectory(), "Android/data/org.ohmage/cache/images");
     	}
     }
+
+	public static void setFakeContentResolver(ContentResolver resolver) {
+		mFakeContentResolver = resolver;
+	}
+
+	public static ContentResolver getFakeContentResolver() {
+		return mFakeContentResolver;
+	}
+
+	public static void setOhmageApi(OhmageApi api) {
+		mOhmageApi = api;
+	}
+
+	/**
+	 * This method allows me to inject alternative OhmageApis for testing.
+	 * The alternative ohmageApi can be set with {@link #setOhmageApi(OhmageApi)}
+	 * @param context
+	 * @return the OhmageApi to use
+	 */
+	public static OhmageApi getOhmageApi() {
+		if(mOhmageApi != null)
+			return mOhmageApi;
+		return new OhmageApi();
+	}
+
+	@Override
+	public ContentResolver getContentResolver() {
+		if(mFakeContentResolver != null)
+			return mFakeContentResolver;
+		return super.getContentResolver();
+	}
+
+	/**
+	 * Static reference from the Application to return the context
+	 * @return the application context
+	 */
+	public static Application getContext() {
+		return self;
+	}
+
+	/**
+	 * Determines if we are running on release or debug
+	 * @return true if we are running Debug
+	 * @throws Exception
+	 */
+	public static boolean isDebugBuild()
+	{
+		PackageManager pm = getContext().getPackageManager();
+		PackageInfo pi;
+		try {
+			pi = pm.getPackageInfo(getContext().getPackageName(), 0);
+			return ((pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

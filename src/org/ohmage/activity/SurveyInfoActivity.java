@@ -1,5 +1,8 @@
 package org.ohmage.activity;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.R;
@@ -49,6 +52,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	private TextView mDescView;
 	private TextView mStatusValue;
 	private TextView mResponsesValue;
+	private TextView mLastResponseValue;
 	private TextView mTriggersValue;
 	
 	// state vars
@@ -85,6 +89,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mDescView = (TextView)findViewById(R.id.survey_info_desc);
 		mStatusValue = (TextView)findViewById(R.id.survey_info_status_value);
 		mResponsesValue = (TextView)findViewById(R.id.survey_info_responses_value);
+		mLastResponseValue = (TextView)findViewById(R.id.survey_info_last_response_value);
 		mTriggersValue = (TextView)findViewById(R.id.survey_info_triggers_value);
 		
 		// and attach some handlers + populate some html data
@@ -101,6 +106,13 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		setDetailsExpansionHandler(
 				findViewById(R.id.survey_info_responses_row),
 				responsesDetails);
+
+		// last response
+		TextView lastResponseDetails = (TextView)findViewById(R.id.survey_info_last_response_details);
+		lastResponseDetails.setText(Html.fromHtml(getString(R.string.survey_info_last_response_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.survey_info_last_response_row),
+				lastResponseDetails);
 		
 		// triggers
 		TextView triggersDetails = (TextView)findViewById(R.id.survey_info_triggers_details);
@@ -234,7 +246,6 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// set the header fields first
 		mHeadertext.setText(data.getString(QueryParams.TITLE));
 		mSubtext.setText(data.getString(QueryParams.CAMPAIGN_NAME));
-		mNotetext.setVisibility(View.INVISIBLE);
 		
 		final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
 		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
@@ -299,8 +310,26 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 
 				// set the responses by querying the response table
 				// and getting the number of responses submitted for this campaign
-				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn, surveyID), null, null, null, null);
+				Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn, surveyID), null, null, null, Responses.RESPONSE_DATE);
 				mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
+				
+				// also get the date of the last submitted response and populate the last response field
+				if (responses.moveToLast()) {
+					String lastResponseDate = responses.getString(responses.getColumnIndex(Responses.RESPONSE_DATE));
+					SimpleDateFormat fromUTC = new SimpleDateFormat("yyyy-MM-dd k:mm:ss");
+					SimpleDateFormat toNice = new SimpleDateFormat("EEE MMM d yyyy, h:mm a");
+					
+					try {
+						mLastResponseValue.setText(toNice.format(fromUTC.parse(lastResponseDate)));
+					}
+					catch (ParseException e) {
+						mLastResponseValue.setText("(not available)");
+					}
+				}
+				else
+					mLastResponseValue.setText("(not available)");
+
+				
 				responses.close();
 			}
 		};

@@ -14,6 +14,7 @@ import org.ohmage.ui.OhmageFilterable.TimeFilterable;
 import org.ohmage.ui.TabManager;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -118,5 +119,9 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString("tab", mTabHost.getCurrentTabTag());
+	}
+
+	public Fragment getCurrentFragment() {
+		return mTabManager.getCurrentTab().getFragment();
 	}
 }

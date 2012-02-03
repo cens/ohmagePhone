@@ -1,10 +1,9 @@
 package org.ohmage.activity;
 
 
-import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.async.CampaignReadTask;
+import org.ohmage.async.CampaignReadLoaderCallbacks;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
@@ -15,12 +14,9 @@ import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 
 
 public class BaseCampaignListActivity extends BaseSingleFragmentActivity implements OnCampaignActionListener, ActionListener{
@@ -32,7 +28,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
 	SharedPreferencesHelper mSharedPreferencesHelper;
 
-	private Loader<CampaignReadResponse> campaignRefreshLoader;
+	private CampaignReadLoaderCallbacks mCampaignReadLoader;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,28 +36,32 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
 		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 
-		campaignRefreshLoader = getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
+		mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
+	}
 
-			@Override
-			public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-				return new CampaignReadTask(BaseCampaignListActivity.this, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
-			}
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mCampaignReadLoader.onResume();
+	}
 
-			@Override
-			public void onLoadFinished(Loader<CampaignReadResponse> loader,
-					CampaignReadResponse data) {
-				getActionBar().setProgressVisible(false);
-			}
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mCampaignReadLoader.onSaveInstanceState(outState);
+	}
 
-			@Override
-			public void onLoaderReset(Loader<CampaignReadResponse> loader) {
-			}
-		});
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		mCampaignReadLoader.onRestoreInstanceState(savedInstanceState);
 	}
 
 	@Override
 	public void onContentChanged() {
 		super.onContentChanged();
+
+		mCampaignReadLoader.onCreate();
 
 		// throw some actions on it
 		getActionBar().addActionBarCommand(ACTION_REFRESH_CAMPAIGNS, "refresh", R.drawable.dashboard_title_refresh);
@@ -127,12 +127,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				if(id == Campaign.STATUS_OUT_OF_DATE)
-					Campaign.setRemote(BaseCampaignListActivity.this, campaignUrnForDialogs);
-				else {
-					ContentResolver cr = getContentResolver();
-					cr.delete(Campaigns.CONTENT_URI, Campaigns.CAMPAIGN_URN + "=?", new String[] { campaignUrnForDialogs });
-				}
+				Campaign.setRemote(BaseCampaignListActivity.this, campaignUrnForDialogs);
 			}
 		});
 
@@ -151,8 +146,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 	public void onActionClicked(int commandID) {
 		switch(commandID) {
 			case ACTION_REFRESH_CAMPAIGNS:
-				getActionBar().setProgressVisible(true);
-				campaignRefreshLoader.forceLoad();
+				mCampaignReadLoader.forceLoad();
 				break;
 		}
 	}
