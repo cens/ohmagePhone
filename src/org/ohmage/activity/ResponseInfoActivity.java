@@ -19,8 +19,11 @@ import com.google.android.imageloader.ImageLoader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.ohmage.Config;
+import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -289,10 +292,12 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public static final int REMOTE_RESPONSE = 9;
 			public static final int UNKNOWN_RESPONSE = 10;
 			private final String mResponseId;
+			private final ImageLoader mImageLoader;
 
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
 					int[] to, int flags, String responseId) {
 				super(context, R.layout.response_prompt_list_item, c, from, to, flags);
+				mImageLoader = ImageLoader.get(context);
 				setViewBinder(this);
 				mResponseId = responseId;
 			}
@@ -439,12 +444,21 @@ LoaderManager.LoaderCallbacks<Cursor> {
 							try {
 								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
 								((ImageView) view.getTag()).setImageBitmap(img);
+								return true;
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
 
+						SharedPreferencesHelper prefs = new SharedPreferencesHelper(mContext);
+						String username = prefs.getUsername();
+						String hashedPassword = prefs.getHashedPassword();
+						String url = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, value, "small");
+
+						if(mImageLoader.bind((ImageView)view.getTag(), url, null) != ImageLoader.BindResult.OK) {
+							((ImageView) view.getTag()).setImageResource(R.drawable.apple_logo);
+						}
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
 						if("multi_choice_custom".equals(prompt_type)) {

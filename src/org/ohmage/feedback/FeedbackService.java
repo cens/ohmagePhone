@@ -350,39 +350,39 @@ public class FeedbackService extends WakefulIntentService {
 			
 			// now that we're done inserting all that data from the server
 			// let's see if we already have all the photos that were mentioned in the responses
-			for (String responseId : responsePhotos.keySet()) {
-				for(String photoUUID : responsePhotos.get(responseId)) {
-					File photo = Response.getResponsesImage(this, c.mUrn, responseId, photoUUID);
-
-					Log.v(TAG, "Checking photo w/UUID " + photoUUID + "...");
-
-					if (!photo.exists()) {
-						// it doesn't exist, so we have to download it :(
-						ImageReadResponse ir = api.imageRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, null);
-
-						// if it succeeded, it contains data that we should save as the photo file above
-						try {
-							if (ir != null && ir.getResult() == Result.SUCCESS) {
-								photo.createNewFile();
-								FileOutputStream photoWriter = new FileOutputStream(photo);
-								photoWriter.write(ir.getData());
-								photoWriter.close();
-
-								Log.v(TAG, "Downloaded photo w/UUID " + photoUUID);
-							}
-							else
-								Log.e(TAG, "Unable to save photo w/UUID " + photoUUID + ": " + ir.getResult().toString());
-						}
-						catch (IOException e) {
-							Log.e(TAG, "Unable to save photo w/UUID " + photoUUID, e);
-							return;
-						}
-					}
-					else
-						Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
-				}
-
-			}
+//			for (String responseId : responsePhotos.keySet()) {
+//				for(String photoUUID : responsePhotos.get(responseId)) {
+//					File photo = Response.getResponsesImage(this, c.mUrn, responseId, photoUUID);
+//
+//					Log.v(TAG, "Checking photo w/UUID " + photoUUID + "...");
+//
+//					if (!photo.exists()) {
+//						// it doesn't exist, so we have to download it :(
+//						ImageReadResponse ir = api.imageRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, photoUUID, "small");
+//
+//						// if it succeeded, it contains data that we should save as the photo file above
+//						try {
+//							if (ir != null && ir.getResult() == Result.SUCCESS) {
+//								photo.createNewFile();
+//								FileOutputStream photoWriter = new FileOutputStream(photo);
+//								photoWriter.write(ir.getData());
+//								photoWriter.close();
+//
+//								Log.v(TAG, "Downloaded photo w/UUID " + photoUUID);
+//							}
+//							else
+//								Log.e(TAG, "Unable to save photo w/UUID " + photoUUID + ": " + ir.getResult().toString());
+//						}
+//						catch (IOException e) {
+//							Log.e(TAG, "Unable to save photo w/UUID " + photoUUID, e);
+//							return;
+//						}
+//					}
+//					else
+//						Log.v(TAG, "Photo w/UUID " + photoUUID + " already exists");
+//				}
+//
+//			}
 			// done with this campaign! on to the next one...
 		}
 		
