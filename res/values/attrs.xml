@@ -6,4 +6,9 @@
 	    <attr name="showlogo" format="boolean" />
 	    <attr name="showhome" format="boolean" />
 	</declare-styleable>    
+
+	<declare-styleable name="ScaledImageView">
+	    <attr name="scaleWidth" format="float" />
+	    <attr name="scaleHeight" format="float" />
+	</declare-styleable>
 </resources>
