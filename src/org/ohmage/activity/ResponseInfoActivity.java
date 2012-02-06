@@ -16,11 +16,16 @@
 package org.ohmage.activity;
 
 import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.google.android.imageloader.ImageLoader.Callback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.ohmage.Config;
+import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -289,10 +294,12 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public static final int REMOTE_RESPONSE = 9;
 			public static final int UNKNOWN_RESPONSE = 10;
 			private final String mResponseId;
+			private final ImageLoader mImageLoader;
 
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
 					int[] to, int flags, String responseId) {
 				super(context, R.layout.response_prompt_list_item, c, from, to, flags);
+				mImageLoader = ImageLoader.get(context);
 				setViewBinder(this);
 				mResponseId = responseId;
 			}
@@ -353,6 +360,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
 				View view = super.newView(context, cursor, parent);
 				View image = view.findViewById(R.id.prompt_image_value);
+				View progress = view.findViewById(R.id.prompt_image_progress);
 				View text = view.findViewById(R.id.prompt_text_value);
 				View value = view.findViewById(R.id.prompt_value);
 				ImageView icon = (ImageView) view.findViewById(R.id.prompt_icon);
@@ -396,11 +404,13 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				// now set up how they're actually displayed
 				// there are only two categories: image and non-image (i.e. text)
 				if (itemViewType != IMAGE_RESPONSE) {
+					progress.setVisibility(View.GONE);
 					image.setVisibility(View.GONE);
 					text.setVisibility(View.VISIBLE);
 					value.setTag(text);
 				}
 				else {
+					progress.setVisibility(View.VISIBLE);
 					image.setVisibility(View.VISIBLE);
 					text.setVisibility(View.GONE);
 					value.setTag(image);
@@ -434,17 +444,43 @@ LoaderManager.LoaderCallbacks<Cursor> {
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 						File file = Response.getResponsesImage(mContext, campaignUrn, mResponseId, value);
+						final ImageView imageView = (ImageView) view.getTag();
 
 						if(file != null && file.exists()) {
 							try {
 								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
-								((ImageView) view.getTag()).setImageBitmap(img);
+								imageView.setImageBitmap(img);
+								return true;
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
 
+						SharedPreferencesHelper prefs = new SharedPreferencesHelper(mContext);
+						String username = prefs.getUsername();
+						String hashedPassword = prefs.getHashedPassword();
+						String url = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, value, "small");
+
+						mImageLoader.clearErrors();
+						BindResult bindResult = mImageLoader.bind((ImageView)view.getTag(), url, new Callback() {
+
+							@Override
+							public void onImageLoaded(ImageView view, String url) {
+								imageView.setVisibility(View.VISIBLE);
+							}
+
+							@Override
+							public void onImageError(ImageView view, String url, Throwable error) {
+								imageView.setVisibility(View.VISIBLE);
+								imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+							}
+						});
+						if(bindResult == ImageLoader.BindResult.ERROR) {
+							imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+						} else  if(bindResult == ImageLoader.BindResult.LOADING){
+							imageView.setVisibility(View.GONE);
+						}
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
 						if("multi_choice_custom".equals(prompt_type)) {

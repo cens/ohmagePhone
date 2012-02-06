@@ -69,7 +69,7 @@ public class OhmageApi {
 	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
 	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
 	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
-	private static final String IMAGE_READ_PATH = "app/image/read";
+	public static final String IMAGE_READ_PATH = "app/image/read";
 
 	public static enum Result {
 		SUCCESS,
@@ -646,6 +646,27 @@ public class OhmageApi {
 			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
 			return candidate;
 		}
+	}
+
+	public static String imageReadUrl(String serverUrl,
+			String username,
+			String hashedPassword,
+			String client,
+			String campaignUrn,
+			String owner,
+			String id,
+			String size) {
+		StringBuilder url = new StringBuilder(serverUrl + IMAGE_READ_PATH);
+
+		url.append("?user=").append(username)
+		.append("&password=").append(hashedPassword)
+		.append("&client=").append(client)
+		.append("&campaign_urn=").append(campaignUrn)
+		.append("&owner=").append(owner)
+		.append("&id=").append(id);
+        if (size != null) url.append("&size=").append(size);
+
+		return url.toString();
 	}
 
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
