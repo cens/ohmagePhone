@@ -24,7 +24,7 @@ public class UserPreferencesHelper {
 	private static final boolean DEFAULT_SHOW_FEEDBACK = true;
 	private static final boolean DEFAULT_SHOW_PROFILE = true;
 	private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = true;
-	private static final boolean DEFAULT_SHOW_MOBILITY = true;
+	private static final boolean DEFAULT_SHOW_MOBILITY = false;
 
 	public static final String KEY_SHOW_FEEDBACK = "key_show_feedback";
 	public static final String KEY_SHOW_PROFILE = "key_show_profile";
