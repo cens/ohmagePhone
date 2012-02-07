@@ -8,6 +8,7 @@ import edu.ucla.cens.systemlog.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -77,9 +78,9 @@ public class UploadService extends WakefulIntentService {
 	private void uploadSurveyResponses(Intent intent) {
 		String serverUrl = Config.DEFAULT_SERVER_URL;
 		
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		AccountHelper helper = new AccountHelper(this);
 		String username = helper.getUsername();
-		String hashedPassword = helper.getHashedPassword();
+		String hashedPassword = helper.getAuthToken();
 		boolean isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 		boolean uploadErrorOccurred = false;
 		boolean authErrorOccurred = false;
@@ -283,9 +284,10 @@ public class UploadService extends WakefulIntentService {
 		boolean uploadSensorData = true;
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		AccountHelper accountHelper = new AccountHelper(this);
 		
-		String username = helper.getUsername();
-		String hashedPassword = helper.getHashedPassword();
+		String username = accountHelper.getUsername();
+		String hashedPassword = accountHelper.getAuthToken();
 		long uploadAfterTimestamp = helper.getLastMobilityUploadTimestamp();
 		if (uploadAfterTimestamp == 0) {
 			uploadAfterTimestamp = helper.getLoginTimestamp();

@@ -3,6 +3,7 @@ package org.ohmage.async;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -44,8 +45,8 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 		super(context);
 	}
 
-	public CampaignReadTask(Context context, String username, String hashedPassword) {
-		super(context, username, hashedPassword);
+	public CampaignReadTask(Context context, AccountHelper accountHelper) {
+		super(context, accountHelper);
 	}
 
 	@Override
@@ -176,7 +177,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 					// Download the new xml
 					//TODO: download new xml!
 					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
-						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
+						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, getAccountHelper());
 						campaignDownloadTask.startLoading();
 						campaignDownloadTask.waitForLoader();
 					}

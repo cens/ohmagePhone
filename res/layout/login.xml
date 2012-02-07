@@ -75,7 +75,8 @@
 			android:layout_height="wrap_content" 
 			android:layout_below="@id/password"
 			android:layout_alignRight="@id/password"
-			android:text="@string/login_submit" />
+			android:text="@string/login_submit"
+			android:onClick="handleLogin" />
 
 	</RelativeLayout>
 </ScrollView>

@@ -1,8 +1,8 @@
 package org.ohmage.activity;
 
 
+import org.ohmage.AccountHelper;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -26,7 +26,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 	// action bar commands
 	protected static final int ACTION_REFRESH_CAMPAIGNS = 0;
 
-	SharedPreferencesHelper mSharedPreferencesHelper;
+	AccountHelper mAccountHelper;
 
 	private CampaignReadLoaderCallbacks mCampaignReadLoader;
 
@@ -34,7 +34,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mAccountHelper = new AccountHelper(this);
 
 		mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
 	}
@@ -79,7 +79,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
 	@Override
 	public void onCampaignActionDownload(final String campaignUrn) {
-		new CampaignXmlDownloadTask(BaseCampaignListActivity.this, campaignUrn, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword()).startLoading();
+		new CampaignXmlDownloadTask(BaseCampaignListActivity.this, campaignUrn, mAccountHelper).startLoading();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.ohmage.async;
 
+import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.SharedPreferencesHelper;
@@ -13,6 +14,7 @@ import android.text.format.DateUtils;
 public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallbacks<CampaignReadResponse> {
 
 	private final BaseActivity mActivity;
+	private AccountHelper mAccountHelper;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
 	private String mHashedPassword;
 
@@ -21,6 +23,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 	}
 
 	public void onCreate() {
+		mAccountHelper = new AccountHelper(mActivity);
 		mSharedPreferencesHelper = new SharedPreferencesHelper(mActivity);
 		mActivity.getSupportLoaderManager().initLoader(0, null, this);
 	}
@@ -28,7 +31,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 	public void onResume(){
 		Loader<Object> loader = mActivity.getSupportLoaderManager().getLoader(0);
 
-		if(mHashedPassword != mSharedPreferencesHelper.getHashedPassword() && !((PauseableTaskLoader) loader).isPaused()) {
+		if(mAccountHelper.getAuthToken() != null && mHashedPassword != mAccountHelper.getAuthToken() && !((PauseableTaskLoader) loader).isPaused()) {
 			forceLoad();
 		}
 	}
@@ -46,8 +49,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 		// We should pause the task if it is within 5 minutes of the last request
 		boolean pause = mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 > System.currentTimeMillis();
 		mActivity.getActionBar().setProgressVisible(!pause);
-		mHashedPassword = mSharedPreferencesHelper.getHashedPassword();
-		CampaignReadTask loader = new CampaignReadTask(mActivity, mSharedPreferencesHelper.getUsername(), mHashedPassword);
+		CampaignReadTask loader = new CampaignReadTask(mActivity, mAccountHelper);
 		loader.pause(pause);
 		return loader;
 	}
@@ -69,8 +71,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 	public void forceLoad() {
 		Loader<Object> loader = mActivity.getSupportLoaderManager().getLoader(0);
 		mActivity.getActionBar().setProgressVisible(true);
-		mHashedPassword = mSharedPreferencesHelper.getHashedPassword();
-		((AuthenticatedTaskLoader)loader).setCredentials(mSharedPreferencesHelper.getUsername(), mHashedPassword);
+		((AuthenticatedTaskLoader)loader).setCredentials(mAccountHelper);
 		loader.forceLoad();
 	}
 }
