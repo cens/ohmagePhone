@@ -3,7 +3,6 @@ package org.ohmage.async;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.json.JSONException;
-import org.ohmage.AccountHelper;
 import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -36,12 +35,12 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 	private final String mCampaignUrn;
 
-    public CampaignXmlDownloadTask(Context context, String campaignUrn, AccountHelper accountHelper) {
-		super(context, accountHelper);
+	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
+        super(context, username, hashedPassword);
         mCampaignUrn = campaignUrn;
     }
 
-	@Override
+    @Override
     public Response loadInBackground() {
 		OhmageApi api = OhmageApplication.getOhmageApi();
 		ContentResolver cr = getContext().getContentResolver();

@@ -18,16 +18,11 @@ package org.ohmage;
 import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.OhmageCache.OhmageCacheBitmapContentHandler;
-import org.ohmage.authenticator.Authenticator;
 import org.ohmage.db.DbHelper;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.triggers.glue.TriggerFramework;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -43,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
-import java.util.concurrent.CountDownLatch;
 
 public class OhmageApplication extends Application {
 	
@@ -51,16 +45,6 @@ public class OhmageApplication extends Application {
 	
 	public static final String VIEW_MAP = "ohmage.intent.action.VIEW_MAP";
 	
-    /**
-     * Account type string.
-     */
-    public static final String ACCOUNT_TYPE = "org.ohmage";
-
-    /**
-     * Authtoken type string.
-     */
-    public static final String AUTHTOKEN_TYPE = "org.ohmage";
-
     private static final int IMAGE_TASK_LIMIT = 3;
 
     // 50% of available memory, up to a maximum of 32MB
@@ -74,7 +58,7 @@ public class OhmageApplication extends Application {
 	private static ContentResolver mFakeContentResolver;
 
 	private static OhmageApi mOhmageApi;
-
+    
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -106,24 +90,8 @@ public class OhmageApplication extends Application {
 		}
 	}
 	
-	/**
-	 * Clears all data. Should not be called from the UI thread
-	 */
 	public void resetAll() {
-		// clear the user account
-		AccountManager accountManager = AccountManager.get(self);
-		Account[] accounts = accountManager.getAccountsByType(ACCOUNT_TYPE);
-		final CountDownLatch latch = new CountDownLatch(accounts.length);
-		Authenticator.setAllowRemovingAccounts(true);
-		for(Account account : accounts) {
-			accountManager.removeAccount(account, new AccountManagerCallback<Boolean>() {
-
-				@Override
-				public void run(AccountManagerFuture<Boolean> future) {
-					latch.countDown();
-				}
-			}, null);
-		}
+		//clear everything?
 		
 		//clear triggers
 		TriggerFramework.resetAllTriggerSettings(this);
@@ -148,29 +116,13 @@ public class OhmageApplication extends Application {
 			multiChoiceDbAdapter.clearAll();
 			multiChoiceDbAdapter.close();
 		}
-
+		
 		//clear images
 		try {
-			Utilities.delete(self.getExternalCacheDir());
+			Utilities.delete(getImageDirectory(this));
 		} catch (IOException e) {
-			Log.e(TAG, "Error deleting external cache dir", e);
+			Log.e(TAG, "Error deleting images", e);
 		}
-
-		try {
-			Utilities.delete(self.getCacheDir());
-		} catch (IOException e) {
-			Log.e(TAG, "Error deleting internal cache dir", e);
-		}
-
-		try {
-			// We should wait until the account is deleted
-			latch.await();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		Authenticator.setAllowRemovingAccounts(false);
 	}
 	
     private static ImageLoader createImageLoader(Context context) {

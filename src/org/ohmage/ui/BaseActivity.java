@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -31,8 +32,6 @@ public abstract class BaseActivity extends FragmentActivity {
 	private ActionBarControl mActionBar;
 	private FrameLayout mContainer;
 
-	private AccountHelper mAccountHelper;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,9 +42,12 @@ public abstract class BaseActivity extends FragmentActivity {
 			((OhmageApplication) getApplication()).resetAll();
 		}
 
-		mAccountHelper = new AccountHelper(this);
-
-		mAccountHelper.accountExists();
+		if (!preferencesHelper.isAuthenticated()) {
+			Log.i(TAG, "no credentials saved, so launch Login");
+			startActivity(AccountHelper.getLoginIntent(this));
+			finish();
+			return;
+		}
 	}
 
 	@Override

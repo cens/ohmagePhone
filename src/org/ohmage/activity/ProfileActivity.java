@@ -2,11 +2,13 @@ package org.ohmage.activity;
 
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.ui.BaseInfoActivity;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,6 +16,8 @@ import android.widget.Button;
 
 public class ProfileActivity extends BaseInfoActivity {
 	
+	private FragmentActivity mContext;
+	private SharedPreferencesHelper mSharedPreferencesHelper;
 	private AccountHelper mAccountHelper;
 
 	@Override
@@ -24,15 +28,17 @@ public class ProfileActivity extends BaseInfoActivity {
 		// make the background of the profile striped to indicate it's not used yet
 		setContentView(R.layout.profile_layout);
 		
-		mAccountHelper = new AccountHelper(this);
-
 		// set up some generic stuff for the profile, since it's not databound in any respect
+		mContext = this;
+		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
 		mIconView.setImageResource(R.drawable.entity_profile);
-		mHeadertext.setText(mAccountHelper.getUsername());
+		mHeadertext.setText(mSharedPreferencesHelper.getUsername());
 		/*
 		mSubtext.setVisibility(View.INVISIBLE);
 		mNotetext.setVisibility(View.INVISIBLE);
 		*/
+		
+		mAccountHelper = new AccountHelper(this);
 
 		// fill up the button tray with the profile's regular buttons
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);

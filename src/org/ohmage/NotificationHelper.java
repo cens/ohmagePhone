@@ -1,5 +1,6 @@
 package org.ohmage;
 
+import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.MobilityActivity;
 import org.ohmage.activity.UploadQueueActivity;
 
@@ -11,27 +12,23 @@ import android.content.Intent;
 
 public class NotificationHelper {
 
-	public static void showAuthNotification(final Context context) {
-		Utilities.performOnBackgroundThread(new Runnable() {
-
-			@Override
-			public void run() {
-				NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-				Notification note = new Notification();
-
-				Intent intentToLaunch = AccountHelper.updatePasswordIntent(context);
-				PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
-				String title = "Authentication error!";
-				String body = "Tap here to re-enter credentials.";
-				note.icon = android.R.drawable.stat_notify_error;
-				note.tickerText = "Authentication error!";
-				note.defaults |= Notification.DEFAULT_ALL;
-				note.when = System.currentTimeMillis();
-				note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
-				note.setLatestEventInfo(context, title, body, pendingIntent);
-				noteManager.notify(1, note);
-			}
-		});
+	public static void showAuthNotification(Context context) {
+		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification note = new Notification();
+		
+		Intent intentToLaunch = new Intent(context, LoginActivity.class);
+		intentToLaunch.putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true);
+		intentToLaunch.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
+		String title = "Authentication error!";
+		String body = "Tap here to re-enter credentials.";
+		note.icon = android.R.drawable.stat_notify_error;
+		note.tickerText = "Authentication error!";
+		note.defaults |= Notification.DEFAULT_ALL;
+		note.when = System.currentTimeMillis();
+		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
+		note.setLatestEventInfo(context, title, body, pendingIntent);
+		noteManager.notify(1, note);
 	}
 
 	public static void hideAuthNotification(Context context) {

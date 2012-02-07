@@ -1,49 +1,48 @@
 package org.ohmage.async;
 
-import org.ohmage.AccountHelper;
-
 import android.content.Context;
 
 /**
  * A custom Loader that uses a username and password
  */
 public abstract class AuthenticatedTaskLoader<T> extends PauseableTaskLoader<T> {
-	private AccountHelper mAccountHelper;
+	private String mUsername;
+	private String mHashedPassword;
+
 	private static final String TAG = "AuthenticatedTask";
 
 	public AuthenticatedTaskLoader(Context context) {
 		super(context);
 	}
 
-	public AuthenticatedTaskLoader(Context context, AccountHelper accountHelper) {
+	public AuthenticatedTaskLoader(Context context, String username, String hashedPassword) {
 		super(context);
-		mAccountHelper = accountHelper;
+		mUsername = username;
+		mHashedPassword = hashedPassword;
 		pause(!hasAuthentication());
 	}
 
-	public void setCredentials(AccountHelper accountHelper) {
-		mAccountHelper = accountHelper;
+	public void setCredentials(String username, String hashedPassword) {
+		mUsername = username;
+		mHashedPassword = hashedPassword;
 		pause(!hasAuthentication());
 	}
 
 	public String getUsername() {
-		return mAccountHelper.getUsername();
+		return mUsername;
 	}
 
 	public String getHashedPassword() {
-		return mAccountHelper.getAuthToken();
+		return mHashedPassword;
 	}
 	
 	protected boolean hasAuthentication() {
-		return mAccountHelper != null && mAccountHelper.getUsername() != null;
+		return mUsername != null && mHashedPassword != null;
 	}
 
 	public void clearCredentials() {
-		mAccountHelper = null;
+		mUsername = null;
+		mHashedPassword = null;
 		pause(true);
-	}
-
-	public AccountHelper getAccountHelper() {
-		return mAccountHelper;
 	}
 }
