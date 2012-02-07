@@ -13,7 +13,6 @@ import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.AccountHelper;
 import org.ohmage.Config;
 import org.ohmage.OhmageApi;
 import org.ohmage.SharedPreferencesHelper;
@@ -72,10 +71,8 @@ public class FeedbackService extends WakefulIntentService {
 		// grab an instance of the api connector so we can do calls to the server for responses
 		OhmageApi api = new OhmageApi();
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-		AccountHelper accountHelper = new AccountHelper(this);
-
-		String username = accountHelper.getUsername();
-		String hashedPassword = accountHelper.getAuthToken();
+		String username = prefs.getUsername();
+		String hashedPassword = prefs.getHashedPassword();
 		
 		if (username == null || username.equals("")) {
 			Log.e(TAG, "User isn't logged in, FeedbackService terminating");

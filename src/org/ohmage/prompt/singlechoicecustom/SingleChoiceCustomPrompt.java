@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoicecustom;
 
-import org.ohmage.AccountHelper;
 import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.prompt.AbstractPrompt;
@@ -132,9 +132,9 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		mCustomChoices.clear();
 		SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
-		AccountHelper accountHelper = new AccountHelper(context);
+		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
-		String username = accountHelper.getUsername();
+		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
 			Cursor c = dbAdapter.getCustomChoices(username, campaignUrn, surveyId, SingleChoiceCustomPrompt.this.getId());
 			c.moveToFirst();
@@ -174,9 +174,9 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 				if (!TextUtils.isEmpty(mEnteredText)) {
 					SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
-					AccountHelper accountHelper = new AccountHelper(context);
+					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
-					String username = accountHelper.getUsername();
+					String username = prefs.getUsername();
 
 					boolean duplicate = false;
 					int choiceId = 100;
