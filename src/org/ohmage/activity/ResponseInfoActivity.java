@@ -21,11 +21,11 @@ import com.google.android.imageloader.ImageLoader.Callback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.ohmage.AccountHelper;
 import org.ohmage.Config;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -38,6 +38,7 @@ import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.ResponseActivityHelper;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -457,10 +458,10 @@ LoaderManager.LoaderCallbacks<Cursor> {
 							}
 						}
 
-						SharedPreferencesHelper prefs = new SharedPreferencesHelper(mContext);
-						String username = prefs.getUsername();
-						String hashedPassword = prefs.getHashedPassword();
-						String url = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, value, "small");
+						AccountHelper accountHelper = new AccountHelper((Activity) mContext);
+						CharSequence username = accountHelper.getUsername();
+						CharSequence hashedPassword = accountHelper.getAuthToken();
+						String url = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username.toString(), hashedPassword.toString(), "android", campaignUrn, username.toString(), value, "small");
 
 						mImageLoader.clearErrors();
 						BindResult bindResult = mImageLoader.bind((ImageView)view.getTag(), url, new Callback() {

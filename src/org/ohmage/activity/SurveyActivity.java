@@ -21,6 +21,7 @@ import edu.ucla.cens.systemlog.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.CampaignXmlHelper;
 import org.ohmage.Config;
 import org.ohmage.OhmageApplication;
@@ -104,6 +105,8 @@ public class SurveyActivity extends Activity {
 	private boolean mSurveyFinished = false;
 
 	private String mLastSeenRepeatableSetId;
+
+	private AccountHelper mAccountHelper;
 	
 	public String getSurveyId() {
 		return mSurveyId;
@@ -123,6 +126,8 @@ public class SurveyActivity extends Activity {
 			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
         }
 
+		mAccountHelper = new AccountHelper(this);
+
         mSurveyId = getIntent().getStringExtra("survey_id");
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
@@ -141,12 +146,7 @@ public class SurveyActivity extends Activity {
             	((OhmageApplication) getApplication()).resetAll();
             }
     		
-    		if (!preferencesHelper.isAuthenticated()) {
-    			Log.i(TAG, "no credentials saved, so launch Login");
-    			startActivity(new Intent(this, LoginActivity.class));
-    			finish();
-				return;
-    		} else {
+			if (mAccountHelper.accountExists()) {
     			mSurveyElements = null;
                 
                 try {
@@ -855,8 +855,7 @@ public class SurveyActivity extends Activity {
 	
 	private void storeResponse() {
 
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
-		String username = helper.getUsername();
+		String username = mAccountHelper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
 		String date = dateFormat.format(now.getTime());

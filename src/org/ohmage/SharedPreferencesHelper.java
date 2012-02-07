@@ -62,23 +62,7 @@ public class SharedPreferencesHelper {
 	public boolean setLastVersionCode(int versionCode) {
 		return mPreferences.edit().putInt(KEY_VERSION_CODE, versionCode).commit();
 	}
-	
-	public String getUsername() {
-		return mPreferences.getString(KEY_USERNAME, "");
-	}
-	
-	public boolean putUsername(String username) {
-		return mPreferences.edit().putString(KEY_USERNAME, username).commit();
-	}
-	
-	public String getHashedPassword() {
-		return mPreferences.getString(KEY_PASSWORD_HASHED, "");
-	}
-	
-	public boolean putHashedPassword(String hashedPassword) {
-		return mPreferences.edit().putString(KEY_PASSWORD_HASHED, hashedPassword).commit();
-	}
-	
+
 	public boolean clearCredentials() {
 		return mPreferences.edit().remove(KEY_USERNAME).remove(KEY_PASSWORD_HASHED).commit();
 	}
@@ -138,14 +122,6 @@ public class SharedPreferencesHelper {
 //	public boolean putServerUrl(String serverUrl) {
 //		return mPreferences.edit().putString(KEY_SERVER_URL, serverUrl).commit();
 //	}
-	
-	public boolean isAuthenticated() {
-		if (getUsername().length() > 0 && getHashedPassword().length() > 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 	
 	public boolean isUserDisabled() {
 		return mPreferences.getBoolean(KEY_IS_DISABLED, false);
