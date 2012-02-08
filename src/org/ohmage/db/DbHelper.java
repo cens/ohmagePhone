@@ -61,7 +61,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 31;
+	private static final int DB_VERSION = 32;
 	
 	private final Context mContext;
 
@@ -176,8 +176,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Responses.SURVEY_ID + " TEXT, "
 				+ Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT + " TEXT, "
 				+ Responses.RESPONSE_JSON + " TEXT, "
-				+ Responses.RESPONSE_STATUS + " INTEGER DEFAULT 0, "
-				+ Responses.RESPONSE_HASHCODE + " TEXT"
+				+ Responses.RESPONSE_STATUS + " INTEGER DEFAULT 0"
 				+ ");");
 
 		// make campaign URN unique in the campaigns table
@@ -212,11 +211,10 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Tables.RESPONSES + " (" + Responses.RESPONSE_TIME + ");");
 
 		// for responses, to prevent duplicates, add a unique key on the
-		// 'hashcode' column, which is just a hash of the concatentation
-		// of the campaign urn + survey ID + username + time of the response,
-		// computed and maintained by us, unfortunately :\
-		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Responses.RESPONSE_HASHCODE
-				+ "_idx ON " + Tables.RESPONSES + " (" + Responses.RESPONSE_HASHCODE
+		// 'uuid' column, which is assigned by the client at survey creation time,
+		// but persisted by the server
+		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Responses.RESPONSE_UUID
+				+ "_idx ON " + Tables.RESPONSES + " (" + Responses.RESPONSE_UUID
 				+ ");");
 
 		// for prompt values, index on the response id for fast lookups

@@ -562,6 +562,7 @@ public class OhmageApi {
 			String surveyIdList,
 			String columnList,
 			String outputFormat,
+			boolean returnID,
 			String startDate,
 			String endDate,
 			StreamingResponseListener listener) {
@@ -580,6 +581,8 @@ public class OhmageApi {
 	        nameValuePairs.add(new BasicNameValuePair("survey_id_list", (surveyIdList != null)?surveyIdList:"urn:ohmage:special:all"));
 	        nameValuePairs.add(new BasicNameValuePair("column_list", (columnList != null)?columnList:"urn:ohmage:special:all"));
 	        nameValuePairs.add(new BasicNameValuePair("output_format", outputFormat));
+	        nameValuePairs.add(new BasicNameValuePair("return_id", returnID?"true":"false"));
+	        
 	        
 	        if (startDate != null && endDate != null) {
 	        	nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
@@ -606,8 +609,9 @@ public class OhmageApi {
 			String campaignUrn,
 			String columnList,
 			String outputFormat,
+			boolean returnID,
 			StreamingResponseListener listener) {
-		return surveyResponseRead(serverUrl, username, hashedPassword, client, campaignUrn, null, null, columnList, outputFormat, null, null, listener);
+		return surveyResponseRead(serverUrl, username, hashedPassword, client, campaignUrn, null, null, columnList, outputFormat, returnID, null, null, listener);
 	}
 	
 	/**
@@ -967,6 +971,11 @@ public class OhmageApi {
 		 * @return true to continue returning results, false to stop.
 		 */
 		public boolean isListening() { return true; }
+		
+		/** 
+		 * Called immediately before reading the first record
+		 */
+		public void onPreReadObject() { }
 	}
 	
 	private Response parseStreamingReadResponse(HttpResponse response, StreamingResponseListener listener) {
@@ -1020,6 +1029,9 @@ public class OhmageApi {
         						// ensure that the data section is an array
         						if (cur != JsonToken.START_ARRAY)
         							throw new JSONException("Data section expected to be an array, found " + cur.toString());
+        						
+        						// call the listener's onPreReadObject to allow any init to occur there
+        						listener.onPreReadObject();
         						
         						// now that we know it's an array, read it off and call the listener on each object read
         						while(jp.nextToken() != JsonToken.END_ARRAY && listener.isListening()) {

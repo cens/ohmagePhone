@@ -461,40 +461,31 @@ public class Models {
 		}
 
 		public ContentValues toCV() {
-			try {
-				ContentValues values = new ContentValues();
+			ContentValues values = new ContentValues();
 
-				values.put(Responses.RESPONSE_UUID, uuid);
-				values.put(Responses.CAMPAIGN_URN, campaignUrn);
-				values.put(Responses.RESPONSE_USERNAME, username);
-				values.put(Responses.RESPONSE_DATE, date);
-				values.put(Responses.RESPONSE_TIME, time);
-				values.put(Responses.RESPONSE_TIMEZONE, timezone);
-				values.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
+			values.put(Responses.RESPONSE_UUID, uuid);
+			values.put(Responses.CAMPAIGN_URN, campaignUrn);
+			values.put(Responses.RESPONSE_USERNAME, username);
+			values.put(Responses.RESPONSE_DATE, date);
+			values.put(Responses.RESPONSE_TIME, time);
+			values.put(Responses.RESPONSE_TIMEZONE, timezone);
+			values.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
 
-				if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE)
-				{
-					values.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
-					values.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
-					values.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
-					values.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
-				}
-
-				values.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
-				values.put(Responses.SURVEY_ID, surveyId);
-				values.put(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
-				values.put(Responses.RESPONSE_JSON, response);
-				values.put(Responses.RESPONSE_STATUS, status);
-
-				String hashableData = campaignUrn + surveyId + username + date;
-				String hashcode = DbHelper.getSHA1Hash(hashableData);
-				values.put(Responses.RESPONSE_HASHCODE, hashcode);
-
-				return values;
+			if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE)
+			{
+				values.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
+				values.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
+				values.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
+				values.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
 			}
-			catch (NoSuchAlgorithmException e) {
-				throw new UnsupportedOperationException("The SHA1 algorithm is not available, can't make a response CV", e);
-			}
+
+			values.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
+			values.put(Responses.SURVEY_ID, surveyId);
+			values.put(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
+			values.put(Responses.RESPONSE_JSON, response);
+			values.put(Responses.RESPONSE_STATUS, status);
+
+			return values;
 		}
 
 		public static File getResponsesImageDir(Context context, String campaignUrn, String id) {

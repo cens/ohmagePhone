@@ -88,8 +88,6 @@ public class DbContract {
 		String RESPONSE_JSON = "response_json";
 		/** read-only, an int indicating the status of a response; use constants supplied in this class (e.g. STATUS_UPLOADED) */
 		String RESPONSE_STATUS = "response_status";
-		/** read-only, a hash that uniquely identifies this response */
-		String RESPONSE_HASHCODE = "response_hashcode";
 		/** read-only, a UUID that uniquely identifies this response */
 		String RESPONSE_UUID = "response_uuid";
     }

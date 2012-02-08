@@ -154,14 +154,22 @@ public class FeedbackService extends WakefulIntentService {
 			// also maintain a list of photo UUIDs that may or may not be on the device
 			// this is campaign-response-specific, which is why it's happening in this loop over the campaigns
 			final HashMap<String, ArrayList<String>> responsePhotos = new HashMap<String, ArrayList<String>>();
-			
+
 			// do the call and process the streaming response data
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", startDate, endDate,
+			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", true, startDate, endDate,
 				new StreamingResponseListener() {
+					int curRecord;
+					
+					@Override
+					public void onPreReadObject() {
+						Log.v(TAG, "Beginning record read...");
+						curRecord = 0;
+					}
+					
 					@Override
 					public void readObject(JsonNode survey) {
 						// deal with the elements we read via stream parsing here
-						// Log.i(TAG, "Processing record " + survey.get("uuid").asText() + " in " + c.mUrn + "...");
+						Log.v(TAG, "Processing record " + ((curRecord++)+1) + " in " + c.mUrn + "...");
 						
 						// for each survey, insert a record into our feedback db
 						// if we're unable to insert, just continue (likely a duplicate)
@@ -179,6 +187,7 @@ public class FeedbackService extends WakefulIntentService {
 							// be transformed to match the format that SurveyActivity
 							// uploads/broadcasts, since our survey responses can come
 							// from either source and need to be stored the same way.
+							candidate.uuid = survey.get("survey_key").asText();
 							candidate.surveyId = survey.get("survey_id").asText();
 							candidate.campaignUrn = c.mUrn;
 							candidate.username = survey.get("user").asText();
