@@ -36,6 +36,17 @@
             </intent-filter>
 		</activity>
 
+		<activity
+			android:name=".ui.ImageLoaderActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+			<intent-filter>
+				<action android:name="org.ohmage.action.VIEW_REMOTE_IMAGE" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="http" />
+				<data android:scheme="https" />
+			</intent-filter>
+		</activity>
+
 		<!-- 
 		================================================
 		=== dashboard-level activities (and direct sub-activities)

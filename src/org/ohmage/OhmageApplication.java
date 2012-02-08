@@ -45,6 +45,8 @@ public class OhmageApplication extends Application {
 	
 	public static final String VIEW_MAP = "ohmage.intent.action.VIEW_MAP";
 	
+	public static final String ACTION_VIEW_REMOTE_IMAGE = "org.ohmage.action.VIEW_REMOTE_IMAGE";
+
     private static final int IMAGE_TASK_LIMIT = 3;
 
     // 50% of available memory, up to a maximum of 32MB

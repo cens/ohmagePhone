@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -461,6 +462,15 @@ LoaderManager.LoaderCallbacks<Cursor> {
 						String username = prefs.getUsername();
 						String hashedPassword = prefs.getHashedPassword();
 						String url = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, value, "small");
+						final String largeUrl = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, value, null);
+						imageView.setOnClickListener(new View.OnClickListener() {
+
+							@Override
+							public void onClick(View v) {
+								Intent intent = new Intent(OhmageApplication.ACTION_VIEW_REMOTE_IMAGE, Uri.parse(largeUrl));
+								mContext.startActivity(intent);
+							}
+						});
 
 						mImageLoader.clearErrors();
 						BindResult bindResult = mImageLoader.bind((ImageView)view.getTag(), url, new Callback() {
@@ -468,16 +478,22 @@ LoaderManager.LoaderCallbacks<Cursor> {
 							@Override
 							public void onImageLoaded(ImageView view, String url) {
 								imageView.setVisibility(View.VISIBLE);
+								imageView.setClickable(true);
+								imageView.setFocusable(true);
 							}
 
 							@Override
 							public void onImageError(ImageView view, String url, Throwable error) {
 								imageView.setVisibility(View.VISIBLE);
 								imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+								imageView.setClickable(false);
+								imageView.setFocusable(false);
 							}
 						});
 						if(bindResult == ImageLoader.BindResult.ERROR) {
 							imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+							imageView.setClickable(false);
+							imageView.setFocusable(false);
 						} else  if(bindResult == ImageLoader.BindResult.LOADING){
 							imageView.setVisibility(View.GONE);
 						}
