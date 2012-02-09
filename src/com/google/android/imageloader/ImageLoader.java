@@ -25,10 +25,10 @@ import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.content.ModernAsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.AdapterView;
@@ -681,7 +681,12 @@ public final class ImageLoader {
         }
     }
 
-    private void putBitmap(String url, Bitmap bitmap) {
+    /**
+     * Add a bitmap to the cache
+     * @param url
+     * @param bitmap
+     */
+    public void putBitmap(String url, Bitmap bitmap) {
         mBitmaps.put(url, bitmap);
     }
 
@@ -951,9 +956,9 @@ public final class ImageLoader {
         }
     }
 
-    private class ImageTask extends AsyncTask<ImageRequest, ImageRequest, Void> {
+    private class ImageTask extends ModernAsyncTask<ImageRequest, ImageRequest, Void> {
 
-        public final android.os.AsyncTask<ImageRequest, ImageRequest, Void> executeOnThreadPool(
+        public final ModernAsyncTask<ImageRequest, ImageRequest, Void> executeOnThreadPool(
                 ImageRequest... params) {
             if (Build.VERSION.SDK_INT < 4) {
                 // Thread pool size is 1
