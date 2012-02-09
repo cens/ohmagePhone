@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="libs/httpmime-4.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/jbcrypt-0.3.jar"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry exported="true" kind="lib" path="libs/imageloader.jar"/>
 	<classpathentry kind="lib" path="libs/filecache.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/android-support-v4-r4-googlemaps.jar"/>
 	<classpathentry kind="lib" path="libs/jackson-core-asl-1.9.4.jar">

@@ -15,9 +15,9 @@
  ******************************************************************************/
 package org.ohmage;
 
+import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
-import org.ohmage.OhmageCache.OhmageCacheBitmapContentHandler;
 import org.ohmage.db.DbHelper;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -137,7 +137,7 @@ public class OhmageApplication extends Application {
 
         // Load images using a BitmapContentHandler
         // and cache the image data in the file cache.
-        ContentHandler bitmapHandler = OhmageCache.capture(new OhmageCacheBitmapContentHandler(), null);
+        ContentHandler bitmapHandler = OhmageCache.capture(new BitmapContentHandler(), null);
 
         // For pre-fetching, use a "sink" content handler so that the
         // the binary image data is captured by the cache without actually

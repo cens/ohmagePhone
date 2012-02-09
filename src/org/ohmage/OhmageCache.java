@@ -16,22 +16,14 @@
 package org.ohmage;
 
 import com.google.android.filecache.FileResponseCache;
-import com.google.android.imageloader.BitmapContentHandler;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.CacheResponse;
 import java.net.ResponseCache;
 import java.net.URI;
-import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -95,61 +87,5 @@ public class OhmageCache extends FileResponseCache {
 	@Override
 	protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
 		return getCachedFile(mContext, uri);
-	}
-
-	/**
-	 * This content handler fixes the bug caused by the HttpsURLConnectionImpl class
-	 * where it throws a null pointer after it gets the cached file
-	 * @author cketcham
-	 *
-	 */
-	public static class OhmageCacheBitmapContentHandler extends BitmapContentHandler {
-
-		@Override
-		public Bitmap getContent(URLConnection connection) throws IOException {
-			// First we will try to use the default behavior of the BitmapContentHandler
-			try {
-				return super.getContent(connection);
-			} catch(NullPointerException e) {
-				// There is a bug with the implementation of caching requests in the HttpsURLConnectionImpl object
-				// I try to recover from it here using reflection
-				Log.d(TAG, "caught bug from HttpsURLConnectionImpl " + e);
-				try {
-					Field httpsEngineField = connection.getClass().getDeclaredField("httpsEngine");
-					if(!httpsEngineField.isAccessible())
-						httpsEngineField.setAccessible(true);
-					Object httpsEngine = httpsEngineField.get(connection);
-					Field cacheResponse = httpsEngine.getClass().getSuperclass().getDeclaredField("cacheResponse");
-					if(!cacheResponse.isAccessible())
-						cacheResponse.setAccessible(true);
-					CacheResponse response = (CacheResponse) cacheResponse.get(httpsEngine);
-
-					InputStream input = response.getBody();
-					try {
-						Bitmap bitmap = BitmapFactory.decodeStream(input);
-						if (bitmap == null) {
-							throw new IOException("Image could not be decoded");
-						}
-						return bitmap;
-					} finally {
-						input.close();
-					}
-
-				} catch (SecurityException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (NoSuchFieldException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IllegalArgumentException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IllegalAccessException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				return null;
-			}
-		}
 	}
 }
