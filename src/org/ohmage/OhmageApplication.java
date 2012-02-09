@@ -15,9 +15,9 @@
  ******************************************************************************/
 package org.ohmage;
 
+import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
-import org.ohmage.OhmageCache.OhmageCacheBitmapContentHandler;
 import org.ohmage.db.DbHelper;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -30,11 +30,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
@@ -45,11 +43,18 @@ public class OhmageApplication extends Application {
 	
 	public static final String VIEW_MAP = "ohmage.intent.action.VIEW_MAP";
 	
+	public static final String ACTION_VIEW_REMOTE_IMAGE = "org.ohmage.action.VIEW_REMOTE_IMAGE";
+
     private static final int IMAGE_TASK_LIMIT = 3;
 
     // 50% of available memory, up to a maximum of 32MB
     private static final long IMAGE_CACHE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 2,
             32 * 1024 * 1024);
+
+    /**
+     * 10MB max for cached thumbnails
+     */
+	private static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
 
     private ImageLoader mImageLoader;
 
@@ -119,7 +124,13 @@ public class OhmageApplication extends Application {
 		
 		//clear images
 		try {
-			Utilities.delete(getImageDirectory(this));
+			Utilities.delete(getExternalCacheDir());
+		} catch (IOException e) {
+			Log.e(TAG, "Error deleting images", e);
+		}
+
+		try {
+			Utilities.delete(getCacheDir());
 		} catch (IOException e) {
 			Log.e(TAG, "Error deleting images", e);
 		}
@@ -128,6 +139,7 @@ public class OhmageApplication extends Application {
     private static ImageLoader createImageLoader(Context context) {
         // Install the file cache (if it is not already installed)
         OhmageCache.install(context);
+        checkCacheUsage();
         
         // Just use the default URLStreamHandlerFactory because
         // it supports all of the required URI schemes (http).
@@ -135,7 +147,7 @@ public class OhmageApplication extends Application {
 
         // Load images using a BitmapContentHandler
         // and cache the image data in the file cache.
-        ContentHandler bitmapHandler = OhmageCache.capture(new OhmageCacheBitmapContentHandler(), null);
+        ContentHandler bitmapHandler = OhmageCache.capture(new BitmapContentHandler(), null);
 
         // For pre-fetching, use a "sink" content handler so that the
         // the binary image data is captured by the cache without actually
@@ -150,7 +162,14 @@ public class OhmageApplication extends Application {
                 IMAGE_CACHE_SIZE, handler);
     }
 
-    @Override
+    /**
+     * check the cache usage
+     */
+    public static void checkCacheUsage() {
+		OhmageCache.checkCacheUsage(self, MAX_DISK_CACHE_SIZE);
+	}
+
+	@Override
     public void onTerminate() {
         mImageLoader = null;
         super.onTerminate();
@@ -164,14 +183,6 @@ public class OhmageApplication extends Application {
         } else {
             return super.getSystemService(name);
         }
-    }
-    
-    public static File getImageDirectory(Context context) {
-    	try {
-        	return new File(context.getExternalCacheDir(), "images");
-    	} catch(NoSuchMethodError e) {
-    		return new File(Environment.getExternalStorageDirectory(), "Android/data/org.ohmage/cache/images");
-    	}
     }
 
 	public static void setFakeContentResolver(ContentResolver resolver) {

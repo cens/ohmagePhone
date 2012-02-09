@@ -1,8 +1,6 @@
 package org.ohmage.db;
 
-import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
-import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -19,7 +17,6 @@ import android.content.Intent;
 import android.database.Cursor;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -113,20 +110,6 @@ public class Models {
 			return values;
 		}
 
-		public static File getCampaignImageDir(Context context, String campaignUrn) {
-			File f = new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
-			f.mkdirs();
-			return f;
-		}
-		
-		private File getCampaignImageDir(Context context) {
-			return getCampaignImageDir(context, mUrn);
-		}
-		
-		public static File getCampaignImage(Context context, String campaignUrn, String uuid) {
-			return new File(Campaign.getCampaignImageDir(context, campaignUrn), "temp" + uuid);
-		}
-
 		/**
 		 * Launch the Trigger list for this campaign
 		 * @param context
@@ -205,14 +188,6 @@ public class Models {
 				if(mIcon != null)
 					OhmageCache.getCachedFile(context, new URI(mIcon)).delete();
 			}catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			try {
-				if(getCampaignImageDir(context).exists())
-					Utilities.delete(getCampaignImageDir(context));
-			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -488,51 +463,25 @@ public class Models {
 			return values;
 		}
 
-		public static File getResponsesImageDir(Context context, String campaignUrn, String id) {
-			File f = new File(Campaign.getCampaignImageDir(context, campaignUrn), id);
-			f.mkdirs();
-			return f;
+		/**
+		 * Returns the file for given image uuid
+		 * @param context
+		 * @param uuid
+		 * @return
+		 */
+		public static File getTemporaryResponsesImage(Context context, String uuid) {
+			return new File(getResponseImageUploadDir(context), uuid);
 		}
 
 		/**
-		 * Returns the image for a given uuid for this response id and campaign. Usually it is in the response dir
-		 * but it also checks the old locations and moves them if appropriate
+		 * Returns the directory to store images to upload in
 		 * @param context
-		 * @param campaignUrn
-		 * @param id
-		 * @param uuid
-		 * @return the image file
+		 * @return
 		 */
-		public static File getResponsesImage(Context context, String campaignUrn, String id, final String uuid) {
-			File image = new File(Response.getResponsesImageDir(context, campaignUrn, id), uuid);
-
-			// If the image isnt there for some reason, maybe its in the old location under the campaign urn
-			if(image == null || !image.exists()) {
-				File jpgImage = new File(Campaign.getCampaignImageDir(context, campaignUrn), uuid + ".jpg");
-				if(jpgImage != null && jpgImage.exists())
-					jpgImage.renameTo(image);
-				else {
-					File pngImage = new File(Campaign.getCampaignImageDir(context, campaignUrn), uuid + ".png");
-					if(pngImage != null && pngImage.exists())
-						pngImage.renameTo(image);
-				}
-			}
-			return image;
-		}
-
-		private File getResponseImageDir(Context context) {
-			return getResponsesImageDir(context, campaignUrn, String.valueOf(_id));
-		}
-
-		@Override
-		public void cleanUp(Context context) {
-			try {
-				if(getResponseImageDir(context).exists())
-					Utilities.delete(getResponseImageDir(context));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		public static File getResponseImageUploadDir(Context context) {
+			File dir = new File(context.getExternalCacheDir(), "uploads");
+			dir.mkdirs();
+			return dir;
 		}
 	}
 	

@@ -273,4 +273,7 @@
     <!-- Single Campaign Mode -->
     <string name="single_campaign_changed_title">Campaign changed</string>
     <string name="single_campaign_changed_message">The campaign you were participating in has changed. Any responses and charts associated with the old campaign have been removed.</string>
+
+    <!-- Image Loader Activity -->
+    <string name="image_loader_failed">There was a problem downloading the image. Please try again later.</string>
 </resources>

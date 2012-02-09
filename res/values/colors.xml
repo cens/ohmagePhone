@@ -12,6 +12,7 @@
 	<color name="lightergray">#E8E8E8</color>
 	<color name="dkgray">#444444</color>
 	<color name="transparent">#00000000</color>
+	<color name="yellow">#FCBA1E</color>
 
 	<color name="body_text_1">#ff000000</color>
 	<color name="body_text_2">#99000000</color>
@@ -20,8 +21,8 @@
 	<color name="hyperlink">#ffff549f</color>
 	<color name="background_1">#ffffffff</color>
 	
-	<color name="calendar_focused">#FCBA1E</color>
-	<color name="calendar_pressed">#FCBA1E</color>
+	<color name="calendar_focused">@color/yellow</color>
+	<color name="calendar_pressed">@color/yellow</color>
 	<color name="calendar_today">#FAE5C0</color>
 	<color name="normal">#FFFFFF</color>
 

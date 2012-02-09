@@ -679,7 +679,15 @@ public class OhmageApi {
 		.append("&id=").append(id);
         if (size != null) url.append("&size=").append(size);
 
-		return url.toString();
+        return url.toString();
+	}
+
+	public static String defaultImageReadUrl(String uuid, String campaign, String size) {
+		SharedPreferencesHelper prefs = new SharedPreferencesHelper(OhmageApplication.getContext());
+		String username = prefs.getUsername();
+		String hashedPassword = prefs.getHashedPassword();
+		return OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaign, username, uuid, size);
+
 	}
 
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
