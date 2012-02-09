@@ -21,11 +21,9 @@ import com.google.android.imageloader.ImageLoader.Callback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.ohmage.Config;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -458,11 +456,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 							}
 						}
 
-						SharedPreferencesHelper prefs = new SharedPreferencesHelper(mContext);
-						String username = prefs.getUsername();
-						String hashedPassword = prefs.getHashedPassword();
-						String url = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, value, "small");
-						final String largeUrl = OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaignUrn, username, value, null);
+						String url = OhmageApi.defaultImageReadUrl(value, campaignUrn, "small");
+						final String largeUrl = OhmageApi.defaultImageReadUrl(value, campaignUrn, null);
 						imageView.setOnClickListener(new View.OnClickListener() {
 
 							@Override
