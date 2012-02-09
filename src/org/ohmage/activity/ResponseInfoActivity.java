@@ -442,7 +442,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						File file = Response.getResponsesImage(mContext, campaignUrn, mResponseId, value);
+						File file = Response.getTemporaryResponsesImage(mContext, value);
 						final ImageView imageView = (ImageView) view.getTag();
 
 						if(file != null && file.exists()) {

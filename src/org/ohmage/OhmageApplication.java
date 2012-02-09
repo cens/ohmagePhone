@@ -30,11 +30,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
@@ -126,7 +124,13 @@ public class OhmageApplication extends Application {
 		
 		//clear images
 		try {
-			Utilities.delete(getImageDirectory(this));
+			Utilities.delete(getExternalCacheDir());
+		} catch (IOException e) {
+			Log.e(TAG, "Error deleting images", e);
+		}
+
+		try {
+			Utilities.delete(getCacheDir());
 		} catch (IOException e) {
 			Log.e(TAG, "Error deleting images", e);
 		}
@@ -179,14 +183,6 @@ public class OhmageApplication extends Application {
         } else {
             return super.getSystemService(name);
         }
-    }
-    
-    public static File getImageDirectory(Context context) {
-    	try {
-        	return new File(context.getExternalCacheDir(), "images");
-    	} catch(NoSuchMethodError e) {
-    		return new File(Environment.getExternalStorageDirectory(), "Android/data/org.ohmage/cache/images");
-    	}
     }
 
 	public static void setFakeContentResolver(ContentResolver resolver) {

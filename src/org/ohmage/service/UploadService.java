@@ -178,7 +178,7 @@ public class UploadService extends WakefulIntentService {
 			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 			
-			File [] photos = Response.getResponsesImageDir(this, campaignUrn, String.valueOf(responseId)).listFiles(new FilenameFilter() {
+			File [] photos = Response.getResponseImageUploadDir(this).listFiles(new FilenameFilter() {
 				
 				@Override
 				public boolean accept(File dir, String filename) {

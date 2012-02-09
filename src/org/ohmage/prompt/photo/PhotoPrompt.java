@@ -15,13 +15,8 @@
  ******************************************************************************/
 package org.ohmage.prompt.photo;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.UUID;
-
 import org.ohmage.R;
 import org.ohmage.activity.SurveyActivity;
-import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 
@@ -39,6 +34,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.UUID;
 
 public class PhotoPrompt extends AbstractPrompt {
 
@@ -164,13 +163,13 @@ public class PhotoPrompt extends AbstractPrompt {
 	private File getImageFile() {
 		if(uuid == null)
 			uuid = UUID.randomUUID().toString();
-		return Campaign.getCampaignImage(mContext, mContext.getCampaignUrn(), uuid);
+		return Response.getTemporaryResponsesImage(mContext, uuid);
 	}
 
 	public void saveImageFile(String responseId) {
 		File image = getImageFile();
 		if(image != null && image.exists()) {
-			image.renameTo(Response.getResponsesImage(mContext, mContext.getCampaignUrn(), responseId, uuid));
+			image.renameTo(Response.getTemporaryResponsesImage(mContext, uuid));
 		}
 	}
 
