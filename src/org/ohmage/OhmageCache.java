@@ -26,6 +26,8 @@ import java.net.ResponseCache;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -87,5 +89,28 @@ public class OhmageCache extends FileResponseCache {
 	@Override
 	protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
 		return getCachedFile(mContext, uri);
+	}
+
+	/**
+	 * Check the current cache useage and delete files if needed
+	 * @param context
+	 * @param maxDiskCacheSize
+	 */
+	public static void checkCacheUsage(Context context, int maxDiskCacheSize) {
+		long size = 0;
+		final File[] fileList = context.getExternalCacheDir().listFiles();
+		Arrays.sort(fileList, new Comparator<File>() {
+			@Override
+			public int compare(File f1, File f2) {
+				return Long.valueOf(f2.lastModified()).compareTo(
+						f1.lastModified());
+			}
+		});
+		for (File file : fileList) {
+			size += file.length();
+			if (size > maxDiskCacheSize) {
+				file.delete();
+			}
+		}
 	}
 }

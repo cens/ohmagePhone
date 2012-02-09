@@ -53,6 +53,11 @@ public class OhmageApplication extends Application {
     private static final long IMAGE_CACHE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 2,
             32 * 1024 * 1024);
 
+    /**
+     * 10MB max for cached thumbnails
+     */
+	private static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
+
     private ImageLoader mImageLoader;
 
 	private static OhmageApplication self;
@@ -130,6 +135,7 @@ public class OhmageApplication extends Application {
     private static ImageLoader createImageLoader(Context context) {
         // Install the file cache (if it is not already installed)
         OhmageCache.install(context);
+        checkCacheUsage();
         
         // Just use the default URLStreamHandlerFactory because
         // it supports all of the required URI schemes (http).
@@ -152,7 +158,14 @@ public class OhmageApplication extends Application {
                 IMAGE_CACHE_SIZE, handler);
     }
 
-    @Override
+    /**
+     * check the cache usage
+     */
+    public static void checkCacheUsage() {
+		OhmageCache.checkCacheUsage(self, MAX_DISK_CACHE_SIZE);
+	}
+
+	@Override
     public void onTerminate() {
         mImageLoader = null;
         super.onTerminate();
