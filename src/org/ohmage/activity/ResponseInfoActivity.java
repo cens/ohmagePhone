@@ -313,9 +313,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public int getItemViewType(Cursor cursor) {
 				String promptType = getItemPromptType(cursor);
 				
-				if("photo".equals(promptType) &&
-						//If the image was skipped, we should just show the text value of SKIPPED
-						!AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE))))
+				if("photo".equals(promptType))
 					return IMAGE_RESPONSE;
 				else if ("text".equals(promptType))
 					return TEXT_RESPONSE;
@@ -395,12 +393,13 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				
 				// now set up how they're actually displayed
 				// there are only two categories: image and non-image (i.e. text)
-				if (itemViewType != IMAGE_RESPONSE) {
+				if (itemViewType != IMAGE_RESPONSE
+						// also if the image was skipped we are showing the text view
+						|| AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)))) {
 					image.setVisibility(View.GONE);
 					text.setVisibility(View.VISIBLE);
 					value.setTag(text);
-				}
-				else {
+				} else {
 					image.setVisibility(View.VISIBLE);
 					text.setVisibility(View.GONE);
 					value.setTag(image);
