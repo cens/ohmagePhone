@@ -1,5 +1,8 @@
 package org.ohmage.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
@@ -48,6 +51,18 @@ public abstract class BaseActivity extends FragmentActivity {
 			finish();
 			return;
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
 	}
 
 	@Override

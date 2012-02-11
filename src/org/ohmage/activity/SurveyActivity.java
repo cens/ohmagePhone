@@ -16,6 +16,8 @@
 package org.ohmage.activity;
 
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
@@ -218,6 +220,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		Analytics.activity(this, Status.ON);
+
         mSurveyTitleText.setText(mSurveyTitle);
         if (mReachedEnd == false) {
         	showElement(mCurrentPosition);
@@ -1058,6 +1062,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	@Override
 	public void onPause() {
 		super.onPause();
+		Analytics.activity(this, Status.OFF);
+
 		// If we are finishing
 		if(isFinishing()) {
 			// Stop listenting to the gps
