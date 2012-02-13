@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -26,17 +27,18 @@ public class ResponseSyncReceiver extends BroadcastReceiver {
 		if (ResponseSyncReceiver.ACTION_FBSYNC_ALARM.equals(action)) {
 			Context appContext = context.getApplicationContext();
 			Intent battIntent = appContext.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-			int level = battIntent.getIntExtra("level", -1);
-			int scale = battIntent.getIntExtra("scale", -1);
+			int level = battIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+			int scale = battIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+			int plugged = battIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
 			float percent = (float) level * 100 / (float) scale;
 			Log.i(TAG, "Battey level: " + percent + "% ("+ level + " / " + scale + ")");
-			if (percent > 20) {
-				Log.i(TAG, "Power is not low.");
+			if (percent > 20 || (plugged > 0 && percent > 5)) {
+				Log.i(TAG, "Charge > 20% or plugged in w/charge > %5.");
 				Log.i(TAG, "Starting ResponseSyncService.");
 				
 				WakefulIntentService.sendWakefulWork(context, ResponseSyncService.class);
 			} else {
-				Log.i(TAG, "Power is low.");
+				Log.i(TAG, "Charge <= 20% or plugged in w/charge <= %5.");
 				Log.i(TAG, "Not starting ResponseSyncService.");
 			}
 		}
