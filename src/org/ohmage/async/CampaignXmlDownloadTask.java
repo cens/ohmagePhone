@@ -85,7 +85,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				// create an intent to fire off the feedback service
 				Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
 				// annotate the request with the current campaign's URN
-				fbIntent.putExtra("campaign_urn", mCampaignUrn);
+				fbIntent.putExtra(ResponseSyncService.EXTRA_CAMPAIGN_URN, mCampaignUrn);
 				// and go!
 				WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
 			}
