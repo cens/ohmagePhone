@@ -116,7 +116,7 @@ public class SharedPreferencesHelper {
 	}
 	
 	public Long getLastFeedbackRefreshTimestamp() {
-		return mPreferences.getLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP, 0);
+		return mPreferences.getLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP, -1);
 	}
 	
 	public boolean putLastFeedbackRefreshTimestamp(Long timestamp) {

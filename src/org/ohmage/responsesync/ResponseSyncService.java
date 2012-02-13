@@ -34,6 +34,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
+import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -43,6 +44,12 @@ import java.util.HashMap;
 public class ResponseSyncService extends WakefulIntentService {
 	private static final String TAG = "ResponseSyncService";
 	private static final int MAX_RESPONSES_PER_SURVEY = 20;
+	
+	// extras with which the service can be run
+	/** If true, the service displays a toast when it completes */
+	public static final String EXTRA_INTERACTIVE = "interactive";
+	/** If present, runs the service only for the specified campaign */
+	public static final String EXTRA_CAMPAIGN_URN = "campaign_urn";
 
 	public ResponseSyncService() {
 		super(TAG);
@@ -60,10 +67,10 @@ public class ResponseSyncService extends WakefulIntentService {
 		// 1) maintain a timestamp of the most recent refresh and request only things after it
 		// 2) somehow figure out which surveys the server has and we don't via the hashcode and sync accordingly
 		
-		Log.v(TAG, "Feedback service starting");
+		Log.v(TAG, "Response sync service starting");
 		
 		if (!Config.ALLOWS_FEEDBACK) {
-			Log.e(TAG, "Feedback service aborted, because feedback is not allowed in the preferences");
+			Log.e(TAG, "Response sync service aborted, because feedback is not allowed in the preferences");
 			return;
 		}
 		
@@ -95,10 +102,10 @@ public class ResponseSyncService extends WakefulIntentService {
 
         // if we received a campaign_urn in the intent, only download the data for that one campaign.
     	// the campaign object we create only inclues the mUrn field since we don't use anything else.
-        if (intent.hasExtra("campaign_urn")) {
+        if (intent.hasExtra(EXTRA_CAMPAIGN_URN)) {
         	campaigns = new ArrayList<Campaign>();
         	Campaign candidate = new Campaign();
-        	candidate.mUrn = intent.getStringExtra("campaign_urn");
+        	candidate.mUrn = intent.getStringExtra(EXTRA_CAMPAIGN_URN);
         	campaigns.add(candidate);
         }
         else {
@@ -125,14 +132,15 @@ public class ResponseSyncService extends WakefulIntentService {
 		// 3) near future, to get everything since the cutoff date
 		SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar farPast = new GregorianCalendar();
-		farPast.add(Calendar.YEAR, -5);
+		farPast.add(Calendar.YEAR, -10);
 		
 		Calendar nearFuture = new GregorianCalendar();
 		nearFuture.add(Calendar.DAY_OF_MONTH, 1);
 		
 		// and convert times to timestamps we can feed to the api
+		// we use the cutoff date only if it's present -- otherwise, it's the far past date
 		String farPastDate = inputSDF.format(farPast.getTime());
-		String cutoffDate = inputSDF.format(lastRefresh);
+		String cutoffDate = (lastRefresh > 0)?(inputSDF.format(lastRefresh)):(farPastDate);
 		String nearFutureDate = inputSDF.format(nearFuture.getTime());
 		
 		// ==================================================================
@@ -157,6 +165,7 @@ public class ResponseSyncService extends WakefulIntentService {
 					@Override
 					public void beforeRead() {
 						responseIDs = new ArrayList<String>();
+						Log.v(TAG, "Beginning UUID read...");
 					}
 
 					@Override
@@ -181,26 +190,28 @@ public class ResponseSyncService extends WakefulIntentService {
 						
 						// use the list we built in readObject() to clear deleted responses
 						// from the historical data
+						String[] args = responseIDs.toArray(new String[responseIDs.size()]);
 						
 						// build a comma-delimited list of elements in our list
 						// (it's kind of sad that there isn't a built-in func to do this @_@)
-						ListIterator<String> iter = responseIDs.listIterator();
 						StringBuilder total = new StringBuilder();
 						
-						while (iter.hasNext()) {
-							total.append(iter.next());
+						for (int i = 0; i < args.length; ++i) {
+							total.append("?");
 							
-							if (iter.hasNext())
-								total.append(",");
+							if (i < (args.length - 1))
+								total.append(", ");
 						}
 						
 						// remove any record that's not in our server collection
 						// (usually meaning it was deleted from the server)
-						cr.delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " not in (" + total + ")", new String[]{""});
+						int delCount = cr.delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " not in (" + total + ")", args);
 						
 						// after, we need to find out if any response we found is not in the database
 						// we then use the timestamp of the response to push back the cutoff date
 						// (should we do this? it's risky)
+						
+						Log.v(TAG, "Finished UUID read, deleted " + delCount + " stale record(s) out of " + args.length);
 					}
 					
 					// TODO: should we handle failures here, too? probably, but how? just log and ignore?
@@ -369,6 +380,11 @@ public class ResponseSyncService extends WakefulIntentService {
 					}
 					
 					@Override
+					public void afterRead() {
+						Log.v(TAG, "Finished record read");
+					}
+					
+					@Override
 					public void readResult(Result result, String[] errorCodes) {
 						// what do we do if there's an error? terminate immediately or just keep trucking?
 						// it also doesn't help that this will always occur after the data is read, assuming it's there
@@ -398,6 +414,10 @@ public class ResponseSyncService extends WakefulIntentService {
 		// as 'completed', in the case that there's an error mid-way through.
 		prefs.putLastFeedbackRefreshTimestamp(thisRefresh);
 		
-		Log.v(TAG, "Feedback service complete");
+		Log.v(TAG, "Response sync service complete");
+		
+		if (intent.getBooleanExtra(EXTRA_INTERACTIVE, false)) {
+			Toast.makeText(this, "Response sync service complete", Toast.LENGTH_SHORT);
+		}
 	}
 }
