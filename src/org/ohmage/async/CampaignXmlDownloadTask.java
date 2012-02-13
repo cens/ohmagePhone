@@ -16,7 +16,7 @@ import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.feedback.FeedbackService;
+import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentResolver;
@@ -83,7 +83,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			
 			if (Config.ALLOWS_FEEDBACK) {
 				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(getContext(), FeedbackService.class);
+				Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
 				// annotate the request with the current campaign's URN
 				fbIntent.putExtra("campaign_urn", mCampaignUrn);
 				// and go!

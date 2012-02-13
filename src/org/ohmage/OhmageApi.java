@@ -981,9 +981,16 @@ public class OhmageApi {
 		public boolean isListening() { return true; }
 		
 		/** 
-		 * Called immediately before reading the first record
+		 * Called immediately before reading the first record.
+		 * Note that this will not be called if the "data" section is not present.
 		 */
-		public void onPreReadObject() { }
+		public void beforeRead() { }
+		
+		/** 
+		 * Called immediately after reading the last record.
+		 * Note that this will not be called if the "data" section is not present.
+		 */
+		public void afterRead() { }
 	}
 	
 	private Response parseStreamingReadResponse(HttpResponse response, StreamingResponseListener listener) {
@@ -1038,13 +1045,16 @@ public class OhmageApi {
         						if (cur != JsonToken.START_ARRAY)
         							throw new JSONException("Data section expected to be an array, found " + cur.toString());
         						
-        						// call the listener's onPreReadObject to allow any init to occur there
-        						listener.onPreReadObject();
+        						// do pre-read init
+        						listener.beforeRead();
         						
         						// now that we know it's an array, read it off and call the listener on each object read
         						while(jp.nextToken() != JsonToken.END_ARRAY && listener.isListening()) {
         							listener.readObject(jp.readValueAsTree());
         						}
+        						
+        						// do post-read cleanup
+        						listener.afterRead();
         					}
         					else if (fieldName.equalsIgnoreCase("errors")) {
         						// ensure that the errors section is an array

@@ -1,4 +1,4 @@
-package org.ohmage.feedback;
+package org.ohmage.responsesync;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.TimeZone;
 
 import org.codehaus.jackson.JsonNode;
@@ -29,6 +32,7 @@ import org.ohmage.prompt.AbstractPrompt;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -36,11 +40,11 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import edu.ucla.cens.systemlog.Log;
 import java.util.HashMap;
 
-public class FeedbackService extends WakefulIntentService {
-	private static final String TAG = "FeedbackService";
+public class ResponseSyncService extends WakefulIntentService {
+	private static final String TAG = "ResponseSyncService";
 	private static final int MAX_RESPONSES_PER_SURVEY = 20;
 
-	public FeedbackService() {
+	public ResponseSyncService() {
 		super(TAG);
 	}
 
@@ -74,7 +78,7 @@ public class FeedbackService extends WakefulIntentService {
 		String hashedPassword = prefs.getHashedPassword();
 		
 		if (username == null || username.equals("")) {
-			Log.e(TAG, "User isn't logged in, FeedbackService terminating");
+			Log.e(TAG, "User isn't logged in, ResponseSyncService terminating");
 			return;
 		}
 		
@@ -111,29 +115,28 @@ public class FeedbackService extends WakefulIntentService {
 
 		// get the time since the last refresh so we can retrieve entries only since then.
 		// also save the time of this refresh, but only put it into the prefs at the end
-		// long lastRefresh = prefs.getLastFeedbackRefreshTimestamp();
+		long lastRefresh = prefs.getLastFeedbackRefreshTimestamp();
 		long thisRefresh = System.currentTimeMillis();
         
-		// attempt to construct a date range on which to query, if one exists
-		// this will be from two weeks ago to tomorrow
-		String startDate = null;
-		String endDate = null;
-		
-		/*
+		// attempt to construct a date range on which to query
+		// we need three dates:
+		// 1) far past, to get everything up to the cutoff date
+		// 2) the cutoff date
+		// 3) near future, to get everything since the cutoff date
 		SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd");
-		Calendar twoWeeksAgo = new GregorianCalendar();
-		twoWeeksAgo.add(Calendar.WEEK_OF_YEAR, -2);
+		Calendar farPast = new GregorianCalendar();
+		farPast.add(Calendar.YEAR, -5);
 		
-		Calendar tomorrow = new GregorianCalendar();
-		tomorrow.add(Calendar.DAY_OF_MONTH, 1);
+		Calendar nearFuture = new GregorianCalendar();
+		nearFuture.add(Calendar.DAY_OF_MONTH, 1);
 		
 		// and convert times to timestamps we can feed to the api
-		startDate = inputSDF.format(twoWeeksAgo.getTime());
-		endDate = inputSDF.format(tomorrow.getTime());
-		*/
+		String farPastDate = inputSDF.format(farPast.getTime());
+		String cutoffDate = inputSDF.format(lastRefresh);
+		String nearFutureDate = inputSDF.format(nearFuture.getTime());
 		
 		// ==================================================================
-		// === 3. download responses for each campaign and insert into fbdb
+		// === 3. process responses on server for each campaign
 		// ==================================================================
 
 		// we'll have to iterate through all the campaigns in which this user
@@ -141,27 +144,83 @@ public class FeedbackService extends WakefulIntentService {
 		for (final Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 			
-			// dump all remote and local uploaded records before we start.
-	        // they'll be replaced with fresh copies from the server.
-	        // it's not critical if this fails, since duplicates will never be
-	        // inserted into the db thanks to the hashcode unique index.
-            int staleResponses = dbHelper.removeStaleResponseRows(c.mUrn);
-            if (staleResponses >= 0)
-            	Log.v(TAG, "Removed " + staleResponses + " stale response(s) for campaign " + c.mUrn + " prior to downloading");
-            else
-            	Log.e(TAG, "Error occurred when removing stale responses");
+			// ==================================================================
+			// === 3a. download UUIDs of responses up to the cutoff date
+			// ===   * anything not in this list should be deleted off the phone
+			// ===   * anything in this list that's not on the phone should be downloaded
+			// ==================================================================
+			
+			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
+				new StreamingResponseListener() {
+					List<String> responseIDs;
+					
+					@Override
+					public void beforeRead() {
+						responseIDs = new ArrayList<String>();
+					}
+
+					@Override
+					public void readObject(JsonNode survey) {
+						// build up a list of IDs
+						// later, we'll attempt to delete everything that's not in this list
+						responseIDs.add(survey.get("survey_key").asText());
+						
+						// TODO: we could also push back the cutoff date if we find
+						// an ID that's present in this list that we don't have.
+						// it's wasteful, but since we can't request items per ID
+						// we have to just extend the time window on which we query.
+						
+						// TODO: ask server team for a way to specify responses by ID
+					}
+					
+					@Override
+					public void afterRead() {
+						// if there's nothing in the list, there's nothing to do, so return
+						if (responseIDs == null || responseIDs.size() <= 0)
+							return;
+						
+						// use the list we built in readObject() to clear deleted responses
+						// from the historical data
+						
+						// build a comma-delimited list of elements in our list
+						// (it's kind of sad that there isn't a built-in func to do this @_@)
+						ListIterator<String> iter = responseIDs.listIterator();
+						StringBuilder total = new StringBuilder();
+						
+						while (iter.hasNext()) {
+							total.append(iter.next());
+							
+							if (iter.hasNext())
+								total.append(",");
+						}
+						
+						// remove any record that's not in our server collection
+						// (usually meaning it was deleted from the server)
+						cr.delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " not in (" + total + ")", new String[]{""});
+						
+						// after, we need to find out if any response we found is not in the database
+						// we then use the timestamp of the response to push back the cutoff date
+						// (should we do this? it's risky)
+					}
+					
+					// TODO: should we handle failures here, too? probably, but how? just log and ignore?
+				});
+			
+			// ==================================================================
+			// === 3b. download responses from after the cutoff date
+			// ==================================================================
 			
 			// also maintain a list of photo UUIDs that may or may not be on the device
 			// this is campaign-response-specific, which is why it's happening in this loop over the campaigns
 			final HashMap<String, ArrayList<String>> responsePhotos = new HashMap<String, ArrayList<String>>();
 
 			// do the call and process the streaming response data
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", true, startDate, endDate,
+			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
 				new StreamingResponseListener() {
 					int curRecord;
 					
 					@Override
-					public void onPreReadObject() {
+					public void beforeRead() {
 						Log.v(TAG, "Beginning record read...");
 						curRecord = 0;
 					}
@@ -292,6 +351,9 @@ public class FeedbackService extends WakefulIntentService {
 							try {
 								Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
 								responsePhotos.put(Responses.getResponseId(responseUri), photoUUIDs);
+							}
+							catch (SQLiteConstraintException e) {
+								Log.v(TAG, "Record not inserted due to constraint failure (likely a duplicate)");
 							}
 							catch(Exception e) {
 								// display some note in the log that this failed

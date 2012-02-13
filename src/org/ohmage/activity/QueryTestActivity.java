@@ -2,7 +2,7 @@ package org.ohmage.activity;
 
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
-import org.ohmage.feedback.FeedbackService;
+import org.ohmage.responsesync.ResponseSyncService;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -135,7 +135,7 @@ public class QueryTestActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.fbtest_forcesync:
-				WakefulIntentService.sendWakefulWork(this, FeedbackService.class);
+				WakefulIntentService.sendWakefulWork(this, ResponseSyncService.class);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

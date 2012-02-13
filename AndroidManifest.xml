@@ -338,9 +338,9 @@
         ******************************************************
         -->       
 
-	    <service android:name=".feedback.FeedbackService" />
+	    <service android:name=".responsesync.ResponseSyncService" />
 	    
-	   	<receiver android:name=".feedback.FeedbackSyncReceiver">
+	   	<receiver android:name=".responsesync.ResponseSyncReceiver">
 	    	<intent-filter>
 	    		<action android:name="org.ohmage.feedback.ACTION_FBSYNC_ALARM"/>
 	    	</intent-filter>

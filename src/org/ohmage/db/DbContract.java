@@ -279,7 +279,7 @@ public class DbContract {
 	 * Represents a single response to a prompt.
 	 * 
 	 * These are extracted from the survey response json at the time of survey completion,
-	 * or in FeedbackService from the downloaded response data.
+	 * or in ResponseSyncService from the downloaded response data.
 	 */
 	public static final class PromptResponses implements BaseColumns, PromptResponseColumns {
 
