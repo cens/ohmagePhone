@@ -2,6 +2,9 @@ package org.ohmage.ui;
 
 import com.google.android.imageloader.ImageLoader;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.OhmageCache;
 import org.ohmage.R;
 import org.ohmage.widget.TouchImageView;
@@ -54,5 +57,17 @@ public class ImageLoaderActivity extends FragmentActivity {
 				Toast.makeText(getApplicationContext(), R.string.image_loader_failed, Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
 	}
 }

@@ -17,6 +17,8 @@ package org.ohmage.activity;
 
 import com.slezica.tools.async.ManagedAsyncTask;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
@@ -192,8 +194,15 @@ public class LoginActivity extends FragmentActivity {
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
+		Analytics.activity(this, Status.ON);
 
 		// Hide any notifications since we started the login activity
 		NotificationHelper.hideAuthNotification(this);

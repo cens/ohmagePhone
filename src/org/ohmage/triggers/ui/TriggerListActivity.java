@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.ohmage.triggers.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.AdminPincodeActivity;
@@ -171,7 +174,19 @@ public class TriggerListActivity extends ListActivity
 		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME);
 		TrigPrefManager.registerPreferenceFile(this, "GLOBAL", PREF_FILE_NAME);
     }
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
