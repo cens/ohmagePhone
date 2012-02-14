@@ -21,6 +21,8 @@ import org.ohmage.SharedPreferencesHelper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
+import android.view.View;
 
 /**
  * We use system log to log analytics of an android app. System log
@@ -66,6 +68,46 @@ public class Analytics {
 	 */
 	public static void activity(Activity activity, final Status status) {
 		log(activity, "activity", status.toString());
+	}
+
+	/**
+	 * Log information about a view being interacted with
+	 * 
+	 * @param view
+	 * @param name Human readable name for widget
+	 */
+	public static void widget(View view, String name) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(view.getId());
+		if (name != null)
+			builder.append(" ").append(name);
+		else if (!TextUtils.isEmpty(view.getContentDescription()))
+			builder.append(" ").append(view.getContentDescription());
+		log(view.getContext(), "widget", builder);
+	}
+
+	/**
+	 * For the case that we want to log some widget action but don't have access
+	 * to the view
+	 * 
+	 * @param context
+	 * @param string
+	 */
+	public static void widget(Context context, String string) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("-1");
+		if (string != null)
+			builder.append(" ").append(string);
+		log(context, "widget", builder);
+	}
+
+	/**
+	 * Log information about a view being interacted with
+	 * 
+	 * @param view
+	 */
+	public static void widget(View view) {
+		widget(view, null);
 	}
 
 	/**

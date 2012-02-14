@@ -1,6 +1,8 @@
 package org.ohmage.fragments;
 
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
@@ -88,7 +90,8 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		
+		Analytics.widget(v);
+
 		Cursor cursor = (Cursor) getListAdapter().getItem(position);
 		
 		Uri uri = Campaigns.buildSurveysUri(cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN)), cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID)));

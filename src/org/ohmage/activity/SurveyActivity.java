@@ -284,6 +284,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		
 		@Override
 		public void onClick(View v) {
+			Analytics.widget(v);
 			
 			switch (v.getId()) {
 			case R.id.next_button:

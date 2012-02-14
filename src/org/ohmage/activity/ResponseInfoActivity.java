@@ -19,6 +19,8 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.Callback;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.OhmageApi;
@@ -105,6 +107,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mapViewButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				startActivity(new Intent(OhmageApplication.VIEW_MAP, getIntent().getData()));
 			}
 		});
@@ -113,6 +116,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		uploadButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				if(mStatus == Response.STATUS_STANDBY)
 					mResponseHelper.queueForUpload(getIntent().getData());
 				else {
@@ -167,6 +171,13 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		final String surveyName = data.getString(ResponseQuery.SURVEY_TITLE);
 		final Long completedDate = data.getLong(ResponseQuery.TIME);
 		mStatus = data.getInt(ResponseQuery.STATUS);
+
+		if(mStatus == Response.STATUS_STANDBY)
+			uploadButton.setContentDescription(getString(R.string.response_info_entity_action_button_upload_description));
+		else if(mStatus == Response.STATUS_WAITING_FOR_LOCATION)
+			uploadButton.setContentDescription(getString(R.string.response_info_entity_action_button_upload_force_description));
+		else
+			uploadButton.setContentDescription(getString(R.string.response_info_entity_action_button_upload_error_description));
 
 		mHeadertext.setText(surveyName);
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
@@ -461,6 +472,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 							@Override
 							public void onClick(View v) {
+								Analytics.widget(v, "View Fullsize Image");
 								Intent intent = new Intent(OhmageApplication.ACTION_VIEW_REMOTE_IMAGE, Uri.parse(largeUrl));
 								mContext.startActivity(intent);
 							}

@@ -1,5 +1,7 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -137,8 +139,9 @@ public class DashboardActivity extends BaseActivity {
 	protected class DashboardButtonListener implements OnClickListener {		
 		@Override
 		public void onClick(View v) {
+			Analytics.widget(v);
+
 			Context c = v.getContext();
-			Intent intent;;
 			disableAllButtons();
 			switch (v.getId()) {
 				case R.id.dash_campaigns_btn:

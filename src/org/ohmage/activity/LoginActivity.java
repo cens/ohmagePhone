@@ -215,6 +215,7 @@ public class LoginActivity extends FragmentActivity {
 			switch (v.getId()) {
 			case R.id.login:
 				Log.i(TAG, "login button clicked");
+				Analytics.widget(v);
 				doLogin();				
 				break;
 			}

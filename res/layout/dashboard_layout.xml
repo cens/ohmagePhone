@@ -1,56 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.ohmage.widget.DashboardLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+<org.ohmage.widget.DashboardLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
-	<Button
-		android:id="@+id/dash_campaigns_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_campaigns"
-		android:text="@string/dashboard_campaigns" />
+    <Button
+        android:id="@+id/dash_campaigns_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_campaigns_btn_description"
+        android:drawableTop="@drawable/dashboard_campaigns"
+        android:text="@string/dashboard_campaigns" />
 
-	<Button
-		android:id="@+id/dash_surveys_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_surveys"
-		android:text="@string/dashboard_surveys" />
+    <Button
+        android:id="@+id/dash_surveys_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_surveys_btn_description"
+        android:drawableTop="@drawable/dashboard_surveys"
+        android:text="@string/dashboard_surveys" />
 
-	<Button
-		android:id="@+id/dash_feedback_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_resphistory"
-		android:text="@string/dashboard_response_history" />
+    <Button
+        android:id="@+id/dash_feedback_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_feedback_btn_description"
+        android:drawableTop="@drawable/dashboard_resphistory"
+        android:text="@string/dashboard_response_history" />
 
-	<Button
-		android:id="@+id/dash_uploadqueue_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_upqueue"
-		android:text="@string/dashboard_upload_queue" />
+    <Button
+        android:id="@+id/dash_uploadqueue_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_upload_queue_btn_description"
+        android:drawableTop="@drawable/dashboard_upqueue"
+        android:text="@string/dashboard_upload_queue" />
 
-	<Button
-		android:id="@+id/dash_profile_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_profile"
-		android:text="@string/dashboard_profile" />
-		
-	<Button
-		android:id="@+id/dash_mobility_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_mobility"
-		android:text="@string/dashboard_mobility" />
+    <Button
+        android:id="@+id/dash_profile_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_profile_btn_description"
+        android:drawableTop="@drawable/dashboard_profile"
+        android:text="@string/dashboard_profile" />
 
-	<Button
-		android:id="@+id/dash_settings_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_settings"
-		android:text="@string/title_settings"
-		android:visibility="gone" />
-	
-	<Button
-		android:id="@+id/dash_help_btn"
-		style="@style/HomeButton"
-		android:drawableTop="@drawable/dashboard_help"
-		android:text="@string/dashboard_help" />
+    <Button
+        android:id="@+id/dash_mobility_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_mobility_btn_description"
+        android:drawableTop="@drawable/dashboard_mobility"
+        android:text="@string/dashboard_mobility" />
+
+    <Button
+        android:id="@+id/dash_settings_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_settings_btn_description"
+        android:drawableTop="@drawable/dashboard_settings"
+        android:text="@string/title_settings"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/dash_help_btn"
+        style="@style/HomeButton"
+        android:contentDescription="@string/dashboard_help_btn_description"
+        android:drawableTop="@drawable/dashboard_help"
+        android:text="@string/dashboard_help" />
 
 </org.ohmage.widget.DashboardLayout>

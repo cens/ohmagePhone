@@ -1,5 +1,7 @@
 package org.ohmage.fragments;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.CampaignListCursorAdapter;
@@ -96,7 +98,7 @@ public class CampaignListFragment extends ListFragment implements SubActionClick
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		
+		Analytics.widget(v);
 		Cursor c = (Cursor) getListAdapter().getItem(position);
 		mListener.onCampaignActionView(c.getString(c.getColumnIndex(Campaigns.CAMPAIGN_URN)));
 	}

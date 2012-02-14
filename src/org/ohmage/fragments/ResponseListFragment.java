@@ -1,5 +1,7 @@
 package org.ohmage.fragments;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.activity.UploadQueueActivity;
@@ -76,6 +78,7 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
+		Analytics.widget(v);
 //		startActivity(new Intent(Intent.ACTION_VIEW, DbContract.Response.getResponseByID(id)));
 		mListener.onResponseActionView(Responses.buildResponseUri(id));
 	}

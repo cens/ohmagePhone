@@ -4,12 +4,14 @@
     <Button
         android:id="@+id/response_info_button_upload"
         style="@style/InfoButton"
+        android:contentDescription="@string/response_info_entity_action_button_upload_description"
         android:drawableLeft="@drawable/btn_action_upload"
         android:text="@string/response_info_upload" />
 
     <Button
         android:id="@+id/response_info_button_view_map"
         style="@style/InfoButton"
+        android:contentDescription="@string/response_info_entity_action_button_view_map_description"
         android:drawableLeft="@drawable/location_map"
         android:text="@string/response_info_view_map" />
 

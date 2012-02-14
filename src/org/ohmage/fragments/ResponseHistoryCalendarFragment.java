@@ -1,5 +1,7 @@
 package org.ohmage.fragments;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 import org.ohmage.activity.ResponseListActivity;
 import org.ohmage.db.DbContract.Campaigns;
@@ -330,7 +332,13 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 				numOfResponsesDisplay.setOnClickListener(this);
 			} else {
 				numOfResponsesDisplay.setText(null);
-				numOfResponsesDisplay.setOnClickListener(null);
+				numOfResponsesDisplay.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						Analytics.widget(v, "Calendar Date (No responses)");
+					}
+				});
 			}
 			dateDisplay = (TextView) row.findViewById(R.id.calendar_gridcell_date);
 			dateDisplay.setBackgroundColor(Color.WHITE);
@@ -362,6 +370,7 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 		}
 		@Override
 		public void onClick(View view) {
+			Analytics.widget(view, "Calendar Date");
 			if(view.getTag() instanceof String) {
 				try {
 					onDateClicked(Integer.valueOf((String) view.getTag()));
