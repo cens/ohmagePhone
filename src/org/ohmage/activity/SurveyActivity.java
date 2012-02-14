@@ -19,6 +19,7 @@ package org.ohmage.activity;
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
+import edu.ucla.cens.systemlog.OhmageAnalytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -189,6 +190,7 @@ public class SurveyActivity extends Activity implements LocationListener {
         	mLaunchTime = instance.launchTime;
         	mReachedEnd = instance.reachedEnd;
         	mLastSeenRepeatableSetId = instance.lastSeenRepeatableSetId;
+		mLastElement = instance.lastElement;
         }
         
         setContentView(R.layout.survey_activity);
@@ -261,7 +263,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId);
+		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement);
 	}
 
 	private class NonConfigurationInstance {
@@ -270,13 +272,15 @@ public class SurveyActivity extends Activity implements LocationListener {
 		long launchTime;
 		boolean reachedEnd;
 		String lastSeenRepeatableSetId;
+		SurveyElement lastElement;
 		
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
 			this.reachedEnd = reachedEnd;
 			this.lastSeenRepeatableSetId = lastSeenRepeatableSetId;
+			this.lastElement = element;
 		}
 	}
 
@@ -667,6 +671,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	}
 	
 	private void showSubmitScreen() {
+		handlePromptChangeLogging(null);
+
 		mNextButton.setText(R.string.submit);
 		mPrevButton.setText(R.string.previous);
 		mPrevButton.setVisibility(View.VISIBLE);
@@ -699,6 +705,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 	private void showMessage(int index) {
 		if (mSurveyElements.get(index) instanceof Message) {
 			Message message = (Message)mSurveyElements.get(index);
+			handlePromptChangeLogging(message);
 			
 			mNextButton.setText(R.string.next);
 			mPrevButton.setText(R.string.previous);
@@ -726,9 +733,10 @@ public class SurveyActivity extends Activity implements LocationListener {
 	private void showPrompt(int index) {
 		
 		if (mSurveyElements.get(index) instanceof AbstractPrompt) {
-			
+
 			AbstractPrompt prompt = (AbstractPrompt)mSurveyElements.get(index);
-			
+			handlePromptChangeLogging(prompt);
+
 			mNextButton.setText(R.string.next);
 			mPrevButton.setText(R.string.previous);
 						
@@ -771,6 +779,22 @@ public class SurveyActivity extends Activity implements LocationListener {
 		}
 	}
 	
+	private SurveyElement mLastElement;
+
+	private void handlePromptChangeLogging(SurveyElement element) {
+		// Don't log anything if its the same element
+		if(element == mLastElement)
+			return;
+
+		if(mLastElement instanceof AbstractPrompt) {
+			OhmageAnalytics.prompt(this, (AbstractPrompt) mLastElement, Status.OFF);
+		}
+		if(element  instanceof AbstractPrompt) {
+			OhmageAnalytics.prompt(this, (AbstractPrompt) element, Status.ON);
+		}
+		mLastElement = element;
+	}
+
 	private void showTerminator(int index) {
 		
 		if (mSurveyElements.get(index) instanceof RepeatableSetTerminator) {
