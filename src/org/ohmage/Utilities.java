@@ -21,6 +21,7 @@ import android.graphics.BitmapFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -127,5 +128,37 @@ public class Utilities {
 		} catch (IOException e) {
 		}
 		return b;
+	}
+
+	/**
+	 * Counts the numnber of bytes read in the inputstream
+	 * @author cketcham
+	 *
+	 */
+	public static class CountingInputStream extends FilterInputStream {
+
+		private long mLength;
+
+		public CountingInputStream(InputStream is) {
+			super(is);
+			mLength = 0;
+		}
+
+		@Override
+		public int read() throws IOException {
+			mLength++;
+			return super.read();
+		}
+
+		@Override
+		public int read(byte[] buffer, int offset, int count) throws IOException {
+			int c = super.read(buffer, offset, count);
+			mLength += c;
+			return c;
+		}
+
+		public long amountRead() {
+			return mLength;
+		}
 	}
 }

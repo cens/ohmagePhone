@@ -10,7 +10,6 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
@@ -35,17 +34,22 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 	private final String mCampaignUrn;
 
+	private final Context mContext;
+	private OhmageApi mApi;
+
 	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
         super(context, username, hashedPassword);
         mCampaignUrn = campaignUrn;
+        mContext = context;
     }
 
     @Override
     public Response loadInBackground() {
-		OhmageApi api = OhmageApplication.getOhmageApi();
+		if(mApi == null)
+			mApi = new OhmageApi(mContext);
 		ContentResolver cr = getContext().getContentResolver();
 
-		CampaignReadResponse campaignResponse = api.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
 
 		if(campaignResponse.getResult() == Result.SUCCESS) {
 			ContentValues values = new ContentValues();
@@ -60,7 +64,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  api.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
+		CampaignXmlResponse response =  mApi.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			

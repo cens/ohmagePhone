@@ -16,6 +16,8 @@
 
 package edu.ucla.cens.systemlog;
 
+import org.apache.http.client.methods.HttpPost;
+import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApplication;
 import org.ohmage.SharedPreferencesHelper;
 
@@ -24,6 +26,8 @@ import android.app.Service;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
+
+import java.net.URI;
 
 /**
  * We use system log to log analytics of an android app. System log
@@ -121,6 +125,58 @@ public class Analytics {
 	 */
 	public static void service(Service service, Status status) {
 		log(service, "service", status.toString());
+	}
+
+	/**
+	 * Log network traffic
+	 * 
+	 * @param context
+	 * @param resource
+	 * @param networkState
+	 * @param length
+	 */
+	private static void network(Context context, String resource, String networkState, long length) {
+		log(context, "network", new StringBuilder().append(resource).append(" ")
+				.append(networkState).append(" ")
+				.append(length));
+	}
+
+	/**
+	 * Log information about network traffic uploads
+	 * 
+	 * @param context
+	 * @param httpPost
+	 */
+	public static void network(Context context, HttpPost httpPost) {
+		network(context, httpPost.getURI().getPath(), "upload", httpPost.getEntity()
+				.getContentLength());
+	}
+
+	/**
+	 * Log information about network traffic downloads
+	 * 
+	 * @param context
+	 * @param url
+	 * @param length
+	 */
+	public static void network(Context context, String url, long length) {
+		network(context, URI.create(url).getPath(), "download", length);
+	}
+
+	/**
+	 * Log network errors
+	 * 
+	 * @param context
+	 * @param url
+	 * @param result
+	 */
+	public static void network(Context context, String url, Result result) {
+		if (result != Result.SUCCESS) {
+			log(context, "network",
+					new StringBuilder().append(URI.create(url).getPath()).append(" ")
+							.append("error").append(" ")
+							.append(result));
+		}
 	}
 
 	/**

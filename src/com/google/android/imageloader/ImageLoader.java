@@ -16,6 +16,11 @@
 
 package com.google.android.imageloader;
 
+import edu.ucla.cens.systemlog.Analytics;
+
+import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApplication;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
@@ -762,6 +767,7 @@ public final class ImageLoader {
 
         private Bitmap loadImage(URL url) throws IOException {
             URLConnection connection = url.openConnection();
+            Analytics.network(OhmageApplication.getContext(),"/" + OhmageApi.IMAGE_READ_PATH, connection.getContentLength());
             return (Bitmap) mBitmapContentHandler.getContent(connection);
         }
 

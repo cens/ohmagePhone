@@ -74,7 +74,7 @@ public class UploadService extends WakefulIntentService {
 	protected void doWakefulWork(Intent intent) {
 		
 		if(mApi == null)
-			setOhmageApi(new OhmageApi());
+			setOhmageApi(new OhmageApi(this));
 
 		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
 			uploadSurveyResponses(intent);

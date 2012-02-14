@@ -61,8 +61,6 @@ public class OhmageApplication extends Application {
 	private static OhmageApplication self;
 
 	private static ContentResolver mFakeContentResolver;
-
-	private static OhmageApi mOhmageApi;
     
 	@Override
 	public void onCreate() {
@@ -191,22 +189,6 @@ public class OhmageApplication extends Application {
 
 	public static ContentResolver getFakeContentResolver() {
 		return mFakeContentResolver;
-	}
-
-	public static void setOhmageApi(OhmageApi api) {
-		mOhmageApi = api;
-	}
-
-	/**
-	 * This method allows me to inject alternative OhmageApis for testing.
-	 * The alternative ohmageApi can be set with {@link #setOhmageApi(OhmageApi)}
-	 * @param context
-	 * @return the OhmageApi to use
-	 */
-	public static OhmageApi getOhmageApi() {
-		if(mOhmageApi != null)
-			return mOhmageApi;
-		return new OhmageApi();
 	}
 
 	@Override

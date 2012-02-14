@@ -82,7 +82,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		// ==================================================================
 		
 		// grab an instance of the api connector so we can do calls to the server for responses
-		OhmageApi api = new OhmageApi();
+		OhmageApi api = new OhmageApi(this);
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
