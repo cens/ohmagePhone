@@ -20,6 +20,7 @@ import org.ohmage.OhmageApplication;
 import org.ohmage.SharedPreferencesHelper;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
@@ -108,6 +109,18 @@ public class Analytics {
 	 */
 	public static void widget(View view) {
 		widget(view, null);
+	}
+
+	/**
+	 * Log information about if a service is being started or stopped. This call
+	 * should be made from {@link Service#onCreate()} and
+	 * {@link Service#onDestroy()}
+	 * 
+	 * @param service
+	 * @param status
+	 */
+	public static void service(Service service, Status status) {
+		log(service, "service", status.toString());
 	}
 
 	/**

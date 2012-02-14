@@ -4,6 +4,8 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.ImageLoader;
 
 import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
@@ -54,6 +56,18 @@ public class UploadService extends WakefulIntentService {
 
 	public UploadService() {
 		super(TAG);
+	}
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		Analytics.service(this, Status.ON);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Analytics.service(this, Status.OFF);
 	}
 
 	@Override

@@ -16,6 +16,9 @@
 
 package org.ohmage.service;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Response;
 
@@ -137,6 +140,7 @@ public class SurveyGeotagService extends WakefulService implements LocationListe
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Analytics.service(this, Status.ON);
 
 		// Create the location manager and start listening to the GPS
 		mLocManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -155,6 +159,7 @@ public class SurveyGeotagService extends WakefulService implements LocationListe
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		Analytics.service(this, Status.OFF);
 
 		// Make sure the location listener has been removed
 		mLocManager.removeUpdates(this);

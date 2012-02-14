@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.time;
 
-import java.util.Calendar;
-import java.util.Random;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 import org.ohmage.triggers.utils.SimpleTime;
 
@@ -31,6 +31,9 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
+
+import java.util.Calendar;
+import java.util.Random;
 
 public class TimeTrigService extends Service {
 
@@ -57,6 +60,7 @@ public class TimeTrigService extends Service {
     @Override
 	public void onCreate() {
     	super.onCreate();
+	Analytics.service(this, Status.ON);
     	
     	Log.i(DEBUG_TAG, "TimeTriggerService: onCreate");
     	
@@ -118,7 +122,8 @@ public class TimeTrigService extends Service {
     @Override
     public void onDestroy() {
     	super.onDestroy();
-    	
+	Analytics.service(this, Status.OFF);
+
     	releaseWakeLock();
     }
     

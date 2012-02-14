@@ -15,7 +15,8 @@
  ******************************************************************************/
 package org.ohmage.storagemonitor;
 
-import java.io.File;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -27,6 +28,8 @@ import android.os.IBinder;
 import android.os.StatFs;
 import android.os.SystemClock;
 import edu.ucla.cens.systemlog.Log;
+
+import java.io.File;
 
 public class StorageMonitorService extends Service {
 
@@ -62,7 +65,7 @@ public class StorageMonitorService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		
-		Log.i(TAG, "Service created.");
+		Analytics.service(this, Status.ON);
 		
 		alarms = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 		
@@ -103,7 +106,7 @@ public class StorageMonitorService extends Service {
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		Log.i(TAG, "Service destroyed.");
+		Analytics.service(this, Status.OFF);
 	}
 
 	@Override

@@ -1,17 +1,10 @@
 package org.ohmage.responsesync;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.TimeZone;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.codehaus.jackson.JsonNode;
 import org.json.JSONArray;
@@ -19,12 +12,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Config;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.OhmageApi.Result;
-import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
@@ -36,10 +29,13 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.widget.Toast;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.systemlog.Log;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class ResponseSyncService extends WakefulIntentService {
 	private static final String TAG = "ResponseSyncService";
@@ -58,6 +54,13 @@ public class ResponseSyncService extends WakefulIntentService {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Analytics.service(this, Status.ON);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Analytics.service(this, Status.OFF);
 	}
 
 	@Override
