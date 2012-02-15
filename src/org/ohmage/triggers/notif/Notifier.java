@@ -16,8 +16,8 @@
 package org.ohmage.triggers.notif;
 
 
-import java.util.List;
-import java.util.Set;
+import edu.ucla.cens.systemlog.OhmageAnalytics;
+import edu.ucla.cens.systemlog.OhmageAnalytics.TriggerStatus;
 
 import org.ohmage.R;
 import org.ohmage.db.DbHelper;
@@ -37,6 +37,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import java.util.List;
+import java.util.Set;
 
 /*
  * The trigger notification manager. The logic which displays, repeats and
@@ -481,7 +484,9 @@ public class Notifier {
 	
 		Log.i(DEBUG_TAG, "Notifier: Handling expiration alarm for: " 
 				+ trigId);
-		
+
+		OhmageAnalytics.trigger(context, TriggerStatus.IGNORE, trigId);
+
 		//Log information related to expired triggers.
 		NotifSurveyAdaptor.handleExpiredTrigger(context, trigId);
 		
