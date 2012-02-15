@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -63,6 +64,12 @@ public abstract class BaseActivity extends FragmentActivity {
 	protected void onPause() {
 		super.onPause();
 		Analytics.activity(this, Status.OFF);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		Analytics.widget(this, "Menu Button");
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
