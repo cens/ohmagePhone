@@ -1,5 +1,8 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -77,7 +80,14 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	@Override
 	public void onResume() {
 		super.onResume();
+		Analytics.activity(this, Status.ON);
 		setStatusInfo();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
 	}
 
 	private void setStatusInfo() {

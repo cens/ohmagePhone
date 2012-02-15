@@ -38,9 +38,15 @@ package org.ohmage.triggers.types.location;
  * TODO: This Activity has leaking dialogs. Needs to be fixed.
  * Currently, activity rotation is disabled in the manifest
  */
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.ItemizedOverlay.OnFocusChangeListener;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapView;
+import com.google.android.maps.OverlayItem;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
@@ -62,9 +68,9 @@ import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.graphics.RectF;
-import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -91,12 +97,9 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
-import com.google.android.maps.ItemizedOverlay.OnFocusChangeListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /* The maps activity */
 public class LocTrigMapsActivity extends MapActivity 
@@ -188,6 +191,7 @@ public class LocTrigMapsActivity extends MapActivity
         //Handle done button and exit this activity
         Button bDone = (Button) findViewById(R.id.button_maps_done);
         bDone.setOnClickListener(new OnClickListener() {
+			@Override
 			public void onClick(View v) {
 				exitMaps();
 			}
@@ -284,7 +288,19 @@ public class LocTrigMapsActivity extends MapActivity
 //		TrigPrefManager.registerPreferenceFile(LocTrigMapsActivity.this, 
 //				   								TOOL_TIP_PREF_NAME);
     }
-    
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
     private boolean shouldSkipToolTip() {
 
 		SharedPreferences pref = getSharedPreferences(TOOL_TIP_PREF_NAME, 
@@ -553,6 +569,7 @@ public class LocTrigMapsActivity extends MapActivity
     	Log.i(DEBUG_TAG, "Maps: getGPSSamples");
     	
     	BroadcastReceiver bRecr = new BroadcastReceiver() {
+			@Override
 			public void onReceive(Context context, Intent intent) {
 				if(intent.getAction().equals(ACTION_ALRM_GPS_TIMEOUT)) {
 					stopGPS();
@@ -625,6 +642,7 @@ public class LocTrigMapsActivity extends MapActivity
 	}
 	
 	/* GPS location changed callback. Display the blue marker */
+	@Override
 	public void onLocationChanged(Location loc) {
 		Log.i(DEBUG_TAG, "Maps: new location received: " +
 				 loc.getLatitude() + ", " +
@@ -709,6 +727,7 @@ public class LocTrigMapsActivity extends MapActivity
 		.setTitle(R.string.loc_overlap_title)
 		.setMessage(getString(resId, cName))
 		.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 			}
@@ -834,7 +853,7 @@ public class LocTrigMapsActivity extends MapActivity
 		private static final int ALPHA_DARK = 50;
 		
 		//Overlay list
-		private ArrayList<MapsOverlayItem> mOverlays = 
+		private final ArrayList<MapsOverlayItem> mOverlays = 
 			new ArrayList<MapsOverlayItem>();
 		
 		//Flag to check if the user if touching the screen
@@ -845,9 +864,9 @@ public class LocTrigMapsActivity extends MapActivity
 		//received. Only the last runnable needs to handled.
 		private int mPendingRunnables = 0;
 		//The point which was touched
-		private Point mTouchPoint = new Point();
+		private final Point mTouchPoint = new Point();
 		//The point where a drag operation is being performed
-		private Point mDragPoint = new Point();
+		private final Point mDragPoint = new Point();
 		//Flag to check if the circle around a marker is being resized
 		private boolean mCircleResizing = false;
 		//The radius if a circle being resized 
@@ -856,13 +875,13 @@ public class LocTrigMapsActivity extends MapActivity
 		//Index of 'my location' (blue marker) overlay in the list
 		private int mMyLocOverlayIndex = -1;
 		//The marker drawables
-		private Drawable mBluMarker = getResources()
+		private final Drawable mBluMarker = getResources()
 									.getDrawable(R.drawable.trigger_loc_marker_blue);
-		private Drawable mRedMarker = getResources()
+		private final Drawable mRedMarker = getResources()
 									.getDrawable(R.drawable.trigger_loc_marker_red);
 		
 		//Thread handler (for posting runnables)
-		private Handler mHandler = new Handler();
+		private final Handler mHandler = new Handler();
 		
 		
 		public MapsOverlay(Drawable defaultMarker) {
@@ -883,6 +902,7 @@ public class LocTrigMapsActivity extends MapActivity
 	
 		
 		/* Handle touch event to detect long press, tap and drag */
+		@Override
 		public boolean onTouchEvent(MotionEvent ev, MapView view) {
 			//Log.i(DEBUG_TAG, "Maps: onTouchEvent: " + ev.getAction());
 			
@@ -898,6 +918,7 @@ public class LocTrigMapsActivity extends MapActivity
 			//Runnable for detecting long press
 		    Runnable runLongpress = new Runnable() {
 		    	
+				@Override
 				public void run() {
 					//If the user hasn't lifted the finger, invoke the
 					//long press handler
@@ -1094,6 +1115,7 @@ public class LocTrigMapsActivity extends MapActivity
 		 * This method is overridden to draw the circle when the
 		 * overlay is in focus
 		 */
+		@Override
 		public void draw(Canvas canvas, MapView mMapView, boolean shadow) {
 		
 			MapsOverlayItem item = getFocus();
@@ -1265,7 +1287,7 @@ public class LocTrigMapsActivity extends MapActivity
 	private class DeleteLocDialog 
 			implements  DialogInterface.OnClickListener{
 
-		private int mLocId;
+		private final int mLocId;
 		
 		public DeleteLocDialog(int locId) {
 			this.mLocId = locId;

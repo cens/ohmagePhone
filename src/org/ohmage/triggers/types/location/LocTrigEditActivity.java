@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.location;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
@@ -33,10 +36,10 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -174,10 +177,11 @@ public class LocTrigEditActivity extends PreferenceActivity
 			updateActionsPrefStatus();
 		}
     }
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
+		Analytics.activity(this, Status.ON);
 
 		initializeCategories();
 		TrigListPreference locPref = (TrigListPreference) getPreferenceScreen()
@@ -205,6 +209,12 @@ public class LocTrigEditActivity extends PreferenceActivity
 				new LocationTrigger().launchSettingsEditActivity(LocTrigEditActivity.this, mAdminMode);
 			}
 		});
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
 	}
 
 	@Override
