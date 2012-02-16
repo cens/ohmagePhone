@@ -202,13 +202,7 @@
 	    </receiver>
 	    
 	    <service android:name=".service.SurveyGeotagService"/>
-	    
-	 	<receiver android:name=".service.SurveyGeotagTimeoutReceiver">
-			<intent-filter>
-	    		<action android:name="org.ohmage.service.ACTION_GEOTAG_TIMEOUT_ALARM"/>
-	    	</intent-filter>
-	    </receiver>
-    
+
 	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
 	                  android:label="Storage Monitor">
 	    </activity>

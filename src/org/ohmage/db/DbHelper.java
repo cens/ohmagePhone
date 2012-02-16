@@ -28,7 +28,6 @@ import org.ohmage.db.Models.PromptResponse;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.Models.SurveyPrompt;
-import org.ohmage.service.SurveyGeotagService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -39,7 +38,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.location.Location;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
@@ -402,28 +400,6 @@ public class DbHelper extends SQLiteOpenHelper {
 						+ Response.STATUS_STANDBY, null, null);
 
 		return Response.fromCursor(cursor);
-	}
-
-	public int updateResponseLocation(String locationStatus, Location location) {
-		ContentValues vals = new ContentValues();
-		vals.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
-		vals.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
-
-		if(location != null) {
-			vals.put(Responses.RESPONSE_LOCATION_LATITUDE, location.getLatitude());
-			vals.put(Responses.RESPONSE_LOCATION_LONGITUDE, location.getLongitude());
-			vals.put(Responses.RESPONSE_LOCATION_PROVIDER, location.getProvider());
-			vals.put(Responses.RESPONSE_LOCATION_ACCURACY, location.getAccuracy());
-			vals.put(Responses.RESPONSE_LOCATION_TIME, location.getTime());
-		}
-
-		ContentResolver cr = mContext.getContentResolver();
-		int count = cr.update(Responses.CONTENT_URI, vals,
-				Responses.RESPONSE_LOCATION_STATUS + " =? AND "
-						+ Responses.RESPONSE_STATUS + " = " + Response.STATUS_WAITING_FOR_LOCATION, 
-						new String [] { SurveyGeotagService.LOCATION_UNAVAILABLE } );
-
-		return count;
 	}
 
 	/**
