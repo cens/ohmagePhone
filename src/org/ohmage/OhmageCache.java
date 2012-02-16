@@ -71,6 +71,8 @@ public class OhmageCache extends FileResponseCache {
 	public static File getCachedFile(Context context, URI uri) {
 		try {
 			File parent = (isResponseImageRequest(uri)) ? context.getExternalCacheDir() : context.getCacheDir();
+			if(parent == null)
+				return null;
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			digest.update(String.valueOf(uri).getBytes("UTF-8"));
 			byte[] output = digest.digest();
@@ -98,7 +100,12 @@ public class OhmageCache extends FileResponseCache {
 	 */
 	public static void checkCacheUsage(Context context, int maxDiskCacheSize) {
 		long size = 0;
-		final File[] fileList = context.getExternalCacheDir().listFiles();
+		File cacheDir = context.getExternalCacheDir();
+		if(cacheDir == null) {
+			//sdcard is not available for some reason
+			return;
+		}
+		final File[] fileList = cacheDir.listFiles();
 		Arrays.sort(fileList, new Comparator<File>() {
 			@Override
 			public int compare(File f1, File f2) {
