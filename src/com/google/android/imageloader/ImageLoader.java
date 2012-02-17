@@ -47,6 +47,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ContentHandler;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -658,6 +659,44 @@ public final class ImageLoader {
         boolean loadBitmap = false;
         ImageRequest request = new ImageRequest(url, loadBitmap);
         enqueueRequest(request);
+    }
+
+    /**
+     * Pre-fetches the binary content for an image and stores it in a file-based
+     * cache (if it is not already cached locally) without loading the image
+     * data into memory.
+     * <p>
+     * Pre-fetching should not be used unless a {@link ContentHandler} with
+     * support for persistent caching was passed to the constructor.
+     * </p>
+     * <p>
+     * Should not be called from the UI thread
+     * </p>
+     * @param url the URL to pre-fetch.
+     * @throws IOException 
+     * @throws MalformedURLException 
+     * @throws NullPointerException if the URL is {@code null}
+     */
+    public void prefetchBlocking(String url) throws MalformedURLException, IOException {
+        if (url == null) {
+            throw new NullPointerException();
+        }
+        if (null != getBitmap(url)) {
+            // The image is already loaded, therefore
+            // it does not need to be prefetched.
+            return;
+        }
+        if (null != getError(url)) {
+            // A recent attempt to load or prefetch the image failed,
+            // therefore this attempt is likely to fail as well.
+            return;
+        }
+        boolean loadBitmap = false;
+        ImageRequest request = new ImageRequest(url, loadBitmap);
+
+        String protocol = getProtocol(url);
+        URLStreamHandler streamHandler = getURLStreamHandler(protocol);
+        request.loadImage(new URL(null, url, streamHandler));
     }
 
     /**

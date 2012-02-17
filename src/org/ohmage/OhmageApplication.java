@@ -54,7 +54,7 @@ public class OhmageApplication extends Application {
     /**
      * 10MB max for cached thumbnails
      */
-	private static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
+	public static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
 
     private ImageLoader mImageLoader;
 

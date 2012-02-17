@@ -1,6 +1,7 @@
 package org.ohmage.responsesync;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.google.android.imageloader.ImageLoader;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
@@ -14,6 +15,8 @@ import org.ohmage.Config;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
+import org.ohmage.OhmageApplication;
+import org.ohmage.OhmageCache;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
@@ -29,12 +32,15 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ResponseSyncService extends WakefulIntentService {
@@ -231,10 +237,18 @@ public class ResponseSyncService extends WakefulIntentService {
 			// ==================================================================
 			// === 3b. download responses from after the cutoff date
 			// ==================================================================
-			
+
 			// also maintain a list of photo UUIDs that may or may not be on the device
 			// this is campaign-response-specific, which is why it's happening in this loop over the campaigns
-			final HashMap<String, ArrayList<String>> responsePhotos = new HashMap<String, ArrayList<String>>();
+			class ResponseImage {
+				public ResponseImage(String c, String id) {
+					campaign = c;
+					uuid = id;
+				}
+				String campaign;
+				String uuid;
+			}
+			final LinkedList<ResponseImage> responsePhotos = new LinkedList<ResponseImage>();
 
 			// do the call and process the streaming response data
 			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
@@ -372,7 +386,11 @@ public class ResponseSyncService extends WakefulIntentService {
 	
 							try {
 								Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
-								responsePhotos.put(Responses.getResponseId(responseUri), photoUUIDs);
+								if(responseUri != null) {
+									for(String uuid : photoUUIDs) {
+										responsePhotos.add(new ResponseImage(candidate.campaignUrn, uuid));
+									}
+								}
 							}
 							catch (SQLiteConstraintException e) {
 								Log.v(TAG, "Record not inserted due to constraint failure (likely a duplicate)");
@@ -414,8 +432,31 @@ public class ResponseSyncService extends WakefulIntentService {
 						}
 					}
 				});
+
+			// We can now download the thumbnails for each response from newest to oldest.
+			// We only need to download OhmageApplication.MAX_DISK_CACHE_SIZE amount of data.
+			ImageLoader imageLoader = ImageLoader.get(this);
+			long downloadedAmount = 0;
+			String url;
+			for(int i=0; i < responsePhotos.size() && downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE; i++) {
+				ResponseImage responseImage = responsePhotos.get(i);
+				try {
+					url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
+					imageLoader.prefetchBlocking(url);
+					downloadedAmount += OhmageCache.getCachedFile(this, URI.create(url)).length();
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			// Now that we have downloaded potentially a lot of images, we should remove any old ones
+			OhmageApplication.checkCacheUsage();
 		}
-		
+
 		// ==================================================================
 		// === 4. complete! save finish time and exit
 		// ==================================================================
