@@ -90,6 +90,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
 				// annotate the request with the current campaign's URN
 				fbIntent.putExtra(ResponseSyncService.EXTRA_CAMPAIGN_URN, mCampaignUrn);
+				fbIntent.putExtra(ResponseSyncService.EXTRA_FORCE_ALL, true);
 				// and go!
 				WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
 			}

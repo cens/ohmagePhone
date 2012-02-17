@@ -46,6 +46,8 @@ public class ResponseSyncService extends WakefulIntentService {
 	public static final String EXTRA_INTERACTIVE = "interactive";
 	/** If present, runs the service only for the specified campaign */
 	public static final String EXTRA_CAMPAIGN_URN = "campaign_urn";
+	/** If present, the last synced time will be ignored */
+	public static final String EXTRA_FORCE_ALL = "extra_force_all";
 
 	public ResponseSyncService() {
 		super(TAG);
@@ -123,9 +125,10 @@ public class ResponseSyncService extends WakefulIntentService {
 		// === 2. determine time range on which to query
 		// ==================================================================
 
-		// get the time since the last refresh so we can retrieve entries only since then.
+		// get the time since the last refresh so we can retrieve entries only since then
+        // unless the extra EXTRA_FORCE_ALL is true.
 		// also save the time of this refresh, but only put it into the prefs at the end
-		long lastRefresh = prefs.getLastFeedbackRefreshTimestamp();
+
 		long thisRefresh = System.currentTimeMillis();
         
 		// attempt to construct a date range on which to query
@@ -141,9 +144,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		nearFuture.add(Calendar.DAY_OF_MONTH, 1);
 		
 		// and convert times to timestamps we can feed to the api
-		// we use the cutoff date only if it's present -- otherwise, it's the far past date
 		String farPastDate = inputSDF.format(farPast.getTime());
-		String cutoffDate = (lastRefresh > 0)?(inputSDF.format(lastRefresh)):(farPastDate);
 		String nearFutureDate = inputSDF.format(nearFuture.getTime());
 		
 		// ==================================================================
@@ -155,6 +156,13 @@ public class ResponseSyncService extends WakefulIntentService {
 		for (final Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 			
+			long lastRefresh = 0;
+			if (!intent.getBooleanExtra(EXTRA_FORCE_ALL, false)) {
+				lastRefresh = prefs.getLastFeedbackRefreshTimestamp(c.mUrn);
+			}
+			// we use the cutoff date only if it's present -- otherwise, it's the far past date
+			String cutoffDate = (lastRefresh > 0)?(inputSDF.format(lastRefresh)):(farPastDate);
+
 			// ==================================================================
 			// === 3a. download UUIDs of responses up to the cutoff date
 			// ===   * anything not in this list should be deleted off the phone
@@ -415,7 +423,8 @@ public class ResponseSyncService extends WakefulIntentService {
 		// once we're completely done, it's safe to store the time at which this refresh happened.
 		// this is to ensure that we don't incorrectly flag the range between the last and current
 		// as 'completed', in the case that there's an error mid-way through.
-		prefs.putLastFeedbackRefreshTimestamp(thisRefresh);
+		for(Campaign campaign : campaigns)
+			prefs.putLastFeedbackRefreshTimestamp(campaign.mUrn, thisRefresh);
 		
 		Log.v(TAG, "Response sync service complete");
 		

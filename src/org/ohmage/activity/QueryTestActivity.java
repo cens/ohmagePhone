@@ -1,11 +1,14 @@
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
 import org.ohmage.responsesync.ResponseSyncService;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -13,11 +16,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.ClipboardManager;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,8 +28,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class QueryTestActivity extends Activity {
 	private static final int CONTEXT_COPY = 1;
@@ -54,7 +55,7 @@ public class QueryTestActivity extends Activity {
 		mQueryButton.setOnClickListener(mClickListener);
 	}
 	
-	private OnClickListener mClickListener = new OnClickListener() {
+	private final OnClickListener mClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
@@ -135,7 +136,9 @@ public class QueryTestActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.fbtest_forcesync:
-				WakefulIntentService.sendWakefulWork(this, ResponseSyncService.class);
+				Intent intent = new Intent(this, ResponseSyncService.class);
+				intent.putExtra(ResponseSyncService.EXTRA_FORCE_ALL, true);
+				WakefulIntentService.sendWakefulWork(this, intent);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
