@@ -267,6 +267,7 @@
     <string name="response_info_upload">Upload</string>
     <string name="response_info_uploading">Uploading...</string>
     <string name="response_info_upload_error">Upload Error</string>
+    <string name="response_info_response_deleted">The response has been deleted</string>
     <string name="response_info_entity_action_button_upload_description">Upload Entity Button</string>
     <string name="response_info_entity_action_button_upload_error_description">Upload Error Entity Button</string>
     <string name="response_info_entity_action_button_upload_force_description">Upload Force Entity Button</string>

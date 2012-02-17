@@ -59,6 +59,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -165,6 +166,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 		if (!data.moveToFirst()) {
+			Toast.makeText(this, R.string.response_info_response_deleted, Toast.LENGTH_SHORT).show();
+			finish();
 			return;
 		}
 
