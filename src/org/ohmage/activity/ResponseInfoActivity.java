@@ -455,13 +455,23 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						File file = Response.getTemporaryResponsesImage(mContext, value);
+						final File file = Response.getTemporaryResponsesImage(mContext, value);
 						final ImageView imageView = (ImageView) view.getTag();
 
 						if(file != null && file.exists()) {
 							try {
 								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
 								imageView.setImageBitmap(img);
+								imageView.setOnClickListener(new View.OnClickListener() {
+
+									@Override
+									public void onClick(View v) {
+										Analytics.widget(v, "View Local Fullsize Image");
+										Intent intent = new Intent(Intent.ACTION_VIEW);
+										intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+										mContext.startActivity(intent);
+									}
+								});
 								return true;
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
