@@ -1,7 +1,6 @@
 package org.ohmage.service;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
-import com.google.android.imageloader.ImageLoader;
 
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Analytics;
@@ -210,19 +209,6 @@ public class UploadService extends WakefulIntentService {
 			if (response.getResult() == Result.SUCCESS) {
 				NotificationHelper.hideUploadErrorNotification(this);
 				NotificationHelper.hideAuthNotification(this);
-
-				// For each of the photos we just uploaded, we should download the correct image
-				// resized by the server.
-				ImageLoader imageLoader = ImageLoader.get(this);
-				for(File photo : photos) {
-					String url = OhmageApi.defaultImageReadUrl(photo.getName(), campaignUrn, "small");
-					imageLoader.prefetch(url);
-
-					// To prevent a flicker while the image is downloaded (or if the download fails for
-					// some reason), we just load in the raw bitmap data into the image cache
-					imageLoader.putBitmap(url, Utilities.decodeFile(photo, 200));
-					photo.delete();
-				}
 			} else {
 				responseStatus = Response.STATUS_ERROR_OTHER;
 				

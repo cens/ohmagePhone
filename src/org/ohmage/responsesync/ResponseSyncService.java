@@ -435,15 +435,19 @@ public class ResponseSyncService extends WakefulIntentService {
 
 			// We can now download the thumbnails for each response from newest to oldest.
 			// We only need to download OhmageApplication.MAX_DISK_CACHE_SIZE amount of data.
+			// As we download thumbnails, we can delete the old images
 			ImageLoader imageLoader = ImageLoader.get(this);
 			long downloadedAmount = 0;
 			String url;
-			for(int i=0; i < responsePhotos.size() && downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE; i++) {
+			for(int i=0; i < responsePhotos.size(); i++) {
 				ResponseImage responseImage = responsePhotos.get(i);
 				try {
-					url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
-					imageLoader.prefetchBlocking(url);
-					downloadedAmount += OhmageCache.getCachedFile(this, URI.create(url)).length();
+					while(downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE) {
+						url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
+						imageLoader.prefetchBlocking(url);
+						downloadedAmount += OhmageCache.getCachedFile(this, URI.create(url)).length();
+					}
+					Response.getTemporaryResponsesImage(this, responseImage.uuid).delete();
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
