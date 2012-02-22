@@ -212,8 +212,12 @@ public class Analytics {
 	 * @return
 	 */
 	private static StringBuilder appendPreamble(Context context, StringBuilder builder) {
-		return builder.append(loginName()).append(" ")
-				.append(context.getClass().getSimpleName()).append(" ");
+		builder.append(loginName()).append(" ");
+		if(context != null)
+			builder.append(context.getClass().getSimpleName()).append(" ");
+		else
+			builder.append("null ");
+		return builder;
 	}
 
 	/**
