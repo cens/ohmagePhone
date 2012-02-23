@@ -222,7 +222,7 @@ public class ResponseSyncService extends WakefulIntentService {
 						
 						// remove any record that's not in our server collection
 						// (usually meaning it was deleted from the server)
-						int delCount = cr.delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " not in (" + total + ")", args);
+						int delCount = cr.delete(Responses.CONTENT_URI, Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_UUID + " not in (" + total + ")", args);
 						
 						// after, we need to find out if any response we found is not in the database
 						// we then use the timestamp of the response to push back the cutoff date
