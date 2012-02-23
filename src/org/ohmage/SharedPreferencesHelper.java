@@ -122,7 +122,11 @@ public class SharedPreferencesHelper {
 	public boolean putLastFeedbackRefreshTimestamp(String urn, Long timestamp) {
 		return mPreferences.edit().putLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn, timestamp).commit();
 	}
-	
+
+	public boolean removeLastFeedbackRefreshTimestamp(String urn) {
+		return mPreferences.edit().remove(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn).commit();
+	}
+
 //	public String getCampaignName() {
 //		return mPreferences.getString(KEY_CAMPAIGN_NAME, "");
 //	}

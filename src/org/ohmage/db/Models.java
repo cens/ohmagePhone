@@ -1,6 +1,7 @@
 package org.ohmage.db;
 
 import org.ohmage.OhmageCache;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -19,7 +20,6 @@ import android.database.Cursor;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -203,6 +203,10 @@ public class Models {
 				customSingleChoices.clearCampaign(mUrn);
 				customSingleChoices.close();
 			}
+
+			// Remove last synced time
+			SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+			prefs.removeLastFeedbackRefreshTimestamp(mUrn);
 		}
 	}
 
