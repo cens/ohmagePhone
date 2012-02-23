@@ -38,6 +38,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
@@ -313,16 +314,25 @@ public class DbHelper extends SQLiteOpenHelper {
 			// do the actual insert into feedback responses
 			rowId = db.insert(Tables.RESPONSES, null, values);
 
-			// check if it succeeded; if not, we can't do anything
-			if (rowId == -1)
-				return -1;
-
-			if (populatePromptsFromResponseJSON(db, rowId, response,
-					campaignUrn, surveyId)) {
-				// and we're done; finalize the transaction
-				db.setTransactionSuccessful();
+			// check if it succeeded; if not lets try to update a response that exists
+			if (rowId == -1) {
+				if(values.containsKey(Responses.RESPONSE_UUID)) {
+					Cursor c = db.query(Tables.RESPONSES, new String[] { BaseColumns._ID }, Responses.RESPONSE_UUID + "=?", new String[] { values.getAsString(Responses.RESPONSE_UUID) }, null, null, null);
+					if(c.moveToFirst()) {
+						rowId = c.getLong(0);
+						c.close();
+						db.update(Tables.RESPONSES, values, Responses.RESPONSE_UUID + "=?", new String[] { values.getAsString(Responses.RESPONSE_UUID) });
+					}
+				}
+				if(rowId != -1)
+					db.setTransactionSuccessful();
+			} else {
+				if (populatePromptsFromResponseJSON(db, rowId, response,
+						campaignUrn, surveyId)) {
+					// and we're done; finalize the transaction
+					db.setTransactionSuccessful();
+				}
 			}
-			// else we fail and the transaction gets rolled back
 		}
 		catch (SQLiteConstraintException e) {
 			Log.e(TAG, "Attempted to insert record that violated a SQL constraint (likely the hashcode)");
