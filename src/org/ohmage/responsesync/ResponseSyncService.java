@@ -30,8 +30,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -45,8 +47,7 @@ import java.util.List;
 
 public class ResponseSyncService extends WakefulIntentService {
 	private static final String TAG = "ResponseSyncService";
-	private static final int MAX_RESPONSES_PER_SURVEY = 20;
-	
+
 	// extras with which the service can be run
 	/** If true, the service displays a toast when it completes */
 	public static final String EXTRA_INTERACTIVE = "interactive";
@@ -54,6 +55,8 @@ public class ResponseSyncService extends WakefulIntentService {
 	public static final String EXTRA_CAMPAIGN_URN = "campaign_urn";
 	/** If present, the last synced time will be ignored */
 	public static final String EXTRA_FORCE_ALL = "extra_force_all";
+
+	private SharedPreferencesHelper mPrefs;
 
 	public ResponseSyncService() {
 		super(TAG);
@@ -91,9 +94,9 @@ public class ResponseSyncService extends WakefulIntentService {
 		
 		// grab an instance of the api connector so we can do calls to the server for responses
 		OhmageApi api = new OhmageApi(this);
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-		String username = prefs.getUsername();
-		String hashedPassword = prefs.getHashedPassword();
+		mPrefs = new SharedPreferencesHelper(this);
+		String username = mPrefs.getUsername();
+		String hashedPassword = mPrefs.getHashedPassword();
 		
 		if (username == null || username.equals("")) {
 			Log.e(TAG, "User isn't logged in, ResponseSyncService terminating");
@@ -131,18 +134,12 @@ public class ResponseSyncService extends WakefulIntentService {
 		// === 2. determine time range on which to query
 		// ==================================================================
 
-		// get the time since the last refresh so we can retrieve entries only since then
-        // unless the extra EXTRA_FORCE_ALL is true.
-		// also save the time of this refresh, but only put it into the prefs at the end
 
-		long thisRefresh = System.currentTimeMillis();
-        
 		// attempt to construct a date range on which to query
 		// we need three dates:
 		// 1) far past, to get everything up to the cutoff date
-		// 2) the cutoff date
-		// 3) near future, to get everything since the cutoff date
-		SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd");
+		// 2) near future, to get everything since the cutoff date
+		final SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
 		Calendar farPast = new GregorianCalendar();
 		farPast.add(Calendar.YEAR, -10);
 		
@@ -161,13 +158,12 @@ public class ResponseSyncService extends WakefulIntentService {
 		// is participating in order to gather all of their data
 		for (final Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
-			
-			long lastRefresh = 0;
+
+			String cutoffDate = null;
 			if (!intent.getBooleanExtra(EXTRA_FORCE_ALL, false)) {
-				lastRefresh = prefs.getLastFeedbackRefreshTimestamp(c.mUrn);
+				// I add 1 second since the request is inclusive of this time
+				cutoffDate = inputSDF.format(mPrefs.getLastFeedbackRefreshTimestamp(c.mUrn) + 1000);
 			}
-			// we use the cutoff date only if it's present -- otherwise, it's the far past date
-			String cutoffDate = (lastRefresh > 0)?(inputSDF.format(lastRefresh)):(farPastDate);
 
 			// ==================================================================
 			// === 3a. download UUIDs of responses up to the cutoff date
@@ -230,10 +226,8 @@ public class ResponseSyncService extends WakefulIntentService {
 						
 						Log.v(TAG, "Finished UUID read, deleted " + delCount + " stale record(s) out of " + args.length);
 					}
-					
-					// TODO: should we handle failures here, too? probably, but how? just log and ignore?
 				});
-			
+
 			// ==================================================================
 			// === 3b. download responses from after the cutoff date
 			// ==================================================================
@@ -386,18 +380,19 @@ public class ResponseSyncService extends WakefulIntentService {
 	
 							try {
 								Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
-								if(responseUri != null) {
+
+								if(responseUri != null && candidate.time != 0 && !TextUtils.isEmpty(candidate.date)) {
+									// If the time is greater than the cut off time, we should update the last synced time with that
+									if(candidate.time > mPrefs.getLastFeedbackRefreshTimestamp(candidate.campaignUrn)) {
+										mPrefs.putLastFeedbackRefreshTimestamp(candidate.campaignUrn, candidate.time);
+									}
+									// Download the thumbnail if it has a date (because we can't get to it otherwise)
 									for(String uuid : photoUUIDs) {
 										responsePhotos.add(new ResponseImage(candidate.campaignUrn, uuid));
 									}
 								}
-							}
-							catch (SQLiteConstraintException e) {
+							} catch (SQLiteConstraintException e) {
 								Log.v(TAG, "Record not inserted due to constraint failure (likely a duplicate)");
-							}
-							catch(Exception e) {
-								// display some note in the log that this failed
-								Log.v(TAG, "Record was not inserted (insertion returned -1)");
 							}
 							
 							// it's possible that the above will fail, in which case it silently returns -1
@@ -415,8 +410,6 @@ public class ResponseSyncService extends WakefulIntentService {
 					
 					@Override
 					public void readResult(Result result, String[] errorCodes) {
-						// what do we do if there's an error? terminate immediately or just keep trucking?
-						// it also doesn't help that this will always occur after the data is read, assuming it's there
 						String error = null;
 						
 						switch (result) {
@@ -427,49 +420,46 @@ public class ResponseSyncService extends WakefulIntentService {
 						
 						if (error != null) {
 							Log.e(TAG, error);
-							
-							// throw an exception here or what?
+							return;
 						}
+
+						// We can now download the thumbnails for each response from newest to oldest.
+						// We only need to download OhmageApplication.MAX_DISK_CACHE_SIZE amount of data.
+						ImageLoader imageLoader = ImageLoader.get(ResponseSyncService.this);
+						long downloadedAmount = 0;
+						long time = System.currentTimeMillis();
+						String url;
+						for(int i=0; i < responsePhotos.size(); i++) {
+							ResponseImage responseImage = responsePhotos.get(i);
+							try {
+								if(downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE) {
+									url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
+									imageLoader.prefetchBlocking(url);
+									File file = OhmageCache.getCachedFile(ResponseSyncService.this, URI.create(url));
+									downloadedAmount += file.length();
+									file.setLastModified(time - 1000 * i);
+								}
+
+								// As we download thumbnails, we can delete the old images
+								Response.getTemporaryResponsesImage(ResponseSyncService.this, responseImage.uuid).delete();
+							} catch (MalformedURLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+
+						// Now that we have downloaded potentially a lot of images, we should remove any old ones
+						OhmageApplication.checkCacheUsage();
 					}
 				});
-
-			// We can now download the thumbnails for each response from newest to oldest.
-			// We only need to download OhmageApplication.MAX_DISK_CACHE_SIZE amount of data.
-			// As we download thumbnails, we can delete the old images
-			ImageLoader imageLoader = ImageLoader.get(this);
-			long downloadedAmount = 0;
-			String url;
-			for(int i=0; i < responsePhotos.size(); i++) {
-				ResponseImage responseImage = responsePhotos.get(i);
-				try {
-					while(downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE) {
-						url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
-						imageLoader.prefetchBlocking(url);
-						downloadedAmount += OhmageCache.getCachedFile(this, URI.create(url)).length();
-					}
-					Response.getTemporaryResponsesImage(this, responseImage.uuid).delete();
-				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			// Now that we have downloaded potentially a lot of images, we should remove any old ones
-			OhmageApplication.checkCacheUsage();
 		}
 
 		// ==================================================================
-		// === 4. complete! save finish time and exit
+		// === 4. complete!
 		// ==================================================================
-		
-		// once we're completely done, it's safe to store the time at which this refresh happened.
-		// this is to ensure that we don't incorrectly flag the range between the last and current
-		// as 'completed', in the case that there's an error mid-way through.
-		for(Campaign campaign : campaigns)
-			prefs.putLastFeedbackRefreshTimestamp(campaign.mUrn, thisRefresh);
 		
 		Log.v(TAG, "Response sync service complete");
 		
