@@ -1,5 +1,7 @@
 package org.ohmage.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -99,6 +101,8 @@ public class TabManager implements TabHost.OnTabChangeListener {
 
 	@Override
 	public void onTabChanged(String tabId) {
+		if(mLastTab != null)
+			Analytics.widget(mActivity, "Tab: " + tabId);
 		TabInfo newTab = mTabs.get(tabId);
 		if (mLastTab != newTab) {
 			FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();

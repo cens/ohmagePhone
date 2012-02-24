@@ -1,5 +1,8 @@
 package org.ohmage.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
@@ -12,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -48,6 +52,24 @@ public abstract class BaseActivity extends FragmentActivity {
 			finish();
 			return;
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		Analytics.widget(this, "Menu Button");
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override

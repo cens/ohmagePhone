@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.notif;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 import org.ohmage.R;
 import org.ohmage.triggers.config.NotifConfig;
@@ -30,13 +30,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /*
  * Activity to edit the notification description visually. 
@@ -106,7 +109,19 @@ public class NotifEditActivity extends ListActivity
 		setupListAdaptor();
 		validateDataAndUpdateView();
 	}
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);

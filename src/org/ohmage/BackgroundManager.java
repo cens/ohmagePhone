@@ -17,7 +17,7 @@ package org.ohmage;
 
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.feedback.FeedbackSyncReceiver;
+import org.ohmage.responsesync.ResponseSyncReceiver;
 import org.ohmage.service.UploadReceiver;
 import org.ohmage.storagemonitor.StorageMonitorService;
 import org.ohmage.triggers.base.TriggerInit;
@@ -54,7 +54,7 @@ public class BackgroundManager {
 		
 		// FAISAL: feedback service repeating alarm registered here
 		if (Config.ALLOWS_FEEDBACK) {
-			Intent fbServiceSyncIntent = new Intent(FeedbackSyncReceiver.ACTION_FBSYNC_ALARM);
+			Intent fbServiceSyncIntent = new Intent(ResponseSyncReceiver.ACTION_FBSYNC_ALARM);
 			PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
 			alarms.cancel(fbServiceSyncPendingIntent);
 			alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);

@@ -1,5 +1,7 @@
 package org.ohmage.controls;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 
 import android.app.Activity;
@@ -163,6 +165,8 @@ public class DateFilterControl extends LinearLayout {
 	private class FilterClickHandler implements OnClickListener {
 		@Override
 		public void onClick(View v) {
+			Analytics.widget(v);
+
 			switch (v.getId()) {
 				case R.id.controls_filter_prev:
 					mSelectedDate.add(CALENDAR_UNIT, -1);

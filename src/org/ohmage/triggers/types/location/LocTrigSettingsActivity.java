@@ -17,8 +17,8 @@ package org.ohmage.triggers.types.location;
 
 
 
-import java.util.HashSet;
-import java.util.LinkedList;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 import org.ohmage.R;
 import org.ohmage.db.DbHelper;
@@ -38,18 +38,21 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+
+import java.util.HashSet;
+import java.util.LinkedList;
 
 /*
  * Location triggers settings activity.
@@ -118,6 +121,18 @@ public class LocTrigSettingsActivity extends ListActivity
         initializeList();
         registerForContextMenu(getListView()); 
     }
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {

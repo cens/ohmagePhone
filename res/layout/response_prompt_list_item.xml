@@ -2,6 +2,8 @@
 <RelativeLayout
 	android:id="@+id/prompt_question"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:imageview="http://schemas.android.com/apk/res/org.ohmage"
+
 	android:padding="@dimen/gutter"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
@@ -45,15 +47,23 @@
 			android:id="@+id/prompt_text_value"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content" />
-		<ImageView
+		<ProgressBar
+			android:id="@+id/prompt_image_progress"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			android:padding="@dimen/gutter"/>
+		<org.ohmage.widget.ScaledImageView
 			android:id="@+id/prompt_image_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:adjustViewBounds="true"
 			android:background="@drawable/entity_icon_background"
 			android:padding="3dip"
-			android:maxHeight="250dip"
-			android:src="@android:drawable/ic_dialog_alert" />
+			android:maxHeight="150px"
+			android:src="@android:drawable/ic_dialog_alert"
+			imageview:scaleWidth="2"
+			imageview:scaleHeight="2" />
 	</FrameLayout>
 
 </RelativeLayout>

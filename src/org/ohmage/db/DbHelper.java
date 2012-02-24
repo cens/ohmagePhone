@@ -28,7 +28,6 @@ import org.ohmage.db.Models.PromptResponse;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.Models.SurveyPrompt;
-import org.ohmage.service.SurveyGeotagService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -39,7 +38,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.location.Location;
+import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
@@ -61,7 +60,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 31;
+	private static final int DB_VERSION = 32;
 	
 	private final Context mContext;
 
@@ -176,8 +175,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Responses.SURVEY_ID + " TEXT, "
 				+ Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT + " TEXT, "
 				+ Responses.RESPONSE_JSON + " TEXT, "
-				+ Responses.RESPONSE_STATUS + " INTEGER DEFAULT 0, "
-				+ Responses.RESPONSE_HASHCODE + " TEXT"
+				+ Responses.RESPONSE_STATUS + " INTEGER DEFAULT 0"
 				+ ");");
 
 		// make campaign URN unique in the campaigns table
@@ -212,11 +210,10 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Tables.RESPONSES + " (" + Responses.RESPONSE_TIME + ");");
 
 		// for responses, to prevent duplicates, add a unique key on the
-		// 'hashcode' column, which is just a hash of the concatentation
-		// of the campaign urn + survey ID + username + time of the response,
-		// computed and maintained by us, unfortunately :\
-		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Responses.RESPONSE_HASHCODE
-				+ "_idx ON " + Tables.RESPONSES + " (" + Responses.RESPONSE_HASHCODE
+		// 'uuid' column, which is assigned by the client at survey creation time,
+		// but persisted by the server
+		db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS " + Responses.RESPONSE_UUID
+				+ "_idx ON " + Tables.RESPONSES + " (" + Responses.RESPONSE_UUID
 				+ ");");
 
 		// for prompt values, index on the response id for fast lookups
@@ -317,16 +314,25 @@ public class DbHelper extends SQLiteOpenHelper {
 			// do the actual insert into feedback responses
 			rowId = db.insert(Tables.RESPONSES, null, values);
 
-			// check if it succeeded; if not, we can't do anything
-			if (rowId == -1)
-				return -1;
-
-			if (populatePromptsFromResponseJSON(db, rowId, response,
-					campaignUrn, surveyId)) {
-				// and we're done; finalize the transaction
-				db.setTransactionSuccessful();
+			// check if it succeeded; if not lets try to update a response that exists
+			if (rowId == -1) {
+				if(values.containsKey(Responses.RESPONSE_UUID)) {
+					Cursor c = db.query(Tables.RESPONSES, new String[] { BaseColumns._ID }, Responses.RESPONSE_UUID + "=?", new String[] { values.getAsString(Responses.RESPONSE_UUID) }, null, null, null);
+					if(c.moveToFirst()) {
+						rowId = c.getLong(0);
+						c.close();
+						db.update(Tables.RESPONSES, values, Responses.RESPONSE_UUID + "=?", new String[] { values.getAsString(Responses.RESPONSE_UUID) });
+					}
+				}
+				if(rowId != -1)
+					db.setTransactionSuccessful();
+			} else {
+				if (populatePromptsFromResponseJSON(db, rowId, response,
+						campaignUrn, surveyId)) {
+					// and we're done; finalize the transaction
+					db.setTransactionSuccessful();
+				}
 			}
-			// else we fail and the transaction gets rolled back
 		}
 		catch (SQLiteConstraintException e) {
 			Log.e(TAG, "Attempted to insert record that violated a SQL constraint (likely the hashcode)");
@@ -404,28 +410,6 @@ public class DbHelper extends SQLiteOpenHelper {
 						+ Response.STATUS_STANDBY, null, null);
 
 		return Response.fromCursor(cursor);
-	}
-
-	public int updateResponseLocation(String locationStatus, Location location) {
-		ContentValues vals = new ContentValues();
-		vals.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
-		vals.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
-
-		if(location != null) {
-			vals.put(Responses.RESPONSE_LOCATION_LATITUDE, location.getLatitude());
-			vals.put(Responses.RESPONSE_LOCATION_LONGITUDE, location.getLongitude());
-			vals.put(Responses.RESPONSE_LOCATION_PROVIDER, location.getProvider());
-			vals.put(Responses.RESPONSE_LOCATION_ACCURACY, location.getAccuracy());
-			vals.put(Responses.RESPONSE_LOCATION_TIME, location.getTime());
-		}
-
-		ContentResolver cr = mContext.getContentResolver();
-		int count = cr.update(Responses.CONTENT_URI, vals,
-				Responses.RESPONSE_LOCATION_STATUS + " =? AND "
-						+ Responses.RESPONSE_STATUS + " = " + Response.STATUS_WAITING_FOR_LOCATION, 
-						new String [] { SurveyGeotagService.LOCATION_UNAVAILABLE } );
-
-		return count;
 	}
 
 	/**

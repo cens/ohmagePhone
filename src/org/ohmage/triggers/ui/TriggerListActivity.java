@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.ohmage.triggers.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.AdminPincodeActivity;
@@ -104,12 +107,7 @@ public class TriggerListActivity extends ListActivity
 	/**
 	 * Instead of having a shared preference admin mode, we want admin mode to end once the user leaves the activity
 	 */
-	private boolean mAdminMode = TRIGGER_ADMIN_MODE;
-
-	/**
-	 * Set the default admin mode. If it is true, we don't need to show the admin menu
-	 */
-	public static boolean TRIGGER_ADMIN_MODE = true;
+	private boolean mAdminMode = Config.REMINDER_ADMIN_MODE;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -171,7 +169,19 @@ public class TriggerListActivity extends ListActivity
 		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME);
 		TrigPrefManager.registerPreferenceFile(this, "GLOBAL", PREF_FILE_NAME);
     }
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -552,7 +562,7 @@ public class TriggerListActivity extends ListActivity
 		menu.removeItem(MENU_ID_SETTINGS);
 		
 		boolean adminMode = isAdminLoggedIn();
-		if(!TRIGGER_ADMIN_MODE) {
+		if(!Config.REMINDER_ADMIN_MODE) {
 			if(!adminMode) {
 				menu.add(0, MENU_ID_ADMIN_LOGIN, 0, R.string.trigger_menu_admin_turn_on)
 				.setIcon(R.drawable.ic_menu_login);

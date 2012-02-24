@@ -17,6 +17,8 @@ package org.ohmage.activity;
 
 import com.slezica.tools.async.ManagedAsyncTask;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
@@ -177,9 +179,11 @@ public class LoginActivity extends FragmentActivity {
 			public void onLoadFinished(Loader<CampaignReadResponse> loader,
 					CampaignReadResponse data) {
 				String urn = Campaign.getSingleCampaign(LoginActivity.this);
-				if(urn == null)
+				if(urn == null) {
+					// Downloading the campaign failed so we should reset the username and password
+					mPreferencesHelper.clearCredentials();
 					Toast.makeText(LoginActivity.this, R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
-				else {
+				} else {
 					loginFinished(((CampaignReadTask) loader).getUsername(), ((CampaignReadTask) loader).getHashedPassword());
 				}
 				dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
@@ -192,8 +196,15 @@ public class LoginActivity extends FragmentActivity {
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
+		Analytics.activity(this, Status.ON);
 
 		// Hide any notifications since we started the login activity
 		NotificationHelper.hideAuthNotification(this);
@@ -206,6 +217,7 @@ public class LoginActivity extends FragmentActivity {
 			switch (v.getId()) {
 			case R.id.login:
 				Log.i(TAG, "login button clicked");
+				Analytics.widget(v);
 				doLogin();				
 				break;
 			}
@@ -347,6 +359,12 @@ public class LoginActivity extends FragmentActivity {
 			if(Config.IS_SINGLE_CAMPAIGN) {
 				// Download the single campaign
 				showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+
+				// Temporarily set the user credentials. If the download fails, they will be removed
+				// We need to set this so the ResponseSyncService can use them once the campaign is downloaded
+				mPreferencesHelper.putUsername(username);
+				mPreferencesHelper.putHashedPassword(hashedPassword);
+
 				mCampaignDownloadTask.setCredentials(username, hashedPassword);
 				mCampaignDownloadTask.forceLoad();
 			} else {
@@ -473,7 +491,7 @@ public class LoginActivity extends FragmentActivity {
 //		        	e.printStackTrace();
 //		        }
 //			}
-			OhmageApi api = new OhmageApi();
+			OhmageApi api = new OhmageApi(getActivity());
 			return api.authenticate(Config.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
 		}
 

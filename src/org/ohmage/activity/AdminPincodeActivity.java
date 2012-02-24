@@ -1,5 +1,8 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.Config;
 import org.ohmage.fragments.AdminDialogFragment;
 import org.ohmage.fragments.AdminDialogFragment.AdminCodeListener;
@@ -34,6 +37,18 @@ public class AdminPincodeActivity extends FragmentActivity implements AdminCodeL
 			AdminDialogFragment newFragment = new AdminDialogFragment();
 			newFragment.show(getSupportFragmentManager(), "dialog");
 		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
 	}
 
 	@Override

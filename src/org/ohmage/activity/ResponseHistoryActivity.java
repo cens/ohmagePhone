@@ -1,9 +1,12 @@
 package org.ohmage.activity;
 
 import org.ohmage.R;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.fragments.ResponseHistoryCalendarFragment;
 import org.ohmage.fragments.ResponseMapFragment;
+import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.ui.CampaignSurveyFilterActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
@@ -13,6 +16,10 @@ import org.ohmage.ui.OhmageFilterable.TimeFilter;
 import org.ohmage.ui.OhmageFilterable.TimeFilterable;
 import org.ohmage.ui.TabManager;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -37,6 +44,9 @@ import java.util.Calendar;
 public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 	private static final String TAG = "RHTabHost";
+	
+	// action bar actions
+	private static final int ACTION_RESPONSESYNC = 1;
 
 	/**
 	 * Set this extra to true if you want to see the map instead of the calendar at first
@@ -92,6 +102,28 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 		} else if(getIntent().getBooleanExtra(EXTRA_SHOW_MAP, false)) {
 			mTabHost.setCurrentTabByTag("map");
 		}
+		
+		// store context so we can access it from the actionbar handler
+		final Context context = this;
+		
+		// add a sync command to the response history action bar
+		ActionBarControl actionBar = getActionBar();
+		actionBar.clearActionBarCommands();
+		
+		actionBar.addActionBarCommand(ACTION_RESPONSESYNC, "sync responses", R.drawable.dashboard_title_refresh);
+		
+		actionBar.setOnActionListener(new ActionListener() {
+			@Override
+			public void onActionClicked(int commandID) {
+				switch (commandID) {
+					case ACTION_RESPONSESYNC:
+						Intent i = new Intent(context, ResponseSyncService.class);
+						i.putExtra(ResponseSyncService.EXTRA_INTERACTIVE, true);
+						WakefulIntentService.sendWakefulWork(context, i);
+						break;
+				}
+			}
+		});
 	}
 
 	private View createTabView(final int textResource){

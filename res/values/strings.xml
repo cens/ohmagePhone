@@ -48,10 +48,14 @@
     <string name="login_username_title">Username:</string>
     <string name="login_password_title">Password:</string>
     <string name="login_submit">Login</string>
+    <string name="login_activity_login_button_description">Login Button</string>
 
     <!-- Mobility -->
     <string name="mobilityservicestarted">Mobility service is running.</string>
     <string name="mobilityservicestopped">Mobility service is not running.</string>
+    <string name="mobility_radio_button_off_description">Off Button</string>
+    <string name="mobility_radio_button_1min_description">1 Minute Button</string>
+    <string name="mobility_radio_button_5min_description">5 Minutes Button</string>
 
     <!-- Admin Pincode -->
     <string name="admin_dialog_title">Enter pin code:</string>
@@ -60,6 +64,9 @@
     <!-- Filter -->
     <string name="filter_all_campaigns">All Campaigns</string>
     <string name="filter_all_surveys">All Surveys</string>
+    <string name="controls_filter_prev_description">Filter Previous Button</string>
+    <string name="controls_filter_current_description">Filter Button</string>
+    <string name="controls_filter_next_description">Filter Next Button</string>
 
     <!-- Titles -->
     <!-- main screen titles -->
@@ -88,6 +95,15 @@
     <string name="dashboard_profile">Profile</string>
     <string name="dashboard_help">Help</string>
     <string name="dashboard_mobility">Mobility</string>
+    <string name="dashboard_campaigns_btn_description">Campaign List Dashboard Button</string>
+    <string name="dashboard_surveys_btn_description">Surveys Dashboard Button</string>
+    <string name="dashboard_feedback_btn_description">Response History Dashboard Button</string>
+    <string name="dashboard_upload_queue_btn_description">Upload Queue Dashboard Button</string>
+    <string name="dashboard_profile_btn_description">Profile Dashboard Button</string>
+    <string name="dashboard_mobility_btn_description">Mobility Dashboard Button</string>
+    <string name="dashboard_settings_btn_description">Settings Dashboard Button</string>
+    <string name="dashboard_help_btn_description">Help Dashboard Button</string>
+    <string name="description_logo_home">Home Button</string>
 
     <!-- Help -->
     <string name="help_goto_dashboard">Dashboard</string>
@@ -144,6 +160,7 @@
     <string name="upload_queue_invalid_user_role">Your user role does not permit you to upload responses for this campaign.</string>
     <string name="upload_queue_network_error">Unable to connect to the server.</string>
     <string name="upload_queue_upload_all">Upload All</string>
+    <string name="upload_button_description">Upload Button</string>
 
     <!-- Response History -->
     <string name="response_history_calendar_tab">Calendar</string>
@@ -156,6 +173,10 @@
     <string name="calendar_short_friday">Fri</string>
     <string name="calendar_short_saturday">Sat</string>
 
+    <!-- General List -->
+    <string name="list_item_action_button_description">List Item Action Button</string>
+    <string name="list_item_description">List Item</string>
+
     <!-- Campaign List -->
     <string name="campaign_list_download_action_invalid">The Download action should not be exposed in this activity!</string>
     <string name="campaign_list_campaign_unavailable">This campaign is unavailable.</string>
@@ -165,11 +186,22 @@
     <string name="campaign_list_campaign_no_exist">This campaign no longer exists.</string>
     <string name="campaign_list_empty">You are not participating in any campaigns.\n\nHit the + icon on the top right to view and download available campaigns.</string>
     <string name="campaign_add_list_empty">No campaigns available at this time.</string>
+	<string name="campaign_list_add_action_button_description">Add Action Button</string>
+	<string name="campaign_list_refresh_action_button_description">Refresh Action Button</string>
+	<string name="campaign_list_item_action_button_error_description">List Item Action Button (Error)</string>
+	<string name="campaign_list_item_action_button_download_description">List Item Action Button (Download)</string>
+	<string name="campaign_list_item_action_button_surveys_description">List Item Action Button (Surveys)</string>
+	<string name="campaign_list_item_action_button_downloading_description">List Item Action Button (Downloading)</string>
 
     <!-- Response List -->
     <string name="response_list_empty">No responses</string>
     <string name="response_list_upload_action_invalid">The Upload action should not be exposed in this activity!</string>
     <string name="response_list_error_action_invalid">The Error action should not be exposed in this activity!</string>
+    <string name="response_list_item_action_button_upload_description">List Item Action Button (Upload)</string>
+    <string name="response_list_item_action_button_queued_description">List Item Action Button (Queued)</string>
+    <string name="response_list_item_action_button_uploading_description">List Item Action Button (Uploading)</string>
+    <string name="response_list_item_action_button_waiting_description">List Item Action Button (Waiting)</string>
+    <string name="response_list_item_action_button_error_description">List Item Action Button (Error)</string>
 
     <!-- Preferences -->
     <string name="preferences_reminders_setup_title">Reminders</string>
@@ -201,6 +233,15 @@
     <string name="campaign_info_responses_title">responses:</string>
     <string name="campaign_info_triggers_title">reminders:</string>
     <string name="campaign_info_remove_campaign_reminders">Any custom reminders will also be removed</string>
+    <string name="campaign_info_entity_action_button_view_surveys_description">View Surveys Entity Button</string>
+    <string name="campaign_info_entity_action_button_remove_description">Remove Entity Button</string>
+    <string name="campaign_info_entity_action_button_participate_description">Participate Entity Button</string>
+    <string name="campaign_info_privacy_header_description">Privacy Info Button</string>
+    <string name="campaign_info_status_header_description">Status Info Button</string>
+    <string name="campaign_info_responses_header_description">Responses Info Button</string>
+    <string name="campaign_info_reminders_header_description">Reminders Info Button</string>
+    <string name="response_history_action_button_description">Response History Button</string>
+    <string name="reminder_action_button_description">Reminders Button</string>
 
     <plurals name="campaign_info_remove_campaign_responses_w_reminders">
         <item quantity="one">along with <b>1 response</b> which hasn\'t been uploaded</item>
@@ -227,6 +268,11 @@
     <string name="response_info_upload">Upload</string>
     <string name="response_info_uploading">Uploading...</string>
     <string name="response_info_upload_error">Upload Error</string>
+    <string name="response_info_response_deleted">The response has been deleted</string>
+    <string name="response_info_entity_action_button_upload_description">Upload Entity Button</string>
+    <string name="response_info_entity_action_button_upload_error_description">Upload Error Entity Button</string>
+    <string name="response_info_entity_action_button_upload_force_description">Upload Force Entity Button</string>
+    <string name="response_info_entity_action_button_view_map_description">View Map Entity Button</string>
 
     <!-- Survey Info -->
     <string name="survey_info_take_survey">Take Survey</string>
@@ -236,10 +282,17 @@
     <string name="survey_info_responses_title">responses:</string>
     <string name="survey_info_last_response_title">last response:</string>
     <string name="survey_info_triggers_title">reminders:</string>
+    <string name="survey_info_entity_action_button_take_survey_description">Take Survey Entity Button</string>
+    <string name="survey_info_status_header_description">Status Info Button</string>
+    <string name="survey_info_responses_header_description">Responses Info Button</string>
+    <string name="survey_info_last_response_header_description">Last Response Info Button</string>
+    <string name="survey_info_reminders_header_description">Reminders Info Button</string>
 
     <!-- Profile Info -->
     <string name="profile_info_update_password">Update Password</string>
     <string name="profile_info_logout">Log Out, Wipe Data</string>
+    <string name="profile_info_entity_action_button_update_password_description">Update Password Button</string>
+    <string name="profile_info_entity_action_button_logout_description">Logout Button</string>
 
     <!-- Survey List -->
     <string name="surveys_all">All</string>
@@ -249,6 +302,9 @@
     <string name="surveys_empty_pending_single">You have no pending surveys.\n\nYou can manage survey reminders via the Settings on the Dashboard.</string>
     <string name="single_campaign_error">There is a problem with the campaign setup. \n\nIf the problem continues, please contact an Administrator.</string>
 	<string name="survey_list_campaign_error">The campaign this survey belongs to is stopped, or otherwise unavailable. Please make sure the campaign it belongs to is up to date.</string>
+	<string name="survey_list_item_action_button_description">List Item Action Button (Take Survey)</string>
+	<string name="survey_list_item_action_button_disabled_description">List Item Action Button (Disabled)</string>
+	<string name="survey_list_item_action_button_pending_description">List Item Action Button (Pending)</string>
 
     <!-- Campaign -->
     <string name="campaign_status_ready">participating</string>
@@ -278,4 +334,10 @@
     <!-- Feedback Charts -->
     <string name="feedback_chart_list_empty">No charts</string>
     <string name="charts_no_data">No data</string>
+
+    <!-- Image Loader Activity -->
+    <string name="image_loader_failed">There was a problem downloading the image. Please try again later.</string>
+    <string name="survey_activity_previous_description">Survey Previous Button</string>
+    <string name="survey_activity_skip_description">Survey Skip Button</string>
+    <string name="survey_activity_next_description">Survey Next Button</string>
 </resources>
