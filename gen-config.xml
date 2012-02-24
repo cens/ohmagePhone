@@ -16,6 +16,7 @@
 		<property name="config.single_campaign" value="false" />
 		<property name="config.allows_feedback" value="true" />
 		<property name="config.admin_mode" value="false" />
+		<property name="config.reminder_admin_mode" value="false" />
 		<property name="config.log_analytics" value="false" />
 		<property name="config.log_level" value="" />
 
@@ -27,6 +28,7 @@
 				<filter token="CONFIG.SINGLE_CAMPAIGN" value="${config.single_campaign}"/>
 				<filter token="CONFIG.ALLOWS_FEEDBACK" value="${config.allows_feedback}"/>
 				<filter token="CONFIG.ADMIN_MODE" value="${config.admin_mode}"/>
+				<filter token="CONFIG.REMINDER_ADMIN_MODE" value="${config.reminder_admin_mode}"/>
 				<filter token="CONFIG.LOG_ANALYTICS" value="${config.log_analytics}"/>
 				<filter token="CONFIG.LOG_LEVEL" value='"${config.log_level}"'/>
 
