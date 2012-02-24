@@ -70,21 +70,24 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
-            android:text="@string/previous" />
+            android:text="@string/previous"
+            android:contentDescription="@string/survey_activity_previous_description"/>
 
         <Button
             android:id="@+id/skip_button"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
-            android:text="@string/skip" />
+            android:text="@string/skip"
+            android:contentDescription="@string/survey_activity_skip_description"/>
 
         <Button
             android:id="@+id/next_button"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
-            android:text="@string/next" />
+            android:text="@string/next"
+            android:contentDescription="@string/survey_activity_next_description"/>
     </LinearLayout>
 
 </LinearLayout>
