@@ -81,13 +81,17 @@ public class Analytics {
 	 * @param view
 	 * @param name Human readable name for widget
 	 */
-	public static void widget(View view, String name) {
+	public static void widget(View view, String name, String extra) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(view.getId());
 		if (name != null)
 			builder.append(" ").append(name);
 		else if (!TextUtils.isEmpty(view.getContentDescription()))
 			builder.append(" ").append(view.getContentDescription());
+
+		if(extra != null)
+			builder.append(" [").append(extra).append("]");
+
 		log(view.getContext(), "widget", builder);
 	}
 
@@ -112,7 +116,17 @@ public class Analytics {
 	 * @param view
 	 */
 	public static void widget(View view) {
-		widget(view, null);
+		widget(view, null, null);
+	}
+
+	/**
+	 * Log information about a view being interacted with
+	 * 
+	 * @param view
+	 * @param name
+	 */
+	public static void widget(View view, String name) {
+		widget(view, name, null);
 	}
 
 	/**

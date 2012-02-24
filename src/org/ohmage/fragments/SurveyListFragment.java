@@ -90,11 +90,13 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Analytics.widget(v);
-
 		Cursor cursor = (Cursor) getListAdapter().getItem(position);
-		
-		Uri uri = Campaigns.buildSurveysUri(cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN)), cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID)));
+		String campaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
+		String surveyId = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
+
+		Analytics.widget(v, null, campaignUrn + ":" + surveyId);
+
+		Uri uri = Campaigns.buildSurveysUri(campaignUrn, surveyId);
 		mListener.onSurveyActionView(uri);
 	}
 	

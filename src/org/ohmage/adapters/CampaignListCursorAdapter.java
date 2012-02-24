@@ -57,7 +57,7 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 			
 			@Override
 			public void onClick(View v) {
-				Analytics.widget(v);
+				Analytics.widget(v, null, campaignUrn);
 				mListener.onSubActionClicked(Campaigns.buildCampaignUri(campaignUrn));
 			}
 		});

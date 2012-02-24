@@ -288,13 +288,16 @@ public class SurveyActivity extends Activity implements LocationListener {
 		
 		@Override
 		public void onClick(View v) {
-			Analytics.widget(v);
+			// We have special logic for logging the submit button
+			if(v.getId() != R.id.next_button || !mReachedEnd)
+				Analytics.widget(v);
 			
 			switch (v.getId()) {
 			case R.id.next_button:
 				if (mReachedEnd) {
 					mSurveyFinished = true;
-					storeResponse();
+					String uuid = storeResponse();
+					Analytics.widget(v, null, uuid);
 					TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
 					prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
@@ -929,7 +932,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		return previousResponses;
 	}
 	
-	private void storeResponse() {
+	private String storeResponse() {
 
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
@@ -1082,6 +1085,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 		i.putExtra(Responses.RESPONSE_JSON, response);
 
 		this.sendBroadcast(i);
+
+		return candidate.uuid;
 	}
 
 	@Override

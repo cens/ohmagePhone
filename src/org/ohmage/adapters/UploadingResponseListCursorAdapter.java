@@ -31,6 +31,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		super.bindView(view, context, c);
 		
 		final long responseId = c.getLong(c.getColumnIndex(Responses._ID));
+		final String uuid = c.getString(c.getColumnIndex(Responses.RESPONSE_UUID));
 		
 		view.findViewById(R.id.action_separator).setVisibility(View.VISIBLE);
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
@@ -41,7 +42,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 			
 			@Override
 			public void onClick(View v) {
-				Analytics.widget(v);
+				Analytics.widget(v, null, uuid);
 				mListener.onSubActionClicked(Responses.buildResponseUri(responseId));
 			}
 		});

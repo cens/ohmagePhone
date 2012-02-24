@@ -51,7 +51,7 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 			
 			@Override
 			public void onClick(View v) {
-				Analytics.widget(v);
+				Analytics.widget(v, null, campaignUrn + ":" + surveyId);
 				if(campaignStatus == Campaign.STATUS_READY) {
 					mListener.onSubActionClicked(Campaigns.buildSurveysUri(campaignUrn, surveyId));
 				} else {
