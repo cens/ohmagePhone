@@ -1,5 +1,6 @@
 package org.ohmage.ui;
 
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
@@ -12,6 +13,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
+import android.view.View;
 
 /**
  * CampaignFilterActivity can be extended by classes which have a campaign filter
@@ -50,7 +52,12 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 		if(mDefaultCampaign == null)
 			mCampaignFilter.add(0, new Pair<String, String>(getString(R.string.filter_all_campaigns), null));
 
-		getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
+		if(!Config.IS_SINGLE_CAMPAIGN)
+			getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
+		else {
+			setLoadingVisibility(false);
+			mCampaignFilter.setVisibility(View.GONE);
+		}
 	}
 
 	@Override

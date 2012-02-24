@@ -1,9 +1,10 @@
 package org.ohmage.fragments;
 
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbProvider;
 import org.ohmage.ui.OhmageFilterable.FilterableFragmentLoader;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 
@@ -31,14 +32,16 @@ public class ResponseLoader {
 
 	public CursorLoader onCreateLoader(int arg0, Bundle arg1) {
 
+		Uri uri = Responses.CONTENT_URI;
+
 		// Set the campaign filter selection
 		StringBuilder selection = new StringBuilder();
 		if(mFragment.getCampaignUrn() != null)
-			selection.append(DbProvider.Qualified.RESPONSES_CAMPAIGN_URN + "='" + mFragment.getCampaignUrn() + "' AND ");
+			uri = Campaigns.buildResponsesUri(mFragment.getCampaignUrn());
 
 		// Set the survey filter selection
 		if(mFragment.getSurveyId() != null)
-			selection.append(DbProvider.Qualified.RESPONSES_SURVEY_ID + "='" + mFragment.getSurveyId() + "' AND ");
+			uri = Campaigns.buildResponsesUri(mFragment.getCampaignUrn(), mFragment.getSurveyId());
 
 		// Set the date filter selection
 		selection.append(Responses.RESPONSE_TIME + " >= " + mFragment.getStartBounds() + " AND ");
@@ -47,6 +50,6 @@ public class ResponseLoader {
 		if(mSelection != null)
 			selection.append(" AND " + mSelection);
 
-		return new CursorLoader(mFragment.getActivity(), Responses.CONTENT_URI, mProjection, selection.toString(), null, Responses.RESPONSE_TIME + " DESC");
+		return new CursorLoader(mFragment.getActivity(), uri, mProjection, selection.toString(), null, Responses.RESPONSE_TIME + " DESC");
 	}
 }

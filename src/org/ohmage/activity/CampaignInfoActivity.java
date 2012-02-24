@@ -2,23 +2,20 @@ package org.ohmage.activity;
 
 import com.google.android.imageloader.ImageLoader;
 
-import org.ohmage.OhmageApi.CampaignXmlResponse;
-import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
 import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.triggers.glue.TriggerFramework;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -33,13 +30,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final int TRIGGER_UPDATE_FINISHED = 0;
+
 	// helpers
 	private FragmentActivity mContext;
 	private SharedPreferencesHelper mSharedPreferencesHelper;
@@ -60,6 +53,11 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 	
 	// state vars
 	private int mCampaignStatus; // status code for campaign as of last refresh
+	private int mLocalResponses;
+
+	private String mCampaignUrn;
+
+	private int mTriggerCount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +121,17 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// or start a new one.
 		getSupportLoaderManager().initLoader(0, null, this);
 	}
-	
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch(requestCode) {
+			case TRIGGER_UPDATE_FINISHED:
+				//Triggers might have changed so we update it here
+				setTriggerCount();
+				break;
+		}
+	}
+
 	protected void populateCommands(final String campaignUrn, final int campaignStatus) {
 		// first remove all the commands from the action bar...
 		ActionBarControl actionBar = getActionBar();
@@ -162,16 +170,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 								startActivity(intent);
 								break;
 							case ACTION_SETUP_TRIGGERS:
-								List<String> surveyTitles = new ArrayList<String>();
-								
-								// grab a list of surveys for this campaign
-								Cursor surveys = getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
-								
-								while (surveys.moveToNext()) {
-									surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
-								}
-								
-								TriggerFramework.launchTriggersActivity(mContext, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
+								Intent triggerIntent = Campaign.launchTriggerIntent(mContext, campaignUrn);
+								startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
 								return;
 						}
 					}
@@ -199,27 +199,49 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				@Override
 				public void onClick(View v) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-					builder.setMessage("Are you sure that you want to remove this campaign? Any data that you haven't uploaded will be lost!")
-						.setCancelable(false)
-						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					StringBuilder message = new StringBuilder(getString(R.string.campaign_info_remove_text));
+
+					if(mTriggerCount != 0) {
+						message.append(" ");
+						message.append(getString(R.string.campaign_info_remove_campaign_reminders));
+					}
+					if(mLocalResponses != 0) {
+						if(mTriggerCount != 0) {
+							message.append(" ");
+							message.append(Html.fromHtml(getResources().getQuantityString(R.plurals.campaign_info_remove_campaign_responses_w_reminders, mLocalResponses, mLocalResponses)));
+						} else {
+							message.append(" ");
+							message.append(Html.fromHtml(getResources().getQuantityString(R.plurals.campaign_info_remove_campaign_responses, mLocalResponses, mLocalResponses)));
+						}
+						builder.setNeutralButton(R.string.upload, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								// set this campaign as "remote" and exit out of here
-								ContentValues cv = new ContentValues();
-								cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
-								cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
-								getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-								mContext.finish();
-							}
-						})
-						.setNegativeButton("No", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.cancel();
+								Intent uploadQueue = new Intent(CampaignInfoActivity.this, UploadQueueActivity.class);
+								uploadQueue.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
+								startActivity(uploadQueue);
 							}
 						});
-						AlertDialog alert = builder.create();
-						alert.show();
+					}
+					if(mTriggerCount != 0 || mLocalResponses != 0)
+						message.append(".");
+					builder.setMessage(message);
+
+					builder.setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							// set this campaign as "remote" and exit out of here
+							Campaign.setRemote(CampaignInfoActivity.this, campaignUrn);
+							mContext.finish();
+						}
+					})
+					.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+					});
+					AlertDialog alert = builder.create();
+					alert.show();
 				}
 			});
 		}
@@ -235,20 +257,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				public void onClick(View v) {
 					// when clicked, it fires off a download task,
 					// waits for it to finish, then goes back to the list when it's done
-					(new CampaignXmlDownloadTask(mContext, campaignUrn) {
-						@Override
-						protected void onPostExecute(CampaignXmlResponse response) {
-							// TODO Auto-generated method stub
-							super.onPostExecute(response);
-							
-							// take us to my campaigns so we can see the entry in all its newfound glory
-							/*
-							startActivity(new Intent(mContext, CampaignListActivity.class));
-							mContext.finish();
-							*/
-						}
-					})
-					.execute(mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword());
+					new CampaignXmlDownloadTask(CampaignInfoActivity.this, campaignUrn, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword()).startLoading();
 				}
 			});
 		}
@@ -263,7 +272,6 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		String[] PROJECTION = {
 					Campaigns.CAMPAIGN_URN,
 					Campaigns.CAMPAIGN_NAME,
-					Campaigns.CAMPAIGN_CONFIGURATION_XML,
 					Campaigns.CAMPAIGN_DESCRIPTION,
 					Campaigns.CAMPAIGN_STATUS,
 					Campaigns.CAMPAIGN_PRIVACY,
@@ -272,11 +280,10 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		
 		final int URN = 0;
 		final int NAME = 1;
-		final int CONFIGURATION_XML = 2;
-		final int DESCRIPTION = 3;
-		final int STATUS = 4;
-		final int PRIVACY = 5;
-		final int ICON = 6;
+		final int DESCRIPTION = 2;
+		final int STATUS = 3;
+		final int PRIVACY = 4;
+		final int ICON = 5;
 	}
 
 	@Override
@@ -290,112 +297,108 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		if (!data.moveToFirst())
 			return;
 
-		// populate the views
-		try {
-			String campaignUrn = data.getString(QueryParams.URN);
-			String xmlData = data.getString(QueryParams.CONFIGURATION_XML);
-			
-			if (xmlData != null) {
-				// nab the data from the xml associated with this campaign
-				Map<String, String> campaignInfo = PromptXmlParser.parseCampaignInfo(
-						new ByteArrayInputStream(xmlData.getBytes("UTF-8"))
-						);
-			}
+		mCampaignUrn = data.getString(QueryParams.URN);
 
-			// set the header fields first
-			mHeadertext.setText(data.getString(QueryParams.NAME));
-			mSubtext.setText(campaignUrn);
-			mNotetext.setVisibility(View.INVISIBLE);
-			
-			final String iconUrl = data.getString(QueryParams.ICON);
-			if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
-				mIconView.setImageResource(R.drawable.apple_logo);
-			}
-			
-			// fill in the description
-			mDescView.setText(data.getString(QueryParams.DESCRIPTION));
-			
-			// set the appropriate text and icon for the privacy state
-			String privacy = data.getString(QueryParams.PRIVACY);
-			mPrivacyValue.setText(privacy);
-			if (privacy.equalsIgnoreCase("private"))
-				mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);
-			else if (privacy.equalsIgnoreCase("shared"))
-				mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_shared, 0, 0, 0);
-			else
-				mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);
-			
-			// hide our error box; it'll become visible below (and filled w/text) if the status is appropriate
-			mErrorBox.setVisibility(View.GONE);
-			
-			// set many things on the view according to the campaign status, too
-			mStatusValue.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0); // start out with nothing drawn
-			mCampaignStatus = data.getInt(QueryParams.STATUS);
-			switch (mCampaignStatus) {
-				case Campaign.STATUS_READY:
-					mStatusValue.setText("ready");
-					mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_running, 0, 0, 0);
-					break;
-				case Campaign.STATUS_VAGUE:
-					mStatusValue.setText("not available");
-					break;
-				case Campaign.STATUS_REMOTE:
-					mStatusValue.setText("available");
-					break;
-				case Campaign.STATUS_OUT_OF_DATE:
-					mStatusValue.setText("out of date");
-					break;
-				case Campaign.STATUS_NO_EXIST:
-					mStatusValue.setText("deleted on server");
-					break;
-				case Campaign.STATUS_STOPPED:
-					mStatusValue.setText("stopped");
-					mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0);
-					mErrorBox.setVisibility(View.VISIBLE);
-					mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_stopped)));
-					break;
-				case Campaign.STATUS_INVALID_USER_ROLE:
-					mStatusValue.setText("invalid role");
-					mErrorBox.setVisibility(View.VISIBLE);
-					mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_invalid_role)));
-					break;
-				case Campaign.STATUS_DOWNLOADING:
-					mStatusValue.setText("downloading...");
-					break;
-				default:
-					mStatusValue.setText("unknown status");
-					break;
-			}
-			
-			// set the responses by querying the response table
-			// and getting the number of responses submitted for this campaign
-			Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(campaignUrn), null, null, null, null);
-			mResponsesValue.setText(responses.getCount() + " response(s) submitted");
-			
-			// get the number of triggers for this campaign
-			TriggerDB trigDB = new TriggerDB(mContext);
-			if (trigDB.open()) {
-				Cursor triggers = trigDB.getAllTriggers(campaignUrn);
-				mTriggersValue.setText(triggers.getCount() + " trigger(s) configured");
-				triggers.close();
-				trigDB.close();
-			}
-			
-			// and finally populate the action bar + command tray
-			populateCommands(campaignUrn, mCampaignStatus);
+		// set the header fields first
+		mHeadertext.setText(data.getString(QueryParams.NAME));
+		mSubtext.setText(mCampaignUrn);
 
-			// and make the entity header visible (although i assume it already was)
-			mEntityHeader.setVisibility(View.VISIBLE);
-		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		final String iconUrl = data.getString(QueryParams.ICON);
+		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
+			mIconView.setImageResource(R.drawable.apple_logo);
 		}
-		
+
+		// fill in the description
+		mDescView.setText(data.getString(QueryParams.DESCRIPTION));
+
+		// set the appropriate text and icon for the privacy state
+		String privacy = data.getString(QueryParams.PRIVACY);
+		mPrivacyValue.setText(privacy);
+		if (privacy.equalsIgnoreCase("private"))
+			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);
+		else if (privacy.equalsIgnoreCase("shared"))
+			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_shared, 0, 0, 0);
+		else
+			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);
+
+		// hide our error box; it'll become visible below (and filled w/text) if the status is appropriate
+		mErrorBox.setVisibility(View.GONE);
+
+		// set many things on the view according to the campaign status, too
+		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0); // start out a default gray sphere
+		mCampaignStatus = data.getInt(QueryParams.STATUS);
+		switch (mCampaignStatus) {
+			case Campaign.STATUS_READY:
+				mStatusValue.setText(R.string.campaign_status_ready);
+				mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_running, 0, 0, 0);
+				break;
+			case Campaign.STATUS_VAGUE:
+				mStatusValue.setText(R.string.campaign_status_vague);
+				break;
+			case Campaign.STATUS_REMOTE:
+				mStatusValue.setText(R.string.campaign_status_remote);
+				break;
+			case Campaign.STATUS_OUT_OF_DATE:
+				mStatusValue.setText(R.string.campaign_status_out_of_date);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_outofdate)));
+				break;
+			case Campaign.STATUS_NO_EXIST:
+				mStatusValue.setText(R.string.campaign_status_no_exist);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_no_exist)));
+				break;
+			case Campaign.STATUS_STOPPED:
+				mStatusValue.setText(R.string.campaign_status_stopped);
+				mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_stopped)));
+				break;
+			case Campaign.STATUS_INVALID_USER_ROLE:
+				mStatusValue.setText(R.string.campaign_status_invalid_user_role);
+				mErrorBox.setVisibility(View.VISIBLE);
+				mErrorBox.setText(Html.fromHtml(getString(R.string.campaign_info_errorbox_invalid_role)));
+				break;
+			case Campaign.STATUS_DOWNLOADING:
+				mStatusValue.setText(R.string.campaign_status_downloading);
+				break;
+			default:
+				mStatusValue.setText(R.string.campaign_status_unknown);
+				break;
+		}
+
+		// set the responses by querying the response table
+		// and getting the number of responses submitted for this campaign
+		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), null, null, null, null);
+		mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
+
+		Cursor localResponses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), new String[] { Responses._ID },
+				Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
+		mLocalResponses = localResponses.getCount();
+
+		// get the number of triggers for this survey
+		setTriggerCount();
+
+		// and finally populate the action bar + command tray
+		populateCommands(mCampaignUrn, mCampaignStatus);
+
+		// and make the entity header visible (although i assume it already was)
+		mEntityHeader.setVisibility(View.VISIBLE);
+
 		// finally, show our content
 		setLoadingVisibility(false);
+	}
+
+	private void setTriggerCount() {
+		// get the number of triggers for this campaign
+		TriggerDB trigDB = new TriggerDB(mContext);
+		if (trigDB.open()) {
+			Cursor triggers = trigDB.getAllTriggers(mCampaignUrn);
+			mTriggerCount = triggers.getCount();
+			mTriggersValue.setText(getResources().getQuantityString(R.plurals.campaign_info_trigger_count, mTriggerCount, mTriggerCount));
+			triggers.close();
+			trigDB.close();
+		}
 	}
 
 	@Override

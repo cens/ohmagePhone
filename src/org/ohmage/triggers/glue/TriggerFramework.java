@@ -58,12 +58,26 @@ public class TriggerFramework {
 	 * is the entry point to the trigger framework. The list of all surveys 
 	 * for which any trigger is to be set must be passed as argument.
 	 */
-	public static void launchTriggersActivity(Context context, String campaignUrn, String[] surveys ) {
+	public static Intent launchTriggersIntent(Context context, String campaignUrn, String[] surveys ) {
 		
 		Intent i = new Intent(context, TriggerListActivity.class);
 		i.putExtra(TriggerListActivity.KEY_CAMPAIGN_URN, campaignUrn);
 		i.putExtra(TriggerListActivity.KEY_ACTIONS, surveys);
-		context.startActivity(i);
+		return i;
+	}
+	
+	/*
+	 * Launch the activity which displays the main trigger list.
+	 * 
+	 * Same as above, except that this variant allows an array of surveys to be
+	 * passed which will be preselected when a new trigger is created from the
+	 * trigger list activity.
+	 */
+	public static Intent launchTriggersIntent(Context context, String campaignUrn, String[] surveys, String[] selectedSurveys) {
+		
+		Intent i = launchTriggersIntent(context, campaignUrn, surveys);
+		i.putExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS, selectedSurveys);
+		return i;
 	}
 	
 	/*
@@ -114,6 +128,10 @@ public class TriggerFramework {
 	public static boolean resetTriggerSettings(Context context, String campaignUrn) {
 		
 		return TriggerInit.resetTriggersAndSettings(context, campaignUrn);
+	}
+
+	public static void setDefaultTriggers(Context context, String campaignUrn) {
+		TriggerInit.addDefaultTriggers(context, campaignUrn);
 	}
 }
 

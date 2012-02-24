@@ -6,6 +6,8 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.util.List;
+
 /**
  * Contract class for interacting with {@link DbProvider}. Defines the kinds of entities
  * managed by the provider, their schemas, and their relationships.
@@ -88,6 +90,8 @@ public class DbContract {
 		String RESPONSE_STATUS = "response_status";
 		/** read-only, a hash that uniquely identifies this response */
 		String RESPONSE_HASHCODE = "response_hashcode";
+		/** read-only, a UUID that uniquely identifies this response */
+		String RESPONSE_UUID = "response_uuid";
     }
     
     interface PromptResponseColumns {
@@ -259,6 +263,14 @@ public class DbContract {
 		public static String getResponseId(Uri uri) {
 			return uri.getPathSegments().get(1);
 		}
+
+		/** Checks to see if the given uri is a {@link Responses} uri */
+		public static boolean isResponseUri(Uri uri) {
+			if(uri == null)
+				return false;
+			List<String> segments = uri.getPathSegments();
+			return segments != null && segments.size() > 0 && PATH_RESPONSES.equals(segments.get(0));
+		}
 	}
 	
 	// ===================================
@@ -292,9 +304,45 @@ public class DbContract {
 		public static final String COMPOSITE_ID = "composite_id";
 		public static final String PROMPT_ID = "prompt_id";
 		
-    	/** Read Prompt id from {@link PromptResponses} {@link Uri}. */
+	/** Read Prompt id from {@link PromptResponses} {@link Uri}. which has a survey */
 		public static String getSurveyPromptId(Uri uri) {
 			return uri.getPathSegments().get(6);
+		}
+
+	/** Read Prompt id from {@link PromptResponses} {@link Uri}. */
+		public static String getPromptId(Uri uri) {
+			return uri.getPathSegments().get(4);
+		}
+
+		public static Uri getPromptsByCampaignAndSurvey(String campaignUrn, String surveyID, String promptID) {
+			return BASE_CONTENT_URI.buildUpon()
+					.appendPath(PATH_CAMPAIGNS)
+					.appendPath(campaignUrn)
+					.appendPath(PATH_SURVEYS)
+					.appendPath(surveyID)
+					.appendPath(PATH_RESPONSES)
+					.appendPath(PATH_PROMPTS)
+					.appendPath(promptID)
+					.build();
+		}
+
+		/**
+		 * Returns the prompts for a specific promptID
+		 *
+		 * This uri is only useful in certain circumstances where the same prompt is used
+		 * for more than one survey like it is in NIH
+		 * @param campaignUrn
+		 * @param promptID
+		 * @return
+		 */
+		public static Uri getPromptsByCampaign(String campaignUrn, String promptID) {
+			return BASE_CONTENT_URI.buildUpon()
+					.appendPath(PATH_CAMPAIGNS)
+					.appendPath(campaignUrn)
+					.appendPath(PATH_RESPONSES)
+					.appendPath(PATH_PROMPTS)
+					.appendPath(promptID)
+					.build();
 		}
 	}
 }

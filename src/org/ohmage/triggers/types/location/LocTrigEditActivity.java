@@ -18,6 +18,7 @@ package org.ohmage.triggers.types.location;
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.ui.ActionSelectorView;
 import org.ohmage.triggers.ui.TriggerListActivity;
 import org.ohmage.triggers.utils.TimePickerPreference;
 import org.ohmage.triggers.utils.TrigListPreference;
@@ -41,6 +42,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
+
+import java.util.Arrays;
 
 /*
  * Editor activity for location based trigger. This activity is
@@ -113,38 +116,6 @@ public class LocTrigEditActivity extends PreferenceActivity
 			finish();
 			return;
 		}
-		
-		initializeCategories();
-		TrigListPreference locPref = (TrigListPreference) getPreferenceScreen()
-										.findPreference(PREF_KEY_LOCATION);
-		locPref.setEntries(mCategories);
-		locPref.setEntryValues(mCategories);
-		
-		if(mCategories.length == 0) {
-			locPref.setEnabled(false);
-		}
-		else {
-			locPref.setValue(mCategories[0]);
-			locPref.setSummary(mCategories[0]);
-		}
-		
-		//The cancel button prompts the user to
-		//launch the settings activity
-		locPref.setOnCancelListener(
-				new TrigListPreference.onCancelListener() {
-			
-			@Override
-			public void onCancel() {
-				//TODO - currently this exits this activity
-				//In order to come back to this screen after editing
-				//locations, we need to reinitialize the UI as there
-				//could be changes in the location list. Also, the currently
-				//selected location might have been deleted.
-				new LocationTrigger().launchSettingsEditActivity(
-						LocTrigEditActivity.this, mAdminMode);
-				LocTrigEditActivity.this.finish();
-			}
-		});
 
 		PreferenceScreen screen = getPreferenceScreen();
 		int prefCount = screen.getPreferenceCount();
@@ -185,12 +156,57 @@ public class LocTrigEditActivity extends PreferenceActivity
 			}
 			else {
 				getPreferenceScreen().setEnabled(false);
-				Toast.makeText(this, "Invalid trigger settings!", 
+				Toast.makeText(this, R.string.trigger_invalid_settings,
 								Toast.LENGTH_SHORT).show();
 			}
 		}
+		
+		// if there are any preselected actions specified when the activity is first created
+		// and there's currently nothing in the action description, load the selected options
+		// into the action description as if they were previously selected
+		if (savedInstanceState == null && mActDesc.getCount() <= 0 && getIntent().hasExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS)) {
+			String[] preselectedActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS);
+
+			for (int i = 0; i < preselectedActions.length; ++i) {
+				mActDesc.addSurvey(preselectedActions[i]);
+			}
+			
+			updateActionsPrefStatus();
+		}
     }
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		initializeCategories();
+		TrigListPreference locPref = (TrigListPreference) getPreferenceScreen()
+										.findPreference(PREF_KEY_LOCATION);
+		locPref.setEntries(mCategories);
+		locPref.setEntryValues(mCategories);
+
+		if(mCategories.length == 0) {
+			locPref.setEnabled(false);
+		}
+		else {
+			if(locPref.getValue() == null || !Arrays.asList(mCategories).contains(locPref.getValue())) {
+				locPref.setValue(mCategories[0]);
+				locPref.setSummary(mCategories[0]);
+			}
+		}
+
+		//The cancel button prompts the user to
+		//launch the settings activity
+		locPref.setOnCancelListener(
+				new TrigListPreference.onCancelListener() {
+
+			@Override
+			public void onCancel() {
+				new LocationTrigger().launchSettingsEditActivity(LocTrigEditActivity.this, mAdminMode);
+			}
+		});
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -488,6 +504,13 @@ private Dialog createEditActionDialog() {
 		
 		AlertDialog.Builder builder = 
 	 			new AlertDialog.Builder(this)
+			   .setTitle(R.string.trigger_select_actions)
+			   .setNegativeButton(R.string.cancel, null)
+			   .setView(new ActionSelectorView(getBaseContext(), mActions, mActSelected));
+		
+		/*
+		AlertDialog.Builder builder = 
+	 			new AlertDialog.Builder(this)
 			   .setTitle("Select surveys")
 			   .setNegativeButton("Cancel", null)
 			   .setMultiChoiceItems(mActions, mActSelected, 
@@ -500,6 +523,7 @@ private Dialog createEditActionDialog() {
 					mActSelected[which] = isChecked;
 				}
 			});
+		*/
 
 		if(mAdminMode || TrigUserConfig.editTriggerActions) {
 			 builder.setPositiveButton("Done", 

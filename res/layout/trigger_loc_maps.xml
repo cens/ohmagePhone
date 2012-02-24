@@ -28,7 +28,7 @@
 		
 		<Button
 			android:id="@+id/button_maps_done"
-			android:text="Done"
+			android:text="@string/done"
 			android:layout_weight="0.5"
 			android:minWidth="150px"
 			android:layout_width="wrap_content"
@@ -41,6 +41,8 @@
         android:id="@+id/mapViewContainer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:enabled="true"
+        android:clickable="true"
         />
  	
 </LinearLayout>

@@ -1,14 +1,15 @@
 package org.ohmage.db;
 
-import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbContract.SurveyPrompts;
+import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Subqueries;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.DbModel;
+import org.ohmage.db.Models.Response;
 import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.triggers.glue.TriggerFramework;
 
@@ -20,9 +21,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A ContentProvider which makes the contents of the campaign, survey, and response
@@ -78,6 +78,9 @@ import java.util.HashSet;
  * campaigns/{urn}/surveys/{sid}/responses
  * -- query: returns all responses for the survey specified by {sid} within the campaign specified by {urn}
  * 
+ * campaigns/{urn}/responses/prompts/{pid}
+ * -- query: returns all prompts of the given {pid} within the campaign specified by {urn}
+ *
  * campaigns/{urn}/surveys/{sid}/responses/prompts/{pid}
  * -- query: returns all prompts of the given {pid} for the survey specified by {sid} within the campaign specified by {urn}
  * 
@@ -110,6 +113,7 @@ public class DbProvider extends ContentProvider {
 		int CAMPAIGN_BY_URN = 14;
 		int SURVEY_SURVEYPROMPTS = 15;
 		int SURVEYPROMPTS = 16;
+		int CAMPAIGN_RESPONSES_PROMPTS_BY_ID = 17;
 	}
 
 	@Override
@@ -150,6 +154,7 @@ public class DbProvider extends ContentProvider {
             // PROMPTS
             case MatcherTypes.PROMPTS:
             case MatcherTypes.RESPONSE_PROMPTS:
+            case MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
             case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
             	return PromptResponses.CONTENT_TYPE;
@@ -197,7 +202,8 @@ public class DbProvider extends ContentProvider {
 				// notify on the related entity URIs
 				cr.notifyChange(Responses.CONTENT_URI, null);
 				cr.notifyChange(PromptResponses.CONTENT_URI, null);
-				
+				cr.notifyChange(Campaigns.buildCampaignUri(campaignUrn), null);
+
 				break;
 			case MatcherTypes.CAMPAIGNS:
 				insertID = dbHelper.addCampaign(db, values);
@@ -233,6 +239,20 @@ public class DbProvider extends ContentProvider {
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
+		// If we are looking at campaigns we need to see what has changed to do some state management
+		if(sUriMatcher.match(uri) == MatcherTypes.CAMPAIGN_BY_URN || sUriMatcher.match(uri) == MatcherTypes.CAMPAIGNS) {
+			Cursor oldCampaigns = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
+
+			while (oldCampaigns != null && oldCampaigns.moveToNext()) {
+				// remove triggers for campaigns that have changed from ready to something else
+				if (oldCampaigns.getInt(1) == Campaign.STATUS_READY && values.containsKey(Campaigns.CAMPAIGN_STATUS) && values.getAsInteger(Campaigns.CAMPAIGN_STATUS) != Campaign.STATUS_READY)
+					TriggerFramework.resetTriggerSettings(getContext(), oldCampaigns.getString(0));
+				// update xml-related entities (surveys, surveyprompts) if the xml for these items is changed
+				if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
+					dbHelper.populateSurveysFromCampaignXML(db, oldCampaigns.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
+			}
+		}
+
 		// we assume we've matched it correctly, so proceed with the update
 		count = builder.update(db, values);
 		
@@ -246,22 +266,11 @@ public class DbProvider extends ContentProvider {
 					// notify on the related entity URIs
 					cr.notifyChange(Responses.CONTENT_URI, null);
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
-					// process each element in the update set to maintain ref integrity across entities that don't support it
-					// (e.g. triggers and surveys + responses, since they don't respond to updates, only deletes)
-					Cursor c = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
-					while (c.moveToNext()) {
-						// remove triggers for campaigns that are not ready
-						if (c.getInt(1) != Campaign.STATUS_READY)
-							TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
-						// update xml-related entities (surveys, surveyprompts) if the xml for these items is changed
-						if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
-							dbHelper.populateSurveysFromCampaignXML(db, c.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
-					}
-					
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);
@@ -293,27 +302,29 @@ public class DbProvider extends ContentProvider {
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
-		// Depending on the type of the thing deleted, we may have to delete the icon associated with it
-		// We need to know what the url is before we delete it
-		HashSet<String> iconUrls = new HashSet<String>();
+		// Depending on the type of the thing deleted, we may have to do some clean up
+		ArrayList<Models.DbModel> models = new ArrayList<Models.DbModel>();
 		switch (sUriMatcher.match(uri)) {
+			case MatcherTypes.RESPONSE_BY_PID:
+			case MatcherTypes.RESPONSES:
+				models.addAll(Response.fromCursor(builder.query(db, null, null)));
+				break;
 			case MatcherTypes.CAMPAIGN_BY_URN:
 			case MatcherTypes.CAMPAIGNS:
-				// build a list of icons associated w/this campaign to delete
-				// also clear triggers associated with this campaign before deletion
-				Cursor c = builder.query(db, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_ICON, Campaigns.CAMPAIGN_STATUS }, null);
-				if(c.moveToFirst()) {
-					while(c.moveToNext()) {
-						// append this icon to the list of delete candidates
-						if(c.getString(1) != null)
-							iconUrls.add(c.getString(1));
-						
-						// remove the associated triggers, too, if it's not a remote campaign
-						if (c.getInt(2) != Campaign.STATUS_REMOTE)
-							TriggerFramework.resetTriggerSettings(getContext(), c.getString(0));
-					}
+				List<Campaign> campaigns = Campaign.fromCursor(builder.query(db, null, null));
+				models.addAll(campaigns);
+
+				// Also clean up all the responses for these campaigns
+				SelectionBuilder responseQuery = buildSelection(Responses.CONTENT_URI, true);
+				// this first where clause makes it so not adding any campaigns returns an empty cursor
+				// Only if the campaign is not remote do we have to delete the responses for it
+				responseQuery.where(Responses._ID + "=-1", SelectionBuilder.OR);
+				for(Campaign campaign : campaigns) {
+					if (campaign.mStatus != Campaign.STATUS_REMOTE)
+						responseQuery.where(Responses.CAMPAIGN_URN + "=?", SelectionBuilder.OR, campaign.mUrn);
 				}
-				c.close();
+				models.addAll(Response.fromCursor(responseQuery.query(db, null, null)));
+				break;
 		}
 		
 		// we assume we've matched it correctly, so proceed with the delete
@@ -333,26 +344,6 @@ public class DbProvider extends ContentProvider {
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
-					// Delete the icon if it is on the sdcard and no other campaigns reference that url
-					for(String iconUrl : iconUrls) {
-						db.beginTransaction();
-						try {
-							Cursor c = db.query(Tables.CAMPAIGNS, new String [] { "_id" }, Campaigns.CAMPAIGN_ICON + "=?", new String[] { iconUrl }, null, null, null);
-							if(c.getCount() == 0) {
-								try {
-									OhmageCache.getCachedFile(getContext(), new URI(iconUrl)).delete();
-								} catch (URISyntaxException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								c.close();
-							}
-							db.setTransactionSuccessful();
-						} finally {
-							db.endTransaction();
-						}
-					}	
-
 					// notify on the related entity URIs
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);
@@ -361,11 +352,16 @@ public class DbProvider extends ContentProvider {
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
 			}
-			
+
 			// we should always notify on our own uri regardless
 			cr.notifyChange(uri, null);
+
+			// Clean up the data associated with each of the models we deleted
+			for(DbModel model : models) {
+				model.cleanUp(getContext());
+			}
 		}
-		
+
 		return count;
 	}
 	
@@ -444,7 +440,8 @@ public class DbProvider extends ContentProvider {
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/prompts", MatcherTypes.SURVEY_SURVEYPROMPTS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
-		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses/prompts/*", MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID);
+		// matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
@@ -487,8 +484,13 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.CAMPAIGN_SURVEYS: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 
-				return builder.table(Tables.SURVEYS)
-						.where(Surveys.CAMPAIGN_URN + "=?", campaignUrn);
+				if(nonQuery)
+					return builder.table(Tables.SURVEYS)
+							.where(Surveys.CAMPAIGN_URN + "=?", campaignUrn);
+
+				return builder.table(Tables.SURVEY_JOIN_CAMPAIGNS)
+						.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS)
+						.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn);
 			}
 			case MatcherTypes.SURVEY_BY_ID: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
@@ -543,15 +545,24 @@ public class DbProvider extends ContentProvider {
 				final String surveyId = Surveys.getSurveyId(uri);
 				final String promptId = PromptResponses.getSurveyPromptId(uri);
 
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
-						.mapToTable(PromptResponses._ID, Tables.PROMPT_RESPONSES)
-						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
-						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
-						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
-						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
+				return builder.table(Tables.PROMPT_RESPONSES)
+						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
+						.where(PromptResponses.COMPOSITE_ID + "=?", campaignUrn + ":" + surveyId)
 						.where(PromptResponses.PROMPT_ID + "=?", promptId);
-			}	
+			}
+			case MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID: {
+				if (nonQuery)
+					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
+
+				final String campaignUrn = Campaigns.getCampaignUrn(uri);
+				final String promptId = PromptResponses.getPromptId(uri);
+
+				return builder.table(Tables.PROMPT_RESPONSES)
+						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
+						.where(PromptResponses.COMPOSITE_ID + " LIKE ?", campaignUrn + ":%")
+						.where(PromptResponses.PROMPT_ID + "=?", promptId);
+			}
+			/* // FAISAL: disabled until i can figure out how to do aggregates with a builder 
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE: {
 				if (nonQuery)
 					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
@@ -583,8 +594,13 @@ public class DbProvider extends ContentProvider {
 						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
 						.where(PromptResponses.PROMPT_ID + "=?", promptId);
 			}
+			*/
 			case MatcherTypes.SURVEYS: {
-				return builder.table(Tables.SURVEYS);
+				if(nonQuery)
+					return builder.table(Tables.SURVEYS);
+
+				return builder.table(Tables.SURVEY_JOIN_CAMPAIGNS)
+						.mapToTable(Surveys.CAMPAIGN_URN, Tables.SURVEYS);
 			}
 			case MatcherTypes.SURVEYPROMPTS: {
 				return builder.table(Tables.SURVEY_PROMPTS);

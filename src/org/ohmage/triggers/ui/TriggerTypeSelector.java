@@ -88,7 +88,7 @@ public class TriggerTypeSelector extends Dialog {
 		super.onStart();
 	}
 	
-	private void initialize(Context context) {
+	private void initialize(final Context context) {
 		mContext = context;
 		mTrigTypeMap = new TriggerTypeMap();
 		
@@ -106,7 +106,7 @@ public class TriggerTypeSelector extends Dialog {
 				View v = inf.inflate(R.layout.trigger_type_picker_row, null);
 				
 				TextView tv = (TextView) v.findViewById(R.id.label_trigger_type);
-				tv.setText(mAdapter.getItem(pos));
+				tv.setText(mTrigTypeMap.getTrigger(mAdapter.getItem(pos)).getTriggerTypeDisplayName(context));
 
 				
 				ImageView iv = (ImageView) v.findViewById(R.id.icon_trigger_type);

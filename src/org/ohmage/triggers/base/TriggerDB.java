@@ -128,7 +128,17 @@ public class TriggerDB {
 						 KEY_ID + "=?", new String[] {String.valueOf(trigId)},  
 						 null, null, null);
 	}
-	
+
+	/*
+	 * Get all the triggers for a survey for a campaign
+	 */
+	public Cursor getSurveyTriggers(String campaignUrn, String surveyTitle) {
+		return mDb.query(TABLE_TRIGGERS, null,
+						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_ACTION_DESCRIPT + " LIKE '%" + surveyTitle + "%'",
+						 new String[] {campaignUrn},
+						 null, null, null);
+	}
+
 	/*
 	 * Get all the triggers corresponding to a type for a campaign
 	 */

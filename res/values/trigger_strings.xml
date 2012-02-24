@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="triggers_title">Reminders</string>
+    <string name="trigger_empty_list">No reminders</string>
+    <string name="trigger_actions_title">Surveys</string>
+    <string name="trigger_nothing_supported">No supported reminder types!</string>
+    <string name="trigger_delete_title">Confirm delete</string>
+    <string name="trigger_delete_text">Delete reminder?</string>
+    <string name="trigger_select_actions">Select surveys</string>
+    <string name="trigger_create">Create new reminder</string>
+    <string name="trigger_preferences">Edit preferences</string>
+    <string name="trigger_menu_admin_turn_on">Admin access</string>
+    <string name="trigger_menu_admin_turn_off">Logoff admin</string>
+    <string name="trigger_menu_preferences">Preferences</string>
+    <string name="trigger_menu_notifications">Notification settings</string>
+    <string name="trigger_menu_ringtone">Ringtone settings</string>
+    <string name="trigger_admin_logged_off">Logged off</string>
+    <string name="trigger_menu_delete">Delete</string>
+    <string name="trigger_invalid_settings">Invalid reminder settings!</string>
+    <string name="trigger_no_actions">None</string>
+    <string name="trigger_notification_reminder_title">Remind again</string>
+    <string name="trigger_notification_sound_title">Reminder Sound</string>
+    <string name="trigger_notification_vibration_duration">Vibration Duration</string>
+        
+</resources>

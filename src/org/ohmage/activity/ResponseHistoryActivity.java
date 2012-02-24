@@ -14,6 +14,7 @@ import org.ohmage.ui.OhmageFilterable.TimeFilterable;
 import org.ohmage.ui.TabManager;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,9 +86,8 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 	}
 
 	private View createTabView(final int textResource){
-		View view = LayoutInflater.from(this).inflate(R.layout.rh_tabs_bg, null);
-		TextView tv = (TextView) view.findViewById(R.id.rh_tabs_text);
-		tv.setText(textResource);
+		TextView view = (TextView) LayoutInflater.from(this).inflate(R.layout.tab_indicator, mTabHost.getTabWidget(), false);
+		view.setText(getString(textResource).toUpperCase());
 		return view;
 	}
 
@@ -119,5 +119,9 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString("tab", mTabHost.getCurrentTabTag());
+	}
+
+	public Fragment getCurrentFragment() {
+		return mTabManager.getCurrentTab().getFragment();
 	}
 }

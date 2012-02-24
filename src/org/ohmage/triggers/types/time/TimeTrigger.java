@@ -30,13 +30,10 @@ public class TimeTrigger extends TriggerBase {
 	private static final String DEBUG_TAG = "TimeTrigger";
 	
 	private static final String TRIGGER_TYPE = "TimeTrigger";	
-	//TODO localize
-	private static final String DISP_NAME = "Time Trigger";
 	
 	@Override
-	public String getTriggerTypeDisplayName() {
-		
-		return DISP_NAME;
+	public String getTriggerTypeDisplayName(Context context) {
+		return context.getString(R.string.trigger_time_display_name);
 	}
 
 	@Override
@@ -79,7 +76,7 @@ public class TimeTrigger extends TriggerBase {
 	}
 	
 	@Override
-	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String[] actions, boolean adminMode) {
+	public void launchTriggerCreateActivity(Context context, final String campaignUrn, String[] actions, String[] preselectedActions, boolean adminMode) {
 		
 		TimeTrigEditActivity.setOnExitListener(
 					new TimeTrigEditActivity.ExitListener() {
@@ -95,6 +92,8 @@ public class TimeTrigger extends TriggerBase {
 		
 		Intent i = new Intent(context, TimeTrigEditActivity.class);
 		i.putExtra(TriggerListActivity.KEY_ACTIONS, actions);
+		if (preselectedActions != null)
+			i.putExtra(TriggerListActivity.KEY_PRESELECTED_ACTIONS, preselectedActions);
 		i.putExtra(TimeTrigEditActivity.KEY_ADMIN_MODE, adminMode);
 		context.startActivity(i);
 	}

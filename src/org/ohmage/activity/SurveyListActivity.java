@@ -5,72 +5,86 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.fragments.SurveyListFragment;
 import org.ohmage.fragments.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.ui.CampaignFilterActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
+import org.ohmage.ui.TabManager;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class SurveyListActivity extends CampaignFilterActivity implements OnSurveyActionListener {
 
 	static final String TAG = "SurveyListActivity";
-
-	private Button mAllButton;
-	private Button mPendingButton;
-	private boolean mShowPending = false;
-	
 	public static final String EXTRA_SHOW_PENDING = "extra_show_pending";
+	private static final int DIALOG_ERROR_ID = 0;
+
+	TabHost mTabHost;
+	TabManager mTabManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mShowPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
-		
 		setContentView(R.layout.survey_list);
 
-        if (savedInstanceState == null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            SurveyListFragment newFragment = new SurveyListFragment();
-            newFragment.setShowPending(mShowPending);
-            newFragment.setArguments(intentToFragmentArguments(getIntent()));
-            ft.add(R.id.surveys, newFragment);
-            ft.commit();
-        } else {
-			((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(mShowPending);
-        }
+		boolean showPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
 
-		mAllButton = (Button) findViewById(R.id.all_surveys_button);
-		mPendingButton = (Button) findViewById(R.id.pending_surveys_button);
+		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
+		mTabHost.setup();
 
-		mAllButton.setOnClickListener(mPendingListener);
-		mPendingButton.setOnClickListener(mPendingListener);
+		mTabManager = new TabManager(this, mTabHost, R.id.realtabcontent);
+		mTabManager.setOnTabChangedListener(new TabManager.TabChangedListener() {
 
-		setPendingButtons();
+			@Override
+			public void onTabChanged(String tabId) {
+				((CampaignFilterable) mTabManager.getCurrentTab().getFragment()).setCampaignUrn(getCampaignUrn());
+			}
+		});
+
+		Bundle args = intentToFragmentArguments(getIntent());
+		args.putBoolean(SurveyListFragment.KEY_PENDING, false);
+		mTabManager.addTab(mTabHost.newTabSpec("all").setIndicator(createTabView("All")),
+				SurveyListFragment.class, args);
+
+		args = intentToFragmentArguments(getIntent());
+		args.putBoolean(SurveyListFragment.KEY_PENDING, true);
+		mTabManager.addTab(mTabHost.newTabSpec("pending").setIndicator(createTabView("Pending")),
+				SurveyListFragment.class, args);
+
+		if (savedInstanceState != null) {
+			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+		} else {
+			mTabHost.setCurrentTab(showPending ? 1 : 0);
+		}
 	}
 
-	View.OnClickListener mPendingListener = new View.OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			mShowPending = v.getId() == R.id.pending_surveys_button;
-			((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setShowPending(mShowPending);
-			setPendingButtons();
-		}
-	};
+	private View createTabView(String text){
+		TextView view = (TextView) LayoutInflater.from(this).inflate(R.layout.tab_indicator, mTabHost.getTabWidget(), false);
+		view.setText(text.toUpperCase());
+		return view;
+	}
 
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
-		((SurveyListFragment)getSupportFragmentManager().findFragmentById(R.id.surveys)).setCampaignUrn(filter);
+		Log.d(TAG, "campaign changed");
+
+		super.onCampaignFilterChanged(filter);
+		((CampaignFilterable) mTabManager.getCurrentTab().getFragment()).setCampaignUrn(filter);
 	}
 
-	private void setPendingButtons() {
-		mAllButton.setBackgroundResource(mShowPending ? R.drawable.tab_bg_unselected : R.drawable.tab_bg_selected);
-		mPendingButton.setBackgroundResource(mShowPending ? R.drawable.tab_bg_selected : R.drawable.tab_bg_unselected);
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString("tab", mTabHost.getCurrentTabTag());
 	}
 
 	@Override
@@ -91,14 +105,38 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 			intent.putExtra("survey_submit_text", cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUBMIT_TEXT)));
 			startActivity(intent);
 		} else {
-			Toast.makeText(this, "onSurveyActionStart: Error: Empty cursor returned.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.survey_list_invalid_survey, Toast.LENGTH_SHORT).show();
 		}
 		cursor.close();
 	}
 
 	@Override
 	public void onSurveyActionUnavailable(Uri surveyUri) {
-		Toast.makeText(this, "This survey can only be taken when triggered.", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, R.string.survey_list_must_trigger, Toast.LENGTH_SHORT).show();
 	}
 
+	@Override
+	public void onSurveyActionError(Uri surveyUri, int status) {
+		showDialog(DIALOG_ERROR_ID);
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateDialog(int, android.os.Bundle)
+	 */
+	@Override
+	protected Dialog onCreateDialog(final int id, Bundle args) {
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		switch (id) {
+			case DIALOG_ERROR_ID:
+				builder.setMessage(R.string.survey_list_campaign_error);
+				break;
+		}
+
+		builder.setCancelable(true).setNegativeButton(R.string.ok, null);
+
+
+		return builder.create();
+	}
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="trigger_time_display_name">Time Reminder</string>
+	<string name="trigger_time_title">Reminder Time</string>
+	<string name="trigger_time_repeat_title">Repeat</string>
+	<string name="trigger_time_range_title">Time range</string>
+	<string name="trigger_time_range_text">Enforce a range for the Reminder Time</string>
+	<string name="trigger_time_randomize_title">Randomize</string>
+	<string name="trigger_time_randomize_summary">Use random reminder times with in the range</string>
+	<string name="trigger_time_start_title">Start Time</string>
+	<string name="trigger_time_not_selected">Not selected</string>
+	<string name="trigger_time_end_title">End Time</string>
+	<string name="trigger_time_randomized">Random</string>
+	<string name="trigger_time_select_days">Select days</string>
+	<string name="trigger_time_invalid_settings">Invalid time settings!</string>
+	<string name="trigger_time_invalid_text">Make sure that\n\n- The End Time is after the Start Time</string>
+	<string name="trigger_time_no_survey_selected">No survey selected!</string>
+	<string name="trigger_time_no_survey_selected_text">Make sure that at least one survey is selected</string>
+
+</resources>

@@ -1,11 +1,17 @@
 package org.ohmage.fragments;
 
+import org.ohmage.R;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 import org.ohmage.ui.OhmageFilterable.FilterableFragmentLoader;
 import org.ohmage.ui.OhmageFilterable.TimeFilter;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 /**
  * Fragments can extend the {@link FilterableListFragment} if the want to easily be able to filter by campaign, survey, and month/year

@@ -1,7 +1,9 @@
 package org.ohmage.ui;
 
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.controls.FilterControl;
+import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 
@@ -11,7 +13,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
-import android.view.View;
 
 /**
  * CampaignSurveyFilterActivity can be extended by classes which have campaign and survey filters
@@ -34,7 +35,6 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 		if(mSurveyFilter == null)
 			throw new RuntimeException("Your activity must have a FilterControl with the id survey_filter");
 
-		mSurveyFilter.setVisibility(View.INVISIBLE);
 		mSurveyFilter.setOnChangeListener(new FilterControl.FilterChangeListener() {
 
 			@Override
@@ -47,12 +47,12 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 		mDefaultSurvey = getIntent().getStringExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID);
 		//		mDefaultSurvey = "alcohol";
 
-		if(mDefaultCampaign != null) {
+		if(mDefaultCampaign != null || Config.IS_SINGLE_CAMPAIGN) {
+			setLoadingVisibility(true);
 			getSupportLoaderManager().initLoader(SURVEY_LOADER, null, this);
-		}
-		
-		if(mDefaultSurvey == null)
+		} else {
 			mSurveyFilter.add(0, new Pair<String, String>(getString(R.string.filter_all_surveys), null));
+		}
 	}
 
 	@Override
@@ -83,12 +83,16 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 				return super.onCreateLoader(id, args);
 			case SURVEY_LOADER:
 
-				String campaignFilter = String.valueOf(mCampaignFilter.getValue());
+				String campaignFilter = mCampaignFilter.getValue();
 				if(mDefaultCampaign != null)
 					campaignFilter = mDefaultCampaign;
 
-				return new CursorLoader(this, Surveys.CONTENT_URI, new String [] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE }, 
-						Surveys.CAMPAIGN_URN + "=?", new String[] { campaignFilter }, Surveys.SURVEY_TITLE);
+				if(campaignFilter != null)
+					return new CursorLoader(this, Campaigns.buildSurveysUri(campaignFilter), new String [] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE },
+							null, null, Surveys.SURVEY_TITLE);
+				else
+					return new CursorLoader(this, Surveys.CONTENT_URI, new String [] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE },
+							null, null, Surveys.SURVEY_TITLE);
 			default:
 				return null;
 		}
@@ -97,8 +101,7 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-		mCampaignFilter.setVisibility(View.VISIBLE);
-		mSurveyFilter.setVisibility(View.VISIBLE);
+		setLoadingVisibility(false);
 		
 		switch(loader.getId()) {
 			case CAMPAIGN_LOADER:

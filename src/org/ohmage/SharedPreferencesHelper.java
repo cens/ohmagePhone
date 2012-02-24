@@ -21,8 +21,6 @@ import android.content.SharedPreferences;
 public class SharedPreferencesHelper {
 	
 	public static final String CLIENT_STRING = "android";
-
-	public static final boolean REQUIRE_PIN_ON_CLEAR_USER = false;
 	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
@@ -36,13 +34,13 @@ public class SharedPreferencesHelper {
 	private static final String KEY_IS_AUTHENTICATED = "is_authenticated";
 	private static final String KEY_IS_DISABLED = "is_disabled";
 	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
+	private static final String KEY_LOGIN_TIMESTAMP = "login_timestamp";
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
 //	private static final String KEY_CAMPAIGN_NAME = "campaign_name";
-//	private static final String KEY_CAMPAIGN_URN = "campaign_version";
 //	private static final String KEY_SERVER_URL = "server_url";
-	
+
 	private final SharedPreferences mPreferences;
 	
 	public SharedPreferencesHelper(Context context) {
@@ -101,6 +99,14 @@ public class SharedPreferencesHelper {
 		return mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
 	}
 	
+	public Long getLoginTimestamp() {
+		return mPreferences.getLong(KEY_LOGIN_TIMESTAMP, 0);
+	}
+	
+	public boolean putLoginTimestamp(Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LOGIN_TIMESTAMP, timestamp).commit();
+	}
+	
 	public Long getLastSurveyTimestamp(String surveyId) {
 		return mPreferences.getLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, 0);
 	}
@@ -123,14 +129,6 @@ public class SharedPreferencesHelper {
 //	
 //	public boolean putCampaignName(String campaignName) {
 //		return mPreferences.edit().putString(KEY_CAMPAIGN_NAME, campaignName).commit();
-//	}
-//	
-//	public String getCampaignUrn() {
-//		return mPreferences.getString(KEY_CAMPAIGN_URN, "");
-//	}
-//	
-//	public boolean putCampaignUrn(String campaignVersion) {
-//		return mPreferences.edit().putString(KEY_CAMPAIGN_URN, campaignVersion).commit();
 //	}
 //	
 //	public String getServerUrl() {

@@ -17,6 +17,9 @@
     <string name="retry_now">Retry Now</string>
     <string name="retry_later">Retry Later</string>
     <string name="delete">Delete</string>
+    <string name="done">Done</string>
+    <string name="close">Close</string>
+    <string name="click_more_info">Click here for more information</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -67,6 +70,7 @@
     <string name="title_profile">Profile</string>
     <string name="title_settings">Settings</string>
     <string name="title_help">Help</string>
+    <string name="title_mobility">Mobility</string>
 
     <!-- subscreen titles -->
     <string name="title_add_campaign">Add Campaign</string>
@@ -82,13 +86,29 @@
     <string name="dashboard_upload_queue">Upload\nQueue</string>
     <string name="dashboard_profile">Profile</string>
     <string name="dashboard_help">Help</string>
+    <string name="dashboard_mobility">Mobility</string>
 
     <!-- Help -->
     <string name="help_goto_dashboard">Dashboard</string>
     <string name="help_goto_filter">Filter</string>
     <string name="help_goto_list">List</string>
+    <string name="help_dashboard_header_text">The Dashboard makes it easy to get to campaigns, surveys, and your response history&lt;br/></string>
+    <string name="help_dashboard_section">&lt;h2>&lt;img src=%1$s>%2$s&lt;/h2>&lt;p>%3$s&lt;/p></string>
+    <string name="help_dashboard_campaigns_title">Campaigns</string>
+    <string name="help_dashboard_campaigns_text">On the &lt;b>Campaign List&lt;/b> screen you can see the campaigns you are participating in (which have already been downloaded to the phone) as well as campaigns available for participation (which are on the server, available to be downloaded to the phone). You can access information about the campaigns you are participating in, as well as set up triggered reminders.</string>
+    <string name="help_dashboard_surveys_title">Surveys</string>
+    <string name="help_dashboard_surveys_text">On the &lt;b>Survey List&lt;/b> screen you can see and take surveys from all the campaigns you are participating in.</string>
+    <string name="help_dashboard_response_history_title">Response History</string>
+    <string name="help_dashboard_response_history_text">On the &lt;b>Response History&lt;/b> screen you can see calendar and map views of your response history.</string>
+    <string name="help_dashboard_upload_queue_title">Upload Queue</string>
+    <string name="help_dashboard_upload_queue_text">In the &lt;b>Upload Queue&lt;/b> you can manage the upload status of the responses you have just completed.</string>
+    <string name="help_dashboard_profile_title">Profile</string>
+    <string name="help_dashboard_profile_text">On the &lt;b>Profile&lt;/b> screen you can update your password, or logout and wipe your data.</string>
+    <string name="help_dashboard_mobility_title">Mobility</string>
+    <string name="help_dashboard_mobility_text">On the &lt;b>Mobility&lt;/b> screen you can see your mobility data.</string>
 
     <!-- Survey / Prompts -->
+    <string name="invalid_survey">Invalid Survey</string>
     <string name="survey_complete">Survey Complete!</string>
     <string name="survey_submit_text">Submit text should appear here.</string>
     <string name="survey_title">Survey Title</string>
@@ -98,17 +118,19 @@
     <string name="survey_repeatable_set_terminate">Terminate</string>
     <string name="survey_repeatable_set_repeat">Repeat</string>
     <string name="survey_repeatable_set_title">End of repeatable set</string>
-    <string name="survey_list_must_trigger">This survey can only be taken when triggered.</string>
+    <string name="survey_list_must_trigger">This survey can only be taken when a reminder goes off.</string>
     <string name="survey_list_invalid_survey">onSurveyActionStart: Error: Empty cursor returned.</string>
     <string name="prompt_repeatable_set_repeat">Would you like to repeat the set?</string>
     <string name="prompt_remote_launch">Launch</string>
     <string name="prompt_remote_relaunch">Relaunch</string>
     <string name="prompt_custom_single_choice_add">Add new choice</string>
     <string name="prompt_custom_multi_choice_add">Add new item</string>
+    <string name="prompt_custom_choice_duplicate">Duplicate choices are not allowed</string>
+    <string name="prompt_custom_choice_db_open_error">Error opening custom choice db</string>
     <string name="prompt_hours_ago">hours ago</string>
-    <string name="prompt_select_value">Use the +/- buttons\\nto select a value.</string>
     <string name="prompt_timestamp_change_date">Change date</string>
     <string name="prompt_timestamp_set_am_pm">Remember to set the correct AM/PM value!</string>
+    <string name="prompt_text_hint">Tap this box or slide out the keyboard (if exists) to start typing.</string>
 
     <!-- Upload Queue -->
     <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>
@@ -155,6 +177,8 @@
     <string name="preferences_update_password_summary">Update your password if you get an Authentication Error</string>
     <string name="preferences_logout_title">Logout and Wipe</string>
     <string name="preferences_logout_summary">Logging out will remove all data from the phone including any data that has not been uploaded</string>
+    <string name="preferences_querytest_title">Test Queries (DEBUG)</string>
+    <string name="preferences_querytest_summary">Run queries against the content provider and view the results</string>
     <string name="admin_settings">Admin Settings</string>
     <string name="preferences_no_single_campaign">Invalid campaign setup</string>
     <string name="preferences_single_campaign_status">Single-Campaign Mode</string>
@@ -162,6 +186,10 @@
     <string name="preferences_muli_campaign_status">Multi-Campaign Mode</string>
     <string name="shown">Shown</string>
     <string name="hidden">Hidden</string>
+    <string name="preferences_response_history_title">Response History</string>
+    <string name="preferences_profile_title">Profile</string>
+    <string name="preferences_upload_queue_title">Upload Queue</string>
+    <string name="preferences_mobility_title">Mobility</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
@@ -170,33 +198,43 @@
     <string name="campaign_info_privacy_title">privacy:</string>
     <string name="campaign_info_status_title">status:</string>
     <string name="campaign_info_responses_title">responses:</string>
-    <string name="campaign_info_triggers_title">triggers:</string>
+    <string name="campaign_info_triggers_title">reminders:</string>
+    <string name="campaign_info_remove_campaign_reminders">Any custom reminders will also be removed</string>
 
-    <plurals name="campaign_info_remote">
-        <item quantity="one">Are you sure that you want to remove this campaign? There is <b>1 response</b> which hasn\'t been uploaded.</item>
-        <item quantity="other">Are you sure that you want to remove this campaign? There are <b>%d responses</b> which haven\'t been uploaded.</item>
+    <plurals name="campaign_info_remove_campaign_responses_w_reminders">
+        <item quantity="one">along with <b>1 response</b> which hasn\'t been uploaded</item>
+        <item quantity="other">along with <b>%d responses</b> which haven\'t been uploaded</item>
     </plurals>
+    <plurals name="campaign_info_remove_campaign_responses">
+        <item quantity="one">There is <b>1 response</b> which hasn\'t been uploaded which will also be removed</item>
+        <item quantity="other">There are <b>%d responses</b> which haven\'t been uploaded which will also be removed</item>
+    </plurals>
+
     <plurals name="campaign_info_response_count">
         <item quantity="one">1 response submitted</item>
         <item quantity="other">%d responses submitted</item>
     </plurals>
     <plurals name="campaign_info_trigger_count">
-        <item quantity="one">1 trigger configured</item>
-        <item quantity="other">%d triggers configured</item>
+        <item quantity="one">1 reminder configured</item>
+        <item quantity="other">%d reminders configured</item>
     </plurals>
 
     <!-- Response Info -->
     <string name="response_info_gps_wait">Waiting for Location</string>
-    <string name="response_info_no_location">Location Not Available</string>
+    <string name="response_info_no_location">Location Unavailable</string>
     <string name="response_info_view_map">View Map</string>
+    <string name="response_info_upload">Upload</string>
+    <string name="response_info_uploading">Uploading...</string>
+    <string name="response_info_upload_error">Upload Error</string>
 
     <!-- Survey Info -->
     <string name="survey_info_take_survey">Take Survey</string>
-    <string name="survey_info_error_test">this is some test error text...</string>
+    <string name="survey_info_error_test">this is test error text</string>
     <string name="survey_info_description_test">this is a test description</string>
     <string name="survey_info_status_title">status:</string>
     <string name="survey_info_responses_title">responses:</string>
-    <string name="survey_info_triggers_title">triggers:</string>
+    <string name="survey_info_last_response_title">last response:</string>
+    <string name="survey_info_triggers_title">reminders:</string>
 
     <!-- Profile Info -->
     <string name="profile_info_update_password">Update Password</string>
@@ -206,14 +244,15 @@
     <string name="surveys_all">All</string>
     <string name="surveys_pending">Pending</string>
     <string name="surveys_empty_all">There are no surveys to display.\n\nAfter selecting campaigns to participate in, you can view a list of their surveys here.</string>
-    <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey triggers via each campaign\'s information screen.</string>
+    <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey reminders via each campaign\'s information screen.</string>
+    <string name="surveys_empty_pending_single">You have no pending surveys.\n\nYou can manage survey reminders via the Settings on the Dashboard.</string>
     <string name="single_campaign_error">There is a problem with the campaign setup. \n\nIf the problem continues, please contact an Administrator.</string>
+	<string name="survey_list_campaign_error">The campaign this survey belongs to is stopped, or otherwise unavailable. Please make sure the campaign it belongs to is up to date.</string>
 
     <!-- Campaign -->
-    <string name="campaign_status_participating">participating</string>
-    <string name="campaign_status_ready">ready</string>
+    <string name="campaign_status_ready">participating</string>
     <string name="campaign_status_vague">not available</string>
-    <string name="campaign_status_remote">available</string>
+    <string name="campaign_status_remote">available for participation</string>
     <string name="campaign_status_out_of_date">out of date</string>
     <string name="campaign_status_no_exist">deleted on server</string>
     <string name="campaign_status_stopped">stopped</string>
@@ -231,4 +270,7 @@
     <string name="campaign_xml_network_error">Network error occurred while trying to download campaign xml.</string>
     <string name="campaign_xml_internal_error">Internal error occurred while trying to download campaign xml.</string>
 
+    <!-- Single Campaign Mode -->
+    <string name="single_campaign_changed_title">Campaign changed</string>
+    <string name="single_campaign_changed_message">The campaign you were participating in has changed. Any responses and charts associated with the old campaign have been removed.</string>
 </resources>

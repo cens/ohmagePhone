@@ -27,12 +27,13 @@ import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.ResponseActivityHelper;
 
-import android.content.ContentUris;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -56,7 +57,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -74,6 +74,9 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	
 	private ImageLoader mImageLoader;
 	private TextView mapViewButton;
+	private TextView uploadButton;
+	private ResponseActivityHelper mResponseHelper;
+	private int mStatus;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +84,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		
 		setContentFragment(new ResponsePromptsFragment());
 		
+		mResponseHelper = new ResponseActivityHelper(this);
+
 		mImageLoader = ImageLoader.get(this);
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
@@ -99,6 +104,20 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				startActivity(new Intent(OhmageApplication.VIEW_MAP, getIntent().getData()));
 			}
 		});
+
+		uploadButton = (TextView) findViewById(R.id.response_info_button_upload);
+		uploadButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(mStatus == Response.STATUS_STANDBY)
+					mResponseHelper.queueForUpload(getIntent().getData());
+				else {
+					Bundle bundle = new Bundle();
+					bundle.putParcelable(ResponseActivityHelper.KEY_URI, getIntent().getData());
+					showDialog(mStatus, bundle);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -106,6 +125,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		super.onContentChanged();
 
 		mEntityHeader.setVisibility(View.GONE);
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id, Bundle args) {
+		return mResponseHelper.onCreateDialog(id, args);
 	}
 
 	private interface ResponseQuery {
@@ -138,6 +162,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 		final String surveyName = data.getString(ResponseQuery.SURVEY_TITLE);
 		final Long completedDate = data.getLong(ResponseQuery.TIME);
+		mStatus = data.getInt(ResponseQuery.STATUS);
 
 		mHeadertext.setText(surveyName);
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
@@ -152,15 +177,38 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mEntityHeader.setVisibility(View.VISIBLE);
 		
 		// Make the map view button status aware so it can provide some useful info about the gps state
-		if(data.getInt(ResponseQuery.STATUS) == Response.STATUS_WAITING_FOR_LOCATION) {
-			mapViewButton.setText("Waiting for Location");
+		if(mStatus == Response.STATUS_WAITING_FOR_LOCATION) {
+			mapViewButton.setText(R.string.response_info_gps_wait);
 			mapViewButton.setEnabled(false);
 		} else if(!(SurveyGeotagService.LOCATION_VALID.equals(data.getString(ResponseQuery.LOCATION_STATUS)))) {
-			mapViewButton.setText("Location Not Available");
+			mapViewButton.setText(R.string.response_info_no_location);
 			mapViewButton.setEnabled(false);
 		} else {
-			mapViewButton.setText("View Map");
+			mapViewButton.setText(R.string.response_info_view_map);
 			mapViewButton.setEnabled(true);
+		}
+
+		// Make upload button visible if applicable
+		uploadButton.setVisibility(View.VISIBLE);
+		switch(mStatus) {
+			case Response.STATUS_DOWNLOADED:
+			case Response.STATUS_UPLOADED:
+				uploadButton.setVisibility(View.GONE);
+				break;
+			case Response.STATUS_STANDBY:
+			case Response.STATUS_WAITING_FOR_LOCATION:
+				uploadButton.setText(R.string.response_info_upload);
+				uploadButton.setEnabled(true);
+				break;
+			case Response.STATUS_QUEUED:
+			case Response.STATUS_UPLOADING:
+				uploadButton.setText(R.string.response_info_uploading);
+				uploadButton.setEnabled(false);
+				break;
+			default:
+				// Error
+				uploadButton.setText(R.string.response_info_upload_error);
+				uploadButton.setEnabled(true);
 		}
 	}
 
@@ -189,7 +237,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			// Create an empty adapter we will use to display the loaded data.
 			mAdapter = new PromptResponsesAdapter(getActivity(), null,  new String[] {
 				SurveyPrompts.SURVEY_PROMPT_TEXT, PromptResponses.PROMPT_RESPONSE_VALUE }, new int[] {
-				android.R.id.text1, R.id.prompt_value }, 0);
+				android.R.id.text1, R.id.prompt_value }, 0, getResponseId());
 
 			setListAdapter(mAdapter);
 
@@ -202,8 +250,12 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		@Override
 		public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 			return new CursorLoader(getActivity(),
-					Responses.buildPromptResponsesUri(ContentUris.parseId(getActivity().getIntent().getData())),
+					Responses.buildPromptResponsesUri(Long.valueOf(getResponseId())),
 					null, PromptResponses.PROMPT_RESPONSE_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
+		}
+
+		public String getResponseId() {
+			return Responses.getResponseId(getActivity().getIntent().getData());
 		}
 
 		@Override
@@ -227,11 +279,22 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			public static final int TEXT_RESPONSE = 0;
 			public static final int IMAGE_RESPONSE = 1;
+			public static final int HOURSBEFORENOW_RESPONSE = 2;
+			public static final int TIMESTAMP_RESPONSE = 3;
+			public static final int MULTICHOICE_RESPONSE = 4;
+			public static final int MULTICHOICE_CUSTOM_RESPONSE = 5;
+			public static final int SINGLECHOICE_RESPONSE = 6;
+			public static final int SINGLECHOICE_CUSTOM_RESPONSE = 7;
+			public static final int NUMBER_RESPONSE = 8;
+			public static final int REMOTE_RESPONSE = 9;
+			public static final int UNKNOWN_RESPONSE = 10;
+			private final String mResponseId;
 
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
-					int[] to, int flags) {
+					int[] to, int flags, String responseId) {
 				super(context, R.layout.response_prompt_list_item, c, from, to, flags);
 				setViewBinder(this);
+				mResponseId = responseId;
 			}
 
 			@Override
@@ -248,10 +311,30 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			 * @return the view type
 			 */
 			public int getItemViewType(Cursor cursor) {
-				if("photo".equals(getItemPromptType(cursor)))
+				String promptType = getItemPromptType(cursor);
+				
+				if("photo".equals(promptType))
 					return IMAGE_RESPONSE;
-				else
+				else if ("text".equals(promptType))
 					return TEXT_RESPONSE;
+				else if ("hours_before_now".equals(promptType))
+					return HOURSBEFORENOW_RESPONSE;
+				else if ("timestamp".equals(promptType))
+					return TIMESTAMP_RESPONSE;
+				else if ("single_choice".equals(promptType))
+					return SINGLECHOICE_RESPONSE;
+				else if ("single_choice_custom".equals(promptType))
+					return SINGLECHOICE_CUSTOM_RESPONSE;
+				else if ("multi_choice".equals(promptType))
+					return MULTICHOICE_RESPONSE;
+				else if ("multi_choice_custom".equals(promptType))
+					return MULTICHOICE_CUSTOM_RESPONSE;
+				else if ("number".equals(promptType))
+					return NUMBER_RESPONSE;
+				else if ("remote_activity".equals(promptType))
+					return REMOTE_RESPONSE;
+				else
+					return UNKNOWN_RESPONSE;
 			}
 
 			/**
@@ -270,26 +353,65 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				View image = view.findViewById(R.id.prompt_image_value);
 				View text = view.findViewById(R.id.prompt_text_value);
 				View value = view.findViewById(R.id.prompt_value);
-				switch(getItemViewType(cursor)) {
+				ImageView icon = (ImageView) view.findViewById(R.id.prompt_icon);
+				
+				int itemViewType = getItemViewType(cursor);
+				
+				// set the icon for each prompt type
+				switch(itemViewType) {
 					case IMAGE_RESPONSE:
-						image.setVisibility(View.VISIBLE);
-						text.setVisibility(View.GONE);
-						value.setTag(image);
-						value.setBackgroundResource(R.drawable.prompt_response_image_item_bg);
+						icon.setImageResource(R.drawable.prompttype_photo);
+						break;
+					case HOURSBEFORENOW_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_hoursbeforenow);
+						break;
+					case TIMESTAMP_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_timestamp);
+						break;
+					case MULTICHOICE_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_multichoice);
+						break;
+					case MULTICHOICE_CUSTOM_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_multichoice_custom);
+						break;
+					case SINGLECHOICE_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_singlechoice);
+						break;
+					case SINGLECHOICE_CUSTOM_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_singlechoice_custom);
+						break;
+					case NUMBER_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_number);
+						break;
+					case REMOTE_RESPONSE:
+						icon.setImageResource(R.drawable.prompttype_remote);
 						break;
 					case TEXT_RESPONSE:
-						image.setVisibility(View.GONE);
-						text.setVisibility(View.VISIBLE);
-						value.setTag(text);
+						icon.setImageResource(R.drawable.prompttype_text);
 						break;
 				}
+				
+				// now set up how they're actually displayed
+				// there are only two categories: image and non-image (i.e. text)
+				if (itemViewType != IMAGE_RESPONSE
+						// also if the image was skipped we are showing the text view
+						|| AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)))) {
+					image.setVisibility(View.GONE);
+					text.setVisibility(View.VISIBLE);
+					value.setTag(text);
+				} else {
+					image.setVisibility(View.VISIBLE);
+					text.setVisibility(View.GONE);
+					value.setTag(image);
+					value.setBackgroundResource(R.drawable.prompt_response_image_item_bg);
+				}
+				
 				return view;
 			}
 
 			@Override
 			public int getViewTypeCount() {
-				// One view type for text, another for images
-				return 2;
+				return 10;
 			}
 
 			@Override
@@ -310,19 +432,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						// We don't know if the file is .jpg or .png
-						// This list will match the first part of the filename which should be unique
-						File [] files = Campaign.getCampaignImageDir(mContext, campaignUrn).listFiles(new FilenameFilter() {
-							
-							@Override
-							public boolean accept(File dir, String filename) {
-								return filename.startsWith(value);
-							}
-						});
+						File file = Response.getResponsesImage(mContext, campaignUrn, mResponseId, value);
 
-						if(files.length > 0 && files[0].exists()) {
+						if(file != null && file.exists()) {
 							try {
-								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(files[0]));
+								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
 								((ImageView) view.getTag()).setImageBitmap(img);
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
@@ -339,7 +453,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 								for(int i=0;i<choices.length();i++) {
 									if(i != 0)
 										builder.append("\n");
-									builder.append("¥ ");
+									builder.append("ï¿½ ");
 									builder.append(choices.get(i));
 								}
 								((TextView) view.getTag()).setText(builder.toString());

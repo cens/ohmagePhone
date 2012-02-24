@@ -1,0 +1,242 @@
+package org.ohmage.async;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.Config;
+import org.ohmage.NotificationHelper;
+import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Result;
+import org.ohmage.R;
+import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.Utilities;
+import org.ohmage.activity.ErrorDialogActivity;
+import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
+
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.os.RemoteException;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+/**
+ * A custom Loader that loads all of the installed applications.
+ */
+public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadResponse> {
+
+	private static final String TAG = "CampaignReadTask";
+	private OhmageApi mApi;
+
+	public CampaignReadTask(Context context) {
+		super(context);
+	}
+
+	public CampaignReadTask(Context context, String username, String hashedPassword) {
+		super(context, username, hashedPassword);
+	}
+
+	@Override
+	public CampaignReadResponse loadInBackground() {
+		if(mApi == null)
+			mApi = new OhmageApi();
+		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
+
+		if (response.getResult() == Result.SUCCESS) {
+			ContentResolver cr = getContext().getContentResolver();
+
+			//build list of urns of all campaigns
+			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_CREATED, Campaigns.CAMPAIGN_STATUS}, null, null, null);
+			cursor.moveToFirst();
+
+			HashMap<String, Campaign> localCampaignUrns = new HashMap<String, Campaign>();
+			HashSet<String> toDelete = new HashSet<String>();
+
+			for (int i = 0; i < cursor.getCount(); i++) {
+				if(cursor.getInt(2) != Campaign.STATUS_REMOTE) {
+					// Here we store a list of campaigns we have downloaded
+					Campaign c = new Campaign();
+					c.mUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
+					c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
+					localCampaignUrns.put(c.mUrn, c);
+				} else {
+					// Here we store a list of campaigns we may have to delete if the server doesn't return them
+					toDelete.add(cursor.getString(0));
+				}
+				cursor.moveToNext();
+			}
+
+			cursor.close();
+
+			// The old urn thats used for single campaign mode. This has to be determined before the new data is downloaded in case the
+			// state changes. This is used to determine if there is a better choice for the single campaign mode after the download is complete.
+			String oldUrn = Campaign.getSingleCampaign(getContext());
+
+			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+
+			try { // parse response
+				JSONArray jsonItems = response.getMetadata().getJSONArray("items");
+
+				for(int i = 0; i < jsonItems.length(); i++) {
+					Campaign c = new Campaign();
+					JSONObject data = response.getData();
+					try {
+						c.mUrn = jsonItems.getString(i); 
+						c.mName = data.getJSONObject(c.mUrn).getString("name");
+						c.mDescription = data.getJSONObject(c.mUrn).getString("description");
+						c.mCreationTimestamp = data.getJSONObject(c.mUrn).getString("creation_timestamp");
+						c.mDownloadTimestamp = null;
+						c.mXml = null;
+						c.mStatus = Campaign.STATUS_REMOTE;
+						c.mPrivacy = data.getJSONObject(c.mUrn).optString("privacy_state", Campaign.PRIVACY_UNKNOWN);
+						c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
+						boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
+
+						if (localCampaignUrns.containsKey(c.mUrn)) { //campaign has already been downloaded
+
+							Campaign old = localCampaignUrns.get(c.mUrn);
+							localCampaignUrns.remove(c.mUrn);
+
+							ContentValues values = new ContentValues();
+							// FAISAL: include things here that may change at any time on the server
+							values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
+
+							if(!c.mCreationTimestamp.equals(old.mCreationTimestamp))
+								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
+							else
+								values.put(Campaigns.CAMPAIGN_STATUS, (running) ? Campaign.STATUS_READY : Campaign.STATUS_STOPPED);
+
+							operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(c.mUrn)).withValues(values).build());
+
+						} else { //campaign has not been downloaded
+
+							if (running) { //campaign is running
+								// We don't need to delete it
+								toDelete.remove(c.mUrn);
+								operations.add(ContentProviderOperation.newInsert(Campaigns.CONTENT_URI).withValues(c.toCV()).build());
+							}
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "Error parsing json data for " + jsonItems.getString(i), e);
+					}
+				}
+			} catch (JSONException e) {
+				Log.e(TAG, "Error parsing response json: 'items' key doesn't exist or is not a JSONArray", e);
+			}
+
+			for(String urn : toDelete) {
+				operations.add(ContentProviderOperation.newDelete(Campaigns.buildCampaignUri(urn)).build());
+			}
+
+			//leftover local campaigns were not returned by campaign read, therefore must be in some unavailable state
+			for (String urn : localCampaignUrns.keySet()) {
+				ContentValues values = new ContentValues();
+				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
+				operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn)).withValues(values).build());
+			}
+
+			try {
+				cr.applyBatch(DbContract.CONTENT_AUTHORITY, operations);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (OperationApplicationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// If we are in single campaign mode, we should automatically download the xml for the best campaign
+			if(Config.IS_SINGLE_CAMPAIGN) {
+				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
+
+				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it
+				if(newCampaign == null || TextUtils.isEmpty(newCampaign.mUrn) || !newCampaign.mUrn.equals(oldUrn) || newCampaign.mStatus == Campaign.STATUS_OUT_OF_DATE) {
+
+					if(!TextUtils.isEmpty(oldUrn)) {
+						// If we are removing the old campaign show the notification
+						Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
+						intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getContext().getString(R.string.single_campaign_changed_title));
+						intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getContext().getString(R.string.single_campaign_changed_message));
+						NotificationHelper.showNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
+						Campaign.setRemote(getContext(), oldUrn);
+					}
+
+					// Download the new xml
+					//TODO: download new xml!
+					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
+						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
+						campaignDownloadTask.startLoading();
+						campaignDownloadTask.waitForLoader();
+					}
+
+					// All campaigns which aren't ready should just be ignored, so they are set to remote
+					ContentValues values = new ContentValues();
+					values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
+					cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_READY, null);
+				}
+			}
+		} 
+
+		return response;
+	}
+
+	@Override 
+	public void deliverResult(CampaignReadResponse response) {
+		super.deliverResult(response);
+
+		if (response.getResult() == Result.SUCCESS) {
+
+		} else if (response.getResult() == Result.FAILURE) {
+			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+
+			boolean isAuthenticationError = false;
+			boolean isUserDisabled = false;
+
+			for (String code : response.getErrorCodes()) {
+				if (code.charAt(1) == '2') {
+					isAuthenticationError = true;
+
+					if (code.equals("0201")) {
+						isUserDisabled = true;
+					}
+				}
+			}
+
+			if (isUserDisabled) {
+				new SharedPreferencesHelper(getContext()).setUserDisabled(true);
+			}
+
+			if (isAuthenticationError) {
+				NotificationHelper.showAuthNotification(getContext());
+				Toast.makeText(getContext(), R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(getContext(), R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
+			}
+
+		} else if (response.getResult() == Result.HTTP_ERROR) {
+			Log.e(TAG, "http error");
+
+			Toast.makeText(getContext(), R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
+		} else {
+			Log.e(TAG, "internal error");
+
+			Toast.makeText(getContext(), R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
+		} 
+	}
+
+	public void setOhmageApi(OhmageApi api) {
+		mApi = api;
+	}
+}

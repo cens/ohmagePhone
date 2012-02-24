@@ -123,7 +123,7 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 	    
 		//If no address passed, fetch the address
 		if(addr.equals("")) {
-			tv.setText("Loading approximate address...");
+			tv.setText(R.string.trigger_loc_loading_address);
 			ProgressBar pb = (ProgressBar) mLayout.findViewById(R.id.balloon_progress);
 			pb.setVisibility(ProgressBar.VISIBLE);
 				
@@ -221,7 +221,7 @@ public class LocTrigAddLocBalloon implements OnClickListener{
 				}
 		    }
 		    
-		    return new String("Unable to fetch the address!\n");
+		    return new String(mContext.getString(R.string.trigger_loc_address_error));
 		}
 		
 		protected void onPostExecute(String addr) {

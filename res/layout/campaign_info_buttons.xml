@@ -4,7 +4,7 @@
     <Button style="@style/InfoButton"
     	android:id="@+id/campaign_info_button_surveys"
 		android:text="@string/campaign_info_view_surveys"
-    	android:drawableLeft="@drawable/pencil"
+    	android:drawableLeft="@drawable/pencilpaper"
     	android:visibility="gone" />
     	
     <Button style="@style/InfoButton"

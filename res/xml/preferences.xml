@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceScreen
+        android:key="key_reminders"
+        android:persistent="false"
+        android:summary="@string/preferences_reminders_setup_summary"
+        android:title="@string/preferences_reminders_setup_title" />
+
+    <PreferenceScreen
+        android:key="key_admin_settings"
+        android:persistent="false"
+        android:title="@string/admin_settings" />
+
+    <PreferenceCategory android:title="Status" >
+
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_campaign_urn"
+            android:persistent="false" />
+
+       <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_server_url"
+            android:persistent="false"
+            android:title="Server Url" />
+
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_feedback_visibility"
+            android:persistent="false"
+            android:title="@string/preferences_response_history_title" />
+
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_profile_visibility"
+            android:persistent="false"
+            android:title="@string/preferences_profile_title" />
+
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_upload_queue_visibility"
+            android:persistent="false"
+            android:title="@string/preferences_upload_queue_title" />
+            
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="status_mobility_visibility"
+            android:persistent="false"
+            android:title="@string/preferences_mobility_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

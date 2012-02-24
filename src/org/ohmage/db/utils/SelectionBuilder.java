@@ -46,10 +46,14 @@ public class SelectionBuilder {
     private static final boolean LOGV = true;
 
     private String mTable = null;
-    private Map<String, String> mProjectionMap = Maps.newHashMap();
-    private StringBuilder mSelection = new StringBuilder();
-    private ArrayList<String> mSelectionArgs = Lists.newArrayList();
-    private ArrayList<String> mJoins = Lists.newArrayList();
+    private final Map<String, String> mProjectionMap = Maps.newHashMap();
+    private final StringBuilder mSelection = new StringBuilder();
+    private final ArrayList<String> mSelectionArgs = Lists.newArrayList();
+    private final ArrayList<String> mJoins = Lists.newArrayList();
+
+    public static final int AND = 0;
+    public static final int OR = 1;
+
 
     /**
 * Reset any internal state, allowing this builder to be recycled.
@@ -62,10 +66,22 @@ public class SelectionBuilder {
     }
 
     /**
-* Append the given selection clause to the internal state. Each clause is
-* surrounded with parenthesis and combined using {@code AND}.
-*/
+     * Append the given selection clause to the internal state. Each clause is
+     * surrounded with parenthesis and combined using {@code AND}.
+     */
     public SelectionBuilder where(String selection, String... selectionArgs) {
+		return where(selection, AND, selectionArgs);
+    }
+
+    /**
+     * Append the given selection clause to the internal state. Each clause is
+     * surrounded with parenthesis with the operator prepended
+     * @param selection
+     * @param operator
+     * @param selectionArgs
+     * @return the SelectionBuilder
+     */
+    public SelectionBuilder where(String selection, int operator, String... selectionArgs) {
         if (TextUtils.isEmpty(selection)) {
             if (selectionArgs != null && selectionArgs.length > 0) {
                 throw new IllegalArgumentException(
@@ -77,7 +93,14 @@ public class SelectionBuilder {
         }
 
         if (mSelection.length() > 0) {
-            mSelection.append(" AND ");
+			switch(operator) {
+				case AND :
+					mSelection.append(" AND ");
+					break;
+				case OR:
+					mSelection.append(" OR ");
+					break;
+			}
         }
 
         mSelection.append("(").append(selection).append(")");
