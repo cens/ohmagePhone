@@ -14,6 +14,8 @@
         android:paddingTop="2dp"
         android:text="@string/survey_title"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:singleLine="true"
+        android:ellipsize="end"
         android:textColor="#ffffff" />
 
     <ProgressBar

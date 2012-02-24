@@ -74,8 +74,8 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -688,7 +688,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		mProgressBar.setProgress(mProgressBar.getMax());
 		
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.submit, null);
+		ScrollView layout = (ScrollView) inflater.inflate(R.layout.submit, null);
 		TextView submitText = (TextView) layout.findViewById(R.id.submit_text);
 		//submitText.setText("Thank you for completing the survey!");
 		submitText.setText(mSurveySubmitText);
