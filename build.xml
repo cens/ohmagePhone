@@ -82,6 +82,8 @@
 			<git-tag tagName="${ant.project.name}-${manifest.versionName}-cuttingedge" dir="." />
 			<git-checkout-local branch="NIH" dir="." />
 			<git-tag tagName="${ant.project.name}-${manifest.versionName}-NIH" dir="." />
+			<git-checkout-local branch="mobilize" dir="." />
+			<git-tag tagName="${ant.project.name}-${manifest.versionName}-mobilize" dir="." />
 		</sequential>
 	</target>
 
@@ -109,6 +111,10 @@
 
 	<target name="checkout-NIH" depends="clean-for-release">
 		<git-checkout-local branch="NIH" dir="." />
+	</target>
+
+	<target name="checkout-mobilize" depends="clean-for-release">
+		<git-checkout-local branch="mobilize" dir="." />
 	</target>
 
 	<!-- Helper functions -->
