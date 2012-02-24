@@ -30,11 +30,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
@@ -45,19 +43,24 @@ public class OhmageApplication extends Application {
 	
 	public static final String VIEW_MAP = "ohmage.intent.action.VIEW_MAP";
 	
+	public static final String ACTION_VIEW_REMOTE_IMAGE = "org.ohmage.action.VIEW_REMOTE_IMAGE";
+
     private static final int IMAGE_TASK_LIMIT = 3;
 
     // 50% of available memory, up to a maximum of 32MB
     private static final long IMAGE_CACHE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 2,
             32 * 1024 * 1024);
 
+    /**
+     * 10MB max for cached thumbnails
+     */
+	public static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
+
     private ImageLoader mImageLoader;
 
 	private static OhmageApplication self;
 
 	private static ContentResolver mFakeContentResolver;
-
-	private static OhmageApi mOhmageApi;
     
 	@Override
 	public void onCreate() {
@@ -119,7 +122,13 @@ public class OhmageApplication extends Application {
 		
 		//clear images
 		try {
-			Utilities.delete(getImageDirectory(this));
+			Utilities.delete(getExternalCacheDir());
+		} catch (IOException e) {
+			Log.e(TAG, "Error deleting images", e);
+		}
+
+		try {
+			Utilities.delete(getCacheDir());
 		} catch (IOException e) {
 			Log.e(TAG, "Error deleting images", e);
 		}
@@ -128,6 +137,7 @@ public class OhmageApplication extends Application {
     private static ImageLoader createImageLoader(Context context) {
         // Install the file cache (if it is not already installed)
         OhmageCache.install(context);
+        checkCacheUsage();
         
         // Just use the default URLStreamHandlerFactory because
         // it supports all of the required URI schemes (http).
@@ -150,7 +160,14 @@ public class OhmageApplication extends Application {
                 IMAGE_CACHE_SIZE, handler);
     }
 
-    @Override
+    /**
+     * check the cache usage
+     */
+    public static void checkCacheUsage() {
+		OhmageCache.checkCacheUsage(self, MAX_DISK_CACHE_SIZE);
+	}
+
+	@Override
     public void onTerminate() {
         mImageLoader = null;
         super.onTerminate();
@@ -165,14 +182,6 @@ public class OhmageApplication extends Application {
             return super.getSystemService(name);
         }
     }
-    
-    public static File getImageDirectory(Context context) {
-    	try {
-        	return new File(context.getExternalCacheDir(), "images");
-    	} catch(NoSuchMethodError e) {
-    		return new File(Environment.getExternalStorageDirectory(), "Android/data/org.ohmage/cache/images");
-    	}
-    }
 
 	public static void setFakeContentResolver(ContentResolver resolver) {
 		mFakeContentResolver = resolver;
@@ -180,22 +189,6 @@ public class OhmageApplication extends Application {
 
 	public static ContentResolver getFakeContentResolver() {
 		return mFakeContentResolver;
-	}
-
-	public static void setOhmageApi(OhmageApi api) {
-		mOhmageApi = api;
-	}
-
-	/**
-	 * This method allows me to inject alternative OhmageApis for testing.
-	 * The alternative ohmageApi can be set with {@link #setOhmageApi(OhmageApi)}
-	 * @param context
-	 * @return the OhmageApi to use
-	 */
-	public static OhmageApi getOhmageApi() {
-		if(mOhmageApi != null)
-			return mOhmageApi;
-		return new OhmageApi();
 	}
 
 	@Override

@@ -24,11 +24,13 @@ package org.ohmage.triggers.types.location;
  * location.
  */
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import com.google.android.maps.GeoPoint;
+
+import edu.ucla.cens.accelservice.IAccelService;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
+import edu.ucla.cens.wifigpslocation.IWiFiGPSLocationService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,11 +64,11 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.maps.GeoPoint;
-
-import edu.ucla.cens.accelservice.IAccelService;
-import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
-import edu.ucla.cens.wifigpslocation.IWiFiGPSLocationService;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class LocTrigService extends Service 
 			 implements LocationListener {
@@ -230,6 +232,7 @@ public class LocTrigService extends Service
 	@Override
 	public void onCreate() {
 		Log.i(DEBUG_TAG, "LocTrigService: onCreate");
+		Analytics.service(this, Status.ON);
 	
 		//Let the service live forever
 		setKeepAliveAlarm();
@@ -306,6 +309,7 @@ public class LocTrigService extends Service
 	@Override
 	public void onDestroy() {
 		Log.i(DEBUG_TAG, "LocTrigService: onDestroy");
+		Analytics.service(this, Status.OFF);
 
 		stopGPS();
 		

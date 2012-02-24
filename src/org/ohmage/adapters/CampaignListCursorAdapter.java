@@ -2,6 +2,8 @@ package org.ohmage.adapters;
 
 import com.google.android.imageloader.ImageLoader;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
@@ -55,6 +57,7 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 			
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v, null, campaignUrn);
 				mListener.onSubActionClicked(Campaigns.buildCampaignUri(campaignUrn));
 			}
 		});
@@ -68,11 +71,13 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		switch (status) {
 		case Campaign.STATUS_REMOTE:
 			// actionButton.setImageResource(R.drawable.ic_menu_add);
+			actionButton.setContentDescription(context.getString(R.string.campaign_list_item_action_button_download_description));
 			actionButton.setImageResource(R.drawable.subaction_campaign_download);
 			break;
 			
 		case Campaign.STATUS_READY:
 			// actionButton.setImageResource(R.drawable.ic_menu_compose);
+			actionButton.setContentDescription(context.getString(R.string.campaign_list_item_action_button_surveys_description));
 			actionButton.setImageResource(R.drawable.subaction_surveys_list);
 			break;
 			
@@ -82,10 +87,12 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		case Campaign.STATUS_NO_EXIST:
 		case Campaign.STATUS_VAGUE:
 			// actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
+			actionButton.setContentDescription(context.getString(R.string.campaign_list_item_action_button_error_description));
 			actionButton.setImageResource(R.drawable.subaction_campaign_broken);
 			break;
 			
 		case Campaign.STATUS_DOWNLOADING:
+			actionButton.setContentDescription(context.getString(R.string.campaign_list_item_action_button_downloading_description));
 			actionButton.setImageResource(R.drawable.spinner_white_48);
 			
 			if (actionButton.getAnimation() == null) {

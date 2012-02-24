@@ -1,8 +1,14 @@
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.mobility.glue.IMobility;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.controls.ActionBarControl;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.service.UploadService;
 import org.ohmage.ui.BaseActivity;
@@ -28,19 +34,10 @@ import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.ToggleButton;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.mobility.glue.IMobility;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
-import edu.ucla.cens.systemlog.Log;
 
 public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cursor> {
 	
@@ -176,7 +173,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		}
 	}
 	
-	private BroadcastReceiver mMobilityUploadReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver mMobilityUploadReceiver = new BroadcastReceiver() {
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -201,7 +198,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		
 		@Override
 		public void onClick(View v) {
-			
+			Analytics.widget(v);
 			Intent intent = new Intent(MobilityActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
 			intent.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
@@ -209,7 +206,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 		}
 	};
 	
-	private ServiceConnection mConnection = new ServiceConnection() {
+	private final ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
@@ -249,8 +246,11 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			
 			@Override
 			public void onClick(final View v) {
+				Analytics.widget(v);
+
 				// do the update in an asynctask so the UI doesn't block
 				(new AsyncTask<Void, Void, Void>() {
+					@Override
 					protected void onPreExecute() {
 						mOffRadio.setEnabled(false);
 						mInterval1Radio.setEnabled(false);
@@ -296,6 +296,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 						return null;
 					};
 					
+					@Override
 					protected void onPostExecute(Void result) {
 						mOffRadio.setEnabled(true);
 						mInterval1Radio.setEnabled(true);

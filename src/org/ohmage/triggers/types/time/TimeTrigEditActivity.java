@@ -15,10 +15,10 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.time;
 
-import java.util.LinkedHashMap;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.ui.ActionSelectorView;
@@ -32,22 +32,16 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceScreen;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckedTextView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.LinkedHashMap;
 
 public class TimeTrigEditActivity extends PreferenceActivity 
 							implements View.OnClickListener, 
@@ -177,7 +171,19 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			mRepeatStatus = savedInstanceState.getBooleanArray(KEY_SAVE_REPEAT_STATUS);
 		}
     }
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);

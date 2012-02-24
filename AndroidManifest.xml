@@ -36,6 +36,17 @@
             </intent-filter>
 		</activity>
 
+		<activity
+			android:name=".ui.ImageLoaderActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+			<intent-filter>
+				<action android:name="org.ohmage.action.VIEW_REMOTE_IMAGE" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="http" />
+				<data android:scheme="https" />
+			</intent-filter>
+		</activity>
+
 		<!-- 
 		================================================
 		=== dashboard-level activities (and direct sub-activities)
@@ -191,13 +202,7 @@
 	    </receiver>
 	    
 	    <service android:name=".service.SurveyGeotagService"/>
-	    
-	 	<receiver android:name=".service.SurveyGeotagTimeoutReceiver">
-			<intent-filter>
-	    		<action android:name="org.ohmage.service.ACTION_GEOTAG_TIMEOUT_ALARM"/>
-	    	</intent-filter>
-	    </receiver>
-    
+
 	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
 	                  android:label="Storage Monitor">
 	    </activity>
@@ -327,9 +332,9 @@
         ******************************************************
         -->       
 
-	    <service android:name=".feedback.FeedbackService" />
+	    <service android:name=".responsesync.ResponseSyncService" />
 	    
-	   	<receiver android:name=".feedback.FeedbackSyncReceiver">
+	   	<receiver android:name=".responsesync.ResponseSyncReceiver">
 	    	<intent-filter>
 	    		<action android:name="org.ohmage.feedback.ACTION_FBSYNC_ALARM"/>
 	    	</intent-filter>

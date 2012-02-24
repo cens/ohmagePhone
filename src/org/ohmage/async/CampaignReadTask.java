@@ -39,19 +39,22 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 
 	private static final String TAG = "CampaignReadTask";
 	private OhmageApi mApi;
+	private final Context mContext;
 
 	public CampaignReadTask(Context context) {
 		super(context);
+		mContext = context;
 	}
 
 	public CampaignReadTask(Context context, String username, String hashedPassword) {
 		super(context, username, hashedPassword);
+		mContext = context;
 	}
 
 	@Override
 	public CampaignReadResponse loadInBackground() {
 		if(mApi == null)
-			mApi = new OhmageApi();
+			mApi = new OhmageApi(mContext);
 		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {

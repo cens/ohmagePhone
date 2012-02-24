@@ -26,71 +26,98 @@ import java.net.ResponseCache;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The {@link OhmageCache} handles storing campaign icons and response images on the sdcard.
+ * 
+ * <p> Response images are stored on the external sdcard at {@link Context#getExternalCacheDir()}.
+ * Other icons are stored on the internal cache directory given by {@link Context#getCacheDir()} </p>
+ * 
+ * @author cketcham
+ *
+ */
 public class OhmageCache extends FileResponseCache {
 
-    private static final String TAG = "OhmageCache";
+	private static final String TAG = "OhmageCache";
 
-    public static void install(Context context) {
-        ResponseCache responseCache = ResponseCache.getDefault();
-        if (responseCache instanceof OhmageCache) {
-            Log.d(TAG, "Cache has already been installed.");
-        } else if (responseCache == null) {
-            OhmageCache dropCache = new OhmageCache(context);
-            ResponseCache.setDefault(dropCache);
-        } else {
-            Class<? extends ResponseCache> type = responseCache.getClass();
-            Log.e(TAG, "Another ResponseCache has already been installed: " + type);
-        }
-    }
+	private final Context mContext;
 
-    private static File getCacheDir(Context context) {
-        File dir = context.getCacheDir();
-        dir = new File(dir, "filecache");
-        return dir;
-    }
-    
-    public static File getCachedFile(Context context, URI uri) {
-        try {
-        	File parent = getCacheDir(context);
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(String.valueOf(uri).getBytes("UTF-8"));
-            byte[] output = digest.digest();
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < output.length; i++) {
-                builder.append(Integer.toHexString(0xFF & output[i]));
-            }
-            return new File(parent, builder.toString());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public OhmageCache(Context context) {
+		mContext = context;
+	}
 
-    private final Context mContext;
+	public static void install(Context context) {
+		ResponseCache responseCache = ResponseCache.getDefault();
+		if (responseCache instanceof OhmageCache) {
+			Log.d(TAG, "Cache has already been installed.");
+		} else if (responseCache == null) {
+			OhmageCache dropCache = new OhmageCache(context);
+			ResponseCache.setDefault(dropCache);
+		} else {
+			Class<? extends ResponseCache> type = responseCache.getClass();
+			Log.e(TAG, "Another ResponseCache has already been installed: " + type);
+		}
+	}
 
-    public OhmageCache(Context context) {
-        mContext = context;
-    }
-    
-    @Override
-    protected boolean isStale(File file, URI uri, String requestMethod,
-            Map<String, List<String>> requestHeaders, Object cookie) {
-        if (cookie instanceof Long) {
-            Long maxAge = (Long) cookie;
-            long age = System.currentTimeMillis() - file.lastModified();
-            if (age > maxAge.longValue()) {
-                return true;
-            }
-        }
-        return super.isStale(file, uri, requestMethod, requestHeaders, cookie);
-    }
+	public static boolean isResponseImageRequest(URI uri) {
+		URI responseUri = URI.create(Config.DEFAULT_SERVER_URL + OhmageApi.IMAGE_READ_PATH);
+		return uri.getHost().equals(responseUri.getHost()) && uri.getPath().startsWith(responseUri.getPath());
+	}
 
-    @Override
-    protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
-    	return getCachedFile(mContext, uri);
-    }
+	public static File getCachedFile(Context context, URI uri) {
+		try {
+			File parent = (isResponseImageRequest(uri)) ? context.getExternalCacheDir() : context.getCacheDir();
+			if(parent == null)
+				return null;
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			digest.update(String.valueOf(uri).getBytes("UTF-8"));
+			byte[] output = digest.digest();
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < output.length; i++) {
+				builder.append(Integer.toHexString(0xFF & output[i]));
+			}
+			return new File(parent, builder.toString());
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
+		return getCachedFile(mContext, uri);
+	}
+
+	/**
+	 * Check the current cache useage and delete files if needed
+	 * @param context
+	 * @param maxDiskCacheSize
+	 */
+	public static void checkCacheUsage(Context context, int maxDiskCacheSize) {
+		long size = 0;
+		File cacheDir = context.getExternalCacheDir();
+		if(cacheDir == null) {
+			//sdcard is not available for some reason
+			return;
+		}
+		final File[] fileList = cacheDir.listFiles();
+		Arrays.sort(fileList, new Comparator<File>() {
+			@Override
+			public int compare(File f1, File f2) {
+				return Long.valueOf(f2.lastModified()).compareTo(
+						f1.lastModified());
+			}
+		});
+		for (File file : fileList) {
+			size += file.length();
+			if (size > maxDiskCacheSize) {
+				file.delete();
+			}
+		}
+	}
 }

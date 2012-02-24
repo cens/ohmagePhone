@@ -3,6 +3,8 @@ package org.ohmage.service;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
@@ -56,10 +58,22 @@ public class UploadService extends WakefulIntentService {
 	}
 
 	@Override
+	public void onCreate() {
+		super.onCreate();
+		Analytics.service(this, Status.ON);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Analytics.service(this, Status.OFF);
+	}
+
+	@Override
 	protected void doWakefulWork(Intent intent) {
 		
 		if(mApi == null)
-			setOhmageApi(new OhmageApi());
+			setOhmageApi(new OhmageApi(this));
 
 		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
 			uploadSurveyResponses(intent);
@@ -177,7 +191,7 @@ public class UploadService extends WakefulIntentService {
 			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 			
-			File [] photos = Response.getResponsesImageDir(this, campaignUrn, String.valueOf(responseId)).listFiles(new FilenameFilter() {
+			File [] photos = Response.getResponseImageUploadDir(this).listFiles(new FilenameFilter() {
 				
 				@Override
 				public boolean accept(File dir, String filename) {

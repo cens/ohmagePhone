@@ -16,7 +16,10 @@
 package org.ohmage.activity;
 
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
+import edu.ucla.cens.systemlog.OhmageAnalytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +51,7 @@ import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
 import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.service.WakefulService;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -57,9 +61,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.format.DateUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,7 +87,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
-public class SurveyActivity extends Activity {
+public class SurveyActivity extends Activity implements LocationListener {
 	
 	private static final String TAG = "SurveyActivity";
 	
@@ -104,6 +111,10 @@ public class SurveyActivity extends Activity {
 	private boolean mSurveyFinished = false;
 
 	private String mLastSeenRepeatableSetId;
+
+	private LocationManager mLocManager;
+
+	private final Handler mHandler = new Handler();
 	
 	public String getSurveyId() {
 		return mSurveyId;
@@ -127,6 +138,9 @@ public class SurveyActivity extends Activity {
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
         
+		// Create the location manager and start listening to the GPS
+		mLocManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
         NonConfigurationInstance instance = (NonConfigurationInstance) getLastNonConfigurationInstance();
         
         if (instance == null) {
@@ -166,9 +180,6 @@ public class SurveyActivity extends Activity {
 			return;
 		}
 
-        		//mResponses = new ArrayList<PromptResponse>(mPrompts.size());
-    			startService(new Intent(this, SurveyGeotagService.class));
-
         		mCurrentPosition = 0;
         		mReachedEnd = false;
         		mLastSeenRepeatableSetId = "";
@@ -179,6 +190,7 @@ public class SurveyActivity extends Activity {
         	mLaunchTime = instance.launchTime;
         	mReachedEnd = instance.reachedEnd;
         	mLastSeenRepeatableSetId = instance.lastSeenRepeatableSetId;
+		mLastElement = instance.lastElement;
         }
         
         setContentView(R.layout.survey_activity);
@@ -197,20 +209,61 @@ public class SurveyActivity extends Activity {
         mNextButton.setOnClickListener(mClickListener);
 	}
 
+	/**
+	 * Stops the gps from running
+	 */
+	Runnable stopUpdates = new Runnable() {
+		@Override
+		public void run() {
+			mLocManager.removeUpdates(SurveyActivity.this);
+		}
+	};
+
 	@Override
 	public void onResume() {
 		super.onResume();
+		Analytics.activity(this, Status.ON);
+
         mSurveyTitleText.setText(mSurveyTitle);
         if (mReachedEnd == false) {
         	showElement(mCurrentPosition);
         } else {
         	showSubmitScreen();
         }
+
+        // Start the gps location listener to just listen until it gets a lock or until a minute passes and then turn off
+        // This is just to warm up the gps for when the response is actually submitted
+		mLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+		mHandler.removeCallbacks(stopUpdates);
+		mHandler.postDelayed(stopUpdates, DateUtils.MINUTE_IN_MILLIS);
 	}
-	
+
+	@Override
+	public void onLocationChanged(Location location) {
+		if(SurveyGeotagService.locationValid(location)) {
+			// We got a good enough location so lets stop the gps
+			mLocManager.removeUpdates(this);
+		}
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+	}
+
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId);
+		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement);
 	}
 
 	private class NonConfigurationInstance {
@@ -219,13 +272,15 @@ public class SurveyActivity extends Activity {
 		long launchTime;
 		boolean reachedEnd;
 		String lastSeenRepeatableSetId;
+		SurveyElement lastElement;
 		
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
 			this.reachedEnd = reachedEnd;
 			this.lastSeenRepeatableSetId = lastSeenRepeatableSetId;
+			this.lastElement = element;
 		}
 	}
 
@@ -233,12 +288,16 @@ public class SurveyActivity extends Activity {
 		
 		@Override
 		public void onClick(View v) {
+			// We have special logic for logging the submit button
+			if(v.getId() != R.id.next_button || !mReachedEnd)
+				Analytics.widget(v);
 			
 			switch (v.getId()) {
 			case R.id.next_button:
 				if (mReachedEnd) {
 					mSurveyFinished = true;
-					storeResponse();
+					String uuid = storeResponse();
+					Analytics.widget(v, null, uuid);
 					TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
 					SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
 					prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
@@ -615,6 +674,8 @@ public class SurveyActivity extends Activity {
 	}
 	
 	private void showSubmitScreen() {
+		handlePromptChangeLogging(null);
+
 		mNextButton.setText(R.string.submit);
 		mPrevButton.setText(R.string.previous);
 		mPrevButton.setVisibility(View.VISIBLE);
@@ -647,6 +708,7 @@ public class SurveyActivity extends Activity {
 	private void showMessage(int index) {
 		if (mSurveyElements.get(index) instanceof Message) {
 			Message message = (Message)mSurveyElements.get(index);
+			handlePromptChangeLogging(message);
 			
 			mNextButton.setText(R.string.next);
 			mPrevButton.setText(R.string.previous);
@@ -674,9 +736,10 @@ public class SurveyActivity extends Activity {
 	private void showPrompt(int index) {
 		
 		if (mSurveyElements.get(index) instanceof AbstractPrompt) {
-			
+
 			AbstractPrompt prompt = (AbstractPrompt)mSurveyElements.get(index);
-			
+			handlePromptChangeLogging(prompt);
+
 			mNextButton.setText(R.string.next);
 			mPrevButton.setText(R.string.previous);
 						
@@ -719,6 +782,22 @@ public class SurveyActivity extends Activity {
 		}
 	}
 	
+	private SurveyElement mLastElement;
+
+	private void handlePromptChangeLogging(SurveyElement element) {
+		// Don't log anything if its the same element
+		if(element == mLastElement)
+			return;
+
+		if(mLastElement instanceof AbstractPrompt) {
+			OhmageAnalytics.prompt(this, (AbstractPrompt) mLastElement, Status.OFF);
+		}
+		if(element  instanceof AbstractPrompt) {
+			OhmageAnalytics.prompt(this, (AbstractPrompt) element, Status.ON);
+		}
+		mLastElement = element;
+	}
+
 	private void showTerminator(int index) {
 		
 		if (mSurveyElements.get(index) instanceof RepeatableSetTerminator) {
@@ -853,7 +932,7 @@ public class SurveyActivity extends Activity {
 		return previousResponses;
 	}
 	
-	private void storeResponse() {
+	private String storeResponse() {
 
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
@@ -862,14 +941,7 @@ public class SurveyActivity extends Activity {
 		String date = dateFormat.format(now.getTime());
 		long time = now.getTimeInMillis();
 		String timezone = TimeZone.getDefault().getID();
-		
-		LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-		Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if (loc == null || System.currentTimeMillis() - loc.getTime() > SurveyGeotagService.LOCATION_STALENESS_LIMIT || loc.getAccuracy() > SurveyGeotagService.LOCATION_ACCURACY_THRESHOLD) {
-			Log.w(TAG, "gps provider disabled or location stale or inaccurate");
-			loc = null;
-		}
-		
+
 		String surveyId = mSurveyId;
 		
 		//get launch context from trigger glue
@@ -972,27 +1044,20 @@ public class SurveyActivity extends Activity {
 		candidate.surveyId = surveyId;
 		candidate.surveyLaunchContext = surveyLaunchContext;
 		candidate.response = response;
-		candidate.status = Response.STATUS_STANDBY;
-		
-		if (loc != null) {
-			candidate.locationStatus = SurveyGeotagService.LOCATION_VALID;
-			candidate.locationLatitude = loc.getLatitude();
-			candidate.locationLongitude = loc.getLongitude();
-			candidate.locationProvider = loc.getProvider();
-			candidate.locationAccuracy = loc.getAccuracy();
-			candidate.locationTime = loc.getTime();
-		} else {
-			candidate.locationStatus = SurveyGeotagService.LOCATION_UNAVAILABLE;
-			candidate.locationLatitude = -1;
-			candidate.locationLongitude = -1;
-			candidate.locationProvider = null;
-			candidate.locationAccuracy = -1;
-			candidate.locationTime = -1;
-			candidate.status = Response.STATUS_WAITING_FOR_LOCATION;
-		}
+		candidate.locationStatus = SurveyGeotagService.LOCATION_UNAVAILABLE;
+		candidate.locationLatitude = -1;
+		candidate.locationLongitude = -1;
+		candidate.locationProvider = null;
+		candidate.locationAccuracy = -1;
+		candidate.locationTime = -1;
+		candidate.status = Response.STATUS_WAITING_FOR_LOCATION;
 
 		ContentResolver cr = getContentResolver();
 		Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
+
+		Intent intent = new Intent(this, SurveyGeotagService.class);
+		intent.setData(responseUri);
+		WakefulService.sendWakefulWork(this, intent);
 
 		// finalize photos now that we have the responseUri
 		// the photos are initially in the campaign dir, until the response is saved
@@ -1013,36 +1078,33 @@ public class SurveyActivity extends Activity {
 		i.putExtra(Responses.RESPONSE_DATE, date);
 		i.putExtra(Responses.RESPONSE_TIME, time);
 		i.putExtra(Responses.RESPONSE_TIMEZONE, timezone);
-		
-		if (loc != null) {
-			i.putExtra(Responses.RESPONSE_LOCATION_STATUS, SurveyGeotagService.LOCATION_VALID);
-			i.putExtra(Responses.RESPONSE_LOCATION_LATITUDE, loc.getLatitude());
-			i.putExtra(Responses.RESPONSE_LOCATION_LONGITUDE, loc.getLongitude());
-			i.putExtra(Responses.RESPONSE_LOCATION_PROVIDER, loc.getProvider());
-			i.putExtra(Responses.RESPONSE_LOCATION_ACCURACY, loc.getAccuracy());
-			i.putExtra(Responses.RESPONSE_LOCATION_TIME, loc.getTime());
-		}
-		else
-		{
-			i.putExtra(Responses.RESPONSE_LOCATION_STATUS, SurveyGeotagService.LOCATION_UNAVAILABLE);
-			i.putExtra(Responses.RESPONSE_STATUS, Response.STATUS_WAITING_FOR_LOCATION);
-		}
-
+		i.putExtra(Responses.RESPONSE_LOCATION_STATUS, SurveyGeotagService.LOCATION_UNAVAILABLE);
+		i.putExtra(Responses.RESPONSE_STATUS, Response.STATUS_WAITING_FOR_LOCATION);
 		i.putExtra(Responses.SURVEY_ID, surveyId);
 		i.putExtra(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
 		i.putExtra(Responses.RESPONSE_JSON, response);
 
 		this.sendBroadcast(i);
+
+		return candidate.uuid;
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		// If we are finishing, but the survey was not completed we should clean up any data
-		if(isFinishing() && !mSurveyFinished) {
-			for(SurveyElement element : mSurveyElements)
-				if (element instanceof PhotoPrompt)
-					((PhotoPrompt) element).clearImage();
+		Analytics.activity(this, Status.OFF);
+
+		// If we are finishing
+		if(isFinishing()) {
+			// Stop listenting to the gps
+			mLocManager.removeUpdates(this);
+
+			//clean up the survey photo prompt
+			if(!mSurveyFinished) {
+				for(SurveyElement element : mSurveyElements)
+					if (element instanceof PhotoPrompt)
+						((PhotoPrompt) element).clearImage();
+			}
 		}
 	}
 }

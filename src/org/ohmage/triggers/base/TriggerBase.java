@@ -15,7 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
-import java.util.LinkedList;
+import edu.ucla.cens.systemlog.OhmageAnalytics;
+import edu.ucla.cens.systemlog.OhmageAnalytics.TriggerStatus;
 
 import org.json.JSONObject;
 import org.ohmage.triggers.notif.NotifDesc;
@@ -27,6 +28,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.text.format.DateUtils;
 import android.util.Log;
+
+import java.util.LinkedList;
 
 /*
  * The abstract class which must be extended by all the triggers
@@ -68,6 +71,8 @@ public abstract class TriggerBase {
 
 		//Save the run time desc in the database
 		db.updateRunTimeDescription(trigId, desc.toString());
+
+		OhmageAnalytics.trigger(context, TriggerStatus.TRIGGER, trigId);
 
 		//Call the notifier to display the notification
 		//Pass the notification description corresponding to this trigger
@@ -233,7 +238,8 @@ public abstract class TriggerBase {
 					          c.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_TYPE));
 			
 			if(trigType.equals(this.getTriggerType())) {
-				
+				OhmageAnalytics.trigger(context, TriggerStatus.DELETE, trigId);
+
 				//Stop trigger first
 				stopTrigger(context, trigId, db.getTriggerDescription(trigId));
 				//Delete from database
@@ -265,6 +271,8 @@ public abstract class TriggerBase {
 		
 //		String actDesc = db.getActionDescription(trigId);
 		db.close();
+
+		OhmageAnalytics.trigger(context, TriggerStatus.ADD, trigId);
 	
 		//If the action has a positive number of surveys, 
 		//start the trigger. 
@@ -288,6 +296,8 @@ public abstract class TriggerBase {
 //		String actDesc = db.getActionDescription(trigId);
 		db.updateActionDescription(trigId, actDesc);
 		db.close();
+
+		OhmageAnalytics.trigger(context, TriggerStatus.UPDATE, trigId);
 		
 		//If the action has a positive number of surveys, 
 		//restart the trigger. 
@@ -307,6 +317,8 @@ public abstract class TriggerBase {
 		
 		String actDesc = db.getActionDescription(trigId);
 		db.close();
+
+		OhmageAnalytics.trigger(context, TriggerStatus.UPDATE, trigId);
 		
 		//If the action has a positive number of surveys, 
 		//restart the trigger. 

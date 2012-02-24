@@ -146,38 +146,41 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 		c.mStatus = Campaign.STATUS_REMOTE;
 		provider.setCampaign(c);
 		final CountDownLatch downloadWait = new CountDownLatch(1);
-		OhmageApplication.setOhmageApi(new OhmageApi() {
-			@Override
-			public CampaignReadResponse campaignRead(String serverUrl, String username, String hashedPassword, String client, String outputFormat, String campaignUrnList) {
-				CampaignReadResponse response = new CampaignReadResponse();
-				response.setResponseStatus(Result.SUCCESS, null);
 
-				JSONObject data = new JSONObject();
-				JSONObject campaignObject = new JSONObject();
-				try {
-					campaignObject.put("creation_timestamp", "0");
-					data.put(CampaignCursor.DEFAULT_CAMPAIGN_URN, campaignObject);
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				response.setData(data);
-				return response;
-			}
-
-			@Override
-			public CampaignXmlResponse campaignXmlRead(String serverUrl, String username, String hashedPassword, String client, String campaignUrn) {
-				CampaignXmlResponse response = new CampaignXmlResponse();
-				response.setResponseStatus(Result.SUCCESS, null);
-				try {
-					downloadWait.await();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return response;
-			}
-		});
+		// TODO: instead of mocking the ohmage api, we should mock the campaign xml download loader to just return fake data
+		// The xml downloader can then be tested seperately with a mocked OhmageApi
+//		OhmageApplication.setOhmageApi(new OhmageApi(OhmageApplication.getContext()) {
+//			@Override
+//			public CampaignReadResponse campaignRead(String serverUrl, String username, String hashedPassword, String client, String outputFormat, String campaignUrnList) {
+//				CampaignReadResponse response = new CampaignReadResponse();
+//				response.setResponseStatus(Result.SUCCESS, null);
+//
+//				JSONObject data = new JSONObject();
+//				JSONObject campaignObject = new JSONObject();
+//				try {
+//					campaignObject.put("creation_timestamp", "0");
+//					data.put(CampaignCursor.DEFAULT_CAMPAIGN_URN, campaignObject);
+//				} catch (JSONException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				response.setData(data);
+//				return response;
+//			}
+//
+//			@Override
+//			public CampaignXmlResponse campaignXmlRead(String serverUrl, String username, String hashedPassword, String client, String campaignUrn) {
+//				CampaignXmlResponse response = new CampaignXmlResponse();
+//				response.setResponseStatus(Result.SUCCESS, null);
+//				try {
+//					downloadWait.await();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				return response;
+//			}
+//		});
 
 		solo.clickOnText("Participate");
 		solo.assertCurrentActivity("Expected to stay on CampaignInfoActivity", CampaignInfoActivity.class);

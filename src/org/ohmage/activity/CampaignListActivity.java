@@ -24,7 +24,7 @@ public class CampaignListActivity extends BaseCampaignListActivity {
 	@Override
 	public void onContentChanged() {
 		// throw some actions on it
-		getActionBar().addActionBarCommand(ACTION_ADD_CAMPAIGNS, "add campaign", R.drawable.dashboard_title_add);
+		getActionBar().addActionBarCommand(ACTION_ADD_CAMPAIGNS, getString(R.string.campaign_list_add_action_button_description), R.drawable.dashboard_title_add);
 
 		super.onContentChanged();
 	}

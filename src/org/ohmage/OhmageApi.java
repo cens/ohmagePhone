@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage;
 
+import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Log;
 
 import org.apache.http.HttpEntity;
@@ -42,10 +43,17 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
+import org.codehaus.jackson.map.MappingJsonFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.Utilities.CountingInputStream;
 
+import android.content.Context;
 import android.os.Build;
 
 import java.io.ByteArrayOutputStream;
@@ -69,7 +77,17 @@ public class OhmageApi {
 	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
 	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
 	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
-	private static final String IMAGE_READ_PATH = "app/image/read";
+	public static final String IMAGE_READ_PATH = "app/image/read";
+
+	private final Context mContext;
+
+	public OhmageApi() {
+		mContext = OhmageApplication.getContext();
+	}
+
+	public OhmageApi(Context context) {
+		mContext = context;
+	}
 
 	public static enum Result {
 		SUCCESS,
@@ -82,7 +100,7 @@ public class OhmageApi {
 		
 	}
 	
-	public static abstract class Response {
+	public static class Response {
 		protected Result mResult;
 		protected String[] mErrorCodes;
 		
@@ -116,7 +134,9 @@ public class OhmageApi {
 			this.mErrorCodes = errorCodes;
 		}
 
-		public abstract void populateFromJSON(JSONObject rootJson) throws JSONException;
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			// do nothing here
+		}
 	}
 	
 	public static class AuthenticateResponse extends Response {
@@ -321,7 +341,7 @@ public class OhmageApi {
 	        nameValuePairs.add(new BasicNameValuePair("data", data));
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return parseUploadResponse(doHttpPost(url, formEntity, GZIP));
+			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			return new UploadResponse(Result.INTERNAL_ERROR, null);
@@ -344,7 +364,7 @@ public class OhmageApi {
 	        nameValuePairs.add(new BasicNameValuePair("data", data));
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return parseUploadResponse(doHttpPost(url, formEntity, GZIP));
+			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			return new UploadResponse(Result.INTERNAL_ERROR, null);
@@ -372,7 +392,7 @@ public class OhmageApi {
 		    	}
 	    	}
 	    	
-			return parseUploadResponse(doHttpPost(url, multipartEntity, GZIP));
+			return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			return new UploadResponse(Result.INTERNAL_ERROR, null);
@@ -395,7 +415,7 @@ public class OhmageApi {
 	    	multipartEntity.addPart("id", new StringBody(uuid));
 	    	multipartEntity.addPart("data", new FileBody(data, "image/jpeg"));
 			
-			return parseUploadResponse(doHttpPost(url, multipartEntity, GZIP));
+			return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			return new UploadResponse(Result.INTERNAL_ERROR, null);
@@ -419,7 +439,7 @@ public class OhmageApi {
 	        }
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return (CampaignReadResponse)parseReadResponse(doHttpPost(url, formEntity, GZIP), CampaignReadResponse.class);
+			return (CampaignReadResponse)parseReadResponse(url, doHttpPost(url, formEntity, GZIP), CampaignReadResponse.class);
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			CampaignReadResponse candidate = new CampaignReadResponse();
@@ -443,7 +463,7 @@ public class OhmageApi {
 	        nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrn));
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return parseXmlResponse(doHttpPost(url, formEntity, GZIP));
+			return parseXmlResponse(url, doHttpPost(url, formEntity, GZIP));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			CampaignXmlResponse candidate = new CampaignXmlResponse();
@@ -452,7 +472,7 @@ public class OhmageApi {
 		}
 	}
 	
-	private CampaignXmlResponse parseXmlResponse(HttpResponse response) {
+	private CampaignXmlResponse parseXmlResponse(String url, HttpResponse response) {
 		Result result = Result.HTTP_ERROR;
 		String[] errorCodes = null;
 		
@@ -465,7 +485,7 @@ public class OhmageApi {
         		if (responseEntity != null) {
         			if (responseEntity.getContentType().getValue().equals("text/xml")) {
 						try {
-							String xml = EntityUtils.toString(responseEntity);
+							String xml = parseAndLogContent(url, responseEntity);
 							result = Result.SUCCESS;
 	        				candidate.setXml(xml);
 						} catch (ParseException e) {
@@ -523,6 +543,8 @@ public class OhmageApi {
 		
 		candidate.setResponseStatus(result, errorCodes);
 
+		Analytics.network(mContext, url, result);
+
 		return candidate;
 	}
 
@@ -546,7 +568,7 @@ public class OhmageApi {
 	 * @param endDate must be present if start_date is present; allows querying against a date range 
 	 * @return an instance of type {@link ReadResponse} containing the resulting data; note that the Object returned by getData() is a JSONArray, not a JSONObject
 	 */
-	public SurveyReadResponse surveyResponseRead(String serverUrl,
+	public Response surveyResponseRead(String serverUrl,
 			String username,
 			String hashedPassword,
 			String client,
@@ -555,8 +577,10 @@ public class OhmageApi {
 			String surveyIdList,
 			String columnList,
 			String outputFormat,
+			boolean returnID,
 			String startDate,
-			String endDate) {
+			String endDate,
+			StreamingResponseListener listener) {
 		
 		final boolean GZIP = false;
 		
@@ -572,6 +596,8 @@ public class OhmageApi {
 	        nameValuePairs.add(new BasicNameValuePair("survey_id_list", (surveyIdList != null)?surveyIdList:"urn:ohmage:special:all"));
 	        nameValuePairs.add(new BasicNameValuePair("column_list", (columnList != null)?columnList:"urn:ohmage:special:all"));
 	        nameValuePairs.add(new BasicNameValuePair("output_format", outputFormat));
+	        nameValuePairs.add(new BasicNameValuePair("return_id", returnID?"true":"false"));
+	        
 	        
 	        if (startDate != null && endDate != null) {
 	        	nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
@@ -580,7 +606,7 @@ public class OhmageApi {
 	        
 	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 			
-			return (SurveyReadResponse)parseReadResponse(doHttpPost(url, formEntity, GZIP), SurveyReadResponse.class);
+			return parseStreamingReadResponse(url, doHttpPost(url, formEntity, GZIP), listener);
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			SurveyReadResponse candidate = new SurveyReadResponse();
@@ -591,30 +617,19 @@ public class OhmageApi {
 	
 	// same as above, except some parameters are substituted with their default values.
 	// the defaults here retrieve all surveys for any users to whom we have access
-	public SurveyReadResponse surveyResponseRead(String serverUrl,
+	public Response surveyResponseRead(String serverUrl,
 			String username,
 			String hashedPassword,
 			String client,
 			String campaignUrn,
 			String columnList,
-			String outputFormat) {
-		return surveyResponseRead(serverUrl, username, hashedPassword, client, campaignUrn, null, null, columnList, outputFormat, null, null);
+			String outputFormat,
+			boolean returnID,
+			StreamingResponseListener listener) {
+		return surveyResponseRead(serverUrl, username, hashedPassword, client, campaignUrn, null, null, columnList, outputFormat, returnID, null, null, listener);
 	}
-	
-	/**
-	 * Returns the image data associated with a given image id.
-	 * 
-	 * @param serverUrl the url of the server to contact for the image data
-	 * @param username username of a valid user; will constrain the result in keeping with the user's permissions
-	 * @param hashedPassword hashed password of the aforementioned user
-	 * @param client the client used to retrieve the results, generally "android"
-	 * @param campaignUrn the urn of the campaign for which to retrieve survey results
-	 * @param owner the owner of the image for which we want the data
-	 * @param id the UUID of the image
-	 * @param size optional; if specified, must be "small" (if null, not passed)
-	 * @return
-	 */
-	public ImageReadResponse imageRead(String serverUrl,
+
+	public static String imageReadUrl(String serverUrl,
 			String username,
 			String hashedPassword,
 			String client,
@@ -622,30 +637,25 @@ public class OhmageApi {
 			String owner,
 			String id,
 			String size) {
-		
-		final boolean GZIP = false;
-		
-		String url = serverUrl + IMAGE_READ_PATH;
-		
-		try {
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-	        nameValuePairs.add(new BasicNameValuePair("user", username));
-	        nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-	        nameValuePairs.add(new BasicNameValuePair("client", client));
-	        nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
-	        nameValuePairs.add(new BasicNameValuePair("owner", owner));
-	        nameValuePairs.add(new BasicNameValuePair("id", id));
-	        if (size != null) nameValuePairs.add(new BasicNameValuePair("size", size));
-	        
-	        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
-			
-			return parseImageReadResponse(doHttpPost(url, formEntity, GZIP));
-		} catch (IOException e) {
-			Log.e(TAG, "IOException while creating http entity", e);
-			ImageReadResponse candidate = new ImageReadResponse();
-			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
-			return candidate;
-		}
+		StringBuilder url = new StringBuilder(serverUrl + IMAGE_READ_PATH);
+
+		url.append("?user=").append(username)
+		.append("&password=").append(hashedPassword)
+		.append("&client=").append(client)
+		.append("&campaign_urn=").append(campaignUrn)
+		.append("&owner=").append(owner)
+		.append("&id=").append(id);
+        if (size != null) url.append("&size=").append(size);
+
+        return url.toString();
+	}
+
+	public static String defaultImageReadUrl(String uuid, String campaign, String size) {
+		SharedPreferencesHelper prefs = new SharedPreferencesHelper(OhmageApplication.getContext());
+		String username = prefs.getUsername();
+		String hashedPassword = prefs.getHashedPassword();
+		return OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaign, username, uuid, size);
+
 	}
 
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
@@ -717,6 +727,7 @@ public class OhmageApi {
 	    
 		        
         try {
+			Analytics.network(mContext, httpPost);
 			return httpClient.execute(httpPost);
 		} catch (ClientProtocolException e) {
 			Log.e(TAG, "ClientProtocolException while executing httpPost", e);
@@ -727,11 +738,19 @@ public class OhmageApi {
 		}
 	}
 	
+	private String parseAndLogContent(String url, HttpEntity entity) throws ParseException, IOException {
+		String content = EntityUtils.toString(entity);
+		Analytics.network(mContext, url, content.length());
+		Log.i(TAG, content);
+		return content;
+	}
+
 	private AuthenticateResponse parseAuthenticateResponse(HttpResponse response) {
 		Result result = Result.HTTP_ERROR;
 		String hashedPassword = null;
 		String authToken = null;
 		String[] errorCodes = null;
+		String url = "/" + AUTHENTICATE_PATH;
 		
 		if (response != null) {
         	Log.i(TAG, response.getStatusLine().toString());
@@ -739,8 +758,7 @@ public class OhmageApi {
         		HttpEntity responseEntity = response.getEntity();
         		if (responseEntity != null) {
         			try {
-	        			String content = EntityUtils.toString(responseEntity);
-	        			Log.i(TAG, content);
+					String content = parseAndLogContent(url, responseEntity);
 	        			
 	        			JSONObject rootJson;
 					
@@ -786,10 +804,12 @@ public class OhmageApi {
         	result = Result.HTTP_ERROR;
         }
 		
+		Analytics.network(mContext, url, result);
+
 		return new AuthenticateResponse(result, hashedPassword, authToken, errorCodes);
 	}
 	
-	private UploadResponse parseUploadResponse(HttpResponse response) {
+	private UploadResponse parseUploadResponse(String url, HttpResponse response) {
 		Result result = Result.HTTP_ERROR;
 		String[] errorCodes = null;
 		
@@ -799,8 +819,7 @@ public class OhmageApi {
         		HttpEntity responseEntity = response.getEntity();
         		if (responseEntity != null) {
         			try {
-	        			String content = EntityUtils.toString(responseEntity);
-	        			Log.i(TAG, content);
+					String content = parseAndLogContent(url, responseEntity);
 	        			
 	        			JSONObject rootJson;
 					
@@ -837,11 +856,13 @@ public class OhmageApi {
         	Log.e(TAG, "Response is null");
         	result = Result.HTTP_ERROR;
         }
-		
+
+		Analytics.network(mContext, url, result);
+
 		return new UploadResponse(result, errorCodes);
 	}
 	
-	private Response parseReadResponse(HttpResponse response, Class<? extends Response> outputType) {
+	private Response parseReadResponse(String url, HttpResponse response, Class<? extends Response> outputType) {
 		Result result = Result.HTTP_ERROR;
 		String[] errorCodes = null;
 		
@@ -863,12 +884,10 @@ public class OhmageApi {
         		HttpEntity responseEntity = response.getEntity();
         		if (responseEntity != null) {
         			try {
-	        			String content = EntityUtils.toString(responseEntity);
-	        			Log.i(TAG, content);
+					String content = parseAndLogContent(url, responseEntity);
 	        			
-	        			JSONObject rootJson;
-					
-						rootJson = new JSONObject(content);
+	        			JSONObject rootJson = new JSONObject(content);
+	        			
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
 							
@@ -908,14 +927,60 @@ public class OhmageApi {
 		
 		candidate.setResponseStatus(result, errorCodes);
 
+		Analytics.network(mContext, url, result);
+
 		return candidate;
 	}
 	
-	private ImageReadResponse parseImageReadResponse(HttpResponse response) {
+	/**
+	 * Allows the implementor to consume a stream of JSON entities (at the moment just objects, but hopefully more in the future).
+	 * 
+	 * @author faisal
+	 */
+	public static abstract class StreamingResponseListener {
+		/**
+		 * Called for each record found in the "data" section of a JSON response.
+		 * @param object the JsonNode which was read from the input stream
+		 */
+		public abstract void readObject(JsonNode object);
+		
+		/**
+		 * Called once when the "result" section is read to indicate the status of the call.
+		 * 
+		 * Note that, depending on the ordering of fields in the JSON (which is officially not defined by the spec),
+		 * this may be called after the "data" section is read.
+		 * @param result a member of the Result enumeration, either Result.SUCCESS or an error
+		 * @param errorCodes a list of errors returned from the request, null if no errors occurred
+		 */
+		public void readResult(Result result, String[] errorCodes) { }
+		
+		/** Called before each record in the "data" section is read;
+		 * allows the caller to terminate the reading process prematurely by returning false.
+		 * @return true to continue returning results, false to stop.
+		 */
+		public boolean isListening() { return true; }
+		
+		/** 
+		 * Called immediately before reading the first record.
+		 * Note that this will not be called if the "data" section is not present.
+		 */
+		public void beforeRead() { }
+		
+		/** 
+		 * Called immediately after reading the last record.
+		 * Note that this will not be called if the "data" section is not present.
+		 */
+		public void afterRead() { }
+	}
+	
+	private Response parseStreamingReadResponse(String url, HttpResponse response, StreamingResponseListener listener) {
 		Result result = Result.HTTP_ERROR;
 		String[] errorCodes = null;
-		
-		ImageReadResponse candidate = new ImageReadResponse();
+
+		// the response object that will be returned; its type is decided by outputType
+		// it's also populated by a call to populateFromJSON() which transforms the server response into the Response object
+		Response candidate = new Response();
+		CountingInputStream inputstream = null;
 		
 		if (response != null) {
         	Log.i(TAG, response.getStatusLine().toString());
@@ -923,35 +988,82 @@ public class OhmageApi {
         		HttpEntity responseEntity = response.getEntity();
         		if (responseEntity != null) {
         			try {
-        				if (responseEntity.getContentType().getValue().startsWith("image/")) {
-        					// it's the image data!
-        					result = Result.SUCCESS;
-            				
-            				// dealing with raw image data here. hmm.
-    	        			byte[] content = EntityUtils.toByteArray(responseEntity);
-    	        			candidate.setData(content);
-    	        			candidate.setType(responseEntity.getContentType().getValue());
-        				}
-        				else
-        				{
-        					// it was a JSON error instead
-        					result = Result.FAILURE;
+	        			// rather than use the regular json parsing library here,
+	        			// we use jackson to parse the first part, then return a
+	        			// reference to use for reading the data section
+        				
+        				// note that we open the inputstream rather than reading the whole thing to a string
+        				JsonFactory f = new MappingJsonFactory();
+					inputstream = new CountingInputStream(responseEntity.getContent());
+					JsonParser jp = f.createJsonParser(inputstream);
+        				
+        				// expecting: {result: "<status>", data: [{},{},{}...]}
+        				
+        				// ensure the first token in the stream is the start of an object
+        				JsonToken cur = jp.nextToken();
+        				if (cur != JsonToken.START_OBJECT)
+        					throw new JSONException("Top-level entity expected to be an object, found " + cur.toString());
+        				
+        				// read through the top-level object one attribute at a time
+        				while (jp.nextToken() != JsonToken.END_OBJECT) {
+        					// get the field name first...
+        					String fieldName = jp.getCurrentName();
+        					// ...and move on to the token representing the value
+        					cur = jp.nextToken();
+        					
+        					// dispatch on the field name
+        					if (fieldName.equalsIgnoreCase("result")) {
+        						// figure out the data in the result type
+        						JsonNode resultNode = jp.readValueAsTree();
+        						
+        						if (resultNode.getTextValue().equalsIgnoreCase("success")) {
+        							result = Result.SUCCESS;
+        						} else {
+        							result = Result.FAILURE;
+        						}
+        					}
+        					else if (fieldName.equalsIgnoreCase("data")) {
+        						// ensure that the data section is an array
+        						if (cur != JsonToken.START_ARRAY)
+        							throw new JSONException("Data section expected to be an array, found " + cur.toString());
+        						
+        						// do pre-read init
+        						listener.beforeRead();
+        						
+        						// now that we know it's an array, read it off and call the listener on each object read
+        						while(jp.nextToken() != JsonToken.END_ARRAY && listener.isListening()) {
+        							listener.readObject(jp.readValueAsTree());
+        						}
+        						
+        						// do post-read cleanup
+        						listener.afterRead();
+        					}
+        					else if (fieldName.equalsIgnoreCase("errors")) {
+        						// ensure that the errors section is an array
+        						if (cur != JsonToken.START_ARRAY)
+        							throw new JSONException("Errors section expected to be an array, found " + cur.toString());
+        						
+        						List<String> errorList = new ArrayList<String>();
 
-							try {
-								JSONObject rootJson = new JSONObject(EntityUtils.toString(responseEntity));								
-								JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
-								
-								int errorCount = errorsJsonArray.length();
-								errorCodes = new String[errorCount];
-								for (int i = 0; i < errorCount; i++) {
-									errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
-								}
-							}
-							catch (JSONException e) {
-								Log.e(TAG, "Problem parsing response json", e);
-								result = Result.INTERNAL_ERROR;
-							}
+        						while(jp.nextToken() != JsonToken.END_ARRAY) {
+        							// read off each of the errors and stick it into the error array
+        							JsonNode error = jp.readValueAsTree();
+        							errorList.add(error.get("code").getTextValue());
+        						}
+        						
+        						errorCodes = errorList.toArray(new String[errorList.size()]);
+        					}
+        					else {
+        						// don't know what to do with this, just skip it?
+        						Log.i(TAG, "Unprocessed field in response: " + fieldName);
+        						jp.skipChildren();
+        					}
         				}
+        				
+        				// and we're done!
+					} catch (JSONException e) {
+						Log.e(TAG, "Problem parsing response json", e);
+						result = Result.INTERNAL_ERROR;
 					} catch (IOException e) {
 						Log.e(TAG, "Problem reading response body", e);
 						result = Result.INTERNAL_ERROR;
@@ -971,6 +1083,13 @@ public class OhmageApi {
         	result = Result.HTTP_ERROR;
         }
 		
+		if(inputstream != null && result == Result.SUCCESS)
+			Analytics.network(mContext, url, inputstream.amountRead());
+		else
+			Analytics.network(mContext, url, result);
+
+		
+		listener.readResult(result, errorCodes);
 		candidate.setResponseStatus(result, errorCodes);
 
 		return candidate;

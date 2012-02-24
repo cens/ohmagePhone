@@ -64,7 +64,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 		mCampaignReadLoader.onCreate();
 
 		// throw some actions on it
-		getActionBar().addActionBarCommand(ACTION_REFRESH_CAMPAIGNS, "refresh", R.drawable.dashboard_title_refresh);
+		getActionBar().addActionBarCommand(ACTION_REFRESH_CAMPAIGNS, getString(R.string.campaign_list_refresh_action_button_description), R.drawable.dashboard_title_refresh);
 
 		// and attach handlers for said actions
 		getActionBar().setOnActionListener(this);

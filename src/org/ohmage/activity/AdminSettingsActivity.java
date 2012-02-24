@@ -1,5 +1,8 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -71,6 +74,18 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 				return true;
 			}
 		});
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
 	}
 
 	@Override

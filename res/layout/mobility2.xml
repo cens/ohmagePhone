@@ -39,7 +39,8 @@
 			        	android:layout_width="wrap_content"
 			        	android:layout_height="wrap_content"
 			        	android:layout_gravity="left"
-			        	android:text="Off" />
+					android:text="Off"
+					android:contentDescription="@string/mobility_radio_button_off_description"/>
 			        	
 			        <View 
 			        	android:layout_width="wrap_content"
@@ -50,7 +51,8 @@
 			        	android:layout_width="wrap_content"
 			        	android:layout_height="wrap_content"
 			        	android:layout_gravity="center_horizontal"
-			        	android:text="1 min" />
+					android:text="1 min"
+					android:contentDescription="@string/mobility_radio_button_1min_description"/>
 			        	
 			        <View 
 			        	android:layout_width="wrap_content"
@@ -61,7 +63,8 @@
 			        	android:layout_width="wrap_content"
 			          	android:layout_height="wrap_content"
 			          	android:layout_gravity="right"
-			          	android:text="5 min" />
+					android:text="5 min"
+					android:contentDescription="@string/mobility_radio_button_5min_description"/>
 		          	
 		    	</RadioGroup>
 			
@@ -238,7 +241,8 @@
 			android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
 			android:background="@drawable/entity_action_button"
-			android:text="Upload Now" />
+			android:text="Upload Now"
+			android:contentDescription="@string/upload_button_description"/>
 	
 	</RelativeLayout>
     
