@@ -56,8 +56,11 @@ import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources.NotFoundException;
 import android.location.Location;
@@ -90,6 +93,8 @@ import java.util.UUID;
 public class SurveyActivity extends Activity implements LocationListener {
 	
 	private static final String TAG = "SurveyActivity";
+
+	private static final int DIALOG_CANCEL_ID = 0;
 	
 	private TextView mSurveyTitleText;
 	private ProgressBar mProgressBar;
@@ -1106,5 +1111,32 @@ public class SurveyActivity extends Activity implements LocationListener {
 						((PhotoPrompt) element).clearImage();
 			}
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		showDialog(DIALOG_CANCEL_ID);
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		Dialog dialog = super.onCreateDialog(id);
+		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+		switch (id) {
+			case DIALOG_CANCEL_ID:
+				dialogBuilder.setTitle(R.string.discard_survey_title)
+				.setMessage(R.string.discard_survey_message)
+				.setCancelable(true)
+				.setPositiveButton(R.string.discard, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								finish();
+							}
+						})
+				.setNegativeButton(R.string.cancel, null);
+				dialog = dialogBuilder.create();
+				break;
+		}
+		return dialog;
 	}
 }
