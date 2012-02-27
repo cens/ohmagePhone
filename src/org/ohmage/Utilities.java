@@ -21,6 +21,8 @@ import android.graphics.BitmapFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,6 +130,45 @@ public class Utilities {
 		} catch (IOException e) {
 		}
 		return b;
+	}
+
+	/**
+	 * Resize the image at the file and save it back
+	 * @param f
+	 * @param maxSize
+	 * @return true if the image was saved successfully
+	 */
+	public static boolean resizeImage(File f, int maxSize){
+		Bitmap b = null;
+		try {
+			b = decodeFile(f, maxSize);
+			if(b != null) {
+				try {
+					FileOutputStream out = null;
+					try {
+						out = new FileOutputStream(f);
+						b.compress(Bitmap.CompressFormat.JPEG, 90, out);
+					} finally {
+						if(out != null) {
+							out.close();
+							return true;
+						}
+					}
+
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		} finally {
+			if(b != null)
+				b.recycle();
+		}
+		return false;
 	}
 
 	/**
