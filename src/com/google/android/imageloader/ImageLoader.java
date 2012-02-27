@@ -30,7 +30,6 @@ import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.content.ModernAsyncTask;
@@ -43,9 +42,6 @@ import android.widget.ImageView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.ContentHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -57,7 +53,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.Executor;
 
 /**
  * A helper class to load images asynchronously.
@@ -1006,32 +1001,7 @@ public final class ImageLoader {
 
         public final ModernAsyncTask<ImageRequest, ImageRequest, Void> executeOnThreadPool(
                 ImageRequest... params) {
-            if (Build.VERSION.SDK_INT < 4) {
-                // Thread pool size is 1
-                return execute(params);
-            } else if (Build.VERSION.SDK_INT < 11) {
-                // The execute() method uses a thread pool
-                return execute(params);
-            } else {
-                // The execute() method uses a single thread,
-                // so call executeOnExecutor() instead.
-                try {
-                    Method method = android.os.AsyncTask.class.getMethod("executeOnExecutor",
-                            Executor.class, Object[].class);
-                    Field field = android.os.AsyncTask.class.getField("THREAD_POOL_EXECUTOR");
-                    Object executor = field.get(null);
-                    method.invoke(this, executor, params);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException("Unexpected NoSuchMethodException", e);
-                } catch (NoSuchFieldException e) {
-                    throw new RuntimeException("Unexpected NoSuchFieldException", e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Unexpected IllegalAccessException", e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException("Unexpected InvocationTargetException", e);
-                }
-                return this;
-            }
+            return execute(params);
         }
 
         @Override
