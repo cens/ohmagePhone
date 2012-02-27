@@ -18,10 +18,9 @@ package org.ohmage.activity.test;
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.activity.LoginActivity;
-
 import org.ohmage.test.helper.SharedPreferencesHelper;
 
-
+import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 
 /**
@@ -54,6 +53,8 @@ public class LoginActivityPasswordUpdateTest extends ActivityInstrumentationTest
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+
+		setActivityIntent(new Intent().putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
 
 		mPrefsHelper = new org.ohmage.SharedPreferencesHelper(getActivity());
 		userName = mPrefsHelper.getUsername();
