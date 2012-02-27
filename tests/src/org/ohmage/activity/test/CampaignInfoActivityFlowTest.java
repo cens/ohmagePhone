@@ -17,10 +17,8 @@ package org.ohmage.activity.test;
 
 import com.jayway.android.robotium.solo.Solo;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
+import org.ohmage.R;
 import org.ohmage.activity.CampaignInfoActivity;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.ResponseHistoryActivity;
@@ -34,11 +32,13 @@ import org.ohmage.db.test.NotifyingMockContentResolver;
 import org.ohmage.triggers.ui.TriggerListActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.Smoke;
-
-import java.util.concurrent.CountDownLatch;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * <p>This class contains tests for the {@link CampaignInfoActivity}</p>
@@ -145,47 +145,71 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_REMOTE;
 		provider.setCampaign(c);
-		final CountDownLatch downloadWait = new CountDownLatch(1);
 
-		// TODO: instead of mocking the ohmage api, we should mock the campaign xml download loader to just return fake data
-		// The xml downloader can then be tested seperately with a mocked OhmageApi
-//		OhmageApplication.setOhmageApi(new OhmageApi(OhmageApplication.getContext()) {
-//			@Override
-//			public CampaignReadResponse campaignRead(String serverUrl, String username, String hashedPassword, String client, String outputFormat, String campaignUrnList) {
-//				CampaignReadResponse response = new CampaignReadResponse();
-//				response.setResponseStatus(Result.SUCCESS, null);
-//
-//				JSONObject data = new JSONObject();
-//				JSONObject campaignObject = new JSONObject();
-//				try {
-//					campaignObject.put("creation_timestamp", "0");
-//					data.put(CampaignCursor.DEFAULT_CAMPAIGN_URN, campaignObject);
-//				} catch (JSONException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				response.setData(data);
-//				return response;
-//			}
-//
-//			@Override
-//			public CampaignXmlResponse campaignXmlRead(String serverUrl, String username, String hashedPassword, String client, String campaignUrn) {
-//				CampaignXmlResponse response = new CampaignXmlResponse();
-//				response.setResponseStatus(Result.SUCCESS, null);
-//				try {
-//					downloadWait.await();
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				return response;
-//			}
-//		});
+		// Wait for view to be shown
+		solo.searchText("Participate");
+
+		// Override the action when the participate button is pressed to simulate the campaign xml download task started
+		// TODO: verify that the button would start the xml download task?
+		Button participateButton = (Button)getActivity().findViewById(R.id.campaign_info_button_particpate);
+		participateButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ContentValues values = new ContentValues();
+				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
+				provider.update(Campaigns.CONTENT_URI, values, null, null);
+			}
+		});
 
 		solo.clickOnText("Participate");
 		solo.assertCurrentActivity("Expected to stay on CampaignInfoActivity", CampaignInfoActivity.class);
 		assertTrue(solo.searchText("downloading"));
-		downloadWait.countDown();
+
+		// Simulate download successful
+		ContentValues values = new ContentValues();
+		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
+		provider.update(Campaigns.CONTENT_URI, values, null, null);
+
 		assertTrue(solo.searchText("participating"));
+	}
+
+	@Smoke
+	public void testCampaignPrivacyInfo() {
+		Campaign c = getBasicCampaign();
+		provider.setCampaign(c);
+
+		assertFalse(solo.searchText("The privacy of the campaign determines who can view the shared data", true));
+		solo.clickOnText("privacy");
+		assertTrue(solo.searchText("The privacy of the campaign determines who can view the shared data", true));
+	}
+
+	@Smoke
+	public void testCampaignStatusInfo() {
+		Campaign c = getBasicCampaign();
+		provider.setCampaign(c);
+
+		assertFalse(solo.searchText("The above displays the status of the campaign.", true));
+		solo.clickOnText("status");
+		assertTrue(solo.searchText("The above displays the status of the campaign.", true));
+	}
+
+	@Smoke
+	public void testCampaignResponsesInfo() {
+		Campaign c = getBasicCampaign();
+		provider.setCampaign(c);
+
+		assertFalse(solo.searchText("The above count is the number of responses you have submitted", true));
+		solo.clickOnText("responses");
+		assertTrue(solo.searchText("The above count is the number of responses you have submitted", true));
+	}
+
+	@Smoke
+	public void testCampaignRemindersInfo() {
+		Campaign c = getBasicCampaign();
+		provider.setCampaign(c);
+
+		assertFalse(solo.searchText("The above count is the number of reminders configured for this campaign", true));
+		solo.clickOnText("reminders");
+		assertTrue(solo.searchText("The above count is the number of reminders configured for this campaign", true));
 	}
 }
