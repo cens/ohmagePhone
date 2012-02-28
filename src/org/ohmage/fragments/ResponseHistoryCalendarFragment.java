@@ -35,7 +35,6 @@ import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 /**
@@ -141,17 +140,14 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 		private final ArrayList<String> list = new ArrayList<String>();
 		private HashMap<String,Integer> eventsPerMonthMap = new HashMap<String,Integer>();
 
-		private static final int DAY_OFFSET = 1;
-		private final String[] weekdays = new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 		private final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-		private final int[] daysOfMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 		private Button numOfResponsesDisplay;
 		private TextView dateDisplay;
 
 		private final int currentDayOfMonth;
-		private final int currentWeekDay;
 		private final int currentMonth;
+		private final int currentYear;
 
 		private int mMonth;
 		private int mYear;
@@ -164,8 +160,8 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 
 			Calendar calendar = Calendar.getInstance();
 			currentDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-			currentWeekDay = calendar.get(Calendar.DAY_OF_WEEK);
 			currentMonth = calendar.get(Calendar.MONTH);
+			currentYear = calendar.get(Calendar.YEAR);
 		}
 
 		public void setMonth(int month, int year) {
@@ -192,61 +188,33 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 		private void printMonth(int mm, int yy) {
 			list.clear();
 
-			// The number of days to leave blank at
-			// the start of this month.
-			int trailingSpaces = 0;
-			int daysInPrevMonth = 0;
-			int prevMonth = 0;
-			int prevYear = 0;
-			int nextMonth = 0;
-			int nextYear = 0;
+			Calendar c = Calendar.getInstance();
+			c.set(Calendar.MONTH, mm);
+			c.set(Calendar.YEAR, yy);
 
-			int currentSelectedMonth = mm;
-			int daysInMonth = getNumberOfDaysOfMonth(currentSelectedMonth);
+			int daysInMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-			GregorianCalendar cal = new GregorianCalendar(yy, currentSelectedMonth, 1);
+			c.set(Calendar.DATE, 1);
+			int firstDayOfMonth = c.get(Calendar.DAY_OF_WEEK) - 1;
 
-			if (currentSelectedMonth == 11) {
-				prevMonth = currentSelectedMonth - 1;
-				daysInPrevMonth = getNumberOfDaysOfMonth(prevMonth);
-				nextMonth = 0;
-				prevYear = yy;
-				nextYear = yy + 1;
-			} else if (currentSelectedMonth == 0) {
-				prevMonth = 11;
-				prevYear = yy - 1;
-				nextYear = yy;
-				daysInPrevMonth = getNumberOfDaysOfMonth(prevMonth);
-				nextMonth = 1;
-			} else {
-				prevMonth = currentSelectedMonth - 1;
-				nextMonth = currentSelectedMonth + 1;
-				nextYear = yy;
-				prevYear = yy;
-				daysInPrevMonth = getNumberOfDaysOfMonth(prevMonth);
-			}
+			c.add(Calendar.MONTH, -1);
+			int daysInPrevMonth  = c.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-			int currentWeekDay = cal.get(Calendar.DAY_OF_WEEK) - 1;
-			trailingSpaces = currentWeekDay;
-
-			if (cal.isLeapYear(cal.get(Calendar.YEAR)) && mm == 2)
-				++daysInMonth;
-
-			// Trailing Month days
-			for (int i = 0; i < trailingSpaces; i++)
-				list.add(String.valueOf((daysInPrevMonth - trailingSpaces + DAY_OFFSET) + i) + "-OUTOFTHISMONTH" + "-" + getMonthAsString(prevMonth) + "-" + prevYear);
+			// Previous month days
+			for (int i = daysInPrevMonth - firstDayOfMonth; i < daysInPrevMonth; i++)
+				list.add((i+1) + "-OUTOFTHISMONTH");
 
 			// Current Month Days
 			for (int i = 1; i <= daysInMonth; i++) {
-				if (currentMonth == currentSelectedMonth && i == getCurrentDayOfMonth())
-					list.add(String.valueOf(i) + "-TODAY" + "-" + getMonthAsString(currentSelectedMonth) + "-" + yy);
+				if (currentYear == yy && currentMonth == mm && i == currentDayOfMonth)
+					list.add(i + "-TODAY");
 				else
-					list.add(String.valueOf(i) + "-THISMONTH" + "-" + getMonthAsString(currentSelectedMonth) + "-" + yy);
+					list.add(i + "-THISMONTH");
 			}
 
-			// Leading Month days
+			// Next Month days
 			for (int i = 0; i < list.size() % 7; i++)
-				list.add(String.valueOf(i + 1) + "-OUTOFTHISMONTH" + "-" + getMonthAsString(nextMonth) + "-" + nextYear);
+				list.add((i+1) + "-OUTOFTHISMONTH");
 		}
 
 		/**
@@ -380,19 +348,8 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 			}
 		}
 
-		public int getCurrentDayOfMonth() {
-			return currentDayOfMonth;
-		}
-
-		public int getCurrentWeekDay() {
-			return currentWeekDay;
-		}
 		private String getMonthAsString(int i) {
 			return months[i];
-		}
-
-		private int getNumberOfDaysOfMonth(int i) {
-			return daysOfMonth[i];
 		}
 
 		@Override
