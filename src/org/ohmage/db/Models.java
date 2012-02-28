@@ -16,6 +16,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -185,7 +186,7 @@ public class Models {
 				TriggerFramework.resetTriggerSettings(context, mUrn);
 
 			try {
-				if(mIcon != null)
+				if(!TextUtils.isEmpty(mIcon))
 					OhmageCache.getCachedFile(context, new URI(mIcon)).delete();
 			}catch (URISyntaxException e) {
 				// TODO Auto-generated catch block

@@ -15,7 +15,10 @@
  ******************************************************************************/
 package org.ohmage.prompt.photo;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.R;
+import org.ohmage.Utilities;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
@@ -36,10 +39,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.UUID;
 
 public class PhotoPrompt extends AbstractPrompt {
+
+	private static final String TAG = "PhotoPrompt";
 
 	String mResolution;
 	String uuid;
@@ -103,28 +107,16 @@ public class PhotoPrompt extends AbstractPrompt {
 	@Override
 	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
-			
-			Bitmap source = BitmapFactory.decodeFile(getImageFile().getAbsolutePath());
-			Bitmap scaled;
 
-			if (source.getWidth() > source.getHeight()) {
-				scaled = Bitmap.createScaledBitmap(source, 800, 600, false);
-			} else {
-				scaled = Bitmap.createScaledBitmap(source, 600, 800, false);
+			// Give the image two tries to resize... and then we just use the
+			// original size? there is not much we can do here
+			if(!Utilities.resizeImage(getImageFile(), 800)) {
+				Log.d(TAG, "First image resize failed. Trying again.");
+				if(!Utilities.resizeImage(getImageFile(), 800)) {
+					Log.d(TAG, "Second image resize failed. Using original size image");
+				}
 			}
 
-			source.recycle();
-
-			try {
-		       FileOutputStream out = new FileOutputStream(getImageFile());
-		       scaled.compress(Bitmap.CompressFormat.JPEG, 80, out);
-		       out.flush();
-		       out.close();
-			} catch (Exception e) {
-		       e.printStackTrace();
-			}
-
-			scaled.recycle();
 			((SurveyActivity) context).reloadCurrentPrompt();
 		} 
 	}

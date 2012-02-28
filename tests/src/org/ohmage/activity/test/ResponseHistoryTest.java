@@ -40,7 +40,6 @@ import org.ohmage.db.test.SurveyCursor;
 import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
 import org.ohmage.fragments.ResponseMapFragment;
 import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.test.helper.Constants;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 import org.ohmage.ui.OhmageFilterable.TimeFilter;
@@ -55,6 +54,7 @@ import android.test.mock.MockContentResolver;
 import android.text.format.DateUtils;
 import android.widget.FrameLayout;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
@@ -168,6 +168,8 @@ public class ResponseHistoryTest extends ActivityInstrumentationTestCase2<Respon
 						if(Surveys.getSurveyId(uri).equals("Survey #3") && selection != null)
 							return new EmptyMockCursor();
 						return new ResponseCursor(projection, responses2);
+					case OhmageUriMatcher.RESPONSE_BY_PID:
+						return new ResponseCursor(projection);
 					default:
 						return new EmptyMockCursor();
 				}
@@ -220,16 +222,25 @@ public class ResponseHistoryTest extends ActivityInstrumentationTestCase2<Respon
 	}
 
 	public void testMonthArrows() {
-		assertTrue(solo.searchText(Constants.MONTH_CURRENT));
+		Calendar c = Calendar.getInstance();
+		SimpleDateFormat format = new SimpleDateFormat("MMMM yyy");
+
+		assertTrue(solo.searchText(format.format(c.getTime())));
+
+		c.add(Calendar.MONTH, -1);
 
 		solo.clickOnButton(6);
-		assertTrue(solo.searchText(Constants.MONTH_PREVIOUS));
+		assertTrue(solo.searchText(format.format(c.getTime())));
+
+		c.add(Calendar.MONTH, 1);
 
 		solo.clickOnButton(8);
-		assertTrue(solo.searchText(Constants.MONTH_CURRENT));
+		assertTrue(solo.searchText(format.format(c.getTime())));
+
+		c.add(Calendar.MONTH, 1);
 
 		solo.clickOnButton(8);
-		assertTrue(solo.searchText(Constants.MONTH_NEXT));
+		assertTrue(solo.searchText(format.format(c.getTime())));
 	}
 
 	public void testCampaignFilterContainsAllCampaigns() {
@@ -395,7 +406,7 @@ public class ResponseHistoryTest extends ActivityInstrumentationTestCase2<Respon
 		assertTrue(solo.searchText("urn:mock:campaign", true));
 		assertTrue(solo.searchText("1/8", true));
 		// click on the X
-		solo.clickOnImage(2);
+		solo.clickOnImage(4);
 		assertFalse(solo.searchText("urn:mock:campaign", true));
 		assertFalse(solo.searchText("1/8", true));
 	}
@@ -409,7 +420,7 @@ public class ResponseHistoryTest extends ActivityInstrumentationTestCase2<Respon
 		assertTrue(solo.searchText("urn:mock:campaign", true));
 		assertTrue(solo.searchText("2/8", true));
 		// click on the X
-		solo.clickOnImage(2);
+		solo.clickOnImage(4);
 		assertFalse(solo.searchText("urn:mock:campaign", true));
 		assertFalse(solo.searchText("2/8", true));
 	}
@@ -463,6 +474,7 @@ public class ResponseHistoryTest extends ActivityInstrumentationTestCase2<Respon
 		// click on the right arrow
 		solo.clickOnText(">", 4);
 		solo.clickOnText("urn:mock:campaign");
+
 		solo.assertCurrentActivity("Expected response info activity", ResponseInfoActivity.class);
 		assertEquals(1, ContentUris.parseId(solo.getCurrentActivity().getIntent().getData()));
 		solo.goBack();
