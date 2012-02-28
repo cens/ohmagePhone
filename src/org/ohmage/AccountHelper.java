@@ -49,10 +49,10 @@ public class AccountHelper {
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mActivity);
 		switch (id) {
 			case DIALOG_CLEAR_USER_CONFIRM:			
-				dialogBuilder.setTitle("Confirm")
-				.setMessage("Are you sure you wish to clear all user data? Any data that has not been uploaded will be lost, and the app will be restored to its initial state.")
-				.setNegativeButton("No", null)
-				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				dialogBuilder.setTitle(R.string.confirm)
+				.setMessage(R.string.logout_message)
+				.setNegativeButton(R.string.cancel, null)
+				.setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -64,7 +64,7 @@ public class AccountHelper {
 				break;
 			case DIALOG_WIPE_PROGRESS:
 				ProgressDialog pDialog = new ProgressDialog(mActivity);
-				pDialog.setMessage("Clearing local user data...");
+				pDialog.setMessage(mActivity.getString(R.string.logging_out_message));
 				pDialog.setCancelable(false);
 				//pDialog.setIndeterminate(true);
 				dialog = pDialog;

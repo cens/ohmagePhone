@@ -21,6 +21,8 @@
     <string name="close">Close</string>
     <string name="click_more_info">Click here for more information</string>
     <string name="discard">Discard</string>
+    <string name="logout">Logout</string>
+    <string name="confirm">Confirm</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -295,6 +297,8 @@
     <string name="profile_info_logout">Log Out, Wipe Data</string>
     <string name="profile_info_entity_action_button_update_password_description">Update Password Button</string>
     <string name="profile_info_entity_action_button_logout_description">Logout Button</string>
+    <string name="logout_message">Are you sure you wish to clear all user data? Any data that has not been uploaded will be lost, and the app will be restored to its initial state.</string>
+    <string name="logging_out_message">Clearing local user data…</string>
 
     <!-- Survey List -->
     <string name="surveys_all">All</string>
