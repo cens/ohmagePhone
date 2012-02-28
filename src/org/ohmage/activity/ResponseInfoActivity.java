@@ -519,7 +519,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 						}
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
-						if("multi_choice_custom".equals(prompt_type)) {
+						if("multi_choice_custom".equals(prompt_type) || "multi_choice".equals(prompt_type)) {
 							try {
 								JSONArray choices = new JSONArray(value);
 								StringBuilder builder = new StringBuilder();
