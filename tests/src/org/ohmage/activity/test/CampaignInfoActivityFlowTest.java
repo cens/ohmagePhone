@@ -104,7 +104,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 
 	@Smoke
 	public void testFlowResponseHistoryActionBar() {
-		provider.setCampaign(getBasicCampaign());
+		provider.setCampaigns(getBasicCampaign());
 
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_RESPONSE_HISTORY);
 		solo.assertCurrentActivity("Expected Response History", ResponseHistoryActivity.class);
@@ -114,7 +114,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 
 	@Smoke
 	public void testFlowTriggerButtonActionBar() {
-		provider.setCampaign(getBasicCampaign());
+		provider.setCampaigns(getBasicCampaign());
 
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_TRIGGERS);
 		solo.assertCurrentActivity("Expected Triggers list", TriggerListActivity.class);
@@ -123,7 +123,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 
 	@Smoke
 	public void testViewSurveys() {
-		provider.setCampaign(getBasicCampaign());
+		provider.setCampaigns(getBasicCampaign());
 
 		solo.clickOnText("View Surveys");
 		solo.assertCurrentActivity("Expected Surveys list", SurveyListActivity.class);
@@ -133,7 +133,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 
 	@Smoke
 	public void testRemove() {
-		provider.setCampaign(getBasicCampaign());
+		provider.setCampaigns(getBasicCampaign());
 
 		solo.clickOnText("Remove");
 		solo.clickOnText("Remove");
@@ -144,7 +144,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 	public void testParticipate() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_REMOTE;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 
 		// Wait for view to be shown
 		solo.searchText("Participate");
@@ -176,7 +176,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 	@Smoke
 	public void testCampaignPrivacyInfo() {
 		Campaign c = getBasicCampaign();
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 
 		assertFalse(solo.searchText("The privacy of the campaign determines who can view the shared data", true));
 		solo.clickOnText("privacy");
@@ -186,7 +186,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 	@Smoke
 	public void testCampaignStatusInfo() {
 		Campaign c = getBasicCampaign();
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 
 		assertFalse(solo.searchText("The above displays the status of the campaign.", true));
 		solo.clickOnText("status");
@@ -196,7 +196,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 	@Smoke
 	public void testCampaignResponsesInfo() {
 		Campaign c = getBasicCampaign();
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 
 		assertFalse(solo.searchText("The above count is the number of responses you have submitted", true));
 		solo.clickOnText("responses");
@@ -206,7 +206,7 @@ public class CampaignInfoActivityFlowTest extends ActivityInstrumentationTestCas
 	@Smoke
 	public void testCampaignRemindersInfo() {
 		Campaign c = getBasicCampaign();
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 
 		assertFalse(solo.searchText("The above count is the number of reminders configured for this campaign", true));
 		solo.clickOnText("reminders");
