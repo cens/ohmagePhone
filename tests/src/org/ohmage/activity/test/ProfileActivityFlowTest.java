@@ -33,15 +33,11 @@ import android.test.suitebuilder.annotation.Smoke;
  */
 public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<ProfileActivity> {
 
-	private static final String BAD_LOGOUT_PIN_STRING = "1000";
-	private static final String LOGOUT_PIN_STRING = "0000";
-
 	private static final int INDEX_IMAGE_BUTTON_OHMAGE_HOME = 0;
 
 	private Solo solo;
 	private SharedPreferencesHelper mPrefsHelper;
 
-	private boolean isLoggedOut;
 	private String userName;
 	private String hashedPass;
 
@@ -63,12 +59,6 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	@Override
 	protected void tearDown() throws Exception{
 
-		if(isLoggedOut) {
-			isLoggedOut = false;
-			mPrefsHelper.putUsername(userName);
-			mPrefsHelper.putHashedPassword(hashedPass);
-		}
-
 		try {
 			solo.finalize();
 		} catch (Throwable e) { 
@@ -82,6 +72,7 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	public void testFlowHomeButtonActionBar() {
 		solo.clickOnImageButton(INDEX_IMAGE_BUTTON_OHMAGE_HOME);
 		solo.assertCurrentActivity("Expected Dashboard", DashboardActivity.class);
+		solo.goBack();
 	}
 
 	@Smoke
@@ -105,54 +96,27 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	}
 
 	@Smoke
-	public void testLogoutPin() {
-		solo.clickOnText("Log Out");
-		solo.clickOnText("Yes");
-
-		// Make sure the Ok button isn't enabled until they enter a pin
-		assertFalse(solo.getButton(0).isEnabled());
-		solo.enterText(0, LOGOUT_PIN_STRING);
-		assertTrue(solo.getButton(0).isEnabled());
-
-		solo.clickOnText("Cancel");
-		solo.assertCurrentActivity("Expected to stay on profile", ProfileActivity.class);
-	}
-
-	@Smoke
-	public void testInvalidLogoutPin() {
-		solo.clickOnText("Log Out");
-		solo.clickOnText("Yes");
-
-		// Make sure the Ok button isn't enabled until they enter a pin
-		assertFalse(solo.getButton(0).isEnabled());
-		solo.enterText(0, BAD_LOGOUT_PIN_STRING);
-		assertTrue(solo.getButton(0).isEnabled());
-
-		solo.clickOnText("Ok");
-		solo.searchText("Wrong pin code.");
-		solo.assertCurrentActivity("Expected to stay on profile", ProfileActivity.class);
-	}
-
-	@Smoke
 	public void testLogout() {
 		solo.clickOnText("Log Out");
 		solo.clickOnText("Yes");
 
-		// Make sure the Ok button isn't enabled until they enter a pin
-		assertFalse(solo.getButton(0).isEnabled());
-		solo.enterText(0, LOGOUT_PIN_STRING);
-		assertTrue(solo.getButton(0).isEnabled());
-
-		solo.clickOnText("Ok");
-
 		solo.assertCurrentActivity("Expected Login Screen", LoginActivity.class);
 
-		/** In {@link tearDown} we check this to make sure we log in again */
-		isLoggedOut = true;
+		resetCredentials();
+
+		// We need to close the keyboard and leave the login activity for the
+		// next tests to run successfully
+		solo.goBack();
+		solo.goBack();
 	}
 
 	@Smoke
 	public void testBackButtonAfterLogout() {
 		fail("Test the back button to make sure it is not possible to get to the app after logout");
+	}
+
+	private void resetCredentials() {
+		mPrefsHelper.putUsername(userName);
+		mPrefsHelper.putHashedPassword(hashedPass);
 	}
 }

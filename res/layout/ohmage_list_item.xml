@@ -19,7 +19,7 @@
     	android:src="@drawable/apple_logo"/>
     	
     <LinearLayout
-    	android:layout_width="1dp"
+	android:layout_width="0dp"
     	android:layout_height="fill_parent"
     	android:layout_weight="1"
     	android:layout_marginTop="8dp"
@@ -33,16 +33,16 @@
 	    	android:id="@+id/main_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"  
-	    	android:textAppearance="?android:attr/textAppearanceMedium" 
-	    	android:text="Main Text" />
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:ellipsize="end" />
 	    	
 	    <TextView 
 	    	android:id="@+id/sub_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content" 
 	    	android:layout_marginTop="6dp"
-	    	android:textAppearance="?android:attr/textAppearanceSmall" 
-	    	android:text="Sub Text" />
+		android:textAppearance="?android:attr/textAppearanceSmall"
+		android:ellipsize="end" />
     
     </LinearLayout>
     
@@ -58,8 +58,7 @@
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"  
 	    	android:layout_gravity="right"
-	    	android:textAppearance="?android:attr/textAppearanceSmall" 
-	    	android:text="Extra 1" 
+		android:textAppearance="?android:attr/textAppearanceSmall"
     		android:visibility="gone" />
 	    	
 	    <TextView 
@@ -68,8 +67,7 @@
 	    	android:layout_height="wrap_content" 
 	    	android:layout_marginTop="1dp"
 	    	android:layout_gravity="right"
-	    	android:textAppearance="?android:attr/textAppearanceSmall" 
-	    	android:text="Extra 2" 
+		android:textAppearance="?android:attr/textAppearanceSmall"
     		android:visibility="gone" />
     
     </LinearLayout>

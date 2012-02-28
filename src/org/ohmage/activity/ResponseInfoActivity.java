@@ -52,6 +52,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
+import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -518,17 +519,17 @@ LoaderManager.LoaderCallbacks<Cursor> {
 						}
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
-						if("multi_choice_custom".equals(prompt_type)) {
+						if("multi_choice_custom".equals(prompt_type) || "multi_choice".equals(prompt_type)) {
 							try {
 								JSONArray choices = new JSONArray(value);
 								StringBuilder builder = new StringBuilder();
 								for(int i=0;i<choices.length();i++) {
 									if(i != 0)
-										builder.append("\n");
-									builder.append("� ");
+										builder.append("<br\\>");
+									builder.append("&bull; ");
 									builder.append(choices.get(i));
 								}
-								((TextView) view.getTag()).setText(builder.toString());
+								((TextView) view.getTag()).setText(Html.fromHtml(builder.toString()));
 								return true;
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block

@@ -12,8 +12,9 @@ import android.net.Uri;
 import java.util.concurrent.CountDownLatch;
 
 public class CampaignContentProvider extends DelegatingMockContentProvider {
-	Campaign mCampaign;
+	Campaign[] mCampaigns;
 	private final CountDownLatch latch;
+	private String mLastSelection;
 
 	public CampaignContentProvider(Application application, String name) {
 		super(application, name);
@@ -22,16 +23,19 @@ public class CampaignContentProvider extends DelegatingMockContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		mLastSelection = selection;
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		switch(OhmageUriMatcher.getMatcher().match(uri)) {
 			case OhmageUriMatcher.CAMPAIGNS:
+				return new CampaignCursor(projection, mCampaigns);
 			case OhmageUriMatcher.CAMPAIGN_BY_URN:
-				try {
-					latch.await();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return new CampaignCursor(projection, mCampaign);
+				return new CampaignCursor(projection, mCampaigns[0]);
 			default:
 				return new EmptyMockCursor();
 		}
@@ -39,17 +43,26 @@ public class CampaignContentProvider extends DelegatingMockContentProvider {
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		if(mCampaign != null && values != null && values.containsKey(Campaigns.CAMPAIGN_STATUS)) {
-			mCampaign.mStatus = values.getAsInteger(Campaigns.CAMPAIGN_STATUS);
-
-			OhmageApplication.getContext().getContentResolver().notifyChange(uri, null);
-			return 1;
+		if(mCampaigns != null && values != null && values.containsKey(Campaigns.CAMPAIGN_STATUS)) {
+			for(Campaign campaign : mCampaigns) {
+				campaign.mStatus = values.getAsInteger(Campaigns.CAMPAIGN_STATUS);
+				OhmageApplication.getContext().getContentResolver().notifyChange(uri, null);
+			}
+			return mCampaigns.length;
 		}
 		return 0;
 	}
 
-	public void setCampaign(Campaign campaign) {
-		mCampaign = campaign;
+	public void setCampaigns(Campaign... campaigns) {
+		mCampaigns = campaigns;
 		latch.countDown();
+	}
+
+	public Campaign[] getCampaigns() {
+		return mCampaigns;
+	}
+
+	public String getLastSelection() {
+		return mLastSelection;
 	}
 }

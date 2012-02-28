@@ -19,9 +19,9 @@ import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.LoginActivity;
-
 import org.ohmage.test.helper.SharedPreferencesHelper;
 
+import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 
 /**
@@ -58,6 +58,7 @@ public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginAct
 		// We need to get the username and hashed pass from the preferences and clear them with a context object
 		// but also before the activity starts. So the first time we setUp, we will create an activity, change the
 		// data we need to change and close the activity. The next time we start the activity for realz.
+		setActivityIntent(new Intent().putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
 		mPrefsHelper = new org.ohmage.SharedPreferencesHelper(getActivity());
 		userName = mPrefsHelper.getUsername();
 		hashedPass = mPrefsHelper.getHashedPassword();
@@ -67,6 +68,7 @@ public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginAct
 
 		// Stop this instance of the activity where the username and password exist
 		getActivity().finish();
+		setActivityIntent(null);
 		setActivity(null);
 
 		// Start and instance of the activity that we want to test
@@ -97,6 +99,7 @@ public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginAct
 		solo.enterText(1, SharedPreferencesHelper.PASSWORD);
 		solo.clickOnText("Login");
 		solo.assertCurrentActivity("Expected to go to dash", DashboardActivity.class);
+		solo.goBack();
 	}
 
 	public void testInvalidLogin() {

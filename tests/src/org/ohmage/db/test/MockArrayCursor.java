@@ -18,6 +18,8 @@ public abstract class MockArrayCursor<T> extends EmptyMockCursor {
 
 	@Override
 	public int getCount() {
+		if(mObjects == null)
+			return 0;
 		return mObjects.length;
 	}
 

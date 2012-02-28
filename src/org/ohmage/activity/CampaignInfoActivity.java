@@ -319,9 +319,9 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// set the appropriate text and icon for the privacy state
 		String privacy = data.getString(QueryParams.PRIVACY);
 		mPrivacyValue.setText(privacy);
-		if (privacy.equalsIgnoreCase("private"))
+		if ("private".equalsIgnoreCase(privacy))
 			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);
-		else if (privacy.equalsIgnoreCase("shared"))
+		else if ("shared".equalsIgnoreCase(privacy))
 			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_shared, 0, 0, 0);
 		else
 			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);

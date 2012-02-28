@@ -176,6 +176,8 @@ public class ResponseListTest extends ActivityInstrumentationTestCase2<ResponseL
 							}
 						}
 						return new ResponseCursor(projection, responses);
+					case OhmageUriMatcher.RESPONSE_BY_PID:
+						return new ResponseCursor(projection);
 					default:
 						return new EmptyMockCursor();
 				}
