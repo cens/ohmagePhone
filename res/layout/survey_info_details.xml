@@ -24,11 +24,12 @@
 			android:text="@string/survey_info_description_test" />
 
 		<!-- collapsible(?) sections with attribute info -->
-		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content" android:shrinkColumns="1" >
+		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content" android:shrinkColumns="2" >
 		    <TableRow style="@style/InfoSectionHeader"
 				android:id="@+id/survey_info_campaign_urn_row"
 				android:contentDescription="@string/survey_info_campaign_urn_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/survey_info_campaign_urn_title" />
+				<View style="@style/InfoSectionDivider" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_campaign_urn_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
@@ -38,6 +39,8 @@
 				android:id="@+id/survey_info_status_row"
 				android:contentDescription="@string/survey_info_status_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/survey_info_status_title" />
+				<View style="@style/InfoSectionDivider" />
+
 				<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_status_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
@@ -47,6 +50,8 @@
 				android:id="@+id/survey_info_responses_row"
 				android:contentDescription="@string/survey_info_responses_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/survey_info_responses_title" />
+				<View style="@style/InfoSectionDivider" />
+
 				<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_responses_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
@@ -56,6 +61,8 @@
 				android:id="@+id/survey_info_last_response_row"
 				android:contentDescription="@string/survey_info_last_response_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/survey_info_last_response_title" />
+				<View style="@style/InfoSectionDivider" />
+
 				<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_last_response_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
@@ -65,6 +72,8 @@
 				android:id="@+id/survey_info_triggers_row"
 				android:contentDescription="@string/survey_info_reminders_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/survey_info_triggers_title" />
+				<View style="@style/InfoSectionDivider" />
+
 				<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_triggers_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
