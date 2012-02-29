@@ -4,7 +4,7 @@
   android:id="@+id/ohmage_list_item"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:minHeight="64dp"
+  android:minHeight="66dp"
   android:orientation="horizontal"
   android:contentDescription="@string/list_item_description">
   
@@ -33,16 +33,18 @@
 	    	android:id="@+id/main_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"  
-		android:textAppearance="?android:attr/textAppearanceMedium"
-		android:ellipsize="end" />
-	    	
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:singleLine="true"
+			android:ellipsize="end" />
+
 	    <TextView 
 	    	android:id="@+id/sub_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content" 
 	    	android:layout_marginTop="6dp"
-		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:ellipsize="end" />
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:singleLine="true"
+			android:ellipsize="end" />
     
     </LinearLayout>
     
