@@ -36,7 +36,7 @@
 	<macrodef name="git-tag">
 		<attribute name="tagName" />
 		<attribute name="dir" />
-		<attribute name="options" default="" />
+		<attribute name="options" default="-f" />
 		<attribute name="failerror" default="false" />
 		<sequential>
 			<git command="tag" dir="@{dir}" options="@{options}" failerror="@{failerror}" >
