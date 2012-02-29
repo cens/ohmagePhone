@@ -316,7 +316,7 @@ public class ResponseSyncService extends WakefulIntentService {
 									JSONObject newItem = new JSONObject();
 									
 									try {
-										String value = curItem.get("prompt_response").asText();
+										String value = (curItem.get("prompt_response").isValueNode()) ? curItem.get("prompt_response").asText() : curItem.get("prompt_response").toString();
 										String type = curItem.get("prompt_type").asText();
 										newItem.put("prompt_id", key);
 	
