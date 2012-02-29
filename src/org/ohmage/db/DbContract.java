@@ -184,6 +184,7 @@ public class DbContract {
     			"vnd.android.cursor.item/vnd.ohmage.survey";
 
     	public static final String CAMPAIGN_URN = "campaign_urn";
+	public static final String CAMPAIGN_NAME = "campaign_name";
 
     	/** Default "ORDER BY" clause. */
     	public static final String DEFAULT_SORT = SurveyColumns.SURVEY_TITLE;

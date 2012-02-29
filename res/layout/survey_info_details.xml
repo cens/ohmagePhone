@@ -24,7 +24,16 @@
 			android:text="@string/survey_info_description_test" />
 
 		<!-- collapsible(?) sections with attribute info -->
-		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content" android:shrinkColumns="1" >
+		    <TableRow style="@style/InfoSectionHeader"
+				android:id="@+id/survey_info_campaign_urn_row"
+				android:contentDescription="@string/survey_info_campaign_urn_header_description">
+				<TextView style="@style/InfoSectionLabel" android:text="@string/survey_info_campaign_urn_title" />
+				<TextView style="@style/InfoSectionValue" android:id="@+id/survey_info_campaign_urn_value" />
+			</TableRow>
+			<TextView style="@style/InfoSectionDetails"
+				android:id="@+id/survey_info_campaign_urn_details" />
+
 			<TableRow style="@style/InfoSectionHeader"
 				android:id="@+id/survey_info_status_row"
 				android:contentDescription="@string/survey_info_status_header_description">

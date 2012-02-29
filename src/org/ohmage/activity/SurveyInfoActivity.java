@@ -52,6 +52,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	// handles to views we'll be manipulating
 	private TextView mErrorBox;
 	private TextView mDescView;
+	private TextView mCampaignUrnValue;
 	private TextView mStatusValue;
 	private TextView mResponsesValue;
 	private TextView mLastResponseValue;
@@ -89,6 +90,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// nab references to things we'll be populating
 		mErrorBox = (TextView)findViewById(R.id.survey_info_errorbox);
 		mDescView = (TextView)findViewById(R.id.survey_info_desc);
+		mCampaignUrnValue = (TextView)findViewById(R.id.survey_info_campaign_urn_value);
 		mStatusValue = (TextView)findViewById(R.id.survey_info_status_value);
 		mResponsesValue = (TextView)findViewById(R.id.survey_info_responses_value);
 		mLastResponseValue = (TextView)findViewById(R.id.survey_info_last_response_value);
@@ -96,6 +98,12 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		
 		// and attach some handlers + populate some html data
 		// status
+		TextView campaignUrnDetails = (TextView)findViewById(R.id.survey_info_campaign_urn_details);
+		campaignUrnDetails.setText(Html.fromHtml(getString(R.string.survey_info_campaign_urn_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.survey_info_campaign_urn_row),
+				campaignUrnDetails);
+
 		TextView statusDetails = (TextView)findViewById(R.id.survey_info_status_details);
 		statusDetails.setText(Html.fromHtml(getString(R.string.survey_info_status_details)));
 		setDetailsExpansionHandler(
@@ -261,6 +269,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// hide our error box; it'll become visible below (and filled w/text) if the status is appropriate
 		mErrorBox.setVisibility(View.GONE);
 		
+		mCampaignUrnValue.setText(mCampaignUrn);
+
 		// set many things on the view according to the campaign status, too
 		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0); // start out a default gray sphere
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);
