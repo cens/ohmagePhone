@@ -181,7 +181,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		if(mSurveyElements == null) {
 			// If there are no survey elements, something is wrong
 			finish();
-			Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT);
+			Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT).show();
 			return;
 		}
 
@@ -938,23 +938,25 @@ public class SurveyActivity extends Activity implements LocationListener {
 	}
 	
 	private String storeResponse() {
+		return storeResponse(this, mSurveyId, mLaunchTime, mCampaignUrn, mSurveyTitle, mSurveyElements);
+	}
 
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+	public static String storeResponse(Context context, String surveyId, long launchTime, String campaignUrn, String surveyTitle, List<SurveyElement> surveyElements) {
+
+		SharedPreferencesHelper helper = new SharedPreferencesHelper(context);
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
 		String date = dateFormat.format(now.getTime());
 		long time = now.getTimeInMillis();
 		String timezone = TimeZone.getDefault().getID();
-
-		String surveyId = mSurveyId;
 		
 		//get launch context from trigger glue
 		JSONObject surveyLaunchContextJson = new JSONObject();
 		try {
-			surveyLaunchContextJson.put("launch_time", mLaunchTime);
+			surveyLaunchContextJson.put("launch_time", launchTime);
 			surveyLaunchContextJson.put("launch_timezone", timezone);
-			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(this, mCampaignUrn, mSurveyTitle));
+			surveyLaunchContextJson.put("active_triggers", TriggerFramework.getActiveTriggerInfo(context, campaignUrn, surveyTitle));
 		} catch (JSONException e) {
 			Log.e(TAG, "JSONException when trying to generate survey launch context json", e);
 			throw new RuntimeException(e);
@@ -967,14 +969,14 @@ public class SurveyActivity extends Activity implements LocationListener {
 		JSONObject itemJson = null;
 		boolean inRepeatableSet = false;
 		
-		for (int i = 0; i < mSurveyElements.size(); i++) {
-			if (mSurveyElements.get(i) instanceof Prompt) {
+		for (int i = 0; i < surveyElements.size(); i++) {
+			if (surveyElements.get(i) instanceof Prompt) {
 				if (!inRepeatableSet) {
 					itemJson = new JSONObject();
 					try {
-						itemJson.put("prompt_id", ((AbstractPrompt)mSurveyElements.get(i)).getId());
-						itemJson.put("value", ((AbstractPrompt)mSurveyElements.get(i)).getResponseObject());
-						Object extras = ((AbstractPrompt)mSurveyElements.get(i)).getExtrasObject();
+						itemJson.put("prompt_id", ((AbstractPrompt)surveyElements.get(i)).getId());
+						itemJson.put("value", ((AbstractPrompt)surveyElements.get(i)).getResponseObject());
+						Object extras = ((AbstractPrompt)surveyElements.get(i)).getExtrasObject();
 						if (extras != null) {
 							// as of now we don't actually have "extras" we only have "custom_choices" for the custom types
 							// so this is currently only used by single_choice_custom and multi_choice_custom
@@ -988,9 +990,9 @@ public class SurveyActivity extends Activity implements LocationListener {
 				} else {
 					JSONObject subItemJson = new JSONObject();
 					try {
-						subItemJson.put("prompt_id", ((AbstractPrompt)mSurveyElements.get(i)).getId());
-						subItemJson.put("value", ((AbstractPrompt)mSurveyElements.get(i)).getResponseObject());
-						Object extras = ((AbstractPrompt)mSurveyElements.get(i)).getExtrasObject();
+						subItemJson.put("prompt_id", ((AbstractPrompt)surveyElements.get(i)).getId());
+						subItemJson.put("value", ((AbstractPrompt)surveyElements.get(i)).getResponseObject());
+						Object extras = ((AbstractPrompt)surveyElements.get(i)).getExtrasObject();
 						if (extras != null) {
 							// as of now we don't actually have "extras" we only have "custom_choices" for the custom types
 							// so this is currently only used by single_choice_custom and multi_choice_custom
@@ -1002,18 +1004,18 @@ public class SurveyActivity extends Activity implements LocationListener {
 					}
 					iterationResponseJson.put(subItemJson);
 				}
-			} else if (mSurveyElements.get(i) instanceof RepeatableSetHeader) {
+			} else if (surveyElements.get(i) instanceof RepeatableSetHeader) {
 				inRepeatableSet = true;
-				if (i != 0 && (mSurveyElements.get(i-1) instanceof RepeatableSetTerminator) && ((RepeatableSetHeader)mSurveyElements.get(i)).getId().equals(((RepeatableSetTerminator)mSurveyElements.get(i-1)).getId())) {
+				if (i != 0 && (surveyElements.get(i-1) instanceof RepeatableSetTerminator) && ((RepeatableSetHeader)surveyElements.get(i)).getId().equals(((RepeatableSetTerminator)surveyElements.get(i-1)).getId())) {
 					//continue existing set
 					iterationResponseJson = new JSONArray();
 				} else {
 					//start new set
 					itemJson = new JSONObject();
 					try {
-						itemJson.put("repeatable_set_id", ((RepeatableSetHeader)mSurveyElements.get(i)).getId());
+						itemJson.put("repeatable_set_id", ((RepeatableSetHeader)surveyElements.get(i)).getId());
 						itemJson.put("skipped", "false");
-						itemJson.put("not_displayed", ((RepeatableSetHeader)mSurveyElements.get(i)).isDisplayed() ? "false" : "true");
+						itemJson.put("not_displayed", ((RepeatableSetHeader)surveyElements.get(i)).isDisplayed() ? "false" : "true");
 						repeatableSetResponseJson = new JSONArray();
 						iterationResponseJson = new JSONArray();
 					} catch (JSONException e) {
@@ -1021,7 +1023,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 						throw new RuntimeException(e);
 					}
 				}
-			} else if (mSurveyElements.get(i) instanceof RepeatableSetTerminator) {
+			} else if (surveyElements.get(i) instanceof RepeatableSetTerminator) {
 				inRepeatableSet = false;
 				repeatableSetResponseJson.put(iterationResponseJson);
 				try {
@@ -1030,7 +1032,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 					Log.e(TAG, "JSONException when trying to generate response json", e);
 					throw new RuntimeException(e);
 				}
-				if (!(i+1 < mSurveyElements.size() && (mSurveyElements.get(i+1) instanceof RepeatableSetHeader) && ((RepeatableSetHeader)mSurveyElements.get(i+1)).getId().equals(((RepeatableSetTerminator)mSurveyElements.get(i)).getId()))) {
+				if (!(i+1 < surveyElements.size() && (surveyElements.get(i+1) instanceof RepeatableSetHeader) && ((RepeatableSetHeader)surveyElements.get(i+1)).getId().equals(((RepeatableSetTerminator)surveyElements.get(i)).getId()))) {
 					responseJson.put(itemJson);
 				}
 			}
@@ -1041,7 +1043,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		Response candidate = new Response();
 		
 		candidate.uuid = UUID.randomUUID().toString();
-		candidate.campaignUrn = mCampaignUrn;
+		candidate.campaignUrn = campaignUrn;
 		candidate.username = username;
 		candidate.date = date;
 		candidate.time = time;
@@ -1057,18 +1059,18 @@ public class SurveyActivity extends Activity implements LocationListener {
 		candidate.locationTime = -1;
 		candidate.status = Response.STATUS_WAITING_FOR_LOCATION;
 
-		ContentResolver cr = getContentResolver();
+		ContentResolver cr = context.getContentResolver();
 		Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
 
-		Intent intent = new Intent(this, SurveyGeotagService.class);
+		Intent intent = new Intent(context, SurveyGeotagService.class);
 		intent.setData(responseUri);
-		WakefulService.sendWakefulWork(this, intent);
+		WakefulService.sendWakefulWork(context, intent);
 
 		// finalize photos now that we have the responseUri
 		// the photos are initially in the campaign dir, until the response is saved
-		for (int i = 0; i < mSurveyElements.size(); i++) {
-			if (mSurveyElements.get(i) instanceof PhotoPrompt) {
-				PhotoPrompt photoPrompt = (PhotoPrompt)mSurveyElements.get(i);
+		for (int i = 0; i < surveyElements.size(); i++) {
+			if (surveyElements.get(i) instanceof PhotoPrompt) {
+				PhotoPrompt photoPrompt = (PhotoPrompt)surveyElements.get(i);
 				if (photoPrompt.isPromptAnswered()) {
 					photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
 				}
@@ -1078,7 +1080,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		// create an intent and broadcast it to any interested receivers
 		Intent i = new Intent("org.ohmage.SURVEY_COMPLETE");
 		
-		i.putExtra(Responses.CAMPAIGN_URN, mCampaignUrn);
+		i.putExtra(Responses.CAMPAIGN_URN, campaignUrn);
 		i.putExtra(Responses.RESPONSE_USERNAME, username);
 		i.putExtra(Responses.RESPONSE_DATE, date);
 		i.putExtra(Responses.RESPONSE_TIME, time);
@@ -1089,7 +1091,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		i.putExtra(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
 		i.putExtra(Responses.RESPONSE_JSON, response);
 
-		this.sendBroadcast(i);
+		context.sendBroadcast(i);
 
 		return candidate.uuid;
 	}

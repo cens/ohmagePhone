@@ -18,6 +18,7 @@ package org.ohmage.triggers.base;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -57,7 +58,7 @@ public class TriggerDB {
 	public static final String KEY_NOTIF_DESCRIPT = "notif_descript";
 	public static final String KEY_RUNTIME_DESCRIPT = "runtime_descript";
 	
-	private Context mContext;
+	private final Context mContext;
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
 	
@@ -134,7 +135,7 @@ public class TriggerDB {
 	 */
 	public Cursor getSurveyTriggers(String campaignUrn, String surveyTitle) {
 		return mDb.query(TABLE_TRIGGERS, null,
-						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_ACTION_DESCRIPT + " LIKE '%" + surveyTitle + "%'",
+						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_ACTION_DESCRIPT + " LIKE " + DatabaseUtils.sqlEscapeString("%" + surveyTitle + "%"),
 						 new String[] {campaignUrn},
 						 null, null, null);
 	}

@@ -188,8 +188,10 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 				MobilityActivity.this.mUploadButton.setEnabled(true);
 				MobilityActivity.this.mUploadButton.setText("Upload Now");
 				Long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-				mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
-				getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
+				if(lastMobilityUploadTimestamp != 0) {
+					mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
+					getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
+				}
 			}
 		}
 	};

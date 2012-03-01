@@ -36,6 +36,7 @@
 	<style name="InfoSectionHeader">
 		<item name="android:background">@drawable/campaign_info_header_bg</item>
 		<item name="android:layout_marginTop">@dimen/gutter_thin</item>
+		<item name="android:gravity">center_vertical</item>
 	</style>
 	
 	<style name="InfoSectionLabel">
@@ -43,13 +44,21 @@
 		<item name="android:textStyle">bold</item>
 		<item name="android:padding">6dp</item>
 	</style>
-	
+
+	<style name="InfoSectionDivider">
+		<item name="android:layout_height">fill_parent</item>
+		<item name="android:layout_width">2px</item>
+		<item name="android:background">@drawable/line_divider</item>
+		<item name="android:layout_marginTop">6dip</item>
+		<item name="android:layout_marginBottom">6dip</item>
+	</style>
+
 	<style name="InfoSectionValue">
-		<item name="android:drawablePadding">3dp</item>
+		<item name="android:drawablePadding">6dp</item>
 		<item name="android:textStyle">normal</item>
 		<item name="android:padding">6dp</item>
 	</style>
-	
+
 	<style name="InfoSectionDetails">
 		<item name="android:background">@drawable/campaign_info_details_bg</item>
 		<item name="android:padding">@dimen/gutter</item>
