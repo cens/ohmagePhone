@@ -133,10 +133,12 @@ public class SurveyActivity extends Activity implements LocationListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-		if(Config.IS_SINGLE_CAMPAIGN) {
+		if(getIntent().hasExtra("campaign_urn")) {
+			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+		} else if(Config.IS_SINGLE_CAMPAIGN) {
 			mCampaignUrn = Campaign.getSingleCampaign(this);
 		} else {
-			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
+			throw new RuntimeException("The campaign urn must be passed to the Survey Activity");
         }
 
         mSurveyId = getIntent().getStringExtra("survey_id");
