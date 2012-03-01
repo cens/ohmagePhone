@@ -158,4 +158,17 @@ public class MultiChoicePrompt extends AbstractPrompt {
 		
 	}
 
+	@Override
+	public void setDefaultValue(String defaultValue) {
+		this.mDefaultValue = defaultValue;
+		try {
+			if(defaultValue != null) {
+				String[] values = defaultValue.split(",");
+				for(int i=0; i<values.length; i++)
+					mSelectedIndexes.add(Integer.valueOf(values[i]));
+			}
+		} catch(NumberFormatException e) {
+			// No number...
+		}
+	}
 }
