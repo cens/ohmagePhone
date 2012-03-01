@@ -181,7 +181,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 		if(mSurveyElements == null) {
 			// If there are no survey elements, something is wrong
 			finish();
-			Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT);
+			Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT).show();
 			return;
 		}
 

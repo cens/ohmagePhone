@@ -221,7 +221,9 @@ public class PromptXmlParser {
 	}
 
 	public static List<SurveyElement> parseSurveyElements(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
-		
+		if(promptXmlStream == null)
+			return null;
+
 		XmlPullParser parser = Xml.newPullParser();
 		parser.setInput(new BufferedReader(new InputStreamReader(promptXmlStream, "UTF-8")));
 		
