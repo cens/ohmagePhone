@@ -274,7 +274,7 @@ public class LocTrigService extends Service
 	}
 	
 	@Override
-	public void onStart(Intent intent, int startId) {
+	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i(DEBUG_TAG, "LocTrigService: onStart");
 		
 		int trigId = intent.getIntExtra(KEY_TRIG_ID, -1);
@@ -303,7 +303,7 @@ public class LocTrigService extends Service
 		
 		releaseRecvrWakeLock();
 		
-		super.onStart(intent, startId);
+		return START_REDELIVER_INTENT;
 	}
 	
 	@Override

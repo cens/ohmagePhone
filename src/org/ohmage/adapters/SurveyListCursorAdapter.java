@@ -40,12 +40,13 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
 		
 		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
+		final String campaignName = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_NAME));
 		final int campaignStatus = cursor.getInt(cursor.getColumnIndex(Campaigns.CAMPAIGN_STATUS));
 		final String surveyId = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
 		
 		iconImage.setVisibility(View.GONE);
 		titleText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
-		campaignText.setText(campaignUrn);
+		campaignText.setText(campaignName);
 		campaignText.setVisibility(View.GONE);
 		actionButton.setFocusable(false);
 		actionButton.setOnClickListener(new OnClickListener() {

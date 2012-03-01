@@ -68,8 +68,7 @@ public class TimeTrigService extends Service {
 	}
     
     @Override
-	public void onStart(Intent intent, int startId) {
-		super.onStart(intent, startId);
+	public int onStartCommand(Intent intent, int flags, int startId) {
 		
 		Log.i(DEBUG_TAG, "TimeTriggerService: onStart");
 		
@@ -81,7 +80,7 @@ public class TimeTrigService extends Service {
 			Log.w(DEBUG_TAG, "TimeTriggerService: Started with invalid intent");
 			
 			releaseWakeLock();
-			return;
+			return START_NOT_STICKY;
 		}
 		
 		int trigId = intent.getIntExtra(KEY_TRIG_ID, -1);
@@ -117,6 +116,8 @@ public class TimeTrigService extends Service {
 		}
 		
 		releaseWakeLock();
+
+		return START_REDELIVER_INTENT;
 	}
     
     @Override
