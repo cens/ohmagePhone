@@ -7,6 +7,7 @@ import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
@@ -24,6 +25,7 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -85,7 +87,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 
 			// The old urn thats used for single campaign mode. This has to be determined before the new data is downloaded in case the
 			// state changes. This is used to determine if there is a better choice for the single campaign mode after the download is complete.
-			String oldUrn = Campaign.getSingleCampaign(getContext());
+			final String oldUrn = Campaign.getSingleCampaign(getContext());
 
 			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
@@ -167,28 +169,33 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it
 				if(newCampaign == null || TextUtils.isEmpty(newCampaign.mUrn) || !newCampaign.mUrn.equals(oldUrn) || newCampaign.mStatus == Campaign.STATUS_OUT_OF_DATE) {
 
-					if(!TextUtils.isEmpty(oldUrn)) {
-						// If we are removing the old campaign show the notification
-						Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
-						intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getContext().getString(R.string.single_campaign_changed_title));
-						intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getContext().getString(R.string.single_campaign_changed_message));
-						NotificationHelper.showNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
-						Campaign.setRemote(getContext(), oldUrn);
-					}
-
 					// Download the new xml
-					//TODO: download new xml!
 					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
 						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
+						campaignDownloadTask.registerListener(0, new OnLoadCompleteListener<OhmageApi.Response>() {
+
+							@Override
+							public void onLoadComplete(Loader<Response> loader, Response data) {
+								// If it was successful then we can set the single campaign
+								if(data.getResult() == Result.SUCCESS) {
+
+									if(!TextUtils.isEmpty(oldUrn)) {
+										// If we are removing the old campaign show the notification
+										Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
+										intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getContext().getString(R.string.single_campaign_changed_title));
+										intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getContext().getString(R.string.single_campaign_changed_message));
+										NotificationHelper.showNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
+									}
+								}
+							}
+						});
 						campaignDownloadTask.startLoading();
 						campaignDownloadTask.waitForLoader();
 					}
-
-					// All campaigns which aren't ready should just be ignored, so they are set to remote
-					ContentValues values = new ContentValues();
-					values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
-					cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_STATUS + "!=" + Campaign.STATUS_READY, null);
 				}
+
+				// Make all other campaigns remote
+				Campaign.ensureSingleCampaign(getContext());
 			}
 		} 
 
