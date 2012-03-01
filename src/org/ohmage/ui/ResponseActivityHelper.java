@@ -33,13 +33,18 @@ public class ResponseActivityHelper {
 	public static final String KEY_URI = "key_uri";
 	private final Context mContext;
 
+	private Uri responseUriForDialogs;
+
 	public ResponseActivityHelper(Context context) {
 		mContext = context;
 	}
 
+	public void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		responseUriForDialogs = (Uri) args.get(KEY_URI);
+	}
+
 	public Dialog onCreateDialog(int id, Bundle args) {
 
-		final Uri responseUriForDialogs = (Uri) args.get(KEY_URI);
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 
 		int message = R.string.upload_queue_response_error;

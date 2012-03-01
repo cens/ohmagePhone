@@ -142,7 +142,12 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		bundle.putParcelable(ResponseActivityHelper.KEY_URI, responseUri);
 		showDialog(status, bundle);
 	}
-	
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		mResponseHelper.onPrepareDialog(id, dialog, args);
+	}
+
 	@Override
 	protected Dialog onCreateDialog(int id, Bundle args) {
 		return mResponseHelper.onCreateDialog(id, args);

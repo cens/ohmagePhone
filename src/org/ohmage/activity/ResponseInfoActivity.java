@@ -138,6 +138,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	}
 
 	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		mResponseHelper.onPrepareDialog(id, dialog, args);
+	}
+
+	@Override
 	protected Dialog onCreateDialog(int id, Bundle args) {
 		return mResponseHelper.onCreateDialog(id, args);
 	}
