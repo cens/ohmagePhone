@@ -419,7 +419,6 @@ public class UploadService extends WakefulIntentService {
 					
 					c.moveToNext();
 				}
-				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 				response = mApi.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
@@ -431,23 +430,45 @@ public class UploadService extends WakefulIntentService {
 					NotificationHelper.hideMobilityErrorNotification(this);
 				} else {
 					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
-					
 					switch (response.getResult()) {
-					case FAILURE:
-						Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-						NotificationHelper.showMobilityErrorNotification(this);
-						break;
-						
-					case INTERNAL_ERROR:
-						Log.e(TAG, "Upload failed due to unknown internal error");
-						NotificationHelper.showMobilityErrorNotification(this);
-						break;
-						
-					case HTTP_ERROR:
-						Log.e(TAG, "Upload failed due to network error");
-						break;
+						case FAILURE:
+							Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+
+							boolean isAuthenticationError = false;
+							boolean isUserDisabled = false;
+
+							for (String code : response.getErrorCodes()) {
+								if (code.charAt(1) == '2') {
+									isAuthenticationError = true;
+
+									if (code.equals("0201")) {
+										isUserDisabled = true;
+									}
+								}
+							}
+
+							if (isUserDisabled) {
+								new SharedPreferencesHelper(this).setUserDisabled(true);
+							}
+
+							if (isAuthenticationError) {
+								NotificationHelper.showAuthNotification(this);
+							} else {
+								NotificationHelper.showMobilityErrorNotification(this);
+							}
+
+							break;
+
+						case INTERNAL_ERROR:
+							Log.e(TAG, "Upload failed due to unknown internal error");
+							NotificationHelper.showMobilityErrorNotification(this);
+							break;
+
+						case HTTP_ERROR:
+							Log.e(TAG, "Upload failed due to network error");
+							break;
 					}
-					
+
 					break;						
 				}
 			}
