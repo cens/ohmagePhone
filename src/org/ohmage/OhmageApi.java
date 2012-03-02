@@ -741,7 +741,8 @@ public class OhmageApi {
 	private String parseAndLogContent(String url, HttpEntity entity) throws ParseException, IOException {
 		String content = EntityUtils.toString(entity);
 		Analytics.network(mContext, url, content.length());
-		Log.i(TAG, content);
+		// Log the data but hide any passwords
+		Log.v(TAG, content.replaceAll("\"hashed_password\":\".*\"", "\"hashed_password\":\"redacted\""));
 		return content;
 	}
 
@@ -759,7 +760,6 @@ public class OhmageApi {
         		if (responseEntity != null) {
         			try {
 					String content = parseAndLogContent(url, responseEntity);
-	        			
 	        			JSONObject rootJson;
 					
 						rootJson = new JSONObject(content);

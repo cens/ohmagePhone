@@ -358,4 +358,18 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void setDefaultValue(String defaultValue) {
+		this.mDefaultValue = defaultValue;
+		try {
+			if(defaultValue != null) {
+				String[] values = defaultValue.split(",");
+				for(int i=0; i<values.length; i++)
+					mSelectedIndexes.add(Integer.valueOf(values[i]));
+			}
+		} catch(NumberFormatException e) {
+			// No number...
+		}
+	}
 }

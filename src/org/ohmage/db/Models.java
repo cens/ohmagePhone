@@ -7,6 +7,7 @@ import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.service.SurveyGeotagService;
@@ -166,17 +167,46 @@ public class Models {
 		 * @param context
 		 * @param campaignUrn
 		 */
-		public static void setRemote(Context context, String campaignUrn) {
-			Cursor cursor = context.getContentResolver().query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_URN + "=?", new String[] { campaignUrn }, null);
-			List<Campaign> campaign = fromCursor(cursor);
+		public static void setRemote(Context context, String... campaignUrns) {
+			SelectionBuilder builder = new SelectionBuilder();
+			for(String c : campaignUrns)
+				builder.where(Campaigns.CAMPAIGN_URN + "=?", SelectionBuilder.OR, c);
 
-			if(campaign.size() > 0) {
+			setRemote(context, builder);
+		}
+
+		/**
+		 * Makes sure that we only have one campaign if we can
+		 * @param context
+		 */
+		public static void ensureSingleCampaign(Context context) {
+			String campaignUrn = getSingleCampaign(context);
+
+			if(campaignUrn != null) {
+				SelectionBuilder builder = new SelectionBuilder();
+				builder.where(Campaigns.CAMPAIGN_URN + "!=?", campaignUrn);
+				setRemote(context, builder);
+			}
+		}
+
+		private static void setRemote(Context context, SelectionBuilder builder) {
+			// Query for all campaigns
+			Cursor cursor = context.getContentResolver().query(Campaigns.CONTENT_URI, null, builder.getSelection(), builder.getSelectionArgs(), null);
+			List<Campaign> campaigns = fromCursor(cursor);
+
+			if(campaigns.size() > 0) {
+				// Update campaigns to be remote
 				ContentValues cv = new ContentValues();
 				cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
 				cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
-				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-				context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-				campaign.get(0).cleanUp(context);
+				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, builder.getSelection(), builder.getSelectionArgs());
+
+				// Delete responses
+				context.getContentResolver().delete(Responses.CONTENT_URI, builder.getSelection(), builder.getSelectionArgs());
+
+				// Clean up after campaigns
+				for(Campaign c : campaigns)
+					c.cleanUp(context);
 			}
 		}
 

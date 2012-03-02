@@ -186,4 +186,14 @@ public class SingleChoicePrompt extends AbstractPrompt {
 		
 	}
 
+	@Override
+	public void setDefaultValue(String defaultValue) {
+		this.mDefaultValue = defaultValue;
+		try {
+			mSelectedIndex = Integer.valueOf(defaultValue);
+		} catch(NumberFormatException e) {
+			// No number...
+		}
+	}
+
 }
