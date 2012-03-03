@@ -579,7 +579,7 @@ public class TriggerListActivity extends ListActivity
 			
 			if(trig.hasSettings()) {
 				menu.add(0, MENU_ID_SETTINGS, 0, R.string.trigger_menu_preferences)
-					.setIcon(R.drawable.ic_menu_preferences)
+					.setIcon(android.R.drawable.ic_menu_preferences)
 					.setEnabled(adminMode || TrigUserConfig.editTriggerSettings);
 				
 				break;

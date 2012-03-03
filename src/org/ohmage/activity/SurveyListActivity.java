@@ -34,7 +34,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.survey_list);
+		setContentView(R.layout.survey_list_layout);
 
 		boolean showPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
 

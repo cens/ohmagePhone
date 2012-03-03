@@ -57,13 +57,11 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		
 		switch (status) {
 		case Response.STATUS_STANDBY:
-			// actionButton.setImageResource(R.drawable.ic_menu_upload);
 			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_upload_description));
 			actionButton.setImageResource(R.drawable.subaction_upload_response);
 			break;
 			
 		case Response.STATUS_QUEUED:
-			// actionButton.setImageResource(R.drawable.ic_menu_upload_you_tube);
 			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_queued_description));
 			actionButton.setImageResource(R.drawable.subaction_queued_response);
 			
@@ -90,7 +88,6 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		case Response.STATUS_WAITING_FOR_LOCATION:
 			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_waiting_description));
 
-			// actionButton.setImageResource(R.drawable.ic_menu_recent_history);
 			actionButton.setImageResource(R.drawable.subaction_location_pending_question);
 			
 			// makes the missing location indicator fade in and out gently
@@ -108,8 +105,6 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		case Response.STATUS_ERROR_HTTP:
 		case Response.STATUS_ERROR_OTHER:
 			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_error_description));
-
-			// actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
 			actionButton.setImageResource(R.drawable.subaction_campaign_broken);
 			break;
 			

@@ -17,7 +17,6 @@ package org.ohmage.appwidget;
 
 import edu.ucla.cens.systemlog.Log;
 
-import org.ohmage.CampaignXmlHelper;
 import org.ohmage.Config;
 import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
@@ -89,7 +88,7 @@ public class StressButtonService extends IntentService {
         String surveyTitle = intent.getStringExtra("survey_title");
         
         try {
-			prompts = PromptXmlParser.parseSurveyElements(CampaignXmlHelper.loadCampaignXmlFromDb(this, campaignUrn), surveyId);
+			prompts = PromptXmlParser.parseSurveyElements(Campaign.loadCampaignXml(this, campaignUrn), surveyId);
 		} catch (NotFoundException e) {
 			Log.e(TAG, "Error parsing prompts from xml", e);
 		} catch (XmlPullParserException e) {

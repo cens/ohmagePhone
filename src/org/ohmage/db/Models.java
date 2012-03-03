@@ -14,13 +14,17 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.text.TextUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -241,6 +245,28 @@ public class Models {
 			// Remove last synced time
 			SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
 			prefs.removeLastFeedbackRefreshTimestamp(mUrn);
+		}
+
+		/**
+		 * Retuns the campaign xml from the db
+		 * @param context
+		 * @param campaignUrn
+		 * @return
+		 * @throws IOException
+		 */
+		public static InputStream loadCampaignXml(Context context, String campaignUrn) throws IOException {
+			ContentResolver cr = context.getContentResolver();
+			Cursor cursor = cr.query(Campaigns.buildCampaignUri(campaignUrn), new String[] { Campaigns.CAMPAIGN_CONFIGURATION_XML }, null, null, null);
+
+			// ensure that only one record is returned
+			if (cursor.moveToFirst() && cursor.getCount() == 1) {
+				String xml = cursor.getString(0);
+				cursor.close();
+				return new ByteArrayInputStream(xml.getBytes("UTF-8"));
+			} else {
+				cursor.close();
+				return null;
+			}
 		}
 	}
 
