@@ -17,30 +17,26 @@ package org.ohmage.feedback.visualization;
 
 
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import org.ohmage.R;
-
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewParent;
-import android.widget.Button;
-import android.widget.Toast;
-
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+
+import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.R;
+
+import android.graphics.drawable.Drawable;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * An abstract extension of ItemizedOverlay for displaying an information balloon
@@ -50,7 +46,9 @@ import com.google.android.maps.OverlayItem;
  */
 public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<OverlayItem> {
 
-	private MapView mapView;
+	private static final String TAG = "BalloonItemizedOverlay";
+
+	private final MapView mapView;
 	private BalloonOverlayView balloonView;
 	private View clickRegion;
 	private int viewOffset;
@@ -201,6 +199,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 			Method m = this.getClass().getDeclaredMethod("onBalloonTap", int.class);
 			
 			clickRegion.setOnTouchListener(new OnTouchListener() {
+				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					
 					View l =  ((View) v.getParent()).findViewById(R.id.balloon_main_layout);
@@ -228,10 +227,10 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 			});
 			
 		} catch (SecurityException e) {
-			Log.e("BalloonItemizedOverlay", "setBalloonTouchListener reflection SecurityException");
+			Log.e(TAG, "setBalloonTouchListener reflection SecurityException");
 			return;
 		} catch (NoSuchMethodException e) {
-			// method not overridden - do nothing
+			Log.e(TAG, "setBalloonTouchListener reflection NoSuchMethodException");
 			return;
 		}
 

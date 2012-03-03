@@ -1,5 +1,7 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.R;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.controls.DateFilterControl;
@@ -18,7 +20,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -106,12 +107,12 @@ public class ResponseListActivity extends CampaignSurveyFilterActivity implement
 	@Override
 	public void onResponseActionUpload(Uri responseUri) {
 		Toast.makeText(this, R.string.response_list_upload_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.w(TAG, "onResponseActionUpload should not be exposed in this activity.");		
+		Log.e(TAG, "onResponseActionUpload should not be exposed in this activity.");		
 	}
 
 	@Override
 	public void onResponseActionError(Uri responseUri, int status) {
 		Toast.makeText(this, R.string.response_list_error_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.w(TAG, "onResponseActionError should not be exposed in this activity.");
+		Log.e(TAG, "onResponseActionError should not be exposed in this activity.");
 	}
 }

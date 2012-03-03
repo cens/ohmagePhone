@@ -1,5 +1,7 @@
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.ohmage.R;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -16,13 +18,10 @@ import org.ohmage.ui.OhmageFilterable.TimeFilter;
 import org.ohmage.ui.OhmageFilterable.TimeFilterable;
 import org.ohmage.ui.TabManager;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TabHost;
@@ -63,7 +62,6 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 			@Override
 			public void onFilterChanged(Calendar curValue) {
-				Log.d(TAG, "calendar changed");
 				((TimeFilterable)mTabManager.getCurrentTab().getFragment()).setMonth(curValue.get(Calendar.MONTH), curValue.get(Calendar.YEAR));
 			}
 		});
@@ -133,16 +131,12 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
-		Log.d(TAG, "campaign changed");
-
 		super.onCampaignFilterChanged(filter);
 		((CampaignFilterable) mTabManager.getCurrentTab().getFragment()).setCampaignUrn(filter);
 	}
 
 	@Override
 	protected void onSurveyFilterChanged(String filter) {
-		Log.d(TAG, "survey changed");
-
 		super.onSurveyFilterChanged(filter);
 		((SurveyFilterable) mTabManager.getCurrentTab().getFragment()).setSurveyId(filter);
 	}

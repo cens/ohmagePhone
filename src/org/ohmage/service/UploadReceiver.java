@@ -37,9 +37,7 @@ public class UploadReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-
 		String action = intent.getAction();
-		Log.i(TAG, "Broadcast received: " + action);
 
 		if (UploadReceiver.ACTION_UPLOAD_ALARM.equals(action)) {
 
@@ -61,18 +59,12 @@ public class UploadReceiver extends BroadcastReceiver {
 			// If we have more than 20% battery or we are currently charging,
 			// start the upload service
 			if (percent > 20 || status == BatteryManager.BATTERY_STATUS_CHARGING) {
-				Log.i(TAG, "Power is not low.");
-				Log.i(TAG, "Starting UploadService.");
-
 				Intent i = new Intent(context, UploadService.class);
 				i.setData(Responses.CONTENT_URI);
 				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
 				i.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
 				i.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 				WakefulIntentService.sendWakefulWork(context, i);
-			} else {
-				Log.i(TAG, "Power is low.");
-				Log.i(TAG, "Not starting UploadService.");
 			}
 		}
 	}

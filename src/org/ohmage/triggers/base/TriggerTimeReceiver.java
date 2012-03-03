@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.triggers.notif.Notifier;
@@ -23,7 +25,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 
 /*
  * Time/Time-zone change listener. Restarts the triggers and
