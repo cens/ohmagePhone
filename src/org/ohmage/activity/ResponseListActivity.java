@@ -45,7 +45,7 @@ public class ResponseListActivity extends CampaignSurveyFilterActivity implement
 	@Override 
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.response_list);
+		setContentView(R.layout.response_list_layout);
 		
         if (savedInstanceState == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

@@ -1,4 +1,4 @@
-package org.ohmage.activity;
+package org.ohmage.service;
 
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbHelper.Tables;

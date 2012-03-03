@@ -86,7 +86,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			view.setGravity(Gravity.CENTER);
 			setContentView(view);
 		} else {
-			setContentView(R.layout.mobility2);
+			setContentView(R.layout.mobility_layout);
 			
 			mMobilityList = (ListView) findViewById(R.id.mobility_list);
 			mTotalCountText = (TextView) findViewById(R.id.mobility_total);

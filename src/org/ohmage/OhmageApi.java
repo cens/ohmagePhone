@@ -65,11 +65,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class OhmageApi {
 	private static final String TAG = "OhmageApi";
-	
-	//private static final String SERVER_URL = "https://dev.andwellness.org/";
-	//private String serverUrl;
-	//private String mBaseServerUrl = "https://dev1.andwellness.org/";
-	//public static final String BASE_SERVER_URL = "https://dev1.andwellness.org/";
+
 	private static final String AUTHENTICATE_PATH = "app/user/auth";
 	private static final String AUTHENTICATE_TOKEN_PATH = "app/user/auth_token";
 	private static final String MOBILITY_UPLOAD_PATH = "app/mobility/upload";
