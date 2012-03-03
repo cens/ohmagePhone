@@ -205,9 +205,7 @@
 	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
 	                  android:label="Storage Monitor">
 	    </activity>
-	    
-	    <service android:name=".appwidget.StressButtonService"/>
-	    
+
 	    <service android:name=".storagemonitor.StorageMonitorService"/>
 	    
 	    <receiver android:name=".storagemonitor.StorageMonitorAlarmReceiver">
