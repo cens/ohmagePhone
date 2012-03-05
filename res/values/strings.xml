@@ -248,12 +248,12 @@
     <string name="reminder_action_button_description">Reminders Button</string>
 
     <plurals name="campaign_info_remove_campaign_responses_w_reminders">
-        <item quantity="one">along with <b>1 response</b> which hasn\'t been uploaded</item>
-        <item quantity="other">along with <b>%d responses</b> which haven\'t been uploaded</item>
+        <item quantity="one">along with &lt;b&gt;1 response&lt;/b&gt; which hasn\'t been uploaded</item>
+        <item quantity="other">along with &lt;b&gt;%d responses&lt;/b&gt; which haven\'t been uploaded</item>
     </plurals>
     <plurals name="campaign_info_remove_campaign_responses">
-        <item quantity="one">There is <b>1 response</b> which hasn\'t been uploaded which will also be removed</item>
-        <item quantity="other">There are <b>%d responses</b> which haven\'t been uploaded which will also be removed</item>
+        <item quantity="one">There is &lt;b&gt;1 response&lt;/b&gt; which hasn\'t been uploaded which will also be removed</item>
+        <item quantity="other">There are &lt;b&gt;%d responses&lt;/b&gt; which haven\'t been uploaded which will also be removed</item>
     </plurals>
 
     <plurals name="campaign_info_response_count">

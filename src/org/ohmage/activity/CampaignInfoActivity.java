@@ -25,6 +25,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -201,7 +202,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				public void onClick(View v) {
 					Analytics.widget(v);
 					AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-					StringBuilder message = new StringBuilder(getString(R.string.campaign_info_remove_text));
+					SpannableStringBuilder message = new SpannableStringBuilder(getString(R.string.campaign_info_remove_text));
 
 					if(mTriggerCount != 0) {
 						message.append(" ");
