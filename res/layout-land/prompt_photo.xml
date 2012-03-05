@@ -4,6 +4,15 @@
     android:layout_height="fill_parent"
     android:padding="10dp" >
 
+	<ImageView
+		android:id="@+id/image_view"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:adjustViewBounds="true"
+		android:background="@drawable/imageview_border"
+		android:scaleType="centerInside" />
+
     <ImageButton
         android:id="@+id/photo_button"
         android:layout_width="wrap_content"
@@ -13,15 +22,4 @@
         android:layout_marginLeft="10dp"
         android:padding="20dp"
         android:src="@drawable/ic_menu_camera" />
-
-    <ImageView
-        android:id="@+id/image_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_toLeftOf="@id/photo_button"
-        android:adjustViewBounds="true"
-        android:background="@drawable/imageview_border"
-        android:scaleType="centerInside" />
-
 </RelativeLayout>
