@@ -163,11 +163,15 @@ public class UploadService extends WakefulIntentService {
 					JSONObject locationJson = new JSONObject();
 					locationJson.put("latitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
 					locationJson.put("longitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
-					locationJson.put("provider", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER)));
+					String provider = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
+					locationJson.put("provider", provider);
+					Log.i(TAG, "Response uploaded with " + provider + " location");
 					locationJson.put("accuracy", cursor.getFloat(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
 					locationJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
 					locationJson.put("timezone", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
 					responseJson.put("location", locationJson);
+				} else {
+					Log.w(TAG, "Response uploaded without a location");
 				}
 				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
 				responseJson.put("survey_launch_context", new JSONObject(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
