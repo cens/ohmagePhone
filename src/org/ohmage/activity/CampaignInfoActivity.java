@@ -10,9 +10,7 @@ import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Response;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
@@ -377,9 +375,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), null, null, null, null);
 		mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
 
-		Cursor localResponses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), new String[] { Responses._ID },
-				Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
-		mLocalResponses = localResponses.getCount();
+		mLocalResponses = Campaign.localResponseCount(this, mCampaignUrn);
 
 		// get the number of triggers for this survey
 		setTriggerCount();

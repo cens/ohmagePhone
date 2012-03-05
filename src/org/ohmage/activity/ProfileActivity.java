@@ -69,7 +69,11 @@ public class ProfileActivity extends BaseInfoActivity {
 		updatePasswordButton.setOnClickListener(profileActionListener);
 		logoutWipeButton.setOnClickListener(profileActionListener);
 	}
-	
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		mAccountHelper.onPrepareDialog(id, dialog);
+	}
 	
 	@Override
 	protected Dialog onCreateDialog(int id) {
