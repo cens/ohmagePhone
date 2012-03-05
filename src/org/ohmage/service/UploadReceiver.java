@@ -15,19 +15,15 @@
  ******************************************************************************/
 package org.ohmage.service;
 
-import org.ohmage.activity.UploadQueueActivity;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbHelper.Tables;
-import org.ohmage.db.Models.Response;
-import org.ohmage.storagemonitor.StorageMonitorService;
 
 import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Log;
 
@@ -90,35 +86,6 @@ private static final String TAG = "UploadReceiver";
 			}*/
 
 		}
-		
-		//If the storage monitor reports low or very low storage, the upload thread is started. Simple.
-		if (StorageMonitorService.ACTION_STORAGE_REPORT.equals(action)) {
-			int status = intent.getIntExtra(StorageMonitorService.EXTRA_STORAGE_STATUS, -1);
-			if (	status == StorageMonitorService.FREE_STORAGE_LOW ||
-					status == StorageMonitorService.FREE_STORAGE_VERY_LOW) {
-				
-				Log.i(TAG, "Storage is low.");
-				Log.i(TAG, "Starting UploadService.");
-				
-				Intent i = new Intent(context, UploadService.class);
-				i.setData(Responses.CONTENT_URI);
-				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
-				i.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
-				i.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
-				WakefulIntentService.sendWakefulWork(context, i);
-				
-			} else {
-				Log.i(TAG, "Storage is not low.");
-			}
-		}
-		
-		
-		//The following code passes the original intent data to the UploadService if needed.
-		//It's not needed now because the UploadService doesn't care about anything except being told to start Uploading.
-		//The UploadService should remain as such.
-		//Intent uploadIntent = new Intent(intent).setClass(context, UploadService.class);
-		//context.startService(uploadIntent);
-		
 	}
 
 }

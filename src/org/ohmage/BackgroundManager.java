@@ -19,7 +19,6 @@ import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.responsesync.ResponseSyncReceiver;
 import org.ohmage.service.UploadReceiver;
-import org.ohmage.storagemonitor.StorageMonitorService;
 import org.ohmage.triggers.base.TriggerInit;
 
 import android.app.AlarmManager;
@@ -47,11 +46,7 @@ public class BackgroundManager {
 		alarms.cancel(pendingIntent);
 		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
 		Log.i(TAG, "UploadReceiver repeating alarm set");
-		
-		//storagemonitor
-		appContext.startService(new Intent(appContext, StorageMonitorService.class));
-		Log.i(TAG, "started storage monitor service");
-		
+
 		// FAISAL: feedback service repeating alarm registered here
 		if (Config.ALLOWS_FEEDBACK) {
 			Intent fbServiceSyncIntent = new Intent(ResponseSyncReceiver.ACTION_FBSYNC_ALARM);
