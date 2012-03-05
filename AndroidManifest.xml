@@ -199,10 +199,6 @@
 	    
 	    <service android:name=".service.SurveyGeotagService"/>
 
-	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
-	                  android:label="Storage Monitor">
-	    </activity>
-
 	    <activity android:name=".activity.AdminPincodeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 	    <activity android:name=".activity.ErrorDialogActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
