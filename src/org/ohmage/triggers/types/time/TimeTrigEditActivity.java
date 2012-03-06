@@ -17,6 +17,7 @@ package org.ohmage.triggers.types.time;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
@@ -36,7 +37,6 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -50,7 +50,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 									   DialogInterface.OnMultiChoiceClickListener, 
 									   DialogInterface.OnClickListener {
 	
-	private static final String DEBUG_TAG = "TimeTrigEditActivity";
+	private static final String TAG = "TimeTrigEditActivity";
 	
 	public static final String KEY_TRIG_DESC = "trig_desc";
 	public static final String KEY_ACT_DESC = "act_desc";
@@ -102,9 +102,8 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		if(getIntent().hasExtra(TriggerListActivity.KEY_ACTIONS)) {
 			mActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_ACTIONS);
-		}
-		else {
-			Log.e(DEBUG_TAG, "TimeTrigEditActivity: Invoked with out passing surveys");
+		} else {
+			Log.e(TAG, "TimeTrigEditActivity: Invoked with out passing surveys");
 			finish();
 			return;
 		}

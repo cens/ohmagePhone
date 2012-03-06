@@ -17,6 +17,7 @@
 package com.google.android.imageloader;
 
 import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
@@ -34,7 +35,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.content.ModernAsyncTask;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;

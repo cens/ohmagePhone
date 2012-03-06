@@ -17,6 +17,7 @@ package org.ohmage.triggers.types.location;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerActionDesc;
@@ -40,7 +41,6 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -58,7 +58,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 								OnPreferenceChangeListener, 
 								OnClickListener {
 	
-	private static final String DEBUG_TAG = "LocTrigEditActivity"; 
+	private static final String TAG = "LocTrigEditActivity"; 
 
 	public static final String KEY_TRIG_DESC = 
 			LocTrigEditActivity.class.getName() + ".trigger_descriptor";
@@ -113,9 +113,8 @@ public class LocTrigEditActivity extends PreferenceActivity
 		
 		if(getIntent().hasExtra(TriggerListActivity.KEY_ACTIONS)) {
 			mActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_ACTIONS);
-		}
-		else {
-			Log.e(DEBUG_TAG, "LocTrigEditActivity: Invoked with out passing surveys");
+		} else {
+			Log.e(TAG, "LocTrigEditActivity: Invoked with out passing surveys");
 			finish();
 			return;
 		}

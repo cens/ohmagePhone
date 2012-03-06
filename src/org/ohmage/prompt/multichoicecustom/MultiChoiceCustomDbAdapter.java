@@ -15,13 +15,14 @@
  ******************************************************************************/
 package org.ohmage.prompt.multichoicecustom;
 
+import edu.ucla.cens.systemlog.Log;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class MultiChoiceCustomDbAdapter {
 	
@@ -39,7 +40,7 @@ public class MultiChoiceCustomDbAdapter {
 	public static final String KEY_CHOICE_ID = "choice_id";
 	public static final String KEY_CHOICE_VALUE = "choice_value";
 	
-	private Context mContext;
+	private final Context mContext;
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
 	
@@ -49,9 +50,6 @@ public class MultiChoiceCustomDbAdapter {
 	
 	/* Open the database */
 	public boolean open() {
-		Log.i(TAG, "DB: open");
-	
-		
 		mDbHelper = new DatabaseHelper(mContext);
 		
 		try {
@@ -66,8 +64,6 @@ public class MultiChoiceCustomDbAdapter {
 	
 	/* Close the database */
 	public void close() {
-		Log.i(TAG, "DB: close");
-		
 		if(mDbHelper != null) {
 			mDbHelper.close();
 		}

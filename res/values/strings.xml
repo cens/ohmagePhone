@@ -248,12 +248,12 @@
     <string name="reminder_action_button_description">Reminders Button</string>
 
     <plurals name="campaign_info_remove_campaign_responses_w_reminders">
-        <item quantity="one">along with <b>1 response</b> which hasn\'t been uploaded</item>
-        <item quantity="other">along with <b>%d responses</b> which haven\'t been uploaded</item>
+        <item quantity="one">along with &lt;b&gt;1 response&lt;/b&gt; which hasn\'t been uploaded</item>
+        <item quantity="other">along with &lt;b&gt;%d responses&lt;/b&gt; which haven\'t been uploaded</item>
     </plurals>
     <plurals name="campaign_info_remove_campaign_responses">
-        <item quantity="one">There is <b>1 response</b> which hasn\'t been uploaded which will also be removed</item>
-        <item quantity="other">There are <b>%d responses</b> which haven\'t been uploaded which will also be removed</item>
+        <item quantity="one">There is &lt;b&gt;1 response&lt;/b&gt; which hasn\'t been uploaded which will also be removed</item>
+        <item quantity="other">There are &lt;b&gt;%d responses&lt;/b&gt; which haven\'t been uploaded which will also be removed</item>
     </plurals>
 
     <plurals name="campaign_info_response_count">
@@ -299,8 +299,12 @@
     <string name="profile_info_logout">Log Out, Wipe Data</string>
     <string name="profile_info_entity_action_button_update_password_description">Update Password Button</string>
     <string name="profile_info_entity_action_button_logout_description">Logout Button</string>
-    <string name="logout_message">Are you sure you wish to clear all user data? Any data that has not been uploaded will be lost, and the app will be restored to its initial state.</string>
+    <string name="logout_message">Are you sure you wish to clear all user data? Any custom reminders will be lost, and the app will be restored to its initial state.</string>
     <string name="logging_out_message">Clearing local user data…</string>
+    <plurals name="logout_message_responses">
+        <item quantity="one">Are you sure you wish to clear all user data? &lt;b&gt;1 response&lt;/b&gt; will be deleted as well as any custom reminders, and the app will be restored to its initial state.</item>
+        <item quantity="other">Are you sure you wish to clear all user data? &lt;b&gt;%d responses&lt;/b&gt; will be deleted as well as any custom reminders, and the app will be restored to its initial state.</item>
+    </plurals>
 
     <!-- Survey List -->
     <string name="surveys_all">All</string>

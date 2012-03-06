@@ -2,6 +2,8 @@ package org.ohmage.async;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONException;
 import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
@@ -22,7 +24,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -119,7 +120,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			TriggerFramework.setDefaultTriggers(getContext(), mCampaignUrn);
 		} else if (response.getResult() == Result.FAILURE) {
 			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-			
+
 			boolean isAuthenticationError = false;
 			boolean isUserDisabled = false;
 			
@@ -145,12 +146,10 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			}
 			
 		} else if (response.getResult() == Result.HTTP_ERROR) {
-			Log.e(TAG, "http error");
-			
+			Log.e(TAG, "Read failed due to http error");
 			Toast.makeText(getContext(), R.string.campaign_xml_network_error, Toast.LENGTH_SHORT).show();
 		} else {
-			Log.e(TAG, "internal error");
-			
+			Log.e(TAG, "Read failed due to internal error");
 			Toast.makeText(getContext(), R.string.campaign_xml_internal_error, Toast.LENGTH_SHORT).show();
 		} 
 

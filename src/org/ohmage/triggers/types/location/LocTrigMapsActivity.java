@@ -47,6 +47,7 @@ import com.google.android.maps.OverlayItem;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
@@ -83,7 +84,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.FloatMath;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -107,7 +107,7 @@ public class LocTrigMapsActivity extends MapActivity
 			 			OnFocusChangeListener, 
 			 			LocTrigAddLocBalloon.ActionListener {
 
-	private static final String DEBUG_TAG = "LocationTrigger";
+	private static final String TAG = "LocTrigMapsActivity";
 	
 	public static final String TOOL_TIP_PREF_NAME =
 		LocTrigMapsActivity.class.getName() + "tool_tip_pref";
@@ -162,9 +162,7 @@ public class LocTrigMapsActivity extends MapActivity
 
 	/*****************************************************************************/
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	Log.i(DEBUG_TAG, "Maps: onCreate");
-    	
+    public void onCreate(Bundle savedInstanceState) {    	
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.trigger_loc_maps);
@@ -172,14 +170,14 @@ public class LocTrigMapsActivity extends MapActivity
         //Get the category id from the intent
         Bundle extras = getIntent().getExtras();
         if(extras == null) {
-        	Log.e(DEBUG_TAG, "Maps: Intent extras is null");
+        	Log.e(TAG, "Maps: Intent extras is null");
         	
         	finish();
         	return;
         }
         
         mCategId = extras.getInt(LocTrigDB.KEY_ID);
-        Log.i(DEBUG_TAG, "Maps: category id = " + mCategId);
+        Log.i(TAG, "Maps: category id = " + mCategId);
         	
         FrameLayout mapContainer = (FrameLayout) findViewById(R.id.mapViewContainer);
         mMapView = new MapView(this, OhmageApplication.isDebugBuild() ?
@@ -355,7 +353,7 @@ public class LocTrigMapsActivity extends MapActivity
    
     @Override
     public void onDestroy() {
-    	Log.i(DEBUG_TAG, "Maps: onDestroy");
+    	Log.i(TAG, "Maps: onDestroy");
     	
     	if(mSearchTask != null) {
     		mSearchTask.cancel(true);
@@ -376,7 +374,7 @@ public class LocTrigMapsActivity extends MapActivity
     
     @Override
     public void onStop() {
-    	Log.i(DEBUG_TAG, "Maps: onStop");
+    	Log.i(TAG, "Maps: onStop");
     	
     	stopGPS();
     	super.onStop();
@@ -552,7 +550,7 @@ public class LocTrigMapsActivity extends MapActivity
     
     /* Stop GPS */
     private void stopGPS() {
-    	Log.i(DEBUG_TAG, "Maps: stopGPS");
+    	Log.i(TAG, "Maps: stopGPS");
     	
     	mLocMan.removeUpdates(this);
     	
@@ -566,7 +564,7 @@ public class LocTrigMapsActivity extends MapActivity
 
     /* Get GPS samples. Also, set GPS timeout alarm */
     private void getGPSSamples() {
-    	Log.i(DEBUG_TAG, "Maps: getGPSSamples");
+    	Log.i(TAG, "Maps: getGPSSamples");
     	
     	BroadcastReceiver bRecr = new BroadcastReceiver() {
 			@Override
@@ -608,7 +606,7 @@ public class LocTrigMapsActivity extends MapActivity
     
     /* Handle long press on maps. Display the 'add location' balloon */
 	private void handleLongPress(Point p) {
-		Log.i(DEBUG_TAG, "Maps: Handling long press");
+		Log.i(TAG, "Maps: Handling long press");
 	
 		GeoPoint gp = mMapView.getProjection().fromPixels(p.x, p.y);
 		mAddLocBalloon.show(gp, getString(R.string.add_this_loc), "");
@@ -618,7 +616,7 @@ public class LocTrigMapsActivity extends MapActivity
 	 * display 'add my location' balloon
 	 */
 	private void handleMarkerTap(int locId) {
-		Log.i(DEBUG_TAG, "Maps: Hanlding overlay tap");
+		Log.i(TAG, "Maps: Hanlding overlay tap");
 		
 		if(locId == CURR_LOC_ID) {
 			//Stop the GPS, no need of any more samples
@@ -634,7 +632,7 @@ public class LocTrigMapsActivity extends MapActivity
 	
 	/* Handle long press on a marker. Display the 'delete' message */
 	private void handleMarkerLongPress(int locId) {
-		Log.i(DEBUG_TAG, "Maps: Hanlding overlay long press");
+		Log.i(TAG, "Maps: Hanlding overlay long press");
 		
 		if(locId != CURR_LOC_ID) {
 			new DeleteLocDialog(locId).show(this);
@@ -644,7 +642,7 @@ public class LocTrigMapsActivity extends MapActivity
 	/* GPS location changed callback. Display the blue marker */
 	@Override
 	public void onLocationChanged(Location loc) {
-		Log.i(DEBUG_TAG, "Maps: new location received: " +
+		Log.i(TAG, "Maps: new location received: " +
 				 loc.getLatitude() + ", " +
 				 loc.getLongitude() + " (" + 
 				 loc.getProvider() + "), accuracy = " +
@@ -1142,7 +1140,7 @@ public class LocTrigMapsActivity extends MapActivity
 		
 		/* The focused red circle is about to get resized */
 		private void handleCircleDragStart(Point p) {
-			Log.i(DEBUG_TAG, "Maps: Drag Start");
+			Log.i(TAG, "Maps: Drag Start");
 			
 			MapsOverlayItem item = getFocus();
 			if(item == null) {
@@ -1193,7 +1191,7 @@ public class LocTrigMapsActivity extends MapActivity
 		
 		/* Handle circle resize end */
 		private void handleCircleDragEnd(Point p) {
-			Log.i(DEBUG_TAG, "Maps: Drag End");
+			Log.i(TAG, "Maps: Drag End");
 			
 			mCircleResizing = false;
 			

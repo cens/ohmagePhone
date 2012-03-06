@@ -71,7 +71,7 @@ public class Analytics {
 	 * @param activity
 	 * @param status
 	 */
-	public static void activity(Activity activity, final Status status) {
+	public static void activity(Context activity, Status status) {
 		log(activity, "activity", status.toString());
 	}
 

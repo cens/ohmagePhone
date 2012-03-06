@@ -124,6 +124,10 @@ public class Log {
 		}
 	}
 
+    public static void e(String tag, String msg, Throwable tr) {
+        e(tag, msg + '\n' + android.util.Log.getStackTraceString(tr));
+    }
+
 	public static void v(String tag, String message) {
 
 		if(!logMessage(Loglevel.VERBOSE, tag, message)) {

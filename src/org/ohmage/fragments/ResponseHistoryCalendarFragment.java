@@ -19,7 +19,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -248,7 +247,6 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 			int numOfResponse = 0;
 			for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
 				Long time = cursor.getLong(ResponseCalendarQuery.TIME);
-				Log.i(tag, "Response time: "+time.toString());
 				cal.setTimeInMillis(time);
 				Integer responseDay = new Integer(cal.get(Calendar.DAY_OF_MONTH));
 				if(map.containsKey(responseDay.toString())){

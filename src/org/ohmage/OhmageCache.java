@@ -17,8 +17,9 @@ package org.ohmage;
 
 import com.google.android.filecache.FileResponseCache;
 
+import edu.ucla.cens.systemlog.Log;
+
 import android.content.Context;
-import android.util.Log;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -53,7 +54,7 @@ public class OhmageCache extends FileResponseCache {
 	public static void install(Context context) {
 		ResponseCache responseCache = ResponseCache.getDefault();
 		if (responseCache instanceof OhmageCache) {
-			Log.d(TAG, "Cache has already been installed.");
+			Log.i(TAG, "Cache has already been installed.");
 		} else if (responseCache == null) {
 			OhmageCache dropCache = new OhmageCache(context);
 			ResponseCache.setDefault(dropCache);
@@ -84,8 +85,10 @@ public class OhmageCache extends FileResponseCache {
 			}
 			return new File(parent, builder.toString());
 		} catch (NoSuchAlgorithmException e) {
+			Log.d(TAG, "MD5 algorithm not found");
 			throw new RuntimeException(e);
 		} catch (UnsupportedEncodingException e) {
+			Log.d(TAG, "Unsupported Encoding Exception");
 			throw new RuntimeException(e);
 		}
 	}

@@ -10,9 +10,7 @@ import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Response;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
@@ -27,6 +25,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -203,7 +202,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				public void onClick(View v) {
 					Analytics.widget(v);
 					AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-					StringBuilder message = new StringBuilder(getString(R.string.campaign_info_remove_text));
+					SpannableStringBuilder message = new SpannableStringBuilder(getString(R.string.campaign_info_remove_text));
 
 					if(mTriggerCount != 0) {
 						message.append(" ");
@@ -377,9 +376,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), null, null, null, null);
 		mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
 
-		Cursor localResponses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), new String[] { Responses._ID },
-				Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
-		mLocalResponses = localResponses.getCount();
+		mLocalResponses = Campaign.localResponseCount(this, mCampaignUrn);
 
 		// get the number of triggers for this survey
 		setTriggerCount();

@@ -36,7 +36,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -65,7 +64,7 @@ public class LocTrigSettingsActivity extends ListActivity
 			 implements OnClickListener, 
 			 			TextWatcher {
 
-	private static final String DEBUG_TAG = "LocationTrigger";
+	private static final String TAG = "LocTrigSettingsActivity";
 	
 	/* Menu ids */
 	private static final int MENU_DELETE_CATEG = Menu.FIRST;
@@ -90,11 +89,9 @@ public class LocTrigSettingsActivity extends ListActivity
 	private boolean mAdminMode = false;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	Log.i(DEBUG_TAG, "Main: onCreate");
-    	
+    public void onCreate(Bundle savedInstanceState) {    	
         super.onCreate(savedInstanceState);
-        
+
         setContentView(R.layout.trigger_loc_settings);
         
         Button bAdd = (Button) findViewById(R.id.trigger_button_add_categ);
@@ -155,8 +152,6 @@ public class LocTrigSettingsActivity extends ListActivity
 
     @Override
     public void onDestroy() {
-    	Log.i(DEBUG_TAG, "Main: onDestroy");
-    	
     	mCategNames.clear();
     	
     	mCursor.close();

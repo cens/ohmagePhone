@@ -15,9 +15,7 @@
  ******************************************************************************/
 package org.ohmage.triggers.notif;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +30,10 @@ import org.ohmage.triggers.utils.TrigPrefManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.util.Log;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 /*
  * An interface to the survey list management. This class 
@@ -47,11 +48,8 @@ import android.util.Log;
  */
 public class NotifSurveyAdaptor {
 	
-	private static final String DEBUG_TAG = "TriggerFramework";
-	
-	/* Tag used to log through SystemLog */
-	private static final String SYSTEM_LOG_TAG = "TriggerFramework";
-	
+	private static final String TAG = "NotifSurveyAdaptor";
+
 	/* Keys used in preparation of the JSON strings */
 	private static final String KEY_ACTIVE_TRIGGERS = "active_triggers";
 	private static final String KEY_TRIGGER_DESC = "trigger_description";
@@ -90,7 +88,7 @@ public class NotifSurveyAdaptor {
 		String campaignUrn = trig.getString(
 				 trig.getColumnIndexOrThrow(TriggerDB.KEY_CAMPAIGN_URN));
 	
-		Log.i(DEBUG_TAG, "NotifSurveyAdaptor: Calculating active surveys for trigger");
+		Log.i(TAG, "NotifSurveyAdaptor: Calculating active surveys for trigger");
 		
 		TriggerRunTimeDesc rtDesc = new TriggerRunTimeDesc();
 		NotifDesc notifDesc = new NotifDesc();
@@ -100,13 +98,13 @@ public class NotifSurveyAdaptor {
 		   !notifDesc.loadString(notif) || 
 		   !actDesc.loadString(actions)) {
 				
-			Log.w(DEBUG_TAG, "NotifSurveyAdaptor: Descritptor(s) failed to parse");
+			Log.w(TAG, "NotifSurveyAdaptor: Descritptor(s) failed to parse");
 			
 			return actSurveys;
 		}
 		
 		if(!rtDesc.hasTriggerTimeStamp()) {
-			Log.i(DEBUG_TAG, "NotifSurveyAdaptor: Trigger time stamp is invalid");
+			Log.i(TAG, "NotifSurveyAdaptor: Trigger time stamp is invalid");
 			
 			return actSurveys;
 		}
@@ -115,7 +113,7 @@ public class NotifSurveyAdaptor {
 		long trigTS = rtDesc.getTriggerTimeStamp();
 			
 		if(trigTS > now) {
-			Log.w(DEBUG_TAG, "NotifSurveyAdaptor: Trigger time stamp is in the future!");
+			Log.w(TAG, "NotifSurveyAdaptor: Trigger time stamp is in the future!");
 			return actSurveys;
 		}
 		
@@ -316,15 +314,7 @@ public class NotifSurveyAdaptor {
 		
 		return jTrigs;
 	}
-	
-	/*
-	 * Convenience wrapper for SystemLog api.
-	 */
-	private static void systemLog(Context context, String msg) {
-		
-		edu.ucla.cens.systemlog.Log.i(SYSTEM_LOG_TAG, msg);
-	}
-	
+
 	/*
 	 * To be called when a trigger expires. This function logs using
 	 * SystemLog, the list of all surveys not taken by the user 
@@ -401,9 +391,7 @@ public class NotifSurveyAdaptor {
 		String msg = "Expired trigger has surveys not taken: " + 
 					 jExpired.toString();
 		
-		Log.i(DEBUG_TAG, "NotifSurveyAdaptor: SystemLogging the following message: ");
-		Log.i(DEBUG_TAG, msg);
-		
-		systemLog(context, msg);
+		Log.i(TAG, "NotifSurveyAdaptor: SystemLogging the following message: ");
+		Log.i(TAG, msg);		
 	}
 }

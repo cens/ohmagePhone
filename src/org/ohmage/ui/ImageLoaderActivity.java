@@ -11,7 +11,6 @@ import org.ohmage.widget.TouchImageView;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -44,7 +43,6 @@ public class ImageLoaderActivity extends FragmentActivity {
 
 			@Override
 			public void onImageLoaded(ImageView view, String url) {
-				Log.d(TAG, "image loaded");
 				// remove cache file from the sdcard if it exists
 				// it will still remain in memory until android reclaims it
 				File image = OhmageCache.getCachedFile(getApplicationContext(), URI.create(url));
