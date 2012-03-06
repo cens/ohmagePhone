@@ -5,6 +5,7 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
@@ -147,11 +148,14 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 			Double lon = cursor.getDouble(ResponseMapQuery.LOCATION_LONGITUDE);
 			GeoPoint point = new GeoPoint((int)(lat.doubleValue()*1e6), (int)(lon.doubleValue()*1e6));
 			String title = cursor.getString(ResponseMapQuery.TITLE);
-			String text = cursor.getString(ResponseMapQuery.CAMPAIGN_URN) + "\n" + 
-					cursor.getString(ResponseMapQuery.DATE);
+			StringBuilder text = new StringBuilder();
+			// Only show the campaign urn if we aren't in single campaign mode
+			if(!Config.IS_SINGLE_CAMPAIGN)
+				text.append(cursor.getString(ResponseMapQuery.CAMPAIGN_URN) + "\n");
+			text.append(cursor.getString(ResponseMapQuery.DATE));
 			String id = cursor.getString(ResponseMapQuery.ID);
 
-			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text, (mResponseId != null) ? null : id);
+			MapOverlayItem overlayItem = new MapOverlayItem(point, title, text.toString(), (mResponseId != null) ? null : id);
 			mItemizedOverlay.addOverlay(overlayItem);
 		}
 
