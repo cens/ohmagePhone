@@ -215,9 +215,6 @@
 			<intent-filter>
 	    		<action android:name="org.ohmage.service.ACTION_UPLOAD_ALARM"/>
 	    	</intent-filter>
-	    	<intent-filter>
-	    		<action android:name="org.ohmage.storagemonitor.ACTION_STORAGE_REPORT"/>
-	    	</intent-filter>
 	    </receiver>
 	    
 	    <service android:name=".service.SurveyGeotagService"/>
@@ -229,20 +226,8 @@
 		    <meta-data android:name="android.appwidget.provider"
 		               android:resource="@xml/ohmage_appwidget_info" />
 		</receiver>
-    
-	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
-	                  android:label="Storage Monitor">
-	    </activity>
-	    
+
 	    <service android:name=".appwidget.StressButtonService"/>
-	    
-	    <service android:name=".storagemonitor.StorageMonitorService"/>
-	    
-	    <receiver android:name=".storagemonitor.StorageMonitorAlarmReceiver">
-	    	<intent-filter>
-	    		<action android:name="org.ohmage.storagemonitor.ACTION_STORAGE_MONITOR_ALARM"/>
-	    	</intent-filter>
-	    </receiver>
 
 	    <activity android:name=".activity.AdminPincodeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 	    <activity android:name=".activity.ErrorDialogActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />

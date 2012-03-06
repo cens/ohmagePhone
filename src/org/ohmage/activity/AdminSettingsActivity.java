@@ -89,6 +89,11 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 	}
 
 	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		mAccountHelper.onPrepareDialog(id, dialog);
+	}
+
+	@Override
 	protected Dialog onCreateDialog(int id) {
 		Dialog dialog = mAccountHelper.onCreateDialog(id);
 		if(dialog == null)

@@ -19,6 +19,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import java.io.ByteArrayInputStream;
@@ -267,6 +268,39 @@ public class Models {
 				cursor.close();
 				return null;
 			}
+		}
+
+		/**
+		 * Counts the number of local responses for the given urn
+		 * @param context
+		 * @param campaignUrn
+		 * @return
+		 */
+		public static int localResponseCount(Context context, String campaignUrn) {
+			return localResponseCount(context, Campaigns.buildResponsesUri(campaignUrn));
+		}
+
+		/**
+		 * Counts the number of local responses on the phone
+		 * @param context
+		 * @return
+		 */
+		public static int localResponseCount(Context context) {
+			return localResponseCount(context, Responses.CONTENT_URI);
+		}
+
+		/**
+		 * Helper method to consistently calculate the number of local responses
+		 * @param context
+		 * @param uri
+		 * @return
+		 */
+		private static int localResponseCount(Context context, Uri uri) {
+			Cursor localResponses = context.getContentResolver().query(uri, new String[] { Responses._ID },
+					Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
+			int count = localResponses.getCount();
+			localResponses.close();
+			return count;
 		}
 	}
 

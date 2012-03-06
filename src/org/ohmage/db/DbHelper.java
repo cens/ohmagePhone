@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage.db;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,13 +37,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Xml;
 
 import java.io.ByteArrayInputStream;
@@ -333,18 +333,8 @@ public class DbHelper extends SQLiteOpenHelper {
 					db.setTransactionSuccessful();
 				}
 			}
-		}
-		catch (SQLiteConstraintException e) {
-			Log.e(TAG, "Attempted to insert record that violated a SQL constraint (likely the hashcode)");
-			return -1;
-		}
-		catch (Exception e) {
-			Log.e(TAG, "Generic exception thrown from db insert", e);
-			return -1;
-		}
-		finally {
+		} finally {
 			db.endTransaction();
-			// db.close();
 		}
 
 		return rowId;

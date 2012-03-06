@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
@@ -134,7 +133,6 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Log.i(TAG, "Creating loader - filter: " + getCampaignUrn());
 		Uri baseUri = Surveys.CONTENT_URI;
 		
 		SelectionBuilder builder = new SelectionBuilder();

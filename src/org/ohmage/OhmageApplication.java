@@ -18,6 +18,10 @@ package org.ohmage;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.db.DbHelper;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -31,7 +35,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.ContentHandler;
@@ -67,11 +70,11 @@ public class OhmageApplication extends Application {
 		super.onCreate();
 		
 		self = this;
+		
+		Log.initialize(this, "Ohmage");
 
-		Log.i(TAG, "onCreate()");
-		
-		edu.ucla.cens.systemlog.Log.initialize(this, "Ohmage");
-		
+		Analytics.activity(this, Status.ON);
+
         mImageLoader = createImageLoader(this);
 
         int currentVersionCode = 0;
@@ -95,6 +98,7 @@ public class OhmageApplication extends Application {
 	
 	public void resetAll() {
 		//clear everything?
+		Log.i(TAG, "Reseting all data");
 		
 		//clear triggers
 		TriggerFramework.resetAllTriggerSettings(this);
@@ -124,13 +128,13 @@ public class OhmageApplication extends Application {
 		try {
 			Utilities.delete(getExternalCacheDir());
 		} catch (IOException e) {
-			Log.e(TAG, "Error deleting images", e);
+			Log.e(TAG, "Error deleting external cache directory", e);
 		}
 
 		try {
 			Utilities.delete(getCacheDir());
 		} catch (IOException e) {
-			Log.e(TAG, "Error deleting images", e);
+			Log.e(TAG, "Error deleting cache directory", e);
 		}
 	}
 	
@@ -170,6 +174,7 @@ public class OhmageApplication extends Application {
 	@Override
     public void onTerminate() {
         mImageLoader = null;
+		Analytics.activity(this, Status.OFF);
         super.onTerminate();
     }
 

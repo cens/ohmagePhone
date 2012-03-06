@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,12 +32,9 @@ import org.ohmage.triggers.types.location.LocationTrigger;
 import org.ohmage.triggers.types.time.TimeTrigger;
 import org.ohmage.triggers.utils.TrigPrefManager;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.util.Log;
 
 /*
  * Boot listener. Starts all the active triggers. 
@@ -43,11 +42,11 @@ import android.util.Log;
  */
 public class TriggerInit {
 	
-	private static final String DEBUG_TAG = "TriggerFramework";
+	private static final String TAG = "TriggerFramework";
 	
 	public static void initTriggers(Context context, String campaignUrn) {
 		
-		Log.i(DEBUG_TAG, "TriggerInit: Initializing triggers for " + campaignUrn);
+		Log.i(TAG, "TriggerInit: Initializing triggers for " + campaignUrn);
 		
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
@@ -76,7 +75,7 @@ public class TriggerInit {
 				String actDesc = c.getString(
  		   		  				 c.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_ACTION_DESCRIPT));
 				
-				Log.i(DEBUG_TAG, "TriggerInit: Read from db: " + trigId +
+				Log.i(TAG, "TriggerInit: Read from db: " + trigId +
 								 ", " + trigDesc + ", " + actDesc);	
 				
 				TriggerBase trig = trigMap.getTrigger(trigType);
@@ -86,7 +85,7 @@ public class TriggerInit {
 					TriggerActionDesc aDesc = new TriggerActionDesc();
 					//Start only if it has a positive number of surveys
 					if(aDesc.loadString(actDesc) && aDesc.getCount() > 0) {
-						Log.i(DEBUG_TAG, "TriggerInit: Starting trigger: " + trigId + 
+						Log.i(TAG, "TriggerInit: Starting trigger: " + trigId + 
 										 ", " + trigDesc);
 						
 						trig.startTrigger(context, trigId, trigDesc);
@@ -95,7 +94,7 @@ public class TriggerInit {
 					//Restore the notification states for this trigger
 					TriggerRunTimeDesc desc = new TriggerRunTimeDesc();
 					if(desc.loadString(rtDesc) && desc.hasTriggerTimeStamp()) {
-						Log.i(DEBUG_TAG, "TriggerInit: Restoring notifications for " + trigId);
+						Log.i(TAG, "TriggerInit: Restoring notifications for " + trigId);
 						
 						Notifier.restorePastNotificationStates(context, trigId, notifDesc, 
 														desc.getTriggerTimeStamp());
@@ -118,7 +117,7 @@ public class TriggerInit {
 	 * Removes all triggers from the database after stopping them.
 	 */
 	public static boolean resetTriggersAndSettings(Context context, String campaignUrn) {
-		Log.i(DEBUG_TAG, "TriggerInit: Resetting all triggers for " + campaignUrn);
+		Log.i(TAG, "TriggerInit: Resetting all triggers for " + campaignUrn);
 		
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
@@ -157,7 +156,7 @@ public class TriggerInit {
 	}
 	
 	public static boolean resetAllTriggersAndSettings(Context context) {
-		Log.i(DEBUG_TAG, "TriggerInit: Resetting all triggers");
+		Log.i(TAG, "TriggerInit: Resetting all triggers");
 		
 		DbHelper dbHelper = new DbHelper(context);
 		for (Campaign c : dbHelper.getReadyCampaigns()) {

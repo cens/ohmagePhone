@@ -17,6 +17,7 @@ package org.ohmage.triggers.notif;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.R;
 import org.ohmage.triggers.config.NotifConfig;
@@ -27,7 +28,6 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,7 +52,7 @@ import java.util.Iterator;
 public class NotifEditActivity extends ListActivity 
 							   implements OnClickListener {
 
-	private static final String DEBUG_TAG = "TriggerFramework";
+	private static final String TAG = "NotifEditActivity";
 	
 	public static final String KEY_NOTIF_CONFIG = "notif_config";
 	private static final String KEY_SAVE_LIST_DATA = "list_data";
@@ -80,7 +80,7 @@ public class NotifEditActivity extends ListActivity
 		Intent intent = getIntent();
 		String desc = intent.getStringExtra(KEY_NOTIF_CONFIG);
 		if(desc == null) {
-			Log.e(DEBUG_TAG, "NotifEditActivity: No notification " +
+			Log.e(TAG, "NotifEditActivity: No notification " +
 					"description passed. Exiting...");
 			
 			finish();
@@ -90,7 +90,7 @@ public class NotifEditActivity extends ListActivity
 		//Parse and load the description
 		mNotifDesc = new NotifDesc();
 		if(!mNotifDesc.loadString(desc)) {
-			Log.e(DEBUG_TAG, "NotifEditActivity: Failed to parse the " +
+			Log.e(TAG, "NotifEditActivity: Failed to parse the " +
 					"notification description passed. Exiting...");
 			
 			finish();

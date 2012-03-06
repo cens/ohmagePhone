@@ -1,5 +1,7 @@
 package org.ohmage.async;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +29,6 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -236,12 +237,10 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			}
 
 		} else if (response.getResult() == Result.HTTP_ERROR) {
-			Log.e(TAG, "http error");
-
+			Log.e(TAG, "Read failed due to http error");
 			Toast.makeText(getContext(), R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
 		} else {
-			Log.e(TAG, "internal error");
-
+			Log.e(TAG, "Read failed due to internal error");
 			Toast.makeText(getContext(), R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
 		} 
 	}

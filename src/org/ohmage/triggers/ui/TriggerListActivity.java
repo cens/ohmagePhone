@@ -17,6 +17,7 @@ package org.ohmage.triggers.ui;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.Config;
 import org.ohmage.R;
@@ -39,7 +40,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -58,7 +58,7 @@ import android.widget.Toast;
 public class TriggerListActivity extends ListActivity 
 			implements OnClickListener {
 	
-	private static final String DEBUG_TAG = "TriggerFramework";
+	private static final String TAG = "TriggerListActivity";
 		
 	private static final String PREF_FILE_NAME = 
 		TriggerListActivity.class.getName();
@@ -127,9 +127,8 @@ public class TriggerListActivity extends ListActivity
 		Intent i = getIntent();
 		if(i.hasExtra(KEY_ACTIONS)) {
 			mActions = i.getStringArrayExtra(KEY_ACTIONS);
-		}
-		else {
-			Log.e(DEBUG_TAG, "TriggerListActivity: Invoked with out passing surveys");
+		} else {
+			Log.e(TAG, "TriggerListActivity: Invoked with out passing surveys");
 			finish();
 			return;
 		}
@@ -142,9 +141,8 @@ public class TriggerListActivity extends ListActivity
 		
 		if(i.hasExtra(KEY_CAMPAIGN_URN)) {
 			mCampaignUrn = i.getStringExtra(KEY_CAMPAIGN_URN);
-		}
-		else {
-			Log.e(DEBUG_TAG, "TriggerListActivity: Invoked with out passing campaign urn");
+		} else {
+			Log.e(TAG, "TriggerListActivity: Invoked with out passing campaign urn");
 			finish();
 			return;
 		}
