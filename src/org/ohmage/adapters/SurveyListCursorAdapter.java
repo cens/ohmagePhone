@@ -2,6 +2,7 @@ package org.ohmage.adapters;
 
 import edu.ucla.cens.systemlog.Analytics;
 
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
@@ -47,7 +48,8 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		iconImage.setVisibility(View.GONE);
 		titleText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(campaignName);
-		campaignText.setVisibility(View.GONE);
+		// Only show campaign name if we aren't in single campaign mode
+		campaignText.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
 		actionButton.setFocusable(false);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
