@@ -128,6 +128,7 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 				30, 35, 15, 30
 		});
 		renderer.setYLabels(5);
+		renderer.setYAxisMin(0);
 		renderer.setYTitle("# of Responses");
 		renderer.setInScroll(true);
 
