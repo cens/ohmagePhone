@@ -62,9 +62,12 @@ public class ChartListAdapter extends SimpleChartListAdapter<ChartItem<? extends
 
 		@Override
 		public String stats() {
-			double[] data = new double[mData.size()];
-			for(int i=0;i<data.length;i++) {
-				data[i] = mData.get(i)[mAverageIndex];
+			double[] data = null;
+			if(mData != null) {
+				data= new double[mData.size()];
+				for(int i=0;i<data.length;i++) {
+					data[i] = mData.get(i)[mAverageIndex];
+				}
 			}
 
 			return NumberFormat.getInstance().format(Utilities.stats(data)[3]) + " " + yLabel + " a week on average";

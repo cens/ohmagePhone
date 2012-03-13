@@ -69,10 +69,12 @@ public class HistogramBubble extends BubbleChart {
 		XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
 		XYValueSeries series = new XYValueSeries("");
 
-		for(int i=0;i < values.size(); i++) {
-			int[] dp = values.get(i);
-			for(int j=0;j<dp.length;j++)
-				series.add(-i, j, dp[j]);
+		if(values != null) {
+			for(int i=0;i < values.size(); i++) {
+				int[] dp = values.get(i);
+				for(int j=0;j<dp.length;j++)
+					series.add(-i, j, dp[j]);
+			}
 		}
 
 		dataSet.addSeries(series);

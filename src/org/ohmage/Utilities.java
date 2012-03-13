@@ -128,6 +128,8 @@ public class Utilities {
 		double sum = 0.0;
 		double min = Double.MAX_VALUE;
 		double max = Double.MIN_VALUE;
+		if(ds == null)
+			ds = new double[0];
 		for (int i = 0; i < ds.length; i++) {
 			double value = mapper.translate(ds[i]);
 			sum += value;
