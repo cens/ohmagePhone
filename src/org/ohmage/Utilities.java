@@ -110,7 +110,7 @@ public class Utilities {
 	/**
 	 * Calculates the average, min, and max of an array of doubles
 	 * @param ds
-	 * @return an array formatted as [ min, max, average per week, average ]
+	 * @return an array formatted as [ min, max, average, average per week ]
 	 */
 	public static double[] stats(double...ds) {
 		return stats(null, ds);
@@ -120,7 +120,7 @@ public class Utilities {
 	 * Calculates the average, min, and max of an array of doubles
 	 * @param mapper  a {@link DataMapper} which maps data to values for this array
 	 * @param ds
-	 * @return an array formatted as [ min, max, average per week, average ]
+	 * @return an array formatted as [ min, max, average, average per week ]
 	 */
 	public static double[] stats(DataMapper mapper, double...ds) {
 		if(mapper == null)
