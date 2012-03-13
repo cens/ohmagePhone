@@ -97,7 +97,7 @@ import java.util.List;
 public class DbProvider extends ContentProvider {		
 	private static UriMatcher sUriMatcher = buildUriMatcher();
 	private DbHelper dbHelper;
-	
+
 	// enum of the URIs we can match using sUriMatcher
 	private interface MatcherTypes {
 		int RESPONSES = 1;
@@ -127,46 +127,46 @@ public class DbProvider extends ContentProvider {
 
 	@Override
 	public String getType(Uri uri) {
-        switch (sUriMatcher.match(uri)) {
-        	
-        	// CAMPAIGNS
-        	case MatcherTypes.CAMPAIGNS:
-        		return Campaigns.CONTENT_TYPE;
-        	case MatcherTypes.CAMPAIGN_BY_URN:
-        		return Campaigns.CONTENT_ITEM_TYPE;
-        		
-        	// SURVEYS
-        	case MatcherTypes.SURVEYS:
-        	case MatcherTypes.CAMPAIGN_SURVEYS:
-        		return Surveys.CONTENT_TYPE;
-        	case MatcherTypes.SURVEY_BY_ID:
-        		return Surveys.CONTENT_ITEM_TYPE;
-        		
-        	// SURVEY PROMPTS
-        	case MatcherTypes.SURVEY_SURVEYPROMPTS:
-        		return SurveyPrompts.CONTENT_TYPE;
-        	
-        	// RESPONSES
-            case MatcherTypes.RESPONSES:
-            case MatcherTypes.CAMPAIGN_RESPONSES:
-            case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
-            	return Responses.CONTENT_TYPE;
-            case MatcherTypes.RESPONSE_BY_PID:
-            	return Responses.CONTENT_ITEM_TYPE;
-            
-            // PROMPTS
-            case MatcherTypes.PROMPTS:
-            case MatcherTypes.RESPONSE_PROMPTS:
-            case MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID:
-            case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
-            case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
-            	return PromptResponses.CONTENT_TYPE;
-            case MatcherTypes.PROMPT_BY_PID:
-            	return PromptResponses.CONTENT_ITEM_TYPE;
-            	
-            default:
-                throw new UnsupportedOperationException("getType(): Unknown URI: " + uri);
-        }
+		switch (sUriMatcher.match(uri)) {
+
+			// CAMPAIGNS
+			case MatcherTypes.CAMPAIGNS:
+				return Campaigns.CONTENT_TYPE;
+			case MatcherTypes.CAMPAIGN_BY_URN:
+				return Campaigns.CONTENT_ITEM_TYPE;
+
+				// SURVEYS
+			case MatcherTypes.SURVEYS:
+			case MatcherTypes.CAMPAIGN_SURVEYS:
+				return Surveys.CONTENT_TYPE;
+			case MatcherTypes.SURVEY_BY_ID:
+				return Surveys.CONTENT_ITEM_TYPE;
+
+				// SURVEY PROMPTS
+			case MatcherTypes.SURVEY_SURVEYPROMPTS:
+				return SurveyPrompts.CONTENT_TYPE;
+
+				// RESPONSES
+			case MatcherTypes.RESPONSES:
+			case MatcherTypes.CAMPAIGN_RESPONSES:
+			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES:
+				return Responses.CONTENT_TYPE;
+			case MatcherTypes.RESPONSE_BY_PID:
+				return Responses.CONTENT_ITEM_TYPE;
+
+				// PROMPTS
+			case MatcherTypes.PROMPTS:
+			case MatcherTypes.RESPONSE_PROMPTS:
+			case MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID:
+			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID:
+			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE:
+				return PromptResponses.CONTENT_TYPE;
+			case MatcherTypes.PROMPT_BY_PID:
+				return PromptResponses.CONTENT_ITEM_TYPE;
+
+			default:
+				throw new UnsupportedOperationException("getType(): Unknown URI: " + uri);
+		}
 	}
 
 	@Override
@@ -179,28 +179,28 @@ public class DbProvider extends ContentProvider {
 		SelectionBuilder builder = buildSelection(uri, false);
 
 		builder.where(selection, selectionArgs);
-		
+
 		Cursor result = builder.query(db, projection, sortOrder);
 		result.setNotificationUri(getContext().getContentResolver(), uri);
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public synchronized Uri insert(Uri uri, ContentValues values) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		long insertID = -1;
 		Uri resultingUri = null;
 		String campaignUrn, surveyID;
-		
+
 		ContentResolver cr = getContext().getContentResolver();
-		
+
 		switch (sUriMatcher.match(uri)) {
 			case MatcherTypes.RESPONSES:
 				insertID = dbHelper.addResponseRow(db, values);
 				campaignUrn = values.getAsString(Responses.CAMPAIGN_URN);
 				surveyID = values.getAsString(Responses.SURVEY_ID);
-				
+
 				if(insertID != -1) {
 					resultingUri = Responses.buildResponseUri(insertID);
 
@@ -220,12 +220,12 @@ public class DbProvider extends ContentProvider {
 				cr.notifyChange(Campaigns.CONTENT_URI, null);
 				cr.notifyChange(Surveys.CONTENT_URI, null);
 				cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
-				
+
 				break;
 			default:
 				throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
 		}
-		
+
 		// return the path to our new URI
 		return resultingUri;
 	}
@@ -235,16 +235,16 @@ public class DbProvider extends ContentProvider {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;
-		
+
 		// TODO: should we reject entities that shouldn't be updated?
-		
+
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
 		SelectionBuilder builder = buildSelection(uri, true);
-		
+
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
-		
+
 		// If we are looking at campaigns we need to see what has changed to do some state management
 		if(sUriMatcher.match(uri) == MatcherTypes.CAMPAIGN_BY_URN || sUriMatcher.match(uri) == MatcherTypes.CAMPAIGNS) {
 			Cursor oldCampaigns = builder.query(db, new String[] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS}, null);
@@ -261,10 +261,10 @@ public class DbProvider extends ContentProvider {
 
 		// we assume we've matched it correctly, so proceed with the update
 		count = builder.update(db, values);
-		
+
 		if (count > 0) {
 			ContentResolver cr = getContext().getContentResolver();
-			
+
 			// depending on the type of the thing deleted, we have to notify potentially many URIs
 			switch (sUriMatcher.match(uri)) {
 				case MatcherTypes.RESPONSE_BY_PID:
@@ -274,7 +274,7 @@ public class DbProvider extends ContentProvider {
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					break;
-					
+
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
 					// notify on the related entity URIs
@@ -285,29 +285,29 @@ public class DbProvider extends ContentProvider {
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
 			}
-			
+
 			// we should always notify on our own uri regardless
 			cr.notifyChange(uri, null);
 		}
-		
+
 		return count;
 	}
-	
+
 	@Override
 	public synchronized int delete(Uri uri, String selection, String[] selectionArgs) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;
-		
+
 		// TODO: should we reject entities that shouldn't be deleted?
-		
+
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
 		SelectionBuilder builder = buildSelection(uri, true);
-		
+
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
-		
+
 		// Depending on the type of the thing deleted, we may have to do some clean up
 		ArrayList<Models.DbModel> models = new ArrayList<Models.DbModel>();
 		switch (sUriMatcher.match(uri)) {
@@ -332,13 +332,13 @@ public class DbProvider extends ContentProvider {
 				models.addAll(Response.fromCursor(responseQuery.query(db, null, null)));
 				break;
 		}
-		
+
 		// we assume we've matched it correctly, so proceed with the delete
 		count = builder.delete(db);
-		
+
 		if (count > 0) {
 			ContentResolver cr = getContext().getContentResolver();
-			
+
 			// depending on the type of the thing deleted, we have to notify potentially many URIs
 			switch (sUriMatcher.match(uri)) {
 				case MatcherTypes.RESPONSE_BY_PID:
@@ -347,7 +347,7 @@ public class DbProvider extends ContentProvider {
 					cr.notifyChange(Responses.CONTENT_URI, null);
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
 					break;
-					
+
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
 					// notify on the related entity URIs
@@ -370,11 +370,11 @@ public class DbProvider extends ContentProvider {
 
 		return count;
 	}
-	
+
 	// ====================================
 	// === bulk insert/update/delete methods that make use of the smaller ones
 	// ====================================
-	
+
 	/**
 	 * Inserts all entries in the values ContentValues array into the table specified by Uri.
 	 */
@@ -383,23 +383,23 @@ public class DbProvider extends ContentProvider {
 		int count = 0;
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		
+
 		ContentResolver cr = getContext().getContentResolver();
-		
+
 		try {
 			db.beginTransaction();
-		
+
 			switch (sUriMatcher.match(uri)) {
 				case MatcherTypes.RESPONSES:
 					for (ContentValues value : values) {
 						if (dbHelper.addResponseRow(db, value) > 0)
 							count += 1;
 					}
-					
+
 					// notify on the related entity URIs
 					cr.notifyChange(Responses.CONTENT_URI, null);
 					cr.notifyChange(PromptResponses.CONTENT_URI, null);
-					
+
 					break;
 				case MatcherTypes.CAMPAIGNS:
 					for (ContentValues value : values) {
@@ -411,12 +411,12 @@ public class DbProvider extends ContentProvider {
 					cr.notifyChange(Campaigns.CONTENT_URI, null);
 					cr.notifyChange(Surveys.CONTENT_URI, null);
 					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
-					
+
 					break;
 				default:
 					throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
 			}
-			
+
 			if (count == values.length) {
 				db.setTransactionSuccessful();
 			} else {
@@ -427,7 +427,7 @@ public class DbProvider extends ContentProvider {
 			// the transaction must be ended whether or not it was flagged successful
 			db.endTransaction();
 		}
-		
+
 		return count;
 	}
 
@@ -477,11 +477,11 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.CAMPAIGN_RESPONSES: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
-				
+
 				if (nonQuery)
 					return builder.table(Tables.RESPONSES)
-						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn);
-				
+							.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn);
+
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
 						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
@@ -502,11 +502,11 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.SURVEY_BY_ID: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
-				
+
 				if (nonQuery)
 					return builder.table(Tables.SURVEYS)
-						.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn)
-						.where(Surveys.SURVEY_ID + "=?", surveyId);
+							.where(Qualified.SURVEYS_CAMPAIGN_URN + "=?", campaignUrn)
+							.where(Surveys.SURVEY_ID + "=?", surveyId);
 
 				return builder.table(Tables.SURVEYS)
 						.join(Tables.CAMPAIGNS, "%t." + Campaigns.CAMPAIGN_URN + "=" + "%s." + Surveys.CAMPAIGN_URN)
@@ -531,11 +531,11 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES: {
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
-				
+
 				if (nonQuery)
 					return builder.table(Tables.RESPONSES)
-						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
-						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId);
+							.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
+							.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId);
 
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
@@ -569,11 +569,15 @@ public class DbProvider extends ContentProvider {
 				}
 
 				builder.table(Tables.PROMPT_RESPONSES)
-						.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
-						.where(PromptResponses.COMPOSITE_ID + " LIKE ?", campaignUrn + ":%")
-						.where(PromptResponses.PROMPT_ID + " LIKE ?", pids.get(0) + "%");
+				.join(Tables.RESPONSES, Tables.RESPONSES + "." + Responses._ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.RESPONSE_ID)
+				.where(PromptResponses.COMPOSITE_ID + " LIKE ?", campaignUrn + ":%");
+
+				// Add parameters for the prompt ids in a group
+				builder.startGrouping(SelectionBuilder.AND)
+				.where(PromptResponses.PROMPT_ID + " LIKE ?", pids.get(0));
 				for(int i=1;i<pids.size();i++)
-					builder.where(PromptResponses.PROMPT_ID + " LIKE ?", SelectionBuilder.OR, pids.get(i) + "%");
+					builder.where(PromptResponses.PROMPT_ID + " LIKE ?", SelectionBuilder.OR, pids.get(i));
+				builder.closeGrouping();
 
 				return builder;
 			}
@@ -609,7 +613,7 @@ public class DbProvider extends ContentProvider {
 						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
 						.where(PromptResponses.PROMPT_ID + "=?", promptId);
 			}
-			*/
+			 */
 			case MatcherTypes.SURVEYS: {
 				if(nonQuery)
 					return builder.table(Tables.SURVEYS);
@@ -623,7 +627,7 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.RESPONSES: {
 				if (nonQuery)
 					return builder.table(Tables.RESPONSES);
-				
+
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
 						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
@@ -631,10 +635,10 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.RESPONSE_BY_PID: {
 				final String responseId = Responses.getResponseId(uri);
-				
+
 				if (nonQuery)
 					return builder.table(Tables.RESPONSES)
-						.where(Qualified.RESPONSES_ID + "=?", responseId);
+							.where(Qualified.RESPONSES_ID + "=?", responseId);
 
 				return builder.table(Tables.RESPONSES_JOIN_CAMPAIGNS_SURVEYS)
 						.mapToTable(Responses._ID, Tables.RESPONSES)
@@ -644,7 +648,7 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.RESPONSE_PROMPTS: {
 				final String responseId = Responses.getResponseId(uri);
-				
+
 				if (nonQuery)
 					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
 
@@ -660,7 +664,7 @@ public class DbProvider extends ContentProvider {
 			case MatcherTypes.PROMPTS: {
 				if (nonQuery)
 					return builder.table(Tables.PROMPT_RESPONSES);
-				
+
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
 						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
@@ -668,10 +672,10 @@ public class DbProvider extends ContentProvider {
 			}
 			case MatcherTypes.PROMPT_BY_PID: {
 				final String promptId = SurveyPrompts.getSurveyPromptId(uri);
-				
+
 				if (nonQuery)
 					return builder.table(Tables.PROMPT_RESPONSES)
-						.where(PromptResponses._ID + "=?", promptId);
+							.where(PromptResponses._ID + "=?", promptId);
 
 				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
 						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)

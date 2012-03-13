@@ -51,6 +51,8 @@ public class SelectionBuilder {
 	private final ArrayList<String> mSelectionArgs = Lists.newArrayList();
 	private final ArrayList<String> mJoins = Lists.newArrayList();
 
+	private boolean isGrouping;
+
 	public static final int AND = 0;
 	public static final int OR = 1;
 
@@ -62,6 +64,7 @@ public class SelectionBuilder {
 		mTable = null;
 		mSelection.setLength(0);
 		mSelectionArgs.clear();
+		isGrouping = false;
 		return this;
 	}
 
@@ -92,7 +95,7 @@ public class SelectionBuilder {
 			return this;
 		}
 
-		if (mSelection.length() > 0) {
+		if (mSelection.length() > 0 && mSelection.charAt(mSelection.length()-1) != '(') {
 			switch(operator) {
 				case AND :
 					mSelection.append(" AND ");
@@ -110,6 +113,35 @@ public class SelectionBuilder {
 			}
 		}
 
+		return this;
+	}
+
+	/**
+	 * Starts a grouping of selections prepended by the given operator
+	 * @param operator
+	 * @return
+	 */
+	public SelectionBuilder startGrouping(int operator) {
+		switch(operator) {
+			case AND :
+				mSelection.append(" AND ");
+				break;
+			case OR:
+				mSelection.append(" OR ");
+				break;
+		}
+		mSelection.append(" (");
+		isGrouping = true;
+		return this;
+	}
+
+	/**
+	 * Stops a grouping of selections
+	 * @return
+	 */
+	public SelectionBuilder closeGrouping() {
+		mSelection.append(") ");
+		isGrouping = false;
 		return this;
 	}
 
@@ -166,6 +198,8 @@ public class SelectionBuilder {
 	 * @see #getSelectionArgs()
 	 */
 	public String getSelection() {
+		if(isGrouping)
+			throw new RuntimeException("The selection grouping must be closed with closeGrouping()");
 		return mSelection.toString();
 	}
 
