@@ -4,6 +4,7 @@ package org.ohmage.activity;
 import com.astuetz.viewpagertabs.ViewPagerTabProvider;
 import com.astuetz.viewpagertabs.ViewPagerTabs;
 
+import org.ohmage.NIHConfig;
 import org.ohmage.R;
 import org.ohmage.fragments.ChartListFragment;
 import org.ohmage.ui.BaseActivity;
@@ -74,13 +75,13 @@ public class ChartFeedbackActivity extends BaseActivity {
 		private String[] getPrompts(int position) {
 			switch(position) {
 				case 0:
-					return new String[] { "foodQuality", "foodHowMuch", "howStressed", "timeForYourself", "didYouExercise" };
+					return new String[] { NIHConfig.Prompt.FOOD_QUALITY_ID, NIHConfig.Prompt.FOOD_QUANTITY_ID, NIHConfig.Prompt.HOW_STRESSED_ID, NIHConfig.Prompt.TIME_TO_YOURSELF_ID, NIHConfig.Prompt.DID_EXERCISE_ID };
 				case 1:
-					return new String[] { "foodQuality", "foodHowMuch" };
+					return new String[] { NIHConfig.Prompt.FOOD_QUALITY_ID, NIHConfig.Prompt.FOOD_QUANTITY_ID };
 				case 2:
-					return new String[] { "howStressed", "timeForYourself" };
+					return new String[] { NIHConfig.Prompt.HOW_STRESSED_ID, NIHConfig.Prompt.TIME_TO_YOURSELF_ID };
 				case 3:
-					return new String[] { "didYouExercise" };
+					return new String[] { NIHConfig.Prompt.DID_EXERCISE_ID };
 				default:
 					throw new RuntimeException("Invalid position");
 			}

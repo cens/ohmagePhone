@@ -1,11 +1,10 @@
 
 package org.ohmage.fragments;
 
+import org.ohmage.NIHConfig;
 import org.ohmage.R;
 import org.ohmage.adapters.SparklineAdapter;
-import org.ohmage.adapters.SparklineAdapter.SparkLineChartItem;
 import org.ohmage.charts.SparkLine;
-import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models;
 
@@ -79,34 +78,34 @@ public class RecentChartFragment extends Fragment implements LoaderManager.Loade
 
 			String surveyId = data.getString(ResponseQuery.SURVEY_ID);
 
-			while("foodButton".equals(surveyId) || "stressButton".equals(surveyId)) {
+			while(NIHConfig.Surveys.FOOD_BUTTON.equals(surveyId) || NIHConfig.Surveys.STRESS_BUTTON.equals(surveyId)) {
 				data.moveToNext();
 				if(data.isAfterLast())
 					return;
 				surveyId = data.getString(ResponseQuery.SURVEY_ID);
 			}
 
-			if("Morning".equals(surveyId) || "Mid Day".equals(surveyId) || "Late Afternoon".equals(surveyId)) {
-				double[] stressData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "howStressed");
+			if(NIHConfig.Surveys.MORNING.equals(surveyId) || NIHConfig.Surveys.MIDDAY.equals(surveyId) || NIHConfig.Surveys.LATEAFTERNOON.equals(surveyId)) {
+				double[] stressData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), NIHConfig.SQL.HOW_STRESSED_ID);
 				if(stressData.length > 1)
-					mAdapter.add(new SparkLineChartItem("Stress Amount", stressData, R.color.dark_red, R.color.light_red, 1, 5));
+					mAdapter.add(NIHConfig.getExtraPromptData(NIHConfig.Prompt.HOW_STRESSED_ID).toSparkLineChartItem(stressData));
 
-				double[] foodData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "foodQuality");
+				double[] foodData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), NIHConfig.SQL.FOOD_QUALITY_ID);
 				if(foodData.length > 1)
-					mAdapter.add(new SparkLineChartItem("Food Quality", foodData, R.color.powderkegblue, R.color.light_blue, 0, 2));
+					mAdapter.add(NIHConfig.getExtraPromptData(NIHConfig.Prompt.FOOD_QUALITY_ID).toSparkLineChartItem(foodData));
 
-				double[] foodAmountData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "foodHowMuch");
+				double[] foodAmountData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), NIHConfig.SQL.FOOD_QUANTITY_ID);
 				if(foodAmountData.length > 1)
-					mAdapter.add(new SparkLineChartItem("Food Quantity", foodAmountData, R.color.powderkegblue, R.color.light_blue, 0, 2));
+					mAdapter.add(NIHConfig.getExtraPromptData(NIHConfig.Prompt.FOOD_QUANTITY_ID).toSparkLineChartItem(foodAmountData));
 
-			} else if("Bedtime".equals(surveyId)) {
-				double[] exerciseData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "didYouExercise");
+			} else if(NIHConfig.Surveys.BEDTIME.equals(surveyId)) {
+				double[] exerciseData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), NIHConfig.SQL.DID_EXERCISE_ID);
 				if(exerciseData.length > 1)
-					mAdapter.add(new SparkLineChartItem("Did Exercise", exerciseData, R.color.dark_green, R.color.light_green, 0, 1));
+					mAdapter.add(NIHConfig.getExtraPromptData(NIHConfig.Prompt.DID_EXERCISE_ID).toSparkLineChartItem(exerciseData));
 
-				double[] aloneData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), "timeForYourself");
+				double[] aloneData = getData(data.getString(ResponseQuery.CAMPAIGN_URN), NIHConfig.SQL.TIME_TO_YOURSELF_ID);
 				if(aloneData.length > 1)
-					mAdapter.add(new SparkLineChartItem("Time For Yourself", aloneData, R.color.dark_purple, R.color.light_purple, 0, 4));
+					mAdapter.add(NIHConfig.getExtraPromptData(NIHConfig.Prompt.TIME_TO_YOURSELF_ID).toSparkLineChartItem(aloneData));
 			}
 
 			if(!mAdapter.isEmpty()) {
@@ -124,7 +123,6 @@ public class RecentChartFragment extends Fragment implements LoaderManager.Loade
 	}
 
 	private double[] getData(String campaignUrn, String promptId) {
-		Cursor promptResponses = getActivity().managedQuery(PromptResponses.getPromptsByCampaign(campaignUrn, promptId), new String[] { PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE }, null, null, null);
-		return Models.PromptResponse.getIntegerData(promptResponses, MAX_DATA_POINTS);
+		return Models.PromptResponse.getData(getActivity(), campaignUrn, promptId, MAX_DATA_POINTS);
 	}
 }

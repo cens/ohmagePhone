@@ -1,6 +1,7 @@
 package org.ohmage.adapters;
 
 import org.ohmage.R;
+import org.ohmage.Utilities;
 import org.ohmage.adapters.SparklineAdapter.SparkLineChartItem;
 import org.ohmage.charts.SparkLine;
 
@@ -13,16 +14,18 @@ public class SparklineAdapter extends SimpleChartListAdapter<SparkLineChartItem>
 
 	public static class SparkLineChartItem extends SimpleChartListAdapter.ChartItem<SparkLine>{
 
-		public int fill;
-
-		public SparkLineChartItem(String title, double[] data, int color, int fill, Integer min, Integer max) {
+		public SparkLineChartItem(String title, double[] data, int color, Integer min, Integer max) {
 			super(title, data, color, min, max);
-			this.fill = fill;
+		}
+
+		@Override
+		public int getColor(Context context) {
+			return Utilities.darkenColor(super.getColor(context));
 		}
 
 		@Override
 		public SparkLine makeChart(Context context) {
-			return new SparkLine(context, data, context.getResources().getColor(color), context.getResources().getColor(fill));
+			return new SparkLine(context, data, super.getColor(context));
 		}
 	}
 

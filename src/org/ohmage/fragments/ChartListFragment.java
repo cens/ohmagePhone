@@ -1,11 +1,10 @@
 package org.ohmage.fragments;
 
 import org.achartengine.chart.XYChart;
+import org.ohmage.NIHConfig;
+import org.ohmage.NIHConfig.ExtraPromptData;
 import org.ohmage.R;
-import org.ohmage.Utilities.DataMapper;
 import org.ohmage.adapters.ChartListAdapter;
-import org.ohmage.adapters.ChartListAdapter.BubbleChartItem;
-import org.ohmage.adapters.ChartListAdapter.HistogramChartItem;
 import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
@@ -48,6 +47,8 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 
 	private String[] mPrompts;
 
+	private String[] mSQLPrompts;
+
 	public static ChartListFragment newInstance(String[] prompts) {
 		ChartListFragment f = new ChartListFragment();
 		Bundle b = new Bundle();
@@ -68,20 +69,25 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 		// Start out with a progress indicator.
 		setListShown(false);
 
-		if(getArguments() != null)
+		if(getArguments() != null) {
 			mPrompts = getArguments().getStringArray(PROMPTS);
+			mSQLPrompts = new String[mPrompts.length];
+			for(int i=0;i<mPrompts.length;i++) {
+				mSQLPrompts[i] = NIHConfig.getExtraPromptData(mPrompts[i]).SQL;
+			}
+		}
 
 		getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Campaign campaign = Campaign.getFirstAvaliableCampaign(getActivity());
+		String campaign = Campaign.getSingleCampaign(getActivity());
 		if(campaign == null) {
 			getActivity().finish();
 			return null;
 		}
-		return new CursorLoader(getActivity(), PromptResponses.getPromptsByCampaign(campaign.mUrn, mPrompts),
+		return new CursorLoader(getActivity(), PromptResponses.getPromptsByCampaign(campaign, mSQLPrompts),
 				new String[] { Responses.RESPONSE_TIME, PromptResponses.PROMPT_ID, PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE },
 				null, null, Responses.RESPONSE_TIME + " DESC");
 	}
@@ -92,18 +98,16 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 		mAdapter.clear();
 
 		HashMap<String,double[]> histogramData = new HashMap<String,double[]>();
+		HashMap<String,LinkedList<int[]>> bubblePrompts = new HashMap<String,LinkedList<int[]>>();
 		for(String prompt : mPrompts) {
 			if(getChartType(prompt) == HISTOGRAM_TYPE) {
 				double[] tmp = new double[MAX_POINTS];
 				Arrays.fill(tmp, Double.MIN_VALUE);
 				histogramData.put(prompt, tmp);
+			} else if(getChartType(prompt) == BUBBLE_TYPE) {
+				bubblePrompts.put(prompt, new LinkedList<int[]>());
 			}
 		}
-
-		HashMap<String,LinkedList<int[]>> bubblePrompts = new HashMap<String,LinkedList<int[]>>();
-		bubblePrompts.put("foodQuality", new LinkedList<int[]>());
-		bubblePrompts.put("foodHowMuch", new LinkedList<int[]>());
-		bubblePrompts.put("howStressed", new LinkedList<int[]>());
 
 		HistogramRenderer exerciseRenderer = new HistogramRenderer(getActivity());
 		exerciseRenderer.setYLabels(0);
@@ -112,29 +116,25 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 
 		for(int i=0;i<MAX_POINTS;i++) {
 
-			int[] fq = new int[3];
-			Arrays.fill(fq, 0);
-			bubblePrompts.get("foodQuality").add(fq);
-			int[] fa = new int[3];
-			Arrays.fill(fa, 0);
-			bubblePrompts.get("foodHowMuch").add(fa);
-			int[] hs = new int[6];
-			Arrays.fill(hs, 0);
-			bubblePrompts.get("howStressed").add(hs);
+			for(String prompt : mPrompts) {
+				if(getChartType(prompt) == BUBBLE_TYPE) {
+					ExtraPromptData extraData = NIHConfig.getExtraPromptData(prompt);
+					int[] tmp = new int[extraData.getRange()];
+					Arrays.fill(tmp, 0);
+					bubblePrompts.get(prompt).add(tmp);
+				}
+			}
 
 			while(data.moveToNext() && DateUtils.isToday(data.getLong(0) + DateUtils.DAY_IN_MILLIS * i)) {
 				promptId = data.getString(1);
 
 				Integer dataPoint = PromptResponse.getIntegerPoint(data);
 				if(dataPoint != null) {
-					if(getChartType(promptId) == HISTOGRAM_TYPE && dataPoint > histogramData.get(promptId)[i]) {
-						histogramData.get(promptId)[i] = dataPoint;
-					} else if("foodQuality".equals(promptId)) {
-						fq[dataPoint]++;
-					} else if("foodHowMuch".equals(promptId)) {
-						fa[dataPoint]++;
-					} else if("howStressed".equals(promptId)) {
-						hs[dataPoint]++;
+					String prompt = NIHConfig.getPrompt(promptId);
+					if(getChartType(prompt) == HISTOGRAM_TYPE && dataPoint > histogramData.get(prompt)[i]) {
+						histogramData.get(prompt)[i] = dataPoint;
+					} else if(getChartType(prompt) == BUBBLE_TYPE) {
+						bubblePrompts.get(prompt).getLast()[dataPoint]++;
 					}
 				}
 			}
@@ -161,11 +161,12 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 	private ChartItem<? extends XYChart> getChartItem(String promptId,
 			HashMap<String, double[]> promptData,
 			HashMap<String, LinkedList<int[]>> bubblePrompts) {
-		if("didYouExercise".equals(promptId)) {
+		ExtraPromptData extraData = NIHConfig.getExtraPromptData(promptId);
+		if(NIHConfig.Prompt.DID_EXERCISE_ID.equals(promptId)) {
 			HistogramRenderer r = new HistogramRenderer(getActivity());
 			r.setYLabels(0);
-			return new HistogramChartItem("Did Exercise", promptData.get(promptId), R.color.light_green, 0, 1, "times", r);
-		} else if("timeForYourself".equals(promptId)) {
+			return extraData.toHistogramChartItem(promptData.get(promptId), r);
+		} else if(NIHConfig.Prompt.TIME_TO_YOURSELF_ID.equals(promptId)) {
 			HistogramRenderer r = new HistogramRenderer(getActivity());
 			r.addYTextLabel(1, "< .5");
 			r.addYTextLabel(2, "< 1");
@@ -175,21 +176,8 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 			margins[1] = 28;
 			r.setMargins(margins);
 			r.setShowLabels(true);
-			return new HistogramChartItem("Time For Yourself", promptData.get(promptId), R.color.light_purple, 0, 4, "hours", r, new DataMapper() {
-
-				@Override
-				public double translate(double d) {
-					switch(Double.valueOf(d).intValue()) {
-						case 0: return 0.0;
-						case 1: return 0.5;
-						case 2: return 1;
-						case 3: return 2;
-						case 4: return 4;
-						default: return d;
-					}
-				}
-			});
-		} else if("foodQuality".equals(promptId)) {
+			return extraData.toHistogramChartItem(promptData.get(promptId), r);
+		} else if(NIHConfig.Prompt.FOOD_QUALITY_ID.equals(promptId)) {
 			CleanRenderer r = new CleanRenderer();
 			r.addYTextLabel(-1, "");
 			r.addYTextLabel(0, "Low");
@@ -200,8 +188,8 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 			r.setMargins(margins);
 			r.setShowLabels(true);
 			r.setShowGrid(true);
-			return new BubbleChartItem("Food Quality", bubblePrompts.get(promptId), R.color.light_blue, -1, 2, "high quality meals eaten", 2, r);
-		} else if("foodHowMuch".equals(promptId)) {
+			return extraData.toBubbleChartItem(bubblePrompts.get(promptId), r);
+		} else if(NIHConfig.Prompt.FOOD_QUANTITY_ID.equals(promptId)) {
 			CleanRenderer r = new CleanRenderer();
 			r.addYTextLabel(-1, "");
 			r.addYTextLabel(0, "Small");
@@ -212,21 +200,21 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 			r.setMargins(margins);
 			r.setShowLabels(true);
 			r.setShowGrid(true);
-			return new BubbleChartItem("Food Quantity", bubblePrompts.get(promptId), R.color.light_blue, -1, 2, "healthy size meals eaten", 1, r);
-		} else if("howStressed".equals(promptId)) {
+			return extraData.toBubbleChartItem(bubblePrompts.get(promptId), r);
+		} else if(NIHConfig.Prompt.HOW_STRESSED_ID.equals(promptId)) {
 			CleanRenderer r = new CleanRenderer();
 			r.setShowGrid(true);
 			r.setYLabels(6);
 			r.addYTextLabel(-1, "");
-			return new BubbleChartItem("Stress Amount", bubblePrompts.get(promptId), R.color.light_red, -1, 5, "times with low stress", 0, r);
+			return extraData.toBubbleChartItem(bubblePrompts.get(promptId), r);
 		}
 		return null;
 	}
 
 	private int getChartType(String promptId) {
-		if("didYouExercise".equals(promptId) || "timeForYourself".equals(promptId)) {
+		if(NIHConfig.Prompt.DID_EXERCISE_ID.equals(promptId) || NIHConfig.Prompt.TIME_TO_YOURSELF_ID.equals(promptId)) {
 			return HISTOGRAM_TYPE;
-		} else if("foodQuality".equals(promptId) || "foodHowMuch".equals(promptId) || "howStressed".equals(promptId)) {
+		} else if(NIHConfig.Prompt.FOOD_QUALITY_ID.equals(promptId) || NIHConfig.Prompt.FOOD_QUANTITY_ID.equals(promptId) || NIHConfig.Prompt.HOW_STRESSED_ID.equals(promptId)) {
 			return BUBBLE_TYPE;
 		} else {
 			return UNKNOWN_TYPE;

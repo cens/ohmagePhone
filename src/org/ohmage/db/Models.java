@@ -670,5 +670,20 @@ public class Models {
 				}
 			}
 		}
+
+		/**
+		 * Parses data points for a specific prompt
+		 * @param context
+		 * @param campaignUrn
+		 * @param promptId
+		 * @param limit. limit of points to return offset from the newest. If negative, no limit will be applied
+		 * @return the data points associated with a prompt id for a campaign
+		 */
+		public static double[] getData(Context context, String campaignUrn, String promptId, int limit) {
+			Cursor c = context.getContentResolver().query(PromptResponses.getPromptsByCampaign(campaignUrn, promptId), new String[] { PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE }, null, null, null);
+			double[] data = getIntegerData(c, limit);
+			c.close();
+			return data;
+		}
 	}
 }

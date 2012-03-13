@@ -17,6 +17,7 @@ package org.ohmage;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -276,5 +277,14 @@ public class Utilities {
 		public long amountRead() {
 			return mLength;
 		}
+	}
+
+	/**
+	 * Slightly darkens the color value by increasing saturation
+	 * @param color
+	 * @return
+	 */
+	public static int darkenColor(int color) {
+		return Color.rgb(Color.red(color) - 60, Color.green(color) - 60, Color.blue(color) - 60);
 	}
 }

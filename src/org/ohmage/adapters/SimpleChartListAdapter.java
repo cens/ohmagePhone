@@ -21,7 +21,8 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 	public static abstract class ChartItem<T extends XYChart> {
 		public String title;
 		public double[] data;
-		public int color;
+		private int color;
+		public int colorValue = -1;
 		protected final String yLabel;
 		private final DataMapper mapper;
 		private Integer min;
@@ -54,7 +55,7 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 			T chart = makeChart(context);
 			XYMultipleSeriesRenderer renderer = chart.getRenderer();
 			for(int i=0; i < renderer.getSeriesRendererCount(); i++)
-				renderer.getSeriesRendererAt(i).setColor(context.getResources().getColor(color));
+				renderer.getSeriesRendererAt(i).setColor(getColor(context));
 			renderer.setInScroll(true);
 			renderer.setYAxisMin(min);
 			if(max != null)
@@ -73,6 +74,12 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 
 		public String stats() {
 			return NumberFormat.getInstance().format(Utilities.stats(mapper, data)[3]) + " " + yLabel + " a week on average";
+		}
+
+		public int getColor(Context context) {
+			if(colorValue == -1)
+				colorValue = context.getResources().getColor(color);
+			return colorValue;
 		}
 	}
 

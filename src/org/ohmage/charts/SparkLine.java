@@ -6,15 +6,16 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.ohmage.R;
+import org.ohmage.Utilities;
 
 import android.content.Context;
 
 public class SparkLine extends TimeChart {
 
-	public SparkLine(Context context, double[] values, int color, int fillColor) {
+	public SparkLine(Context context, double[] values, int color) {
 		this(context, values);
-		getRenderer().getSeriesRendererAt(0).setColor(color);
-		((XYSeriesRenderer)getRenderer().getSeriesRendererAt(0)).setFillBelowLineColor(fillColor);
+		getRenderer().getSeriesRendererAt(0).setColor(Utilities.darkenColor(color));
+		((XYSeriesRenderer)getRenderer().getSeriesRendererAt(0)).setFillBelowLineColor(color);
 	}
 
 	public SparkLine(Context context, double[] values) {
