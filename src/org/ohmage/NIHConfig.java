@@ -23,24 +23,25 @@ public class NIHConfig {
 		private final String label;
 		private final DataMapper mapper;
 		private final int goodValue;
+		public final String[] valueLabels;
 
 		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label, int goodValue) {
-			this(name, s, color, min, max, label, null, goodValue);
+				String label, String[] valueLabels, int goodValue) {
+			this(name, s, color, min, max, label, valueLabels, null, goodValue);
 		}
 
 		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label, DataMapper mapper) {
-			this(name, s, color, min, max, label, mapper, -1);
+				String label, String[] valueLabels, DataMapper mapper) {
+			this(name, s, color, min, max, label, valueLabels, mapper, -1);
 		}
 
 		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label) {
-			this(name, s, color, min, max, label, null, -1);
+				String label, String[] valueLabels) {
+			this(name, s, color, min, max, label, valueLabels, null, -1);
 		}
 
 		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label, DataMapper mapper, int goodValue) {
+				String label, String[] valueLabels, DataMapper mapper, int goodValue) {
 			shortName = name;
 			SQL = s;
 			colorId = color;
@@ -49,6 +50,7 @@ public class NIHConfig {
 			this.label = label;
 			this.mapper = mapper;
 			this.goodValue = goodValue;
+			this.valueLabels = valueLabels;
 		}
 
 		public HistogramChartItem toHistogramChartItem(List<FeedbackItem> data, HistogramRenderer r) {
@@ -72,19 +74,37 @@ public class NIHConfig {
 		public int getRange() {
 			return max - min;
 		}
+
+		public DataMapper getMapper() {
+			if (mapper == null)
+				return Utilities.linearDataMapper;
+			return mapper;
+		}
+
+		public int getColor() {
+			return colorId;
+		}
 	}
 
 	private static final ExtraPromptData HOW_STRESSED = new ExtraPromptData("Stress Amount",
-			"feltStress%", R.color.light_red, -1, 5, "times with low stress", 0);
+			"feltStress%", R.color.light_red, -1, 3, "times with low stress", new String[] {
+					"None", "Low", "Medium", "High"
+			}, 0);
 	private static final ExtraPromptData FOOD_QUALITY = new ExtraPromptData("Food Quality",
 			"foodQuality%", R.color.light_blue, -1, 2,
-			"high quality meals eaten", 2);
+			"high quality meals eaten", new String[] {
+					"Low", "Med", "High"
+			}, 2);
 	private static final ExtraPromptData FOOD_QUANTITY = new ExtraPromptData("Food Quantity",
 			"foodHowMuch%", R.color.light_blue, -1, 2,
-			"healthy size meals eaten", 1);
+			"healthy size meals eaten", new String[] {
+					"Small", "Healthy", "Large"
+			}, 1);
 	private static final ExtraPromptData TIME_TO_YOURSELF = new ExtraPromptData(
 			"Time For Self", "timeForYourself", R.color.light_purple, 0, 4,
-			"hours", new DataMapper() {
+			"hours", new String[] {
+					"0", "<.5", "< 1", "> 1", "> 2"
+			}, new DataMapper() {
 
 				@Override
 				public double translate(double d) {
@@ -106,7 +126,9 @@ public class NIHConfig {
 			});
 
 	private static final ExtraPromptData DID_EXERCISE = new ExtraPromptData("Did Exercise",
-			"didYouExercise", R.color.light_green, 0, 1, "times");
+			"didYouExercise", R.color.light_green, 0, 1, "times", new String[] {
+					"No", "Yes"
+			});
 
 	public static final String[] PROMPT_LIST = new String[] {
 			NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.FOOD_QUALITY_ID,

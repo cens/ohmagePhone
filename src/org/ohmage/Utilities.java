@@ -34,41 +34,41 @@ import java.util.List;
 public class Utilities {
 
 	public static class KVPair {
-		
+
 		public String key;
 		public String value;
-		
+
 		public KVPair(String key, String value) {
 			this.key = key;
 			this.value = value;
 		}
 	}
-	
+
 	public static class KVLTriplet {
-		
+
 		public String key;
 		public String value;
 		public String label;
-		
+
 		public KVLTriplet(String key, String value, String label) {
 			this.key = key;
 			this.value = value;
 			this.label = label;
 		}
 	}
-	
+
 	public static String stringArrayToString(String [] array, String separator) {
 		StringBuilder result = new StringBuilder();
-	    if (array.length > 0) {
-	        result.append(array[0]);
-	        for (int i=1; i<array.length; i++) {
-	            result.append(separator);
-	            result.append(array[i]);
-	        }
-	    }
-	    return result.toString();
+		if (array.length > 0) {
+			result.append(array[0]);
+			for (int i=1; i<array.length; i++) {
+				result.append(separator);
+				result.append(array[i]);
+			}
+		}
+		return result.toString();
 	}
-	
+
 	public static void delete(File f) throws IOException {
 		if(f == null)
 			return;
@@ -81,30 +81,30 @@ public class Utilities {
 	}
 
 	public static String convertStreamToString(InputStream is) {
-        /*
-         * To convert the InputStream to String we use the BufferedReader.readLine()
-         * method. We iterate until the BufferedReader return null which means
-         * there's no more data to read. Each line will appended to a StringBuilder
-         * and returned as String.
-         */
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
+		/*
+		 * To convert the InputStream to String we use the BufferedReader.readLine()
+		 * method. We iterate until the BufferedReader return null which means
+		 * there's no more data to read. Each line will appended to a StringBuilder
+		 * and returned as String.
+		 */
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder sb = new StringBuilder();
 
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
+		String line = null;
+		try {
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return sb.toString();
 	}
 
 	public static final DataMapper linearDataMapper = new DataMapper() {
@@ -230,11 +230,47 @@ public class Utilities {
 	}
 
 	/**
-	 * Slightly darkens the color value by increasing saturation
+	 * Darkens the color value
 	 * @param color
 	 * @return
 	 */
 	public static int darkenColor(int color) {
-		return Color.rgb(Color.red(color) - 60, Color.green(color) - 60, Color.blue(color) - 60);
+		return changeColor(color, -60);
+	}
+
+	/**
+	 * Lightens color value
+	 * @param color
+	 * @return
+	 */
+	public static int lightenColor(int color) {
+		return changeColor(color, 15);
+	}
+
+	/**
+	 * Change the color by the specified amount
+	 * @param color
+	 * @param amount
+	 * @return
+	 */
+	private static int changeColor(int color, int amount) {
+		amount = fitToColor(Color.red(color), amount);
+		amount = fitToColor(Color.green(color), amount);
+		amount = fitToColor(Color.blue(color), amount);
+		return Color.rgb(Color.red(color) + amount, Color.green(color) + amount, Color.blue(color) + amount);
+	}
+
+	/**
+	 * Makes sure that an adjustment by this amount for this part of the color
+	 * wont overflow (which will cause the overall color to change)
+	 * 
+	 * @param color
+	 * @param change
+	 * @return
+	 */
+	private static int fitToColor(int color, int change) {
+		if(color + change < 0 || color + change > 255)
+			return 255 - color;
+		return change;
 	}
 }

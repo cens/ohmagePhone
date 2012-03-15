@@ -7,6 +7,7 @@ import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.fragments.RecentChartFragment;
+import org.ohmage.fragments.RecentCompareFragment;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 import org.ohmage.ui.BaseActivity;
 
@@ -41,10 +42,28 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 	 */
 	private boolean mResponsesLoaded;
 
+	/**
+	 * true when the compare fragment has been loaded
+	 */
+	private boolean mCompareLoaded;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.feedback_layout);
+
+		if (getSupportFragmentManager().findFragmentById(R.id.feedback_compare_container) == null) {
+			Fragment compareFragment = new RecentCompareFragment() {
+				@Override
+				public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
+					super.onPromptReadFinished(feedbackItems);
+					mCompareLoaded = true;
+					maybeShowContent();
+				}
+			};
+			getSupportFragmentManager().beginTransaction().add(R.id.feedback_compare_container, compareFragment).commit();
+
+		}
 
 		if (getSupportFragmentManager().findFragmentById(R.id.feedback_chart_container) == null) {
 			Fragment chartFragment = new RecentChartFragment() {
@@ -67,7 +86,7 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 	}
 
 	private void maybeShowContent() {
-		setLoadingVisibility(!mChartsLoaded || !mResponsesLoaded);
+		setLoadingVisibility(!mChartsLoaded || !mResponsesLoaded || !mCompareLoaded);
 	}
 
 	@Override

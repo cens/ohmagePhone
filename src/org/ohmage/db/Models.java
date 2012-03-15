@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Models {
@@ -54,7 +55,7 @@ public class Models {
 		public static final int STATUS_NO_EXIST = 5;
 		public static final int STATUS_VAGUE = 6;
 		public static final int STATUS_DOWNLOADING = 7;
-		
+
 		public static final String PRIVACY_UNKNOWN = "unknown";
 		public static final String PRIVACY_SHARED = "shared";
 		public static final String PRIVACY_PRIVATE = "private";
@@ -125,16 +126,16 @@ public class Models {
 		 */
 		public static Intent launchTriggerIntent(Context context, String campaignUrn) {
 			List<String> surveyTitles = new ArrayList<String>();
-			
+
 			// grab a list of surveys for this campaign
 			Cursor surveys = context.getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), new String[] { Surveys.SURVEY_ID, Surveys.SURVEY_TITLE }, null, null, null);
-			
+
 			while (surveys.moveToNext()) {
 				String id = surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_ID));
 				if(!id.equals("foodButton") && !id.equals("stressButton"))
 					surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
-			
+
 			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 		}
 
@@ -159,8 +160,8 @@ public class Models {
 		public static Campaign getFirstAvaliableCampaign(Context context) {
 			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_STATUS },
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE + " OR " +
-					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY + " OR " +
-					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_OUT_OF_DATE, null, Campaigns.CAMPAIGN_CREATED + " DESC");
+							Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY + " OR " +
+							Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_OUT_OF_DATE, null, Campaigns.CAMPAIGN_CREATED + " DESC");
 			if(campaign.moveToFirst()) {
 				Campaign c = new Campaign();
 				c.mUrn = campaign.getString(0);
@@ -320,61 +321,61 @@ public class Models {
 		public String mIntroText;
 		public boolean mAnytime;
 		public int mStatus;
-		
-        /**
-         * Returns a list of Survey objects from the given cursor.
-         * 
-         * @param cursor a cursor containing the fields specified in the Survey schema, which is closed when this method returns.
-         * @return a List of Survey objects
-         */
-        public static List<Survey> fromCursor(Cursor cursor) {
-        	List<Survey> surveys = new ArrayList<Survey>();
-    		
-    		cursor.moveToFirst();
-    		
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			Survey s = new Survey();
-    			s._id = cursor.getLong(cursor.getColumnIndex(Surveys._ID));
-    			s.mSurveyID = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
-    			s.mCampaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
-    			s.mTitle = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE));
-    			s.mDescription = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_DESCRIPTION));
-    			s.mSubmitText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUBMIT_TEXT));
-    			s.mShowSummary = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_SHOW_SUMMARY)) == 0 ? false : true;
-    			s.mEditSummary = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_EDIT_SUMMARY)) == 0 ? false : true;
-    			s.mSummaryText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUMMARY_TEXT));
-    			s.mIntroText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_INTRO_TEXT));
-    			s.mAnytime = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_ANYTIME)) == 0 ? false : true;
-    			s.mStatus = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_STATUS));
-    			surveys.add(s);
-    			
-    			cursor.moveToNext();
-    		}
-    		
-    		cursor.close();
-    		
-    		return surveys;
-        }
-        
-        public ContentValues toCV() {
-        	ContentValues values = new ContentValues();
-        	
-        	values.put(Surveys.SURVEY_ID, mSurveyID);
-        	values.put(Surveys.CAMPAIGN_URN, mCampaignUrn);
-        	values.put(Surveys.SURVEY_TITLE, mTitle);
-        	values.put(Surveys.SURVEY_DESCRIPTION, mDescription);
-        	values.put(Surveys.SURVEY_SUBMIT_TEXT, mSubmitText);
-        	values.put(Surveys.SURVEY_SHOW_SUMMARY, mShowSummary);
-        	values.put(Surveys.SURVEY_EDIT_SUMMARY, mEditSummary);
-        	values.put(Surveys.SURVEY_SUMMARY_TEXT, mSummaryText);
-        	values.put(Surveys.SURVEY_INTRO_TEXT, mIntroText);
-        	values.put(Surveys.SURVEY_ANYTIME, mAnytime);
-        	values.put(Surveys.SURVEY_STATUS, mStatus);
-        	
-        	return values;
-        }
-        
+
+		/**
+		 * Returns a list of Survey objects from the given cursor.
+		 * 
+		 * @param cursor a cursor containing the fields specified in the Survey schema, which is closed when this method returns.
+		 * @return a List of Survey objects
+		 */
+		public static List<Survey> fromCursor(Cursor cursor) {
+			List<Survey> surveys = new ArrayList<Survey>();
+
+			cursor.moveToFirst();
+
+			for (int i = 0; i < cursor.getCount(); i++) {
+
+				Survey s = new Survey();
+				s._id = cursor.getLong(cursor.getColumnIndex(Surveys._ID));
+				s.mSurveyID = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
+				s.mCampaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
+				s.mTitle = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE));
+				s.mDescription = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_DESCRIPTION));
+				s.mSubmitText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUBMIT_TEXT));
+				s.mShowSummary = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_SHOW_SUMMARY)) == 0 ? false : true;
+				s.mEditSummary = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_EDIT_SUMMARY)) == 0 ? false : true;
+				s.mSummaryText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUMMARY_TEXT));
+				s.mIntroText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_INTRO_TEXT));
+				s.mAnytime = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_ANYTIME)) == 0 ? false : true;
+				s.mStatus = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_STATUS));
+				surveys.add(s);
+
+				cursor.moveToNext();
+			}
+
+			cursor.close();
+
+			return surveys;
+		}
+
+		public ContentValues toCV() {
+			ContentValues values = new ContentValues();
+
+			values.put(Surveys.SURVEY_ID, mSurveyID);
+			values.put(Surveys.CAMPAIGN_URN, mCampaignUrn);
+			values.put(Surveys.SURVEY_TITLE, mTitle);
+			values.put(Surveys.SURVEY_DESCRIPTION, mDescription);
+			values.put(Surveys.SURVEY_SUBMIT_TEXT, mSubmitText);
+			values.put(Surveys.SURVEY_SHOW_SUMMARY, mShowSummary);
+			values.put(Surveys.SURVEY_EDIT_SUMMARY, mEditSummary);
+			values.put(Surveys.SURVEY_SUMMARY_TEXT, mSummaryText);
+			values.put(Surveys.SURVEY_INTRO_TEXT, mIntroText);
+			values.put(Surveys.SURVEY_ANYTIME, mAnytime);
+			values.put(Surveys.SURVEY_STATUS, mStatus);
+
+			return values;
+		}
+
 		/**
 		 * Launch the Trigger list for the campaign to which this survey belongs with a list of surveys selected by default.
 		 * @param context
@@ -383,14 +384,14 @@ public class Models {
 		 */
 		public static Intent launchTriggerIntent(Context context, String campaignUrn, String[] selectedSurveys) {
 			List<String> surveyTitles = new ArrayList<String>();
-			
+
 			// grab a list of surveys for this campaign
 			Cursor surveys = context.getContentResolver().query(Campaigns.buildSurveysUri(campaignUrn), null, null, null, null);
-			
+
 			while (surveys.moveToNext()) {
 				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
-			
+
 			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]), selectedSurveys);
 		}
 	}
@@ -582,7 +583,7 @@ public class Models {
 			return dir;
 		}
 	}
-	
+
 	public final static class PromptResponse extends DbModel {
 
 		public long mResponseID;
@@ -590,68 +591,59 @@ public class Models {
 		public String mPromptID;
 		public String mValue;
 		public String mExtraValue;
-		
-        /**
-         * Returns a list of PromptResponse objects from the given cursor.
-         * 
-         * @param cursor a cursor containing the fields specified in the PromptResponse schema, which is closed when this method returns.
-         * @return a List of PromptResponse objects
-         */
-        public static List<PromptResponse> fromCursor(Cursor cursor) {
-    		
-    		ArrayList<PromptResponse> prompts = new ArrayList<PromptResponse>();
-    		
-    		cursor.moveToFirst();
-    		
-    		for (int i = 0; i < cursor.getCount(); i++) {
-    			
-    			PromptResponse temp = new PromptResponse();
-    			temp._id = cursor.getLong(cursor.getColumnIndex(PromptResponses._ID));
-    			temp.mResponseID = cursor.getLong(cursor.getColumnIndex(PromptResponses.RESPONSE_ID));
-    			temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponses.COMPOSITE_ID));
-    			temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_ID));
-    			temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE));
-    			temp.mExtraValue = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE));
-    			prompts.add(temp);
-    			
-    			cursor.moveToNext();
-    		}
-    		
-    		cursor.close();
-    		
-    		return prompts; 
-    	}
-        
-        public ContentValues toCV() {
-        	ContentValues values = new ContentValues();
-        	
-        	values.put(PromptResponses.RESPONSE_ID, mResponseID);
-        	values.put(PromptResponses.COMPOSITE_ID, mCompositeID);
-        	values.put(PromptResponses.PROMPT_ID, mPromptID);
-        	values.put(PromptResponses.PROMPT_RESPONSE_VALUE, mValue);
-        	values.put(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE, mExtraValue);
-        	
-        	return values;
-        }
+
+		/**
+		 * Returns a list of PromptResponse objects from the given cursor.
+		 * 
+		 * @param cursor a cursor containing the fields specified in the PromptResponse schema, which is closed when this method returns.
+		 * @return a List of PromptResponse objects
+		 */
+		public static List<PromptResponse> fromCursor(Cursor cursor) {
+
+			ArrayList<PromptResponse> prompts = new ArrayList<PromptResponse>();
+
+			cursor.moveToFirst();
+
+			for (int i = 0; i < cursor.getCount(); i++) {
+
+				PromptResponse temp = new PromptResponse();
+				temp._id = cursor.getLong(cursor.getColumnIndex(PromptResponses._ID));
+				temp.mResponseID = cursor.getLong(cursor.getColumnIndex(PromptResponses.RESPONSE_ID));
+				temp.mCompositeID = cursor.getString(cursor.getColumnIndex(PromptResponses.COMPOSITE_ID));
+				temp.mPromptID = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_ID));
+				temp.mValue = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE));
+				temp.mExtraValue = cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE));
+				prompts.add(temp);
+
+				cursor.moveToNext();
+			}
+
+			cursor.close();
+
+			return prompts; 
+		}
+
+		public ContentValues toCV() {
+			ContentValues values = new ContentValues();
+
+			values.put(PromptResponses.RESPONSE_ID, mResponseID);
+			values.put(PromptResponses.COMPOSITE_ID, mCompositeID);
+			values.put(PromptResponses.PROMPT_ID, mPromptID);
+			values.put(PromptResponses.PROMPT_RESPONSE_VALUE, mValue);
+			values.put(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE, mExtraValue);
+
+			return values;
+		}
 
 		/**
 		 * Parses integer data points to be used with a chart. This function expects
 		 * all prompts in the cursor to be the same
 		 * @param cursor
-		 * @param limit
+		 * @param limit. limit of points to return offset from the newest. If negative, no limit will be applied
 		 * @return
 		 */
 		public static double[] getIntegerData(Cursor cursor, int limit) {
-			ArrayList<Integer> data = new ArrayList<Integer>();
-			cursor.moveToLast();
-			cursor.move(-limit);
-			Integer value;
-			while(cursor.moveToNext()) {
-				value = getIntegerPoint(cursor, 0);
-				if(value != null)
-					data.add(value);
-			}
-			return Utilities.toArray(data);
+			return getPartitionedData(cursor, limit, new long[0]).get(0);
 		}
 
 		/**
@@ -679,5 +671,65 @@ public class Models {
 			c.close();
 			return data;
 		}
+
+		/**
+		 * Partitions the data into groups according to the list of partitions
+		 * provided. Partition values include all points up to but not including
+		 * the partition value. If a response falls exactly on a partition, it
+		 * will be included in the next group
+		 * 
+		 * @param cursor
+		 * @param limit. limit of points to return offset from the newest. If negative, no limit will be applied
+		 * @param partitions. list of partitions for grouping
+		 * @return a list of double[] divided by partitions
+		 */
+		public static List<double[]> getPartitionedData(Cursor cursor, int limit, long... partitions) {
+			LinkedList<double[]> ret = new LinkedList<double[]>();
+			ArrayList<Integer> data = new ArrayList<Integer>();
+			Integer value;
+			if(limit >= 0) {
+				cursor.moveToLast();
+				cursor.move(-limit);
+			}
+			while(cursor.moveToNext()) {
+				while(ret.size() < partitions.length && cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)) >= partitions[ret.size()]) {
+					ret.add(Utilities.toArray(data));
+					data = new ArrayList<Integer>();
+				}
+
+				value = getIntegerPoint(cursor, 0);
+				if(value != null)
+					data.add(value);
+			}
+			ret.add(Utilities.toArray(data));
+
+			// add empty sets at the end if there should be any
+			while(ret.size() < partitions.length)
+				ret.add(new double[0]);
+			return ret;
+		}
+
+
+		/**
+		 * Partitions the data into groups according to the list of partitions
+		 * provided. Partition values include all points up to but not including
+		 * the partition value. If a response falls exactly on a partition, it
+		 * will be included in the next group
+		 * 
+		 * @param cursor
+		 * @param partitions. list of partitions for grouping
+		 * @return a list of double[] divided by partitions
+		 */
+		public static List<double[]> getPartitionedData(Cursor cursor, long... partitions) {
+			return getPartitionedData(cursor, -1, partitions);
+		}
+
+		public static List<double[]> getPartitionedData(Context context, String campaignUrn, String promptId, long... partitions) {
+			Cursor c = context.getContentResolver().query(PromptResponses.getPromptsByCampaign(campaignUrn, promptId), new String[] { PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE, Responses.RESPONSE_TIME }, null, null,  Responses.RESPONSE_TIME);
+			List<double[]> data = getPartitionedData(c, partitions);
+			c.close();
+			return data;
+		}
+
 	}
 }
