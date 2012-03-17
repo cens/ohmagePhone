@@ -647,7 +647,7 @@ public class Models {
 			cursor.move(-limit);
 			Integer value;
 			while(cursor.moveToNext()) {
-				value = getIntegerPoint(cursor);
+				value = getIntegerPoint(cursor, 0);
 				if(value != null)
 					data.add(value);
 			}
@@ -659,16 +659,10 @@ public class Models {
 		 * @param cursor a {@link PromptResponses} cursor which has been moved to the correct position
 		 * @return the integer value associated with that point if there is one, null otherwise
 		 */
-		public static Integer getIntegerPoint(Cursor cursor) {
-			try {
-				return Integer.parseInt(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)));
-			} catch(NumberFormatException e)	{
-				try {
-					return Integer.parseInt(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE)));
-				} catch(NumberFormatException e2)	{
-					return null;
-				}
-			}
+		public static Integer getIntegerPoint(Cursor cursor, int columnExtra) {
+			if(!cursor.isNull(columnExtra))
+				return cursor.getInt(columnExtra);
+			return null;
 		}
 
 		/**
@@ -680,7 +674,7 @@ public class Models {
 		 * @return the data points associated with a prompt id for a campaign
 		 */
 		public static double[] getData(Context context, String campaignUrn, String promptId, int limit) {
-			Cursor c = context.getContentResolver().query(PromptResponses.getPromptsByCampaign(campaignUrn, promptId), new String[] { PromptResponses.PROMPT_RESPONSE_VALUE, PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE }, null, null, null);
+			Cursor c = context.getContentResolver().query(PromptResponses.getPromptsByCampaign(campaignUrn, promptId), new String[] { PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE }, null, null, null);
 			double[] data = getIntegerData(c, limit);
 			c.close();
 			return data;

@@ -97,6 +97,8 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 		data.moveToPosition(-1);
 		mAdapter.clear();
 
+		int extraIndex = data.getColumnIndex(PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE);
+
 		HashMap<String,double[]> histogramData = new HashMap<String,double[]>();
 		HashMap<String,LinkedList<int[]>> bubblePrompts = new HashMap<String,LinkedList<int[]>>();
 		for(String prompt : mPrompts) {
@@ -128,7 +130,7 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 			while(data.moveToNext() && DateUtils.isToday(data.getLong(0) + DateUtils.DAY_IN_MILLIS * i)) {
 				promptId = data.getString(1);
 
-				Integer dataPoint = PromptResponse.getIntegerPoint(data);
+				Integer dataPoint = PromptResponse.getIntegerPoint(data, extraIndex);
 				if(dataPoint != null) {
 					String prompt = NIHConfig.getPrompt(promptId);
 					if(getChartType(prompt) == HISTOGRAM_TYPE && dataPoint > histogramData.get(prompt)[i]) {
