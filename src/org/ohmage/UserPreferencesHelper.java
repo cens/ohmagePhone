@@ -30,6 +30,7 @@ public class UserPreferencesHelper {
 	public static final String KEY_SHOW_PROFILE = "key_show_profile";
 	public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
 	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
+	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
 
 	private final SharedPreferences mPreferences;
 
@@ -55,5 +56,9 @@ public class UserPreferencesHelper {
 	
 	public boolean showMobility() {
 		return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
+	}
+
+	public static long getBaseLineEndTime(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getLong(KEY_BASELINE_END_TIME, 0);
 	}
 }

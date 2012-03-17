@@ -24,6 +24,7 @@
     <string name="logout">Logout</string>
     <string name="confirm">Confirm</string>
     <string name="all">All</string>
+    <string name="set">Set</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -224,6 +225,7 @@
     <string name="preferences_profile_title">Profile</string>
     <string name="preferences_upload_queue_title">Upload Queue</string>
     <string name="preferences_mobility_title">Mobility</string>
+    <string name="preferences_baseline_endtime_title">Baseline End Date</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
