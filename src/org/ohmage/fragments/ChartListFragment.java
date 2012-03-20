@@ -37,7 +37,7 @@ public class ChartListFragment extends ListFragment implements LoaderCallbacks<C
 
 	private static final String PROMPTS = "prompts";
 
-	private static final int MAX_POINTS = 30;
+	private static final int MAX_POINTS = 10;
 
 	private static final int UNKNOWN_TYPE = -1;
 	private static final int HISTOGRAM_TYPE = 0;
