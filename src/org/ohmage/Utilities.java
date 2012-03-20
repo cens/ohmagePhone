@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Random;
 
 
 public class Utilities {
@@ -108,40 +107,6 @@ public class Utilities {
         return sb.toString();
 	}
 
-	/**
-	 * Calculates the average, min, and max of an array of doubles
-	 * @param ds
-	 * @return an array formatted as [ min, max, average, average per week ]
-	 */
-	public static double[] stats(double...ds) {
-		return stats(null, ds);
-	}
-
-	/**
-	 * Calculates the average, min, and max of an array of doubles
-	 * @param mapper  a {@link DataMapper} which maps data to values for this array
-	 * @param ds
-	 * @return an array formatted as [ min, max, average, average per week ]
-	 */
-	public static double[] stats(DataMapper mapper, double...ds) {
-		if(mapper == null)
-			mapper = linearDataMapper;
-		double sum = 0.0;
-		double min = Double.MAX_VALUE;
-		double max = Double.MIN_VALUE;
-		if(ds == null)
-			ds = new double[0];
-		for (int i = 0; i < ds.length; i++) {
-			double value = mapper.translate(ds[i]);
-			sum += value;
-			if(value < min)
-				min = value;
-			if(value > max)
-				max = value;
-		}
-		return new double[]{ min, max, sum / ds.length, sum / (ds.length / 7.0) };
-	}
-
 	public static final DataMapper linearDataMapper = new DataMapper() {
 		@Override
 		public double translate(double d) {
@@ -151,21 +116,6 @@ public class Utilities {
 
 	public interface DataMapper {
 		public double translate(double d);
-	}
-
-	/**
-	 * Generates an array of random doubles that are useful when graphing
-	 * @param length
-	 * @param max
-	 * @return
-	 */
-	public static double[] randomData(int length, double max) {
-		double[] values = new double[length];
-
-		Random r = new Random();
-		for (int i = 0; i < values.length; i++)
-			values[i] = Math.abs(r.nextDouble() * max);
-		return values;
 	}
 
 	/**

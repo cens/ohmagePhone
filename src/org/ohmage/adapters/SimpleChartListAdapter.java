@@ -4,7 +4,6 @@ import org.achartengine.GraphicalView;
 import org.achartengine.chart.XYChart;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.ohmage.R;
-import org.ohmage.Utilities;
 import org.ohmage.Utilities.DataMapper;
 import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
 
@@ -13,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
-import java.text.NumberFormat;
 import java.util.List;
 
 public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYChart>> extends ArrayAdapter<T> {
@@ -70,10 +68,6 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 
 		public GraphicalView getGraph(Context context) {
 			return new GraphicalView(context, getChart(context));
-		}
-
-		public String stats() {
-			return NumberFormat.getInstance().format(Utilities.stats(mapper, data)[3]) + " " + yLabel + " a week on average";
 		}
 
 		public int getColor(Context context) {
