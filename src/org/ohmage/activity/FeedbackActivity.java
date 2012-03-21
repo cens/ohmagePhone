@@ -7,6 +7,7 @@ import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.fragments.RecentChartFragment;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 import org.ohmage.ui.BaseActivity;
 
 import android.content.Intent;
@@ -20,11 +21,15 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.Button;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class FeedbackActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = "FeedbackActivity";
+
+	private static final int MAX_DATA_COLUMNS = 10;
 
 	/**
 	 * true when the charts have been loaded
@@ -43,10 +48,9 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 
 		if (getSupportFragmentManager().findFragmentById(R.id.feedback_chart_container) == null) {
 			Fragment chartFragment = new RecentChartFragment() {
-
 				@Override
-				public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-					super.onLoadFinished(loader, data);
+				public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
+					super.onPromptReadFinished(feedbackItems);
 					mChartsLoaded = true;
 					maybeShowContent();
 				}
@@ -102,7 +106,7 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new CursorLoader(FeedbackActivity.this, Responses.CONTENT_URI,
 				new String[] { Responses.RESPONSE_TIME },
-				null, null, Responses.RESPONSE_TIME + " DESC");
+				Responses.RESPONSE_TIME + " < " + System.currentTimeMillis(), null, Responses.RESPONSE_TIME + " DESC");
 	}
 
 	@Override
@@ -112,14 +116,17 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		List<FeedbackItem> values = new LinkedList<FeedbackItem>();
 
-		double[] values = new double[10];
-		Arrays.fill(values, 0);
-
-		for(int i=0;i<values.length;i++) {
+		for(int i=0;i<MAX_DATA_COLUMNS;i++) {
+			FeedbackItem point = new FeedbackItem();
+			point.time = System.currentTimeMillis() - DateUtils.DAY_IN_MILLIS * i;
+			point.value = 0.0;
+			// Count up the data for each day
 			while(data.moveToNext() && DateUtils.isToday(data.getLong(0) + DateUtils.DAY_IN_MILLIS * i)) {
-				values[i]++;
+				point.value++;
 			}
+			values.add(point);
 			data.moveToPrevious();
 		}
 

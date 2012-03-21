@@ -75,13 +75,13 @@ public class ChartFeedbackActivity extends BaseActivity {
 		private String[] getPrompts(int position) {
 			switch(position) {
 				case 0:
-					return new String[] { NIHConfig.Prompt.FOOD_QUALITY_ID, NIHConfig.Prompt.FOOD_QUANTITY_ID, NIHConfig.Prompt.HOW_STRESSED_ID, NIHConfig.Prompt.TIME_TO_YOURSELF_ID, NIHConfig.Prompt.DID_EXERCISE_ID };
+					return new String[] { NIHConfig.SQL.FOOD_QUALITY_ID, NIHConfig.SQL.FOOD_QUANTITY_ID, NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.TIME_TO_YOURSELF_ID, NIHConfig.SQL.DID_EXERCISE_ID };
 				case 1:
-					return new String[] { NIHConfig.Prompt.FOOD_QUALITY_ID, NIHConfig.Prompt.FOOD_QUANTITY_ID };
+					return new String[] { NIHConfig.SQL.FOOD_QUALITY_ID, NIHConfig.SQL.FOOD_QUANTITY_ID };
 				case 2:
-					return new String[] { NIHConfig.Prompt.HOW_STRESSED_ID, NIHConfig.Prompt.TIME_TO_YOURSELF_ID };
+					return new String[] { NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.TIME_TO_YOURSELF_ID };
 				case 3:
-					return new String[] { NIHConfig.Prompt.DID_EXERCISE_ID };
+					return new String[] { NIHConfig.SQL.DID_EXERCISE_ID };
 				default:
 					throw new RuntimeException("Invalid position");
 			}

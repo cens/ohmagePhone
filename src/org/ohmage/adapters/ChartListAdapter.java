@@ -9,6 +9,7 @@ import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.charts.HistogramBubble;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
 import android.view.View;
@@ -23,12 +24,12 @@ public class ChartListAdapter extends SimpleChartListAdapter<ChartItem<? extends
 
 		HistogramRenderer mRenderer;
 
-		public HistogramChartItem(String title, double[] data, int color, Integer min, Integer max, String yLabel, HistogramRenderer renderer) {
+		public HistogramChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max, String yLabel, HistogramRenderer renderer) {
 			super(title, data, color, min, max, yLabel);
 			mRenderer = renderer;
 		}
 
-		public HistogramChartItem(String title, double[] data, int color, Integer min, Integer max, String yLabel, HistogramRenderer renderer, DataMapper mapper) {
+		public HistogramChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max, String yLabel, HistogramRenderer renderer, DataMapper mapper) {
 			super(title, data, color, min, max, yLabel, mapper);
 			mRenderer = renderer;
 		}
@@ -41,18 +42,16 @@ public class ChartListAdapter extends SimpleChartListAdapter<ChartItem<? extends
 
 	public static class BubbleChartItem extends SimpleChartListAdapter.ChartItem<BubbleChart>{
 
-		private final List<int[]> mData;
 		private final CleanRenderer mRenderer;
 
-		public BubbleChartItem(String title, List<int[]> data, int color, Integer min, Integer max, String yLabel, int averageIndex, CleanRenderer renderer) {
-			super(title, new double[0], color, min, max, yLabel);
-			mData = data;
+		public BubbleChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max, String yLabel, int averageIndex, CleanRenderer renderer) {
+			super(title, data, color, min, max, yLabel);
 			mRenderer = renderer;
 		}
 
 		@Override
 		public BubbleChart makeChart(Context context) {
-			return new HistogramBubble(context, mRenderer, mData);
+			return new HistogramBubble(context, mRenderer, data);
 		}
 	}
 

@@ -2,16 +2,16 @@
 package org.ohmage.charts;
 
 import org.achartengine.chart.BarChart;
-import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.text.format.DateUtils;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,6 +21,8 @@ import java.util.List;
  */
 public class Histogram extends BarChart {
 
+	private static final int MAX_DAYS = 30;
+
 	transient private HistogramBase mBase;
 
 	/**
@@ -28,22 +30,22 @@ public class Histogram extends BarChart {
 	 * 
 	 * @param context
 	 * @param renderer A renderer can be specified
-	 * @param values must be an array and have an entry for each day. The last entry
+	 * @param data must be an array and have an entry for each day. The last entry
 	 * in the array is the value for 'today'. The second to last entry should be
 	 * 'yesterday' etc.
 	 */
-	public Histogram(Context context, HistogramRenderer renderer,  double[] values) {
-		super(buildDataSet(values), (renderer != null ? renderer : new HistogramRenderer(context)), BarChart.Type.DEFAULT);
+	public Histogram(Context context, HistogramRenderer renderer, List<FeedbackItem> data) {
+		super(buildDataSet(data), (renderer != null ? renderer : new HistogramRenderer(context)), BarChart.Type.DEFAULT);
 		mBase = new HistogramBase(this);
 		mBase.fitData();
 		mBase.setDateFormat("MMM d");
 	}
 
-	public Histogram(Context context, double[] values) {
-		this(context, null, values);
+	public Histogram(Context context, List<FeedbackItem> data) {
+		this(context, null, data);
 	}
 
-	public Histogram(Context context, HistogramRenderer renderer, double[] data, int color) {
+	public Histogram(Context context, HistogramRenderer renderer, List<FeedbackItem> data, int color) {
 		this(context, renderer, data);
 		getRenderer().getSeriesRendererAt(0).setColor(context.getResources().getColor(color));
 	}
@@ -64,40 +66,19 @@ public class Histogram extends BarChart {
 	 * It expects exactly one number for each day. values[0] will be interpreted
 	 * as today. values[N] will be interpreted as N days ago.
 	 * 
-	 * @param values
+	 * @param data
 	 * @return
 	 */
-	private static XYMultipleSeriesDataset buildDataSet(double[] values) {
+	private static XYMultipleSeriesDataset buildDataSet(List<FeedbackItem> data) {
 		XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
 		XYSeries series = new XYSeries("");
-		for (int i = 0; i < values.length; i++)
-			series.add(-i, values[i]);
+
+		for(FeedbackItem item : data) {
+			if(item.time > System.currentTimeMillis() - DateUtils.DAY_IN_MILLIS * MAX_DAYS)
+				series.add((item.time - System.currentTimeMillis()) / DateUtils.DAY_IN_MILLIS, item.value);
+		}
+		
 		dataSet.addSeries(series);
 		return dataSet;
-	}
-
-	/**
-	 * Builds an XY multiple time dataset using the provided values.
-	 * 
-	 * @param titles the series titles
-	 * @param xValues the values for the X axis
-	 * @param yValues the values for the Y axis
-	 * @return the XY multiple time dataset
-	 */
-	protected XYMultipleSeriesDataset buildDateDataset(String[] titles, List<Date[]> xValues,
-			List<double[]> yValues) {
-		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-		int length = titles.length;
-		for (int i = 0; i < length; i++) {
-			TimeSeries series = new TimeSeries(titles[i]);
-			Date[] xV = xValues.get(i);
-			double[] yV = yValues.get(i);
-			int seriesLength = xV.length;
-			for (int k = 0; k < seriesLength; k++) {
-				series.add(xV[k], yV[k]);
-			}
-			dataset.addSeries(series);
-		}
-		return dataset;
 	}
 }

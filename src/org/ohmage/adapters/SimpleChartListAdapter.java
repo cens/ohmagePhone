@@ -6,6 +6,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.ohmage.R;
 import org.ohmage.Utilities.DataMapper;
 import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
 import android.view.View;
@@ -18,7 +19,7 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 
 	public static abstract class ChartItem<T extends XYChart> {
 		public String title;
-		public double[] data;
+		public List<FeedbackItem> data;
 		private int color;
 		public int colorValue = -1;
 		protected final String yLabel;
@@ -26,15 +27,15 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 		private Integer min;
 		private Integer max;
 
-		public ChartItem(String title, double[] data, int color, Integer min, Integer max) {
+		public ChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max) {
 			this(title, data, color, min, max, "hours", null);
 		}
 
-		public ChartItem(String title, double[] data, int color, Integer min, Integer max, String yLabel) {
+		public ChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max, String yLabel) {
 			this(title, data, color, min, max, yLabel, null);
 		}
 
-		public ChartItem(String title, double[] data, int color, Integer min, Integer max, String yLabel, DataMapper mapper) {
+		public ChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max, String yLabel, DataMapper mapper) {
 			this.title = title;
 			this.data = data;
 			this.color = color;

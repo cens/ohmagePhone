@@ -5,11 +5,14 @@ import org.achartengine.chart.BubbleChart;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYValueSeries;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.text.format.DateUtils;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -19,6 +22,8 @@ import java.util.List;
  */
 public class HistogramBubble extends BubbleChart {
 
+	private static final long MAX_DAYS = 10;
+
 	transient private HistogramBase mBase;
 
 	/**
@@ -26,22 +31,20 @@ public class HistogramBubble extends BubbleChart {
 	 * 
 	 * @param context
 	 * @param renderer A renderer can be specified
-	 * @param values must be an array and have an entry for each day. The last entry
-	 * in the array is the value for 'today'. The second to last entry should be
-	 * 'yesterday' etc.
+	 * @param data is a list of FeedbackItems
 	 */
-	public HistogramBubble(Context context, CleanRenderer renderer,  List<int[]> values) {
-		super(buildDataSet(values), (renderer != null ? renderer : new CleanRenderer()));
+	public HistogramBubble(Context context, CleanRenderer renderer, List<FeedbackItem> data) {
+		super(buildDataSet(data), (renderer != null ? renderer : new CleanRenderer()));
 		mBase = new HistogramBase(this);
 		mBase.fitData();
 		mBase.setDateFormat("MMM d");
 	}
 
-	public HistogramBubble(Context context, List<int[]> values) {
+	public HistogramBubble(Context context, List<FeedbackItem> values) {
 		this(context, null, values);
 	}
 
-	public HistogramBubble(Context context, CleanRenderer renderer, List<int[]> data, int color) {
+	public HistogramBubble(Context context, CleanRenderer renderer, List<FeedbackItem> data, int color) {
 		this(context, renderer, data);
 		getRenderer().getSeriesRendererAt(0).setColor(context.getResources().getColor(color));
 	}
@@ -62,23 +65,40 @@ public class HistogramBubble extends BubbleChart {
 	 * It expects exactly one number for each day. values[0] will be interpreted
 	 * as today. values[N] will be interpreted as N days ago.
 	 * 
-	 * @param values
+	 * @param data
 	 * @return
 	 */
-	private static XYMultipleSeriesDataset buildDataSet(List<int[]> values) {
+	private static XYMultipleSeriesDataset buildDataSet(List<FeedbackItem> data) {
 		XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
 		XYValueSeries series = new XYValueSeries("");
 
-		if(values != null) {
-			for(int i=0;i < values.size(); i++) {
-				int[] dp = values.get(i);
-				for(int j=0;j<dp.length;j++)
-					series.add(-i, j, dp[j]);
+		HashMap<Long, HashMap<Integer, Integer>> distribution = new HashMap<Long, HashMap<Integer, Integer>>();
+
+		for(FeedbackItem item : data) {
+			if(item.time > System.currentTimeMillis() - DateUtils.DAY_IN_MILLIS * MAX_DAYS) {
+				long day = (item.time - System.currentTimeMillis()) / DateUtils.DAY_IN_MILLIS;
+				HashMap<Integer,Integer> dayData = distribution.get(day);
+				if(dayData == null) {
+					dayData = new HashMap<Integer,Integer>();
+					distribution.put(day, dayData);
+				}
+
+				Integer i = dayData.get(item.value.intValue());
+				if(i == null)
+					i = 0;
+				dayData.put(item.value.intValue(), i+1);
+
+			}
+		}
+
+		for(Long day : distribution.keySet()) {
+			HashMap<Integer, Integer> dayDist = distribution.get(day);
+			for(Integer key : dayDist.keySet()) {
+				series.add(day, key, dayDist.get(key));
 			}
 		}
 
 		dataSet.addSeries(series);
 		return dataSet;
 	}
-
 }

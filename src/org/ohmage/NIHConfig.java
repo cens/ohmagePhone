@@ -7,6 +7,7 @@ import org.ohmage.adapters.ChartListAdapter.HistogramChartItem;
 import org.ohmage.adapters.SparklineAdapter.SparkLineChartItem;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import java.util.List;
 
@@ -50,15 +51,15 @@ public class NIHConfig {
 			this.goodValue = goodValue;
 		}
 
-		public HistogramChartItem toHistogramChartItem(double[] data, HistogramRenderer r) {
+		public HistogramChartItem toHistogramChartItem(List<FeedbackItem> data, HistogramRenderer r) {
 			return new HistogramChartItem(shortName, data, colorId, min, max, label, r, mapper);
 		}
 
-		public BubbleChartItem toBubbleChartItem(List<int[]> data, CleanRenderer r) {
+		public BubbleChartItem toBubbleChartItem(List<FeedbackItem> data, CleanRenderer r) {
 			return new BubbleChartItem(shortName, data, colorId, min, max, label, goodValue, r);
 		}
 
-		public SparkLineChartItem toSparkLineChartItem(double[] data) {
+		public SparkLineChartItem toSparkLineChartItem(List<FeedbackItem> data) {
 			return new SparkLineChartItem(shortName, data, colorId, min, max);
 		}
 
@@ -106,6 +107,12 @@ public class NIHConfig {
 
 	private static final ExtraPromptData DID_EXERCISE = new ExtraPromptData("Did Exercise",
 			"didYouExercise", R.color.light_green, 0, 1, "times");
+
+	public static final String[] PROMPT_LIST = new String[] {
+			NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.FOOD_QUALITY_ID,
+			NIHConfig.SQL.FOOD_QUANTITY_ID, NIHConfig.SQL.DID_EXERCISE_ID,
+			NIHConfig.SQL.TIME_TO_YOURSELF_ID
+	};
 
 	public static ExtraPromptData getExtraPromptData(String promptId) {
 		if (promptId.startsWith(Prompt.HOW_STRESSED_ID))

@@ -4,6 +4,7 @@ import org.ohmage.R;
 import org.ohmage.Utilities;
 import org.ohmage.adapters.SparklineAdapter.SparkLineChartItem;
 import org.ohmage.charts.SparkLine;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
 
@@ -14,7 +15,7 @@ public class SparklineAdapter extends SimpleChartListAdapter<SparkLineChartItem>
 
 	public static class SparkLineChartItem extends SimpleChartListAdapter.ChartItem<SparkLine>{
 
-		public SparkLineChartItem(String title, double[] data, int color, Integer min, Integer max) {
+		public SparkLineChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max) {
 			super(title, data, color, min, max);
 		}
 
