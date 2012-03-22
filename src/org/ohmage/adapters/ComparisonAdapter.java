@@ -122,7 +122,7 @@ public class ComparisonAdapter extends ArrayAdapter<ComparisonAdapterItem>{
 			}
 
 			NumberFormat mFormat = NumberFormat.getInstance();
-			mFormat.setMaximumFractionDigits(1);
+			mFormat.setMaximumFractionDigits(0);
 			return mFormat.format(Double.valueOf(count) / values.size() * 100) + "%";
 
 		}
