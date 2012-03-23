@@ -60,7 +60,7 @@ public class FilterControl extends LinearLayout {
 		this.setLayoutParams(params);
 		this.setOrientation(HORIZONTAL);
 		this.setPadding(0, 0, 0, dpToPixels(1));
-		this.setBackgroundResource(R.drawable.controls_filter_bkgnd);
+		this.setBackgroundResource(R.color.lightergray);
 		
 		// load up the elements of the actionbar from controls_filter.xml
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

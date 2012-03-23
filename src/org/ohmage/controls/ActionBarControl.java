@@ -33,7 +33,7 @@ public class ActionBarControl extends LinearLayout {
 	
 	// functionality
 	private final List<ImageButton> mActionButtons;
-	private final List<ImageView> mSeparators;
+	private final List<View> mSeparators;
 	private ActionListener mActionBarClickedListener;
 	private final OnClickListener mActionButtonClickListener;
 	
@@ -84,7 +84,7 @@ public class ActionBarControl extends LinearLayout {
 		
 		// holds a list of buttons that we manage
 		mActionButtons = new ArrayList<ImageButton>();
-		mSeparators = new ArrayList<ImageView>();
+		mSeparators = new ArrayList<View>();
 		
 		// apply the xml-specified attributes, too
 		initStyles(attrs);
@@ -177,7 +177,7 @@ public class ActionBarControl extends LinearLayout {
 	public void addActionBarCommand(int buttonID, String description, int resID) {
 		// inflate a new separator and button from the dashboard templates
 		// we're doing this mostly to add a predefined style to the view/button, which is currently impossible without xml
-		ImageView newSeparator = (ImageView) mActivity.getLayoutInflater().inflate(R.layout.controls_actionbar_separator, null);
+		View newSeparator = mActivity.getLayoutInflater().inflate(R.layout.controls_actionbar_separator, this);
 		ImageButton newButton = (ImageButton) mActivity.getLayoutInflater().inflate(R.layout.controls_actionbar_button, null);
 		
 		newButton.setId(buttonID);
@@ -191,7 +191,6 @@ public class ActionBarControl extends LinearLayout {
 		mActionButtons.add(newButton);
 		
 		// add to the parent layout now
-		this.addView(newSeparator, new LayoutParams(1, LayoutParams.FILL_PARENT));
 		this.addView(newButton, new LayoutParams(dpToPixels(45), LayoutParams.FILL_PARENT));
 	}
 	
@@ -201,7 +200,7 @@ public class ActionBarControl extends LinearLayout {
 	public void clearActionBarCommands() {
 		for (ImageButton button : mActionButtons)
 			removeView(button);
-		for (ImageView sep : mSeparators)
+		for (View sep : mSeparators)
 			removeView(sep);
 	}
 	
