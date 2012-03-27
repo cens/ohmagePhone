@@ -24,4 +24,10 @@
     <!-- Upload Layout -->
     <dimen name="upload_all_container_height">50dp</dimen>
     <dimen name="upload_mobility_container_height">65dp</dimen>
+    
+    <dimen name="button_padding">8.0dip</dimen>
+    <dimen name="font_size_large">16.0sp</dimen>
+    <dimen name="font_size_default">14.0sp</dimen>
+    <dimen name="font_size_small">12.0sp</dimen>
+    <dimen name="font_size_xsmall">10.0sp</dimen>
 </resources>
