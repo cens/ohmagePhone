@@ -15,9 +15,6 @@
  */
 package org.achartengine.chart;
 
-import java.io.Serializable;
-import java.util.List;
-
 import org.achartengine.model.Point;
 import org.achartengine.model.SeriesSelection;
 import org.achartengine.renderer.DefaultRenderer;
@@ -32,6 +29,9 @@ import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.RectF;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * An abstract class to be implemented by the chart rendering classes.
@@ -95,7 +95,7 @@ public abstract class AbstractChart implements Serializable {
    */
   protected int drawLegend(Canvas canvas, DefaultRenderer renderer, String[] titles, int left,
       int right, int y, int width, int height, int legendSize, Paint paint, boolean calculate) {
-    float size = 32;
+    float size = height / 2;
     if (renderer.isShowLegend()) {
       float currentX = left;
       float currentY = y + height - legendSize + size;
@@ -108,7 +108,7 @@ public abstract class AbstractChart implements Serializable {
         if (titles.length == renderer.getSeriesRendererCount()) {
           paint.setColor(renderer.getSeriesRendererAt(i).getColor());
         } else {
-          paint.setColor(Color.LTGRAY);
+          paint.setColor(Color.GRAY);
         }
         float[] widths = new float[text.length()];
         paint.getTextWidths(text, widths);
@@ -116,7 +116,7 @@ public abstract class AbstractChart implements Serializable {
         for (float value : widths) {
           sum += value;
         }
-        float extraSize = lineSize + 10 + sum;
+        float extraSize = lineSize + 35 + sum;
         float currentWidth = currentX + extraSize;
 
         if (i > 0 && getExceed(currentWidth, renderer, right, width)) {

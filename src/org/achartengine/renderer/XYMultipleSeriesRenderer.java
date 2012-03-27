@@ -73,19 +73,23 @@ public class XYMultipleSeriesRenderer extends DefaultRenderer {
   /** The Y axis labels rotation angle. */
   private float mYLabelsAngle;
   /** The initial axis range. */
-  private Map<Integer, double[]> initialRange = new LinkedHashMap<Integer, double[]>();
+  private final Map<Integer, double[]> initialRange = new LinkedHashMap<Integer, double[]>();
   /** The point size for charts displaying points. */
   private float mPointSize = 3;
   /** The grid color. */
   private int mGridColor = Color.argb(75, 200, 200, 200);
   /** The number of scales. */
-  private int scalesCount;
+  private final int scalesCount;
   /** The X axis labels alignment. */
   private Align xLabelsAlign = Align.CENTER;
   /** The Y axis labels alignment. */
   private Align[] yLabelsAlign;
   /** The Y axis alignment. */
   private Align[] yAxisAlign;
+  /** draw axes below series **/
+  private boolean mDrawAxesBelowSeries;
+  /** draw the y-axis **/
+  private boolean mShowYAxis = true;
 
   /**
    * An enum for the XY chart orientation of the X axis.
@@ -1021,6 +1025,22 @@ public class XYMultipleSeriesRenderer extends DefaultRenderer {
 
   public int getScalesCount() {
     return scalesCount;
+  }
+
+  public boolean drawAxesBelowSeries() {
+	  return mDrawAxesBelowSeries;
+  }
+
+  public void setDrawAxesBelowSeries(boolean below) {
+	  mDrawAxesBelowSeries = below;
+  }
+
+  public boolean isShowYAxis() {
+	  return mShowYAxis;
+  }
+
+  public void setShowYAxis(boolean show) {
+	  mShowYAxis = show;
   }
 
 }

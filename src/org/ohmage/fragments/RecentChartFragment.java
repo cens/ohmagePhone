@@ -20,11 +20,6 @@ import java.util.LinkedList;
 public class RecentChartFragment extends PromptFeedbackFragment {
 
 	/**
-	 * Maximum number of sparklines to show
-	 */
-	private static final int MAX_CHARTS = 3;
-
-	/**
 	 * Creates a new instance of the recent chart fragment
 	 * @return the chart fragment
 	 */
@@ -60,12 +55,10 @@ public class RecentChartFragment extends PromptFeedbackFragment {
 	@Override
 	public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
 
-		for(String key : feedbackItems.keySet()) {
-			if(mAdapter.getCount() < MAX_CHARTS) {
-				LinkedList<FeedbackItem> list = feedbackItems.get(key);
-				if(list != null && !list.isEmpty()) {
-					mAdapter.add(NIHConfig.getExtraPromptData(key).toSparkLineChartItem(list));
-				}
+		for(String key : NIHConfig.PROMPT_LIST) {
+			LinkedList<FeedbackItem> list = feedbackItems.get(NIHConfig.getPrompt(key));
+			if(list != null && !list.isEmpty()) {
+				mAdapter.add(NIHConfig.getExtraPromptData(key).toSparkLineChartItem(list));
 			}
 		}
 

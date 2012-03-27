@@ -34,9 +34,9 @@ public class ScatterChart extends XYChart {
   /** The default point shape size. */
   private static final float SIZE = 3;
   /** The legend shape width. */
-  private static final int SHAPE_WIDTH = 10;
+  private static final int SHAPE_WIDTH = 20;
   /** The point shape size. */
-  private float size = SIZE;
+  protected float size = SIZE;
 
   ScatterChart() {
   }
@@ -154,22 +154,22 @@ public class ScatterChart extends XYChart {
     }
     switch (((XYSeriesRenderer) renderer).getPointStyle()) {
     case X:
-      drawX(canvas, paint, x + SHAPE_WIDTH, y);
+      drawX(canvas, paint, x, y);
       break;
     case CIRCLE:
-      drawCircle(canvas, paint, x + SHAPE_WIDTH, y);
+      drawCircle(canvas, paint, x + size, y);
       break;
     case TRIANGLE:
-      drawTriangle(canvas, paint, new float[6], x + SHAPE_WIDTH, y);
+      drawTriangle(canvas, paint, new float[6], x, y);
       break;
     case SQUARE:
-      drawSquare(canvas, paint, x + SHAPE_WIDTH, y);
+      drawSquare(canvas, paint, x, y);
       break;
     case DIAMOND:
-      drawDiamond(canvas, paint, new float[8], x + SHAPE_WIDTH, y);
+      drawDiamond(canvas, paint, new float[8], x, y);
       break;
     case POINT:
-      canvas.drawPoint(x + SHAPE_WIDTH, y, paint);
+      canvas.drawPoint(x, y, paint);
       break;
     }
   }

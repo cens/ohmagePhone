@@ -1,22 +1,30 @@
 package org.ohmage.adapters;
 
+import org.achartengine.GraphicalView;
+import org.achartengine.chart.PointStyle;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.SimpleSeriesRenderer;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.ohmage.NIHConfig;
+import org.ohmage.NIHConfig.ExtraPromptData;
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
-import org.ohmage.Utilities.DataMapper;
 import org.ohmage.adapters.ComparisonAdapter.ComparisonAdapterItem;
+import org.ohmage.charts.OhmageLineChart;
+import org.ohmage.charts.OhmageLineChart.OhmageLineRenderer;
+import org.ohmage.charts.OhmageLineChart.OhmageLineSeriesRenderer;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
-import android.graphics.Typeface;
+import android.graphics.Color;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -25,21 +33,28 @@ public class ComparisonAdapter extends ArrayAdapter<ComparisonAdapterItem>{
 	private static final String TAG = "ComparisionAdapter";
 
 	public static class ComparisonAdapterItem {
-		String title;
-		String baseLine;
-		String lastWeek;
-		String current;
 
-		public static final int AVG = 0;
-		public static final int WEEKAVG = 1;
-		public static final int PERCENT = 2;
-		public static final int WEEKPERCENT = 3;
+		public static final PointStyle POINT_STYLE_CURRENT = PointStyle.CIRCLE;
+		public static final PointStyle POINT_STYLE_LAST_WEEK = PointStyle.RECTANGLE;
+		public static final PointStyle POINT_STYLE_BASE_LINE = PointStyle.DASHED_LINE;
 
-		public ComparisonAdapterItem(String title) {
-			this.title = title;
+
+		private double baseLine;
+		private double lastWeek;
+		private double current;
+		private final ExtraPromptData mPrompt;
+		private OhmageLineChart mChart;
+
+		public ComparisonAdapterItem(NIHConfig.ExtraPromptData prompt) {
+			mPrompt = prompt;
 		}
 
-		public void setData(Context context, LinkedList<FeedbackItem> data, DataMapper mapper, int type) {
+		public ComparisonAdapterItem(Context context, ExtraPromptData prompt, LinkedList<FeedbackItem> data) {
+			mPrompt = prompt;
+			setData(context, data);
+		}
+
+		public void setData(Context context, LinkedList<FeedbackItem> data) {
 			Calendar cal = Calendar.getInstance();
 			long now = cal.getTimeInMillis();
 			cal.add(Calendar.DATE, -cal.get(Calendar.DAY_OF_WEEK) + 1);
@@ -75,94 +90,77 @@ public class ComparisonAdapter extends ArrayAdapter<ComparisonAdapterItem>{
 			}
 
 			long baseDays = (base - firstTime) / DateUtils.DAY_IN_MILLIS;
-			baseLine = calcAverage(basevalues, baseDays, mapper, type);
+			baseLine = calcAverage(basevalues, baseDays);
 			long weekDays = (oneWeek - twoWeeks) / DateUtils.DAY_IN_MILLIS;
-			lastWeek = calcAverage(weekvalues, weekDays, mapper, type);
+			lastWeek = calcAverage(weekvalues, weekDays);
 			long currentDays = (now - oneWeek) / DateUtils.DAY_IN_MILLIS + 1; //Plus one to include today
-			current = calcAverage(nowvalues, currentDays, mapper, type);		
+			current = calcAverage(nowvalues, currentDays);		
 		}
 
-		protected String calcAverage(ArrayList<Double> values, long days, DataMapper mapper, int type) {
+		protected double calcAverage(ArrayList<Double> values, long days) {
 			Double count = 0.0;
 			for(Double i : values) {
-				count += mapper.translate(i);
+				count += mPrompt.getMapper().translate(i);
 			}
-
-			NumberFormat formatter = NumberFormat.getInstance();
-			formatter.setMaximumFractionDigits(2);
-
-			switch(type) {
-				case AVG: {
-					return formatter.format(Double.valueOf(count) / values.size());
-				} case WEEKAVG: {
-					return formatter.format(Double.valueOf(count) / (values.size() / 7.0));
-				}
-			}
-			return null;
-		}
-	}
-
-	public static class ComparisonAdapterSubItem extends ComparisonAdapterItem {
-
-		private final int mValue;
-		int mColor;
-
-		public ComparisonAdapterSubItem(String title, int value, int color) {
-			super(title);
-			mValue = value;
-			mColor = color;
+			return Double.valueOf(count) / values.size();
 		}
 
 		@Override
-		protected String calcAverage(ArrayList<Double> values, long days, DataMapper mapper, int type) {
-			int count = 0;
-			for(Double i : values) {
-				if(i.intValue() == mValue)
-					count++;
+		public String toString() {
+			return mPrompt.shortName;
+		}
+
+		public OhmageLineChart getChart() {
+			if(mChart != null)
+				return mChart;
+
+			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
+			XYMultipleSeriesRenderer renderer = new OhmageLineRenderer();
+
+			int color = OhmageApplication.getContext().getResources().getColor(mPrompt.getColor());
+
+			renderer.addSeriesRenderer(0, addSeries(current, "This Week", dataset, POINT_STYLE_CURRENT, color));
+			renderer.addSeriesRenderer(1, addSeries(lastWeek, "Last Week", dataset, POINT_STYLE_LAST_WEEK, Utilities.darkenColor(color)));
+			renderer.addSeriesRenderer(2, addSeries(baseLine, "Base Line", dataset, POINT_STYLE_BASE_LINE, Color.BLACK));
+
+			renderer.setXAxisMin(mPrompt.getMin());
+			renderer.setXAxisMax(mPrompt.getMax());
+
+			renderer.addYTextLabel(0, "");
+
+			renderer.setXLabels(mPrompt.getRange());
+			for(Double i=mPrompt.getMin(); i<mPrompt.getMax() + 1; i++) {
+				renderer.addXTextLabel(i, mPrompt.valueLabels[i.intValue()]);
 			}
 
-			NumberFormat mFormat = NumberFormat.getInstance();
-			mFormat.setMaximumFractionDigits(0);
-			return mFormat.format(Double.valueOf(count) / values.size() * 100) + "%";
+			mChart = new OhmageLineChart(dataset, renderer);
 
+			return mChart;
+		}
+
+		private SimpleSeriesRenderer addSeries(Double value, String title, XYMultipleSeriesDataset dataset, PointStyle style, int color) {
+			XYSeries series = new XYSeries(title);
+			series.add(value, 0);
+			dataset.addSeries(series);
+			OhmageLineSeriesRenderer sr = new OhmageLineSeriesRenderer();
+			sr.setPointStyle(style);
+			sr.setColor(color);
+			return sr;
 		}
 	}
 
 	public ComparisonAdapter(Context context) {
-		super(context, R.layout.feedback_comparison_row, R.id.feedback_comparision_title, new ArrayList<ComparisonAdapterItem>());
+		super(context, R.layout.feedback_chart, R.id.chart_title, new ArrayList<ComparisonAdapterItem>());
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View view = super.getView(position, convertView, parent);
-
+		ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
 		ComparisonAdapterItem item = getItem(position);
-		if(item instanceof ComparisonAdapterSubItem) {
-			view.setVisibility(View.GONE);
-			view.setBackgroundColor((position%2==0) ? Utilities.lightenColor(((ComparisonAdapterSubItem) item).mColor) : ((ComparisonAdapterSubItem) item).mColor);
-			TableLayout.LayoutParams params = (TableLayout.LayoutParams) view.getLayoutParams();
-			params.leftMargin = 60;
-			view.setPadding(-60, 0, 0, 0);
-		} else {
-			view.setVisibility(View.VISIBLE);
-			view.setBackgroundResource((position%2==0) ? R.color.lightestgray : R.color.lightergray);
-		}
-
-		TextView title = (TextView) view.findViewById(R.id.feedback_comparision_title);
-		title.setText(item.title);
-		title.setTypeface((item instanceof ComparisonAdapterSubItem) ? Typeface.DEFAULT : Typeface.DEFAULT_BOLD);
-
-		TextView baseline = (TextView) view.findViewById(R.id.feedback_comparision_baseline);
-		baseline.setText(item.baseLine);
-
-		TextView lastweek = (TextView) view.findViewById(R.id.feedback_comparision_lastweek);
-		lastweek.setText(item.lastWeek);
-		lastweek.setTextColor(R.color.black);
-
-		TextView current = (TextView) view.findViewById(R.id.feedback_comparision_current);
-		current.setText(item.current);
-		lastweek.setTextColor(R.color.black);
-
+		ViewGroup chartContainer = (ViewGroup) view.findViewById(R.id.chart);
+		chartContainer.removeAllViews();
+		chartContainer.addView(new GraphicalView(getContext(), item.getChart()));
 		return view;
+
 	}
 }

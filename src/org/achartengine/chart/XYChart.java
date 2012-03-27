@@ -33,6 +33,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer.Orientation;
 import org.achartengine.util.MathHelper;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -44,6 +45,7 @@ import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.view.View;
 
 /**
  * The XY chart rendering class.
@@ -214,6 +216,9 @@ public abstract class XYChart extends AbstractChart {
         yPixelsPerUnit[i] = (float) ((bottom - top) / (maxY[i] - minY[i]));
       }
     }
+    
+    if(mRenderer.drawAxesBelowSeries())
+    	drawAxes(canvas, paint, left, top, right, bottom, or, maxScaleNumber);
 
     boolean hasValues = false;
     // use a linked list for these reasons:
@@ -305,6 +310,7 @@ public abstract class XYChart extends AbstractChart {
       }
       drawXLabels(xLabels, mRenderer.getXTextLabelLocations(), canvas, paint, xLabelsLeft, top,
           bottom, xPixelsPerUnit[0], minX[0], maxX[0]);
+      
 
       for (int i = 0; i < maxScaleNumber; i++) {
         paint.setTextAlign(mRenderer.getYLabelsAlign(i));
@@ -347,7 +353,7 @@ public abstract class XYChart extends AbstractChart {
         }
       }
 
-      if (showLabels) {
+      if (showLabels && mRenderer.isShowYAxis()) {
         paint.setColor(mRenderer.getLabelsColor());
         for (int i = 0; i < maxScaleNumber; i++) {
           Align axisAlign = mRenderer.getYAxisAlign(i);
@@ -417,25 +423,35 @@ public abstract class XYChart extends AbstractChart {
       drawLegend(canvas, mRenderer, titles, left, right, y, width, height, legendSize, paint, false);
       transform(canvas, angle, false);
     }
-    if (mRenderer.isShowAxes()) {
-      paint.setColor(mRenderer.getAxesColor());
-      canvas.drawLine(left, bottom, right, bottom, paint);
-      boolean rightAxis = false;
-      for (int i = 0; i < maxScaleNumber && !rightAxis; i++) {
-        rightAxis = mRenderer.getYAxisAlign(i) == Align.RIGHT;
-      }
-      if (or == Orientation.HORIZONTAL) {
-        canvas.drawLine(left, top, left, bottom, paint);
-        if (rightAxis) {
-          canvas.drawLine(right, top, right, bottom, paint);
-        }
-      } else if (or == Orientation.VERTICAL) {
-        canvas.drawLine(right, top, right, bottom, paint);
-      }
-    }
+    
+    if(!mRenderer.drawAxesBelowSeries())
+    	drawAxes(canvas, paint, left, top, right, bottom, or, maxScaleNumber);
+
     if (rotate) {
       transform(canvas, angle, true);
     }
+  }
+
+  private void drawAxes(Canvas canvas, Paint paint, int left, int top, int right, int bottom,
+		  Orientation or, int maxScaleNumber) {
+	  if (mRenderer.isShowAxes()) {
+		  paint.setColor(mRenderer.getAxesColor());
+		  canvas.drawLine(left, bottom, right, bottom, paint);
+		  if(mRenderer.isShowYAxis()) {
+			  boolean rightAxis = false;
+			  for (int i = 0; i < maxScaleNumber && !rightAxis; i++) {
+				  rightAxis = mRenderer.getYAxisAlign(i) == Align.RIGHT;
+			  }
+			  if (or == Orientation.HORIZONTAL) {
+				  canvas.drawLine(left, top, left, bottom, paint);
+				  if (rightAxis) {
+					  canvas.drawLine(right, top, right, bottom, paint);
+				  }
+			  } else if (or == Orientation.VERTICAL) {
+				  canvas.drawLine(right, top, right, bottom, paint);
+			  }
+		  }
+	  }
   }
 
   protected Rect getScreenR() {
@@ -605,7 +621,7 @@ public abstract class XYChart extends AbstractChart {
     for (int i = 0; i < length; i++) {
       double label = xLabels.get(i);
       float xLabel = (float) (left + xPixelsPerUnit * (label - minX));
-      if (showLabels) {
+      if (showLabels && mRenderer.getXTextLabel(label) == null) {
         paint.setColor(mRenderer.getLabelsColor());
         canvas.drawLine(xLabel, bottom, xLabel, bottom + mRenderer.getLabelsTextSize() / 3, paint);
         drawText(canvas, getLabel(label), xLabel, bottom + mRenderer.getLabelsTextSize() * 4 / 3,
@@ -810,4 +826,52 @@ public abstract class XYChart extends AbstractChart {
    * @return the chart type
    */
   public abstract String getChartType();
+  
+  public View getLegendView(Context context) {
+	  View v = new View(context) {
+		  @Override
+		  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			  super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			  int height = mRenderer.getLegendHeight();
+			  setMeasuredDimension(getMeasuredWidth(), height);
+		}
+		  
+		  @Override
+		  protected void onDraw(Canvas canvas) {
+			  super.onDraw(canvas);
+			  Rect rect = new Rect();
+			  canvas.getClipBounds(rect);
+			  int top = rect.top;
+			  int left = rect.left;
+			  int width = rect.width();
+			  int height = rect.height();
+			  if (mRenderer.isInScroll()) {
+				  top = 0;
+				  left = 0;
+				  width = getMeasuredWidth();
+				  height = getMeasuredHeight();
+			  }
+			  draw(canvas, left, top, width, height);
+		  }
+
+		  public void draw(Canvas canvas, int x, int y, int width, int height) {
+			  Paint paint = new Paint();
+			  paint.setAntiAlias(mRenderer.isAntialiasing());
+			  int left = x;
+			  int right = x + width;
+			  int sLength = mDataset.getSeriesCount();
+			  String[] titles = new String[sLength];
+			  for (int i = 0; i < sLength; i++) {
+				  titles[i] = mDataset.getSeriesAt(i).getTitle();
+			  }
+
+			  boolean oldShowLegend = mRenderer.isShowLegend();
+			  mRenderer.setShowLegend(true);
+			  drawLegend(canvas, mRenderer, titles, left, right, y, width, height, height,
+						  paint, false);
+			  mRenderer.setShowLegend(oldShowLegend);
+		  }
+	  };
+	  return v;
+  }
 }

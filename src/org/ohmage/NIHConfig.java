@@ -84,19 +84,27 @@ public class NIHConfig {
 		public int getColor() {
 			return colorId;
 		}
+
+		public double getMin() {
+			return min;
+		}
+
+		public double getMax() {
+			return max;
+		}
 	}
 
 	private static final ExtraPromptData HOW_STRESSED = new ExtraPromptData("Stress Amount",
-			"feltStress%", R.color.light_red, -1, 3, "times with low stress", new String[] {
+			"feltStress%", R.color.light_red, 0, 3, "times with low stress", new String[] {
 					"None", "Low", "Medium", "High"
 			}, 0);
 	private static final ExtraPromptData FOOD_QUALITY = new ExtraPromptData("Food Quality",
-			"foodQuality%", R.color.light_blue, -1, 2,
+			"foodQuality%", R.color.light_blue, 0, 2,
 			"high quality meals eaten", new String[] {
 					"Low", "Med", "High"
 			}, 2);
 	private static final ExtraPromptData FOOD_QUANTITY = new ExtraPromptData("Food Quantity",
-			"foodHowMuch%", R.color.light_blue, -1, 2,
+			"foodHowMuch%", R.color.light_blue, 0, 2,
 			"healthy size meals eaten", new String[] {
 					"Small", "Healthy", "Large"
 			}, 1);

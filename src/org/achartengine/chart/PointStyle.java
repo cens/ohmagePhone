@@ -20,7 +20,7 @@ package org.achartengine.chart;
  */
 public enum PointStyle {
   X("x"), CIRCLE("circle"), TRIANGLE("triangle"), SQUARE("square"), DIAMOND("diamond"), POINT(
-      "point");
+      "point"), DASHED_LINE("dashed_line"), RECTANGLE("rectangle");
 
   /** The point shape name. */
   private String mName;
@@ -48,7 +48,8 @@ public enum PointStyle {
    * 
    * @return the point shape name
    */
-  public String toString() {
+  @Override
+public String toString() {
     return getName();
   }
 
