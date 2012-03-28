@@ -7,7 +7,6 @@ import org.ohmage.R;
 import org.ohmage.adapters.ChartListAdapter;
 import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
-import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.database.Cursor;
@@ -80,53 +79,31 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 	private ChartItem<? extends XYChart> getChartItem(String promptId,
 			List<FeedbackItem> promptData) {
 		ExtraPromptData extraData = NIHConfig.getExtraPromptData(promptId);
+		CleanRenderer r = new CleanRenderer();
+
+		
 		if(NIHConfig.Prompt.DID_EXERCISE_ID.equals(promptId)) {
-			HistogramRenderer r = new HistogramRenderer(getActivity());
-			r.setYLabels(0);
-			return extraData.toHistogramChartItem(promptData, r);
-		} else if(NIHConfig.Prompt.TIME_TO_YOURSELF_ID.equals(promptId)) {
-			HistogramRenderer r = new HistogramRenderer(getActivity());
-			r.addYTextLabel(1, "< .5");
-			r.addYTextLabel(2, "< 1");
-			r.addYTextLabel(3, "> 1");
-			r.addYTextLabel(4, "> 2");
 			int[] margins = r.getMargins();
 			margins[1] = 28;
 			r.setMargins(margins);
-			r.setShowLabels(true);
-			return extraData.toHistogramChartItem(promptData, r);
+		} else if(NIHConfig.Prompt.TIME_TO_YOURSELF_ID.equals(promptId)) {
+			int[] margins = r.getMargins();
+			margins[1] = 28;
+			r.setMargins(margins);
 		} else if(NIHConfig.Prompt.FOOD_QUALITY_ID.equals(promptId)) {
-			CleanRenderer r = new CleanRenderer();
-			r.addYTextLabel(-1, "");
-			r.addYTextLabel(0, "Low");
-			r.addYTextLabel(1, "Med");
-			r.addYTextLabel(2, "High");
 			int[] margins = r.getMargins();
 			margins[1] = 37;
 			r.setMargins(margins);
-			r.setShowLabels(true);
-			r.setShowGrid(true);
-			return extraData.toBubbleChartItem(promptData, r);
 		} else if(NIHConfig.Prompt.FOOD_QUANTITY_ID.equals(promptId)) {
-			CleanRenderer r = new CleanRenderer();
-			r.addYTextLabel(-1, "");
-			r.addYTextLabel(0, "Small");
-			r.addYTextLabel(1, "Healthy");
-			r.addYTextLabel(2, "Large");
 			int[] margins = r.getMargins();
 			margins[1] = 56;
 			r.setMargins(margins);
-			r.setShowLabels(true);
-			r.setShowGrid(true);
-			return extraData.toBubbleChartItem(promptData, r);
 		} else if(NIHConfig.Prompt.HOW_STRESSED_ID.equals(promptId)) {
-			CleanRenderer r = new CleanRenderer();
-			r.setShowGrid(true);
-			r.setYLabels(6);
-			r.addYTextLabel(-1, "");
-			return extraData.toBubbleChartItem(promptData, r);
+			int[] margins = r.getMargins();
+			margins[1] = 41;
+			r.setMargins(margins);
 		}
-		return null;
+		return extraData.toBubbleChartItem(promptData, r);
 	}
 
 	private int getChartType(String promptId) {

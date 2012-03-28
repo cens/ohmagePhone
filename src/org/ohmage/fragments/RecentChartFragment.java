@@ -9,10 +9,12 @@ import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -64,6 +66,10 @@ public class RecentChartFragment extends PromptFeedbackFragment {
 
 		if(!mAdapter.isEmpty()) {
 			mContainer.removeAllViews();
+			TextView header = new TextView(getActivity());
+			header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+			header.setText("*Last 30 responses shown");
+			mContainer.addView(header);
 			for(int i=0; i< mAdapter.getCount(); i++) {
 				mContainer.addView(mAdapter.getView(i, null, mContainer));
 			}

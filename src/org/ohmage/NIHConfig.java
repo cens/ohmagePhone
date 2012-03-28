@@ -1,6 +1,7 @@
 
 package org.ohmage;
 
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.ohmage.Utilities.DataMapper;
 import org.ohmage.adapters.ChartListAdapter.BubbleChartItem;
 import org.ohmage.adapters.ChartListAdapter.HistogramChartItem;
@@ -58,7 +59,10 @@ public class NIHConfig {
 		}
 
 		public BubbleChartItem toBubbleChartItem(List<FeedbackItem> data, CleanRenderer r) {
-			return new BubbleChartItem(shortName, data, colorId, min, max, label, goodValue, r);
+			addLabels(r);
+			r.setShowLabels(true);
+			r.setShowGrid(true);
+			return new BubbleChartItem(shortName, data, colorId, min - 1, max, label, goodValue, r);
 		}
 
 		public SparkLineChartItem toSparkLineChartItem(List<FeedbackItem> data) {
@@ -92,11 +96,20 @@ public class NIHConfig {
 		public double getMax() {
 			return max;
 		}
+
+		public void addLabels(XYMultipleSeriesRenderer r) {
+			int i=Integer.valueOf(min);
+			r.addYTextLabel(i-1, "");
+			for(String label : valueLabels) {
+				r.addYTextLabel(i++, label);
+			}
+			r.setYLabels(valueLabels.length);
+		}
 	}
 
 	private static final ExtraPromptData HOW_STRESSED = new ExtraPromptData("Stress Amount",
 			"feltStress%", R.color.light_red, 0, 3, "times with low stress", new String[] {
-					"None", "Low", "Medium", "High"
+					"None", "Low", "Med", "High"
 			}, 0);
 	private static final ExtraPromptData FOOD_QUALITY = new ExtraPromptData("Food Quality",
 			"foodQuality%", R.color.light_blue, 0, 2,
@@ -139,8 +152,10 @@ public class NIHConfig {
 			});
 
 	public static final String[] PROMPT_LIST = new String[] {
-			NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.FOOD_QUALITY_ID,
-			NIHConfig.SQL.FOOD_QUANTITY_ID, NIHConfig.SQL.DID_EXERCISE_ID,
+			NIHConfig.SQL.FOOD_QUALITY_ID,
+			NIHConfig.SQL.FOOD_QUANTITY_ID,
+			NIHConfig.SQL.DID_EXERCISE_ID,
+			NIHConfig.SQL.HOW_STRESSED_ID,
 			NIHConfig.SQL.TIME_TO_YOURSELF_ID
 	};
 

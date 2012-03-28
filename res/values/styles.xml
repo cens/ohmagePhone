@@ -40,7 +40,7 @@
     </style>
 
     <style name="ContentHeader">
-        <item name="android:textSize">12.0sp</item>
+        <item name="android:textSize">14.0sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/highlight</item>
         <item name="android:ellipsize">end</item>

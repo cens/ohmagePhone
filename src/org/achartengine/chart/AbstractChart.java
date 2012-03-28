@@ -105,11 +105,6 @@ public abstract class AbstractChart implements Serializable {
       for (int i = 0; i < sLength; i++) {
         final float lineSize = getLegendShapeWidth(i);
         String text = titles[i];
-        if (titles.length == renderer.getSeriesRendererCount()) {
-          paint.setColor(renderer.getSeriesRendererAt(i).getColor());
-        } else {
-          paint.setColor(Color.GRAY);
-        }
         float[] widths = new float[text.length()];
         paint.getTextWidths(text, widths);
         float sum = 0;
@@ -134,8 +129,21 @@ public abstract class AbstractChart implements Serializable {
           text = text.substring(0, nr) + "...";
         }
         if (!calculate) {
-          drawLegendShape(canvas, renderer.getSeriesRendererAt(i), currentX, currentY, i, paint);
-          canvas.drawText(text, currentX + lineSize + 5, currentY + 5, paint);
+
+        	if (titles.length == renderer.getSeriesRendererCount()) {
+        		paint.setColor(renderer.getSeriesRendererAt(i).getColor());
+        	} else {
+        		paint.setColor(Color.GRAY);
+        	}
+
+        	drawLegendShape(canvas, renderer.getSeriesRendererAt(i), currentX, currentY, i, paint);
+
+        	if (titles.length == renderer.getSeriesRendererCount()) {
+        		paint.setColor(renderer.getSeriesRendererAt(i).getColor());
+        	} else {
+        		paint.setColor(Color.BLACK);
+        	}
+        	canvas.drawText(text, currentX + lineSize + 5, currentY + 5, paint);
         }
         currentX += extraSize;
       }
