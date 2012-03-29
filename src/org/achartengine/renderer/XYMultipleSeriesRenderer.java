@@ -90,6 +90,7 @@ public class XYMultipleSeriesRenderer extends DefaultRenderer {
   private boolean mDrawAxesBelowSeries;
   /** draw the y-axis **/
   private boolean mShowYAxis = true;
+private boolean mShowAverageLines;
 
   /**
    * An enum for the XY chart orientation of the X axis.
@@ -1041,6 +1042,14 @@ public class XYMultipleSeriesRenderer extends DefaultRenderer {
 
   public void setShowYAxis(boolean show) {
 	  mShowYAxis = show;
+  }
+
+  public boolean isShowAverageLines() {
+	  return mShowAverageLines;
+  }
+
+  public void setShowAverageLines(boolean show) {
+	  mShowAverageLines = show;
   }
 
 }

@@ -81,6 +81,7 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 		ExtraPromptData extraData = NIHConfig.getExtraPromptData(promptId);
 		CleanRenderer r = new CleanRenderer();
 
+		r.setShowAverageLines(true);
 		
 		if(NIHConfig.Prompt.DID_EXERCISE_ID.equals(promptId)) {
 			int[] margins = r.getMargins();

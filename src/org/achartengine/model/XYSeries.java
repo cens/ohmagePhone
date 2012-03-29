@@ -41,7 +41,11 @@ public class XYSeries implements Serializable {
   /** The maximum value for the Y axis. */
   private double mMaxY = -MathHelper.NULL_VALUE;
   /** The scale number for this series. */
-  private int mScaleNumber;
+  private final int mScaleNumber;
+  /** The sum of all Y values */
+  private double mSumY = 0;
+  /** The sum of all X values */
+  private double mSumX = 0;
 
   /**
    * Builds a new XY series.
@@ -123,7 +127,9 @@ public class XYSeries implements Serializable {
    */
   public synchronized void add(double x, double y) {
     mX.add(x);
+    mSumX += x;
     mY.add(y);
+    mSumY += y;
     updateRange(x, y);
   }
 
@@ -134,7 +140,9 @@ public class XYSeries implements Serializable {
    */
   public synchronized void remove(int index) {
     double removedX = mX.remove(index);
+    mSumX -= removedX;
     double removedY = mY.remove(index);
+    mSumY -= removedY;
     if (removedX == mMinX || removedX == mMaxX || removedY == mMinY || removedY == mMaxY) {
       initRange();
     }
@@ -146,6 +154,8 @@ public class XYSeries implements Serializable {
   public synchronized void clear() {
     mX.clear();
     mY.clear();
+    mSumX = 0;
+    mSumY = 0;
     initRange();
   }
 
@@ -212,5 +222,45 @@ public class XYSeries implements Serializable {
    */
   public double getMaxY() {
     return mMaxY;
+  }
+
+  /**
+   * Returns the sum of Y.
+   * 
+   * @return the sum of Y
+   */
+  public double getSumY() {
+    return mSumY;
+  }
+
+  /**
+   * Returns the average Y value.
+   * 
+   * @return the average Y value, null if there are no points
+   */
+  public Double getAverageY() {
+	if(mY.isEmpty())
+		return null;
+    return mSumY / mY.size();
+  }
+
+  /**
+   * Returns the sum of X.
+   * 
+   * @return the sum of X
+   */
+  public double getSumX() {
+    return mSumX;
+  }
+
+  /**
+   * Returns the average X value.
+   * 
+   * @return the average X value, null if there are no points
+   */
+  public Double getAverageX() {
+	if(mX.isEmpty())
+		return null;
+    return mSumX / mX.size();
   }
 }

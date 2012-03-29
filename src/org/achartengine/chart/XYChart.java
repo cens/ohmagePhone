@@ -423,7 +423,21 @@ public abstract class XYChart extends AbstractChart {
       drawLegend(canvas, mRenderer, titles, left, right, y, width, height, legendSize, paint, false);
       transform(canvas, angle, false);
     }
-    
+
+    if (mRenderer.isShowAverageLines()) {
+    	for(int i=0;i<mDataset.getSeriesCount();i++) {
+    		paint.setColor(mRenderer.getSeriesRendererAt(i).getColor());
+
+    		XYSeries series = mDataset.getSeriesAt(i);
+    		int scale = series.getScaleNumber();
+    		Double average = series.getAverageY();
+    		if(average != null) {
+    			Double offset = bottom - yPixelsPerUnit[scale] * (average - minY[i]);
+    			canvas.drawLine(left, offset.intValue(), right, offset.intValue(), paint);
+    		}
+    	}
+    }
+
     if(!mRenderer.drawAxesBelowSeries())
     	drawAxes(canvas, paint, left, top, right, bottom, or, maxScaleNumber);
 
