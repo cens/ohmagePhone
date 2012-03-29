@@ -1,14 +1,11 @@
 package org.ohmage.adapters;
 
-import org.achartengine.GraphicalView;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.ohmage.NIHConfig;
 import org.ohmage.NIHConfig.ExtraPromptData;
-import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
@@ -21,23 +18,20 @@ import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.format.DateUtils;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 
-public class ComparisonAdapter extends ArrayAdapter<ComparisonAdapterItem>{
+public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterItem> {
 	private static final String TAG = "ComparisionAdapter";
 
-	public static class ComparisonAdapterItem {
+	public static class ComparisonAdapterItem extends SimpleChartListAdapter.ChartItem<OhmageLineChart>{
 
 		public static final PointStyle POINT_STYLE_CURRENT = PointStyle.CIRCLE;
 		public static final PointStyle POINT_STYLE_LAST_WEEK = PointStyle.RECTANGLE;
 		public static final PointStyle POINT_STYLE_BASE_LINE = PointStyle.DASHED_LINE;
-
 
 		private double baseLine;
 		private double lastWeek;
@@ -45,16 +39,13 @@ public class ComparisonAdapter extends ArrayAdapter<ComparisonAdapterItem>{
 		private final ExtraPromptData mPrompt;
 		private OhmageLineChart mChart;
 
-		public ComparisonAdapterItem(NIHConfig.ExtraPromptData prompt) {
-			mPrompt = prompt;
-		}
-
 		public ComparisonAdapterItem(Context context, ExtraPromptData prompt, LinkedList<FeedbackItem> data) {
+			super(prompt.shortName, data, -1, 0, 0);
 			mPrompt = prompt;
 			setData(context, data);
 		}
 
-		public void setData(Context context, LinkedList<FeedbackItem> data) {
+		private void setData(Context context, LinkedList<FeedbackItem> data) {
 			Calendar cal = Calendar.getInstance();
 			long now = cal.getTimeInMillis();
 			cal.add(Calendar.DATE, -cal.get(Calendar.DAY_OF_WEEK) + 1);
@@ -106,18 +97,14 @@ public class ComparisonAdapter extends ArrayAdapter<ComparisonAdapterItem>{
 		}
 
 		@Override
-		public String toString() {
-			return mPrompt.shortName;
-		}
-
-		public OhmageLineChart getChart() {
+		public OhmageLineChart makeChart(Context context) {
 			if(mChart != null)
 				return mChart;
 
 			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 			XYMultipleSeriesRenderer renderer = new OhmageLineRenderer();
 
-			int color = OhmageApplication.getContext().getResources().getColor(mPrompt.getColor());
+			int color = context.getResources().getColor(mPrompt.getColor());
 
 			renderer.addSeriesRenderer(0, addSeries(current, "This Week", dataset, POINT_STYLE_CURRENT, color));
 			renderer.addSeriesRenderer(1, addSeries(lastWeek, "Last Week", dataset, POINT_STYLE_LAST_WEEK, Utilities.darkenColor(color)));
@@ -149,18 +136,12 @@ public class ComparisonAdapter extends ArrayAdapter<ComparisonAdapterItem>{
 		}
 	}
 
+
 	public ComparisonAdapter(Context context) {
 		super(context, R.layout.feedback_chart, R.id.chart_title, new ArrayList<ComparisonAdapterItem>());
 	}
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
-		ComparisonAdapterItem item = getItem(position);
-		ViewGroup chartContainer = (ViewGroup) view.findViewById(R.id.chart);
-		chartContainer.removeAllViews();
-		chartContainer.addView(new GraphicalView(getContext(), item.getChart()));
-		return view;
-
+	public ComparisonAdapter(Context context, List<ComparisonAdapterItem> objects) {
+		super(context, R.layout.feedback_chart, R.id.chart_title, objects);
 	}
 }

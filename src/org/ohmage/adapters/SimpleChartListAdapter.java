@@ -53,8 +53,13 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 		public final T getChart(Context context) {
 			T chart = makeChart(context);
 			XYMultipleSeriesRenderer renderer = chart.getRenderer();
-			for(int i=0; i < renderer.getSeriesRendererCount(); i++)
-				renderer.getSeriesRendererAt(i).setColor(getColor(context));
+
+			// If a color is set make all series that color
+			if(color != -1) {
+				for(int i=0; i < renderer.getSeriesRendererCount(); i++)
+					renderer.getSeriesRendererAt(i).setColor(getColor(context));
+			}
+
 			renderer.setInScroll(true);
 			renderer.setYAxisMin(min);
 			if(max != null)
