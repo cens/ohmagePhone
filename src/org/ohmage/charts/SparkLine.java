@@ -62,6 +62,7 @@ public class SparkLine extends TimeChart {
 			});
 			setPanEnabled(false, false);
 			setZoomEnabled(false, false);
+			setShowAverageLines(true);
 		}
 	}
 }
