@@ -173,7 +173,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			// ===   * anything in this list that's not on the phone should be downloaded
 			// ==================================================================
 			
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
+			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
 				new StreamingResponseListener() {
 					List<String> responseIDs;
 					
@@ -270,7 +270,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			final LinkedList<ResponseImage> responsePhotos = new LinkedList<ResponseImage>();
 
 			// do the call and process the streaming response data
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
+			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
 				new StreamingResponseListener() {
 					int curRecord;
 					
