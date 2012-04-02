@@ -294,9 +294,15 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 		@Override
 		public void onClick(View v) {
-			// We have special logic for logging the submit button
-			if(v.getId() != R.id.next_button || !mReachedEnd)
+			v.setClickable(false);
+
+			if(v.getId() != R.id.next_button || !mReachedEnd) {
+				// We have special logic for logging the submit button
 				Analytics.widget(v);
+
+				// After we click the submit button once, it should not be clickable again
+				v.setClickable(true);
+			}
 
 			switch (v.getId()) {
 				case R.id.next_button:

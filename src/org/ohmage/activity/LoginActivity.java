@@ -492,7 +492,7 @@ public class LoginActivity extends FragmentActivity {
 //		        }
 //			}
 			OhmageApi api = new OhmageApi(getActivity());
-			return api.authenticate(Config.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
+			return api.authenticate(Config.DEFAULT_SERVER_URL, mUsername, mPassword, OhmageApi.CLIENT_NAME);
 		}
 
 		@Override

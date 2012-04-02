@@ -19,9 +19,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class SharedPreferencesHelper {
-	
-	public static final String CLIENT_STRING = "android";
-	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
 	public static final String PREFERENCES_TRIGGERS = "preferences_triggers";
