@@ -119,7 +119,7 @@ public class NIHConfig {
 	private static final ExtraPromptData FOOD_QUANTITY = new ExtraPromptData("Food Quantity",
 			"foodHowMuch%", R.color.light_blue, 0, 2,
 			"healthy size meals eaten", new String[] {
-					"Small", "Healthy", "Large"
+					"Small", "Just Right", "Large"
 			}, 1);
 	private static final ExtraPromptData TIME_TO_YOURSELF = new ExtraPromptData(
 			"Time For Self", "timeForYourself", R.color.light_purple, 0, 4,

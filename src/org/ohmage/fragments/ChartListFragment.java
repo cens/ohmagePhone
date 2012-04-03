@@ -95,7 +95,7 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 			r.setMargins(margins);
 		} else if(NIHConfig.Prompt.FOOD_QUANTITY_ID.equals(promptId)) {
 			int[] margins = r.getMargins();
-			margins[1] = 56;
+			margins[1] = 71;
 			r.setMargins(margins);
 		} else if(NIHConfig.Prompt.HOW_STRESSED_ID.equals(promptId)) {
 			int[] margins = r.getMargins();

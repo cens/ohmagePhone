@@ -106,7 +106,7 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 
 			int color = context.getResources().getColor(mPrompt.getColor());
 
-			renderer.addSeriesRenderer(0, addSeries(current, "This Week", dataset, POINT_STYLE_CURRENT, Utilities.darkenColor(color)));
+			renderer.addSeriesRenderer(0, addSeries(current, "Week So Far", dataset, POINT_STYLE_CURRENT, Utilities.darkenColor(color)));
 			renderer.addSeriesRenderer(1, addSeries(lastWeek, "Last Week", dataset, POINT_STYLE_LAST_WEEK, color));
 			renderer.addSeriesRenderer(2, addSeries(baseLine, "Base Line", dataset, POINT_STYLE_BASE_LINE, Color.BLACK));
 
