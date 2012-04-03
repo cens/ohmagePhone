@@ -101,8 +101,8 @@ public class LoginActivity extends FragmentActivity {
 		}
 		
 		mLoginButton = (Button) findViewById(R.id.login);
-        mUsernameEdit = (EditText) findViewById(R.id.user_input); 
-        mPasswordEdit = (EditText) findViewById(R.id.password);
+        mUsernameEdit = (EditText) findViewById(R.id.login_username); 
+        mPasswordEdit = (EditText) findViewById(R.id.login_password);
         mVersionText = (TextView) findViewById(R.id.version);
         
         try {

@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!--
+
+    <!--
 	======================================================
 	=== colors
 	======================================================
-	-->
-    <color name="title_background">#ff358956</color>
-    <color name="title_text">#ffffffff</color>
+    -->
+    <color name="title_text">#2C88D9</color>
     <color name="title_text_alt">#ff000000</color>
     <color name="foreground1">#ff000000</color>
     <color name="foreground2">#ff70a381</color>
     <color name="background1">#ffffffff</color>
     <color name="background2">#ffd5ebdd</color>
     <color name="background3">#ffe3f1e8</color>
-    <color name="title_separator">#40ffffff</color>
-    
+
     <!--
     ======================================================
     === dimensions
     ======================================================
     -->
     <dimen name="title_height">45dip</dimen>
-    
+
     <!--
     ======================================================
     === declarative styles
@@ -38,19 +37,19 @@
         <item name="android:textColor">@color/foreground1</item>
         <item name="android:background">@null</item>
     </style>
-    
+
     <style name="TitleBarLogo">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">@dimen/actionbar_height</item>
         <item name="android:clickable">true</item>
     </style>
-    
+
     <style name="TitleBarLogoHome">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/actionbar_height</item>
         <item name="android:clickable">true</item>
     </style>
-    
+
     <style name="TitleBarText">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">fill_parent</item>
@@ -63,21 +62,24 @@
         <item name="android:textColor">@color/title_text</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:shadowColor">@color/white</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">2</item>
     </style>
-    
-     <style name="TitleBarSeparator">
-        <item name="android:layout_width">1px</item>
+
+    <style name="TitleBarSeparator">
+        <item name="android:layout_width">2px</item>
         <item name="android:layout_height">@dimen/actionbar_height</item>
-        <item name="android:background">@color/title_separator</item>
+        <item name="android:background">@drawable/line_divider</item>
     </style>
-    
+
     <style name="TitleBarAction">
         <item name="android:layout_width">@dimen/title_height</item>
         <item name="android:layout_height">@dimen/actionbar_height</item>
-        <!--- <item name="android:background">@null</item> -->
+        <!-- - <item name="android:background">@null</item> -->
         <item name="android:background">@drawable/dashboard_title_button</item>
     </style>
-    
+
     <!--
     ======================================================
     === string descriptions of buttons, etc.
@@ -85,4 +87,5 @@
     -->
     <string name="description_logo">ohmage</string>
     <string name="description_search">Search</string>
+
 </resources>

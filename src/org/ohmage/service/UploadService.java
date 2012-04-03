@@ -53,6 +53,8 @@ public class UploadService extends WakefulIntentService {
 
 	private OhmageApi mApi;
 
+	private boolean isBackground;
+
 	public UploadService() {
 		super(TAG);
 	}
@@ -75,6 +77,8 @@ public class UploadService extends WakefulIntentService {
 		if(mApi == null)
 			setOhmageApi(new OhmageApi(this));
 
+		isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
+
 		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
 			uploadSurveyResponses(intent);
 		}
@@ -94,7 +98,6 @@ public class UploadService extends WakefulIntentService {
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
-		boolean isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 		boolean uploadErrorOccurred = false;
 		boolean authErrorOccurred = false;
 		
@@ -415,7 +418,8 @@ public class UploadService extends WakefulIntentService {
 						
 					} catch (JSONException e) {
 						Log.e(TAG, "error creating mobility json", e);
-						NotificationHelper.showMobilityErrorNotification(this);
+						if(isBackground)
+							NotificationHelper.showMobilityErrorNotification(this);
 						throw new RuntimeException(e);
 					}
 					
@@ -455,17 +459,20 @@ public class UploadService extends WakefulIntentService {
 								new SharedPreferencesHelper(this).setUserDisabled(true);
 							}
 
-							if (isAuthenticationError) {
-								NotificationHelper.showAuthNotification(this);
-							} else {
-								NotificationHelper.showMobilityErrorNotification(this);
+							if (isBackground) {
+								if (isAuthenticationError) {
+									NotificationHelper.showAuthNotification(this);
+								} else {
+									NotificationHelper.showMobilityErrorNotification(this);
+								}
 							}
 
 							break;
 
 						case INTERNAL_ERROR:
 							Log.e(TAG, "Upload failed due to unknown internal error");
-							NotificationHelper.showMobilityErrorNotification(this);
+							if (isBackground)
+								NotificationHelper.showMobilityErrorNotification(this);
 							break;
 
 						case HTTP_ERROR:

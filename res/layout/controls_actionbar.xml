@@ -1,30 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- only one of these should be visible at a time -->
-	<ImageButton style="@style/TitleBarLogoHome"
-		android:id="@+id/controls_actionbar_home"
-		android:contentDescription="@string/description_logo_home"
-		android:src="@drawable/dashboard_title_home"
-		android:visibility="gone"
-		android:background="@drawable/dashboard_title_button" />
-	<ImageView style="@style/TitleBarSeparator"
-		android:id="@+id/controls_actionbar_homebutton_separator"
-		android:visibility="gone" />
-	
-	<ImageView style="@style/TitleBarLogo"
-		android:id="@+id/controls_actionbar_logo"
-		android:contentDescription="@string/description_logo"
-		android:src="@drawable/dashboard_title_logo" />
-	
-	<TextView style="@style/TitleBarText"
-		android:id="@+id/controls_actionbar_title" />
-		
-	<ProgressBar style="@android:style/Widget.ProgressBar.Small"
-		android:id="@+id/controls_actionbar_progress"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:paddingRight="10px"
-		android:layout_gravity="center_vertical|center_horizontal"
-		android:visibility="gone" />
+    <!-- only one of these should be visible at a time -->
+
+    <ImageButton
+        android:id="@+id/controls_actionbar_home"
+        style="@style/TitleBarLogoHome"
+        android:background="@drawable/dashboard_title_button"
+        android:contentDescription="@string/description_logo_home"
+        android:src="@drawable/dashboard_title_home"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/controls_actionbar_homebutton_separator"
+        style="@style/TitleBarSeparator"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/controls_actionbar_logo"
+        style="@style/TitleBarLogo"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/description_logo"
+        android:scaleType="centerInside"
+        android:src="@drawable/dashboard_title_logo" />
+
+    <TextView
+        android:id="@+id/controls_actionbar_title"
+        style="@style/TitleBarText" />
+
+    <ProgressBar
+        android:id="@+id/controls_actionbar_progress"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:paddingRight="10px"
+        android:visibility="gone" />
+
 </merge>

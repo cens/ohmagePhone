@@ -1,41 +1,41 @@
 <resources>
 
-	<!-- body content -->
-	<style name="TextHeader">
-		<item name="android:textSize">@dimen/text_size_xlarge</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:textColor">@color/body_text_1</item>
-		<!-- <item name="android:maxLines">?attr/textHeaderMaxLines</item> -->
-		<item name="android:maxLines">2</item>
-		<item name="android:ellipsize">end</item>
-	</style>
+    <!-- body content -->
+    <style name="TextHeader">
+        <item name="android:textSize">@dimen/text_size_xlarge</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/body_text_1</item>
+        <!-- <item name="android:maxLines">?attr/textHeaderMaxLines</item> -->
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
 
-	<style name="TextHeaderSub">
-		<item name="android:textSize">@dimen/text_size_small</item>
-		<item name="android:textStyle">normal</item>
-		<item name="android:textColor">@color/body_text_2</item>
-		<item name="android:maxLines">2</item>
-	</style>
+    <style name="TextHeaderSub">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/body_text_2</item>
+        <item name="android:maxLines">2</item>
+    </style>
 
-	<style name="TextHeader2">
-		<item name="android:textSize">@dimen/text_size_medium</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:textColor">@color/accent_1</item>
-	</style>
+    <style name="TextHeader2">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/accent_1</item>
+    </style>
 
-	<style name="TextHeader3">
-		<item name="android:textSize">@dimen/text_size_medium</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:textColor">@color/body_text_1</item>
-	</style>
+    <style name="TextHeader3">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/body_text_1</item>
+    </style>
 
-	<style name="TextBody">
-		<item name="android:textSize">@dimen/text_size_small</item>
-		<item name="android:lineSpacingMultiplier">1.1</item>
-		<item name="android:textColor">@color/body_text_1</item>
-	</style>
+    <style name="TextBody">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
+        <item name="android:textColor">@color/body_text_1</item>
+    </style>
 
-	<style name="TabBar">
+    <style name="TabBar">
         <item name="android:orientation">horizontal</item>
         <item name="android:background">@color/tab_background_color</item>
         <item name="android:layout_width">fill_parent</item>
@@ -70,6 +70,50 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="InsetText">
+        <item name="android:shadowColor">@color/white</item>
+        <item name="android:shadowDy">1.0</item>
+        <item name="android:shadowRadius">0.5</item>
+    </style>
+
+    <style name="Button" parent="@style/InsetText">
+        <item name="android:textSize">@dimen/font_size_default</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/button_text</item>
+        <item name="android:background">@drawable/entity_action_button</item>
+        <item name="android:paddingLeft">@dimen/button_padding</item>
+        <item name="android:paddingRight">@dimen/button_padding</item>
+    </style>
+    
+    <style name="SignupForm">
+        <item name="android:background">@drawable/white_rounded</item>
+        <item name="android:layout_margin">@dimen/gutter</item>
+    </style>
+
+    <style name="SignupLabel">
+        <item name="android:textSize">@dimen/font_size_default</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:paddingLeft">@dimen/gutter</item>
+        <item name="android:paddingRight">@dimen/gutter</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">3.0dip</item>
+    </style>
+
+    <style name="SignupEdit">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/gutter</item>
+        <item name="android:layout_marginRight">@dimen/gutter</item>
+        <item name="android:drawablePadding">2.0dip</item>
+    </style>
+
+
+    <style name="Button.Submit" parent="@style/Button">
+        <item name="android:textSize">@dimen/font_size_large</item>
     </style>
 
 </resources>
