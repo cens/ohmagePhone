@@ -59,6 +59,7 @@
     <string name="mobility_radio_button_off_description">Off Button</string>
     <string name="mobility_radio_button_1min_description">1 Minute Button</string>
     <string name="mobility_radio_button_5min_description">5 Minutes Button</string>
+    <string name="mobility_upload_error_message">There was an error uploading mobility</string>
 
     <!-- Admin Pincode -->
     <string name="admin_dialog_title">Enter pin code:</string>
