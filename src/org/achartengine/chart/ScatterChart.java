@@ -154,22 +154,22 @@ public class ScatterChart extends XYChart {
     }
     switch (((XYSeriesRenderer) renderer).getPointStyle()) {
     case X:
-      drawX(canvas, paint, x, y);
+      drawX(canvas, paint, x + size, y);
       break;
     case CIRCLE:
       drawCircle(canvas, paint, x + size, y);
       break;
     case TRIANGLE:
-      drawTriangle(canvas, paint, new float[6], x, y);
+      drawTriangle(canvas, paint, new float[6], x + size, y);
       break;
     case SQUARE:
-      drawSquare(canvas, paint, x, y);
+      drawSquare(canvas, paint, x + size, y);
       break;
     case DIAMOND:
-      drawDiamond(canvas, paint, new float[8], x, y);
+      drawDiamond(canvas, paint, new float[8], x + size, y);
       break;
     case POINT:
-      canvas.drawPoint(x, y, paint);
+      canvas.drawPoint(x + size, y, paint);
       break;
     }
   }

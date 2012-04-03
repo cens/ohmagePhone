@@ -84,10 +84,10 @@ public class OhmageLineChart extends ScatterChart {
 		}
 		switch (((XYSeriesRenderer) renderer).getPointStyle()) {
 			case DASHED_LINE:
-				drawDashedLine(canvas, paint, x, y);
+				drawDashedLine(canvas, paint, x+1, y);
 				break;
 			case RECTANGLE:
-				drawRectangle(canvas, paint, x, y);
+				drawRectangle(canvas, paint, x + size/2, y);
 				break;
 			default:
 				super.drawLegendShape(canvas, renderer, x, y, seriesIndex, paint);
@@ -115,7 +115,7 @@ public class OhmageLineChart extends ScatterChart {
 	public int getLegendShapeWidth(int seriesIndex) {
 		switch(((XYSeriesRenderer) getRenderer().getSeriesRendererAt(seriesIndex)).getPointStyle()) {
 			case DASHED_LINE:
-				return (int) (size/4.0);
+				return 2;
 			case RECTANGLE:
 				return (int) (size/2.0);
 			default:

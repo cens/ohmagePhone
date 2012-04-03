@@ -143,7 +143,7 @@ public abstract class AbstractChart implements Serializable {
         	} else {
         		paint.setColor(Color.BLACK);
         	}
-        	canvas.drawText(text, currentX + lineSize + 5, currentY + 5, paint);
+			canvas.drawText(text, currentX + lineSize + 10, currentY + 5, paint);
         }
         currentX += extraSize;
       }
