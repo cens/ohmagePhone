@@ -29,7 +29,7 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 
 	public static class ComparisonAdapterItem extends SimpleChartListAdapter.ChartItem<OhmageLineChart>{
 
-		public static final PointStyle POINT_STYLE_CURRENT = PointStyle.CIRCLE;
+		public static final PointStyle POINT_STYLE_CURRENT = PointStyle.RECTANGLE;
 		public static final PointStyle POINT_STYLE_LAST_WEEK = PointStyle.RECTANGLE;
 		public static final PointStyle POINT_STYLE_BASE_LINE = PointStyle.DASHED_LINE;
 
@@ -106,8 +106,8 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 
 			int color = context.getResources().getColor(mPrompt.getColor());
 
-			renderer.addSeriesRenderer(0, addSeries(current, "This Week", dataset, POINT_STYLE_CURRENT, color));
-			renderer.addSeriesRenderer(1, addSeries(lastWeek, "Last Week", dataset, POINT_STYLE_LAST_WEEK, Utilities.darkenColor(color)));
+			renderer.addSeriesRenderer(0, addSeries(current, "This Week", dataset, POINT_STYLE_CURRENT, Utilities.darkenColor(color)));
+			renderer.addSeriesRenderer(1, addSeries(lastWeek, "Last Week", dataset, POINT_STYLE_LAST_WEEK, color));
 			renderer.addSeriesRenderer(2, addSeries(baseLine, "Base Line", dataset, POINT_STYLE_BASE_LINE, Color.BLACK));
 
 			renderer.setXAxisMin(mPrompt.getMin());

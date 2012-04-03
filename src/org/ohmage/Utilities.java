@@ -273,4 +273,17 @@ public class Utilities {
 			return 255 - color;
 		return change;
 	}
+
+	/**
+	 * Calculates the grayscale value of the color
+	 * @param color
+	 * @return the gray scale color
+	 */
+	public static int colorGrayscale(int color) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(color, hsv);
+		hsv[0] = 0;
+		hsv[1] = 0;
+		return Color.HSVToColor(hsv);
+	}
 }

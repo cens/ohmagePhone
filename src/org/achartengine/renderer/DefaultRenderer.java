@@ -100,6 +100,8 @@ public class DefaultRenderer implements Serializable {
   private boolean mInScroll;
   /** The start angle for circular charts such as pie, doughnut, etc. */
   private float mStartAngle = 0;
+  /** True if the legend should be shown in grayscale*/
+  private boolean mLegendGrayscale;
 
   /**
    * Returns the chart title.
@@ -163,6 +165,13 @@ public class DefaultRenderer implements Serializable {
    */
   public void removeSeriesRenderer(SimpleSeriesRenderer renderer) {
     mRenderers.remove(renderer);
+  }
+
+  /**
+   * Clears all renderers
+   */
+  public void clearSeriesRenderers() {
+    mRenderers.clear();
   }
 
   /**
@@ -689,4 +698,11 @@ public class DefaultRenderer implements Serializable {
     mStartAngle = startAngle;
   }
 
+  public boolean isLegendGrayscale() {
+	  return mLegendGrayscale;
+  }
+
+  public void setLegendGrayscale(boolean grayscale) {
+	  mLegendGrayscale = grayscale;
+  }
 }

@@ -137,6 +137,8 @@ public class OhmageLineChart extends ScatterChart {
 
 	public static class OhmageLineRenderer extends CleanRenderer {
 		public OhmageLineRenderer() {
+			clearSeriesRenderers();
+
 			setPointSize(10);
 			setMargins(new int[] {
 					15, 20, 0, 20
@@ -144,6 +146,7 @@ public class OhmageLineChart extends ScatterChart {
 			setDrawAxesBelowSeries(true);
 			setShowYAxis(false);
 			setLegendHeight(30);
+			setLegendGrayscale(true);
 		}
 	}
 

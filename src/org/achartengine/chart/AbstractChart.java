@@ -21,6 +21,7 @@ import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer.Orientation;
+import org.ohmage.Utilities;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -131,18 +132,17 @@ public abstract class AbstractChart implements Serializable {
         if (!calculate) {
 
         	if (titles.length == renderer.getSeriesRendererCount()) {
-        		paint.setColor(renderer.getSeriesRendererAt(i).getColor());
+        		if(renderer.isLegendGrayscale())
+        			paint.setColor(Utilities.colorGrayscale(renderer.getSeriesRendererAt(i).getColor()));
+        		else
+        			paint.setColor(renderer.getSeriesRendererAt(i).getColor());
         	} else {
         		paint.setColor(Color.GRAY);
         	}
 
         	drawLegendShape(canvas, renderer.getSeriesRendererAt(i), currentX, currentY, i, paint);
 
-        	if (titles.length == renderer.getSeriesRendererCount()) {
-        		paint.setColor(renderer.getSeriesRendererAt(i).getColor());
-        	} else {
-        		paint.setColor(Color.BLACK);
-        	}
+        	paint.setColor(Color.BLACK);
 			canvas.drawText(text, currentX + lineSize + 10, currentY + 5, paint);
         }
         currentX += extraSize;
