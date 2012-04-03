@@ -673,7 +673,7 @@ public abstract class XYChart extends AbstractChart {
           paint.setColor(mRenderer.getLabelsColor());
           canvas.drawLine(xLabel, bottom, xLabel, bottom + mRenderer.getLabelsTextSize() / 3, paint);
           drawText(canvas, mRenderer.getXTextLabel(location), xLabel, bottom
-              + mRenderer.getLabelsTextSize() * 4 / 3, paint, mRenderer.getXLabelsAngle());
+              + mRenderer.getLabelsTextSize() * 4 / 3 + 2, paint, mRenderer.getXLabelsAngle());
           if (showCustomTextGrid) {
             paint.setColor(mRenderer.getGridColor());
             canvas.drawLine(xLabel, bottom, xLabel, top, paint);
