@@ -35,32 +35,12 @@
                 style="@style/ContentHeader"
                 android:text="RESPONSES" />
 
-            <FrameLayout
-                android:id="@+id/feedback_response_graph"
-                android:layout_width="fill_parent"
-                android:layout_height="150dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="4dp" />
-
             <LinearLayout
+                android:id="@+id/feedback_responses_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:paddingRight="12dip" >
+                android:orientation="vertical" />
 
-                <Button
-                    android:id="@+id/feedback_response_history_calendar"
-                    style="@style/InfoButton"
-                    android:drawableLeft="@drawable/ic_info_calendar"
-                    android:text="View Calendar" />
-
-                <Button
-                    android:id="@+id/feedback_response_history_map"
-                    style="@style/InfoButton"
-                    android:drawableLeft="@drawable/location_map"
-                    android:text="View Map" />
-            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
