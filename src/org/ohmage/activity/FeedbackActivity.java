@@ -10,6 +10,7 @@ import org.ohmage.fragments.RecentChartFragment;
 import org.ohmage.fragments.RecentCompareFragment;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 import org.ohmage.ui.BaseActivity;
+import org.ohmage.ui.TabsAdapter;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,85 +19,50 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TabHost;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 public class FeedbackActivity extends BaseActivity {
 
-	private static final String TAG = "FeedbackActivity";
-
-	/**
-	 * true when the charts have been loaded
-	 */
-	private boolean mChartsLoaded;
-
-	/**
-	 * true when the responses have been loaded
-	 */
-	private boolean mResponsesLoaded;
-
-	/**
-	 * true when the compare fragment has been loaded
-	 */
-	private boolean mCompareLoaded;
+	TabHost mTabHost;
+	ViewPager mViewPager;
+	TabsAdapter mTabsAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.feedback_layout);
 
-		if (getSupportFragmentManager().findFragmentById(R.id.feedback_compare_container) == null) {
-			Fragment compareFragment = new RecentCompareFragment() {
-				@Override
-				public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
-					super.onPromptReadFinished(feedbackItems);
-					mCompareLoaded = true;
-					maybeShowContent();
-				}
-			};
-			getSupportFragmentManager().beginTransaction().add(R.id.feedback_compare_container, compareFragment).commit();
+		setContentView(R.layout.tab_layout);
+		setActionBarShadowVisibility(false);
+
+		mTabHost = (TabHost) findViewById(android.R.id.tabhost);
+		mTabHost.setup();
+
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+
+		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
+
+		mTabsAdapter.addTab("Compare", RecentCompareFragment.class, null);
+		mTabsAdapter.addTab("Charts", RecentChartFragment.class, null);
+		mTabsAdapter.addTab("Responses", RecentResponsesFragment.class, null);
+
+		if (savedInstanceState != null) {
+			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
 		}
-
-		if (getSupportFragmentManager().findFragmentById(R.id.feedback_chart_container) == null) {
-			Fragment chartFragment = new RecentChartFragment() {
-				@Override
-				public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
-					super.onPromptReadFinished(feedbackItems);
-					mChartsLoaded = true;
-					maybeShowContent();
-				}
-			};
-			getSupportFragmentManager().beginTransaction().add(R.id.feedback_chart_container, chartFragment).commit();
-		}
-
-		if (getSupportFragmentManager().findFragmentById(R.id.feedback_responses_container) == null) {
-			Fragment chartFragment = new RecentResponsesFragment() {
-				@Override
-				public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-					super.onLoadFinished(loader, data);
-					mResponsesLoaded = true;
-					maybeShowContent();
-				}
-			};
-			getSupportFragmentManager().beginTransaction().add(R.id.feedback_responses_container, chartFragment).commit();
-		}
-	}
-
-	private void maybeShowContent() {
-		setLoadingVisibility(!mChartsLoaded || !mResponsesLoaded || !mCompareLoaded);
 	}
 
 	@Override
-	public void onContentChanged() {
-		super.onContentChanged();
-		setLoadingVisibility(true);
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString("tab", mTabHost.getCurrentTabTag());
 	}
 
 	public static class RecentResponsesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -114,8 +80,7 @@ public class FeedbackActivity extends BaseActivity {
 		}
 
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
+		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View view = inflater.inflate(R.layout.recent_responses_fragment_layout, container, false);
 
 			mContainer = (ViewGroup) view.findViewById(R.id.feedback_response_graph);
@@ -132,13 +97,13 @@ public class FeedbackActivity extends BaseActivity {
 
 				@Override
 				public void onClick(View v) {
-					startActivity(new Intent(getActivity(), ResponseHistoryActivity.class).putExtra(ResponseHistoryActivity.EXTRA_SHOW_MAP, true));
+					startActivity(new Intent(getActivity(), ResponseHistoryActivity.class)
+					.putExtra(ResponseHistoryActivity.EXTRA_SHOW_MAP, true));
 				}
 			});
 
 			return view;
 		}
-
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int id, Bundle args) {
