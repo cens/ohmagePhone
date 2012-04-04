@@ -25,6 +25,7 @@ public class RecentCompareFragment extends PromptFeedbackFragment<ComparisonAdap
 
 	@Override
 	public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
+		mAdapter.clear();
 
 		for(String key : NIHConfig.PROMPT_LIST) {
 			LinkedList<FeedbackItem> list = feedbackItems.get(NIHConfig.getPrompt(key));
