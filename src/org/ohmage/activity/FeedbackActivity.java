@@ -93,15 +93,7 @@ public class FeedbackActivity extends BaseActivity implements LoaderManager.Load
 	public void onContentChanged() {
 		super.onContentChanged();
 
-		Button b = (Button) findViewById(R.id.feedback_charts_more);
-		b.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(FeedbackActivity.this, ChartFeedbackActivity.class));
-			}
-		});
-		b = (Button) findViewById(R.id.feedback_response_history_calendar);
+		Button b = (Button) findViewById(R.id.feedback_response_history_calendar);
 		b.setOnClickListener(new View.OnClickListener() {
 
 			@Override

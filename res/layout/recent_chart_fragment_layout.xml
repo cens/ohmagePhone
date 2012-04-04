@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recent_chart_container"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/recent_chart_container"
         android:layout_width="fill_parent"
-        android:layout_height="120dp"
-        android:gravity="center"
-        android:text="@string/charts_no_data" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/gutter">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="120dp"
+            android:gravity="center"
+            android:text="@string/charts_no_data" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/recent_chart_more"
+        style="@style/InfoButton"
+        android:layout_gravity="right"
+        android:layout_marginRight="12dip"
+        android:drawableLeft="@null"
+        android:visibility="gone" />
 
 </LinearLayout>

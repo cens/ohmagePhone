@@ -19,8 +19,7 @@
                 android:id="@+id/feedback_compare_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="10dp" />
+                android:orientation="vertical" />
 
             <TextView
                 style="@style/ContentHeader"
@@ -30,16 +29,7 @@
                 android:id="@+id/feedback_chart_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="10dp" />
-
-            <Button
-                android:id="@+id/feedback_charts_more"
-                style="@style/InfoButton"
-                android:layout_gravity="right"
-                android:layout_marginRight="12dip"
-                android:drawableLeft="@null"
-                android:text="More Charts" />
+                android:orientation="vertical" />
 
             <TextView
                 style="@style/ContentHeader"
