@@ -1,5 +1,6 @@
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.fragments.SurveyListFragment;
@@ -34,6 +35,9 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.survey_list_layout);
+
+		if(Config.IS_SINGLE_CAMPAIGN)
+			setActionBarShadowVisibility(false);
 
 		boolean showPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
 

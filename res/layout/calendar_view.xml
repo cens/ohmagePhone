@@ -1,70 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
-	android:orientation="vertical"
-	android:layout_width="fill_parent"
-	android:layout_height="match_parent"
-	android:background="@color/dkgray">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-	<LinearLayout 
-		android:id="@+id/weekday_names"
-		android:layout_width="fill_parent"
-		android:layout_height="22dp"
-		android:layout_gravity="center"
-		android:gravity="center"
-		android:orientation="horizontal"
-		android:weightSum="7.2">
-		<TextView
-			style="@style/calendar_day_name_style"
-			android:textColor="#F2ACAC"
-			android:text="@string/calendar_short_sunday"
-			android:layout_weight="1.1"/>
-		<TextView
-			style="@style/calendar_day_name_style"
-			android:text="@string/calendar_short_monday"/>
-		<TextView
-			style="@style/calendar_day_name_style"
-			android:text="@string/calendar_short_tuesday"/>
-		<TextView
-			style="@style/calendar_day_name_style"
-			android:text="@string/calendar_short_wednesday"/>
-		<TextView
-			style="@style/calendar_day_name_style"
-			android:text="@string/calendar_short_thursday"/>
-		<TextView
-			style="@style/calendar_day_name_style"
-			android:text="@string/calendar_short_friday"/>
-		<TextView
-			style="@style/calendar_day_name_style"
-			android:textColor="#ACC1F2"
-			android:text="@string/calendar_short_saturday"
-			android:layout_weight="1.1"/>
-	</LinearLayout>
-	
-	<TextSwitcher
-		android:id="@+id/summary_text_switcher"
-		android:gravity="center"
-		android:layout_gravity="center"
-		android:paddingBottom="4dp"
-		android:background="@color/dkgray"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"/>
+    <TextSwitcher
+        android:id="@+id/summary_text_switcher"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:background="@color/dkgray"
+        android:gravity="center"
+        android:paddingBottom="4dp" />
 
-	<GridView
-		android:id="@+id/calendar"
-		android:gravity="center"
-		android:numColumns="7"
-		android:paddingLeft="2dp"
-		android:layout_width="fill_parent"
-		android:layout_height="253dp"
-		android:horizontalSpacing="1dp"
-		android:verticalSpacing="1dp"
-		android:background="@color/dkgray" 
-		android:layout_above="@id/summary_text_switcher"
-		android:layout_below="@id/weekday_names"/>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/summary_text_switcher"
+        android:orientation="vertical" >
 
-		
+        <LinearLayout
+            android:id="@+id/weekday_names"
+            android:layout_width="fill_parent"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="7.2" >
+
+            <TextView
+                style="@style/calendar_day_name_style"
+                android:layout_weight="1.1"
+                android:text="@string/calendar_short_sunday"
+                android:textColor="#F2ACAC" />
+
+            <TextView
+                style="@style/calendar_day_name_style"
+                android:text="@string/calendar_short_monday" />
+
+            <TextView
+                style="@style/calendar_day_name_style"
+                android:text="@string/calendar_short_tuesday" />
+
+            <TextView
+                style="@style/calendar_day_name_style"
+                android:text="@string/calendar_short_wednesday" />
+
+            <TextView
+                style="@style/calendar_day_name_style"
+                android:text="@string/calendar_short_thursday" />
+
+            <TextView
+                style="@style/calendar_day_name_style"
+                android:text="@string/calendar_short_friday" />
+
+            <TextView
+                style="@style/calendar_day_name_style"
+                android:layout_weight="1.1"
+                android:text="@string/calendar_short_saturday"
+                android:textColor="#ACC1F2" />
+        </LinearLayout>
+
+        <View style="@style/DividerHorizontal" />
+
+        <GridView
+            android:id="@+id/calendar"
+            android:layout_width="fill_parent"
+            android:layout_height="253dp"
+            android:background="@color/dkgray"
+            android:gravity="center"
+            android:horizontalSpacing="1dp"
+            android:numColumns="7"
+            android:paddingLeft="2dp"
+            android:verticalSpacing="1dp" />
+    </LinearLayout>
+
 </RelativeLayout>
-

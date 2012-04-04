@@ -53,6 +53,9 @@ public class HelpActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.help_layout);
+
+		setActionBarShadowVisibility(false);
+
         mTabHost = (TabHost)findViewById(android.R.id.tabhost);
         mTabHost.setup();
 

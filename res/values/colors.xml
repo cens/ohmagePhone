@@ -31,4 +31,6 @@
     <color name="soft_black">#ff333333</color>
     <color name="button_text_disabled">#ffaaaaaa</color>
 
+    <color name="pastel_blue">#AEE4F9</color>
+    <color name="tab_selected">@color/pastel_blue</color>
 </resources>

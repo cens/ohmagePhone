@@ -71,7 +71,7 @@
         <item name="android:paddingLeft">@dimen/button_padding</item>
         <item name="android:paddingRight">@dimen/button_padding</item>
     </style>
-    
+
     <style name="SignupForm">
         <item name="android:background">@drawable/white_rounded</item>
         <item name="android:layout_margin">@dimen/gutter</item>
@@ -96,9 +96,14 @@
         <item name="android:drawablePadding">2.0dip</item>
     </style>
 
-
     <style name="Button.Submit" parent="@style/Button">
         <item name="android:textSize">@dimen/font_size_large</item>
+    </style>
+
+    <style name="DividerHorizontal">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@color/lightgray</item>
     </style>
 
 </resources>
