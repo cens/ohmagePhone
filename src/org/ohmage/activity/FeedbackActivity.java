@@ -1,14 +1,19 @@
 
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.achartengine.GraphicalView;
 import org.ohmage.R;
 import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.fragments.RecentChartFragment;
 import org.ohmage.fragments.RecentCompareFragment;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
+import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.ui.BaseActivity;
 import org.ohmage.ui.TabsAdapter;
 
@@ -31,6 +36,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FeedbackActivity extends BaseActivity {
+
+	private static final int ACTION_RESPONSESYNC = 0;
 
 	TabHost mTabHost;
 	ViewPager mViewPager;
@@ -57,6 +64,25 @@ public class FeedbackActivity extends BaseActivity {
 		if (savedInstanceState != null) {
 			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
 		}
+
+		// add a sync command to the response history action bar
+		ActionBarControl actionBar = getActionBar();
+		actionBar.clearActionBarCommands();
+
+		actionBar.addActionBarCommand(ACTION_RESPONSESYNC, "sync responses", R.drawable.btn_title_refresh);
+
+		actionBar.setOnActionListener(new ActionListener() {
+			@Override
+			public void onActionClicked(int commandID) {
+				switch (commandID) {
+					case ACTION_RESPONSESYNC:
+						Intent i = new Intent(FeedbackActivity.this, ResponseSyncService.class);
+						i.putExtra(ResponseSyncService.EXTRA_INTERACTIVE, true);
+						WakefulIntentService.sendWakefulWork(FeedbackActivity.this, i);
+						break;
+				}
+			}
+		});
 	}
 
 	@Override
