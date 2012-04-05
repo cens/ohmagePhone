@@ -7,6 +7,7 @@ import org.ohmage.R;
 import org.ohmage.adapters.ChartListAdapter;
 import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
+import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.database.Cursor;
@@ -86,9 +87,11 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 			margins[1] = 28;
 			r.setMargins(margins);
 		} else if(NIHConfig.Prompt.TIME_TO_YOURSELF_ID.equals(promptId)) {
-			int[] margins = r.getMargins();
+			HistogramRenderer r2 = new HistogramRenderer(getActivity());
+			int[] margins = r2.getMargins();
 			margins[1] = 28;
-			r.setMargins(margins);
+			r2.setMargins(margins);
+			return extraData.toHistogramChartItem(promptData, r2);
 		} else if(NIHConfig.Prompt.FOOD_QUALITY_ID.equals(promptId)) {
 			int[] margins = r.getMargins();
 			margins[1] = 37;

@@ -55,6 +55,8 @@ public class NIHConfig {
 		}
 
 		public HistogramChartItem toHistogramChartItem(List<FeedbackItem> data, HistogramRenderer r) {
+			addLabels(r);
+			r.setShowLabels(true);
 			return new HistogramChartItem(shortName, data, colorId, min, max, label, r, mapper);
 		}
 
