@@ -113,6 +113,7 @@
             android:screenOrientation="portrait" />
 
 		<activity
+		    android:label="@string/title_feedback_charts"
             android:configChanges="orientation|keyboardHidden"
             android:name=".activity.ChartFeedbackActivity"
             android:screenOrientation="portrait" />

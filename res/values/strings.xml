@@ -82,6 +82,7 @@
     <string name="title_help">Help</string>
     <string name="title_mobility">Mobility</string>
     <string name="title_feedback">Feedback</string>
+    <string name="title_feedback_charts">Charts</string>
 
     <!-- subscreen titles -->
     <string name="title_add_campaign">Add Campaign</string>
