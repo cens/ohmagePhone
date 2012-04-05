@@ -1,90 +1,62 @@
 
 package org.ohmage.activity;
 
-import com.astuetz.viewpagertabs.ViewPagerTabProvider;
-import com.astuetz.viewpagertabs.ViewPagerTabs;
-
 import org.ohmage.NIHConfig;
 import org.ohmage.R;
 import org.ohmage.fragments.ChartListFragment;
 import org.ohmage.ui.BaseActivity;
+import org.ohmage.ui.TabsAdapter;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.widget.TabHost;
 
 public class ChartFeedbackActivity extends BaseActivity {
 
-	private ViewPager mPager;
-	private ViewPagerTabs mTabs;
-	private ChartFeedbackAdapter mAdapter;
+	private TabHost mTabHost;
+	private ViewPager mViewPager;
+	private TabsAdapter mTabsAdapter;
+
+	private final String[] mTabs = {
+			"All",
+			"Diet",
+			"Stress",
+			"Exercise"
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.chart_feedback_layout);
+		setContentView(R.layout.tab_layout);
 
-		mAdapter = new ChartFeedbackAdapter(getSupportFragmentManager());
+		setActionBarShadowVisibility(false);
 
-		mPager = (ViewPager) findViewById(R.id.pager);
-		mPager.setAdapter(mAdapter);
+		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
+		mTabHost.setup();
 
-		mTabs = (ViewPagerTabs) findViewById(R.id.tabs);
-		mTabs.setViewPager(mPager);
+		mViewPager = (ViewPager)findViewById(R.id.pager);
+
+		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
+
+		for(int i=0;i<mTabs.length;i++) {
+			Bundle b = new Bundle();
+			b.putStringArray("prompts", getPrompts(i));
+			mTabsAdapter.addTab(mTabs[i],ChartListFragment.class, b);
+		}
 	}
 
-	public static class ChartFeedbackAdapter extends FragmentPagerAdapter implements ViewPagerTabProvider {
-
-		public final int RECENT = 0;
-		public final int DIET = 1;
-		public final int STRESS = 2;
-		public final int EXERCISE = 3;
-		private final int mLength = 4;
-
-		private final String[] mTitles = {
-				"All",
-				"Diet",
-				"Stress",
-				"Exercise"
-		};
-
-		public ChartFeedbackAdapter(FragmentManager fragmentManager) {
-			super(fragmentManager);
-		}
-
-		@Override
-		public int getCount() {
-			return mLength;
-		}
-
-		@Override
-		public String getTitle(int position) {
-			if (position >= 0 && position < mTitles.length)
-				return mTitles[position].toUpperCase();
-			else
-				return "";
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			return ChartListFragment.newInstance(getPrompts(position));
-		}
-
-		private String[] getPrompts(int position) {
-			switch(position) {
-				case 0:
-					return new String[] { NIHConfig.SQL.FOOD_QUALITY_ID, NIHConfig.SQL.FOOD_QUANTITY_ID, NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.TIME_TO_YOURSELF_ID, NIHConfig.SQL.DID_EXERCISE_ID };
-				case 1:
-					return new String[] { NIHConfig.SQL.FOOD_QUALITY_ID, NIHConfig.SQL.FOOD_QUANTITY_ID };
-				case 2:
-					return new String[] { NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.TIME_TO_YOURSELF_ID };
-				case 3:
-					return new String[] { NIHConfig.SQL.DID_EXERCISE_ID };
-				default:
-					throw new RuntimeException("Invalid position");
-			}
+	private String[] getPrompts(int position) {
+		switch(position) {
+			case 0:
+				return new String[] { NIHConfig.SQL.FOOD_QUALITY_ID, NIHConfig.SQL.FOOD_QUANTITY_ID, NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.TIME_TO_YOURSELF_ID, NIHConfig.SQL.DID_EXERCISE_ID };
+			case 1:
+				return new String[] { NIHConfig.SQL.FOOD_QUALITY_ID, NIHConfig.SQL.FOOD_QUANTITY_ID };
+			case 2:
+				return new String[] { NIHConfig.SQL.HOW_STRESSED_ID, NIHConfig.SQL.TIME_TO_YOURSELF_ID };
+			case 3:
+				return new String[] { NIHConfig.SQL.DID_EXERCISE_ID };
+			default:
+				throw new RuntimeException("Invalid position");
 		}
 	}
 }
