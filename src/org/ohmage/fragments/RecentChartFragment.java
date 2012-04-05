@@ -21,6 +21,9 @@ import java.util.LinkedList;
 
 public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter> {
 
+	private Button moreButton;
+
+
 	/**
 	 * Creates a new instance of the recent chart fragment
 	 * @return the chart fragment
@@ -34,10 +37,10 @@ public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter
 			Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 
-		Button b = (Button) view.findViewById(R.id.recent_chart_more);
-		b.setVisibility(View.VISIBLE);
-		b.setText(R.string.recent_charts_more);
-		b.setOnClickListener(new View.OnClickListener() {
+		moreButton = (Button) view.findViewById(R.id.recent_chart_more);
+		moreButton.setVisibility(View.VISIBLE);
+		moreButton.setText(R.string.recent_charts_more);
+		moreButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -59,6 +62,7 @@ public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter
 		}
 
 		if(!mAdapter.isEmpty()) {
+			moreButton.setVisibility(View.VISIBLE);
 			mContainer.removeAllViews();
 			TextView header = new TextView(getActivity());
 			header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
@@ -67,6 +71,8 @@ public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter
 			for(int i=0; i< mAdapter.getCount(); i++) {
 				mContainer.addView(mAdapter.getView(i, null, mContainer));
 			}
+		} else {
+			moreButton.setVisibility(View.GONE);
 		}
 	}
 
