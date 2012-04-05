@@ -110,22 +110,22 @@ public class NIHConfig {
 	}
 
 	private static final ExtraPromptData HOW_STRESSED = new ExtraPromptData("Stress Amount",
-			"feltStress%", R.color.light_red, 0, 3, "times with low stress", new String[] {
+			"feltStress%", R.color.light_red, 0, 3, "Stress Level", new String[] {
 					"None", "Low", "Med", "High"
 			}, 0);
 	private static final ExtraPromptData FOOD_QUALITY = new ExtraPromptData("Food Quality",
 			"foodQuality%", R.color.light_blue, 0, 2,
-			"high quality meals eaten", new String[] {
+			"Meal Quality", new String[] {
 					"Low", "Med", "High"
 			}, 2);
 	private static final ExtraPromptData FOOD_QUANTITY = new ExtraPromptData("Food Quantity",
 			"foodHowMuch%", R.color.light_blue, 0, 2,
-			"healthy size meals eaten", new String[] {
+			"Meal Size", new String[] {
 					"Small", "Just Right", "Large"
 			}, 1);
 	private static final ExtraPromptData TIME_TO_YOURSELF = new ExtraPromptData(
 			"Time For Self", "timeForYourself", R.color.light_purple, 0, 4,
-			"hours", new String[] {
+			"Hours", new String[] {
 					"0", "<.5", "< 1", "> 1", "> 2"
 			}, new DataMapper() {
 
@@ -149,7 +149,7 @@ public class NIHConfig {
 			});
 
 	private static final ExtraPromptData DID_EXERCISE = new ExtraPromptData("Did Exercise",
-			"didYouExercise", R.color.light_green, 0, 1, "times", new String[] {
+			"didYouExercise", R.color.light_green, 0, 1, null, new String[] {
 					"No", "Yes"
 			});
 

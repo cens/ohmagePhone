@@ -9,6 +9,7 @@ import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -28,7 +29,7 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 		private Integer max;
 
 		public ChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max) {
-			this(title, data, color, min, max, "hours", null);
+			this(title, data, color, min, max, null, null);
 		}
 
 		public ChartItem(String title, List<FeedbackItem> data, int color, Integer min, Integer max, String yLabel) {
@@ -67,6 +68,13 @@ public abstract class SimpleChartListAdapter<T extends ChartItem<? extends XYCha
 
 			renderer.setPanEnabled(false, false);
 			renderer.setZoomEnabled(false, false);
+			if(!TextUtils.isEmpty(yLabel) && TextUtils.isEmpty(renderer.getYTitle())) {
+				renderer.setYTitle(yLabel);
+				// Add margin for the label
+				int[] margins = renderer.getMargins();
+				margins[1] += renderer.getLabelsTextSize() * 1.5;
+				renderer.setMargins(margins);
+			}
 			return chart;
 		}
 

@@ -398,11 +398,12 @@ public abstract class XYChart extends AbstractChart {
           drawText(canvas, mRenderer.getXTitle(), x + width / 2, bottom
               + mRenderer.getLabelsTextSize() * 4 / 3 + size, paint, 0);
           for (int i = 0; i < maxScaleNumber; i++) {
+        	  float ycenter = y + height / 2 - mRenderer.getLabelsTextSize();
             Align axisAlign = mRenderer.getYAxisAlign(i);
             if (axisAlign == Align.LEFT) {
-              drawText(canvas, mRenderer.getYTitle(i), x + size, y + height / 2, paint, -90);
+              drawText(canvas, mRenderer.getYTitle(i), x + size, ycenter, paint, -90);
             } else {
-              drawText(canvas, mRenderer.getYTitle(i), x + width, y + height / 2, paint, -90);
+              drawText(canvas, mRenderer.getYTitle(i), x + width, ycenter, paint, -90);
             }
           }
           paint.setTextSize(mRenderer.getChartTitleTextSize());
