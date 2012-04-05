@@ -35,10 +35,9 @@ public class SparkLine extends TimeChart {
 		XYSeries series = new XYSeries("");
 
 		FeedbackItem point;
-		for(int i=0; i< MAX_DATA_POINTS; i++) {
+		for(int i=0; i< MAX_DATA_POINTS && i < data.size(); i++) {
 			point = data.get(i);
 			series.add(MAX_DATA_POINTS - i - 1, point.value);
-
 		}
 		dataSet.addSeries(series);
 		return dataSet;
