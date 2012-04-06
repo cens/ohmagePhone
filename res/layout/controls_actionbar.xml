@@ -30,11 +30,15 @@
 
     <ProgressBar
         android:id="@+id/controls_actionbar_progress"
-        style="@android:style/Widget.ProgressBar.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|center_horizontal"
-        android:paddingRight="10px"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:maxHeight="16dip"
+        android:maxWidth="16dip"
+        android:minHeight="16dip"
+        android:minWidth="16dip"
+        android:paddingRight="@dimen/gutter"
         android:visibility="gone" />
 
 </merge>
