@@ -61,4 +61,8 @@ public class UserPreferencesHelper {
 	public static long getBaseLineEndTime(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getLong(KEY_BASELINE_END_TIME, 0);
 	}
+
+	public static void clearBaseLineEndTime(Context context) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit().remove(KEY_BASELINE_END_TIME).commit();
+	}
 }

@@ -20,12 +20,15 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 	private static final String KEY_UPDATE_PASSWORD = "key_update_password";
 	private static final String KEY_LOGOUT = "key_logout";
 	private static final String KEY_QUERY_TEST = "key_querytest";
+	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
+	private static final CharSequence KEY_BASELINE_CLEAR = "key_baseline_clear";
 
 	private PreferenceScreen mUpdatePassword;
 	private PreferenceScreen mLogout;
 	private PreferenceScreen mQueryTest;
 
 	private AccountHelper mAccountHelper;
+	private Preference mBaseLineClear;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +67,24 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 				return true;
 			}
 		});
-		
+
 		mQueryTest = (PreferenceScreen) findPreference(KEY_QUERY_TEST);
 		mQueryTest.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				startActivity(new Intent(getBaseContext(), QueryTestActivity.class));
+				return true;
+			}
+		});
+
+		mBaseLineClear = findPreference(KEY_BASELINE_CLEAR);
+		mBaseLineClear.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				UserPreferencesHelper.clearBaseLineEndTime(AdminSettingsActivity.this);
+				findPreference(KEY_BASELINE_END_TIME).setSummary(null);
 				return true;
 			}
 		});

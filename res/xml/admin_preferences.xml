@@ -56,6 +56,10 @@
 			android:key="key_baseline_end_time"
 			android:title="@string/preferences_baseline_endtime_title" />
 
+		<Preference
+			android:key="key_baseline_clear"
+			android:title="@string/preferences_baseline_clear_title" />
+
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="Debugging">
