@@ -173,7 +173,7 @@ public class FeedbackActivity extends BaseActivity {
 			renderer.setInScroll(true);
 
 			mContainer.removeAllViews();
-			mContainer.addView(new GraphicalView(getActivity(), new Histogram(getActivity(), renderer, values)));
+			mContainer.addView(new GraphicalView(getActivity(), new Histogram(getActivity(), renderer, values, MAX_DATA_COLUMNS)));
 		}
 	}
 }

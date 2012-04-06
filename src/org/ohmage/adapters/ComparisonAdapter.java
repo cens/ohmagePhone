@@ -50,10 +50,7 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 			Calendar cal = Calendar.getInstance();
 			long now = cal.getTimeInMillis();
 			cal.add(Calendar.DATE, -cal.get(Calendar.DAY_OF_WEEK) + 1);
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			cal.set(Calendar.MILLISECOND, 0);
+			Utilities.clearTime(cal);
 			long oneWeek = cal.getTimeInMillis();
 			cal.add(Calendar.DATE, -7);
 			long twoWeeks = cal.getTimeInMillis();

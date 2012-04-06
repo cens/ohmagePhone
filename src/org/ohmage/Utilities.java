@@ -28,6 +28,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -295,5 +296,16 @@ public class Utilities {
 	public static int dpToPixels(int dp) {
 		final float scale = OhmageApplication.getContext().getResources().getDisplayMetrics().density;
 	    return (int) (dp * scale + 0.5f);
+	}
+
+	/**
+	 * Clears the time component of a calendar object
+	 * @param cal
+	 */
+	public static void clearTime(Calendar cal) {
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
 	}
 }

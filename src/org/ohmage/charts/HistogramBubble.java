@@ -98,6 +98,9 @@ public class HistogramBubble extends BubbleChart {
 			}
 		}
 
+		series.add(0, 0, 0);
+		series.add(-MAX_DAYS + 1, 0, 0);
+
 		dataSet.addSeries(series);
 		return dataSet;
 	}
