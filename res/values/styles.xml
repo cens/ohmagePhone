@@ -2,7 +2,7 @@
 
     <!-- body content -->
     <style name="TextHeader">
-        <item name="android:textSize">@dimen/text_size_xlarge</item>
+        <item name="android:textSize">@dimen/font_size_large</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/body_text_1</item>
         <!-- <item name="android:maxLines">?attr/textHeaderMaxLines</item> -->
@@ -11,28 +11,10 @@
     </style>
 
     <style name="TextHeaderSub">
-        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textSize">@dimen/font_size_default</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">@color/body_text_2</item>
         <item name="android:maxLines">2</item>
-    </style>
-
-    <style name="TextHeader2">
-        <item name="android:textSize">@dimen/text_size_medium</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/accent_1</item>
-    </style>
-
-    <style name="TextHeader3">
-        <item name="android:textSize">@dimen/text_size_medium</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/body_text_1</item>
-    </style>
-
-    <style name="TextBody">
-        <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:lineSpacingMultiplier">1.1</item>
-        <item name="android:textColor">@color/body_text_1</item>
     </style>
 
     <style name="TabBar">
@@ -97,7 +79,7 @@
     </style>
 
     <style name="Button.Submit" parent="@style/Button">
-        <item name="android:textSize">@dimen/font_size_large</item>
+        <item name="android:textSize">@dimen/font_size_medium</item>
     </style>
 
     <style name="DividerHorizontal">

@@ -27,7 +27,6 @@ public class DashboardActivity extends BaseActivity {
 	private Button mProfileBtn;
 	private Button mHelpBtn;
 	private Button mMobilityBtn;
-	private Button mSettingsBtn;
 
 	private CampaignReadLoaderCallbacks mCampaignReadLoader;
 	

@@ -2,7 +2,7 @@
 <resources>
 	<!-- style declarations -->
 	<style name="ErrorBox">
-		<item name="android:textSize">@dimen/text_size_small</item>
+		<item name="android:textSize">@dimen/font_size_default</item>
 		<item name="android:background">@drawable/warning</item>
 		<item name="android:layout_marginBottom">@dimen/gutter</item>
 		<item name="android:visibility">gone</item>
@@ -26,13 +26,9 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:padding">3dp</item>
 		<item name="android:layout_marginBottom">6dp</item>
-		<item name="android:textSize">@dimen/text_size_medium</item>
+		<item name="android:textSize">@dimen/font_size_medium</item>
 	</style>
 
-	<style name="InfoSectionTable">
-		<item name="android:textSize">@dimen/text_size_large</item>
-	</style>
-	
 	<style name="InfoSectionHeader">
 		<item name="android:background">@drawable/campaign_info_header_bg</item>
 		<item name="android:layout_marginTop">@dimen/gutter_thin</item>
