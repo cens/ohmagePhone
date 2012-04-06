@@ -15,18 +15,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
-        android:paddingRight="12dip" >
+        android:gravity="center_horizontal"
+        android:weightSum="1" >
 
         <Button
             android:id="@+id/feedback_response_history_calendar"
-            style="@style/InfoButton"
+            style="@style/Button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/gutter"
+            android:layout_weight="0.55"
             android:drawableLeft="@drawable/ic_info_calendar"
             android:text="View Calendar" />
 
         <Button
             android:id="@+id/feedback_response_history_map"
-            style="@style/InfoButton"
+            style="@style/Button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/gutter"
+            android:layout_weight="0.55"
             android:drawableLeft="@drawable/location_map"
             android:text="View Map" />
     </LinearLayout>

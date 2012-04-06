@@ -854,19 +854,7 @@ public abstract class XYChart extends AbstractChart {
 		  @Override
 		  protected void onDraw(Canvas canvas) {
 			  super.onDraw(canvas);
-			  Rect rect = new Rect();
-			  canvas.getClipBounds(rect);
-			  int top = rect.top;
-			  int left = rect.left;
-			  int width = rect.width();
-			  int height = rect.height();
-			  if (mRenderer.isInScroll()) {
-				  top = 0;
-				  left = 0;
-				  width = getMeasuredWidth();
-				  height = getMeasuredHeight();
-			  }
-			  draw(canvas, left, top, width, height);
+			  draw(canvas, 0, 0, getMeasuredWidth(), getMeasuredHeight());
 		  }
 
 		  public void draw(Canvas canvas, int x, int y, int width, int height) {

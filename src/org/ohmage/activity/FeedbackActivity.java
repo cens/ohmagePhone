@@ -165,7 +165,7 @@ public class FeedbackActivity extends BaseActivity {
 
 			HistogramRenderer renderer = new HistogramRenderer(getActivity());
 			renderer.setMargins(new int[] {
-					30, 35, 15, 30
+					30, 35, 15, 15
 			});
 			renderer.setYLabels(5);
 			renderer.setYAxisMin(0);

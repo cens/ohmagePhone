@@ -1,17 +1,24 @@
 package org.ohmage.fragments;
 
 import org.ohmage.NIHConfig;
+import org.ohmage.R;
 import org.ohmage.adapters.ComparisonAdapter;
 import org.ohmage.adapters.ComparisonAdapter.ComparisonAdapterItem;
-import org.ohmage.charts.OhmageLineChart;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
-import android.view.ViewGroup.LayoutParams;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public class RecentCompareFragment extends PromptFeedbackFragment<ComparisonAdapter> {
+public class RecentCompareFragment extends PromptFeedbackListFragment {
 
 	private static final String TAG = "RecentCompareFragment";
 
@@ -21,6 +28,40 @@ public class RecentCompareFragment extends PromptFeedbackFragment<ComparisonAdap
 	 */
 	public static RecentCompareFragment newInstance() {
 		return new RecentCompareFragment();
+	}
+
+	private ComparisonAdapter mAdapter;
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		setEmptyText(getActivity().getString(R.string.charts_no_data));
+
+		mAdapter = new ComparisonAdapter(getActivity());
+		setListAdapter(mAdapter);
+
+		// Start out with a progress indicator.
+		setListShown(false);
+
+		startCampaignRead();
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = super.onCreateView(inflater, container, savedInstanceState);
+		ListView lv = (ListView) view.findViewById(android.R.id.list);
+		View header = ComparisonAdapterItem.createLegendView(getActivity());
+		LinearLayout headerContainer = new LinearLayout(getActivity());
+		int padding = getResources().getDimensionPixelSize(R.dimen.gutter);
+		headerContainer.setPadding(padding, padding, padding, 0);
+		headerContainer.addView(header);
+
+		lv.addHeaderView(headerContainer, null, false);
+
+		lv.setDividerHeight(0);
+		return view;
 	}
 
 	@Override
@@ -34,20 +75,16 @@ public class RecentCompareFragment extends PromptFeedbackFragment<ComparisonAdap
 			}
 		}
 
-		if(!mAdapter.isEmpty()) {
-			mContainer.removeAllViews();
-
-			OhmageLineChart chart = mAdapter.getItem(0).makeChart(getActivity());
-			mContainer.addView(chart.getLegendView(getActivity()), LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-
-			for(int i=0; i< mAdapter.getCount(); i++) {
-				mContainer.addView(mAdapter.getView(i, null, mContainer));
-			}
+		// The list should now be shown.
+		if (isResumed()) {
+			setListShown(true);
+		} else {
+			setListShownNoAnimation(true);
 		}
 	}
 
 	@Override
-	public ComparisonAdapter createAdapter() {
-		return new ComparisonAdapter(getActivity());
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mAdapter.clear();
 	}
 }

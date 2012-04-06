@@ -9,14 +9,17 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:minWidth="95dp"
-        android:paddingRight="4dp" />
+        android:minWidth="105dp"
+        android:paddingLeft="@dimen/gutter"
+        android:paddingRight="8dp" />
 
     <FrameLayout
         android:id="@+id/chart"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_margin="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginRight="@dimen/gutter"
+        android:layout_marginTop="4dp"
         android:layout_toRightOf="@id/chart_title" />
 
 </RelativeLayout>

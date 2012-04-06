@@ -18,6 +18,7 @@ import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.format.DateUtils;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -125,7 +126,7 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 			return mChart;
 		}
 
-		private SimpleSeriesRenderer addSeries(Double value, String title, XYMultipleSeriesDataset dataset, PointStyle style, int color) {
+		private static SimpleSeriesRenderer addSeries(Double value, String title, XYMultipleSeriesDataset dataset, PointStyle style, int color) {
 			XYSeries series = new XYSeries(title);
 			series.add(value, 0);
 			dataset.addSeries(series);
@@ -133,6 +134,18 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 			sr.setPointStyle(style);
 			sr.setColor(color);
 			return sr;
+		}
+
+		public static View createLegendView(Context context) {
+			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
+			XYMultipleSeriesRenderer renderer = new OhmageLineRenderer();
+
+			renderer.addSeriesRenderer(0, addSeries(0.0, "Week So Far", dataset, POINT_STYLE_CURRENT, Color.DKGRAY));
+			renderer.addSeriesRenderer(1, addSeries(0.0, "Last Week", dataset, POINT_STYLE_LAST_WEEK, Color.LTGRAY));
+			renderer.addSeriesRenderer(2, addSeries(0.0, "Base Line", dataset, POINT_STYLE_BASE_LINE, Color.BLACK));
+
+			OhmageLineChart chart = new OhmageLineChart(dataset, renderer);
+			return chart.getLegendView(context);
 		}
 	}
 

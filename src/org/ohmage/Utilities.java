@@ -286,4 +286,14 @@ public class Utilities {
 		hsv[1] = 0;
 		return Color.HSVToColor(hsv);
 	}
+
+	/**
+	 * utility method for converting dp to pixels, since the setters only take pixel values :\
+	 * @param dp value
+	 * @return
+	 */
+	public static int dpToPixels(int dp) {
+		final float scale = OhmageApplication.getContext().getResources().getDisplayMetrics().density;
+	    return (int) (dp * scale + 0.5f);
+	}
 }

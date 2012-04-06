@@ -8,21 +8,24 @@ import org.ohmage.adapters.SparklineAdapter;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.Loader;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter> {
+public class RecentChartFragment extends PromptFeedbackListFragment {
 
-	private Button moreButton;
-
+	private SparklineAdapter mAdapter;
 
 	/**
 	 * Creates a new instance of the recent chart fragment
@@ -33,13 +36,35 @@ public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter
 	}
 
 	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		setEmptyText(getActivity().getString(R.string.charts_no_data));
+
+		mAdapter = new SparklineAdapter(getActivity());
+		setListAdapter(mAdapter);
+
+		// Start out with a progress indicator.
+		setListShown(false);
+
+		startCampaignRead();
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
+		ListView lv = (ListView) view.findViewById(android.R.id.list);
 
-		moreButton = (Button) view.findViewById(R.id.recent_chart_more);
-		moreButton.setVisibility(View.VISIBLE);
-		moreButton.setText(R.string.recent_charts_more);
+		TextView header = new TextView(getActivity());
+		header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+		header.setText("*Last 30 responses shown");
+		int padding = getResources().getDimensionPixelSize(R.dimen.gutter);
+		header.setPadding(padding, padding, padding, padding);
+		lv.addHeaderView(header, null, false);
+
+		LinearLayout moreLayout = new LinearLayout(getActivity());
+		Button moreButton = (Button) inflater.inflate(R.layout.button_charts_more, moreLayout, false);
 		moreButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -47,6 +72,10 @@ public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter
 				startActivity(new Intent(getActivity(), ChartFeedbackActivity.class));
 			}
 		});
+		moreLayout.addView(moreButton);
+		lv.addFooterView(moreLayout, null, false);
+
+		lv.setDividerHeight(0);
 		return view;
 	}
 
@@ -61,24 +90,16 @@ public class RecentChartFragment extends PromptFeedbackFragment<SparklineAdapter
 			}
 		}
 
-		if(!mAdapter.isEmpty()) {
-			moreButton.setVisibility(View.VISIBLE);
-			mContainer.removeAllViews();
-			TextView header = new TextView(getActivity());
-			header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-			header.setText("*Last 30 responses shown");
-			mContainer.addView(header);
-			for(int i=0; i< mAdapter.getCount(); i++) {
-				mContainer.addView(mAdapter.getView(i, null, mContainer));
-			}
+		// The list should now be shown.
+		if (isResumed()) {
+			setListShown(true);
 		} else {
-			moreButton.setVisibility(View.GONE);
+			setListShownNoAnimation(true);
 		}
 	}
 
-
 	@Override
-	public SparklineAdapter createAdapter() {
-		return new SparklineAdapter(getActivity());
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mAdapter.clear();
 	}
 }

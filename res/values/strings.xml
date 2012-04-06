@@ -347,7 +347,7 @@
     <!-- Feedback Charts -->
     <string name="feedback_chart_list_empty">No charts</string>
     <string name="charts_no_data">No data</string>
-    <string name="recent_charts_more">More Charts</string>
+    <string name="feedback_charts_more">More Charts</string>
 
     <!-- Image Loader Activity -->
     <string name="image_loader_failed">There was a problem downloading the image. Please try again later.</string>

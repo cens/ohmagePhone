@@ -332,10 +332,4 @@ public class FilterControl extends LinearLayout {
 		
 		mItemListDialog = builder.create();
 	}
-	
-	// utility method for converting dp to pixels, since the setters only take pixel values :\
-	private int dpToPixels(int dp) {
-		final float scale = getResources().getDisplayMetrics().density;
-	    return (int) (dp * scale + 0.5f);
-	}
 }
