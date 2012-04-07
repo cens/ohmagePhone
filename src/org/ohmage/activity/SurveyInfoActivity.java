@@ -165,8 +165,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		if (campaignStatus == Campaign.STATUS_READY) {
 			// only add response history if show feedback is true
 			if(new UserPreferencesHelper(this).showFeedback())
-				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.dashboard_title_resphist);
-			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.dashboard_title_trigger);
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.btn_title_resphist);
+			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.btn_title_trigger);
 			
 			// route the actions to the appropriate places
 			actionBar.setOnActionListener(new ActionListener() {

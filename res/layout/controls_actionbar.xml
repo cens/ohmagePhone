@@ -6,9 +6,9 @@
     <ImageButton
         android:id="@+id/controls_actionbar_home"
         style="@style/TitleBarLogoHome"
-        android:background="@drawable/dashboard_title_button"
+        android:background="@drawable/bg_title_button"
         android:contentDescription="@string/description_logo_home"
-        android:src="@drawable/dashboard_title_home"
+        android:src="@drawable/btn_title_home"
         android:visibility="gone" />
 
     <ImageView
@@ -22,7 +22,7 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/description_logo"
         android:scaleType="centerInside"
-        android:src="@drawable/dashboard_title_logo" />
+        android:src="@drawable/btn_title_logo" />
 
     <TextView
         android:id="@+id/controls_actionbar_title"

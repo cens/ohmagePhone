@@ -148,10 +148,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		if (campaignStatus != Campaign.STATUS_REMOTE) {
 			// only show data-related actions if it's ready
 			if (campaignStatus == Campaign.STATUS_READY) {
-				// FIXME: temporarily removed "take survey" button and moved it to the entity info header button tray
-				// actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
-				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.dashboard_title_resphist);
-				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.dashboard_title_trigger);
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.btn_title_resphist);
+				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.btn_title_trigger);
 				
 				// route the actions to the appropriate places
 				actionBar.setOnActionListener(new ActionListener() {

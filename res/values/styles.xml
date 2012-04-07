@@ -4,7 +4,7 @@
     <style name="TextHeader">
         <item name="android:textSize">@dimen/font_size_large</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/body_text_1</item>
+        <item name="android:textColor">@color/primary_text</item>
         <!-- <item name="android:maxLines">?attr/textHeaderMaxLines</item> -->
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
@@ -13,13 +13,13 @@
     <style name="TextHeaderSub">
         <item name="android:textSize">@dimen/font_size_default</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">@color/body_text_2</item>
+        <item name="android:textColor">@color/secondary_text</item>
         <item name="android:maxLines">2</item>
     </style>
 
     <style name="TabBar">
         <item name="android:orientation">horizontal</item>
-        <item name="android:background">@color/tab_background_color</item>
+        <item name="android:background">@drawable/tab_indicator</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
@@ -27,7 +27,7 @@
     <style name="Tab">
         <item name="android:textSize">12.0sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@drawable/tab_text_color</item>
+        <item name="android:textColor">@color/tab_text</item>
         <item name="android:ellipsize">end</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/tab_indicator</item>
