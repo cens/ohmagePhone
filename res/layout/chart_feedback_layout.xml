@@ -16,7 +16,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/colorline"
-        android:background="@color/tab_background_color"
+        android:background="@drawable/tab_indicator"
         viewpagertabs:lineColorCenter="@color/gold"
         viewpagertabs:textColor="@color/white"
         viewpagertabs:textColorCenter="@color/white" />

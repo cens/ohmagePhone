@@ -4,9 +4,6 @@
     <declare-styleable name="ViewPagerTabs">
 
         <attr
-            name="backgroundColor"
-            format="color" />
-        <attr
             name="backgroundColorPressed"
             format="color" />
         <attr

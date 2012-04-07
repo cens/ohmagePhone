@@ -6,7 +6,6 @@
   android:orientation="vertical">
   
   <TextView
-  	android:id="@+id/widget_top_bar"
   	android:layout_width="fill_parent"
   	android:layout_height="32dp"
   	android:gravity="center"
@@ -21,7 +20,6 @@
   	android:background="#A6A6A6" />
   	
   <LinearLayout
-  	android:id="@+id/widget_button_bar"
   	android:layout_width="fill_parent"
   	android:layout_height="122dp"
   	android:orientation="horizontal" >

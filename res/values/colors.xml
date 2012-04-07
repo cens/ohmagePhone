@@ -13,6 +13,15 @@
     <color name="yellow">#FCBA1E</color>
     <color name="pastel_blue">#AEE4F9</color>
     <color name="tan">#FAE5C0</color>
+    <color name="powderkegblue">#0063CE</color>
+    <color name="light_blue">#89b8db</color>
+    <color name="light_purple">#D18BF2</color>
+    <color name="light_red">#E89985</color>
+    <color name="light_green">#8BF2A2</color>
+    <color name="dark_purple">#754F91</color>
+    <color name="dark_green">#64AD74</color>
+    <color name="dark_red">#7A000E</color>
+    <color name="gold">#EEA93F</color>
 
     <!-- Defined Colors -->
     <color name="primary_text">#ff424242</color>
@@ -21,16 +30,6 @@
     <color name="calendar_pressed">@color/yellow</color>
     <color name="calendar_today">@color/tan</color>
     <color name="tab_selected">@color/pastel_blue</color>
+    <color name="highlight">@color/light_blue</color>
 
-	<color name="light_blue">#89b8db</color>
-	<color name="light_purple">#D18BF2</color>
-	<color name="light_red">#E89985</color>
-	<color name="light_green">#8BF2A2</color>
-	<color name="light_yellow">#EEE370</color>
-	<color name="dark_purple">#754F91</color>
-	<color name="dark_green">#64AD74</color>
-	<color name="dark_red">#7A000E</color>
-	<color name="gold">#EEA93F</color>
-
-	<color name="highlight">@color/light_blue</color>
 </resources>
