@@ -6,9 +6,9 @@
     <ImageButton
         android:id="@+id/controls_actionbar_home"
         style="@style/TitleBarLogoHome"
-        android:background="@drawable/dashboard_title_button"
+        android:background="@drawable/bg_title_button"
         android:contentDescription="@string/description_logo_home"
-        android:src="@drawable/dashboard_title_home"
+        android:src="@drawable/btn_title_home"
         android:visibility="gone" />
 
     <ImageView
@@ -22,7 +22,7 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/description_logo"
         android:scaleType="centerInside"
-        android:src="@drawable/dashboard_title_logo" />
+        android:src="@drawable/btn_title_logo" />
 
     <TextView
         android:id="@+id/controls_actionbar_title"
@@ -30,11 +30,15 @@
 
     <ProgressBar
         android:id="@+id/controls_actionbar_progress"
-        style="@android:style/Widget.ProgressBar.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|center_horizontal"
-        android:paddingRight="10px"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:maxHeight="16dip"
+        android:maxWidth="16dip"
+        android:minHeight="16dip"
+        android:minWidth="16dip"
+        android:paddingRight="@dimen/gutter"
         android:visibility="gone" />
 
 </merge>

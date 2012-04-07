@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-	android:id="@+id/prompt_question"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:imageview="http://schemas.android.com/apk/res/org.ohmage"
 
@@ -27,8 +26,7 @@
 		android:shadowDx="1"
 		android:shadowDy="1"
 		android:shadowRadius="1"
-		android:layout_toLeftOf="@id/prompt_icon"
-		android:text="hi there" />
+		android:layout_toLeftOf="@id/prompt_icon" />
 
 	<View
 		android:id="@+id/prompt_divider"

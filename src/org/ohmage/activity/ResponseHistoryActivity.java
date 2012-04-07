@@ -108,7 +108,7 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 		ActionBarControl actionBar = getActionBar();
 		actionBar.clearActionBarCommands();
 		
-		actionBar.addActionBarCommand(ACTION_RESPONSESYNC, "sync responses", R.drawable.dashboard_title_refresh);
+		actionBar.addActionBarCommand(ACTION_RESPONSESYNC, "sync responses", R.drawable.btn_title_refresh);
 		
 		actionBar.setOnActionListener(new ActionListener() {
 			@Override

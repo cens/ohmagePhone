@@ -7,12 +7,6 @@
 	======================================================
     -->
     <color name="title_text">#2C88D9</color>
-    <color name="title_text_alt">#ff000000</color>
-    <color name="foreground1">#ff000000</color>
-    <color name="foreground2">#ff70a381</color>
-    <color name="background1">#ffffffff</color>
-    <color name="background2">#ffd5ebdd</color>
-    <color name="background3">#ffe3f1e8</color>
 
     <!--
     ======================================================
@@ -26,15 +20,15 @@
     === declarative styles
     ======================================================
     -->
-    <style name="HomeButton">
+    <style name="DashboardButton">
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="android:textSize">@dimen/text_size_dash</item>
+        <item name="android:textSize">@dimen/font_size_xlarge</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">@color/foreground1</item>
+        <item name="android:textColor">@color/primary_text</item>
         <item name="android:background">@null</item>
     </style>
 
@@ -55,7 +49,7 @@
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textSize">@dimen/font_size_medium</item>
         <item name="android:paddingLeft">12dip</item>
         <item name="android:paddingRight">12dip</item>
         <item name="android:textStyle">bold</item>
@@ -77,7 +71,7 @@
         <item name="android:layout_width">@dimen/title_height</item>
         <item name="android:layout_height">@dimen/actionbar_height</item>
         <!-- - <item name="android:background">@null</item> -->
-        <item name="android:background">@drawable/dashboard_title_button</item>
+        <item name="android:background">@drawable/bg_title_button</item>
     </style>
 
     <!--
@@ -86,6 +80,5 @@
     ======================================================
     -->
     <string name="description_logo">ohmage</string>
-    <string name="description_search">Search</string>
 
 </resources>

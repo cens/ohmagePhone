@@ -7,5 +7,5 @@
 		android:state_focused="true"
 		android:drawable="@color/calendar_focused" /> <!-- focused -->
 	<item
-		android:drawable="@color/normal" /> <!-- default -->
+		android:drawable="@color/white" /> <!-- default -->
 </selector>

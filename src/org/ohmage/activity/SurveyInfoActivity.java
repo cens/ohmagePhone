@@ -165,8 +165,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		if (campaignStatus == Campaign.STATUS_READY) {
 			// only add response history if show feedback is true
 			if(new UserPreferencesHelper(this).showFeedback())
-				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.dashboard_title_resphist);
-			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.dashboard_title_trigger);
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.btn_title_resphist);
+			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.btn_title_trigger);
 			
 			// route the actions to the appropriate places
 			actionBar.setOnActionListener(new ActionListener() {
@@ -277,7 +277,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mCampaignUrnValue.setText(mCampaignUrn);
 
 		// set many things on the view according to the campaign status, too
-		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0); // start out a default gray sphere
+		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_status_other, 0, 0, 0); // start out a default gray sphere
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);
 		switch (mCampaignStatus) {
 			case Campaign.STATUS_READY:

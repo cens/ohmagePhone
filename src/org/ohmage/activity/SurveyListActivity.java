@@ -1,5 +1,6 @@
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.fragments.SurveyListFragment;
@@ -35,6 +36,9 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 		setContentView(R.layout.survey_list_layout);
 
+		if(Config.IS_SINGLE_CAMPAIGN)
+			setActionBarShadowVisibility(false);
+
 		boolean showPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
 
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
@@ -51,12 +55,12 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 		Bundle args = intentToFragmentArguments(getIntent());
 		args.putBoolean(SurveyListFragment.KEY_PENDING, false);
-		mTabManager.addTab(mTabHost.newTabSpec("all").setIndicator(createTabView("All")),
+		mTabManager.addTab(mTabHost.newTabSpec("all").setIndicator(createTabView(getString(R.string.surveys_all))),
 				SurveyListFragment.class, args);
 
 		args = intentToFragmentArguments(getIntent());
 		args.putBoolean(SurveyListFragment.KEY_PENDING, true);
-		mTabManager.addTab(mTabHost.newTabSpec("pending").setIndicator(createTabView("Pending")),
+		mTabManager.addTab(mTabHost.newTabSpec("pending").setIndicator(createTabView(getString(R.string.surveys_pending))),
 				SurveyListFragment.class, args);
 
 		if (savedInstanceState != null) {

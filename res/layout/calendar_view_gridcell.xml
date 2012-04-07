@@ -14,8 +14,8 @@
 		android:background="@drawable/calendar_button_selector"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:layout_width="fill_parent"
-		android:layout_height="48dp"
-		android:paddingTop="10dp">
+		android:layout_height="46dp"
+		android:paddingTop="6dp">
 	</Button>
 	
 	<TextView
