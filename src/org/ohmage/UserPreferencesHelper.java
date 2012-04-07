@@ -21,7 +21,7 @@ import android.preference.PreferenceManager;
 
 public class UserPreferencesHelper {
 
-	private static final boolean DEFAULT_SHOW_FEEDBACK = false;
+	private static final boolean DEFAULT_SHOW_FEEDBACK = true;
 	private static final boolean DEFAULT_SHOW_PROFILE = false;
 	private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = false;
 	private static final boolean DEFAULT_SHOW_MOBILITY = true;
