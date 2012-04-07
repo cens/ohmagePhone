@@ -171,7 +171,7 @@ public class UploadService extends WakefulIntentService {
 					Log.i(TAG, "Response uploaded with " + provider + " location");
 					locationJson.put("accuracy", cursor.getFloat(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
 					locationJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
-					locationJson.put("timezone", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
+					locationJson.put("timezone", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
 					responseJson.put("location", locationJson);
 				} else {
 					Log.w(TAG, "Response uploaded without a location");

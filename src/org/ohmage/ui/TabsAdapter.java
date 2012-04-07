@@ -31,115 +31,119 @@ import java.util.ArrayList;
  * tab changes.
  */
 public class TabsAdapter extends FragmentPagerAdapter
-        implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
-    private final Context mContext;
-    private final TabHost mTabHost;
-    private final ViewPager mViewPager;
-    private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
+	private final Context mContext;
+	private final TabHost mTabHost;
+	private final ViewPager mViewPager;
+	private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+	private final ArrayList<Fragment> mFragments = new ArrayList<Fragment>();
 
-    static final class TabInfo {
-        private final String tag;
-        private final Class<?> clss;
-        private final Bundle args;
+	static final class TabInfo {
+		private final String tag;
+		private final Class<?> clss;
+		private final Bundle args;
 
-        TabInfo(String _tag, Class<?> _class, Bundle _args) {
-            tag = _tag;
-            clss = _class;
-            args = _args;
-        }
-    }
+		TabInfo(String _tag, Class<?> _class, Bundle _args) {
+			tag = _tag;
+			clss = _class;
+			args = _args;
+		}
+	}
 
-    static class DummyTabFactory implements TabHost.TabContentFactory {
-        private final Context mContext;
+	static class DummyTabFactory implements TabHost.TabContentFactory {
+		private final Context mContext;
 
-        public DummyTabFactory(Context context) {
-            mContext = context;
-        }
+		public DummyTabFactory(Context context) {
+			mContext = context;
+		}
 
-        @Override
-        public View createTabContent(String tag) {
-            View v = new View(mContext);
-            v.setMinimumWidth(0);
-            v.setMinimumHeight(0);
-            return v;
-        }
-    }
+		@Override
+		public View createTabContent(String tag) {
+			View v = new View(mContext);
+			v.setMinimumWidth(0);
+			v.setMinimumHeight(0);
+			return v;
+		}
+	}
 
-    public TabsAdapter(FragmentActivity activity, TabHost tabHost, ViewPager pager) {
-        super(activity.getSupportFragmentManager());
-        mContext = activity;
-        mTabHost = tabHost;
-        mViewPager = pager;
-        mTabHost.setOnTabChangedListener(this);
-        mViewPager.setAdapter(this);
-        mViewPager.setOnPageChangeListener(this);
-    }
+	public TabsAdapter(FragmentActivity activity, TabHost tabHost, ViewPager pager) {
+		super(activity.getSupportFragmentManager());
+		mContext = activity;
+		mTabHost = tabHost;
+		mViewPager = pager;
+		mTabHost.setOnTabChangedListener(this);
+		mViewPager.setAdapter(this);
+		mViewPager.setOnPageChangeListener(this);
+	}
 
-    public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {
-        tabSpec.setContent(new DummyTabFactory(mContext));
-        String tag = tabSpec.getTag();
+	public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {
+		tabSpec.setContent(new DummyTabFactory(mContext));
+		String tag = tabSpec.getTag();
 
-        TabInfo info = new TabInfo(tag, clss, args);
-        mTabs.add(info);
-        mTabHost.addTab(tabSpec);
-        notifyDataSetChanged();
-    }
+		TabInfo info = new TabInfo(tag, clss, args);
+		mTabs.add(info);
+		mTabHost.addTab(tabSpec);
+		notifyDataSetChanged();
+	}
 
-    /**
-     * Automatically adds a tab with the current text with the default button theme
-     */
-	public void addTab(String text, Class<?> clss, Bundle args) {
+	/**
+	 * Automatically adds a tab with the current text with the default button theme
+	 */
+	 public void addTab(String text, Class<?> clss, Bundle args) {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		TextView view = (TextView) inflater.inflate(R.layout.tab_indicator, mTabHost.getTabWidget(), false);
 		view.setText(text.toUpperCase());
 		addTab(mTabHost.newTabSpec(text.toLowerCase()).setIndicator(view), clss, args);
-	}
+	 }
 
-    @Override
-    public int getCount() {
-        return mTabs.size();
-    }
+	 @Override
+	 public int getCount() {
+		 return mTabs.size();
+	 }
 
-    @Override
-    public Fragment getItem(int position) {
-        TabInfo info = mTabs.get(position);
-        return Fragment.instantiate(mContext, info.clss.getName(), info.args);
-    }
+	 @Override
+	 public Fragment getItem(int position) {
+		 if(mFragments.size() <= position) {
+			 TabInfo info = mTabs.get(position);
+			 mFragments.add(position, Fragment.instantiate(mContext, info.clss.getName(), info.args));
+		 }
+		 return mFragments.get(position);
+	 }
 
-    @Override
-    public void onTabChanged(String tabId) {
-        int position = mTabHost.getCurrentTab();
-        mViewPager.setCurrentItem(position);
-    }
+	 @Override
+	 public void onTabChanged(String tabId) {
+		 int position = mTabHost.getCurrentTab();
+		 mViewPager.setCurrentItem(position);
+	 }
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-    }
+	 @Override
+	 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+	 }
 
-    @Override
-    public void onPageSelected(int position) {
-	if(mPrevState == 0)
-		Analytics.widget(mViewPager.getContext(), "Filter Button To: " + position);
-	else
-		Analytics.widget(mViewPager.getContext(), "Swipe To: " + position);
-        // Unfortunately when TabHost changes the current tab, it kindly
-        // also takes care of putting focus on it when not in touch mode.
-        // The jerk.
-        // This hack tries to prevent this from pulling focus out of our
-        // ViewPager.
-        TabWidget widget = mTabHost.getTabWidget();
-        int oldFocusability = widget.getDescendantFocusability();
-        widget.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        mTabHost.setCurrentTab(position);
-        widget.setDescendantFocusability(oldFocusability);
-    }
+	 @Override
+	 public void onPageSelected(int position) {
+		 if(mPrevState == 0)
+			 Analytics.widget(mViewPager.getContext(), "Filter Button To: " + position);
+		 else
+			 Analytics.widget(mViewPager.getContext(), "Swipe To: " + position);
+		 // Unfortunately when TabHost changes the current tab, it kindly
+		 // also takes care of putting focus on it when not in touch mode.
+		 // The jerk.
+		 // This hack tries to prevent this from pulling focus out of our
+		 // ViewPager.
+		 TabWidget widget = mTabHost.getTabWidget();
+		 int oldFocusability = widget.getDescendantFocusability();
+		 widget.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+		 mTabHost.setCurrentTab(position);
+		 widget.setDescendantFocusability(oldFocusability);
+	 }
 
-        private int mState;
-        private int mPrevState;
+	 private int mState;
+	 private int mPrevState;
 
-    @Override
-    public void onPageScrollStateChanged(int state) {
-        mPrevState = mState;
-        mState = state;
-    }
+	 @Override
+	 public void onPageScrollStateChanged(int state) {
+		 mPrevState = mState;
+		 mState = state;
+	 }
 }
