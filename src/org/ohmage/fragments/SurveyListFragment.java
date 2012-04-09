@@ -53,14 +53,19 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
         public void onSurveyActionUnavailable(Uri surveyUri);
         public void onSurveyActionError(Uri surveyUri, int status);
     }
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
 
-		super.onActivityCreated(savedInstanceState);
-		
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
 		if(getArguments() != null)
 			mShowPending = getArguments().getBoolean(KEY_PENDING, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
         setShowPending();
         
         // style the empty text

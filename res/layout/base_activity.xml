@@ -1,39 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
-	android:orientation="vertical"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
-	
-  	<org.ohmage.controls.ActionBarControl
-		android:id="@+id/action_bar"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		app:showlogo="false"/>
+    xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-	<FrameLayout
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
+    <org.ohmage.controls.ActionBarControl
+        android:id="@+id/action_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        app:showlogo="false" />
 
-		<!-- this is the view that contains all the content -->
-		<FrameLayout
-			android:id="@+id/root_container"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent" />
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
 
-		<!-- this is the overlay loader that covers up the content -->
-		<FrameLayout android:id="@+id/info_loading_bar"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:layout_gravity="center"
-			android:background="@color/white"
-			android:visibility="gone">
-			
-			<ProgressBar 
-				android:layout_gravity="center"
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-		</FrameLayout>
-	</FrameLayout>
+        <!-- this is the view that contains all the content -->
+
+        <FrameLayout
+            android:id="@+id/root_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+
+        <!-- this is the overlay loader that covers up the content -->
+
+        <FrameLayout
+            android:id="@+id/info_loading_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:background="@color/white"
+            android:visibility="gone" >
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+        </FrameLayout>
+
+        <View
+            android:id="@+id/action_bar_shadow"
+            android:layout_width="fill_parent"
+            android:layout_height="4dp"
+            android:background="@drawable/shadow" />
+    </FrameLayout>
+
 </LinearLayout>

@@ -10,7 +10,7 @@ ant clean
 ant checkout-cuttingedge
 # make test versions
 ant ohmage-debug
-ant ohmage-debug -Dconfig.server.url=https://dev.mobilizingcs.org/ -Dconfig.server.shortname=mdev
+ant ohmage-debug -Dconfig.server.url=https://dev.andwellness.org/ -Dconfig.server.shortname=adev
 ant ohmage-debug -Dconfig.server.url=https://test.mobilizingcs.org/ -Dconfig.server.shortname=mtest
 # make release versions
 ant ohmage-release -Dconfig.server.url=https://internal.ohmage.org/ -Dconfig.server.shortname=internal
@@ -26,7 +26,7 @@ ant ohmage-release
 ant checkout-NIH
 # make test versions
 ant ohmage-debug
-ant ohmage-debug -Dconfig.server.url=https://dev.mobilizingcs.org/ -Dconfig.server.shortname=mdev
+ant ohmage-debug -Dconfig.server.url=https://dev.andwellness.org/ -Dconfig.server.shortname=adev
 ant ohmage-debug -Dconfig.server.url=https://test.mobilizingcs.org/ -Dconfig.server.shortname=mtest
 # make release versions
 ant ohmage-release -Dconfig.server.url=https://pilots.ohmage.org/ -Dconfig.server.shortname=pilots -Dconfig.admin_mode=false

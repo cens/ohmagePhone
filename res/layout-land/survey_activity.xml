@@ -9,13 +9,13 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="#777777"
+        android:ellipsize="end"
         android:paddingBottom="1dp"
         android:paddingLeft="3dp"
         android:paddingTop="2dp"
+        android:singleLine="true"
         android:text="@string/survey_title"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:singleLine="true"
-        android:ellipsize="end"
         android:textColor="#ffffff" />
 
     <ProgressBar
@@ -50,13 +50,7 @@
         android:id="@+id/prompt_frame"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
-
-        <View
-            android:id="@+id/placeholder_view"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-    </FrameLayout>
+        android:layout_weight="1" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -70,24 +64,24 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
-            android:text="@string/previous"
-            android:contentDescription="@string/survey_activity_previous_description"/>
+            android:contentDescription="@string/survey_activity_previous_description"
+            android:text="@string/previous" />
 
         <Button
             android:id="@+id/skip_button"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
-            android:text="@string/skip"
-            android:contentDescription="@string/survey_activity_skip_description"/>
+            android:contentDescription="@string/survey_activity_skip_description"
+            android:text="@string/skip" />
 
         <Button
             android:id="@+id/next_button"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
-            android:text="@string/next"
-            android:contentDescription="@string/survey_activity_next_description"/>
+            android:contentDescription="@string/survey_activity_next_description"
+            android:text="@string/next" />
     </LinearLayout>
 
 </LinearLayout>

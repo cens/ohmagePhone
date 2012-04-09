@@ -1,12 +1,13 @@
 package org.ohmage.activity;
 
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.fragments.SurveyListFragment;
 import org.ohmage.fragments.SurveyListFragment.OnSurveyActionListener;
 import org.ohmage.ui.CampaignFilterActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
-import org.ohmage.ui.TabManager;
+import org.ohmage.ui.TabsAdapter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,10 +15,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.support.v4.view.ViewPager;
 import android.widget.TabHost;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class SurveyListActivity extends CampaignFilterActivity implements OnSurveyActionListener {
@@ -27,7 +26,8 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 	private static final int DIALOG_ERROR_ID = 0;
 
 	TabHost mTabHost;
-	TabManager mTabManager;
+	ViewPager  mViewPager;
+	TabsAdapter mTabsAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,29 +35,25 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 		setContentView(R.layout.survey_list_layout);
 
-		boolean showPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
+		if(Config.IS_SINGLE_CAMPAIGN)
+			setActionBarShadowVisibility(false);
 
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		mTabHost.setup();
 
-		mTabManager = new TabManager(this, mTabHost, R.id.realtabcontent);
-		mTabManager.setOnTabChangedListener(new TabManager.TabChangedListener() {
+		mViewPager = (ViewPager)findViewById(R.id.pager);
 
-			@Override
-			public void onTabChanged(String tabId) {
-				((CampaignFilterable) mTabManager.getCurrentTab().getFragment()).setCampaignUrn(getCampaignUrn());
-			}
-		});
+		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
 		Bundle args = intentToFragmentArguments(getIntent());
 		args.putBoolean(SurveyListFragment.KEY_PENDING, false);
-		mTabManager.addTab(mTabHost.newTabSpec("all").setIndicator(createTabView("All")),
-				SurveyListFragment.class, args);
+		mTabsAdapter.addTab(getString(R.string.surveys_all), SurveyListFragment.class, args);
 
 		args = intentToFragmentArguments(getIntent());
 		args.putBoolean(SurveyListFragment.KEY_PENDING, true);
-		mTabManager.addTab(mTabHost.newTabSpec("pending").setIndicator(createTabView("Pending")),
-				SurveyListFragment.class, args);
+		mTabsAdapter.addTab(getString(R.string.surveys_pending), SurveyListFragment.class, args);
+
+		boolean showPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
 
 		if (savedInstanceState != null) {
 			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
@@ -66,16 +62,11 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 		}
 	}
 
-	private View createTabView(String text){
-		TextView view = (TextView) LayoutInflater.from(this).inflate(R.layout.tab_indicator, mTabHost.getTabWidget(), false);
-		view.setText(text.toUpperCase());
-		return view;
-	}
-
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
 		super.onCampaignFilterChanged(filter);
-		((CampaignFilterable) mTabManager.getCurrentTab().getFragment()).setCampaignUrn(filter);
+		for(int i=0;i<mTabsAdapter.getCount();i++)
+			((CampaignFilterable) mTabsAdapter.getItem(i)).setCampaignUrn(filter);
 	}
 
 	@Override

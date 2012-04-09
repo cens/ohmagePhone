@@ -97,11 +97,11 @@ public class NotifEditActivity extends ListActivity
 			return;
 		}
 		
-		setContentView(R.layout.trigger_notif_editor);
+		setContentView(R.layout.trigger_editor);
 		
-		Button b = (Button) findViewById(R.id.notif_edit_done);
+		Button b = (Button) findViewById(R.id.trig_edit_done);
 		b.setOnClickListener(this);
-		b = (Button) findViewById(R.id.notif_edit_cancel);
+		b = (Button) findViewById(R.id.trig_edit_cancel);
 		b.setOnClickListener(this);
 		
 		//Update the GUI with the data
@@ -418,7 +418,7 @@ public class NotifEditActivity extends ListActivity
 			mListAdapter.notifyDataSetChanged();
 			break;
 			
-		case R.id.notif_edit_done: //Done with editing the notification settings
+		case R.id.trig_edit_done: //Done with editing the notification settings
 			//TODO validate
 			
 			//Copy the values from the UI to the description class, 
@@ -441,7 +441,7 @@ public class NotifEditActivity extends ListActivity
 			finish();
 			break;
 			
-		case R.id.notif_edit_cancel: //Canceled editing
+		case R.id.trig_edit_cancel: //Canceled editing
 			finish();
 			break;
 		}

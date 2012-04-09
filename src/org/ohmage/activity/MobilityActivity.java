@@ -38,6 +38,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cursor> {
 	
@@ -61,6 +62,8 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 	private SharedPreferencesHelper mPrefHelper;
 	private IMobility mMobility = null;
 	private boolean isBound = false;
+
+	private final String emptyValue = "-";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -129,11 +132,11 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			
 			mMobilityList.setAdapter(mAdapter);
 			
-			mTotalCountText.setText("-");
-			mUploadCountText.setText("-");
+			mTotalCountText.setText(emptyValue);
+			mUploadCountText.setText(emptyValue);
 			long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 			if (lastMobilityUploadTimestamp == 0) {
-				mLastUploadText.setText("-");
+				mLastUploadText.setText(emptyValue);
 			} else {
 				mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
 			}
@@ -190,8 +193,8 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 				Long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 				if(lastMobilityUploadTimestamp != 0) {
 					mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
-					getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
 				}
+				getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
 			}
 		}
 	};
@@ -353,6 +356,10 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			break;
 			
 		case UPLOAD_LOADER:
+			// If mobility upload finishes, but there are still points there was an error
+			if(!mUploadCountText.getText().equals(emptyValue) && data.getCount() != 0) {
+				Toast.makeText(this, R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
+			}
 			mUploadCountText.setText(String.valueOf(data.getCount()));
 			break;
 		}
@@ -367,11 +374,11 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			break;
 
 		case ALL_LOADER:
-			mTotalCountText.setText("-");
+			mTotalCountText.setText(emptyValue);
 			break;
 			
 		case UPLOAD_LOADER:
-			mUploadCountText.setText("-");
+			mUploadCountText.setText(emptyValue);
 			break;
 		}
 	}

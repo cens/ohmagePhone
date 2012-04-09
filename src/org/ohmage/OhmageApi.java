@@ -75,6 +75,8 @@ public class OhmageApi {
 	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
 	public static final String IMAGE_READ_PATH = "app/image/read";
 
+	public static final String CLIENT_NAME = "ohmage-android";
+
 	private final Context mContext;
 
 	public OhmageApi() {
@@ -650,7 +652,7 @@ public class OhmageApi {
 		SharedPreferencesHelper prefs = new SharedPreferencesHelper(OhmageApplication.getContext());
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
-		return OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", campaign, username, uuid, size);
+		return OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
 
 	}
 

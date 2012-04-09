@@ -14,15 +14,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <View style="@style/DividerHorizontal" />
+
         <org.ohmage.controls.FilterControl
             android:id="@+id/survey_filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <View style="@style/DividerHorizontal" />
+
         <org.ohmage.controls.DateFilterControl
             android:id="@+id/date_filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <TabWidget
+            android:id="@android:id/tabs"
+            style="@style/TabBar" />
 
         <FrameLayout
             android:id="@android:id/tabcontent"
@@ -35,10 +43,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
-
-        <TabWidget
-            android:id="@android:id/tabs"
-            style="@style/TabBar" />
     </LinearLayout>
 
 </TabHost>

@@ -21,7 +21,7 @@
 			android:id="@+id/campaign_info_desc" />
 
 		<!-- collapsible(?) sections with attribute info -->
-		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content" android:shrinkColumns="2">
+		<TableLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:shrinkColumns="2">
 			<TableRow style="@style/InfoSectionHeader"
 				android:id="@+id/campaign_info_privacy_row"
 				android:contentDescription="@string/campaign_info_privacy_header_description">

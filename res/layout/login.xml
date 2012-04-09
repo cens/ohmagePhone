@@ -1,82 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" 
-	android:layout_height="fill_parent"
-	android:background="#F2F2F2">
-	<RelativeLayout 
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/bg_fabric" >
 
-		<TextView android:id="@+id/logo" 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerHorizontal="true"
-			android:layout_marginTop="30dp"
-			android:layout_marginBottom="10dp" 
-			android:textColor="#489024"
-			android:textStyle="bold" 
-			android:textSize="35sp" 
-			android:text="@string/app_name" />
-			
-		<TextView android:id="@+id/version"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/logo"
-			android:layout_centerHorizontal="true"
-			android:layout_marginBottom="40dp"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+    <org.ohmage.controls.ActionBarControl
+        android:id="@+id/action_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        app:showlogo="true" />
 
-		<TextView android:id="@+id/user_label" 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			android:layout_below="@id/version"
-			android:layout_alignParentLeft="true"
-			android:layout_marginLeft="5dp"
-			android:layout_marginRight="3dp"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:textColor="#1476AF"
-			android:text="@string/login_username_title" />
-			
-		<EditText android:id="@+id/user_input" 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			android:layout_below="@id/version"
-			android:layout_toRightOf="@id/user_label"
-			android:layout_alignBaseline="@id/user_label"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="5dp"
-			android:layout_marginBottom="5dp"
-			android:inputType="textEmailAddress" />
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/action_bar"
+        android:fillViewport="true" >
 
-		<TextView android:id="@+id/password_label" 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			android:layout_below="@id/user_input"
-			android:layout_alignParentLeft="true"
-			android:layout_marginLeft="5dp"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:textColor="#1476AF"
-			android:text="@string/login_password_title" />
-			
-		<EditText android:id="@+id/password" 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			android:layout_below="@id/user_input"
-			android:layout_toRightOf="@id/password_label"
-			android:layout_alignBaseline="@id/password_label"
-			android:layout_alignLeft="@id/user_input"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="5dp"
-			android:inputType="textPassword"
-			android:layout_marginBottom="10dp" />
-		
-		<Button android:id="@+id/login" 
-			android:layout_width="120dp"
-			android:layout_height="wrap_content" 
-			android:layout_below="@id/password"
-			android:layout_alignRight="@id/password"
-			android:text="@string/login_submit"
-			android:contentDescription="@string/login_activity_login_button_description" />
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
 
-	</RelativeLayout>
-</ScrollView>
+            <LinearLayout
+                android:id="@+id/login_form"
+                style="@style/SignupForm"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/gutter"
+                android:paddingTop="@dimen/gutter" >
+
+                <TextView
+                    style="@style/SignupLabel"
+                    android:text="@string/login_username_title" />
+
+                <EditText
+                    android:id="@+id/login_username"
+                    style="@style/SignupEdit"
+                    android:inputType="textEmailAddress" />
+
+                <TextView
+                    style="@style/SignupLabel"
+                    android:text="@string/login_password_title" />
+
+                <EditText
+                    android:id="@+id/login_password"
+                    style="@style/SignupEdit"
+                    android:inputType="textPassword"
+                    android:password="true"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/login"
+                style="@style/Button.Submit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/login_form"
+                android:layout_marginLeft="@dimen/gutter"
+                android:layout_marginRight="@dimen/gutter"
+                android:contentDescription="@string/login_activity_login_button_description"
+                android:text="@string/login_submit" />
+
+            <TextView
+                android:id="@+id/version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/login"
+                android:gravity="center|bottom"
+                android:padding="@dimen/gutter" />
+        </RelativeLayout>
+    </ScrollView>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="4dp"
+        android:layout_below="@id/action_bar"
+        android:background="@drawable/shadow" />
+
+</RelativeLayout>
