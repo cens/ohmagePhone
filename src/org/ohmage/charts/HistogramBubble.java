@@ -4,6 +4,7 @@ package org.ohmage.charts;
 import org.achartengine.chart.BubbleChart;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYValueSeries;
+import org.ohmage.Utilities;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
@@ -12,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.format.DateUtils;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -72,26 +74,34 @@ public class HistogramBubble extends BubbleChart {
 		XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
 		XYValueSeries series = new XYValueSeries("");
 
-		HashMap<Long, HashMap<Integer, Integer>> distribution = new HashMap<Long, HashMap<Integer, Integer>>();
+		HashMap<Integer, HashMap<Integer, Integer>> distribution = new HashMap<Integer, HashMap<Integer, Integer>>();
+
+		Calendar calendar = Calendar.getInstance();
+		Utilities.clearTime(calendar);
+		calendar.add(Calendar.DATE, 1);
+		long today = calendar.getTimeInMillis();
+
 
 		for(FeedbackItem item : data) {
-			if(item.time > System.currentTimeMillis() - DateUtils.DAY_IN_MILLIS * MAX_DAYS) {
-				long day = (item.time - System.currentTimeMillis()) / DateUtils.DAY_IN_MILLIS;
-				HashMap<Integer,Integer> dayData = distribution.get(day);
+			if(item.time > today - DateUtils.DAY_IN_MILLIS * MAX_DAYS) {
+				calendar.setTimeInMillis(item.time);
+				Utilities.clearTime(calendar);
+				int idx = (int) ((today - calendar.getTimeInMillis()) / DateUtils.DAY_IN_MILLIS) - 1;
+
+				HashMap<Integer,Integer> dayData = distribution.get(-idx);
 				if(dayData == null) {
 					dayData = new HashMap<Integer,Integer>();
-					distribution.put(day, dayData);
+					distribution.put(-idx, dayData);
 				}
 
 				Integer i = dayData.get(item.value.intValue());
 				if(i == null)
 					i = 0;
 				dayData.put(item.value.intValue(), i+1);
-
 			}
 		}
 
-		for(Long day : distribution.keySet()) {
+		for(Integer day : distribution.keySet()) {
 			HashMap<Integer, Integer> dayDist = distribution.get(day);
 			for(Integer key : dayDist.keySet()) {
 				series.add(day, key, dayDist.get(key));
