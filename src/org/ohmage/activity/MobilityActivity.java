@@ -65,6 +65,12 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 
 	private final String emptyValue = "-";
 
+	/**
+	 * Will be set to true when the {@link #UPLOAD_LOADER} loader
+	 * should make sure all points uploaded
+	 */
+	private boolean mVerifyNoPoints;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -194,6 +200,7 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 				if(lastMobilityUploadTimestamp != 0) {
 					mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
 				}
+				mVerifyNoPoints = true;
 				getSupportLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityActivity.this);
 			}
 		}
@@ -357,7 +364,8 @@ public class MobilityActivity extends BaseActivity implements LoaderCallbacks<Cu
 			
 		case UPLOAD_LOADER:
 			// If mobility upload finishes, but there are still points there was an error
-			if(!mUploadCountText.getText().equals(emptyValue) && data.getCount() != 0) {
+			if(mVerifyNoPoints && data.getCount() != 0) {
+				mVerifyNoPoints = false;
 				Toast.makeText(this, R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
 			}
 			mUploadCountText.setText(String.valueOf(data.getCount()));
