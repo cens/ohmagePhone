@@ -35,9 +35,9 @@ public class BubbleChart extends XYChart {
   /** The legend shape width. */
   private static final int SHAPE_WIDTH = 10;
   /** The minimum bubble size. */
-  private static final int MIN_BUBBLE_SIZE = 3;
+  private static final int MIN_BUBBLE_SIZE = 6;
   /** The maximum bubble size. */
-  private static final int MAX_BUBBLE_SIZE = 6;
+  private static final int MAX_BUBBLE_SIZE = 10;
 
   BubbleChart() {
   }
@@ -72,12 +72,15 @@ public void drawSeries(Canvas canvas, Paint paint, float[] points,
     XYValueSeries series = (XYValueSeries) mDataset.getSeriesAt(seriesIndex);
     double max = series.getMaxValue();
 
-    double coef = (max > MAX_BUBBLE_SIZE) ? max / MAX_BUBBLE_SIZE : 1;
+    double coef = 1;
+    if(max != 1)
+    	coef = (MAX_BUBBLE_SIZE - MIN_BUBBLE_SIZE) / (max - 1);
     for (int i = 0; i < length; i += 2) {
-      double size = series.getValue(i / 2) * coef;
-      if(size != 0)
-    	  size += MIN_BUBBLE_SIZE;
-      drawCircle(canvas, paint, points[i], points[i + 1], (float) size);
+    	double value = series.getValue(i / 2);
+    	double size =0;
+    	if(value > 0)
+    		size = (value -1) * coef + MIN_BUBBLE_SIZE;
+    	drawCircle(canvas, paint, points[i], points[i + 1], (float) size);
     }
   }
 
