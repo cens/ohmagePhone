@@ -2,16 +2,14 @@
 package org.ohmage.loader;
 
 import org.ohmage.NIHConfig;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -49,9 +47,7 @@ public class PromptFeedbackLoaderCallbacks implements LoaderManager.LoaderCallba
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 			case CAMPAIGN_URN_READ:
-				return new CursorLoader(mFragment.getActivity(), Responses.CONTENT_URI,
-						new String[] { Campaigns.CAMPAIGN_URN },
-						null, null, Responses.RESPONSE_TIME + " DESC");
+				return new CampaignLoader(mFragment.getActivity());
 			case PROMPT_DATA_READ:
 				return new PromptFeedbackLoader(mFragment.getActivity(), args.getString(EXTRA_CAMPAIGN_URN), args.getStringArray(EXTRA_PROMT_ID));
 		}
@@ -62,11 +58,11 @@ public class PromptFeedbackLoaderCallbacks implements LoaderManager.LoaderCallba
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		switch (loader.getId()) {
 			case CAMPAIGN_URN_READ:
-				if (!cursor.moveToFirst())
+				String campaignUrn = ((CampaignLoader) loader).getCampaignUrn();
+
+				if (TextUtils.isEmpty(campaignUrn))
 					// No campaign found?
 					return;
-
-				String campaignUrn = cursor.getString(0);
 
 				Bundle bundle = new Bundle();
 				bundle.putString(EXTRA_CAMPAIGN_URN, campaignUrn);
@@ -92,7 +88,7 @@ public class PromptFeedbackLoaderCallbacks implements LoaderManager.LoaderCallba
 		String[] list = null;
 		if(mListener != null)
 			list = mListener.getPromptList();
-		return (list == null) ? NIHConfig.PROMPT_LIST : list;
+		return (list == null) ? NIHConfig.PROMPT_LIST_SQL : list;
 	}
 
 	@Override

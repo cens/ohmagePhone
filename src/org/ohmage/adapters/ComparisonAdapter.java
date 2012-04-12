@@ -7,22 +7,18 @@ import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.ohmage.NIHConfig.ExtraPromptData;
 import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.adapters.ComparisonAdapter.ComparisonAdapterItem;
 import org.ohmage.charts.OhmageLineChart;
 import org.ohmage.charts.OhmageLineChart.OhmageLineRenderer;
 import org.ohmage.charts.OhmageLineChart.OhmageLineSeriesRenderer;
-import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.text.format.DateUtils;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 
 public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterItem> {
@@ -34,51 +30,18 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 		public static final PointStyle POINT_STYLE_LAST_WEEK = PointStyle.RECTANGLE;
 		public static final PointStyle POINT_STYLE_BASE_LINE = PointStyle.DASHED_LINE;
 
-		private double baseLine;
-		private double lastWeek;
-		private double current;
+		private final Double baseLine;
+		private final Double lastWeek;
+		private final Double current;
 		private final ExtraPromptData mPrompt;
 		private OhmageLineChart mChart;
 
-		public ComparisonAdapterItem(Context context, ExtraPromptData prompt, LinkedList<FeedbackItem> data) {
-			super(prompt.shortName, data, -1, 0, 0);
+		public ComparisonAdapterItem(FragmentActivity context, ExtraPromptData prompt, Double b, Double l, Double t) {
+			super(prompt.shortName, null, -1, 0, 0);
 			mPrompt = prompt;
-			setData(context, data);
-		}
-
-		private void setData(Context context, LinkedList<FeedbackItem> data) {
-			Calendar cal = Calendar.getInstance();
-			long now = cal.getTimeInMillis();
-			cal.add(Calendar.DATE, -cal.get(Calendar.DAY_OF_WEEK) + 1);
-			Utilities.clearTime(cal);
-			long oneWeek = cal.getTimeInMillis();
-			cal.add(Calendar.DATE, -7);
-			long twoWeeks = cal.getTimeInMillis();
-			long base = UserPreferencesHelper.getBaseLineEndTime(context);
-
-			ArrayList<Double> nowvalues = new ArrayList<Double>();
-			ArrayList<Double> weekvalues = new ArrayList<Double>();
-			ArrayList<Double> basevalues = new ArrayList<Double>();
-
-			long firstTime = base;
-
-			for(FeedbackItem point : data) {
-				if(point.time < base) {
-					firstTime = Math.min(firstTime, point.time);
-					basevalues.add(point.value);
-				} else if(point.time >= twoWeeks && point.time < oneWeek) {
-					weekvalues.add(point.value);
-				} else if(point.time >= oneWeek && point.time < now) {
-					nowvalues.add(point.value);	
-				}
-			}
-
-			long baseDays = (base - firstTime) / DateUtils.DAY_IN_MILLIS;
-			baseLine = calcAverage(basevalues, baseDays);
-			long weekDays = (oneWeek - twoWeeks) / DateUtils.DAY_IN_MILLIS;
-			lastWeek = calcAverage(weekvalues, weekDays);
-			long currentDays = (now - oneWeek) / DateUtils.DAY_IN_MILLIS + 1; //Plus one to include today
-			current = calcAverage(nowvalues, currentDays);		
+			baseLine = b;
+			lastWeek = l;
+			current = t;
 		}
 
 		protected double calcAverage(ArrayList<Double> values, long days) {
@@ -120,7 +83,8 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 
 		private static SimpleSeriesRenderer addSeries(Double value, String title, XYMultipleSeriesDataset dataset, PointStyle style, int color) {
 			XYSeries series = new XYSeries(title);
-			series.add(value, 0);
+			if(value != null)
+				series.add(value, 0);
 			dataset.addSeries(series);
 			OhmageLineSeriesRenderer sr = new OhmageLineSeriesRenderer();
 			sr.setPointStyle(style);

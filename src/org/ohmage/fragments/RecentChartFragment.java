@@ -83,7 +83,7 @@ public class RecentChartFragment extends PromptFeedbackListFragment {
 	public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
 		mAdapter.clear();
 
-		for(String key : NIHConfig.PROMPT_LIST) {
+		for(String key : NIHConfig.PROMPT_LIST_SQL) {
 			LinkedList<FeedbackItem> list = feedbackItems.get(NIHConfig.getPrompt(key));
 			if(list != null && !list.isEmpty()) {
 				mAdapter.add(NIHConfig.getExtraPromptData(key).toSparkLineChartItem(list));

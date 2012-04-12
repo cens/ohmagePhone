@@ -122,7 +122,7 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 	public void onPromptReadFinished(HashMap<String, LinkedList<FeedbackItem>> feedbackItems) {
 		mAdapter.clear();
 
-		for(String k : NIHConfig.PROMPT_LIST) {
+		for(String k : NIHConfig.PROMPT_LIST_SQL) {
 			String key = NIHConfig.getPrompt(k);
 			LinkedList<FeedbackItem> list = feedbackItems.get(key);
 			if(list != null && !list.isEmpty()) {

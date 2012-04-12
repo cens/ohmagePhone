@@ -153,12 +153,20 @@ public class NIHConfig {
 					"No", "Yes"
 			});
 
-	public static final String[] PROMPT_LIST = new String[] {
+	public static final String[] PROMPT_LIST_SQL = new String[] {
 			NIHConfig.SQL.FOOD_QUALITY_ID,
 			NIHConfig.SQL.FOOD_QUANTITY_ID,
 			NIHConfig.SQL.DID_EXERCISE_ID,
 			NIHConfig.SQL.HOW_STRESSED_ID,
 			NIHConfig.SQL.TIME_TO_YOURSELF_ID
+	};
+
+	public static final String[] PROMPT_LIST = new String[] {
+		NIHConfig.Prompt.FOOD_QUALITY_ID,
+		NIHConfig.Prompt.FOOD_QUANTITY_ID,
+		NIHConfig.Prompt.DID_EXERCISE_ID,
+		NIHConfig.Prompt.HOW_STRESSED_ID,
+		NIHConfig.Prompt.TIME_TO_YOURSELF_ID
 	};
 
 	public static ExtraPromptData getExtraPromptData(String promptId) {
