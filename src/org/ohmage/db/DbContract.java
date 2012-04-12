@@ -99,12 +99,13 @@ public class DbContract {
 		/** extra data associated with the response that might be needed */
 		String PROMPT_RESPONSE_EXTRA_VALUE = "prompt_response_extra_value";
     }
-    
+
     private static final String PATH_CAMPAIGNS = "campaigns";
     private static final String PATH_SURVEYS = "surveys";
     private static final String PATH_PROMPTS = "prompts";
     private static final String PATH_RESPONSES = "responses";
-    
+    private static final String PATH_AGGREGATES = "aggregates";
+
 	/**
 	 * Represents a campaign.
 	 */
@@ -295,6 +296,7 @@ public class DbContract {
 		public enum AggregateTypes {
 			AVG,
 			COUNT,
+			SUM,
 			MAX,
 			MIN,
 			TOTAL
@@ -360,6 +362,40 @@ public class DbContract {
 			for(String prompt : promptIDs)
 				builder.appendQueryParameter("pid", prompt);
 			return builder.build();
+		}
+
+		/**
+		 * Builds the uri for an aggregate query
+		 * @param type
+		 * @return the uri
+		 */
+		public static Uri buildPromptsAggregatesUri(String campaignUrn, String surveyID) {
+			return BASE_CONTENT_URI.buildUpon()
+					.appendPath(PATH_CAMPAIGNS)
+					.appendPath(campaignUrn)
+					.appendPath(PATH_SURVEYS)
+					.appendPath(surveyID)
+					.appendPath(PATH_RESPONSES)
+					.appendPath(PATH_PROMPTS)
+					.appendPath(PATH_AGGREGATES)
+					.build();
+		}
+
+		/**
+		 * Builds the uri for an aggregate query
+		 * @param type
+		 * @return the uri
+		 */
+		public static Uri buildPromptsAggregatesUri(String campaignUrn) {
+			return BASE_CONTENT_URI.buildUpon()
+					.appendPath(PATH_CAMPAIGNS)
+					.appendPath(campaignUrn)
+					.appendPath(PATH_SURVEYS)
+					.appendPath("%")
+					.appendPath(PATH_RESPONSES)
+					.appendPath(PATH_PROMPTS)
+					.appendPath(PATH_AGGREGATES)
+					.build();
 		}
 	}
 }

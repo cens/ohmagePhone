@@ -53,6 +53,8 @@ public class SelectionBuilder {
 
 	private boolean isGrouping;
 
+	private String mGroupBy;
+
 	public static final int AND = 0;
 	public static final int OR = 1;
 
@@ -249,6 +251,10 @@ public class SelectionBuilder {
 		for (String join : mJoins)
 			compositeTable += " " + join;
 
+		// Resolve groupBy
+		if(groupBy == null)
+			groupBy = mGroupBy;
+
 		Log.v(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
 		return db.query(compositeTable, columns, getSelection(), getSelectionArgs(), groupBy, having,
 				orderBy, limit);
@@ -283,5 +289,10 @@ public class SelectionBuilder {
 			}
 		}
 		return result.toString();
+	}
+
+	public SelectionBuilder groupBy(String groupBy) {
+		mGroupBy = groupBy;
+		return this;
 	}
 }

@@ -87,7 +87,7 @@ import java.util.List;
  * campaigns/{urn}/responses/prompts?pids="pid1, pid2"
  * -- query: returns all prompts of the given pids within the campaign specified by {urn}
  * 
- * campaigns/{urn}/surveys/{sid}/responses/prompts/{pid}/{agg}
+ *  campaigns/{urn}/surveys/{sid}/responses/prompts/{agg}
  * -- query: returns an aggregate function {agg} (one of "avg", "count", "max", "min, "total") for
  * -- the prompts of the given {pid} for the survey specified by {sid} within the campaign specified by {urn}
  * 
@@ -445,10 +445,10 @@ public class DbProvider extends ContentProvider {
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*", MatcherTypes.SURVEY_BY_ID);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/prompts", MatcherTypes.SURVEY_SURVEYPROMPTS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES);
+		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/aggregates", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses/prompts/*", MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/responses/prompts", MatcherTypes.CAMPAIGN_RESPONSES_PROMPTS_BY_ID);
-		// matcher.addURI(DbContract.CONTENT_AUTHORITY, "campaigns/*/surveys/*/responses/prompts/*/*", MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys", MatcherTypes.SURVEYS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "surveys/prompts", MatcherTypes.SURVEYPROMPTS);
 		matcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
@@ -581,39 +581,23 @@ public class DbProvider extends ContentProvider {
 
 				return builder;
 			}
-			/* // FAISAL: disabled until i can figure out how to do aggregates with a builder 
 			case MatcherTypes.CAMPAIGN_SURVEY_RESPONSES_PROMPTS_BY_ID_AGGREGATE: {
 				if (nonQuery)
 					throw new UnsupportedOperationException("buildSelection(): update/delete attempted on a URI which does not support it: " + uri.toString());
 
 				final String campaignUrn = Campaigns.getCampaignUrn(uri);
 				final String surveyId = Surveys.getSurveyId(uri);
-				final String promptId = PromptResponses.getSurveyPromptId(uri);
-				String aggregate = uri.getPathSegments().get(7);
 
-				String toClause;
-
-				switch (DbContract.PromptResponses.AggregateTypes.valueOf(aggregate)) {
-					case AVG: toClause = "avg(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
-					case COUNT: toClause = "count(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
-					case MAX: toClause = "max(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
-					case MIN: toClause = "min(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
-					case TOTAL: toClause = "total(" + PromptResponses.PROMPT_RESPONSE_VALUE + ")"; break;
-					default:
-						throw new IllegalArgumentException("Specified aggregate was not one of AggregateTypes");
-				}
-
-				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS + ", " + Subqueries.PROMPTS_GET_TYPES + " SQ")
-						.where("SQ." + SurveyPrompts.COMPOSITE_ID + "=" + Tables.PROMPT_RESPONSES + "." + PromptResponses.COMPOSITE_ID)
-						.mapToTable(PromptResponses._ID, Tables.PROMPT_RESPONSES)
-						.mapToTable(Responses.CAMPAIGN_URN, Tables.RESPONSES)
-						.mapToTable(Responses.SURVEY_ID, Tables.RESPONSES)
-						.map("aggregate", toClause)
-						.where(Qualified.RESPONSES_CAMPAIGN_URN + "=?", campaignUrn)
-						.where(Qualified.RESPONSES_SURVEY_ID + "=?", surveyId)
-						.where(PromptResponses.PROMPT_ID + "=?", promptId);
+				return builder.table(Tables.PROMPTS_JOIN_RESPONSES_SURVEYS_CAMPAIGNS)
+						.where(PromptResponses.COMPOSITE_ID + " LIKE ?", campaignUrn + ":" + surveyId)
+						.map(PromptResponses.AggregateTypes.AVG.toString(), "avg(" + PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + ")")
+						.map(PromptResponses.AggregateTypes.COUNT.toString(), "count(" + PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + ")")
+						.map(PromptResponses.AggregateTypes.SUM.toString(), "sum(" + PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + ")")
+						.map(PromptResponses.AggregateTypes.MAX.toString(), "max(" + PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + ")")
+						.map(PromptResponses.AggregateTypes.MIN.toString(), "min(" + PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + ")")
+						.map(PromptResponses.AggregateTypes.TOTAL.toString(), "total(" + PromptResponses.PROMPT_RESPONSE_EXTRA_VALUE + ")")
+						.groupBy(PromptResponses.COMPOSITE_ID + "," + PromptResponses.PROMPT_ID);
 			}
-			 */
 			case MatcherTypes.SURVEYS: {
 				if(nonQuery)
 					return builder.table(Tables.SURVEYS);
