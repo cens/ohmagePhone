@@ -55,11 +55,6 @@ public class ComparisonAdapter extends SimpleChartListAdapter<ComparisonAdapterI
 			cal.add(Calendar.DATE, -7);
 			long twoWeeks = cal.getTimeInMillis();
 			long base = UserPreferencesHelper.getBaseLineEndTime(context);
-			if(base == 0) {
-				//If baseline is not set, we set it to 3 months ago
-				cal.add(Calendar.MONTH, -3);
-				base = cal.getTimeInMillis();
-			}
 
 			ArrayList<Double> nowvalues = new ArrayList<Double>();
 			ArrayList<Double> weekvalues = new ArrayList<Double>();

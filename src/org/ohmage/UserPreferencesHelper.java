@@ -19,6 +19,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.Calendar;
+
 public class UserPreferencesHelper {
 
 	private static final boolean DEFAULT_SHOW_FEEDBACK = true;
@@ -58,8 +60,21 @@ public class UserPreferencesHelper {
 		return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
 	}
 
+	/**
+	 * Returns the baseline or a time 3 months ago if it is not set
+	 * @param context
+	 * @return
+	 */
 	public static long getBaseLineEndTime(Context context) {
-		return PreferenceManager.getDefaultSharedPreferences(context).getLong(KEY_BASELINE_END_TIME, 0);
+		long base = PreferenceManager.getDefaultSharedPreferences(context).getLong(KEY_BASELINE_END_TIME, -1);
+		if(base == -1) {
+			//If baseline is not set, we set it to 3 months ago
+			Calendar cal = Calendar.getInstance();
+			Utilities.clearTime(cal);
+			cal.add(Calendar.MONTH, -3);
+			base = cal.getTimeInMillis();
+		}
+		return base;
 	}
 
 	public static void clearBaseLineEndTime(Context context) {
