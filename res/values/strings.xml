@@ -25,6 +25,7 @@
     <string name="confirm">Confirm</string>
     <string name="all">All</string>
     <string name="set">Set</string>
+    <string name="continue_string">Continue</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -76,6 +77,7 @@
     <!-- main screen titles -->
     <string name="title_campaigns">My Campaigns</string>
     <string name="title_surveys">Surveys</string>
+    <string name="title_survey">Survey</string>
     <string name="title_response_history">Response History</string>
     <string name="title_upload_queue">Upload Queue</string>
     <string name="title_profile">Profile</string>
@@ -354,4 +356,8 @@
     <string name="survey_activity_previous_description">Survey Previous Button</string>
     <string name="survey_activity_skip_description">Survey Skip Button</string>
     <string name="survey_activity_next_description">Survey Next Button</string>
+
+    <!-- Post Survey Activity -->
+    <string name="post_survey_star_content_description">gold star</string>
+    <string name="post_survey_great_job">Great Job!</string>
 </resources>

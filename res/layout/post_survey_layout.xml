@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="@dimen/gutter"
+    android:background="@drawable/bg_fabric"
+    android:paddingBottom="@dimen/gutter" >
+
+    <TextView
+        android:id="@+id/great_job_text"
+        style="@style/InsetText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/gutter"
+        android:text="@string/post_survey_great_job"
+        android:textColor="@color/primary_text"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/start_img"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/great_job_text"
+        android:contentDescription="@string/post_survey_star_content_description"
+        android:gravity="center"
+        android:src="@drawable/img_star" />
+
+    <TextView
+        android:id="@+id/summary_text"
+        style="@style/SignupForm"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/start_img"
+        android:padding="@dimen/gutter"
+        android:textColor="@color/primary_text"
+        android:textSize="@dimen/font_size_medium" />
+
+    <Button
+        android:id="@+id/continue_button"
+        style="@style/Button.Submit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/summary_text"
+        android:layout_marginLeft="@dimen/gutter"
+        android:layout_marginRight="@dimen/gutter"
+        android:text="@string/continue_string" />
+
+</RelativeLayout>

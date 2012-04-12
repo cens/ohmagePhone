@@ -25,24 +25,15 @@ public class NIHConfig {
 		private final DataMapper mapper;
 		private final int goodValue;
 		public final String[] valueLabels;
+		private final String mGoodJob;
 
 		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label, String[] valueLabels, int goodValue) {
-			this(name, s, color, min, max, label, valueLabels, null, goodValue);
+				String label, String[] valueLabels, int goodValue, String goodJob) {
+			this(name, s, color, min, max, label, valueLabels, null, goodValue, goodJob);
 		}
 
 		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label, String[] valueLabels, DataMapper mapper) {
-			this(name, s, color, min, max, label, valueLabels, mapper, -1);
-		}
-
-		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label, String[] valueLabels) {
-			this(name, s, color, min, max, label, valueLabels, null, -1);
-		}
-
-		public ExtraPromptData(String name, String s, int color, int min, int max,
-				String label, String[] valueLabels, DataMapper mapper, int goodValue) {
+				String label, String[] valueLabels, DataMapper mapper, int goodValue, String goodJob) {
 			shortName = name;
 			SQL = s;
 			colorId = color;
@@ -52,6 +43,7 @@ public class NIHConfig {
 			this.mapper = mapper;
 			this.goodValue = goodValue;
 			this.valueLabels = valueLabels;
+			this.mGoodJob = goodJob;
 		}
 
 		public HistogramChartItem toHistogramChartItem(List<FeedbackItem> data, HistogramRenderer r) {
@@ -107,22 +99,42 @@ public class NIHConfig {
 			}
 			r.setYLabels(valueLabels.length);
 		}
+
+		public String goodJobString() {
+			return mGoodJob;
+		}
+
+		/**
+		 * Compares one value to another value
+		 * @param v1
+		 * @param v2
+		 * @return -1 if v1 is closer to the good value, 0 if they are the same, and 1 if v2 is closer to the good value
+		 */
+		public int compare(Double v1, Double v2) {
+			if(v1 == null)
+				v1 = 0.0;
+			if(v2 == null)
+				v2 = 0.0;
+
+			// Compare the distance between each point and the good value
+			return Double.compare(Math.abs(v1 - goodValue), Math.abs(v2 - goodValue));
+		}
 	}
 
 	private static final ExtraPromptData HOW_STRESSED = new ExtraPromptData("Stress Amount",
 			"feltStress%", R.color.light_red, 0, 3, "Stress Level", new String[] {
 					"None", "Low", "Med", "High"
-			}, 0);
+			}, 0, "You are less stressed!");
 	private static final ExtraPromptData FOOD_QUALITY = new ExtraPromptData("Food Quality",
 			"foodQuality%", R.color.light_blue, 0, 2,
 			"Meal Quality", new String[] {
 					"Low", "Med", "High"
-			}, 2);
+			}, 2, "You ate a better quality meal!");
 	private static final ExtraPromptData FOOD_QUANTITY = new ExtraPromptData("Food Quantity",
 			"foodHowMuch%", R.color.light_blue, 0, 2,
 			"Meal Size", new String[] {
 					"Small", "Just Right", "Large"
-			}, 1);
+			}, 1, "You ate a better sized meal!");
 	private static final ExtraPromptData TIME_TO_YOURSELF = new ExtraPromptData(
 			"Time For Self", "timeForYourself", R.color.light_purple, 0, 4,
 			"Hours", new String[] {
@@ -146,12 +158,12 @@ public class NIHConfig {
 							return d;
 					}
 				}
-			});
+			}, 4, "You had more time to yourself!");
 
 	private static final ExtraPromptData DID_EXERCISE = new ExtraPromptData("Did Exercise",
 			"didYouExercise", R.color.light_green, 0, 1, null, new String[] {
 					"No", "Yes"
-			});
+			}, 1, "You exercised!");
 
 	public static final String[] PROMPT_LIST_SQL = new String[] {
 			NIHConfig.SQL.FOOD_QUALITY_ID,

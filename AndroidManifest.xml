@@ -59,6 +59,20 @@
 			android:launchMode="standard"
 			android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".activity.PostSurveyActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="vnd.android.cursor.item/vnd.ohmage.response" />
+            </intent-filter>
+        </activity>
+
 		<activity android:name=".activity.SurveyListActivity" android:label="@string/title_surveys" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 

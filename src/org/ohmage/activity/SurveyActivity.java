@@ -58,6 +58,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -94,6 +95,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	private static final String TAG = "SurveyActivity";
 
 	private static final int DIALOG_CANCEL_ID = 0;
+
+	protected static final int POST_SURVEY_ACTIVITY = 0;
 
 	private TextView mSurveyTitleText;
 	private ProgressBar mProgressBar;
@@ -308,12 +311,15 @@ public class SurveyActivity extends Activity implements LocationListener {
 				case R.id.next_button:
 					if (mReachedEnd) {
 						mSurveyFinished = true;
-						String uuid = storeResponse();
+						Response response = storeResponse();
+						String uuid = response.uuid;
 						Analytics.widget(v, null, uuid);
 						TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
 						SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
 						prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
-						finish();
+						Intent postSurveyIntent = new Intent(SurveyActivity.this, PostSurveyActivity.class);
+						postSurveyIntent.setData(Responses.buildResponseUri(response._id));
+						startActivityForResult(postSurveyIntent, POST_SURVEY_ACTIVITY);
 					} else {
 						if (mSurveyElements.get(mCurrentPosition) instanceof Prompt || mSurveyElements.get(mCurrentPosition) instanceof Message) {
 							//show toast if not answered
@@ -676,7 +682,9 @@ public class SurveyActivity extends Activity implements LocationListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+		if(requestCode == POST_SURVEY_ACTIVITY) {
+			finish();
+		} else if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
 			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, requestCode, resultCode, data);
 		}
 	}
@@ -944,11 +952,11 @@ public class SurveyActivity extends Activity implements LocationListener {
 		return previousResponses;
 	}
 
-	private String storeResponse() {
+	private Response storeResponse() {
 		return storeResponse(this, mSurveyId, mLaunchTime, mCampaignUrn, mSurveyTitle, mSurveyElements);
 	}
 
-	public static String storeResponse(Context context, String surveyId, long launchTime, String campaignUrn, String surveyTitle, List<SurveyElement> surveyElements) {
+	public static Response storeResponse(Context context, String surveyId, long launchTime, String campaignUrn, String surveyTitle, List<SurveyElement> surveyElements) {
 
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(context);
 		String username = helper.getUsername();
@@ -1069,6 +1077,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 		ContentResolver cr = context.getContentResolver();
 		Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
 
+		candidate._id = ContentUris.parseId(responseUri);
+
 		Intent intent = new Intent(context, SurveyGeotagService.class);
 		intent.setData(responseUri);
 		WakefulService.sendWakefulWork(context, intent);
@@ -1100,7 +1110,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 		context.sendBroadcast(i);
 
-		return candidate.uuid;
+		return candidate;
 	}
 
 	@Override
