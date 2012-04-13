@@ -115,7 +115,7 @@ public class TimeTrigService extends Service {
 
 		releaseWakeLock();
 
-		return START_REDELIVER_INTENT;
+		return START_NOT_STICKY;
 	}
 
 	@Override
