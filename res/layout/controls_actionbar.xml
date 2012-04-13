@@ -22,7 +22,8 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/description_logo"
         android:scaleType="centerInside"
-        android:src="@drawable/btn_title_logo" />
+        android:src="@drawable/btn_title_logo"
+        android:background="@drawable/mobilize_title_bkgnd"/>
 
     <TextView
         android:id="@+id/controls_actionbar_title"
