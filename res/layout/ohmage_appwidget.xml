@@ -5,14 +5,11 @@
   android:background="@drawable/widget_background"
   android:orientation="vertical">
   
-  <TextView
+  <ImageView
   	android:layout_width="fill_parent"
-  	android:layout_height="32dp"
+  	android:layout_height="40dp"
   	android:gravity="center"
-  	android:textColor="#595959"
-  	android:textStyle="bold"
-  	android:textSize="15dp"
-  	android:text="A N D W E L L N E S S" />
+  	android:src="@drawable/title_logo_default" />
   	
   <ImageView
   	android:layout_width="fill_parent"
