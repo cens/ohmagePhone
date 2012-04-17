@@ -181,6 +181,6 @@ public abstract class BaseActivity extends FragmentActivity {
 	public ContentResolver getContentResolver() {
 		// The Ohmage Application has code which makes it possible to switch content resolvers during testing.
 		// We need to make sure to get the right one here.
-		return getApplication().getContentResolver();
+		return OhmageApplication.getContext().getContentResolver();
 	}
 }
