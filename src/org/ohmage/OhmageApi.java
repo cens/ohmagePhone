@@ -481,7 +481,7 @@ public class OhmageApi {
 				if (responseEntity != null) {
 					if (responseEntity.getContentType().getValue().equals("text/xml")) {
 						try {
-							String xml = parseAndLogContent(url, responseEntity);
+							String xml = parseContent(url, responseEntity);
 							result = Result.SUCCESS;
 							candidate.setXml(xml);
 						} catch (ParseException e) {
@@ -493,12 +493,7 @@ public class OhmageApi {
 						}
 					} else if (responseEntity.getContentType().getValue().equals("text/html")) {
 						try {
-							String content = EntityUtils.toString(responseEntity);
-							Log.i(TAG, content);
-
-							JSONObject rootJson;
-
-							rootJson = new JSONObject(content);
+							JSONObject rootJson = parseContentToJSON(url, responseEntity);
 							if (rootJson.getString("result").equals("success")) {
 								result = Result.INTERNAL_ERROR;
 								Log.e(TAG, "CampaignReadXml should never return json with SUCCESS!");
@@ -734,12 +729,33 @@ public class OhmageApi {
 		}
 	}
 
-	private String parseAndLogContent(String url, HttpEntity entity) throws ParseException, IOException {
+	/**
+	 * Parses and logs to the network analytics
+	 * @param url
+	 * @param entity
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	private String parseContent(String url, HttpEntity entity) throws ParseException, IOException {
 		String content = EntityUtils.toString(entity);
 		Analytics.network(mContext, url, content.length());
-		// Log the data but hide any passwords
-		Log.v(TAG, content.replaceAll("\"hashed_password\":\".*\"", "\"hashed_password\":\"redacted\""));
 		return content;
+	}
+
+	/**
+	 * Parses the content to JSON
+	 * @param url
+	 * @param entity
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
+	private JSONObject parseContentToJSON(String url, HttpEntity entity) throws ParseException, IOException, JSONException {
+		JSONObject json = new JSONObject(parseContent(url, entity));
+		Log.v(TAG, "result: " + json.getString("result"));
+		return json;
 	}
 
 	private AuthenticateResponse parseAuthenticateResponse(HttpResponse response) {
@@ -755,10 +771,8 @@ public class OhmageApi {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
 					try {
-						String content = parseAndLogContent(url, responseEntity);
-						JSONObject rootJson;
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
-						rootJson = new JSONObject(content);
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
 							if (rootJson.has("hashed_password")) {
@@ -815,11 +829,8 @@ public class OhmageApi {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
 					try {
-						String content = parseAndLogContent(url, responseEntity);
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
-						JSONObject rootJson;
-
-						rootJson = new JSONObject(content);
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
 						} else {
@@ -880,9 +891,7 @@ public class OhmageApi {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
 					try {
-						String content = parseAndLogContent(url, responseEntity);
-
-						JSONObject rootJson = new JSONObject(content);
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
