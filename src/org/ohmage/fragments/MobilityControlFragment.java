@@ -67,12 +67,6 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 	private final String emptyValue = "-";
 
-	/**
-	 * Will be set to true when the {@link #UPLOAD_LOADER} loader
-	 * should make sure all points uploaded
-	 */
-	private boolean mVerifyNoPoints;
-
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -169,6 +163,8 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 	private final BroadcastReceiver mMobilityUploadReceiver = new BroadcastReceiver() {
 
+		private Long mLastMobilityUploadTimestamp;
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
@@ -178,16 +174,22 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 			mUploadButton.setEnabled(!UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
 
-
 			if (UploadService.MOBILITY_UPLOAD_STARTED.equals(action)) {
 				mUploadButton.setText("Uploading...");
+				mLastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 			} else if (UploadService.MOBILITY_UPLOAD_FINISHED.equals(action)) {
 				mUploadButton.setText("Upload Now");
-				Long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-				if(lastMobilityUploadTimestamp != 0) {
-					mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
+				Long newUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
+
+				// There must have been a problem with the upload since the upload timestamp didn't change
+				if(newUploadTimestamp.equals(mLastMobilityUploadTimestamp)) {
+					Toast.makeText(getActivity(), R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
 				}
-				mVerifyNoPoints = true;
+				mLastMobilityUploadTimestamp = newUploadTimestamp;
+
+				if(mLastMobilityUploadTimestamp != 0) {
+					mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", mLastMobilityUploadTimestamp));
+				}
 				getLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityControlFragment.this);
 			}
 		}
@@ -350,11 +352,6 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 				break;
 
 			case UPLOAD_LOADER:
-				// If mobility upload finishes, but there are still points there was an error
-				if(mVerifyNoPoints && data.getCount() != 0) {
-					mVerifyNoPoints = false;
-					Toast.makeText(getActivity(), R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
-				}
 				mUploadCountText.setText(String.valueOf(data.getCount()));
 				break;
 		}
