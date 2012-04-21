@@ -94,6 +94,9 @@ public class OhmageApplication extends Application {
 			
 			prefs.setLastVersionCode(currentVersionCode);
 		}
+
+		// Make sure mobility is registered to collect points for the current user
+		MobilityHelper.setUsername(this, prefs.getUsername());
 	}
 	
 	public void resetAll() {
@@ -136,6 +139,9 @@ public class OhmageApplication extends Application {
 		} catch (IOException e) {
 			Log.e(TAG, "Error deleting cache directory", e);
 		}
+
+		// Reset mobility username
+		MobilityHelper.setUsername(this, null);
 	}
 	
     private static ImageLoader createImageLoader(Context context) {

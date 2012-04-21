@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 public class MobilityInterface
 {
+	public static final String ACTION_SET_USERNAME = "edu.ucla.cens.mobility.glue.ACTION_SET_USERNAME";
+	public static final String EXTRA_USERNAME = "extra_username";
+
 	public static final String KEY_MODE = "mode";
 	public static final String KEY_ID = "id";
 	public static final String KEY_SPEED = "speed";
@@ -24,6 +27,18 @@ public class MobilityInterface
 	public static final String KEY_TIME = "time";
 	public static final String KEY_LATITUDE = "latitude";
 	public static final String KEY_LONGITUDE = "longitude";
+	public static final String KEY_DURATION = "duration";
+	public static final String KEY_DAY = "day";
+	public static final String KEY_USERNAME = "username";
+
+	public static final String WALK = "walk";
+	public static final String RUN = "run";
+	public static final String STILL = "still";
+	public static final String DRIVE = "drive";
+	public static final String BIKE = "bike";
+	public static final String ERROR = "error";
+	public static final String UNKNOWN = "unknown";
+
 	private static String [] columns = {KEY_ROWID, KEY_ID, KEY_MODE, KEY_SPEED, KEY_STATUS, KEY_LOC_TIMESTAMP, KEY_ACCURACY, KEY_PROVIDER, KEY_WIFIDATA, KEY_ACCELDATA, KEY_TIME, KEY_TIMEZONE, KEY_LATITUDE, KEY_LONGITUDE};
 	// Content provider strings
 	public static final String AUTHORITY = "edu.ucla.cens.mobility.MobilityContentProvider";
@@ -32,8 +47,6 @@ public class MobilityInterface
 
 	public static final String PATH_AGGREGATES = PATH_MOBILITY + "/" + "aggregates";
 	public static final Uri AGGREGATES_URI = Uri.parse("content://"+AUTHORITY + "/" + PATH_AGGREGATES);
-	public static final String KEY_DAY = "day";
-	public static final String KEY_COUNT = "count";
 
 	/**
 	 * Helper function to get cursor to data with only the last retrieved timestamp.
