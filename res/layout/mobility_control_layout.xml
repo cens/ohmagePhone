@@ -9,71 +9,64 @@
         android:layout_height="wrap_content"
         android:background="@drawable/entity_header_background"
         android:gravity="center"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingBottom="@dimen/halfgutter"
         android:paddingLeft="@dimen/gutter"
         android:paddingRight="@dimen/gutter"
         android:paddingTop="@dimen/halfgutter" >
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:orientation="vertical" >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:text="@string/mobility_control_sampling_interval" />
 
-            <TextView
+        <RadioGroup
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/halfgutter"
+            android:layout_marginRight="@dimen/halfgutter"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/radio_off"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sampling interval:" />
+                android:layout_gravity="left"
+                android:contentDescription="@string/mobility_control_off_description"
+                android:text="@string/off" />
 
-            <RadioGroup
+            <View
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                a=""
-                android:orientation="horizontal" >
+                android:layout_weight="1" />
 
-                <RadioButton
-                    android:id="@+id/radio_off"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:contentDescription="@string/mobility_radio_button_off_description"
-                    android:text="Off" />
+            <RadioButton
+                android:id="@+id/radio_1min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="@string/mobility_control_1min_description"
+                android:text="@string/mobiltiy_control_1min" />
 
-                <View
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
-                <RadioButton
-                    android:id="@+id/radio_1min"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:contentDescription="@string/mobility_radio_button_1min_description"
-                    android:text="1 min" />
-
-                <View
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <RadioButton
-                    android:id="@+id/radio_5min"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:contentDescription="@string/mobility_radio_button_5min_description"
-                    android:text="5 min" />
-            </RadioGroup>
-        </LinearLayout>
+            <RadioButton
+                android:id="@+id/radio_5min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:contentDescription="@string/mobility_control_5min_description"
+                android:text="@string/mobility_control_5min" />
+        </RadioGroup>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
         android:padding="@dimen/gutter" >
@@ -85,7 +78,7 @@
             android:shadowDx="1"
             android:shadowDy="1"
             android:shadowRadius="1"
-            android:text="Most recent mobility modes (last 20 minutes)"
+            android:text="@string/mobility_control_recent_mobility_modes_title"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/darkgray" />
 
@@ -105,8 +98,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/prompt_response_item_bg"
-            android:text="No mobility modes were collected recently." />
-"
+            android:text="@string/mobility_control_no_points" />
 
         <View
             android:layout_width="match_parent"
@@ -118,17 +110,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="@dimen/gutter" >
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:shadowColor="#e8e8e8"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="1"
-            android:text="Number of mobility points:"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/darkgray" />
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -148,7 +129,7 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="1"
-                    android:text="To upload"
+                    android:text="@string/mobility_control_upload_count_title"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/darkgray" />
 
@@ -181,7 +162,7 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="1"
-                    android:text="Total"
+                    android:text="@string/mobility_control_total_title"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/darkgray" />
 
@@ -209,7 +190,7 @@
             android:shadowDx="1"
             android:shadowDy="1"
             android:shadowRadius="1"
-            android:text="Last successful upload"
+            android:text="@string/last_successful_upload"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/darkgray" />
 
@@ -237,7 +218,7 @@
             android:layout_centerInParent="true"
             android:background="@drawable/entity_action_button"
             android:contentDescription="@string/upload_button_description"
-            android:text="Upload Now" />
+            android:text="@string/upload_now" />
     </RelativeLayout>
 
 </LinearLayout>

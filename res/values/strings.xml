@@ -26,6 +26,9 @@
     <string name="all">All</string>
     <string name="set">Set</string>
     <string name="continue_string">Continue</string>
+    <string name="off">Off</string>
+    <string name="last_successful_upload">Last successful upload</string>
+    <string name="upload_now">Upload Now</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -57,9 +60,16 @@
     <string name="login_activity_login_button_description">Login Button</string>
 
     <!-- Mobility -->
-    <string name="mobility_radio_button_off_description">Off Button</string>
-    <string name="mobility_radio_button_1min_description">1 Minute Button</string>
-    <string name="mobility_radio_button_5min_description">5 Minutes Button</string>
+    <string name="mobiltiy_control_1min">1 min</string>
+    <string name="mobility_control_5min">5 min</string>
+    <string name="mobility_control_off_description">Off Button</string>
+    <string name="mobility_control_1min_description">1 Minute Button</string>
+    <string name="mobility_control_5min_description">5 Minutes Button</string>
+    <string name="mobility_control_sampling_interval">Sampling interval:</string>
+    <string name="mobility_control_recent_mobility_modes_title">Most recent mobility modes (last 20 minutes)</string>
+    <string name="mobility_control_no_points">No mobility modes were collected recently.</string>
+    <string name="mobility_control_upload_count_title">To upload</string>
+    <string name="mobility_control_total_title">Total</string>
     <string name="mobility_upload_error_message">There was an error uploading mobility</string>
 
     <!-- Admin Pincode -->
