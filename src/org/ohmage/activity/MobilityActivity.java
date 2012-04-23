@@ -70,6 +70,7 @@ public class MobilityActivity extends BaseActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putString("tab", mTabHost.getCurrentTabTag());
+		if(mTabHost != null)
+			outState.putString("tab", mTabHost.getCurrentTabTag());
 	}
 }
