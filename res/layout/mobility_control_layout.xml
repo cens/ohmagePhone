@@ -126,7 +126,7 @@
             android:shadowDx="1"
             android:shadowDy="1"
             android:shadowRadius="1"
-            android:text="Number of mobility points since last login:"
+            android:text="Number of mobility points:"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/darkgray" />
 
@@ -181,7 +181,7 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="1"
-                    android:text="In database"
+                    android:text="Total"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/darkgray" />
 

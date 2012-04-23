@@ -9,6 +9,7 @@ import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Log;
 
+import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract.Responses;
@@ -319,20 +320,31 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		long loginTimestamp = mPrefHelper.getLoginTimestamp();
+		String username = mPrefHelper.getUsername();
+
+		// Filters the user by username and login time (in case they just upgraded mobility)
+		final String filterUser = " (" + MobilityInterface.KEY_USERNAME + "=? OR " + MobilityInterface.KEY_TIME + " > " + loginTimestamp + ") ";
+		final String[] filterUserParams = new String[] { MobilityHelper.getMobilityUsername(username) };
 
 		switch (id) {
 			case RECENT_LOADER:
-				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > strftime('%s','now','-20 minutes') || '500' AND " + MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(loginTimestamp)}, MobilityInterface.KEY_TIME + " DESC");
+				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI,
+						MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME
+								+ " > strftime('%s','now','-20 minutes') AND " + filterUser,
+						filterUserParams, MobilityInterface.KEY_TIME + " DESC");
 
 			case ALL_LOADER:
-				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(loginTimestamp)}, null);
+				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI,
+						MobilityQuery.PROJECTION, filterUser, filterUserParams, null);
 
 			case UPLOAD_LOADER:
 				long uploadAfterTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 				if (uploadAfterTimestamp == 0) {
-					uploadAfterTimestamp = loginTimestamp;
+					uploadAfterTimestamp = mPrefHelper.getLoginTimestamp();
 				}
-				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI, MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > ?", new String[] {String.valueOf(uploadAfterTimestamp)}, null);
+				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI,
+						MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > " + uploadAfterTimestamp + " AND "
+								+ filterUser, filterUserParams, null);
 
 			default:
 				return null;
