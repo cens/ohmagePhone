@@ -1,14 +1,13 @@
 package org.ohmage.activity;
 
 
+import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.fragments.MobilityControlFragment;
 import org.ohmage.fragments.RecentMobilityChartFragment;
 import org.ohmage.ui.BaseActivity;
 import org.ohmage.ui.TabsAdapter;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
@@ -28,22 +27,15 @@ public class MobilityActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		boolean isMobilityInstalled = false;
-
-		try {
-			ApplicationInfo info = getPackageManager().getApplicationInfo("edu.ucla.cens.mobility", 0 );
-			ApplicationInfo info2 = getPackageManager().getApplicationInfo("edu.ucla.cens.accelservice", 0 );
-
-			if (info != null && info2 != null) {
-				isMobilityInstalled = true;
-			}
-		} catch( PackageManager.NameNotFoundException e ) {
-			isMobilityInstalled = false;
-		}
-
-		if (! isMobilityInstalled) {
+		if (!MobilityHelper.isMobilityInstalled(this)) {
 			TextView view = new TextView(this);
 			view.setText("Please make sure the Mobility and AccelService packages are installed.");
+			view.setTextAppearance(this, android.R.attr.textAppearanceLarge);
+			view.setGravity(Gravity.CENTER);
+			setContentView(view);
+		} else if (!MobilityHelper.isMobilityVersionCorrect(this)) {
+			TextView view = new TextView(this);
+			view.setText("Please make sure Mobility is up to date.");
 			view.setTextAppearance(this, android.R.attr.textAppearanceLarge);
 			view.setGravity(Gravity.CENTER);
 			setContentView(view);
