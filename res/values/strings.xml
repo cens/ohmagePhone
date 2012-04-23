@@ -51,8 +51,8 @@
     <string name="login_account_disabled">This user account has been disabled.</string>
     <string name="login_network_error">Unable to communicate with server. Please try again later.</string>
     <string name="login_server_error">The server returned an unexpected response. Please try again later.</string>
-    <string name="login_authenticating">Authenticating with %s servers...</string>
-    <string name="login_download_campaign">Downloading Campaign...</string>
+    <string name="login_authenticating">Authenticating with %s servers…</string>
+    <string name="login_download_campaign">Downloading Campaign…</string>
     <string name="login_error_downloading_campaign">Error downloading campaign</string>
     <string name="login_username_title">Username:</string>
     <string name="login_password_title">Password:</string>
@@ -87,7 +87,6 @@
     <!-- main screen titles -->
     <string name="title_campaigns">My Campaigns</string>
     <string name="title_surveys">Surveys</string>
-    <string name="title_survey">Survey</string>
     <string name="title_response_history">Response History</string>
     <string name="title_upload_queue">Upload Queue</string>
     <string name="title_profile">Profile</string>
@@ -283,7 +282,7 @@
     <string name="response_info_no_location">Location Unavailable</string>
     <string name="response_info_view_map">View Map</string>
     <string name="response_info_upload">Upload</string>
-    <string name="response_info_uploading">Uploading...</string>
+    <string name="response_info_uploading">Uploading…</string>
     <string name="response_info_upload_error">Upload Error</string>
     <string name="response_info_response_deleted">The response has been deleted</string>
     <string name="response_info_entity_action_button_upload_description">Upload Entity Button</string>
@@ -339,7 +338,7 @@
     <string name="campaign_status_no_exist">deleted on server</string>
     <string name="campaign_status_stopped">stopped</string>
     <string name="campaign_status_invalid_user_role">invalid role</string>
-    <string name="campaign_status_downloading">downloading...</string>
+    <string name="campaign_status_downloading">downloading…</string>
     <string name="campaign_status_unknown">unknown status</string>
 
     <!-- Campaign Read -->
