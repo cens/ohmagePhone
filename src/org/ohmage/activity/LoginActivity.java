@@ -373,7 +373,6 @@ public class LoginActivity extends FragmentActivity {
 				// We need to set this so the ResponseSyncService can use them once the campaign is downloaded
 				mPreferencesHelper.putUsername(username);
 				mPreferencesHelper.putHashedPassword(hashedPassword);
-				MobilityHelper.setUsername(this, username);
 
 				mCampaignDownloadTask.setCredentials(username, hashedPassword);
 				mCampaignDownloadTask.forceLoad();
@@ -424,7 +423,10 @@ public class LoginActivity extends FragmentActivity {
 		//save creds
 		mPreferencesHelper.putUsername(username);
 		mPreferencesHelper.putHashedPassword(hashedPassword);
-		MobilityHelper.setUsername(this, username);
+
+		// Upgrading the mobility data will set the username so we only need to set it if we don't upgrade
+		if(MobilityHelper.upgradeMobilityData(this) != MobilityHelper.VERSION_AGGREGATE_AND_USERNAME)
+			MobilityHelper.setUsername(this, username);
 
 		//clear related notifications
 		//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);

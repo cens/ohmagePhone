@@ -3,6 +3,7 @@ package org.ohmage.activity;
 import edu.ucla.cens.systemlog.Analytics;
 
 import org.ohmage.Config;
+import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
@@ -33,6 +34,10 @@ public class DashboardActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		// Make sure mobility is registered to collect points for the current user and it has the correct aggregate data
+		// This will happen if mobility is
+		MobilityHelper.upgradeMobilityData(this);
 
 		setContentView(R.layout.dashboard_layout);
 		getActionBar().setShowLogo(true);

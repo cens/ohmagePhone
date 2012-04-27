@@ -73,6 +73,7 @@ public class OhmageApi {
 	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
 	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
 	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
+	private static final String MOBILITY_AGGREGATE_READ_PATH = "app/mobility/aggregate/read";
 	public static final String IMAGE_READ_PATH = "app/image/read";
 
 	public static final String CLIENT_NAME = "ohmage-android";
@@ -539,6 +540,74 @@ public class OhmageApi {
 		Analytics.network(mContext, url, result);
 
 		return candidate;
+	}
+	
+
+	/**
+	 * Returns survey responses for the specified campaign, with a number of parameters to filter the result.<br><br>
+	 * 
+	 * Note that all results are subject to the specified user's permissions; even if results for other
+	 * users are requested, they won't be returned if the specified user does not have sufficient permission to view them.<br><br>
+	 * 
+	 * Consult <a href="http://www.lecs.cs.ucla.edu/wikis/andwellness/index.php/AndWellness_Survey_Manipulation_2.4#Survey_Response__Read">the documentation on survey_response_read</a> for more information.
+	 * @param serverUrl the url of the server to contact for the list
+	 * @param username username of a valid user; will constrain the result in keeping with the user's permissions
+	 * @param hashedPassword hashed password of the aforementioned user
+	 * @param client the client used to retrieve the results, generally "android"
+	 * @param campaignUrn the urn of the campaign for which to retrieve survey results
+	 * @param userList a comma-separated list of usernames for which to return responses, or "urn:ohmage:special:all" (if null, "all" is assumed)
+	 * @param surveyIdList a comma-separated list of surveys for which to return results, or "urn:ohmage:special:all" (if null, "all" is assumed)
+	 * @param columnList a comma-separated lits of column values as specified in the docuemntation, or "urn:ohmage:special:all" (if null, "all" is assumed)
+	 * @param outputFormat one of json-rows, json-columns, or csv (FIXME: this method can't handle csv yet)
+	 * @param startDate must be present if end_date is present: allows querying against a date range. 
+	 * @param endDate must be present if start_date is present; allows querying against a date range 
+	 * @return an instance of type {@link ReadResponse} containing the resulting data; note that the Object returned by getData() is a JSONArray, not a JSONObject
+	 */
+	
+	/**
+	 * Returns mobility aggregate responses for a specified date range chunked by the given duration
+	 * 
+	 * @param serverUrl the url of the server to contact for the list
+	 * @param username username of a valid user; will constrain the result in keeping with the user's permissions
+	 * @param hashedPassword hashed password of the aforementioned user
+	 * @param client the client used to retrieve the results, generally "android"
+	 * @param startDate must be present
+	 * @param endDate must be present and at most 10 days after start date
+	 * @param days specifies the maximum size of a chunk in days
+	 * @param listener
+	 * @return an instance of type {@link ReadResponse} containing the resulting data; note that the Object returned by getData() is a JSONObject
+	 */
+	public Response mobilityAggregateRead(String serverUrl,
+			String username,
+			String hashedPassword,
+			String client,
+			String startDate,
+			String endDate,
+			int days,
+			StreamingResponseListener listener) {
+
+		final boolean GZIP = false;
+
+		String url = serverUrl + MOBILITY_AGGREGATE_READ_PATH;
+
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
+			nameValuePairs.add(new BasicNameValuePair("end_date", endDate));
+			nameValuePairs.add(new BasicNameValuePair("duration", String.valueOf(days)));
+
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+
+			return parseStreamingReadResponse(url, doHttpPost(url, formEntity, GZIP), listener);
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			SurveyReadResponse candidate = new SurveyReadResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
 	}
 
 	/**

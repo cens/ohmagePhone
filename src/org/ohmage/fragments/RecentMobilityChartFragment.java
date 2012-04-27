@@ -35,6 +35,8 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 
 	private static final int LOAD_MOBILITY_DATA = 0;
 
+	private static final int DOWNLOAD_MOBILITY_DATA = 1;
+
 	private ViewGroup mContainer;
 	private TextView mTodayStill;
 	private TextView mTodayWalk;
@@ -75,12 +77,16 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(getActivity(), MobilityInterface.AGGREGATES_URI,
-				MobilityQuery.PROJECTION, MobilityInterface.KEY_DAY
-				+ " > date('now', 'localtime', '-10 days') AND "
-				+ MobilityInterface.KEY_USERNAME + "=?", new String[] {
-			MobilityHelper.getMobilityUsername(mSharedPreferences.getUsername())
-		}, MobilityInterface.KEY_DAY + " DESC");
+		switch(id) {
+			case LOAD_MOBILITY_DATA:
+				return new CursorLoader(getActivity(), MobilityInterface.AGGREGATES_URI,
+						MobilityQuery.PROJECTION, MobilityInterface.KEY_DAY
+						+ " > date('now', 'localtime', '-10 days') AND "
+						+ MobilityInterface.KEY_USERNAME + "=?", new String[] {
+					MobilityHelper.getMobilityUsername(mSharedPreferences.getUsername())
+				}, MobilityInterface.KEY_DAY + " DESC");
+		}
+		return null;
 	}
 
 	@Override

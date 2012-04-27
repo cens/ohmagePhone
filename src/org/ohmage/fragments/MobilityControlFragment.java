@@ -360,11 +360,13 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 				break;
 
 			case ALL_LOADER:
-				mTotalCountText.setText(String.valueOf(data.getCount()));
+				if(data != null)
+					mTotalCountText.setText(String.valueOf(data.getCount()));
 				break;
 
 			case UPLOAD_LOADER:
-				mUploadCountText.setText(String.valueOf(data.getCount()));
+				if(data != null)
+					mUploadCountText.setText(String.valueOf(data.getCount()));
 				break;
 		}
 	}
