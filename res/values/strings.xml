@@ -29,6 +29,7 @@
     <string name="off">Off</string>
     <string name="last_successful_upload">Last successful upload</string>
     <string name="upload_now">Upload Now</string>
+	<string name="empty_value">-</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -71,6 +72,8 @@
     <string name="mobility_control_upload_count_title">To upload</string>
     <string name="mobility_control_total_title">Total</string>
     <string name="mobility_upload_error_message">There was an error uploading mobility</string>
+    <string name="recent_mobility_aggregate_last_week_title">Last Week</string>
+    <string name="recent_mobility_aggregate_baseline_title">During Baseline</string>
 
     <!-- Admin Pincode -->
     <string name="admin_dialog_title">Enter pin code:</string>
