@@ -3,12 +3,14 @@ package org.ohmage.activity;
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.async.MobilityAggregateReadTask;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import edu.ucla.cens.systemlog.Analytics;
@@ -86,9 +88,29 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 				UserPreferencesHelper.clearBaseLineTime(AdminSettingsActivity.this);
 				findPreference(KEY_BASELINE_START_TIME).setSummary(null);
 				findPreference(KEY_BASELINE_END_TIME).setSummary(null);
+				MobilityAggregateReadTask task = new MobilityAggregateReadTask(preference.getContext());
+				task.setCredentials();
+				task.forceLoad();
 				return true;
 			}
 		});
+
+		OnPreferenceChangeListener updateAggregates = new Preference.OnPreferenceChangeListener() {
+
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				if(newValue instanceof Long &&
+						preference.getSharedPreferences().getLong(preference.getKey(), 0) != ((Long)newValue).longValue()) {
+					MobilityAggregateReadTask task = new MobilityAggregateReadTask(preference.getContext());
+					task.setCredentials();
+					task.forceLoad();
+				}
+				return true;
+			};
+		};
+
+		findPreference(KEY_BASELINE_START_TIME).setOnPreferenceChangeListener(updateAggregates);
+		findPreference(KEY_BASELINE_END_TIME).setOnPreferenceChangeListener(updateAggregates);
 	}
 
 	@Override
