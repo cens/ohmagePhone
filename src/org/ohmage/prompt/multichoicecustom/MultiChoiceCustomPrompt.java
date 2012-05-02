@@ -372,4 +372,10 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 			// No number...
 		}
 	}
+
+	@Override
+	public void onHidden() {
+		mEnteredText = "";
+		mIsAddingNewItem = false;
+	}
 }

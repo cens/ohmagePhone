@@ -304,6 +304,11 @@ public class SurveyActivity extends Activity implements LocationListener {
 				v.setClickable(true);
 			}
 
+			if (mSurveyElements.get(mCurrentPosition) instanceof AbstractPrompt) {
+				// Tell the current prompt that it is being hidden
+				((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).onHidden();
+			}
+
 			switch (v.getId()) {
 				case R.id.next_button:
 					if (mReachedEnd) {
