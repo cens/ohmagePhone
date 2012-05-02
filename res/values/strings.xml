@@ -237,8 +237,9 @@
     <string name="preferences_profile_title">Profile</string>
     <string name="preferences_upload_queue_title">Upload Queue</string>
     <string name="preferences_mobility_title">Mobility</string>
+    <string name="preferences_baseline_starttime_title">Baseline Start Date</string>
     <string name="preferences_baseline_endtime_title">Baseline End Date</string>
-    <string name="preferences_baseline_clear_title">Clear Baseline End Date</string>
+    <string name="preferences_baseline_clear_title">Clear Baseline</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>

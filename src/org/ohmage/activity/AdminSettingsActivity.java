@@ -1,8 +1,5 @@
 package org.ohmage.activity;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -14,12 +11,15 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 public class AdminSettingsActivity extends PreferenceActivity  {
 
 	private static final String KEY_UPDATE_PASSWORD = "key_update_password";
 	private static final String KEY_LOGOUT = "key_logout";
 	private static final String KEY_QUERY_TEST = "key_querytest";
+	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
 	private static final CharSequence KEY_BASELINE_CLEAR = "key_baseline_clear";
 
@@ -83,7 +83,8 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				UserPreferencesHelper.clearBaseLineEndTime(AdminSettingsActivity.this);
+				UserPreferencesHelper.clearBaseLineTime(AdminSettingsActivity.this);
+				findPreference(KEY_BASELINE_START_TIME).setSummary(null);
 				findPreference(KEY_BASELINE_END_TIME).setSummary(null);
 				return true;
 			}

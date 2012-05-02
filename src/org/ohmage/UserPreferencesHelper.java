@@ -15,11 +15,11 @@
  ******************************************************************************/
 package org.ohmage;
 
+import java.util.Calendar;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
-import java.util.Calendar;
 
 public class UserPreferencesHelper {
 
@@ -33,6 +33,7 @@ public class UserPreferencesHelper {
 	public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
 	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
+	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
 
 	private final SharedPreferences mPreferences;
 
@@ -77,7 +78,16 @@ public class UserPreferencesHelper {
 		return base;
 	}
 
-	public static void clearBaseLineEndTime(Context context) {
-		PreferenceManager.getDefaultSharedPreferences(context).edit().remove(KEY_BASELINE_END_TIME).commit();
+	/**
+	 * Returns the baseline or 0 if not set
+	 * @param context
+	 * @return
+	 */
+	public static long getBaseLineStartTime(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getLong(KEY_BASELINE_START_TIME, 0);
+	}
+
+	public static void clearBaseLineTime(Context context) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit().remove(KEY_BASELINE_END_TIME).remove(KEY_BASELINE_START_TIME).commit();
 	}
 }

@@ -52,6 +52,10 @@
 
 	<PreferenceCategory android:title="Feedback">
 
+	    <org.ohmage.widget.DatePreference
+			android:key="key_baseline_start_time"
+			android:title="@string/preferences_baseline_starttime_title" />
+
 		<org.ohmage.widget.DatePreference
 			android:key="key_baseline_end_time"
 			android:title="@string/preferences_baseline_endtime_title" />
