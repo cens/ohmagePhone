@@ -1,6 +1,9 @@
 
 package org.ohmage.widget;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.ohmage.R;
 
 import android.content.Context;
@@ -11,9 +14,6 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.DatePicker;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 public class DatePreference extends DialogPreference {
 	private DatePicker picker = null;
@@ -80,6 +80,7 @@ public class DatePreference extends DialogPreference {
 	public long getTime() {
 		if (picker != null) {
 			Calendar cal = Calendar.getInstance();
+			cal.clear();
 			cal.set(picker.getYear(), picker.getMonth(), picker.getDayOfMonth());
 			return cal.getTimeInMillis();
 		}
