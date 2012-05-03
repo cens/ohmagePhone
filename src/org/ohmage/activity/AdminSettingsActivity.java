@@ -1,9 +1,12 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+
 import org.ohmage.AccountHelper;
+import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
-import org.ohmage.async.MobilityAggregateReadTask;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -13,8 +16,6 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
 
 public class AdminSettingsActivity extends PreferenceActivity  {
 
@@ -88,9 +89,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 				UserPreferencesHelper.clearBaseLineTime(AdminSettingsActivity.this);
 				findPreference(KEY_BASELINE_START_TIME).setSummary(null);
 				findPreference(KEY_BASELINE_END_TIME).setSummary(null);
-				MobilityAggregateReadTask task = new MobilityAggregateReadTask(preference.getContext());
-				task.setCredentials();
-				task.forceLoad();
+				MobilityHelper.downloadAggregate(preference.getContext());
 				return true;
 			}
 		});
@@ -101,9 +100,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				if(newValue instanceof Long &&
 						preference.getSharedPreferences().getLong(preference.getKey(), 0) != ((Long)newValue).longValue()) {
-					MobilityAggregateReadTask task = new MobilityAggregateReadTask(preference.getContext());
-					task.setCredentials();
-					task.forceLoad();
+					MobilityHelper.downloadAggregate(preference.getContext());
 				}
 				return true;
 			};

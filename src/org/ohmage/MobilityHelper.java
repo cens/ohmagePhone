@@ -145,4 +145,18 @@ public class MobilityHelper {
 
 		return -1;
 	}
+
+	/**
+	 * Starts downloading aggregate data if mobility is new enough
+	 * @param context
+	 */
+	public static void downloadAggregate(Context context) {
+		if(getMobilityVersion(context) >= VERSION_AGGREGATE_AND_USERNAME) {
+			// If we are upgrading into a version of ohmage which has aggregates,
+			// we should make a call to the server to get the aggregate data
+			MobilityAggregateReadTask task = new MobilityAggregateReadTask(context);
+			task.setCredentials();
+			task.forceLoad();
+		}
+	}
 }
