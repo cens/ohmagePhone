@@ -101,13 +101,17 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 				}, MobilityInterface.KEY_DAY + " DESC");
 			case LOAD_MOBILITY_BASELINE_AGGREGATE:
 				return new MobilityAggregateLoader(getActivity(),
+						UserPreferencesHelper.getBaseLineStartTime(getActivity()),
 						UserPreferencesHelper.getBaseLineEndTime(getActivity()),
 						mSharedPreferences.getUsername());
 			case LOAD_MOBILITY_LASTWEEK_AGGREGATE:
 				Calendar cal = Calendar.getInstance();
 				cal.add(Calendar.DATE, -7);
+				long endtime = cal.getTimeInMillis();
+				cal.add(Calendar.DATE, -7);
 				return new MobilityAggregateLoader(getActivity(),
 						cal.getTimeInMillis(),
+						endtime,
 						mSharedPreferences.getUsername());
 		}
 		return null;

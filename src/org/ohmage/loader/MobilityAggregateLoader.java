@@ -12,15 +12,22 @@ public class MobilityAggregateLoader extends CursorLoader {
 
 	private long mTimeActive = 0;
 
-	public MobilityAggregateLoader(Context context, long endTime, String username) {
+	/**
+	 * Calculates the average aggregate time for this user
+	 * @param context
+	 * @param startTime inclusive
+	 * @param endTime inclusive
+	 * @param username
+	 */
+	public MobilityAggregateLoader(Context context, long startTime, long endTime, String username) {
 		super(context, MobilityInterface.AGGREGATES_URI,
-				new String[] { MobilityInterface.KEY_MODE, "AVG(" + MobilityInterface.KEY_DURATION + ")" },
-				MobilityInterface.KEY_DAY + " < date('" + endTime/1000 + "', 'unixepoch', 'localtime')"
+				new String[] { MobilityInterface.KEY_MODE, "AVG(" + MobilityInterface.KEY_DURATION + ")", MobilityInterface.KEY_DAY },
+				MobilityInterface.KEY_DAY + " >= date('" + startTime/1000 + "', 'unixepoch', 'localtime')"
+						+ " AND " + MobilityInterface.KEY_DAY + " <= date('" + endTime/1000 + "', 'unixepoch', 'localtime')"
 						+ " AND " + MobilityInterface.KEY_USERNAME + "=?", new String[] {
 				MobilityHelper.getMobilityUsername(username)
 		}, MobilityInterface.KEY_DAY + " DESC");
 	}
-
 
 	@Override
 	public Cursor loadInBackground() {
