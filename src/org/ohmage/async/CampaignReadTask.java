@@ -131,7 +131,12 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 							if (running) { //campaign is running
 								// We don't need to delete it
 								toDelete.remove(c.mUrn);
-								operations.add(ContentProviderOperation.newInsert(Campaigns.CONTENT_URI).withValues(c.toCV()).build());
+								cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_STATUS}, Campaigns.CAMPAIGN_URN + "=?", new String[] { c.mUrn }, null);
+								// To try and prevent a race condition where other tasks change the status of campaigns (ie. download xml task)
+								// We do a quick check here to make sure either the campaign doesn't exist, or it is still remote.
+								if(!cursor.moveToNext() || cursor.getInt(0) == Campaign.STATUS_REMOTE)
+									cr.insert(Campaigns.CONTENT_URI, c.toCV());
+								cursor.close();
 							}
 						}
 					} catch (JSONException e) {
