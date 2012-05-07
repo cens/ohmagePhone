@@ -111,6 +111,7 @@ public class PhotoPrompt extends AbstractPrompt {
 			// Give the image two tries to resize... and then we just use the
 			// original size? there is not much we can do here
 			if(!Utilities.resizeImage(getImageFile(), 800)) {
+				System.gc();
 				Log.d(TAG, "First image resize failed. Trying again.");
 				if(!Utilities.resizeImage(getImageFile(), 800)) {
 					Log.d(TAG, "Second image resize failed. Using original size image");
@@ -174,8 +175,10 @@ public class PhotoPrompt extends AbstractPrompt {
 		// If there is an old BitmapDrawable we have to recycle it
 		if(imageView != null && imageView.getDrawable() instanceof BitmapDrawable) {
 			Bitmap b = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-			if(b != null)
+			if(b != null) {
 				b.recycle();
+				b = null;
+			}
 		}
 	}
 }

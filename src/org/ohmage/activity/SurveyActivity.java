@@ -245,6 +245,14 @@ public class SurveyActivity extends Activity implements LocationListener {
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		if(mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof PhotoPrompt)
+			PhotoPrompt.clearView(mPromptFrame);
+	}
+
+	@Override
 	public void onLocationChanged(Location location) {
 		if(SurveyGeotagService.locationValid(location)) {
 			// We got a good enough location so lets stop the gps
@@ -754,6 +762,10 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 		if (mSurveyElements.get(index) instanceof AbstractPrompt) {
 
+			//If its a photo prompt we need to recycle the image
+			if(mLastElement instanceof PhotoPrompt)
+				PhotoPrompt.clearView(mPromptFrame);
+
 			AbstractPrompt prompt = (AbstractPrompt)mSurveyElements.get(index);
 			handlePromptChangeLogging(prompt);
 
@@ -786,10 +798,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 			} else {
 				mSkipButton.setVisibility(View.INVISIBLE);
 			}
-
-			//If its a photo prompt we need to recycle the image
-			if(mSurveyElements.get(index) instanceof PhotoPrompt)
-				PhotoPrompt.clearView(mPromptFrame);
 
 			mPromptFrame.removeAllViews();
 			mPromptFrame.addView(prompt.getView(this));
