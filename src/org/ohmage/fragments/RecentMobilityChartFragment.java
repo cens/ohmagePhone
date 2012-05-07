@@ -94,9 +94,10 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 		switch(id) {
 			case LOAD_MOBILITY_DATA:
 				return new CursorLoader(getActivity(), MobilityInterface.AGGREGATES_URI,
-						MobilityQuery.PROJECTION, MobilityInterface.KEY_DAY
-						+ " > date('now', 'localtime', '-10 days') AND "
-						+ MobilityInterface.KEY_USERNAME + "=?", new String[] {
+						MobilityQuery.PROJECTION,
+						MobilityInterface.KEY_DAY + " <= date('now', 'localtime')" + " AND " +
+						MobilityInterface.KEY_DAY + " > date('now', 'localtime', '-10 days') AND " +
+						MobilityInterface.KEY_USERNAME + "=?", new String[] {
 					MobilityHelper.getMobilityUsername(mSharedPreferences.getUsername())
 				}, MobilityInterface.KEY_DAY + " DESC");
 			case LOAD_MOBILITY_BASELINE_AGGREGATE:

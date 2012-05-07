@@ -73,8 +73,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 					ContentValues values = new ContentValues();
 					values.put(MobilityInterface.KEY_DURATION, data.get(i).get("duration").asLong(0));
 					values.put(MobilityInterface.KEY_MODE, data.get(i).get("mode").asText());
-					String timestamp = object.get("timestamp").asText();
-					values.put(MobilityInterface.KEY_DAY, timestamp.split(" ")[0]);
+					values.put(MobilityInterface.KEY_DAY, object.get("timestamp").asText());
 					values.put(MobilityInterface.KEY_USERNAME, MobilityHelper.getMobilityUsername(getUsername()));
 					operations.add(ContentProviderOperation.newInsert(MobilityInterface.AGGREGATES_URI).withValues(values).build());
 				}
