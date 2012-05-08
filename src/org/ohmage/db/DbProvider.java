@@ -238,7 +238,16 @@ public class DbProvider extends ContentProvider {
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
 		SelectionBuilder builder = buildSelection(uri, true);
-		
+
+		// Only update the campaign if it hasn't been updated more recently
+		if(values.containsKey(Campaigns.CAMPAIGN_UPDATED)) {
+			if(selection != null)
+				selection += " AND ";
+			else
+				selection = "";
+			selection += Campaigns.CAMPAIGN_UPDATED + "<=" + values.getAsLong(Campaigns.CAMPAIGN_UPDATED);
+		}
+
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		

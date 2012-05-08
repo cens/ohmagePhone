@@ -67,6 +67,7 @@ public class Models {
 		public int mStatus;
 		public String mIcon;
 		public String mPrivacy;
+		public long updated;
 
 		/**
 		 * Returns a list of Campaign objects from the given cursor.
@@ -92,6 +93,7 @@ public class Models {
 				c.mStatus = cursor.getInt(cursor.getColumnIndex(Campaigns.CAMPAIGN_STATUS));
 				c.mIcon = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_ICON));
 				c.mPrivacy = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_PRIVACY));
+				c.updated = cursor.getLong(cursor.getColumnIndexOrThrow(Campaigns.CAMPAIGN_UPDATED));
 				campaigns.add(c);
 
 				cursor.moveToNext();
