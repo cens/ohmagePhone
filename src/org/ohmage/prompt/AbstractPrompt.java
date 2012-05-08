@@ -351,4 +351,9 @@ public abstract class AbstractPrompt implements Prompt {
 		}
 		return value;
 	}
+
+	@Override
+	public void onHidden() {
+		// By default there is nothing we need to do
+	}
 }

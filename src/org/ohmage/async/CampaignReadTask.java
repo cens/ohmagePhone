@@ -108,7 +108,16 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 						c.mStatus = Campaign.STATUS_REMOTE;
 						c.mPrivacy = data.getJSONObject(c.mUrn).optString("privacy_state", Campaign.PRIVACY_UNKNOWN);
 						c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
+						c.updated = startTime;
 						boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
+						boolean participant = false;
+						JSONArray roles = data.getJSONObject(c.mUrn).getJSONArray("user_roles");
+						for(int j=0;j<roles.length();j++) {
+							if("participant".equals(roles.getString(j))) {
+								participant = true;
+								break;
+							}
+						}
 
 						if (localCampaignUrns.containsKey(c.mUrn)) { //campaign has already been downloaded
 
@@ -118,9 +127,12 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 							ContentValues values = new ContentValues();
 							// FAISAL: include things here that may change at any time on the server
 							values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
+							values.put(Campaigns.CAMPAIGN_UPDATED, c.updated);
 
 							if(!c.mCreationTimestamp.equals(old.mCreationTimestamp))
 								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
+							else if(running && !participant)
+								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_INVALID_USER_ROLE);
 							else
 								values.put(Campaigns.CAMPAIGN_STATUS, (running) ? Campaign.STATUS_READY : Campaign.STATUS_STOPPED);
 
@@ -150,6 +162,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			for (String urn : localCampaignUrns.keySet()) {
 				ContentValues values = new ContentValues();
 				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
+				values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
 				operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn)).withValues(values).build());
 			}
 

@@ -60,7 +60,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 32;
+	private static final int DB_VERSION = 33;
 	
 	private final Context mContext;
 
@@ -129,7 +129,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Campaigns.CAMPAIGN_CONFIGURATION_XML + " TEXT, "
 				+ Campaigns.CAMPAIGN_STATUS + " INTEGER, "
 				+ Campaigns.CAMPAIGN_ICON + " TEXT, "
-				+ Campaigns.CAMPAIGN_PRIVACY + " TEXT " +
+				+ Campaigns.CAMPAIGN_PRIVACY + " TEXT, "
+				+ Campaigns.CAMPAIGN_UPDATED + " INTEGER NOT NULL DEFAULT 0 " +
 				");");
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEYS + " ("
@@ -251,9 +252,9 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO: create an actual upgrade plan rather than just dumping and
-		// recreating everything
-		clearAll(db);
+		if(oldVersion < 33) {
+			db.execSQL("ALTER TABLE " + Tables.CAMPAIGNS + " ADD COLUMN " +  Campaigns.CAMPAIGN_UPDATED + " INTEGER NOT NULL DEFAULT 0");
+		}
 	}
 
 	public void clearAll(SQLiteDatabase db) {

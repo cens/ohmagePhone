@@ -360,4 +360,10 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 			// No number...
 		}
 	}
+
+	@Override
+	public void onHidden() {
+		mEnteredText = "";
+		mIsAddingNewItem = false;
+	}
 }

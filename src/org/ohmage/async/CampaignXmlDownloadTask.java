@@ -4,7 +4,9 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -48,6 +50,9 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     public Response loadInBackground() {
 		if(mApi == null)
 			mApi = new OhmageApi(mContext);
+
+		int status = Campaign.STATUS_INVALID_USER_ROLE;
+
 		ContentResolver cr = getContext().getContentResolver();
 
 		CampaignReadResponse campaignResponse = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
@@ -56,8 +61,20 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			ContentValues values = new ContentValues();
 			// Update campaign created timestamp when we download xml
 			try {
-				values.put(Campaigns.CAMPAIGN_CREATED, campaignResponse.getData().getJSONObject(mCampaignUrn).getString("creation_timestamp"));
+				JSONObject campaignJson = campaignResponse.getData().getJSONObject(mCampaignUrn);
+				values.put(Campaigns.CAMPAIGN_CREATED, campaignJson.getString("creation_timestamp"));
+				values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
 				cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
+
+				// We iterate through the list of user roles, if participant is included, then the status of this
+				// campaign can be set to ready.
+				JSONArray roles = campaignJson.getJSONArray("user_roles");
+				for(int i=0;i<roles.length();i++) {
+					if("participant".equals(roles.getString(i))) {
+						status = Campaign.STATUS_READY;
+						break;
+					}
+				}
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing json data for " + mCampaignUrn, e);
 			}
@@ -76,8 +93,9 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			values.put(Campaigns.CAMPAIGN_URN, mCampaignUrn);
 			values.put(Campaigns.CAMPAIGN_DOWNLOADED, downloadTimestamp);
 			values.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, response.getXml());
-			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_READY);
-			int count = cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
+			values.put(Campaigns.CAMPAIGN_STATUS, status);
+			values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+			int count = cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
 			if (count < 1) {
 				//nothing was updated
 			} else if (count > 1) {
@@ -98,7 +116,8 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 		} else { 
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
-			cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null); 
+			values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+			cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
 		}
 		
 		return response;
@@ -112,7 +131,8 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			ContentResolver cr = getContext().getContentResolver();
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
-			cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null);
+			values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+			cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
 		}
 
 		if (response.getResult() == Result.SUCCESS) {
@@ -163,6 +183,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 		ContentResolver cr = getContext().getContentResolver();
 		ContentValues values = new ContentValues();
 		values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
-		cr.update(Campaigns.CONTENT_URI, values, Campaigns.CAMPAIGN_URN + "= '" + mCampaignUrn + "'", null);
+		values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+		cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
     }
 }

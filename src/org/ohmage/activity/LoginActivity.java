@@ -196,6 +196,13 @@ public class LoginActivity extends FragmentActivity {
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		getSupportLoaderManager().destroyLoader(0);
+	}
+
+	@Override
 	protected void onPause() {
 		super.onPause();
 		Analytics.activity(this, Status.OFF);
