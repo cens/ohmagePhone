@@ -58,7 +58,7 @@ public class RecentChartFragment extends PromptFeedbackListFragment {
 
 		TextView header = new TextView(getActivity());
 		header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-		header.setText("*Last 30 responses shown");
+		header.setText("*Last 30 responses shown with average line");
 		int padding = getResources().getDimensionPixelSize(R.dimen.gutter);
 		header.setPadding(padding, padding, padding, padding);
 		lv.addHeaderView(header, null, false);

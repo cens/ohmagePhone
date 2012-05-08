@@ -427,14 +427,16 @@ public abstract class XYChart extends AbstractChart {
 
     if (mRenderer.isShowAverageLines()) {
     	for(int i=0;i<mDataset.getSeriesCount();i++) {
-    		paint.setColor(mRenderer.getSeriesRendererAt(i).getColor());
+    		Paint averageLinePaint = new Paint(paint);
+    		averageLinePaint.setColor(mRenderer.getSeriesRendererAt(i).getColor());
+    		averageLinePaint.setPathEffect(new DashPathEffect(new float[] {3, 3}, 0));
 
     		XYSeries series = mDataset.getSeriesAt(i);
     		int scale = series.getScaleNumber();
     		Double average = series.getAverageY();
     		if(average != null) {
     			Double offset = bottom - yPixelsPerUnit[scale] * (average - minY[i]);
-    			canvas.drawLine(left, offset.intValue(), right, offset.intValue(), paint);
+    			canvas.drawLine(left, offset.intValue(), right, offset.intValue(), averageLinePaint);
     		}
     	}
     }

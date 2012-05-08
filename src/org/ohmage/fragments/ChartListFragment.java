@@ -7,7 +7,6 @@ import org.ohmage.R;
 import org.ohmage.adapters.ChartListAdapter;
 import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
-import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 
 import android.database.Cursor;
@@ -29,12 +28,6 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 	private static final String TAG = "ChartListFragment";
 
 	private static final String PROMPTS = "prompts";
-
-	private static final int UNKNOWN_TYPE = -1;
-	private static final int HISTOGRAM_TYPE = 0;
-	private static final int BUBBLE_TYPE = 1;
-
-	private static final int MAX_POINTS = 10;
 
 	private ChartListAdapter mAdapter;
 
@@ -81,41 +74,11 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 			List<FeedbackItem> promptData) {
 		ExtraPromptData extraData = NIHConfig.getExtraPromptData(promptId);
 		CleanRenderer r = new CleanRenderer();
-		
-		if(NIHConfig.Prompt.DID_EXERCISE_ID.equals(promptId)) {
-			int[] margins = r.getMargins();
-			margins[1] = 28;
-			r.setMargins(margins);
-		} else if(NIHConfig.Prompt.TIME_TO_YOURSELF_ID.equals(promptId)) {
-			HistogramRenderer r2 = new HistogramRenderer(getActivity());
-			int[] margins = r2.getMargins();
-			margins[1] = 28;
-			r2.setMargins(margins);
-			return extraData.toHistogramChartItem(promptData, r2);
-		} else if(NIHConfig.Prompt.FOOD_QUALITY_ID.equals(promptId)) {
-			int[] margins = r.getMargins();
-			margins[1] = 37;
-			r.setMargins(margins);
-		} else if(NIHConfig.Prompt.FOOD_QUANTITY_ID.equals(promptId)) {
-			int[] margins = r.getMargins();
-			margins[1] = 71;
-			r.setMargins(margins);
-		} else if(NIHConfig.Prompt.HOW_STRESSED_ID.equals(promptId)) {
-			int[] margins = r.getMargins();
-			margins[1] = 41;
-			r.setMargins(margins);
-		}
-		return extraData.toBubbleChartItem(promptData, r);
-	}
 
-	private int getChartType(String promptId) {
-		if(NIHConfig.Prompt.DID_EXERCISE_ID.equals(promptId) || NIHConfig.Prompt.TIME_TO_YOURSELF_ID.equals(promptId)) {
-			return HISTOGRAM_TYPE;
-		} else if(NIHConfig.Prompt.FOOD_QUALITY_ID.equals(promptId) || NIHConfig.Prompt.FOOD_QUANTITY_ID.equals(promptId) || NIHConfig.Prompt.HOW_STRESSED_ID.equals(promptId)) {
-			return BUBBLE_TYPE;
-		} else {
-			return UNKNOWN_TYPE;
-		}
+		int[] margins = r.getMargins();
+		margins[1] = 41;
+		r.setMargins(margins);
+		return extraData.toBubbleChartItem(promptData, r);
 	}
 
 	@Override
