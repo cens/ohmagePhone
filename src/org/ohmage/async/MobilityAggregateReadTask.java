@@ -86,7 +86,10 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 				getContext().getContentResolver().applyBatch(MobilityInterface.AUTHORITY, operations);
 
 				// Since we could loose the mobility timestamp by logging out, we do a sanity check
-				Long mobilityTimestamp = new SharedPreferencesHelper(mContext).getLastMobilityUploadTimestamp();
+				SharedPreferencesHelper sharedPrefs = new SharedPreferencesHelper(mContext);
+				Long mobilityTimestamp = sharedPrefs.getLastMobilityUploadTimestamp();
+				if(mobilityTimestamp == 0)
+					mobilityTimestamp = sharedPrefs.getLoginTimestamp();
 				if(mobilityTimestamp != 0 || operations.isEmpty())
 					MobilityHelper.recalculateAggregate(mContext, getUsername(), mobilityTimestamp);
 
