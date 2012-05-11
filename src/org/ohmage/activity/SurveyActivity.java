@@ -96,7 +96,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	private static final int DIALOG_CANCEL_ID = 0;
 
-	protected static final int POST_SURVEY_ACTIVITY = 0;
+	protected static final int POST_SURVEY_ACTIVITY = 1;
 
 	private TextView mSurveyTitleText;
 	private ProgressBar mProgressBar;
