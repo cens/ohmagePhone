@@ -13,7 +13,12 @@ public abstract class PauseableTaskLoader<T> extends AsyncTaskLoader<T> {
 
 	public PauseableTaskLoader(Context context) {
 		super(context);
+	}
+
+	@Override
+	protected T onLoadInBackground() {
 		startTime = System.currentTimeMillis();
+		return super.onLoadInBackground();
 	}
 
 	@Override

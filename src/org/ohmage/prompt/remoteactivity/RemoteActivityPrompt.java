@@ -73,6 +73,8 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	private int runs;
 	private int minRuns;
 	private int retries;
+
+	private String mFeedback;
 	
 	/**
 	 * Basic default constructor.
@@ -108,6 +110,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.prompt_remote_activity, null);
 		
 		feedbackText = (TextView) layout.findViewById(R.id.prompt_remote_activity_feedback);
+		feedbackText.setText(mFeedback);
 		launchButton = (Button) layout.findViewById(R.id.prompt_remote_activity_replay_button);
 		launchButton.setOnClickListener(this);
 		launchButton.setText((!launched && !autolaunch) ? R.string.prompt_remote_launch : R.string.prompt_remote_relaunch);
@@ -192,7 +195,8 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 					String nextKey = keysIter.next();
 					if(FEEDBACK_STRING.equals(nextKey))
 					{
-						feedbackText.setText(extras.getString(nextKey));
+						mFeedback = extras.getString(nextKey);
+						feedbackText.setText(mFeedback);
 					}
 					else
 					{

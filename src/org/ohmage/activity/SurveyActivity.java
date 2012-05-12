@@ -251,7 +251,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 	public void onDestroy() {
 		super.onDestroy();
 
-		if(mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof PhotoPrompt)
+		if(mSurveyElements != null && mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof PhotoPrompt)
 			PhotoPrompt.clearView(mPromptFrame);
 	}
 

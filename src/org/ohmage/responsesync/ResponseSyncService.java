@@ -162,9 +162,10 @@ public class ResponseSyncService extends WakefulIntentService {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 
 			String cutoffDate = null;
+			final Long originalFeedbackRefreshTime = mPrefs.getLastFeedbackRefreshTimestamp(c.mUrn);
 			if (!intent.getBooleanExtra(EXTRA_FORCE_ALL, false)) {
 				// I add 1 second since the request is inclusive of this time
-				cutoffDate = inputSDF.format(mPrefs.getLastFeedbackRefreshTimestamp(c.mUrn) + 1000);
+				cutoffDate = inputSDF.format(originalFeedbackRefreshTime + 1000);
 			}
 
 			// ==================================================================
@@ -461,6 +462,13 @@ public class ResponseSyncService extends WakefulIntentService {
 									url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
 									imageLoader.prefetchBlocking(url);
 									File file = OhmageCache.getCachedFile(ResponseSyncService.this, URI.create(url));
+									if(file == null) {
+										// If we don't have access to the file there is no reason to continue
+										// To make sure we download the thumbnails we reset the last refresh time
+										mPrefs.putLastFeedbackRefreshTimestamp(c.mUrn, originalFeedbackRefreshTime);
+										Log.e(TAG, "Unable to save thumbnail, aborting sync process");
+										return;
+									}
 									downloadedAmount += file.length();
 									file.setLastModified(time - 1000 * i);
 								}
