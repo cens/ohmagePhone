@@ -95,6 +95,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	private static final int DIALOG_CANCEL_ID = 0;
 
+	protected static final int PROMPT_RESULT = 0;
+
 	private TextView mSurveyTitleText;
 	private ProgressBar mProgressBar;
 	private TextView mPromptText;
@@ -689,8 +691,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, requestCode, resultCode, data);
+		if (requestCode == Prompt.REQUEST_CODE && mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, resultCode, data);
 		}
 	}
 

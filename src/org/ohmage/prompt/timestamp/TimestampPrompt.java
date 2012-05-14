@@ -9,7 +9,6 @@ import org.ohmage.prompt.AbstractPrompt;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -53,13 +52,6 @@ public class TimestampPrompt extends AbstractPrompt {
 		} else {
 			return true;
 		}
-	}
-
-	@Override
-	public void handleActivityResult(Context context, int requestCode,
-			int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

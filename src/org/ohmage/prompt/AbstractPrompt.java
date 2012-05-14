@@ -33,6 +33,9 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
 import org.ohmage.prompt.timestamp.TimestampPrompt;
 
+import android.content.Context;
+import android.content.Intent;
+
 
 public abstract class AbstractPrompt implements Prompt {
 
@@ -356,4 +359,10 @@ public abstract class AbstractPrompt implements Prompt {
 	public void onHidden() {
 		// By default there is nothing we need to do
 	}
+
+	@Override
+	public void handleActivityResult(Context context, int resultCode, Intent data) {
+		//  by default there is nothing we need to do
+	}
+
 }
