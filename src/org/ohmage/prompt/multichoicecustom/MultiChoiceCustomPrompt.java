@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage.prompt.multichoicecustom;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
@@ -24,7 +28,6 @@ import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.CustomChoiceListView;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -46,10 +49,6 @@ import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class MultiChoiceCustomPrompt extends AbstractPrompt {
 	
@@ -350,13 +349,6 @@ private static final String TAG = "MultiChoiceCustomPrompt";
             mCancelButton.setVisibility(View.GONE);
 			imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
         }
-	}
-
-	@Override
-	public void handleActivityResult(Context context, int requestCode,
-			int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

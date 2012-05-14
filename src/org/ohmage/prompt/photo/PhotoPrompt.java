@@ -15,7 +15,8 @@
  ******************************************************************************/
 package org.ohmage.prompt.photo;
 
-import edu.ucla.cens.systemlog.Log;
+import java.io.File;
+import java.util.UUID;
 
 import org.ohmage.R;
 import org.ohmage.Utilities;
@@ -37,9 +38,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-
-import java.io.File;
-import java.util.UUID;
+import edu.ucla.cens.systemlog.Log;
 
 public class PhotoPrompt extends AbstractPrompt {
 
@@ -105,7 +104,7 @@ public class PhotoPrompt extends AbstractPrompt {
 	}
 	
 	@Override
-	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) {
+	public void handleActivityResult(Context context, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 
 			// Give the image two tries to resize... and then we just use the
@@ -145,7 +144,7 @@ public class PhotoPrompt extends AbstractPrompt {
 			public void onClick(View v) {
 				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getImageFile()));
-				act.startActivityForResult(intent, 1);
+				act.startActivityForResult(intent, REQUEST_CODE);
 
 			}
 		});

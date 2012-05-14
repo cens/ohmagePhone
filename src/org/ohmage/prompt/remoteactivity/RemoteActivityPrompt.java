@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.ohmage.prompt.remoteactivity;
 
-import edu.ucla.cens.systemlog.Log;
+import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,8 +36,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Iterator;
+import edu.ucla.cens.systemlog.Log;
 
 /**
  * Prompt that will launch a remote Activity that can either be part of this
@@ -157,7 +156,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	 * return value for this prompt type.
 	 */
 	@Override
-	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) 
+	public void handleActivityResult(Context context, int resultCode, Intent data)
 	{
 		if(resultCode == Activity.RESULT_CANCELED)
 		{
@@ -493,7 +492,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 			activityToLaunch.putExtra("input", input);
 			
 			try {
-				callingActivity.startActivityForResult(activityToLaunch, 0);
+				callingActivity.startActivityForResult(activityToLaunch, REQUEST_CODE);
 				launched = true;
 				runs++;
 			} catch (ActivityNotFoundException e) {
