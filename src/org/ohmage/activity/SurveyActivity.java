@@ -197,6 +197,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			mReachedEnd = instance.reachedEnd;
 			mLastSeenRepeatableSetId = instance.lastSeenRepeatableSetId;
 			mLastElement = instance.lastElement;
+			mSurveyFinished = instance.surveyFinished;
 		}
 
 		setContentView(R.layout.survey_activity);
@@ -277,7 +278,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement);
+		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement, mSurveyFinished);
 	}
 
 	private class NonConfigurationInstance {
@@ -287,14 +288,16 @@ public class SurveyActivity extends Activity implements LocationListener {
 		boolean reachedEnd;
 		String lastSeenRepeatableSetId;
 		SurveyElement lastElement;
+		boolean surveyFinished;
 
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element, boolean surveyFinished) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
 			this.reachedEnd = reachedEnd;
 			this.lastSeenRepeatableSetId = lastSeenRepeatableSetId;
 			this.lastElement = element;
+			this.surveyFinished = surveyFinished;
 		}
 	}
 
