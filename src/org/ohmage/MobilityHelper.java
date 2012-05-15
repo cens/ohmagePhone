@@ -127,13 +127,13 @@ public class MobilityHelper {
 		// The user needs to be logged in before we can upgrade mobility data
 		if(!prefs.isAuthenticated())
 			return -1;
+		setUsername(context, prefs.getUsername(), prefs.getLoginTimestamp());
 
 		int oldMobilityVersion = prefs.getLastMobilityVersion();
 		int newMobilityVersion = getMobilityVersion(context);
 		prefs.setMobilityVersion(newMobilityVersion);
 
 		if(oldMobilityVersion < VERSION_AGGREGATE_AND_USERNAME && newMobilityVersion >= VERSION_AGGREGATE_AND_USERNAME) {
-			setUsername(context, prefs.getUsername(), prefs.getLoginTimestamp());
 
 			// If we are upgrading into a version of ohmage which has aggregates,
 			// we should make a call to the server to get the aggregate data
