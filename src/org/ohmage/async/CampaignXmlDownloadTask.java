@@ -40,10 +40,13 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 	private final Context mContext;
 	private OhmageApi mApi;
 
+	private final SharedPreferencesHelper mPrefs;
+
 	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
         super(context, username, hashedPassword);
         mCampaignUrn = campaignUrn;
         mContext = context;
+		mPrefs = new SharedPreferencesHelper(mContext);
     }
 
     @Override
@@ -56,6 +59,11 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 		ContentResolver cr = getContext().getContentResolver();
 
 		CampaignReadResponse campaignResponse = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+			return campaignResponse;
+		}
 
 		if(campaignResponse.getResult() == Result.SUCCESS) {
 			ContentValues values = new ContentValues();
@@ -83,7 +91,12 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 		}
 
 		CampaignXmlResponse response =  mApi.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, mCampaignUrn);
-		
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+			return response;
+		}
+
 		if (response.getResult() == Result.SUCCESS) {
 			
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -125,6 +138,11 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     public void deliverResult(Response response) {
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+			return;
+		}
 
 		if(response.getResult() != Result.SUCCESS) {
 			// revert the db back to remote
@@ -179,6 +197,11 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     @Override
     protected void onForceLoad() {
 		super.onForceLoad();
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+			return;
+		}
 
 		ContentResolver cr = getContext().getContentResolver();
 		ContentValues values = new ContentValues();

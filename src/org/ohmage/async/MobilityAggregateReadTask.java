@@ -1,10 +1,8 @@
 
 package org.ohmage.async;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Log;
 
 import org.codehaus.jackson.JsonNode;
 import org.ohmage.Config;
@@ -21,7 +19,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Loads Aggregate data about mobility from the server and populates the
@@ -35,6 +37,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 	private final ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 	private final Date mStartDate;
 	private final Date mEndDate;
+	private final SharedPreferencesHelper mPrefs;
 
 	public MobilityAggregateReadTask(final Context context) {
 		super(context);
@@ -43,6 +46,8 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 		Calendar now = Calendar.getInstance();
 		now.add(Calendar.DATE, 1);
 		mEndDate = now.getTime();
+
+		mPrefs = new SharedPreferencesHelper(mContext);
 	}
 
 	@Override
@@ -83,6 +88,12 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 		// If the call was successful, we can update the aggregate table
 		if(response.getResult() == Result.SUCCESS) {
 			try {
+
+				if(!mPrefs.isAuthenticated()) {
+					Log.e(TAG, "User isn't logged in, terminating task");
+					return response;
+				}
+
 				getContext().getContentResolver().applyBatch(MobilityInterface.AUTHORITY, operations);
 
 				// Since we could loose the mobility timestamp by logging out, we do a sanity check

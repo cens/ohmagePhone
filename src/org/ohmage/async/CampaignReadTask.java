@@ -43,21 +43,25 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 	private static final String TAG = "CampaignReadTask";
 	private OhmageApi mApi;
 	private final Context mContext;
+	private final SharedPreferencesHelper mPrefs;
 
 	public CampaignReadTask(Context context) {
 		super(context);
 		mContext = context;
+		mPrefs = new SharedPreferencesHelper(mContext);
 	}
 
 	public CampaignReadTask(Context context, String username, String hashedPassword) {
 		super(context, username, hashedPassword);
 		mContext = context;
+		mPrefs = new SharedPreferencesHelper(mContext);
 	}
 
 	@Override
 	public CampaignReadResponse loadInBackground() {
 		if(mApi == null)
 			mApi = new OhmageApi(mContext);
+
 		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
@@ -164,6 +168,11 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
 				values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
 				operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn)).withValues(values).build());
+			}
+
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+				return response;
 			}
 
 			try {
