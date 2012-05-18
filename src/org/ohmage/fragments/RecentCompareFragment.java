@@ -102,9 +102,9 @@ public class RecentCompareFragment extends ListFragment implements LoaderManager
 
 				Bundle args = new Bundle();
 				args.putString(EXTRA_CAMPAIGN_URN, ((CampaignLoader) loader).getCampaignUrn());
-				getLoaderManager().initLoader(LOADER_AGGREGATES_BASELINE, args, this);
-				getLoaderManager().initLoader(LOADER_AGGREGATES_THISWEEK, args, this);
-				getLoaderManager().initLoader(LOADER_AGGREGATES_LASTWEEK, args, this);
+				getLoaderManager().initLoader(LOADER_AGGREGATES_BASELINE, args, this).forceLoad();
+				getLoaderManager().initLoader(LOADER_AGGREGATES_THISWEEK, args, this).forceLoad();
+				getLoaderManager().initLoader(LOADER_AGGREGATES_LASTWEEK, args, this).forceLoad();
 				break;
 
 			case LOADER_AGGREGATES_LASTWEEK:
