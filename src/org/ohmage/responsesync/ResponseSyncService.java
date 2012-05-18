@@ -18,20 +18,20 @@ import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
-import android.net.Uri;
-import android.text.TextUtils;
+import android.os.RemoteException;
 import android.widget.Toast;
 
 import java.io.File;
@@ -104,11 +104,9 @@ public class ResponseSyncService extends WakefulIntentService {
 			Log.e(TAG, "User isn't logged in, ResponseSyncService terminating");
 			return;
 		}
-		
-		// get a ref to the dbhelper for maintenance funcs that should be moved into the provider someday
-		// grab a contentresolver for proper db queries 
-		DbHelper dbHelper = new DbHelper(this);
+
 		final ContentResolver cr = getContentResolver();
+		final ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 		// and also create a list to hold some campaigns
 		List<Campaign> campaigns;
         
@@ -161,11 +159,15 @@ public class ResponseSyncService extends WakefulIntentService {
 		for (final Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+				return;
+			}
+
 			String cutoffDate = null;
-			final Long originalFeedbackRefreshTime = mPrefs.getLastFeedbackRefreshTimestamp(c.mUrn);
 			if (!intent.getBooleanExtra(EXTRA_FORCE_ALL, false)) {
 				// I add 1 second since the request is inclusive of this time
-				cutoffDate = inputSDF.format(originalFeedbackRefreshTime + 1000);
+				cutoffDate = inputSDF.format(c.getLastDownloadedResponseTime(this) + 1000);
 			}
 
 			// ==================================================================
@@ -216,7 +218,6 @@ public class ResponseSyncService extends WakefulIntentService {
 							}
 						}
 
-						int delCount = 0;
 						List<String> sublist;
 						int groupSize = 500;
 
@@ -240,17 +241,12 @@ public class ResponseSyncService extends WakefulIntentService {
 
 							// remove any record that's not in our server collection for this campaign
 							// (usually meaning it was deleted from the server)
-							delCount += cr.delete(Responses.CONTENT_URI, "(" + Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
+							operations.add(ContentProviderOperation.newDelete(Responses.CONTENT_URI).withSelection("(" + Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
 									" OR " + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADED + ")" +
 									" AND " + Responses.CAMPAIGN_URN + "='" + c.mUrn + "'" +
-									" AND " + Responses.RESPONSE_UUID + " in (" + total + ")", args);
+									" AND " + Responses.RESPONSE_UUID + " in (" + total + ")", args).build());
 
-							// after, we need to find out if any response we found is not in the database
-							// we then use the timestamp of the response to push back the cutoff date
-							// (should we do this? it's risky)
 						}
-
-						Log.v(TAG, "Finished UUID read, deleted " + delCount + " stale record(s) out of " + responseIDs.size());
 					}
 				});
 
@@ -289,10 +285,7 @@ public class ResponseSyncService extends WakefulIntentService {
 						// for each survey, insert a record into our feedback db
 						// if we're unable to insert, just continue (likely a duplicate)
 						// also, note the schema follows the definition in the documentation
-						
-						// store all the photos found in this thing, too
-						ArrayList<String> photoUUIDs = new ArrayList<String>();
-						
+
 						try {
 							// create an instance of a response to hold the data we're going to insert
 							Response candidate = new Response();
@@ -382,7 +375,7 @@ public class ResponseSyncService extends WakefulIntentService {
 										
 										// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
 										if (curItem.get("prompt_type").asText().equalsIgnoreCase("photo") && !value.equalsIgnoreCase(AbstractPrompt.NOT_DISPLAYED_VALUE) && !value.equalsIgnoreCase(AbstractPrompt.SKIPPED_VALUE)) {
-											photoUUIDs.add(value);
+											responsePhotos.add(new ResponseImage(candidate.campaignUrn, value));
 										}
 										
 										// add the value, which is generally just a number
@@ -400,29 +393,8 @@ public class ResponseSyncService extends WakefulIntentService {
 							// render it to a string for storage into our db
 							candidate.response = responseJson.toString();
 							candidate.status = Response.STATUS_DOWNLOADED;
-							
-							// ok, gathered everything; time to insert into the feedback DB
-							// note that we mark this entry as "remote", meaning it came from the server
-	
-							try {
-								Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
 
-								if(responseUri != null && candidate.time != 0 && !TextUtils.isEmpty(candidate.date)) {
-									// If the time is greater than the cut off time, we should update the last synced time with that
-									if(candidate.time > mPrefs.getLastFeedbackRefreshTimestamp(candidate.campaignUrn)) {
-										mPrefs.putLastFeedbackRefreshTimestamp(candidate.campaignUrn, candidate.time);
-									}
-									// Download the thumbnail if it has a date (because we can't get to it otherwise)
-									for(String uuid : photoUUIDs) {
-										responsePhotos.add(new ResponseImage(candidate.campaignUrn, uuid));
-									}
-								}
-							} catch (SQLiteConstraintException e) {
-								Log.v(TAG, "Record not inserted due to constraint failure (likely a duplicate)");
-							}
-							
-							// it's possible that the above will fail, in which case it silently returns -1
-							// we don't do anything differently in that case, so there's no need to check
+							operations.add(ContentProviderOperation.newInsert(Responses.CONTENT_URI).withValues(candidate.toCV()).build());
 						}
 				        catch (JSONException e) {
 							Log.e(TAG, "Problem parsing response json: " + e.getMessage(), e);
@@ -463,9 +435,6 @@ public class ResponseSyncService extends WakefulIntentService {
 									imageLoader.prefetchBlocking(url);
 									File file = OhmageCache.getCachedFile(ResponseSyncService.this, URI.create(url));
 									if(file == null) {
-										// If we don't have access to the file there is no reason to continue
-										// To make sure we download the thumbnails we reset the last refresh time
-										mPrefs.putLastFeedbackRefreshTimestamp(c.mUrn, originalFeedbackRefreshTime);
 										Log.e(TAG, "Unable to save thumbnail, aborting sync process");
 										return;
 									}
@@ -488,6 +457,22 @@ public class ResponseSyncService extends WakefulIntentService {
 						OhmageApplication.checkCacheUsage();
 					}
 				});
+		}
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+			return;
+		}
+
+		// Apply the operations
+		try {
+			cr.applyBatch(DbContract.CONTENT_AUTHORITY, operations);
+		} catch (RemoteException e) {
+			Log.e(TAG, "Error applying database operations");
+			e.printStackTrace();
+		} catch (OperationApplicationException e) {
+			Log.e(TAG, "Error applying database operations");
+			e.printStackTrace();
 		}
 
 		// ==================================================================

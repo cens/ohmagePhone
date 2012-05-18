@@ -110,18 +110,6 @@ public class SharedPreferencesHelper {
 	public boolean putLastSurveyTimestamp(String surveyId, Long timestamp) {
 		return mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
 	}
-	
-	public Long getLastFeedbackRefreshTimestamp(String urn) {
-		return mPreferences.getLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn, -1);
-	}
-	
-	public boolean putLastFeedbackRefreshTimestamp(String urn, Long timestamp) {
-		return mPreferences.edit().putLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn, timestamp).commit();
-	}
-
-	public boolean removeLastFeedbackRefreshTimestamp(String urn) {
-		return mPreferences.edit().remove(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn).commit();
-	}
 
 	public boolean isAuthenticated() {
 		if (getUsername().length() > 0 && getHashedPassword().length() > 0) {
