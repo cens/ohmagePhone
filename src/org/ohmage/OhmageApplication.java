@@ -22,13 +22,16 @@ import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.app.Application;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -94,8 +97,21 @@ public class OhmageApplication extends Application {
 			
 			prefs.setLastVersionCode(currentVersionCode);
 		}
+
+		verifyState();
 	}
-	
+
+	/**
+	 * This method verifies that the state of ohmage is correct when it starts up.
+	 * 
+	 * For now it changes responses which say they are waiting for a location to say they have no location.
+	 */
+	private void verifyState() {
+		ContentValues values = new ContentValues();
+		values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
+		getContentResolver().update(Responses.CONTENT_URI, values, Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION, null);
+	}
+
 	public void resetAll() {
 		//clear everything?
 		Log.i(TAG, "Reseting all data");
