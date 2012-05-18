@@ -13,6 +13,8 @@
     <color name="yellow">#FCBA1E</color>
     <color name="pastel_blue">#AEE4F9</color>
     <color name="tan">#FAE5C0</color>
+    <color name="powderkegblue">#0063CE</color>
+    <color name="light_blue">#89b8db</color>
 
     <!-- Defined Colors -->
     <color name="primary_text">#ff424242</color>
@@ -21,5 +23,6 @@
     <color name="calendar_pressed">@color/yellow</color>
     <color name="calendar_today">@color/tan</color>
     <color name="tab_selected">@color/pastel_blue</color>
+    <color name="highlight">@color/light_blue</color>
 
 </resources>

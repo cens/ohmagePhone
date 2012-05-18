@@ -23,6 +23,7 @@ import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
 import org.ohmage.Config;
+import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -181,6 +182,7 @@ public class LoginActivity extends FragmentActivity {
 				String urn = Campaign.getSingleCampaign(LoginActivity.this);
 				if(urn == null) {
 					// Downloading the campaign failed so we should reset the username and password
+					MobilityHelper.setUsername(LoginActivity.this, null);
 					mPreferencesHelper.clearCredentials();
 					Toast.makeText(LoginActivity.this, R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
 				} else {
@@ -421,6 +423,10 @@ public class LoginActivity extends FragmentActivity {
 		//save creds
 		mPreferencesHelper.putUsername(username);
 		mPreferencesHelper.putHashedPassword(hashedPassword);
+
+		// Upgrading the mobility data will set the username so we only need to set it if we don't upgrade
+		if(MobilityHelper.upgradeMobilityData(this) != MobilityHelper.VERSION_AGGREGATE_AND_USERNAME)
+			MobilityHelper.setUsername(this, username);
 
 		//clear related notifications
 		//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);

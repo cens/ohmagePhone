@@ -35,6 +35,7 @@ public class SharedPreferencesHelper {
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
+	private static final String KEY_MOBILITY_VERSION = "mobility_version";
 
 	private final SharedPreferences mPreferences;
 	
@@ -144,5 +145,13 @@ public class SharedPreferencesHelper {
 	
 	public boolean setLastCampaignRefreshTime(long time) {
 		return mPreferences.edit().putLong(KEY_CAMPAIGN_REFRESH_TIME, time).commit();
+	}
+
+	public int getLastMobilityVersion() {
+		return mPreferences.getInt(KEY_MOBILITY_VERSION, -1);
+	}
+
+	public boolean setMobilityVersion(int mobilityVersion) {
+		return mPreferences.edit().putInt(KEY_MOBILITY_VERSION, mobilityVersion).commit();
 	}
 }

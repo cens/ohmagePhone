@@ -52,7 +52,7 @@ public class HelpActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.help_layout);
+        setContentView(R.layout.tab_layout);
 
 		setActionBarShadowVisibility(false);
 
