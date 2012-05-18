@@ -47,7 +47,7 @@ public class RecentCompareFragment extends ListFragment implements LoaderManager
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		setEmptyText(getActivity().getString(R.string.charts_no_data));
+		setEmptyText(getActivity().getString(R.string.feedback_no_data));
 
 		mAdapter = new ComparisonAdapter(getActivity());
 		setListAdapter(mAdapter);
@@ -118,11 +118,15 @@ public class RecentCompareFragment extends ListFragment implements LoaderManager
 				break;
 		}
 
+		// Only show data if we have queried for all of it
 		if(lastweek != null && baseline != null && thisweek != null) {
 			mAdapter.clear();
 
-			for(String key : NIHConfig.PROMPT_LIST) {
-				mAdapter.add(new ComparisonAdapterItem(getActivity(), NIHConfig.getExtraPromptData(key), baseline.get(key), lastweek.get(key), thisweek.get(key)));
+			// Only populate the adapter if some data exists
+			if(!lastweek.isEmpty() || !baseline.isEmpty() || !thisweek.isEmpty()) {
+				for(String key : NIHConfig.PROMPT_LIST) {
+					mAdapter.add(new ComparisonAdapterItem(getActivity(), NIHConfig.getExtraPromptData(key), baseline.get(key), lastweek.get(key), thisweek.get(key)));
+				}
 			}
 
 			// The list should now be shown.

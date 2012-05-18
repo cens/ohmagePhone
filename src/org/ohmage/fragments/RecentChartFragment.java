@@ -39,7 +39,7 @@ public class RecentChartFragment extends PromptFeedbackListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		setEmptyText(getActivity().getString(R.string.charts_no_data));
+		setEmptyText(getActivity().getString(R.string.feedback_no_data));
 
 		mAdapter = new SparklineAdapter(getActivity());
 		setListAdapter(mAdapter);
