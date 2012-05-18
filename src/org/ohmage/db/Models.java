@@ -206,6 +206,7 @@ public class Models {
 				ContentValues cv = new ContentValues();
 				cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
 				cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
+				cv.put(Campaigns.CAMPAIGN_UPDATED, System.currentTimeMillis());
 				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, builder.getSelection(), builder.getSelectionArgs());
 
 				// Delete responses
