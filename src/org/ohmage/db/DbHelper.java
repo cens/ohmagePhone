@@ -305,12 +305,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		String campaignUrn = values.getAsString(Responses.CAMPAIGN_URN);
 		String surveyId = values.getAsString(Responses.SURVEY_ID);
 
+		boolean madeTransaction = !db.inTransaction();
+
 		try {
 			// start a transaction involving the following operations:
 			// 1) insert feedback response row
 			// 2) parse json-encoded responses and insert one row into prompts
 			// per entry
-			db.beginTransaction();
+			if(madeTransaction) db.beginTransaction();
 
 			// do the actual insert into feedback responses
 			rowId = db.insert(Tables.RESPONSES, null, values);
@@ -325,17 +327,17 @@ public class DbHelper extends SQLiteOpenHelper {
 						db.update(Tables.RESPONSES, values, Responses.RESPONSE_UUID + "=?", new String[] { values.getAsString(Responses.RESPONSE_UUID) });
 					}
 				}
-				if(rowId != -1)
+				if(rowId != -1 && madeTransaction)
 					db.setTransactionSuccessful();
 			} else {
 				if (populatePromptsFromResponseJSON(db, rowId, response,
 						campaignUrn, surveyId)) {
 					// and we're done; finalize the transaction
-					db.setTransactionSuccessful();
+					if(madeTransaction) db.setTransactionSuccessful();
 				}
 			}
 		} finally {
-			db.endTransaction();
+			if(madeTransaction) db.endTransaction();
 		}
 
 		return rowId;
@@ -419,10 +421,12 @@ public class DbHelper extends SQLiteOpenHelper {
 		long rowId = -1; // the row ID for the campaign that we'll eventually be
 							// returning
 
+		boolean madeTransaction = !db.inTransaction();
+
 		try {
 			// start the transaction that will include inserting the campaign +
 			// surveys + survey prompts
-			db.beginTransaction();
+			if(madeTransaction) db.beginTransaction();
 
 			// hold onto some variables for processing
 			String configurationXml = values
@@ -437,16 +441,15 @@ public class DbHelper extends SQLiteOpenHelper {
 				if (populateSurveysFromCampaignXML(db, campaignUrn,
 						configurationXml)) {
 					// i think we're done now; finish up the transaction
-					db.setTransactionSuccessful();
+					if(madeTransaction) db.setTransactionSuccessful();
 				}
 				// else we fail and the transaction gets rolled back
 			}
 			else {
-				db.setTransactionSuccessful();
+				if(madeTransaction) db.setTransactionSuccessful();
 			}
-		}
-		finally {
-			db.endTransaction();
+		} finally {
+			if(madeTransaction) db.endTransaction();
 		}
 
 		return rowId;

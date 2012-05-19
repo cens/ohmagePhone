@@ -99,9 +99,10 @@ public class ResponseSyncService extends WakefulIntentService {
 		mPrefs = new SharedPreferencesHelper(this);
 		String username = mPrefs.getUsername();
 		String hashedPassword = mPrefs.getHashedPassword();
-		
-		if (username == null || username.equals("")) {
-			Log.e(TAG, "User isn't logged in, ResponseSyncService terminating");
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+
 			return;
 		}
 
@@ -175,7 +176,13 @@ public class ResponseSyncService extends WakefulIntentService {
 			// ===   * anything not in this list should be deleted off the phone
 			// ===   * anything in this list that's not on the phone should be downloaded
 			// ==================================================================
-			
+
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+
+				return;
+			}
+
 			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
 				new StreamingResponseListener() {
 					List<String> responseIDs;
@@ -265,6 +272,12 @@ public class ResponseSyncService extends WakefulIntentService {
 				String uuid;
 			}
 			final LinkedList<ResponseImage> responsePhotos = new LinkedList<ResponseImage>();
+
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+
+				return;
+			}
 
 			// do the call and process the streaming response data
 			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
@@ -429,6 +442,11 @@ public class ResponseSyncService extends WakefulIntentService {
 						String url;
 						for(int i=0; i < responsePhotos.size(); i++) {
 							ResponseImage responseImage = responsePhotos.get(i);
+							if(!mPrefs.isAuthenticated()) {
+								Log.e(TAG, "User isn't logged in, terminating task");
+
+								return;
+							}
 							try {
 								if(downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE) {
 									url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
@@ -461,6 +479,7 @@ public class ResponseSyncService extends WakefulIntentService {
 
 		if(!mPrefs.isAuthenticated()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
+
 			return;
 		}
 

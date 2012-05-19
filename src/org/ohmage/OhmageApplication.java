@@ -119,12 +119,12 @@ public class OhmageApplication extends Application {
 	public void resetAll() {
 		//clear everything?
 		Log.i(TAG, "Reseting all data");
-		
+
+		//clear shared prefs first so isAuthenticated call will return false
+		new SharedPreferencesHelper(this).clearAll();
+
 		//clear triggers
 		TriggerFramework.resetAllTriggerSettings(this);
-		
-		//clear shared prefs
-		new SharedPreferencesHelper(this).clearAll();
 		
 		//clear user prefs
 		new UserPreferencesHelper(this).clearAll();
