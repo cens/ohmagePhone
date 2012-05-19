@@ -1,13 +1,13 @@
 package org.ohmage.db;
 
 import org.ohmage.OhmageCache;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -246,10 +246,6 @@ public class Models {
 				customSingleChoices.clearCampaign(mUrn);
 				customSingleChoices.close();
 			}
-
-			// Remove last synced time
-			SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-			prefs.removeLastFeedbackRefreshTimestamp(mUrn);
 		}
 
 		/**
@@ -305,6 +301,23 @@ public class Models {
 			int count = localResponses.getCount();
 			localResponses.close();
 			return count;
+		}
+
+		/**
+		 * Returns the time of the last downloaded response for this campaign. We should be able to sync all responses newer than it
+		 * @param responseSyncService
+		 * @return the last downloaded response time or 0 if there are none;
+		 */
+		public long getLastDownloadedResponseTime(Context context) {
+			Cursor c = context.getContentResolver().query(
+					Responses.CONTENT_URI, new String[] { Responses.RESPONSE_TIME },
+					Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED + " AND "
+							+ Qualified.RESPONSES_CAMPAIGN_URN + "=?", new String[] { mUrn },
+							Responses.RESPONSE_TIME + " DESC");
+			if(c.moveToFirst()) {
+				return c.getLong(0);
+			}
+			return 0;
 		}
 	}
 
