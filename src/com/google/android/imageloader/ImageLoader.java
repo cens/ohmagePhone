@@ -801,8 +801,9 @@ public final class ImageLoader {
 
         private Bitmap loadImage(URL url) throws IOException {
             URLConnection connection = url.openConnection();
+            int length = connection.getContentLength();
             Bitmap bitmap = (Bitmap) mBitmapContentHandler.getContent(connection);
-            Analytics.network(OhmageApplication.getContext(),"/" + OhmageApi.IMAGE_READ_PATH, connection.getContentLength());
+            Analytics.network(OhmageApplication.getContext(),"/" + OhmageApi.IMAGE_READ_PATH, length);
             return bitmap;
         }
 
