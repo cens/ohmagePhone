@@ -674,9 +674,9 @@ public abstract class XYChart extends AbstractChart {
         if (minX <= location && location <= maxX) {
           float xLabel = (float) (left + xPixelsPerUnit * (location.doubleValue() - minX));
           paint.setColor(mRenderer.getLabelsColor());
-          canvas.drawLine(xLabel, bottom, xLabel, bottom + mRenderer.getLabelsTextSize() / 3, paint);
+          canvas.drawLine(xLabel, bottom, xLabel, bottom + mRenderer.getLabelsTextSize() / 2, paint);
           drawText(canvas, mRenderer.getXTextLabel(location), xLabel, bottom
-              + mRenderer.getLabelsTextSize() * 4 / 3 + 2, paint, mRenderer.getXLabelsAngle());
+              + mRenderer.getLabelsTextSize() * 3 / 2 + 2, paint, mRenderer.getXLabelsAngle());
           if (showCustomTextGrid) {
             paint.setColor(mRenderer.getGridColor());
             canvas.drawLine(xLabel, bottom, xLabel, top, paint);

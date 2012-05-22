@@ -6,6 +6,7 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.ohmage.R;
+import org.ohmage.Utilities;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -116,14 +117,11 @@ public class HistogramBase {
 			setYLabelsAlign(Align.RIGHT);
 			setShowLegend(false);
 			setBarSpacing(0.1);
-			setAxisTitleTextSize(16);
-			setChartTitleTextSize(20);
-			setLabelsTextSize(15);
-			setLegendTextSize(15);
-			setPointSize(5f);
-			setMargins(new int[] {
-					15, 15, 0, 20
-			});
+			setAxisTitleTextSize(Utilities.dpToPixels(10));
+			setChartTitleTextSize(Utilities.dpToPixels(12));
+			setLabelsTextSize(Utilities.dpToPixels(10));
+			setLegendTextSize(Utilities.dpToPixels(10));
+			setPointSize(Utilities.dpToPixels(10));
 			setLabelsColor(Color.GRAY);
 			setXLabels(6);
 		}

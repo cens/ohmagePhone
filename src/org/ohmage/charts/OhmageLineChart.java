@@ -5,6 +5,7 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.ohmage.Utilities;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
 
 import android.graphics.Canvas;
@@ -139,13 +140,14 @@ public class OhmageLineChart extends ScatterChart {
 		public OhmageLineRenderer() {
 			clearSeriesRenderers();
 
-			setPointSize(10);
+			setPointSize(Utilities.dpToPixels(7));
 			setMargins(new int[] {
-					15, 20, 0, 20
+					Utilities.dpToPixels(10), Utilities.dpToPixels(14), 0, Utilities.dpToPixels(14)
 			});
+
 			setDrawAxesBelowSeries(true);
 			setShowYAxis(false);
-			setLegendHeight(30);
+			setLegendHeight(Utilities.dpToPixels(20));
 			setLegendGrayscale(true);
 		}
 	}
