@@ -4,6 +4,7 @@ import org.achartengine.chart.XYChart;
 import org.ohmage.NIHConfig;
 import org.ohmage.NIHConfig.ExtraPromptData;
 import org.ohmage.R;
+import org.ohmage.Utilities;
 import org.ohmage.adapters.ChartListAdapter;
 import org.ohmage.adapters.SimpleChartListAdapter.ChartItem;
 import org.ohmage.charts.HistogramBase.CleanRenderer;
@@ -76,7 +77,7 @@ public class ChartListFragment extends PromptFeedbackListFragment {
 		CleanRenderer r = new CleanRenderer();
 
 		int[] margins = r.getMargins();
-		margins[1] = 41;
+		margins[1] = Utilities.dpToPixels(28);
 		r.setMargins(margins);
 		return extraData.toBubbleChartItem(promptData, r);
 	}

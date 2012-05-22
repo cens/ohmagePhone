@@ -5,6 +5,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.achartengine.GraphicalView;
 import org.ohmage.R;
+import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.controls.ActionBarControl;
@@ -165,7 +166,7 @@ public class FeedbackActivity extends BaseActivity {
 
 			HistogramRenderer renderer = new HistogramRenderer(getActivity());
 			renderer.setMargins(new int[] {
-					30, 35, 15, 15
+					Utilities.dpToPixels(20), Utilities.dpToPixels(24), Utilities.dpToPixels(10), Utilities.dpToPixels(10)
 			});
 			renderer.setYLabels(5);
 			renderer.setYAxisMin(0);
