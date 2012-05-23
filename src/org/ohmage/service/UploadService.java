@@ -138,7 +138,7 @@ public class UploadService extends WakefulIntentService {
 		// If there is no data we should just return
 		if(cursor == null)
 			return;
-		else if(!cursor.moveToFirst())) {
+		else if(!cursor.moveToFirst()) {
 			cursor.close();
 			return;
 		}
