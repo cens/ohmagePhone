@@ -133,6 +133,7 @@ public class Models {
 			while (surveys.moveToNext()) {
 				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
+			surveys.close();
 			
 			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 		}
@@ -145,9 +146,11 @@ public class Models {
 		public static String getSingleCampaign(Context context) {
 			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN },
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, Campaigns.CAMPAIGN_CREATED + " DESC");
+			String campaignUrn = null;
 			if(campaign.moveToFirst())
-				return campaign.getString(0);
-			return null;
+				campaignUrn = campaign.getString(0);
+			campaign.close();
+			return campaignUrn;
 		}
 
 		/**
@@ -160,13 +163,14 @@ public class Models {
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE + " OR " +
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY + " OR " +
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_OUT_OF_DATE, null, Campaigns.CAMPAIGN_CREATED + " DESC");
+			Campaign c = null;
 			if(campaign.moveToFirst()) {
-				Campaign c = new Campaign();
+				c = new Campaign();
 				c.mUrn = campaign.getString(0);
 				c.mStatus = campaign.getInt(1);
-				return c;
 			}
-			return null;
+			campaign.close();
+			return c;
 		}
 
 		/**
@@ -310,10 +314,12 @@ public class Models {
 					Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED + " AND "
 							+ Qualified.RESPONSES_CAMPAIGN_URN + "=?", new String[] { mUrn },
 							Responses.RESPONSE_TIME + " DESC");
+			long time = 0;
 			if(c.moveToFirst()) {
-				return c.getLong(0);
+				time = c.getLong(0);
 			}
-			return 0;
+			c.close();
+			return time;
 		}
 	}
 
@@ -403,6 +409,7 @@ public class Models {
 			while (surveys.moveToNext()) {
 				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
+			surveys.close();
 			
 			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]), selectedSurveys);
 		}
