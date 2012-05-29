@@ -757,7 +757,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 
 			mPromptFrame.removeAllViews();
-			mPromptFrame.addView(message.getView(this));
+			message.inflateView(this, mPromptFrame);
 		} else {
 			Log.e(TAG, "trying to showMessage for element that is not a message!");
 		}
@@ -805,7 +805,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			}
 
 			mPromptFrame.removeAllViews();
-			mPromptFrame.addView(prompt.getView(this));
+			prompt.inflateView(this, mPromptFrame);
 			//mPromptFrame.invalidate();
 		} else {
 			Log.e(TAG, "trying to showPrompt for element that is not a prompt!");
@@ -871,7 +871,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			//			}
 
 			mPromptFrame.removeAllViews();
-			mPromptFrame.addView(terminator.getView(this));
+			terminator.inflateView(this, mPromptFrame);
 			//mPromptFrame.invalidate();
 		} else {
 			Log.e(TAG, "trying to showTerminator for element that is not a RepeatableSetTerminator!");

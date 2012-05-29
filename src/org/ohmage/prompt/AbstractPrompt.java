@@ -15,9 +15,6 @@
  ******************************************************************************/
 package org.ohmage.prompt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +32,11 @@ import org.ohmage.prompt.timestamp.TimestampPrompt;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public abstract class AbstractPrompt implements Prompt {
@@ -365,4 +367,15 @@ public abstract class AbstractPrompt implements Prompt {
 		//  by default there is nothing we need to do
 	}
 
+	@Override
+	public View inflateView(Context context, ViewGroup parent) {
+		View view = getView(context);
+		if(view != null)
+			parent.addView(view);
+		return view;
+	}
+
+	protected View getView(Context context) {
+		return null;
+	}
 }
