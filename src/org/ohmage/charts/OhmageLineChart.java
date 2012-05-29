@@ -104,12 +104,11 @@ public class OhmageLineChart extends ScatterChart {
 	 * @param y the y value of the point the shape should be drawn at
 	 */
 	private void drawDashedLine(Canvas canvas, Paint paint, float x, float y) {
-		paint.setPathEffect(new DashPathEffect(new float[] {3, 3}, 0));
-		float oldwidth = paint.getStrokeWidth();
-		paint.setStrokeWidth(2);
-		canvas.drawLine(x, y - size, x, y + size, paint);
-		paint.setStrokeWidth(oldwidth);
-		paint.setPathEffect(null);
+		Paint line = new Paint(paint);
+		line.setPathEffect(new DashPathEffect(new float[] {3, 3}, 0));
+		line.setStrokeWidth(2);
+		line.setColor(Color.DKGRAY);
+		canvas.drawLine(x, y - size, x, y + size, line);
 	}
 
 	@Override

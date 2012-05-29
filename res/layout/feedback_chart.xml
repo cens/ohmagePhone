@@ -3,21 +3,32 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:paddingBottom="@dimen/halfgutter"
     android:paddingLeft="@dimen/gutter"
     android:paddingRight="@dimen/gutter"
-    android:paddingTop="@dimen/halfgutter"
-    android:paddingBottom="@dimen/halfgutter">
+    android:paddingTop="@dimen/halfgutter" >
 
     <TextView
         android:id="@+id/chart_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
-        android:textStyle="bold"
-        android:textColor="@color/primary_text"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:shadowColor="#e8e8e8"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/darkgray" />
+
+    <View
+        android:id="@+id/prompt_divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:background="@color/highlight" />
 
     <FrameLayout
         android:id="@+id/chart"
         android:layout_width="fill_parent"
-        android:layout_height="45dp" />
+        android:layout_height="45dp"
+        android:background="@drawable/prompt_response_item_bg" />
 
 </LinearLayout>
