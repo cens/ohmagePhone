@@ -7,23 +7,10 @@
     android:background="@drawable/bg_fabric"
     android:paddingBottom="@dimen/gutter" >
 
-    <TextView
-        android:id="@+id/great_job_text"
-        style="@style/InsetText"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="@dimen/gutter"
-        android:text="@string/post_survey_great_job"
-        android:textColor="@color/primary_text"
-        android:textSize="40sp"
-        android:textStyle="bold" />
-
     <ImageView
-        android:id="@+id/start_img"
+        android:id="@+id/star_img"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/great_job_text"
         android:contentDescription="@string/post_survey_star_content_description"
         android:gravity="center"
         android:src="@drawable/img_star" />
@@ -33,10 +20,10 @@
         style="@style/SignupForm"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/start_img"
+        android:layout_below="@id/star_img"
         android:padding="@dimen/gutter"
         android:textColor="@color/primary_text"
-        android:textSize="@dimen/font_size_medium" />
+        android:textSize="@dimen/font_size_large" />
 
     <Button
         android:id="@+id/continue_button"
