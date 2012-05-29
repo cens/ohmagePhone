@@ -373,6 +373,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// and getting the number of responses submitted for this campaign
 		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), null, null, null, null);
 		mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
+		responses.close();
 
 		mLocalResponses = Campaign.localResponseCount(this, mCampaignUrn);
 

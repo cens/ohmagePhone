@@ -108,6 +108,7 @@ public class UserPreferencesHelper {
 			} else {
 				startTime = 0;
 			}
+			c.close();
 		}
 		return startTime;
 	}

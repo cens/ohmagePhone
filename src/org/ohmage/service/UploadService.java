@@ -136,9 +136,13 @@ public class UploadService extends WakefulIntentService {
 		Cursor cursor = cr.query(dataUri, projection, select, null, null);
 
 		// If there is no data we should just return
-		if(cursor == null || !cursor.moveToFirst())
+		if(cursor == null)
 			return;
-		
+		else if(!cursor.moveToFirst()) {
+			cursor.close();
+			return;
+		}
+
 		ContentValues cv = new ContentValues();
 		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
 		cr.update(dataUri, cv, select, null);

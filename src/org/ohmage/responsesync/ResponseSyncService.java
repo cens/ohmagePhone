@@ -224,6 +224,7 @@ public class ResponseSyncService extends WakefulIntentService {
 								delete.add(responses.getString(0));
 							}
 						}
+						responses.close();
 
 						List<String> sublist;
 						int groupSize = 500;

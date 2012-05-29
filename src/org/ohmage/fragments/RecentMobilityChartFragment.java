@@ -7,6 +7,7 @@ import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.loader.MobilityAggregateLoader;
@@ -181,7 +182,7 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 
 			HistogramRenderer renderer = new HistogramRenderer(getActivity());
 			renderer.setMargins(new int[] {
-					30, 45, 15, 15
+					Utilities.dpToPixels(20), Utilities.dpToPixels(30), Utilities.dpToPixels(10), Utilities.dpToPixels(10)
 			});
 			renderer.setYLabels(5);
 			renderer.setYAxisMin(0);
