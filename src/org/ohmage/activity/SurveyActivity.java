@@ -42,10 +42,12 @@ import org.ohmage.prompt.RepeatableSetHeader;
 import org.ohmage.prompt.RepeatableSetTerminator;
 import org.ohmage.prompt.SurveyElement;
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
+import org.ohmage.prompt.media.MediaPrompt;
+import org.ohmage.prompt.media.PhotoPrompt;
+import org.ohmage.prompt.media.VideoPrompt;
 import org.ohmage.prompt.multichoice.MultiChoicePrompt;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
 import org.ohmage.prompt.number.NumberPrompt;
-import org.ohmage.prompt.photo.PhotoPrompt;
 import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
@@ -908,7 +910,9 @@ public class SurveyActivity extends Activity implements LocationListener {
 					dataPoint.setPromptType("text");
 				} else if (prompt instanceof PhotoPrompt) {
 					dataPoint.setPromptType("photo");
-				} 
+				} else if (prompt instanceof VideoPrompt) {
+					dataPoint.setPromptType("video");
+				}
 
 				if (prompt.isSkipped()) {
 					dataPoint.setSkipped();
@@ -1094,10 +1098,10 @@ public class SurveyActivity extends Activity implements LocationListener {
 		// finalize photos now that we have the responseUri
 		// the photos are initially in the campaign dir, until the response is saved
 		for (int i = 0; i < surveyElements.size(); i++) {
-			if (surveyElements.get(i) instanceof PhotoPrompt) {
-				PhotoPrompt photoPrompt = (PhotoPrompt)surveyElements.get(i);
-				if (photoPrompt.isPromptAnswered()) {
-					photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
+			if (surveyElements.get(i) instanceof MediaPrompt) {
+				MediaPrompt mediaPrompt = (MediaPrompt)surveyElements.get(i);
+				if (mediaPrompt.isPromptAnswered()) {
+					mediaPrompt.save(Responses.getResponseId(responseUri));
 				}
 			}
 		}
@@ -1134,8 +1138,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 			//clean up the survey photo prompt
 			if(!mSurveyFinished) {
 				for(SurveyElement element : mSurveyElements)
-					if (element instanceof PhotoPrompt)
-						((PhotoPrompt) element).clearImage();
+					if (element instanceof MediaPrompt)
+						((MediaPrompt) element).delete();
 			}
 		}
 	}

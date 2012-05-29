@@ -437,7 +437,7 @@ public class ResponseSyncService extends WakefulIntentService {
 								}
 
 								// As we download thumbnails, we can delete the old images
-								Response.getTemporaryResponsesImage(ResponseSyncService.this, responseImage.uuid).delete();
+								Response.getTemporaryResponsesMedia(ResponseSyncService.this, responseImage.uuid).delete();
 							} catch (MalformedURLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();

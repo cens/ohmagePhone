@@ -15,9 +15,12 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.provider.MediaStore;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -296,5 +299,22 @@ public class Utilities {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
+	}
+
+	public static File fileForMediaStore(Uri uri) {
+		String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+		Cursor cursor = OhmageApplication.getContext().getContentResolver().query(uri, filePathColumn, null, null, null);
+		cursor.moveToFirst();
+
+		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+		String filePath = cursor.getString(columnIndex);
+		cursor.close();
+		return new File(filePath);
+	}
+
+	public static int moveMediaStoreFile(Uri uri, File file) {
+		fileForMediaStore(uri).renameTo(file);
+		return OhmageApplication.getContext().getContentResolver().delete(uri, null, null);
 	}
 }

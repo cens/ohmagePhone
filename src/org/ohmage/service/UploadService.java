@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.MediaPart;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
@@ -31,7 +32,6 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -158,7 +158,7 @@ public class UploadService extends WakefulIntentService {
 			
 			JSONArray responsesJsonArray = new JSONArray(); 
 			JSONObject responseJson = new JSONObject();
-			final ArrayList<String> photoUUIDs = new ArrayList<String>();
+			final ArrayList<MediaPart> media = new ArrayList<MediaPart>();
             
 			try {
 				responseJson.put("survey_key", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
@@ -185,10 +185,10 @@ public class UploadService extends WakefulIntentService {
 				responseJson.put("responses", new JSONArray(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON))));
 				
 				ContentResolver cr2 = getContentResolver();
-				Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId), new String [] {PromptResponses.PROMPT_RESPONSE_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE}, SurveyPrompts.SURVEY_PROMPT_TYPE + "='photo'", null, null);
+				Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId), new String [] {PromptResponses.PROMPT_RESPONSE_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE}, SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR " + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?", new String [] { "photo", "video" }, null);
 				
 				while (promptsCursor.moveToNext()) {
-					photoUUIDs.add(promptsCursor.getString(promptsCursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)));
+					media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(this), promptsCursor.getString(0)), promptsCursor.getString(1)));
 				}
 				
 				promptsCursor.close();
@@ -201,19 +201,8 @@ public class UploadService extends WakefulIntentService {
 			
 			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
-			
-			File [] photos = Response.getResponseImageUploadDir(this).listFiles(new FilenameFilter() {
-				
-				@Override
-				public boolean accept(File dir, String filename) {
-					if (photoUUIDs.contains(filename.split("\\.")[0])) {
-						return true;
-					}
-					return false;
-				}
-			});
-			
-			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), photos);
+
+			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), media);
 			
 			int responseStatus = Response.STATUS_UPLOADED;
 

@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.ohmage.prompt.photo;
+package org.ohmage.prompt.media;
 
-import java.io.File;
-import java.util.UUID;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.R;
 import org.ohmage.Utilities;
 import org.ohmage.activity.SurveyActivity;
-import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.AbstractPrompt;
 
 import android.app.Activity;
 import android.content.Context;
@@ -38,57 +35,21 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import edu.ucla.cens.systemlog.Log;
 
-public class PhotoPrompt extends AbstractPrompt {
+public class PhotoPrompt extends MediaPrompt {
 
 	private static final String TAG = "PhotoPrompt";
 
 	String mResolution;
-	String uuid;
-	private SurveyActivity mContext;
-	
-	//ImageView imageView;
-	//Bitmap mBitmap;
 
 	public PhotoPrompt() {
 		super();
 	}
-	
+
 	public void setResolution(String res) {
 		this.mResolution = res;
 	}
-	
-	/**
-	 * Deletes the image from the file system if it was taken
-	 */
-	public void clearImage() {
-		if(isPromptAnswered()) {
-			getImageFile().delete();
-		}
-	}
 
-	@Override
-	protected void clearTypeSpecificResponseData() {
-		// Delete the old file
-		clearImage();
-		uuid = null;
-	}
-	
-	/**
-	 * Returns true if the UUID is not null meaning that we have at least some
-	 * image that we are referencing.
-	 */
-	@Override
-	public boolean isPromptAnswered() {
-		return(uuid != null);
-	}
-
-	@Override
-	protected Object getTypeSpecificResponseObject() {
-		return uuid;
-	}
-	
 	/**
 	 * The text to be displayed to the user if the prompt is considered
 	 * unanswered.
@@ -97,22 +58,17 @@ public class PhotoPrompt extends AbstractPrompt {
 	public String getUnansweredPromptText() {
 		return("Please take a picture of something before continuing.");
 	}
-	
-	@Override
-	protected Object getTypeSpecificExtrasObject() {
-		return null;
-	}
-	
+
 	@Override
 	public void handleActivityResult(Context context, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 
 			// Give the image two tries to resize... and then we just use the
 			// original size? there is not much we can do here
-			if(!Utilities.resizeImage(getImageFile(), 800)) {
+			if(!Utilities.resizeImage(getMedia(), 800)) {
 				System.gc();
 				Log.d(TAG, "First image resize failed. Trying again.");
-				if(!Utilities.resizeImage(getImageFile(), 800)) {
+				if(!Utilities.resizeImage(getMedia(), 800)) {
 					Log.d(TAG, "Second image resize failed. Using original size image");
 				}
 			}
@@ -122,47 +78,33 @@ public class PhotoPrompt extends AbstractPrompt {
 	}
 
 	@Override
-	public View getView(Context context) {
-		
-		mContext = (SurveyActivity) context;
+	public View inflateView(Context context, ViewGroup parent) {
+		super.inflateView(context, parent);
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater.inflate(R.layout.prompt_photo, null);
-		
+		View layout = inflater.inflate(R.layout.prompt_photo, parent);
+
 		ImageButton button = (ImageButton) layout.findViewById(R.id.photo_button);
 		ImageView imageView = (ImageView) layout.findViewById(R.id.image_view);
-		
+
 		if (isPromptAnswered()) {
-			imageView.setImageBitmap(BitmapFactory.decodeFile(getImageFile().getAbsolutePath()));
+			imageView.setImageBitmap(BitmapFactory.decodeFile(getMedia().getAbsolutePath()));
 		}
 
 		final Activity act = (Activity) context;
-		
+
 		button.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getImageFile()));
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getMedia()));
 				act.startActivityForResult(intent, REQUEST_CODE);
 
 			}
 		});
-		
-		return layout;
-	}
-	
-	private File getImageFile() {
-		if(uuid == null)
-			uuid = UUID.randomUUID().toString();
-		return Response.getTemporaryResponsesImage(mContext, uuid);
-	}
 
-	public void saveImageFile(String responseId) {
-		File image = getImageFile();
-		if(image != null && image.exists()) {
-			image.renameTo(Response.getTemporaryResponsesImage(mContext, uuid));
-		}
+		return layout;
 	}
 
 	/**

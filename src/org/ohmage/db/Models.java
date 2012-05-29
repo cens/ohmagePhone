@@ -587,8 +587,8 @@ public class Models {
 		 * @param uuid
 		 * @return
 		 */
-		public static File getTemporaryResponsesImage(Context context, String uuid) {
-			return new File(getResponseImageUploadDir(context), uuid);
+		public static File getTemporaryResponsesMedia(Context context, String uuid) {
+			return new File(getResponseMediaUploadDir(context), uuid);
 		}
 
 		/**
@@ -596,7 +596,7 @@ public class Models {
 		 * @param context
 		 * @return
 		 */
-		public static File getResponseImageUploadDir(Context context) {
+		public static File getResponseMediaUploadDir(Context context) {
 			File dir = new File(context.getExternalCacheDir(), "uploads");
 			dir.mkdirs();
 			return dir;

@@ -370,7 +370,42 @@ public class OhmageApi {
 		}
 	}
 
-	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, File [] photos) {
+	public static class MediaPart {
+		public static final int IMAGE_TYPE = 0;
+		public static final int VIDEO_TYPE = 1;
+		private final File mFile;
+		private final int mType;
+
+		public MediaPart(File file, String type) {
+			mFile = file;
+			if("image".equals(type))
+				mType = IMAGE_TYPE;
+			else if("video".equals(type))
+				mType = VIDEO_TYPE;
+			else
+				throw new RuntimeException("Invalid media type");
+		}
+
+		public FileBody getFileBody() {
+			return new FileBody(mFile, getFileType());
+		}
+
+		private String getFileType() {
+			switch(mType) {
+				case IMAGE_TYPE:
+					return "image/jpeg";
+				case VIDEO_TYPE:
+					return "video/mp4";
+			}
+			return null;
+		}
+
+		public String getName() {
+			return mFile.getName().split("\\.")[0];
+		}
+	}
+
+	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, ArrayList<MediaPart> media) {
 
 		final boolean GZIP = false;
 
@@ -385,10 +420,8 @@ public class OhmageApi {
 			multipartEntity.addPart("client", new StringBody(client));
 			multipartEntity.addPart("surveys", new StringBody(responseJson));
 
-			if (photos != null) {
-				for (int i = 0; i < photos.length; i++) {
-					multipartEntity.addPart(photos[i].getName().split("\\.")[0], new FileBody(photos[i], "image/jpeg"));
-				}
+			for(MediaPart m : media) {
+				multipartEntity.addPart(m.getName(), m.getFileBody());
 			}
 
 			return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));

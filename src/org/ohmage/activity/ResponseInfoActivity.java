@@ -304,6 +304,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 		private static class PromptResponsesAdapter extends SimpleCursorAdapter implements ViewBinder {
 
+			public static final int UNKNOWN_RESPONSE = -1;
 			public static final int TEXT_RESPONSE = 0;
 			public static final int IMAGE_RESPONSE = 1;
 			public static final int HOURSBEFORENOW_RESPONSE = 2;
@@ -314,7 +315,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public static final int SINGLECHOICE_CUSTOM_RESPONSE = 7;
 			public static final int NUMBER_RESPONSE = 8;
 			public static final int REMOTE_RESPONSE = 9;
-			public static final int UNKNOWN_RESPONSE = 10;
+			public static final int VIDEO_RESPONSE = 10;
+
 			private final String mResponseId;
 			private final ImageLoader mImageLoader;
 
@@ -344,6 +346,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				
 				if("photo".equals(promptType))
 					return IMAGE_RESPONSE;
+				else if ("video".equals(promptType))
+					return VIDEO_RESPONSE;
 				else if ("text".equals(promptType))
 					return TEXT_RESPONSE;
 				else if ("hours_before_now".equals(promptType))
@@ -389,6 +393,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				
 				// set the icon for each prompt type
 				switch(itemViewType) {
+					case VIDEO_RESPONSE:
 					case IMAGE_RESPONSE:
 						icon.setImageResource(R.drawable.prompttype_photo);
 						break;
@@ -464,7 +469,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						final File file = Response.getTemporaryResponsesImage(mContext, value);
+						final File file = Response.getTemporaryResponsesMedia(mContext, value);
 						final ImageView imageView = (ImageView) view.getTag();
 
 						if(file != null && file.exists()) {
