@@ -181,7 +181,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 					Log.e(TAG, "Error parsing prompts from xml", e);
 				}
 
-				if(mSurveyElements == null) {
+				if(mSurveyElements == null || mSurveyElements.isEmpty()) {
 					// If there are no survey elements, something is wrong
 					finish();
 					Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT).show();
