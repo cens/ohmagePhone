@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="50dp" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/gutter"
+    android:paddingRight="@dimen/gutter"
+    android:paddingTop="@dimen/halfgutter"
+    android:paddingBottom="@dimen/halfgutter">
 
     <TextView
         android:id="@+id/chart_title"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:minWidth="105dp"
-        android:paddingLeft="@dimen/gutter"
-        android:paddingRight="8dp" />
+        android:layout_height="wrap_content" 
+        android:textStyle="bold"
+        android:textColor="@color/primary_text"/>
 
     <FrameLayout
         android:id="@+id/chart"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginBottom="4dp"
-        android:layout_marginRight="@dimen/gutter"
-        android:layout_marginTop="4dp"
-        android:layout_toRightOf="@id/chart_title" />
+        android:layout_height="45dp" />
 
-</RelativeLayout>
+</LinearLayout>

@@ -64,6 +64,7 @@ public class RecentChartFragment extends PromptFeedbackListFragment {
 		lv.addHeaderView(header, null, false);
 
 		LinearLayout moreLayout = new LinearLayout(getActivity());
+		moreLayout.setPadding(0, 0, 0, padding);
 		Button moreButton = (Button) inflater.inflate(R.layout.button_charts_more, moreLayout, false);
 		moreButton.setOnClickListener(new View.OnClickListener() {
 

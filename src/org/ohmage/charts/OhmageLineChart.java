@@ -140,9 +140,11 @@ public class OhmageLineChart extends ScatterChart {
 		public OhmageLineRenderer() {
 			clearSeriesRenderers();
 
-			setPointSize(Utilities.dpToPixels(7));
+			setLabelsTextSize(Utilities.dpToPixels(11));
+			setLegendTextSize(Utilities.dpToPixels(11));
+			setPointSize(Utilities.dpToPixels(10));
 			setMargins(new int[] {
-					Utilities.dpToPixels(10), Utilities.dpToPixels(14), 0, Utilities.dpToPixels(14)
+					0, Utilities.dpToPixels(14), 0, Utilities.dpToPixels(14)
 			});
 
 			setDrawAxesBelowSeries(true);

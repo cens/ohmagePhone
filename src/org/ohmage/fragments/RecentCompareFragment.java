@@ -66,7 +66,7 @@ public class RecentCompareFragment extends ListFragment implements LoaderManager
 		View header = ComparisonAdapterItem.createLegendView(getActivity());
 		LinearLayout headerContainer = new LinearLayout(getActivity());
 		int padding = getResources().getDimensionPixelSize(R.dimen.gutter);
-		headerContainer.setPadding(padding, padding, padding, 0);
+		headerContainer.setPadding(padding, padding, padding, padding/2);
 		headerContainer.addView(header);
 
 		lv.addHeaderView(headerContainer, null, false);

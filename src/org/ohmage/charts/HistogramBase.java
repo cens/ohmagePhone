@@ -5,12 +5,12 @@ import org.achartengine.chart.XYChart;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.Utilities;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.text.format.DateUtils;
@@ -122,7 +122,8 @@ public class HistogramBase {
 			setLabelsTextSize(Utilities.dpToPixels(10));
 			setLegendTextSize(Utilities.dpToPixels(10));
 			setPointSize(Utilities.dpToPixels(10));
-			setLabelsColor(Color.GRAY);
+			int darkgray = OhmageApplication.getContext().getResources().getColor(R.color.darkgray);
+			setLabelsColor(darkgray);
 			setXLabels(6);
 		}
 	}
