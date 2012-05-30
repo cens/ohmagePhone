@@ -12,6 +12,12 @@
         android:persistent="false"
         android:title="@string/admin_settings" />
 
+    <PreferenceScreen android:title="Send Crash Report">
+		<intent
+			android:targetPackage="org.ohmage"
+			android:targetClass="org.ohmage.activity.SendLogActivity"/>
+	</PreferenceScreen>
+
     <PreferenceCategory android:title="Status" >
 
         <PreferenceScreen
