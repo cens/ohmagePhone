@@ -2,6 +2,7 @@ package org.ohmage.activity;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.Config;
 import org.ohmage.R;
@@ -17,6 +18,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 public class OhmagePreferenceActivity extends PreferenceActivity  {
+	private static final String TAG = "OhmagePreferenceActivity";
 
 	private static final String KEY_REMINDERS = "key_reminders";
 	private static final String KEY_ADMIN_SETTINGS = "key_admin_settings";
@@ -27,6 +29,8 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	private static final String STATUS_PROFILE_VISIBILITY = "status_profile_visibility";
 	private static final String STATUS_UPLOAD_QUEUE_VISIBILITY = "status_upload_queue_visibility";
 	private static final String STATUS_MOBILITY_VISIBILITY = "status_mobility_visibility";
+
+	private static final String INFO_OHMAGE_VERSION = "info_ohmage_version";
 
 	protected static final int CODE_ADMIN_SETTINGS = 0;
 
@@ -75,6 +79,13 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 		});
 
 		findPreference(STATUS_SERVER_URL).setSummary(Config.DEFAULT_SERVER_URL);
+
+		try {
+			findPreference(INFO_OHMAGE_VERSION).setSummary(getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
+		} catch (Exception e) {
+			Log.e(TAG, "unable to retrieve version", e);
+		}
+
 	}
 
 	@Override

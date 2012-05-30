@@ -241,6 +241,7 @@
     <string name="preferences_baseline_starttime_title">Baseline Start Date</string>
     <string name="preferences_baseline_endtime_title">Baseline End Date</string>
     <string name="preferences_baseline_clear_title">Clear Baseline</string>
+    <string name="preferences_ohamage_version_title">Version</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>

@@ -62,4 +62,14 @@
             android:title="@string/preferences_mobility_title" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Info" >
+
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="info_ohmage_version"
+            android:persistent="false"
+            android:title="@string/preferences_ohamage_version_title" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
