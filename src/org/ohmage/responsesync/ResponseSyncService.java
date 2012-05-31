@@ -206,57 +206,32 @@ public class ResponseSyncService extends WakefulIntentService {
 						
 						// TODO: ask server team for a way to specify responses by ID
 					}
-					
+
 					@Override
 					public void afterRead() {
-						
+
 						HashSet<String> idsSet = new HashSet<String>();
 						idsSet.addAll(responseIDs);
 
 						Cursor responses = cr.query(Responses.CONTENT_URI, new String[] { Responses.RESPONSE_UUID }, Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
 								" OR " + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADED +
 								" AND " + Qualified.RESPONSES_CAMPAIGN_URN + "=?", new String[] { c.mUrn }, null);
-						
-						ArrayList<String> delete = new ArrayList<String>();
-						
+
+
+						String uuid;
 						while(responses.moveToNext()) {
-							if(!idsSet.contains(responses.getString(0))) {
-								delete.add(responses.getString(0));
+							uuid = responses.getString(0);
+							if(!idsSet.contains(uuid)) {
+								operations.add(ContentProviderOperation.newDelete(Responses.CONTENT_URI)
+										.withSelection("(" + Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
+												" OR " + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADED + ")" +
+												" AND " + Responses.CAMPAIGN_URN + "=?" + " AND " + Responses.RESPONSE_UUID + "=?",
+												new String[] {c.mUrn, uuid }).build());
 							}
 						}
 						responses.close();
-
-						List<String> sublist;
-						int groupSize = 500;
-
-						for(int offset=0; offset < delete.size(); offset+=groupSize) {
-							
-							// use the list we built in readObject() to clear deleted responses
-							// from the historical data
-							sublist = delete.subList(offset, Math.min(offset+groupSize, delete.size()));
-							String[] args = sublist.toArray(new String[sublist.size()]);
-
-							// build a comma-delimited list of elements in our list
-							// (it's kind of sad that there isn't a built-in func to do this @_@)
-							StringBuilder total = new StringBuilder();
-
-							for (int i = 0; i < args.length; ++i) {
-								total.append("?");
-
-								if (i < (args.length - 1))
-									total.append(", ");
-							}
-
-							// remove any record that's not in our server collection for this campaign
-							// (usually meaning it was deleted from the server)
-							operations.add(ContentProviderOperation.newDelete(Responses.CONTENT_URI).withSelection("(" + Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
-									" OR " + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADED + ")" +
-									" AND " + Responses.CAMPAIGN_URN + "='" + c.mUrn + "'" +
-									" AND " + Responses.RESPONSE_UUID + " in (" + total + ")", args).build());
-
-						}
 					}
-				});
+			});
 
 			// ==================================================================
 			// === 3b. download responses from after the cutoff date
