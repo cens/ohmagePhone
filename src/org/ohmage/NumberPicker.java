@@ -373,7 +373,7 @@ public class NumberPicker extends LinearLayout {
         mText.setSelection(mText.getText().length());
     }
 
-    private void validateCurrentView(CharSequence str) {
+    private boolean validateCurrentView(CharSequence str) {
         int val = getSelectedPos(str.toString());
         if ((val >= mStart) && (val <= mEnd)) {
             if (mCurrent != val) {
@@ -383,18 +383,20 @@ public class NumberPicker extends LinearLayout {
             }
         }
         updateView();
+        return (val >= mStart) && (val <= mEnd);
     }
 
-    private void validateInput(View v) {
+    private boolean validateInput(View v) {
         String str = String.valueOf(((TextView) v).getText());
         if ("".equals(str)) {
 
             // Restore to the old value as we don't allow empty values
             updateView();
+            return false;
         } else {
 
             // Check the new value and ensure it's in range
-            validateCurrentView(str);
+            return validateCurrentView(str);
         }
     }
 
@@ -542,4 +544,8 @@ public class NumberPicker extends LinearLayout {
     protected int getBeginRange() {
         return mStart;
     }
+
+	public boolean forceValidateInput() {
+		return validateInput(mText);
+	}
 }
