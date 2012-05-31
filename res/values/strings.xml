@@ -243,6 +243,7 @@
     <string name="preferences_baseline_starttime_title">Baseline Start Date</string>
     <string name="preferences_baseline_endtime_title">Baseline End Date</string>
     <string name="preferences_baseline_clear_title">Clear Baseline</string>
+    <string name="preferences_ohamage_version_title">Version</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
@@ -369,8 +370,16 @@
     <string name="survey_activity_previous_description">Survey Previous Button</string>
     <string name="survey_activity_skip_description">Survey Skip Button</string>
     <string name="survey_activity_next_description">Survey Next Button</string>
-
-    <!-- Post Survey Activity -->
-    <string name="post_survey_star_content_description">gold star</string>
-    <string name="post_survey_great_job">Great Job!</string>
+ 
+    <!-- Crash Reporting -->
+    <string name="crash_report_label">Send Force-Close Report</string>
+    <string name="crash_report_preference_summary">Send a force-close report by email.</string>
+    <string name="crash_report_error">Couldn\'t find configured email client.</string>
+    <string name="crash_report_more">If you are reporting a problem please answer the questions below:</string>
+    <string name="crash_report_additional_information">Please provide any additional information below.</string>
+    <string name="crash_report_expected_output">What is the expected output? What do you see instead?</string>
+    <string name="crash_report_how_to_reproduce">What steps will reproduce the problem?</string>
+    <string name="crash_report_subject">Ohmage Crash Report: %1$s</string>
+    <string name="crash_report_acquiring_logs">Collecting logs from system…</string>
+    <string name="crash_report_chooser_title">Ohmage Force-Close Report</string>
 </resources>
