@@ -7,7 +7,7 @@ package org.ohmage.activity;
 
 
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -79,7 +79,7 @@ public class SendLogActivity extends Activity
         body.append(LINE_SEPARATOR);
         mSendIntent.putExtra(Intent.EXTRA_TEXT, body.toString());
 
-        SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+        UserPreferencesHelper prefs = new UserPreferencesHelper(this);
 
         StringBuilder logHeader = new StringBuilder();
         logHeader.append("--------------------------------------");

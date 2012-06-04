@@ -12,12 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
@@ -58,7 +59,7 @@ public class ResponseSyncService extends WakefulIntentService {
 	/** If present, the last synced time will be ignored */
 	public static final String EXTRA_FORCE_ALL = "extra_force_all";
 
-	private SharedPreferencesHelper mPrefs;
+	private UserPreferencesHelper mPrefs;
 
 	public ResponseSyncService() {
 		super(TAG);
@@ -96,7 +97,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		
 		// grab an instance of the api connector so we can do calls to the server for responses
 		OhmageApi api = new OhmageApi(this);
-		mPrefs = new SharedPreferencesHelper(this);
+		mPrefs = new UserPreferencesHelper(this);
 		String username = mPrefs.getUsername();
 		String hashedPassword = mPrefs.getHashedPassword();
 
@@ -183,7 +184,7 @@ public class ResponseSyncService extends WakefulIntentService {
 				return;
 			}
 
-			api.surveyResponseRead(Config.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
+			api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
 				new StreamingResponseListener() {
 					List<String> responseIDs;
 					
@@ -256,7 +257,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			}
 
 			// do the call and process the streaming response data
-			api.surveyResponseRead(Config.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
+			api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
 				new StreamingResponseListener() {
 					int curRecord;
 					

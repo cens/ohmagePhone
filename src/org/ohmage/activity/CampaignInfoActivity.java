@@ -5,7 +5,7 @@ import com.google.android.imageloader.ImageLoader;
 import edu.ucla.cens.systemlog.Analytics;
 
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -36,7 +36,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	// helpers
 	private FragmentActivity mContext;
-	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private UserPreferencesHelper mSharedPreferencesHelper;
 	private ImageLoader mImageLoader;
 	
 	// action bar commands
@@ -66,7 +66,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mSharedPreferencesHelper = new UserPreferencesHelper(this);
 		mImageLoader = ImageLoader.get(this);
 		
 		setContentView(R.layout.campaign_info_details);

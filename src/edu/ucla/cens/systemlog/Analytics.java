@@ -19,7 +19,7 @@ package edu.ucla.cens.systemlog;
 import org.apache.http.client.methods.HttpPost;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApplication;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 
 import android.app.Activity;
 import android.app.Service;
@@ -251,7 +251,7 @@ public class Analytics {
 	 * @return
 	 */
 	private static String loginName() {
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(OhmageApplication.getContext());
+		UserPreferencesHelper helper = new UserPreferencesHelper(OhmageApplication.getContext());
 		return helper.getUsername();
 	}
 

@@ -28,7 +28,7 @@ import org.ohmage.Config;
 import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
 import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
@@ -159,7 +159,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			Calendar now = Calendar.getInstance();
 			mLaunchTime = now.getTimeInMillis();
 
-			final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+			final UserPreferencesHelper preferencesHelper = new UserPreferencesHelper(this);
 
 			if (preferencesHelper.isUserDisabled()) {
 				((OhmageApplication) getApplication()).resetAll();
@@ -331,7 +331,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 						String uuid = storeResponse();
 						Analytics.widget(v, null, uuid);
 						TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
-						SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
+						UserPreferencesHelper prefs = new UserPreferencesHelper(SurveyActivity.this);
 						prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
 						finish();
 					} else {
@@ -972,7 +972,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	public static String storeResponse(Context context, String surveyId, long launchTime, String campaignUrn, String surveyTitle, List<SurveyElement> surveyElements) {
 
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(context);
+		UserPreferencesHelper helper = new UserPreferencesHelper(context);
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();

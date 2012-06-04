@@ -15,13 +15,9 @@
  ******************************************************************************/
 package org.ohmage.prompt.multichoicecustom;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.prompt.AbstractPrompt;
@@ -49,6 +45,10 @@ import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MultiChoiceCustomPrompt extends AbstractPrompt {
 	
@@ -135,7 +135,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		mCustomChoices.clear();
 		MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+		UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
@@ -177,7 +177,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 				if (!TextUtils.isEmpty(mEnteredText)) {
 					MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
-					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+					UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 					

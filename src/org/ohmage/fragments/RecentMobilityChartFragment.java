@@ -5,7 +5,6 @@ import edu.ucla.cens.mobility.glue.MobilityInterface;
 import org.achartengine.GraphicalView;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;
@@ -49,7 +48,7 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 	private TextView mTodayRun;
 	private TextView mTodayDrive;
 
-	private SharedPreferencesHelper mSharedPreferences;
+	private UserPreferencesHelper mSharedPreferences;
 
 	private TextView mAggregateBaseline;
 
@@ -59,7 +58,7 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		mSharedPreferences = new SharedPreferencesHelper(getActivity());
+		mSharedPreferences = new UserPreferencesHelper(getActivity());
 
 		getLoaderManager().initLoader(LOAD_MOBILITY_DATA, null, this);
 		getLoaderManager().initLoader(LOAD_MOBILITY_BASELINE_AGGREGATE, null, this);

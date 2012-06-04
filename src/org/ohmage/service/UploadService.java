@@ -10,12 +10,12 @@ import edu.ucla.cens.systemlog.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.MediaPart;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -93,9 +93,9 @@ public class UploadService extends WakefulIntentService {
 	}
 
 	private void uploadSurveyResponses(Intent intent) {
-		String serverUrl = Config.serverUrl();
+		String serverUrl = ConfigHelper.serverUrl();
 		
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		UserPreferencesHelper helper = new UserPreferencesHelper(this);
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
 		boolean uploadErrorOccurred = false;
@@ -241,7 +241,7 @@ public class UploadService extends WakefulIntentService {
 					}
 					
 					if (isUserDisabled) {
-						new SharedPreferencesHelper(this).setUserDisabled(true);
+						new UserPreferencesHelper(this).setUserDisabled(true);
 					}
 					
 					if (isAuthenticationError) {
@@ -296,7 +296,7 @@ public class UploadService extends WakefulIntentService {
 		
 		boolean uploadSensorData = true;
 		
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		UserPreferencesHelper helper = new UserPreferencesHelper(this);
 		
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
@@ -420,7 +420,7 @@ public class UploadService extends WakefulIntentService {
 					
 					c.moveToNext();
 				}
-				response = mApi.mobilityUpload(Config.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
+				response = mApi.mobilityUpload(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
@@ -449,7 +449,7 @@ public class UploadService extends WakefulIntentService {
 							}
 
 							if (isUserDisabled) {
-								new SharedPreferencesHelper(this).setUserDisabled(true);
+								new UserPreferencesHelper(this).setUserDisabled(true);
 							}
 
 							if (isBackground) {

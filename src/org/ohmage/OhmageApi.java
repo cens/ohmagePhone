@@ -746,10 +746,10 @@ public class OhmageApi {
 	}
 
 	public static String defaultImageReadUrl(String uuid, String campaign, String size) {
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(OhmageApplication.getContext());
+		UserPreferencesHelper prefs = new UserPreferencesHelper(OhmageApplication.getContext());
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
-		return OhmageApi.imageReadUrl(Config.serverUrl(), username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
+		return OhmageApi.imageReadUrl(ConfigHelper.serverUrl(), username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
 
 	}
 

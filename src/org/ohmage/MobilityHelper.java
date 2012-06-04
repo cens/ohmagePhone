@@ -132,16 +132,18 @@ public class MobilityHelper {
 	 * @return int version that mobility was upgraded to
 	 */
 	public static int upgradeMobilityData(Context context) {
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+		UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 
 		// The user needs to be logged in before we can upgrade mobility data
 		if(!prefs.isAuthenticated())
 			return -1;
 		setUsername(context, prefs.getUsername(), prefs.getLoginTimestamp());
 
-		int oldMobilityVersion = prefs.getLastMobilityVersion();
+		ConfigHelper appPrefs = new ConfigHelper(context);
+
+		int oldMobilityVersion = appPrefs.getLastMobilityVersion();
 		int newMobilityVersion = getMobilityVersion(context);
-		prefs.setMobilityVersion(newMobilityVersion);
+		appPrefs.setMobilityVersion(newMobilityVersion);
 
 		if(oldMobilityVersion < VERSION_AGGREGATE_AND_USERNAME && newMobilityVersion >= VERSION_AGGREGATE_AND_USERNAME) {
 

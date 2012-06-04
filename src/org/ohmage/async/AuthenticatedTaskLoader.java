@@ -1,6 +1,6 @@
 package org.ohmage.async;
 
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 
 import android.content.Context;
 
@@ -31,7 +31,7 @@ public abstract class AuthenticatedTaskLoader<T> extends PauseableTaskLoader<T> 
 	}
 
 	public void setCredentials() {
-		SharedPreferencesHelper sharedPrefs = new SharedPreferencesHelper(getContext());
+		UserPreferencesHelper sharedPrefs = new UserPreferencesHelper(getContext());
 		setCredentials(sharedPrefs.getUsername(), sharedPrefs.getHashedPassword());
 	}
 

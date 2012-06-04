@@ -5,6 +5,7 @@ import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
@@ -78,7 +79,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 			}
 		});
 
-		findPreference(STATUS_SERVER_URL).setSummary(Config.serverUrl());
+		findPreference(STATUS_SERVER_URL).setSummary(ConfigHelper.serverUrl());
 
 		try {
 			findPreference(INFO_OHMAGE_VERSION).setSummary(getPackageManager().getPackageInfo("org.ohmage", 0).versionName);

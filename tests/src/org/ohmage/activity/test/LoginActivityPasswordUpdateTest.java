@@ -41,7 +41,7 @@ import android.test.ActivityInstrumentationTestCase2;
 public class LoginActivityPasswordUpdateTest extends ActivityInstrumentationTestCase2<LoginActivity> {
 
 	private Solo solo;
-	private org.ohmage.SharedPreferencesHelper mPrefsHelper;
+	private org.ohmage.ConfigHelper mPrefsHelper;
 
 	private String userName;
 	private String hashedPass;
@@ -56,7 +56,7 @@ public class LoginActivityPasswordUpdateTest extends ActivityInstrumentationTest
 
 		setActivityIntent(new Intent().putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
 
-		mPrefsHelper = new org.ohmage.SharedPreferencesHelper(getActivity());
+		mPrefsHelper = new org.ohmage.ConfigHelper(getActivity());
 		userName = mPrefsHelper.getUsername();
 		hashedPass = mPrefsHelper.getHashedPassword();
 

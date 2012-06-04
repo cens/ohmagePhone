@@ -37,11 +37,23 @@ public class UserPreferencesHelper {
 	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
 	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
+	private static final String KEY_USERNAME = "username";
+	private static final String KEY_PASSWORD_HASHED = "hashedPassword";
+	private static final String KEY_IS_DISABLED = "is_disabled";
+	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
+	private static final String KEY_LOGIN_TIMESTAMP = "login_timestamp";
+	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
+	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
+	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
 
 	private final SharedPreferences mPreferences;
 
 	public UserPreferencesHelper(Context activity) {
-		mPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+		mPreferences = getUserSharedPreferences(activity);
+	}
+
+	public SharedPreferences getUserSharedPreferences(Context context) {
+		return context.getSharedPreferences(context.getPackageName() + "_user_preferences", Context.MODE_PRIVATE);
 	}
 
 	public boolean clearAll() {
@@ -55,11 +67,11 @@ public class UserPreferencesHelper {
 	public boolean showProfile() {
 		return mPreferences.getBoolean(KEY_SHOW_PROFILE, DEFAULT_SHOW_PROFILE);
 	}
-	
+
 	public boolean showUploadQueue() {
 		return mPreferences.getBoolean(KEY_SHOW_UPLOAD_QUEUE, DEFAULT_SHOW_UPLOAD_QUEUE);
 	}
-	
+
 	public boolean showMobility() {
 		return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
 	}
@@ -115,5 +127,73 @@ public class UserPreferencesHelper {
 
 	public static void clearBaseLineTime(Context context) {
 		PreferenceManager.getDefaultSharedPreferences(context).edit().remove(KEY_BASELINE_END_TIME).remove(KEY_BASELINE_START_TIME).commit();
+	}
+
+	public String getUsername() {
+		return mPreferences.getString(KEY_USERNAME, "");
+	}
+
+	public boolean putUsername(String username) {
+		return mPreferences.edit().putString(KEY_USERNAME, username).commit();
+	}
+
+	public String getHashedPassword() {
+		return mPreferences.getString(KEY_PASSWORD_HASHED, "");
+	}
+
+	public boolean putHashedPassword(String hashedPassword) {
+		return mPreferences.edit().putString(KEY_PASSWORD_HASHED, hashedPassword).commit();
+	}
+
+	public boolean clearCredentials() {
+		return mPreferences.edit().remove(KEY_USERNAME).remove(KEY_PASSWORD_HASHED).commit();
+	}
+
+	public Long getLastMobilityUploadTimestamp() {
+		return mPreferences.getLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, 0);
+	}
+
+	public boolean putLastMobilityUploadTimestamp(Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
+	}
+
+	public Long getLoginTimestamp() {
+		return mPreferences.getLong(KEY_LOGIN_TIMESTAMP, 0);
+	}
+
+	public boolean putLoginTimestamp(Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LOGIN_TIMESTAMP, timestamp).commit();
+	}
+
+	public Long getLastSurveyTimestamp(String surveyId) {
+		return mPreferences.getLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, 0);
+	}
+
+	public boolean putLastSurveyTimestamp(String surveyId, Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
+	}
+
+	public boolean isAuthenticated() {
+		if (getUsername().length() > 0 && getHashedPassword().length() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isUserDisabled() {
+		return mPreferences.getBoolean(KEY_IS_DISABLED, false);
+	}
+
+	public boolean setUserDisabled(boolean isDisabled) {
+		return mPreferences.edit().putBoolean(KEY_IS_DISABLED, isDisabled).commit();
+	}
+
+	public long getLastCampaignRefreshTime() {
+		return mPreferences.getLong(KEY_CAMPAIGN_REFRESH_TIME, 0);
+	}
+
+	public boolean setLastCampaignRefreshTime(long time) {
+		return mPreferences.edit().putLong(KEY_CAMPAIGN_REFRESH_TIME, time).commit();
 	}
 }

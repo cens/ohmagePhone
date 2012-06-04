@@ -88,7 +88,7 @@ public class OhmageApplication extends Application {
 			Log.e(TAG, "unable to retrieve current version code", e);
 		}
 		
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+		ConfigHelper prefs = new ConfigHelper(this);
 		int lastVersionCode = prefs.getLastVersionCode();
 		boolean isFirstRun = prefs.isFirstRun();
 		
@@ -120,14 +120,11 @@ public class OhmageApplication extends Application {
 		//clear everything?
 		Log.i(TAG, "Reseting all data");
 
-		//clear shared prefs first so isAuthenticated call will return false
-		new SharedPreferencesHelper(this).clearAll();
+		//clear user prefs first so isAuthenticated call will return false
+		new UserPreferencesHelper(this).clearAll();
 
 		//clear triggers
 		TriggerFramework.resetAllTriggerSettings(this);
-		
-		//clear user prefs
-		new UserPreferencesHelper(this).clearAll();
 
 		//clear db
 		new DbHelper(this).clearAll();

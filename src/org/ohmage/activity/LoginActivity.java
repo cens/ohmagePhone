@@ -23,13 +23,14 @@ import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
 import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
 
@@ -76,9 +77,11 @@ public class LoginActivity extends FragmentActivity {
 	private EditText mPasswordEdit;
 	private Button mLoginButton;
 	private TextView mVersionText;
-	private SharedPreferencesHelper mPreferencesHelper;
+	private UserPreferencesHelper mPreferencesHelper;
 
 	private boolean mUpdateCredentials;
+
+	private ConfigHelper mAppPrefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,16 +90,17 @@ public class LoginActivity extends FragmentActivity {
 		setContentView(R.layout.login);
 		
 		// first see if they are already logged in
-		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+        mPreferencesHelper = new UserPreferencesHelper(this);
+		mAppPrefs = new ConfigHelper(LoginActivity.this);
 		
-		if (preferencesHelper.isUserDisabled()) {
+		if (mPreferencesHelper.isUserDisabled()) {
         	((OhmageApplication) getApplication()).resetAll();
         }
 		
 		mUpdateCredentials = getIntent().getBooleanExtra(EXTRA_UPDATE_CREDENTIALS, false);
 		
 		// if they are, redirect them to the dashboard
-		if (preferencesHelper.isAuthenticated() && !mUpdateCredentials) {
+		if (mPreferencesHelper.isAuthenticated() && !mUpdateCredentials) {
 			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
 			return;
 		}
@@ -115,7 +119,6 @@ public class LoginActivity extends FragmentActivity {
         
         mLoginButton.setOnClickListener(mClickListener);
         
-        mPreferencesHelper = new SharedPreferencesHelper(this);
 
         if (savedInstanceState == null) {
         	Log.i(TAG, "creating from scratch");
@@ -254,7 +257,7 @@ public class LoginActivity extends FragmentActivity {
 				.setPositiveButton(R.string.eula_accept, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						mPreferencesHelper.setFirstRun(false);
+						mAppPrefs.setFirstRun(false);
 					}
 				})
 				.setNegativeButton(R.string.eula_cancel, new DialogInterface.OnClickListener() {
@@ -437,9 +440,7 @@ public class LoginActivity extends FragmentActivity {
 		//register receivers
 		//BackgroundManager.initAuthComponents(this);
 
-		boolean isFirstRun = mPreferencesHelper.isFirstRun();
-
-		if (isFirstRun) {
+		if (mAppPrefs.isFirstRun()) {
 			Log.i(TAG, "this is the first run");
 
 			BackgroundManager.initComponents(this);
@@ -449,11 +450,12 @@ public class LoginActivity extends FragmentActivity {
 
 			//show intro dialog
 			//showDialog(DIALOG_FIRST_RUN);
-			mPreferencesHelper.setFirstRun(false);
-			mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
+			mAppPrefs.setFirstRun(false);
 		} else {
 			Log.i(TAG, "this is not the first run");
 		}
+
+		mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
 
 		if(mUpdateCredentials)
 			finish();
@@ -505,7 +507,7 @@ public class LoginActivity extends FragmentActivity {
 //		        }
 //			}
 			OhmageApi api = new OhmageApi(getActivity());
-			return api.authenticate(Config.serverUrl(), mUsername, mPassword, OhmageApi.CLIENT_NAME);
+			return api.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword, OhmageApi.CLIENT_NAME);
 		}
 
 		@Override

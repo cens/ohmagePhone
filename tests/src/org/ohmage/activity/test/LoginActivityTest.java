@@ -17,6 +17,7 @@ package org.ohmage.activity.test;
 
 import com.jayway.android.robotium.solo.Solo;
 
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.test.helper.SharedPreferencesHelper;
@@ -42,7 +43,7 @@ import android.test.ActivityInstrumentationTestCase2;
 public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginActivity> {
 
 	private Solo solo;
-	private org.ohmage.SharedPreferencesHelper mPrefsHelper;
+	private UserPreferencesHelper mPrefsHelper;
 
 	private String userName;
 	private String hashedPass;
@@ -59,7 +60,7 @@ public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginAct
 		// but also before the activity starts. So the first time we setUp, we will create an activity, change the
 		// data we need to change and close the activity. The next time we start the activity for realz.
 		setActivityIntent(new Intent().putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
-		mPrefsHelper = new org.ohmage.SharedPreferencesHelper(getActivity());
+		mPrefsHelper = new UserPreferencesHelper(getActivity());
 		userName = mPrefsHelper.getUsername();
 		hashedPass = mPrefsHelper.getHashedPassword();
 

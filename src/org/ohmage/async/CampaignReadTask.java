@@ -6,13 +6,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.db.DbContract;
@@ -43,18 +44,18 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 	private static final String TAG = "CampaignReadTask";
 	private OhmageApi mApi;
 	private final Context mContext;
-	private final SharedPreferencesHelper mPrefs;
+	private final UserPreferencesHelper mPrefs;
 
 	public CampaignReadTask(Context context) {
 		super(context);
 		mContext = context;
-		mPrefs = new SharedPreferencesHelper(mContext);
+		mPrefs = new UserPreferencesHelper(mContext);
 	}
 
 	public CampaignReadTask(Context context, String username, String hashedPassword) {
 		super(context, username, hashedPassword);
 		mContext = context;
-		mPrefs = new SharedPreferencesHelper(mContext);
+		mPrefs = new UserPreferencesHelper(mContext);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 		if(mApi == null)
 			mApi = new OhmageApi(mContext);
 
-		CampaignReadResponse response = mApi.campaignRead(Config.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
+		CampaignReadResponse response = mApi.campaignRead(ConfigHelper.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -248,7 +249,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			}
 
 			if (isUserDisabled) {
-				new SharedPreferencesHelper(getContext()).setUserDisabled(true);
+				new UserPreferencesHelper(getContext()).setUserDisabled(true);
 			}
 
 			if (isAuthenticationError) {

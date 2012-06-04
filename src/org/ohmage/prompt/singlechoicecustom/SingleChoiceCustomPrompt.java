@@ -15,12 +15,8 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoicecustom;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.prompt.AbstractPrompt;
@@ -48,6 +44,10 @@ import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SingleChoiceCustomPrompt extends AbstractPrompt {
 	
@@ -131,7 +131,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		mCustomChoices.clear();
 		SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+		UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
@@ -173,7 +173,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 				if (!TextUtils.isEmpty(mEnteredText)) {
 					SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
-					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+					UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 

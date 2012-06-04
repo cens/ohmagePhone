@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -15,7 +16,7 @@ import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
@@ -40,13 +41,13 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 	private final Context mContext;
 	private OhmageApi mApi;
 
-	private final SharedPreferencesHelper mPrefs;
+	private final UserPreferencesHelper mPrefs;
 
 	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
         super(context, username, hashedPassword);
         mCampaignUrn = campaignUrn;
         mContext = context;
-		mPrefs = new SharedPreferencesHelper(mContext);
+		mPrefs = new UserPreferencesHelper(mContext);
     }
 
     @Override
@@ -58,7 +59,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 		ContentResolver cr = getContext().getContentResolver();
 
-		CampaignReadResponse campaignResponse = mApi.campaignRead(Config.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = mApi.campaignRead(ConfigHelper.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
 
 		if(!mPrefs.isAuthenticated()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
@@ -90,7 +91,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  mApi.campaignXmlRead(Config.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, mCampaignUrn);
+		CampaignXmlResponse response =  mApi.campaignXmlRead(ConfigHelper.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, mCampaignUrn);
 
 		if(!mPrefs.isAuthenticated()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
@@ -173,7 +174,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			}
 			
 			if (isUserDisabled) {
-				new SharedPreferencesHelper(getContext()).setUserDisabled(true);
+				new UserPreferencesHelper(getContext()).setUserDisabled(true);
 			}
 			
 			if (isAuthenticationError) {

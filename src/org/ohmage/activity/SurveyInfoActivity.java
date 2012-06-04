@@ -6,7 +6,7 @@ import edu.ucla.cens.systemlog.Analytics;
 
 import org.ohmage.Config;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.ConfigHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -47,7 +47,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	
 	// helpers
 	private FragmentActivity mContext;
-	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private ConfigHelper mSharedPreferencesHelper;
 	private ImageLoader mImageLoader;
 
 	// handles to views we'll be manipulating
@@ -74,7 +74,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mSharedPreferencesHelper = new ConfigHelper(this);
 		mImageLoader = ImageLoader.get(this);
 		// and create a handler attached to this thread for contentobserver events
 		mHandler = new Handler();
