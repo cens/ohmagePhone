@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="servers">
+        <item>https://dev.andwellness.org/</item>
+        <item>https://dev.mobilizingcs.org/</item>
+        <item>https://internal.ohmage.org/</item>
+        <item>https://pilots.ohmage.org/</item>
+    </string-array>
+
+</resources>

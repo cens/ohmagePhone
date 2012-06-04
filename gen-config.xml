@@ -13,19 +13,6 @@
 
 		<clean-for-gen-config />
 
-		<!-- To allow not setting config server url we specify it as null -->
-		<if>
-			<condition>
-				<isset property="config.server.url"/>
-			</condition>
-			<then>
-				<property name="internal.server.url" value='"${config.server.url}"' />
-			</then>
-			<else>
-				<property name="internal.server.url" value='null' />
-			</else>
-		</if>
-
 		<property name="config.single_campaign" value="false" />
 		<property name="config.allows_feedback" value="true" />
 		<property name="config.admin_mode" value="false" />
@@ -37,7 +24,6 @@
 		<copy file="config/Config.java" todir="${gen.absolute.dir}/org/ohmage" overwrite="true" encoding="utf-8">
 			<filterset>
 
-				<filter token="CONFIG.SERVER_URL" value="${internal.server.url}"/>
 				<filter token="CONFIG.SINGLE_CAMPAIGN" value="${config.single_campaign}"/>
 				<filter token="CONFIG.ALLOWS_FEEDBACK" value="${config.allows_feedback}"/>
 				<filter token="CONFIG.ADMIN_MODE" value="${config.admin_mode}"/>

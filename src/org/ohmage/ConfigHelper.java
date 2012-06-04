@@ -63,14 +63,15 @@ public class ConfigHelper {
 		return mPreferences.edit().putInt(KEY_MOBILITY_VERSION, mobilityVersion).commit();
 	}
 
-	public static String serverUrl() {
-		if(serverUrl == null)
-			serverUrl = PreferenceManager.getDefaultSharedPreferences(OhmageApplication.getContext()).getString(KEY_SERVER_URL, Config.DEFAULT_SERVER_URL);
-		return serverUrl;
-	}
 
 	public static void setServerUrl(String url) {
 		serverUrl = url;
 		PreferenceManager.getDefaultSharedPreferences(OhmageApplication.getContext()).edit().putString(KEY_SERVER_URL, url).commit();
+	}
+
+	public static String serverUrl() {
+		if(serverUrl == null)
+			serverUrl = PreferenceManager.getDefaultSharedPreferences(OhmageApplication.getContext()).getString(KEY_SERVER_URL, null);
+		return serverUrl;
 	}
 }

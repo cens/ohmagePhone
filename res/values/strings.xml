@@ -57,6 +57,8 @@
     <string name="login_error_downloading_campaign">Error downloading campaign</string>
     <string name="login_username_title">Username:</string>
     <string name="login_password_title">Password:</string>
+    <string name="login_server_title">Server:</string>
+    <string name="login_choose_server">Select Server</string>
     <string name="login_submit">Login</string>
     <string name="login_activity_login_button_description">Login Button</string>
 

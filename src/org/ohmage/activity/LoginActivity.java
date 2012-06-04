@@ -45,8 +45,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -118,7 +121,31 @@ public class LoginActivity extends FragmentActivity {
 		}
         
         mLoginButton.setOnClickListener(mClickListener);
-        
+
+		String[] servers = getResources().getStringArray(R.array.servers);
+		if(servers.length != 1) {
+			View serverContainer = findViewById(R.id.login_server_container);
+			serverContainer.setVisibility(View.VISIBLE);
+			Spinner serverSpinner = (Spinner) findViewById(R.id.login_server);
+
+			//set the default according to value
+			if(ConfigHelper.serverUrl() != null) {
+				int position = ((ArrayAdapter<String>) serverSpinner.getAdapter()).getPosition(ConfigHelper.serverUrl());
+				serverSpinner.setSelection(position);
+			}
+
+			serverSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+					ConfigHelper.setServerUrl(parent.getItemAtPosition(position).toString());
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+				}
+			});
+		}
 
         if (savedInstanceState == null) {
         	Log.i(TAG, "creating from scratch");
