@@ -183,7 +183,7 @@ public class ResponseSyncService extends WakefulIntentService {
 				return;
 			}
 
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
+			api.surveyResponseRead(Config.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
 				new StreamingResponseListener() {
 					List<String> responseIDs;
 					
@@ -256,7 +256,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			}
 
 			// do the call and process the streaming response data
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
+			api.surveyResponseRead(Config.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
 				new StreamingResponseListener() {
 					int curRecord;
 					

@@ -62,7 +62,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 		if(mApi == null)
 			mApi = new OhmageApi(mContext);
 
-		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
+		CampaignReadResponse response = mApi.campaignRead(Config.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();

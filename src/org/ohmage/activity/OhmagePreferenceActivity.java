@@ -78,7 +78,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 			}
 		});
 
-		findPreference(STATUS_SERVER_URL).setSummary(Config.DEFAULT_SERVER_URL);
+		findPreference(STATUS_SERVER_URL).setSummary(Config.serverUrl());
 
 		try {
 			findPreference(INFO_OHMAGE_VERSION).setSummary(getPackageManager().getPackageInfo("org.ohmage", 0).versionName);

@@ -93,7 +93,7 @@ public class UploadService extends WakefulIntentService {
 	}
 
 	private void uploadSurveyResponses(Intent intent) {
-		String serverUrl = Config.DEFAULT_SERVER_URL;
+		String serverUrl = Config.serverUrl();
 		
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
@@ -420,7 +420,7 @@ public class UploadService extends WakefulIntentService {
 					
 					c.moveToNext();
 				}
-				response = mApi.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
+				response = mApi.mobilityUpload(Config.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");

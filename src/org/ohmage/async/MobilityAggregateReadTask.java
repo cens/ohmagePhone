@@ -65,7 +65,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		sdf.setLenient(false);
 
-		Response response = mApi.mobilityAggregateRead(Config.DEFAULT_SERVER_URL, getUsername(),
+		Response response = mApi.mobilityAggregateRead(Config.serverUrl(), getUsername(),
 				getHashedPassword(), OhmageApi.CLIENT_NAME, sdf.format(mStartDate), sdf.format(mEndDate),
 				1, new StreamingResponseListener() {
 

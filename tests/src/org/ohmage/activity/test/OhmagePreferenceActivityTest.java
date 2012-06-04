@@ -85,6 +85,6 @@ public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCas
 	}
 
 	public void testUrlShown() {
-		assertTrue(solo.searchText(Config.DEFAULT_SERVER_URL, true));
+		assertTrue(solo.searchText(Config.serverUrl(), true));
 	}
 }

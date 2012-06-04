@@ -58,7 +58,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 		ContentResolver cr = getContext().getContentResolver();
 
-		CampaignReadResponse campaignResponse = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = mApi.campaignRead(Config.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
 
 		if(!mPrefs.isAuthenticated()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
@@ -90,7 +90,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  mApi.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, mCampaignUrn);
+		CampaignXmlResponse response =  mApi.campaignXmlRead(Config.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, mCampaignUrn);
 
 		if(!mPrefs.isAuthenticated()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
