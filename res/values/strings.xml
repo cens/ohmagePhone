@@ -61,6 +61,9 @@
     <string name="login_activity_login_button_description">Login Button</string>
 
     <!-- Mobility -->
+    <string name="mobility_missing_desc">Please make sure the Mobility package is installed.</string>
+    <string name="mobility_market_btn_label">Install Mobility</string>
+    <string name="mobility_market_link">market://details?id=com.android.example</string>
     <string name="mobiltiy_control_1min">1 min</string>
     <string name="mobility_control_5min">5 min</string>
     <string name="mobility_control_off_description">Off Button</string>

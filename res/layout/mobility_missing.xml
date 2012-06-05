@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp" >
+
+    <TextView
+        android:layout_width="fill_parent" android:layout_height="wrap_content"
+        android:text="@string/mobility_missing_desc" android:layout_marginBottom="20dp" android:gravity="center" />
+    <Button android:id="@+id/mobility_install_btn"
+        android:layout_width="fill_parent" android:layout_height="wrap_content"
+        android:text="@string/mobility_market_btn_label"/>
+</LinearLayout>
