@@ -31,12 +31,18 @@ public class ConfigHelper {
 	private static final String KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String KEY_MOBILITY_VERSION = "mobility_version";
 	private static final String KEY_SERVER_URL = "key_server_url";
+	public static final String KEY_SINGLE_CAMPAIGN_MODE = "key_single_campaign_mode";
 
 	private static String serverUrl;
+	private static Boolean isSingleCampaignMode;
 	private final SharedPreferences mPreferences;
 
 	public ConfigHelper(Context context) {
-		mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		mPreferences = getSharedPreferences(context);
+	}
+
+	private static SharedPreferences getSharedPreferences(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
 	public int getLastVersionCode() {
@@ -63,7 +69,6 @@ public class ConfigHelper {
 		return mPreferences.edit().putInt(KEY_MOBILITY_VERSION, mobilityVersion).commit();
 	}
 
-
 	public static void setServerUrl(String url) {
 		serverUrl = url;
 		PreferenceManager.getDefaultSharedPreferences(OhmageApplication.getContext()).edit().putString(KEY_SERVER_URL, url).commit();
@@ -73,5 +78,9 @@ public class ConfigHelper {
 		if(serverUrl == null)
 			serverUrl = PreferenceManager.getDefaultSharedPreferences(OhmageApplication.getContext()).getString(KEY_SERVER_URL, null);
 		return serverUrl;
+	}
+
+	public static boolean isSingleCampaignMode() {
+		return getSharedPreferences(OhmageApplication.getContext()).getBoolean(KEY_SINGLE_CAMPAIGN_MODE, OhmageApplication.getContext().getResources().getBoolean(R.bool.single_campaign_mode));
 	}
 }

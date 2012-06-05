@@ -4,9 +4,8 @@ import com.google.android.imageloader.ImageLoader;
 
 import edu.ucla.cens.systemlog.Analytics;
 
-import org.ohmage.Config;
-import org.ohmage.R;
 import org.ohmage.ConfigHelper;
+import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -105,7 +104,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				findViewById(R.id.survey_info_campaign_urn_row),
 				campaignUrnDetails);
 		// If we aren't in single campaign mode, show the campaign urn details
-		findViewById(R.id.survey_info_campaign_urn_row).setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
+		findViewById(R.id.survey_info_campaign_urn_row).setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 
 		TextView statusDetails = (TextView)findViewById(R.id.survey_info_status_details);
 		statusDetails.setText(Html.fromHtml(getString(R.string.survey_info_status_details)));
@@ -261,7 +260,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mHeadertext.setText(data.getString(QueryParams.TITLE));
 		mSubtext.setText(data.getString(QueryParams.CAMPAIGN_NAME));
 		// If we aren't in single campaign mode, show the campaign name
-		mSubtext.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
+		mSubtext.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 		
 		final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
 		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {

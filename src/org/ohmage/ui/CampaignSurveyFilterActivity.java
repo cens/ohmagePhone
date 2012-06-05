@@ -1,6 +1,6 @@
 package org.ohmage.ui;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
@@ -47,7 +47,7 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 		mDefaultSurvey = getIntent().getStringExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID);
 		//		mDefaultSurvey = "alcohol";
 
-		if(mDefaultCampaign != null || Config.IS_SINGLE_CAMPAIGN) {
+		if(mDefaultCampaign != null || ConfigHelper.isSingleCampaignMode()) {
 			setLoadingVisibility(true);
 			getSupportLoaderManager().initLoader(SURVEY_LOADER, null, this);
 		} else {

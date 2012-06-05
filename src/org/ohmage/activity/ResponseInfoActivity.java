@@ -23,7 +23,7 @@ import edu.ucla.cens.systemlog.Analytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
@@ -192,7 +192,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mHeadertext.setText(surveyName);
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
 		// If we aren't in single campaign mode, show the campaign name
-		mSubtext.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
+		mSubtext.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 		SimpleDateFormat df = new SimpleDateFormat();
 		mNotetext.setText(df.format(new Date(completedDate)));
 		

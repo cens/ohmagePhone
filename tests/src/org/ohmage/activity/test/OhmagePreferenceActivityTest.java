@@ -77,7 +77,7 @@ public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCas
 	}
 
 	public void testCampaignStatus() {
-		if(Config.IS_SINGLE_CAMPAIGN) {
+		if(ConfigHelper.isSingleCampaign()) {
 			assertTrue(solo.searchText("Single-Campaign Mode", true));
 		} else {
 			assertTrue(solo.searchText("Multi-Campaign Mode", true));

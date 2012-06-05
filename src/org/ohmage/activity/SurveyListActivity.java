@@ -1,6 +1,6 @@
 package org.ohmage.activity;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.fragments.SurveyListFragment;
@@ -35,7 +35,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 		setContentView(R.layout.survey_list_layout);
 
-		if(Config.IS_SINGLE_CAMPAIGN)
+		if(ConfigHelper.isSingleCampaignMode())
 			setActionBarShadowVisibility(false);
 
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);

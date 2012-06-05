@@ -57,9 +57,9 @@ public class AdminSettingsDashboardTest extends ActivityInstrumentationTestCase2
 	}
 
 	public void testPreconditions() {
-		if(Config.IS_SINGLE_CAMPAIGN && !Config.ADMIN_MODE) {
+		if(ConfigHelper.isSingleCampaign() && !Config.ADMIN_MODE) {
 			fail("Make sure to do these tests single campaign mode off and admin mode on");
-		} else if(Config.IS_SINGLE_CAMPAIGN) {
+		} else if(ConfigHelper.isSingleCampaign()) {
 			fail("Make sure to do these tests single campaign mode off");
 		} else if(!Config.ADMIN_MODE) {
 			fail("Make sure to do these tests with admin mode on");
@@ -67,7 +67,7 @@ public class AdminSettingsDashboardTest extends ActivityInstrumentationTestCase2
 	}
 
 	public void testCampaigns() {
-		if(!Config.IS_SINGLE_CAMPAIGN) {
+		if(!ConfigHelper.isSingleCampaign()) {
 			assertTrue(solo.searchText("Campaigns", true));
 		}
 	}

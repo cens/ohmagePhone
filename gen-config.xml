@@ -13,7 +13,6 @@
 
 		<clean-for-gen-config />
 
-		<property name="config.single_campaign" value="false" />
 		<property name="config.allows_feedback" value="true" />
 		<property name="config.admin_mode" value="false" />
 		<property name="config.reminder_admin_mode" value="false" />
@@ -24,7 +23,6 @@
 		<copy file="config/Config.java" todir="${gen.absolute.dir}/org/ohmage" overwrite="true" encoding="utf-8">
 			<filterset>
 
-				<filter token="CONFIG.SINGLE_CAMPAIGN" value="${config.single_campaign}"/>
 				<filter token="CONFIG.ALLOWS_FEEDBACK" value="${config.allows_feedback}"/>
 				<filter token="CONFIG.ADMIN_MODE" value="${config.admin_mode}"/>
 				<filter token="CONFIG.REMINDER_ADMIN_MODE" value="${config.reminder_admin_mode}"/>

@@ -8,6 +8,10 @@
 			android:data="content://org.ohmage.db/campaigns" />
 	</PreferenceScreen>
 
+	<CheckBoxPreference
+		android:key="key_single_campaign_mode"
+		android:title="Single Campaign Mode" />
+
 	<PreferenceCategory android:title="User Action Management">
 
 		<CheckBoxPreference

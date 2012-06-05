@@ -8,4 +8,6 @@
         <item>https://pilots.ohmage.org/</item>
     </string-array>
 
+    <item name="single_campaign_mode" type="bool">true</item>
+
 </resources>

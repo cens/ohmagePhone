@@ -24,7 +24,7 @@ import edu.ucla.cens.systemlog.OhmageAnalytics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.R;
@@ -138,7 +138,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 		if(getIntent().hasExtra("campaign_urn")) {
 			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
-		} else if(Config.IS_SINGLE_CAMPAIGN) {
+		} else if(ConfigHelper.isSingleCampaignMode()) {
 			mCampaignUrn = Campaign.getSingleCampaign(this);
 		} else {
 			throw new RuntimeException("The campaign urn must be passed to the Survey Activity");

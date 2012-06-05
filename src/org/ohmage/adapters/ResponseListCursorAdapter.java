@@ -1,6 +1,6 @@
 package org.ohmage.adapters;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
@@ -38,7 +38,7 @@ public class ResponseListCursorAdapter extends CursorAdapter {
 		surveyText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		// Only show campaign name if we aren't in single campaign mode
-		campaignText.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
+		campaignText.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 		
 		long millis = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME));
 		timeText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_TIME));

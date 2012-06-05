@@ -62,13 +62,13 @@ public class AdminSettingsActivityTest extends ActivityInstrumentationTestCase2<
 	}
 
 	public void testSinglePreconditions() {
-		if(!Config.IS_SINGLE_CAMPAIGN) {
+		if(!ConfigHelper.isSingleCampaign()) {
 			fail("Make sure to do these tests single campaign mode on");
 		}
 	}
 
 	public void testCampaignManagement() {
-		if(Config.IS_SINGLE_CAMPAIGN) {
+		if(ConfigHelper.isSingleCampaign()) {
 			solo.clickOnText("Campaign Management");
 			solo.assertCurrentActivity("Expected Campaign List", CampaignListActivity.class);
 			solo.goBack();

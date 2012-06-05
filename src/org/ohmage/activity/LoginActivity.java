@@ -22,7 +22,6 @@ import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
-import org.ohmage.Config;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
@@ -395,7 +394,7 @@ public class LoginActivity extends FragmentActivity {
 			Log.i(TAG, "login success");
 			final String hashedPassword = response.getHashedPassword();
 			
-			if(Config.IS_SINGLE_CAMPAIGN) {
+			if(ConfigHelper.isSingleCampaignMode()) {
 				// Download the single campaign
 				showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
 
