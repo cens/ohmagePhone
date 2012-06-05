@@ -368,10 +368,7 @@
     <string name="crash_report_label">Send Force-Close Report</string>
     <string name="crash_report_preference_summary">Send a force-close report by email.</string>
     <string name="crash_report_error">Couldn\'t find configured email client.</string>
-    <string name="crash_report_more">If you are reporting a problem please answer the questions below:</string>
-    <string name="crash_report_additional_information">Please provide any additional information below.</string>
-    <string name="crash_report_expected_output">What is the expected output? What do you see instead?</string>
-    <string name="crash_report_how_to_reproduce">What steps will reproduce the problem?</string>
+    <string name="crash_report_more">Please enter a short description of what you were doing when ohmage crashed:</string>
     <string name="crash_report_subject">Ohmage Crash Report: %1$s</string>
     <string name="crash_report_acquiring_logs">Collecting logs from system…</string>
     <string name="crash_report_chooser_title">Ohmage Force-Close Report</string>
