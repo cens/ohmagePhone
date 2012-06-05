@@ -60,6 +60,7 @@
     <string name="login_server_title">Server:</string>
     <string name="login_choose_server">Default Servers</string>
     <string name="login_submit">Login</string>
+    <string name="login_invalid_server">Please Enter a valid server name</string>
     <string name="login_activity_login_button_description">Login Button</string>
 
     <!-- Mobility -->

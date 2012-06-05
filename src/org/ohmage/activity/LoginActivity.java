@@ -44,6 +44,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.URLUtil;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -261,8 +262,10 @@ public class LoginActivity extends FragmentActivity {
 			case R.id.login:
 				Log.i(TAG, "login button clicked");
 				Analytics.widget(v);
-				ensureServerUrl();
-				doLogin();				
+				if(ensureServerUrl())
+					doLogin();
+				else
+					Toast.makeText(LoginActivity.this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
 				break;
 			}
 		}
@@ -570,16 +573,18 @@ public class LoginActivity extends FragmentActivity {
 
 	/**
 	 * Ensures that the server url provided is valid. Once it is made valid, it is set as the server url.
+	 * @return 
 	 */
-	private void ensureServerUrl() {
+	private boolean ensureServerUrl() {
 		String text = mServerEdit.getText().toString();
-		if(text != null) {
-			if(!text.startsWith("http"))
-				text = "https://" + text;
-			if(!text.endsWith("/"))
-				text = text + "/";
+		text = URLUtil.guessUrl(text);
+
+		if(URLUtil.isHttpsUrl(text) || URLUtil.isHttpUrl(text)) {
 			mServerEdit.setText(text);
 			ConfigHelper.setServerUrl(text);
+			return true;
 		}
+
+		return false;
 	}
 }
