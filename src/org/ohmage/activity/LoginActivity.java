@@ -44,11 +44,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,12 +70,13 @@ public class LoginActivity extends FragmentActivity {
     private static final int DIALOG_INTERNAL_ERROR = 5;
     private static final int DIALOG_USER_DISABLED = 6;
 	private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 7;
+	private static final int DIALOG_SERVER_LIST = 8;
 
 	private static final int LOGIN_FINISHED = 0;
-
 	
 	private EditText mUsernameEdit;
 	private EditText mPasswordEdit;
+	private EditText mServerEdit;
 	private Button mLoginButton;
 	private TextView mVersionText;
 	private UserPreferencesHelper mPreferencesHelper;
@@ -110,6 +110,8 @@ public class LoginActivity extends FragmentActivity {
 		mLoginButton = (Button) findViewById(R.id.login);
         mUsernameEdit = (EditText) findViewById(R.id.login_username); 
         mPasswordEdit = (EditText) findViewById(R.id.login_password);
+		mServerEdit = (EditText) findViewById(R.id.login_server_edit);
+
         mVersionText = (TextView) findViewById(R.id.version);
         
         try {
@@ -125,23 +127,26 @@ public class LoginActivity extends FragmentActivity {
 		if(servers.length != 1) {
 			View serverContainer = findViewById(R.id.login_server_container);
 			serverContainer.setVisibility(View.VISIBLE);
-			Spinner serverSpinner = (Spinner) findViewById(R.id.login_server);
 
-			//set the default according to value
-			if(ConfigHelper.serverUrl() != null) {
-				int position = ((ArrayAdapter<String>) serverSpinner.getAdapter()).getPosition(ConfigHelper.serverUrl());
-				serverSpinner.setSelection(position);
-			}
-
-			serverSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			mServerEdit.setText(ConfigHelper.serverUrl());
+			ensureServerUrl();
+			mServerEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
 				@Override
-				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-					ConfigHelper.setServerUrl(parent.getItemAtPosition(position).toString());
+				public void onFocusChange(View v, boolean hasFocus) {
+					if(!hasFocus) {
+						ensureServerUrl();
+					}
 				}
+			});
+
+			ImageButton addServer = (ImageButton) findViewById(R.id.login_add_server);
+			addServer.setOnClickListener(new View.OnClickListener() {
 
 				@Override
-				public void onNothingSelected(AdapterView<?> parent) {
+				public void onClick(View v) {
+					ensureServerUrl();
+					showDialog(DIALOG_SERVER_LIST);
 				}
 			});
 		}
@@ -256,6 +261,7 @@ public class LoginActivity extends FragmentActivity {
 			case R.id.login:
 				Log.i(TAG, "login button clicked");
 				Analytics.widget(v);
+				ensureServerUrl();
 				doLogin();				
 				break;
 			}
@@ -373,6 +379,24 @@ public class LoginActivity extends FragmentActivity {
 				pDialog.setCancelable(false);
 				//pDialog.setIndeterminate(true);
 				dialog = pDialog;
+				break;
+			}
+			case DIALOG_SERVER_LIST: {
+	            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				CharSequence[] servers = getResources().getStringArray(R.array.servers);
+				final ArrayAdapter<CharSequence> adapter =
+						new ArrayAdapter<CharSequence>(this, R.layout.simple_list_item_1, servers);
+
+	            builder.setTitle(R.string.login_choose_server);
+				builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mServerEdit.setText(((AlertDialog) dialog).getListView().getAdapter().getItem(which).toString());
+					}
+				});
+
+				dialog = builder.create();
 				break;
 			}
 		}
@@ -541,6 +565,21 @@ public class LoginActivity extends FragmentActivity {
 			super.onPostExecute(response);
 			
 			((LoginActivity) getActivity()).onLoginTaskDone(response, mUsername);
+		}
+	}
+
+	/**
+	 * Ensures that the server url provided is valid. Once it is made valid, it is set as the server url.
+	 */
+	private void ensureServerUrl() {
+		String text = mServerEdit.getText().toString();
+		if(text != null) {
+			if(!text.startsWith("http"))
+				text = "https://" + text;
+			if(!text.endsWith("/"))
+				text = text + "/";
+			mServerEdit.setText(text);
+			ConfigHelper.setServerUrl(text);
 		}
 	}
 }

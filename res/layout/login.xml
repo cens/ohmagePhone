@@ -52,23 +52,35 @@
                     android:password="true"
                     android:singleLine="true" />
 
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/login_server_container"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
+                    android:visibility="gone" >
 
                     <TextView
+                        android:id="@+id/server_title"
                         style="@style/SignupLabel"
                         android:text="@string/login_server_title" />
 
-                    <Spinner
-                        android:id="@+id/login_server"
+                    <ImageButton
+                        android:id="@+id/login_add_server"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@id/server_title"
+                        android:layout_marginRight="@dimen/gutter"
+                        android:src="@drawable/plus" />
+
+                    <EditText
+                        android:id="@+id/login_server_edit"
                         style="@style/SignupEdit"
-                        android:entries="@array/servers"
-                        android:prompt="@string/login_choose_server" />
-                </LinearLayout>
+                        android:layout_below="@id/server_title"
+                        android:layout_marginRight="0px"
+                        android:layout_toLeftOf="@id/login_add_server"
+                        android:inputType="textUri"
+                        android:textSize="@dimen/font_size_default" />
+                </RelativeLayout>
             </LinearLayout>
 
             <Button

@@ -42,7 +42,6 @@ import android.os.Handler;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
-import java.util.Arrays;
 
 public class OhmageApplication extends Application {
 	
@@ -97,13 +96,6 @@ public class OhmageApplication extends Application {
 			BackgroundManager.initComponents(this);
 			
 			prefs.setLastVersionCode(currentVersionCode);
-		}
-
-		// Check the server url is set up correctly
-		String[] servers = getResources().getStringArray(R.array.servers);
-		if(servers.length > 0) {
-			if(!Arrays.asList(servers).contains(ConfigHelper.serverUrl()))
-				ConfigHelper.setServerUrl(servers[0]);
 		}
 
 		// Make sure mobility is registered to collect points for the current user and it has the correct aggregate data
