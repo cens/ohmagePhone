@@ -6,13 +6,6 @@
 package org.ohmage.activity;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 
@@ -23,10 +16,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * This is taken from the android-log-collector project here:
@@ -44,12 +47,10 @@ import android.util.Log;
  */
 public class SendLogActivity extends Activity 
 {
-    public final static String TAG = "com.xtralogic.android.logcollector";//$NON-NLS-1$
+    public final static String TAG = "SendLogActivity";
     
-    private static final String FEEDBACK_EMAIL_ADDRESS = "ohmage-support@cs.ucla.edu";
+    private static final String FEEDBACK_EMAIL_ADDRESS = "mobilize.tech@gmail.com";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    
-    final int MAX_LOG_MESSAGE_LENGTH = 100000;
     
     private AlertDialog mMainDialog;
     private Intent mSendIntent;
@@ -70,49 +71,44 @@ public class SendLogActivity extends Activity
         mSendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { FEEDBACK_EMAIL_ADDRESS });
         mSendIntent.setType("message/rfc822"); 
         mSendIntent.setPackage("com.google.android.gm");
-        
-        SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
-        
+
         StringBuilder body = new StringBuilder();
         Resources res = getResources();
         body.append(res.getString(R.string.crash_report_more));
         body.append(LINE_SEPARATOR);
         body.append(LINE_SEPARATOR);
-        body.append(res.getString(R.string.crash_report_how_to_reproduce));
-        body.append(LINE_SEPARATOR);
-        body.append(LINE_SEPARATOR);
-        body.append(res.getString(R.string.crash_report_expected_output));
-        body.append(LINE_SEPARATOR);
-        body.append(LINE_SEPARATOR);
-        body.append(res.getString(R.string.crash_report_additional_information));
-        body.append(LINE_SEPARATOR);
-        body.append(LINE_SEPARATOR);
-        body.append("--------------------------------------");
+        mSendIntent.putExtra(Intent.EXTRA_TEXT, body.toString());
+
+        SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+
+        StringBuilder logHeader = new StringBuilder();
+        logHeader.append("--------------------------------------");
         try {
-            body.append(LINE_SEPARATOR);
-            body.append("ver: ");
-			body.append(getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
+            logHeader.append(LINE_SEPARATOR);
+            logHeader.append("ver: ");
+			logHeader.append(getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
 		} catch (NameNotFoundException e) {
 			Log.e(TAG, "unable to retrieve current version code", e);
 		}
-        body.append(LINE_SEPARATOR);
-        body.append("user: ");
-        body.append(prefs.getUsername());
-        body.append(LINE_SEPARATOR);
-        body.append("p: ");
-        body.append(Build.MODEL);
-        body.append(LINE_SEPARATOR);
-        body.append("os: ");
-        body.append(Build.VERSION.RELEASE);
-        body.append(LINE_SEPARATOR);
-        body.append("build#: ");
-        body.append(Build.DISPLAY);
-        body.append(LINE_SEPARATOR);
-        body.append(LINE_SEPARATOR);
-        
-        mAdditonalInfo = body.toString();
-        //mFormat = "process";
-         
+        logHeader.append(LINE_SEPARATOR);
+        logHeader.append("user: ");
+        logHeader.append(prefs.getUsername());
+        logHeader.append(LINE_SEPARATOR);
+        logHeader.append("p: ");
+        logHeader.append(Build.MODEL);
+        logHeader.append(LINE_SEPARATOR);
+        logHeader.append("os: ");
+        logHeader.append(Build.VERSION.RELEASE);
+        logHeader.append(LINE_SEPARATOR);
+        logHeader.append("build#: ");
+        logHeader.append(Build.DISPLAY);
+        logHeader.append(LINE_SEPARATOR);
+        logHeader.append(LINE_SEPARATOR);
+        logHeader.append("--------------------------------------");
+        logHeader.append(LINE_SEPARATOR);
+
+        mAdditonalInfo = logHeader.toString();
+
         collectAndSendLog();
     }
     
@@ -176,15 +172,16 @@ public class SendLogActivity extends Activity
         mCollectLogTask = (CollectLogTask) new CollectLogTask().execute(list);
     } 
     
-    private class CollectLogTask extends AsyncTask<ArrayList<String>, Void, StringBuilder>{
-        @Override
+    private class CollectLogTask extends AsyncTask<ArrayList<String>, Void, File>{
+
+		@Override
         protected void onPreExecute(){
             showProgressDialog(getString(R.string.crash_report_acquiring_logs));
         }
         
         @Override
-        protected StringBuilder doInBackground(ArrayList<String>... params){
-            final StringBuilder log = new StringBuilder();
+        protected File doInBackground(ArrayList<String>... params){
+			File file = null;
             try{
                 ArrayList<String> commandLine = new ArrayList<String>();
                 commandLine.add("logcat");//$NON-NLS-1$
@@ -193,39 +190,34 @@ public class SendLogActivity extends Activity
                 if (null != arguments){
                     commandLine.addAll(arguments);
                 }
-                
-                Process process = Runtime.getRuntime().exec(commandLine.toArray(new String[0]));
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                
-                String line;
-                while ((line = bufferedReader.readLine()) != null){ 
-                    log.append(line);
-                    log.append(LINE_SEPARATOR); 
-                }
-            } 
-            catch (IOException e){
-                Log.e(TAG, "CollectLogTask.doInBackground failed", e);//$NON-NLS-1$
-            } 
 
-            return log;
+                Process process = Runtime.getRuntime().exec(commandLine.toArray(new String[0]));
+
+                file = File.createTempFile("ohmage_crash", ".log");
+                OutputStream out=new FileOutputStream(file);
+                out.write(mAdditonalInfo.getBytes());
+
+                InputStream is = process.getInputStream();
+                byte buf[]=new byte[1024];
+                int len;
+                while((len=is.read(buf))>0)
+					out.write(buf,0,len);
+                out.close();
+                is.close();
+
+            }
+            catch (IOException e){
+				Log.e(TAG, "CollectLogTask.doInBackground failed", e);//$NON-NLS-1$
+            } 
+            return file;
         }
 
         @Override
-        protected void onPostExecute(StringBuilder log){
-            if (null != log){
-                //truncate if necessary
-                int keepOffset = Math.max(log.length() - MAX_LOG_MESSAGE_LENGTH, 0);
-                if (keepOffset > 0){
-                    log.delete(0, keepOffset);
-                } 
-                
-                if (mAdditonalInfo != null){
-                    log.insert(0, mAdditonalInfo);
-                }
-                
-                mSendIntent.putExtra(Intent.EXTRA_TEXT, log.toString());
-                startActivity(Intent.createChooser(mSendIntent, getString(R.string.crash_report_chooser_title)));
-                dismissProgressDialog();
+        protected void onPostExecute(File file){
+			if (file != null && file.exists()) {
+				mSendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+ file.getAbsolutePath()));
+				startActivity(Intent.createChooser(mSendIntent, getString(R.string.crash_report_chooser_title)));
+				dismissProgressDialog();
                 dismissMainDialog();
                 finish();
             }
@@ -242,7 +234,8 @@ public class SendLogActivity extends Activity
         .setMessage(errorMessage)
         .setIcon(android.R.drawable.ic_dialog_alert)
         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog, int whichButton){
+            @Override
+			public void onClick(DialogInterface dialog, int whichButton){
                 finish();
             }
         })
@@ -262,7 +255,8 @@ public class SendLogActivity extends Activity
         mProgressDialog.setMessage(message);
         mProgressDialog.setCancelable(true);
         mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener(){
-            public void onCancel(DialogInterface dialog){
+            @Override
+			public void onCancel(DialogInterface dialog){
                 cancellCollectTask();
                 finish();
             }
