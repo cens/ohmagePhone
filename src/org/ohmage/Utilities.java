@@ -317,4 +317,13 @@ public class Utilities {
 		fileForMediaStore(uri).renameTo(file);
 		return OhmageApplication.getContext().getContentResolver().delete(uri, null, null);
 	}
+
+	/**
+	 * Formats an object that might be null to be displayed
+	 * @param disp
+	 * @return ? if it is null, the object otherwise
+	 */
+	public static String getHtmlSafeDisplayString(Object disp) {
+		return (disp == null) ? "?" : disp.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+	}
 }

@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
+import org.ohmage.OhmageMarkdown;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
@@ -540,7 +541,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 									if(i != 0)
 										builder.append("<br\\>");
 									builder.append("&bull; ");
-									builder.append(choices.get(i));
+									builder.append(OhmageMarkdown.parseHtml(choices.get(i).toString()));
 								}
 								((TextView) view.getTag()).setText(Html.fromHtml(builder.toString()));
 								return true;
@@ -548,6 +549,9 @@ LoaderManager.LoaderCallbacks<Cursor> {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
+						} else if("single_choice_custom".equals(prompt_type) || "single_choice".equals(prompt_type)) {
+								((TextView) view.getTag()).setText(OhmageMarkdown.parse(value));
+								return true;
 						} else if("timestamp".equals(prompt_type)) {
 							SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 							try {
