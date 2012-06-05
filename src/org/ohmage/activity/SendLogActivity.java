@@ -69,6 +69,7 @@ public class SendLogActivity extends Activity
         mSendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crash_report_subject, timestamp));
         mSendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { FEEDBACK_EMAIL_ADDRESS });
         mSendIntent.setType("message/rfc822"); 
+        mSendIntent.setPackage("com.google.android.gm");
         
         SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
         
