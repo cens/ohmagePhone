@@ -15,8 +15,6 @@
  ******************************************************************************/
 package org.ohmage;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.responsesync.ResponseSyncReceiver;
@@ -28,6 +26,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import edu.ucla.cens.systemlog.Log;
 
 public class BackgroundManager {
 
@@ -49,7 +48,7 @@ public class BackgroundManager {
 		Log.i(TAG, "UploadReceiver repeating alarm set");
 
 		// FAISAL: feedback service repeating alarm registered here
-		if (Config.ALLOWS_FEEDBACK) {
+		if (context.getResources().getBoolean(R.bool.allows_feedback)) {
 			Intent fbServiceSyncIntent = new Intent(ResponseSyncReceiver.ACTION_FBSYNC_ALARM);
 			PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
 			alarms.cancel(fbServiceSyncPendingIntent);

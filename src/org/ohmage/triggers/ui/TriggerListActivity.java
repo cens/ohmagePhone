@@ -15,11 +15,6 @@
  ******************************************************************************/
 package org.ohmage.triggers.ui;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.triggers.base.TriggerActionDesc;
@@ -54,6 +49,9 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 public class TriggerListActivity extends ListActivity 
 			implements OnClickListener {
@@ -107,11 +105,13 @@ public class TriggerListActivity extends ListActivity
 	/**
 	 * Instead of having a shared preference admin mode, we want admin mode to end once the user leaves the activity
 	 */
-	private boolean mAdminMode = Config.REMINDER_ADMIN_MODE;
+	private boolean mAdminMode;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		mAdminMode = getResources().getBoolean(R.bool.reminder_admin_mode);
 
 		setContentView(R.layout.trigger_main_list);
 			
@@ -560,7 +560,7 @@ public class TriggerListActivity extends ListActivity
 		menu.removeItem(MENU_ID_SETTINGS);
 		
 		boolean adminMode = isAdminLoggedIn();
-		if(!Config.REMINDER_ADMIN_MODE) {
+		if(!getResources().getBoolean(R.bool.reminder_admin_mode)) {
 			if(!adminMode) {
 				menu.add(0, MENU_ID_ADMIN_LOGIN, 0, R.string.trigger_menu_admin_turn_on)
 				.setIcon(R.drawable.ic_menu_login);

@@ -1,13 +1,11 @@
 package org.ohmage.async;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.systemlog.Log;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.Config;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -29,8 +27,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.systemlog.Log;
 
 public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
@@ -118,7 +117,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				//update occurred successfully
 			}
 			
-			if (Config.ALLOWS_FEEDBACK) {
+			if (getContext().getResources().getBoolean(R.bool.allows_feedback)) {
 				// create an intent to fire off the feedback service
 				Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
 				// annotate the request with the current campaign's URN

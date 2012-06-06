@@ -51,7 +51,7 @@
 <!-- extension targets. Uncomment the ones where you want to do custom work
 	 in between standard targets -->
 
-	<target name="-pre-build" depends="gen-config" />
+	<target name="-pre-build" />
 
 	<target name="-pre-compile" />
 
@@ -141,17 +141,17 @@
 	<target name="-set-output-file">
 		<sequential>
 			<read-release-name />
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-unaligned.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${release.name}-${manifest.versionCode}-unaligned.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${release.name}-${manifest.versionCode}.apk" />
 		</sequential>
 	</target>
 
 	<target name="-set-release-output-file">
 		<sequential>
 			<read-release-name />
-			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-unaligned-SIGNED.apk" />
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-packaged-SIGNED.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-SIGNED.apk" />
+			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${release.name}-${manifest.versionCode}-unaligned-SIGNED.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${release.name}-${manifest.versionCode}-packaged-SIGNED.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${release.name}-${manifest.versionCode}-SIGNED.apk" />
 		</sequential>
 	</target>
 
@@ -168,6 +168,4 @@
 	<import file="${sdk.dir}/tools/ant/build.xml" />
 
 	<import file="git-build.xml" />
-
-	<import file="gen-config.xml" />
 </project>

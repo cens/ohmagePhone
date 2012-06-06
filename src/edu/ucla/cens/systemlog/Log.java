@@ -15,7 +15,7 @@
  ******************************************************************************/
 package edu.ucla.cens.systemlog;
 
-import org.ohmage.Config;
+import org.ohmage.R;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,11 +48,14 @@ public class Log {
 
 	private static String mAppName = DEFAULT_APP_NAME;
 	private static Context mContext = null;
-	private static boolean mPackageInstalled;
+	private static boolean mLogAnalytics;
+	private static Loglevel mLogLevel;
 
 	public static void initialize(Context context, String appName) {
 		mContext = context.getApplicationContext();
 		mAppName = appName;
+		mLogAnalytics = mContext.getResources().getBoolean(R.bool.log_analytics);
+		mLogLevel = Loglevel.valueOf(mContext.getResources().getString(R.string.log_level).toUpperCase());
 	}
 
 	/**
@@ -62,7 +65,7 @@ public class Log {
 	 */
 	private static boolean shouldLogMessage(Loglevel logLevel) {
 		try {
-			return logLevel.compareTo(Loglevel.valueOf(Config.LOG_LEVEL.toUpperCase())) <= 0;
+			return logLevel.compareTo(mLogLevel) <= 0;
 		} catch(IllegalArgumentException e) {
 			return false;
 		}
@@ -144,7 +147,7 @@ public class Log {
 
 	public static void analytic(String tag, String message) {
 
-		if(Config.LOG_ANALYTICS) {
+		if(mLogAnalytics) {
 			if(!logMessage(Loglevel.INFO, tag, message, true)) {
 				android.util.Log.v(tag, message);
 			}

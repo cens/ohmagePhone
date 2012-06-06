@@ -1,23 +1,29 @@
 package org.ohmage.responsesync;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.codehaus.jackson.JsonNode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.Config;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
+import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
@@ -35,18 +41,12 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.google.android.imageloader.ImageLoader;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 public class ResponseSyncService extends WakefulIntentService {
 	private static final String TAG = "ResponseSyncService";
@@ -86,7 +86,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		
 		Log.v(TAG, "Response sync service starting");
 		
-		if (!Config.ALLOWS_FEEDBACK) {
+		if (!getResources().getBoolean(R.bool.allows_feedback)) {
 			Log.e(TAG, "Response sync service aborted, because feedback is not allowed in the preferences");
 			return;
 		}
