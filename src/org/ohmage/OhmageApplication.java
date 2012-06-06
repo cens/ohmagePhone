@@ -15,12 +15,11 @@
  ******************************************************************************/
 package org.ohmage;
 
-import com.google.android.imageloader.BitmapContentHandler;
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
+import java.io.IOException;
+import java.net.ContentHandler;
+import java.net.URLStreamHandlerFactory;
+import java.util.Arrays;
+import java.util.List;
 
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
@@ -39,9 +38,12 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 
-import java.io.IOException;
-import java.net.ContentHandler;
-import java.net.URLStreamHandlerFactory;
+import com.google.android.imageloader.BitmapContentHandler;
+import com.google.android.imageloader.ImageLoader;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 public class OhmageApplication extends Application {
 	
@@ -103,6 +105,15 @@ public class OhmageApplication extends Application {
 		MobilityHelper.upgradeMobilityData(this);
 
 		verifyState();
+
+		// If they can't set a custom server, verify the server that is set is
+		// the first in the list of servers
+		if (!getResources().getBoolean(R.bool.allow_custom_server)) {
+			List<String> servers = Arrays.asList(getResources().getStringArray(R.array.servers));
+			if (servers.isEmpty())
+				throw new RuntimeException("At least one server must be specified in config.xml");
+			ConfigHelper.setServerUrl(servers.get(0));
+		}
 	}
 
 	/**

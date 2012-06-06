@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- List of default servers to be used with this build -->
     <string-array name="servers">
         <item>https://dev.andwellness.org/</item>
         <item>https://dev.mobilizingcs.org/</item>
@@ -8,6 +9,16 @@
         <item>https://pilots.ohmage.org/</item>
     </string-array>
 
-    <item name="single_campaign_mode" type="bool">true</item>
+    <!--
+         If false, the user will not be able to change the server and the first
+         server in the server list will be used.
+    -->
+    <item name="allow_custom_server" type="bool">true</item>
+
+    <!--
+         Default option for single campaign mode. This can be changed by the user
+         in the admin settings.
+    -->
+    <item name="single_campaign_mode" type="bool">false</item>
 
 </resources>

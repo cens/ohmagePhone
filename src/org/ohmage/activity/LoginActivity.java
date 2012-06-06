@@ -15,11 +15,7 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import com.slezica.tools.async.ManagedAsyncTask;
-
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
+import java.util.Arrays;
 
 import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
@@ -52,7 +48,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Arrays;
+import com.slezica.tools.async.ManagedAsyncTask;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 public class LoginActivity extends FragmentActivity {
 	
@@ -124,35 +124,34 @@ public class LoginActivity extends FragmentActivity {
         
         mLoginButton.setOnClickListener(mClickListener);
 
-		String[] servers = getResources().getStringArray(R.array.servers);
-		if(servers.length != 1) {
+		if(getResources().getBoolean(R.bool.allow_custom_server)) {
 			View serverContainer = findViewById(R.id.login_server_container);
 			serverContainer.setVisibility(View.VISIBLE);
-
-			mServerEdit.setText(ConfigHelper.serverUrl());
-			ensureServerUrl();
-			mServerEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
-					if(!hasFocus) {
-						ensureServerUrl();
-					}
-				}
-			});
-
-			ImageButton addServer = (ImageButton) findViewById(R.id.login_add_server);
-			addServer.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					ensureServerUrl();
-					showDialog(DIALOG_SERVER_LIST);
-				}
-			});
 		}
 
-        if (savedInstanceState == null) {
+		mServerEdit.setText(ConfigHelper.serverUrl());
+		ensureServerUrl();
+		mServerEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(!hasFocus) {
+					ensureServerUrl();
+				}
+			}
+		});
+
+		ImageButton addServer = (ImageButton) findViewById(R.id.login_add_server);
+		addServer.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				ensureServerUrl();
+				showDialog(DIALOG_SERVER_LIST);
+			}
+		});
+
+		if (savedInstanceState == null) {
         	Log.i(TAG, "creating from scratch");
         	
         	//clear login fail notification (if such notification existed) 
