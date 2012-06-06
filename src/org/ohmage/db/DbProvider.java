@@ -269,6 +269,7 @@ public class DbProvider extends ContentProvider {
 				if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
 					dbHelper.populateSurveysFromCampaignXML(db, oldCampaigns.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 			}
+			oldCampaigns.close();
 		}
 
 		// we assume we've matched it correctly, so proceed with the update
