@@ -38,6 +38,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.URLUtil;
@@ -129,7 +130,10 @@ public class LoginActivity extends FragmentActivity {
 			serverContainer.setVisibility(View.VISIBLE);
 		}
 
-		mServerEdit.setText(ConfigHelper.serverUrl());
+		String defaultServer = ConfigHelper.serverUrl();
+		if(TextUtils.isEmpty(defaultServer))
+			defaultServer = getResources().getStringArray(R.array.servers)[0];
+		mServerEdit.setText(defaultServer);
 		ensureServerUrl();
 		mServerEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
