@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -51,6 +52,7 @@ import edu.ucla.cens.systemlog.OhmageAnalytics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
@@ -127,6 +129,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 
     private String mInstructions;
 
+    private CampaignPreferencesHelper mCampaignPref;
+
 	public String getSurveyId() {
 		return mSurveyId;
 	}
@@ -146,6 +150,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 		} else {
 			throw new RuntimeException("The campaign urn must be passed to the Survey Activity");
 		}
+
+		mCampaignPref = new CampaignPreferencesHelper(this, mCampaignUrn);
 
 		mSurveyId = getIntent().getStringExtra("survey_id");
 		mSurveyTitle = getIntent().getStringExtra("survey_title");
@@ -186,7 +192,7 @@ public class SurveyActivity extends Activity implements LocationListener {
                     Log.e(TAG, "Error parsing campaign instructions from xml", e);
                 }
 
-                if (mInstructions != null)
+                if (mInstructions != null && mCampaignPref.showInstructions())
                     showDialog(DIALOG_INSTRUCTIONS_ID);
 
                 mSurveyElements = null;
@@ -1178,13 +1184,25 @@ public class SurveyActivity extends Activity implements LocationListener {
 				dialog = dialogBuilder.create();
 				break;
             case DIALOG_INSTRUCTIONS_ID:
-                dialogBuilder.setTitle(R.string.survey_campaign_instructions_title)
-                .setMessage(mInstructions)
-                .setCancelable(true)
-                .setPositiveButton(R.string.continue_string, null);
+                View view = getLayoutInflater().inflate(R.layout.checkable_dialog_layout, null);
+                TextView text = (TextView) view.findViewById(R.id.text);
+                final CheckBox skip = (CheckBox) view.findViewById(R.id.skip);
+                text.setText(mInstructions);
+                dialogBuilder
+                        .setTitle(R.string.survey_campaign_instructions_title)
+                        .setView(view)
+                        .setCancelable(true)
+                        .setPositiveButton(R.string.continue_string,
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mCampaignPref.setShowInstructions(!skip.isChecked());
+                                    }
+                                });
                 dialog = dialogBuilder.create();
                 break;
-		}
+        }
 		return dialog;
 	}
 }
