@@ -96,6 +96,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 	private static final String TAG = "SurveyActivity";
 
 	private static final int DIALOG_CANCEL_ID = 0;
+    private static final int DIALOG_INSTRUCTIONS_ID = 1;
 
 	protected static final int PROMPT_RESULT = 0;
 
@@ -123,6 +124,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	private LocationManager mLocManager;
 
 	private final Handler mHandler = new Handler();
+
+    private String mInstructions;
 
 	public String getSurveyId() {
 		return mSurveyId;
@@ -171,7 +174,22 @@ public class SurveyActivity extends Activity implements LocationListener {
 				finish();
 				return;
 			} else {
-				mSurveyElements = null;
+
+                mInstructions = null;
+
+                try {
+                    mInstructions = PromptXmlParser.parseCampaignInstructions(Campaign
+                            .loadCampaignXml(this, mCampaignUrn));
+                } catch (XmlPullParserException e) {
+                    Log.e(TAG, "Error parsing campaign instructions from xml", e);
+                } catch (IOException e) {
+                    Log.e(TAG, "Error parsing campaign instructions from xml", e);
+                }
+
+                if (mInstructions != null)
+                    showDialog(DIALOG_INSTRUCTIONS_ID);
+
+                mSurveyElements = null;
 
 				try {
 					mSurveyElements = PromptXmlParser.parseSurveyElements(Campaign.loadCampaignXml(this, mCampaignUrn), mSurveyId);
@@ -202,6 +220,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			mLastSeenRepeatableSetId = instance.lastSeenRepeatableSetId;
 			mLastElement = instance.lastElement;
 			mSurveyFinished = instance.surveyFinished;
+			mInstructions = instance.instructions;
 		}
 
 		setContentView(R.layout.survey_activity);
@@ -282,7 +301,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement, mSurveyFinished);
+		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement, mSurveyFinished, mInstructions);
 	}
 
 	private class NonConfigurationInstance {
@@ -293,8 +312,9 @@ public class SurveyActivity extends Activity implements LocationListener {
 		String lastSeenRepeatableSetId;
 		SurveyElement lastElement;
 		boolean surveyFinished;
+		String instructions;
 
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element, boolean surveyFinished) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element, boolean surveyFinished, String instructions) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
@@ -302,6 +322,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			this.lastSeenRepeatableSetId = lastSeenRepeatableSetId;
 			this.lastElement = element;
 			this.surveyFinished = surveyFinished;
+			this.instructions = instructions;
 		}
 	}
 
@@ -1156,6 +1177,13 @@ public class SurveyActivity extends Activity implements LocationListener {
 				.setNegativeButton(R.string.cancel, null);
 				dialog = dialogBuilder.create();
 				break;
+            case DIALOG_INSTRUCTIONS_ID:
+                dialogBuilder.setTitle(R.string.survey_campaign_instructions_title)
+                .setMessage(mInstructions)
+                .setCancelable(true)
+                .setPositiveButton(R.string.continue_string, null);
+                dialog = dialogBuilder.create();
+                break;
 		}
 		return dialog;
 	}
