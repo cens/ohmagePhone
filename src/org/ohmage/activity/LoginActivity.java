@@ -15,20 +15,6 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import java.util.Arrays;
-
-import org.ohmage.BackgroundManager;
-import org.ohmage.ConfigHelper;
-import org.ohmage.MobilityHelper;
-import org.ohmage.NotificationHelper;
-import org.ohmage.OhmageApi;
-import org.ohmage.OhmageApi.CampaignReadResponse;
-import org.ohmage.OhmageApplication;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.async.CampaignReadTask;
-import org.ohmage.db.Models.Campaign;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -54,6 +40,18 @@ import com.slezica.tools.async.ManagedAsyncTask;
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.BackgroundManager;
+import org.ohmage.ConfigHelper;
+import org.ohmage.MobilityHelper;
+import org.ohmage.NotificationHelper;
+import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApplication;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.async.CampaignReadTask;
+import org.ohmage.db.Models.Campaign;
 
 public class LoginActivity extends FragmentActivity {
 	
@@ -92,7 +90,7 @@ public class LoginActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.login);
-		
+
 		// first see if they are already logged in
         mPreferencesHelper = new UserPreferencesHelper(this);
 		mAppPrefs = new ConfigHelper(LoginActivity.this);
@@ -424,7 +422,7 @@ public class LoginActivity extends FragmentActivity {
 		case SUCCESS:
 			Log.i(TAG, "login success");
 			final String hashedPassword = response.getHashedPassword();
-			
+
 			if(ConfigHelper.isSingleCampaignMode()) {
 				// Download the single campaign
 				showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
@@ -441,37 +439,21 @@ public class LoginActivity extends FragmentActivity {
 			}
 			break;
 		case FAILURE:
-			Log.e(TAG, "login failure");
-			for (String s : response.getErrorCodes()) {
-				Log.e(TAG, "error code: " + s);
-			}
-			
-			//clear creds
-			//mPreferencesHelper.clearCredentials();
-			//just clear password, keep username for single user lock-in
-			// FAISAL: commenting this out so the user gets a chance to back out of a password change attempt
-			/*mPreferencesHelper.putHashedPassword("");*/
-			
 			//clear password so user will re-enter it
 			mPasswordEdit.setText("");
-			
+
 			//show error dialog
-			if (Arrays.asList(response.getErrorCodes()).contains("0201")) {
-				mPreferencesHelper.setUserDisabled(true);
+			if (response.getErrorCodes().contains(OhmageApi.ERROR_ACCOUNT_DISABLED)) {
 				showDialog(DIALOG_USER_DISABLED);
 			} else {
 				showDialog(DIALOG_LOGIN_ERROR);
 			}
 			break;
 		case HTTP_ERROR:
-			Log.e(TAG, "login http error");
-			
 			//show error dialog
 			showDialog(DIALOG_NETWORK_ERROR);
 			break;
 		case INTERNAL_ERROR:
-			Log.e(TAG, "login internal error");
-			
 			//show error dialog
 			showDialog(DIALOG_INTERNAL_ERROR);
 			break;
@@ -570,7 +552,7 @@ public class LoginActivity extends FragmentActivity {
 		@Override
 		protected void onPostExecute(OhmageApi.AuthenticateResponse response) {
 			super.onPostExecute(response);
-			
+			response.handleError(getActivity());
 			((LoginActivity) getActivity()).onLoginTaskDone(response, mUsername);
 		}
 	}

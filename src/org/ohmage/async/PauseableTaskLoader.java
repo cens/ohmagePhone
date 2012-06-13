@@ -1,12 +1,14 @@
 package org.ohmage.async;
 
+import org.ohmage.OhmageApi.Response;
+
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * A custom Loader that can be paused so it doesn't go to the network
  */
-public abstract class PauseableTaskLoader<T> extends AsyncTaskLoader<T> {
+public abstract class PauseableTaskLoader<T extends Response> extends AsyncTaskLoader<T> {
 
 	private boolean mPause;
 	protected long startTime;

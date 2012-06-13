@@ -15,8 +15,8 @@ import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.MediaPart;
 import org.ohmage.OhmageApi.Result;
+import org.ohmage.OhmageApi.UploadResponse;
 import org.ohmage.UserPreferencesHelper;
-import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -203,74 +203,44 @@ public class UploadService extends WakefulIntentService {
 			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 
 			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), media);
-			
+			response.handleError(this);
+
 			int responseStatus = Response.STATUS_UPLOADED;
 
 			if (response.getResult() == Result.SUCCESS) {
 				NotificationHelper.hideUploadErrorNotification(this);
-				NotificationHelper.hideAuthNotification(this);
 			} else {
 				responseStatus = Response.STATUS_ERROR_OTHER;
 				
-				switch (response.getResult()) {
-				case FAILURE:
-					Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-					
-					uploadErrorOccurred = true;
-					
-					boolean isAuthenticationError = false;
-					boolean isUserDisabled = false;
-					
-					String errorCode = null;
-					
-					for (String code : response.getErrorCodes()) {
-						if (code.charAt(1) == '2') {
-							authErrorOccurred = true;
-							
-							isAuthenticationError = true;
-							
-							if (code.equals("0201")) {
-								isUserDisabled = true;
-							}
-						}
-						
-						if (code.equals("0700") || code.equals("0707") || code.equals("0703") || code.equals("0710")) {
-							errorCode = code;
-							break;
-						}
-					}
-					
-					if (isUserDisabled) {
-						new UserPreferencesHelper(this).setUserDisabled(true);
-					}
-					
-					if (isAuthenticationError) {
-						responseStatus = Response.STATUS_ERROR_AUTHENTICATION;
+                switch (response.getResult()) {
+                    case FAILURE:
+                        if (response.hasAuthError()) {
+                            responseStatus = Response.STATUS_ERROR_AUTHENTICATION;
+                        } else {
+                            uploadErrorOccurred = true;
 
-					} else if ("0700".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
-					} else if ("0707".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_INVALID_USER_ROLE;
-					} else if ("0703".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
-					} else if ("0710".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
-					} else {
-						responseStatus = Response.STATUS_ERROR_OTHER;
-					}
-					
-					break;
+                            if (response.getErrorCodes().contains("0700")) {
+                                responseStatus = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
+                            } else if (response.getErrorCodes().contains("0707")) {
+                                responseStatus = Response.STATUS_ERROR_INVALID_USER_ROLE;
+                            } else if (response.getErrorCodes().contains("0703")) {
+                                responseStatus = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
+                            } else if (response.getErrorCodes().contains("0710")) {
+                                responseStatus = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
+                            }
+                        }
 
-				case INTERNAL_ERROR:
-					uploadErrorOccurred = true;
-					responseStatus = Response.STATUS_ERROR_OTHER;
-					break;
-					
-				case HTTP_ERROR:
-					responseStatus = Response.STATUS_ERROR_HTTP;
-					break;
-				}
-			}
+                        break;
+
+                    case INTERNAL_ERROR:
+                        uploadErrorOccurred = true;
+                        break;
+
+                    case HTTP_ERROR:
+                        responseStatus = Response.STATUS_ERROR_HTTP;
+                        break;
+                }
+            }
 
 			ContentValues cv2 = new ContentValues();
 			cv2.put(Responses.RESPONSE_STATUS, responseStatus);
@@ -281,12 +251,8 @@ public class UploadService extends WakefulIntentService {
 
 		cursor.close();
 		
-		if (isBackground) {
-			if (authErrorOccurred) {
-				NotificationHelper.showAuthNotification(this);
-			} else if (uploadErrorOccurred) {
-				NotificationHelper.showUploadErrorNotification(this);
-			}
+		if (isBackground && uploadErrorOccurred) {
+			NotificationHelper.showUploadErrorNotification(this);
 		}
 	}
 	
@@ -307,8 +273,6 @@ public class UploadService extends WakefulIntentService {
 		
 		Long now = System.currentTimeMillis();
 		Cursor c = MobilityInterface.getMobilityCursor(this, uploadAfterTimestamp);
-		
-		OhmageApi.UploadResponse response = new OhmageApi.UploadResponse(OhmageApi.Result.SUCCESS, null);
 		
 		if (c != null && c.getCount() > 0) {
 			
@@ -420,8 +384,9 @@ public class UploadService extends WakefulIntentService {
 					
 					c.moveToNext();
 				}
-				response = mApi.mobilityUpload(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
-				
+				UploadResponse response = mApi.mobilityUpload(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
+				response.handleError(this);
+
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
 					helper.putLastMobilityUploadTimestamp(uploadAfterTimestamp);
@@ -429,51 +394,8 @@ public class UploadService extends WakefulIntentService {
 					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
 
 					NotificationHelper.hideMobilityErrorNotification(this);
-				} else {
-					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
-					switch (response.getResult()) {
-						case FAILURE:
-							Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-
-							boolean isAuthenticationError = false;
-							boolean isUserDisabled = false;
-
-							for (String code : response.getErrorCodes()) {
-								if (code.charAt(1) == '2') {
-									isAuthenticationError = true;
-
-									if (code.equals("0201")) {
-										isUserDisabled = true;
-									}
-								}
-							}
-
-							if (isUserDisabled) {
-								new UserPreferencesHelper(this).setUserDisabled(true);
-							}
-
-							if (isBackground) {
-								if (isAuthenticationError) {
-									NotificationHelper.showAuthNotification(this);
-								} else {
-									NotificationHelper.showMobilityErrorNotification(this);
-								}
-							}
-
-							break;
-
-						case INTERNAL_ERROR:
-							Log.e(TAG, "Upload failed due to unknown internal error");
-							if (isBackground)
-								NotificationHelper.showMobilityErrorNotification(this);
-							break;
-
-						case HTTP_ERROR:
-							Log.e(TAG, "Upload failed due to network error");
-							break;
-					}
-
-					break;						
+				} else if(isBackground && !response.hasAuthError() && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
+					NotificationHelper.showMobilityErrorNotification(this);
 				}
 			}
 			

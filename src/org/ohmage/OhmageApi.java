@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.content.Context;
+import android.os.Build;
+import android.widget.Toast;
+
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Log;
 
@@ -53,13 +57,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.CountingInputStream;
 
-import android.content.Context;
-import android.os.Build;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -95,33 +97,31 @@ public class OhmageApi {
 		INTERNAL_ERROR
 	}
 
-	public static enum Error {
-
-	}
+	public static String ERROR_AUTHENTICATION = "0200";
+	public static String ERROR_ACCOUNT_DISABLED = "0201";
 
 	public static class Response {
 		protected Result mResult;
-		protected String[] mErrorCodes;
+		protected List<String> mErrorCodes;
 
 		public Response() {
 			// do-nothing constructor so we can create instances via reflection
 		}
 
 		public Response(Result result, String[] errorCodes) {
-			mResult = result;
-			mErrorCodes = errorCodes;
+		    setResponseStatus(result, errorCodes);
 		}
 
 		public void setResponseStatus(Result result, String[] errorCodes) {
 			mResult = result;
-			mErrorCodes = errorCodes;
+			mErrorCodes = errorCodes == null ? new ArrayList<String>() : Arrays.asList(errorCodes);
 		}
 
 		public Result getResult() {
 			return mResult;
 		}
 
-		public String[] getErrorCodes() {
+		public List<String> getErrorCodes() {
 			return mErrorCodes;
 		}
 
@@ -130,11 +130,45 @@ public class OhmageApi {
 		}
 
 		public void setErrorCodes(String[] errorCodes) {
-			this.mErrorCodes = errorCodes;
+			this.mErrorCodes = Arrays.asList(errorCodes);
 		}
 
 		public void populateFromJSON(JSONObject rootJson) throws JSONException {
 			// do nothing here
+		}
+
+		public void handleError(Context context) {
+			switch(mResult) {
+			case SUCCESS:
+				NotificationHelper.hideAuthNotification(context);
+				break;
+			case FAILURE:
+				Log.e(TAG, "Read failed due to error codes: " + mErrorCodes.toString());
+
+				if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
+					new UserPreferencesHelper(context).setUserDisabled(true);
+				}
+
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+					NotificationHelper.showAuthNotification(context);
+				}
+				break;
+			case HTTP_ERROR:
+				Log.e(TAG, "Read failed due to http error");
+				break;
+			case INTERNAL_ERROR:
+				Log.e(TAG, "Read failed due to internal error");
+				break;
+			}
+		}
+
+		public boolean hasAuthError() {
+			for (String code : mErrorCodes) {
+				if (code.charAt(1) == '2') {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
@@ -211,6 +245,27 @@ public class OhmageApi {
 				mData = rootJson.getJSONObject("data");
 			if (rootJson.has("metadata"))
 				mMetadata = rootJson.getJSONObject("metadata");
+		}
+
+		@Override
+		public void handleError(Context context) {
+			super.handleError(context);
+
+			switch(mResult) {
+			case FAILURE:
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+					Toast.makeText(context, R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(context, R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
+				}
+				break;
+			case HTTP_ERROR:
+				Toast.makeText(context, R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
+				break;
+			case INTERNAL_ERROR:
+				Toast.makeText(context, R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
+				break;
+			}
 		}
 	}
 

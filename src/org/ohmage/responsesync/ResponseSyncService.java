@@ -184,7 +184,7 @@ public class ResponseSyncService extends WakefulIntentService {
 				return;
 			}
 
-			api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
+			OhmageApi.Response deleteResult = api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
 				new StreamingResponseListener() {
 					List<String> responseIDs;
 					
@@ -233,6 +233,7 @@ public class ResponseSyncService extends WakefulIntentService {
 						responses.close();
 					}
 			});
+			deleteResult.handleError(this);
 
 			// ==================================================================
 			// === 3b. download responses from after the cutoff date
@@ -257,7 +258,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			}
 
 			// do the call and process the streaming response data
-			api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
+			OhmageApi.Response readResult = api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
 				new StreamingResponseListener() {
 					int curRecord;
 					
@@ -451,7 +452,8 @@ public class ResponseSyncService extends WakefulIntentService {
 						// Now that we have downloaded potentially a lot of images, we should remove any old ones
 						OhmageApplication.checkCacheUsage();
 					}
-				});
+			});
+			readResult.handleError(this);
 		}
 
 		if(!mPrefs.isAuthenticated()) {

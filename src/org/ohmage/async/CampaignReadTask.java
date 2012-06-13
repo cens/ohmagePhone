@@ -1,5 +1,16 @@
 package org.ohmage.async;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.os.RemoteException;
+import android.support.v4.content.Loader;
+import android.text.TextUtils;
+
 import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
@@ -13,23 +24,10 @@ import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
-import org.ohmage.Utilities;
 import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
-
-import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.OperationApplicationException;
-import android.database.Cursor;
-import android.os.RemoteException;
-import android.support.v4.content.Loader;
-import android.text.TextUtils;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -223,48 +221,6 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 		} 
 
 		return response;
-	}
-
-	@Override 
-	public void deliverResult(CampaignReadResponse response) {
-		super.deliverResult(response);
-
-		if (response.getResult() == Result.SUCCESS) {
-
-		} else if (response.getResult() == Result.FAILURE) {
-			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-
-			boolean isAuthenticationError = false;
-			boolean isUserDisabled = false;
-
-			for (String code : response.getErrorCodes()) {
-				if (code.charAt(1) == '2') {
-					isAuthenticationError = true;
-
-					if (code.equals("0201")) {
-						isUserDisabled = true;
-					}
-				}
-			}
-
-			if (isUserDisabled) {
-				new UserPreferencesHelper(getContext()).setUserDisabled(true);
-			}
-
-			if (isAuthenticationError) {
-				NotificationHelper.showAuthNotification(getContext());
-				Toast.makeText(getContext(), R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
-			} else {
-				Toast.makeText(getContext(), R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
-			}
-
-		} else if (response.getResult() == Result.HTTP_ERROR) {
-			Log.e(TAG, "Read failed due to http error");
-			Toast.makeText(getContext(), R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
-		} else {
-			Log.e(TAG, "Read failed due to internal error");
-			Toast.makeText(getContext(), R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
-		} 
 	}
 
 	public void setOhmageApi(OhmageApi api) {
