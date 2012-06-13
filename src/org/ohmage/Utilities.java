@@ -31,6 +31,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.List;
 
@@ -302,8 +303,36 @@ public class Utilities {
 	}
 
 	public static int moveMediaStoreFile(Uri uri, File file) {
-		fileForMediaStore(uri).renameTo(file);
-		return OhmageApplication.getContext().getContentResolver().delete(uri, null, null);
+	    if(moveFile(fileForMediaStore(uri), file))
+	        return OhmageApplication.getContext().getContentResolver().delete(uri, null, null);
+	    return -1;
+	}
+
+	public static boolean moveFile(File src, File dest) {
+	    if(!src.renameTo(dest)) {
+	        try {
+	            copy(src, dest);
+	            return src.delete();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+
+	public static void copy(File src, File dst) throws IOException {
+	    InputStream in = new FileInputStream(src);
+	    OutputStream out = new FileOutputStream(dst);
+
+	    // Transfer bytes from in to out
+	    byte[] buf = new byte[1024];
+	    int len;
+	    while ((len = in.read(buf)) > 0) {
+	        out.write(buf, 0, len);
+	    }
+	    in.close();
+	    out.close();
 	}
 
 	/**
