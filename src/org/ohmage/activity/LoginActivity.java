@@ -265,9 +265,10 @@ public class LoginActivity extends FragmentActivity {
 			case R.id.login:
 				Log.i(TAG, "login button clicked");
 				Analytics.widget(v);
-				if(ensureServerUrl())
+				if(ensureServerUrl()) {
+					ConfigHelper.setServerUrl(mServerEdit.getText().toString());
 					doLogin();
-				else
+				} else
 					Toast.makeText(LoginActivity.this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
 				break;
 			}
@@ -584,7 +585,6 @@ public class LoginActivity extends FragmentActivity {
 
 		if(URLUtil.isHttpsUrl(text) || URLUtil.isHttpUrl(text)) {
 			mServerEdit.setText(text);
-			ConfigHelper.setServerUrl(text);
 			return true;
 		}
 
