@@ -1,5 +1,11 @@
 package org.ohmage.service;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.mobility.glue.MobilityInterface;
@@ -24,12 +30,6 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Response;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -188,7 +188,7 @@ public class UploadService extends WakefulIntentService {
 				Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId), new String [] {PromptResponses.PROMPT_RESPONSE_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE}, SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR " + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?", new String [] { "photo", "video" }, null);
 				
 				while (promptsCursor.moveToNext()) {
-					media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(this), promptsCursor.getString(0)), promptsCursor.getString(1)));
+					media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(), promptsCursor.getString(0)), promptsCursor.getString(1)));
 				}
 				
 				promptsCursor.close();

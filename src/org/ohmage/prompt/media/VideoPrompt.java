@@ -15,12 +15,6 @@
  ******************************************************************************/
 package org.ohmage.prompt.media;
 
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-import org.ohmage.Utilities;
-import org.ohmage.activity.SurveyActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +32,12 @@ import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.R;
+import org.ohmage.Utilities;
+import org.ohmage.activity.SurveyActivity;
 
 import java.io.File;
 import java.lang.reflect.Field;

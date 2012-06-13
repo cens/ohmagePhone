@@ -15,13 +15,12 @@
  ******************************************************************************/
 package org.ohmage.prompt.media;
 
-import org.ohmage.activity.SurveyActivity;
-import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.AbstractPrompt;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
 
 import java.io.File;
 import java.util.UUID;
@@ -31,7 +30,6 @@ public abstract class MediaPrompt extends AbstractPrompt {
 	private static final String TAG = "MediaPrompt";
 
 	String uuid;
-	private SurveyActivity mContext;
 
 	public MediaPrompt() {
 		super();
@@ -55,7 +53,6 @@ public abstract class MediaPrompt extends AbstractPrompt {
 
 	@Override
 	public View inflateView(Context context, ViewGroup parent) {
-		mContext = (SurveyActivity) context;
 		return null;
 	}
 
@@ -79,15 +76,8 @@ public abstract class MediaPrompt extends AbstractPrompt {
 	}
 
 	protected File getMedia() {
-		if(uuid == null)
-			uuid = UUID.randomUUID().toString();
-		return Response.getTemporaryResponsesMedia(mContext, uuid);
-	}
-
-	public void save(String responseId) {
-		File image = getMedia();
-		if(image != null && image.exists()) {
-			image.renameTo(Response.getTemporaryResponsesMedia(mContext, uuid));
-		}
+	    if(uuid == null)
+	        uuid = UUID.randomUUID().toString();
+	    return Response.getTemporaryResponsesMedia(uuid);
 	}
 }

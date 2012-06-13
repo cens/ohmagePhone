@@ -1,17 +1,19 @@
 package org.ohmage.responsesync;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.os.RemoteException;
+import android.widget.Toast;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.google.android.imageloader.ImageLoader;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.codehaus.jackson.JsonNode;
 import org.json.JSONArray;
@@ -33,20 +35,18 @@ import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 
-import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.content.OperationApplicationException;
-import android.database.Cursor;
-import android.os.RemoteException;
-import android.widget.Toast;
-
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ResponseSyncService extends WakefulIntentService {
 	private static final String TAG = "ResponseSyncService";
@@ -439,7 +439,7 @@ public class ResponseSyncService extends WakefulIntentService {
 								}
 
 								// As we download thumbnails, we can delete the old images
-								Response.getTemporaryResponsesMedia(ResponseSyncService.this, responseImage.uuid).delete();
+								Response.getTemporaryResponsesMedia(responseImage.uuid).delete();
 							} catch (MalformedURLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
