@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract.Campaigns;
@@ -247,6 +248,8 @@ public class Models {
 				customSingleChoices.clearCampaign(mUrn);
 				customSingleChoices.close();
 			}
+
+			CampaignPreferencesHelper.clearAll(context, mUrn);
 		}
 
 		/**

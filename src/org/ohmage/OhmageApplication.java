@@ -15,19 +15,6 @@
  ******************************************************************************/
 package org.ohmage;
 
-import java.io.IOException;
-import java.net.ContentHandler;
-import java.net.URLStreamHandlerFactory;
-import java.util.Arrays;
-import java.util.List;
-
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbHelper;
-import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
-import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
-import org.ohmage.triggers.glue.TriggerFramework;
-
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -44,6 +31,19 @@ import com.google.android.imageloader.ImageLoader;
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
+import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
+import org.ohmage.triggers.glue.TriggerFramework;
+
+import java.io.IOException;
+import java.net.ContentHandler;
+import java.net.URLStreamHandlerFactory;
+import java.util.Arrays;
+import java.util.List;
 
 public class OhmageApplication extends Application {
 	
@@ -136,6 +136,9 @@ public class OhmageApplication extends Application {
 
 		//clear triggers
 		TriggerFramework.resetAllTriggerSettings(this);
+
+		//delete campaign specific settings
+		CampaignPreferencesHelper.clearAll(this);
 
 		//clear db
 		new DbHelper(this).clearAll();
