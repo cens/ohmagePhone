@@ -394,8 +394,12 @@ public class UploadService extends WakefulIntentService {
 					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
 
 					NotificationHelper.hideMobilityErrorNotification(this);
-				} else if(isBackground && !response.hasAuthError() && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
-					NotificationHelper.showMobilityErrorNotification(this);
+				} else {
+				    // If we were unable to upload one batch, stop for now
+				    c.close();
+				    if(isBackground && !response.hasAuthError() && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
+				        NotificationHelper.showMobilityErrorNotification(this);
+				    break;
 				}
 			}
 			
