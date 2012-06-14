@@ -143,7 +143,7 @@ public class OhmageApi {
 				NotificationHelper.hideAuthNotification(context);
 				break;
 			case FAILURE:
-				Log.e(TAG, "Read failed due to error codes: " + mErrorCodes.toString());
+				Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
 
 				if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
 					new UserPreferencesHelper(context).setUserDisabled(true);
@@ -154,10 +154,10 @@ public class OhmageApi {
 				}
 				break;
 			case HTTP_ERROR:
-				Log.e(TAG, "Read failed due to http error");
+				Log.e(TAG, "Failed due to http error");
 				break;
 			case INTERNAL_ERROR:
-				Log.e(TAG, "Read failed due to internal error");
+				Log.e(TAG, "Failed due to internal error");
 				break;
 			}
 		}
