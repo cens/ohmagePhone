@@ -3,10 +3,16 @@
 
     <!-- List of default servers to be used with this build -->
     <string-array name="servers">
+        <item>https://play.ohmage.org/</item>
+        <item>https://dev.ohmage.org/</item>
+        <item>https://test.ohmage.org/</item>
         <item>https://dev.andwellness.org/</item>
         <item>https://dev.mobilizingcs.org/</item>
         <item>https://internal.ohmage.org/</item>
         <item>https://pilots.ohmage.org/</item>
+        <item>https://demo.ohmage.org/</item>
+        <item>https://dev.omh.io/</item>
+        <item>https://pilots.omh.io/</item>
     </string-array>
 
     <!--
