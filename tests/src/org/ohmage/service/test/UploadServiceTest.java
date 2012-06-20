@@ -1,5 +1,14 @@
 package org.ohmage.service.test;
 
+import android.content.ComponentName;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.test.ServiceTestCase;
+import android.test.mock.MockContext;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.json.JSONArray;
@@ -15,16 +24,7 @@ import org.ohmage.db.test.ResponseCursor;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.UploadService;
 
-import android.content.ComponentName;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.test.ServiceTestCase;
-import android.test.mock.MockContext;
-
-import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Tests the {@link UploadService}
@@ -39,7 +39,7 @@ public class UploadServiceTest extends ServiceTestCase<UploadService> {
 	private OhmageApi mOhmageApi = new OhmageApi() {
 
 		@Override
-		public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, File [] photos) {
+        public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, ArrayList<MediaPart> photos) {
 			return new UploadResponse(Result.SUCCESS, null);
 		}
 	};
@@ -82,7 +82,7 @@ public class UploadServiceTest extends ServiceTestCase<UploadService> {
 		startService(i, new OhmageApi() {
 
 			@Override
-			public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, File [] photos) {
+            public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, ArrayList<MediaPart> photos) {
 				assertEquals(response.campaignUrn, campaignUrn);
 				try {
 					JSONArray json = new JSONArray(responseJson);
@@ -351,8 +351,8 @@ public class UploadServiceTest extends ServiceTestCase<UploadService> {
 		startService(i, new OhmageApi() {
 
 			@Override
-			public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, File [] photos) {
-				return new UploadResponse(Result.FAILURE, new String[] { code });
+			public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, ArrayList<MediaPart> photos) {
+			    return new UploadResponse(Result.FAILURE, new String[] { code });
 			}
 		});
 	}

@@ -15,16 +15,16 @@
  ******************************************************************************/
 package org.ohmage.activity.test;
 
+import android.test.ActivityInstrumentationTestCase2;
+
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.AdminSettingsActivity;
 import org.ohmage.activity.CampaignListActivity;
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.OhmagePreferenceActivity;
-
-import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * <p>This class contains tests for the {@link OhmagePreferenceActivity}</p>
@@ -62,13 +62,13 @@ public class AdminSettingsActivityTest extends ActivityInstrumentationTestCase2<
 	}
 
 	public void testSinglePreconditions() {
-		if(!ConfigHelper.isSingleCampaign()) {
+		if(!ConfigHelper.isSingleCampaignMode()) {
 			fail("Make sure to do these tests single campaign mode on");
 		}
 	}
 
 	public void testCampaignManagement() {
-		if(ConfigHelper.isSingleCampaign()) {
+		if(ConfigHelper.isSingleCampaignMode()) {
 			solo.clickOnText("Campaign Management");
 			solo.assertCurrentActivity("Expected Campaign List", CampaignListActivity.class);
 			solo.goBack();
@@ -115,9 +115,10 @@ public class AdminSettingsActivityTest extends ActivityInstrumentationTestCase2<
 	public void testUpdatePassword() {
 		solo.clickOnText("Update Password");
 		solo.assertCurrentActivity("Expected Login Activity", LoginActivity.class);
-		assertFalse(solo.getEditText(0).isEnabled());
+		boolean enabled = solo.getEditText(0).isEnabled();
 		solo.goBack();
 		solo.goBack();
+		assertFalse(enabled);
 		solo.assertCurrentActivity("Expected Admin Settings Activity", AdminSettingsActivity.class);
 	}
 

@@ -15,13 +15,14 @@
  ******************************************************************************/
 package org.ohmage.activity.test;
 
+import android.test.ActivityInstrumentationTestCase2;
+
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
+import org.ohmage.R;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.OhmagePreferenceActivity;
-
-import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * <p>This class contains tests for the {@link OhmagePreferenceActivity}</p>
@@ -57,17 +58,17 @@ public class AdminSettingsDashboardTest extends ActivityInstrumentationTestCase2
 	}
 
 	public void testPreconditions() {
-		if(ConfigHelper.isSingleCampaign() && !Config.ADMIN_MODE) {
+		if(ConfigHelper.isSingleCampaignMode() && !getActivity().getResources().getBoolean(R.bool.admin_mode)) {
 			fail("Make sure to do these tests single campaign mode off and admin mode on");
-		} else if(ConfigHelper.isSingleCampaign()) {
+		} else if(ConfigHelper.isSingleCampaignMode()) {
 			fail("Make sure to do these tests single campaign mode off");
-		} else if(!Config.ADMIN_MODE) {
+		} else if(!getActivity().getResources().getBoolean(R.bool.admin_mode)) {
 			fail("Make sure to do these tests with admin mode on");
 		}
 	}
 
 	public void testCampaigns() {
-		if(!ConfigHelper.isSingleCampaign()) {
+		if(!ConfigHelper.isSingleCampaignMode()) {
 			assertTrue(solo.searchText("Campaigns", true));
 		}
 	}
