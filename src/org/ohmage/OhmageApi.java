@@ -206,6 +206,24 @@ public class OhmageApi {
 			if (rootJson.has("token"))
 				mToken = rootJson.getString("token");
 		}
+
+		@Override
+		public void handleError(Context context) {
+            switch(mResult) {
+            case SUCCESS:
+                NotificationHelper.hideAuthNotification(context);
+                break;
+            case FAILURE:
+                Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
+                break;
+            case HTTP_ERROR:
+                Log.e(TAG, "Failed due to http error");
+                break;
+            case INTERNAL_ERROR:
+                Log.e(TAG, "Failed due to internal error");
+                break;
+            }
+        }
 	}
 
 	public static class UploadResponse extends Response {
