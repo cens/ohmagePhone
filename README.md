@@ -42,3 +42,16 @@ you can use `ant release` if you want to sign it with a release key.
 Copy it to the phone and open it to install. Alternatively, if the phone is plugged in you 
 can use `adb install bin/<apk_name>.apk` (where `<apk_name>` is the name of the apk which was 
 shown by the ant command).
+
+Testing
+-------
+
+We are using a combination of [robotium](http://code.google.com/p/robotium/) and
+[calabash-android](https://github.com/calabash/calabash-android) (which is basically an android
+implementation of [cucumber](https://github.com/cucumber/cucumber)). Robotium tests are in the test folder
+and can be run as unit tests. The cucumber tests requires calabash-android to be installed. At this point
+this [fork](https://github.com/cketcham/calabash-android) must be used to do the testing as it includes
+additional functionality not available in the main branch. Clone the fork, change into the `ruby-gem`
+directory and run `rake install` (you might need `sudo rake install` depending on how your gems are
+installed.) Then you can run `calabash-android build` to build the testing apk, and finally
+`calabash-android run` to start the tests.

@@ -39,7 +39,8 @@
                 <EditText
                     android:id="@+id/login_username"
                     style="@style/SignupEdit"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="textEmailAddress"
+                    android:contentDescription="username field" />
 
                 <TextView
                     style="@style/SignupLabel"
@@ -50,7 +51,8 @@
                     style="@style/SignupEdit"
                     android:inputType="textPassword"
                     android:password="true"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:contentDescription="password field" />
 
                 <RelativeLayout
                     android:id="@+id/login_server_container"
@@ -70,7 +72,8 @@
                         android:layout_alignParentRight="true"
                         android:layout_below="@id/server_title"
                         android:layout_marginRight="@dimen/gutter"
-                        android:src="@drawable/plus" />
+                        android:src="@drawable/plus"
+                        android:contentDescription="choose server" />
 
                     <EditText
                         android:id="@+id/login_server_edit"
