@@ -142,7 +142,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 
 						} else { //campaign has not been downloaded
 
-							if (running) { //campaign is running
+							if (running && participant) { //campaign is running and we are a participant
 								// We don't need to delete it
 								toDelete.remove(c.mUrn);
 								operations.add(ContentProviderOperation.newInsert(Campaigns.CONTENT_URI).withValues(c.toCV()).build());
