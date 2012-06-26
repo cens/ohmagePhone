@@ -30,6 +30,7 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -183,10 +184,18 @@ public class UploadService extends WakefulIntentService {
 				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
 				responseJson.put("survey_launch_context", new JSONObject(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
 				responseJson.put("responses", new JSONArray(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON))));
-				
+
 				ContentResolver cr2 = getContentResolver();
-				Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId), new String [] {PromptResponses.PROMPT_RESPONSE_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE}, SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR " + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?", new String [] { "photo", "video" }, null);
-				
+                Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId),
+                        new String[] {
+                                PromptResponses.PROMPT_RESPONSE_VALUE,
+                                SurveyPrompts.SURVEY_PROMPT_TYPE
+                        }, PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND ("
+                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
+                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?)", new String[] {
+                                AbstractPrompt.SKIPPED_VALUE, "photo", "video"
+                        }, null);
+
 				while (promptsCursor.moveToNext()) {
 					media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(), promptsCursor.getString(0)), promptsCursor.getString(1)));
 				}
