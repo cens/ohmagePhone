@@ -126,17 +126,17 @@
 	<target name="-set-output-file">
 		<sequential>
 			<read-release-name />
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}${internal.release.name}-${manifest.versionName}-unaligned.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}${internal.release.name}-${manifest.versionName}.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-unaligned.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}.apk" />
 		</sequential>
 	</target>
 
 	<target name="-set-release-output-file">
 		<sequential>
 			<read-release-name />
-			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}${internal.release.name}-${manifest.versionName}-unaligned-SIGNED.apk" />
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}${internal.release.name}-${manifest.versionName}-packaged-SIGNED.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}${internal.release.name}-${manifest.versionName}-SIGNED.apk" />
+			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-unaligned-SIGNED.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-packaged-SIGNED.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-SIGNED.apk" />
 		</sequential>
 	</target>
 
