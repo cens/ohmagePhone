@@ -37,6 +37,8 @@ import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
+import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.service.UploadService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import java.io.IOException;
@@ -116,15 +118,26 @@ public class OhmageApplication extends Application {
 		}
 	}
 
-	/**
-	 * This method verifies that the state of ohmage is correct when it starts up.
-	 * 
-	 * For now it changes responses which say they are waiting for a location to say they have no location.
-	 */
+    /**
+     * This method verifies that the state of ohmage is correct when it starts
+     * up. fixes response state for crashes while waiting for:
+     * 
+     * <ul>
+     *  <li>location from the {@link SurveyGeotagService}, waiting for location status</li>
+     *  <li>{@link UploadService}, uploading or queued status</li>
+     * <ul>
+     * 
+     */
 	private void verifyState() {
 		ContentValues values = new ContentValues();
 		values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
-		getContentResolver().update(Responses.CONTENT_URI, values, Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION, null);
+        getContentResolver().update(
+                Responses.CONTENT_URI,
+                values,
+                Responses.RESPONSE_STATUS + "=" + Response.STATUS_QUEUED + " OR "
+                        + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADING + " OR "
+                        + Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION,
+                null);
 	}
 
 	public void resetAll() {
