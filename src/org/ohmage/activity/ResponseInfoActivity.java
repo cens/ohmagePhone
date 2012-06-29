@@ -449,7 +449,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			@Override
 			public int getViewTypeCount() {
-				return 10;
+				return 11;
 			}
 
 			@Override
