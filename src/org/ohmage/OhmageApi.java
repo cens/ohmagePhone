@@ -56,6 +56,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.CountingInputStream;
+import org.ohmage.conditionevaluator.DataPoint.PromptType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -451,9 +452,9 @@ public class OhmageApi {
 
 		public MediaPart(File file, String type) {
 			mFile = file;
-			if("image".equals(type))
+			if(PromptType.photo.toString().equals(type))
 				mType = IMAGE_TYPE;
-			else if("video".equals(type))
+			else if(PromptType.video.toString().equals(type))
 				mType = VIDEO_TYPE;
 			else
 				throw new RuntimeException("Invalid media type");
