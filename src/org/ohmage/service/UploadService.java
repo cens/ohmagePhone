@@ -190,13 +190,15 @@ public class UploadService extends WakefulIntentService {
                         new String[] {
                                 PromptResponses.PROMPT_RESPONSE_VALUE,
                                 SurveyPrompts.SURVEY_PROMPT_TYPE
-                        }, PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND ("
+                        }, PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND "
+                                + PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND ("
                                 + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
                                 + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?)", new String[] {
-                                AbstractPrompt.SKIPPED_VALUE, "photo", "video"
+                                AbstractPrompt.SKIPPED_VALUE, AbstractPrompt.NOT_DISPLAYED_VALUE,
+                                "photo", "video"
                         }, null);
 
-				while (promptsCursor.moveToNext()) {
+                while (promptsCursor.moveToNext()) {
 					media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(), promptsCursor.getString(0)), promptsCursor.getString(1)));
 				}
 				
