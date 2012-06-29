@@ -40,6 +40,8 @@ import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.responsesync.ResponseSyncService;
+import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.service.UploadService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import java.io.IOException;
@@ -108,23 +110,35 @@ public class OhmageApplication extends Application {
 		verifyState();
 	}
 
-	/**
-	 * This method verifies that the state of ohmage is correct when it starts up.
-	 * 
-	 * For now it changes responses which say they are waiting for a location to say they have no location.
-	 * It also deletes any responses which have no uuid
-	 */
-	private void verifyState() {
-		ContentValues values = new ContentValues();
-		values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
-		getContentResolver().update(Responses.CONTENT_URI, values, Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION, null);
+    /**
+     * This method verifies that the state of ohmage is correct when it starts
+     * up. fixes response state for crashes while waiting for:
+     * <ul>
+     * <li>location from the {@link SurveyGeotagService}, waiting for location
+     * status</li>
+     * <li>{@link UploadService}, uploading or queued status</li>
+     * <ul>
+     * It also deletes any responses which have no uuid
+     */
+    private void verifyState() {
+        ContentValues values = new ContentValues();
+        values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
+        getContentResolver().update(
+                Responses.CONTENT_URI,
+                values,
+                Responses.RESPONSE_STATUS + "=" + Response.STATUS_QUEUED + " OR "
+                        + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADING + " OR "
+                        + Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION,
+                null);
 
-       if(getContentResolver().delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " is null", null) != 0) {
-           // If there were some responses with no uuid, start the feedback service
-           Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
-           WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
-       }
-	}
+        if (getContentResolver().delete(Responses.CONTENT_URI,
+                Responses.RESPONSE_UUID + " is null", null) != 0) {
+            // If there were some responses with no uuid, start the feedback
+            // service
+            Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
+            WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
+        }
+    }
 
 	public void resetAll() {
 		//clear everything?
