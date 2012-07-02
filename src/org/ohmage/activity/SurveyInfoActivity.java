@@ -153,7 +153,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	
 	protected void populateCommands(final String surveyID, final String campaignUrn, final String surveyTitle, final String surveySubmitText, int campaignStatus) {
 		// first remove all the commands from the action bar...
-		ActionBarControl actionBar = getActionBar();
+		ActionBarControl actionBar = getActionBarControl();
 		actionBar.clearActionBarCommands();
 		
 		// gather up the commands in the command tray so we can hide/show them

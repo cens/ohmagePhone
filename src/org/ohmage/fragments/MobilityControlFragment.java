@@ -171,7 +171,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 			String action = intent.getAction();
 
 			if(getActivity() instanceof BaseActivity)
-				((BaseActivity) getActivity()).getActionBar().setProgressVisible(UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
+				((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
 
 			mUploadButton.setEnabled(!UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
 

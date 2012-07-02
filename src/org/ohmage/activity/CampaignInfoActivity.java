@@ -135,7 +135,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	protected void populateCommands(final String campaignUrn, final int campaignStatus) {
 		// first remove all the commands from the action bar...
-		ActionBarControl actionBar = getActionBar();
+		ActionBarControl actionBar = getActionBarControl();
 		actionBar.clearActionBarCommands();
 		
 		// ...and gather up the commands in the command tray so we can hide/show them

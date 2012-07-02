@@ -35,7 +35,7 @@ public class DashboardActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.dashboard_layout);
-		getActionBar().setShowLogo(true);
+		getActionBarControl().setShowLogo(true);
 		
 		// gather up all the buttons and tie them to the dashboard button listener
 		// you'll specify what the buttons do in DashboardButtonListener rather than here
