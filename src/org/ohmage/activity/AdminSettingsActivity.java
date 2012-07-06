@@ -1,5 +1,15 @@
 package org.ohmage.activity;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 
@@ -8,15 +18,6 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
-
-import android.app.Dialog;
-import android.content.Intent;
-import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
 public class AdminSettingsActivity extends PreferenceActivity  {
 
@@ -41,6 +42,10 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 		setTitle(R.string.admin_settings);
 
 		mAccountHelper = new AccountHelper(this);
+
+		PreferenceManager prefMgr = getPreferenceManager();
+		prefMgr.setSharedPreferencesName(UserPreferencesHelper.getPreferencesName(this));
+		prefMgr.setSharedPreferencesMode(MODE_PRIVATE);
 
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.admin_preferences);

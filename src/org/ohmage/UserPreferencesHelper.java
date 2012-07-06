@@ -15,12 +15,12 @@
  ******************************************************************************/
 package org.ohmage;
 
-import org.ohmage.db.DbContract.Responses;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
+
+import org.ohmage.db.DbContract.Responses;
 
 import java.util.Calendar;
 
@@ -53,7 +53,11 @@ public class UserPreferencesHelper {
 	}
 
 	public SharedPreferences getUserSharedPreferences(Context context) {
-		return context.getSharedPreferences(context.getPackageName() + "_user_preferences", Context.MODE_PRIVATE);
+		return context.getSharedPreferences(getPreferencesName(context), Context.MODE_PRIVATE);
+	}
+
+	public static String getPreferencesName(Context context) {
+	    return context.getPackageName() + "_user_preferences";
 	}
 
 	public boolean clearAll() {
