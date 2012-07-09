@@ -341,5 +341,21 @@
 
 		<uses-library android:name="com.google.android.maps" />
 
+		<service
+            android:name=".probemanager.ProbeManager"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="org.ohmage.probemanager.ACTION_WRITE_PROBE" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name=".probemanager.ProbeContentProvider"
+            android:authorities="org.ohmage.probemanager"
+            android:enabled="true"
+            android:exported="true" >
+	    </provider>
+
 	</application>
 </manifest> 
