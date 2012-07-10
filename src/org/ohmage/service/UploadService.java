@@ -8,7 +8,6 @@ import android.net.Uri;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
@@ -30,10 +29,10 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Response;
+import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.prompt.AbstractPrompt;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class UploadService extends WakefulIntentService {
@@ -266,159 +265,100 @@ public class UploadService extends WakefulIntentService {
 			NotificationHelper.showUploadErrorNotification(this);
 		}
 	}
-	
-	private void uploadMobility(Intent intent) {
-		
-		sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_STARTED));
-		
-		boolean uploadSensorData = true;
-		
-		UserPreferencesHelper helper = new UserPreferencesHelper(this);
-		
-		String username = helper.getUsername();
-		String hashedPassword = helper.getHashedPassword();
-		long uploadAfterTimestamp = helper.getLastMobilityUploadTimestamp();
-		if (uploadAfterTimestamp == 0) {
-			uploadAfterTimestamp = helper.getLoginTimestamp();
-		}
-		
-		Long now = System.currentTimeMillis();
-		Cursor c = MobilityInterface.getMobilityCursor(this, uploadAfterTimestamp);
-		
-		if (c != null && c.getCount() > 0) {
-			
-			Log.i(TAG, "There are " + String.valueOf(c.getCount()) + " mobility points to upload.");
-			
-			c.moveToFirst();
-			
-			int remainingCount = c.getCount();
-			int limit = 60;
-			
-			while (remainingCount > 0) {
-				
-				if (remainingCount < limit) {
-					limit = remainingCount;
-				}
-				
-				Log.i(TAG, "Attempting to upload a batch with " + String.valueOf(limit) + " mobility points.");
-				
-				JSONArray mobilityJsonArray = new JSONArray();
-				
-				for (int i = 0; i < limit; i++) {
-					JSONObject mobilityPointJson = new JSONObject();
-					
-					try {
-						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						Long time = Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_TIME)));
-						if (i == limit - 1) {
-							uploadAfterTimestamp = time;
-						}
-						
-						mobilityPointJson.put("id", c.getString(c.getColumnIndex(MobilityInterface.KEY_ID)));
-						mobilityPointJson.put("time", time);
-						mobilityPointJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
-						if (uploadSensorData) {
-							mobilityPointJson.put("subtype", "sensor_data");
-							JSONObject dataJson = new JSONObject();
-							dataJson.put("mode", c.getString(c.getColumnIndex(MobilityInterface.KEY_MODE)));
-							
-							try {
-								dataJson.put("speed", Float.parseFloat(c.getString(c.getColumnIndex(MobilityInterface.KEY_SPEED))));
-							} catch (NumberFormatException e) {
-								dataJson.put("speed", "NaN");
-							} catch (JSONException e) {
-								dataJson.put("speed", "NaN");
-							}
-							
-							String accelDataString = c.getString(c.getColumnIndex(MobilityInterface.KEY_ACCELDATA));
-							if (accelDataString == null || accelDataString.equals("")) {
-								accelDataString = "[]";
-							}
-							dataJson.put("accel_data", new JSONArray(accelDataString));
-							
-							String wifiDataString = c.getString(c.getColumnIndex(MobilityInterface.KEY_WIFIDATA));
-							if (wifiDataString == null || wifiDataString.equals("")) {
-								wifiDataString = "{}";
-							}
-							dataJson.put("wifi_data", new JSONObject(wifiDataString));
-							
-							mobilityPointJson.put("data", dataJson);
-						} else {
-							mobilityPointJson.put("subtype", "mode_only");
-							mobilityPointJson.put("mode", c.getString(c.getColumnIndex(MobilityInterface.KEY_MODE)));
-						}
-						String locationStatus = c.getString(c.getColumnIndex(MobilityInterface.KEY_STATUS));
-						mobilityPointJson.put("location_status", locationStatus);
-						if (! locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
-							JSONObject locationJson = new JSONObject();
-							
-							try {
-								locationJson.put("latitude", Double.parseDouble(c.getString(c.getColumnIndex(MobilityInterface.KEY_LATITUDE))));
-							} catch (NumberFormatException e) {
-								locationJson.put("latitude", "NaN");
-							} catch (JSONException e) {
-								locationJson.put("latitude", "NaN");
-							}
-							
-							try {
-								locationJson.put("longitude", Double.parseDouble(c.getString(c.getColumnIndex(MobilityInterface.KEY_LONGITUDE))));
-							} catch (NumberFormatException e) {
-								locationJson.put("longitude", "NaN");
-							}  catch (JSONException e) {
-								locationJson.put("longitude", "NaN");
-							}
-							
-							locationJson.put("provider", c.getString(c.getColumnIndex(MobilityInterface.KEY_PROVIDER)));
-							
-							try {
-								locationJson.put("accuracy", Float.parseFloat(c.getString(c.getColumnIndex(MobilityInterface.KEY_ACCURACY))));
-							} catch (NumberFormatException e) {
-								locationJson.put("accuracy", "NaN");
-							} catch (JSONException e) {
-								locationJson.put("accuracy", "NaN");
-							}
-							
-							locationJson.put("time", Long.parseLong(c.getString(c.getColumnIndex(MobilityInterface.KEY_LOC_TIMESTAMP))));
-							locationJson.put("timezone", c.getString(c.getColumnIndex(MobilityInterface.KEY_TIMEZONE)));
-							
-							mobilityPointJson.put("location", locationJson);
-						}
-						
-					} catch (JSONException e) {
-						Log.e(TAG, "error creating mobility json", e);
-						if(isBackground)
-							NotificationHelper.showMobilityErrorNotification(this);
-						throw new RuntimeException(e);
-					}
-					
-					mobilityJsonArray.put(mobilityPointJson);
-					
-					c.moveToNext();
-				}
-				UploadResponse response = mApi.mobilityUpload(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
-				response.handleError(this);
 
-				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
-					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
-					helper.putLastMobilityUploadTimestamp(uploadAfterTimestamp);
-					remainingCount -= limit;
-					Log.i(TAG, "There are " + String.valueOf(remainingCount) + " mobility points remaining to be uploaded.");
+    private interface ProbeQuery {
+        static final String[] PROJECTION = new String[] {
+                Probes._ID, Probes.OBSERVER_ID, Probes.OBSERVER_VERSION, Probes.STREAM_ID,
+                Probes.STREAM_VERSION, Probes.PROBE_METADATA, Probes.PROBE_DATA
+        };
 
-					NotificationHelper.hideMobilityErrorNotification(this);
-				} else {
-				    // If we were unable to upload one batch, stop for now
-				    c.close();
-				    if(isBackground && !response.hasAuthError() && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
-				        NotificationHelper.showMobilityErrorNotification(this);
-				    break;
-				}
-			}
-			
-			c.close();
-		} else {
-			Log.i(TAG, "No mobility points to upload.");
-		}
-		
-		sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_FINISHED));
-	}
+        static final int _ID = 0;
+        static final int OBSERVER_ID = 1;
+        static final int OBSERVER_VERSION = 2;
+        static final int STREAM_ID = 3;
+        static final int STREAM_VERSION = 4;
+        static final int PROBE_METADATA = 5;
+        static final int PROBE_DATA = 6;
+    }
+
+    private void uploadMobility(Intent intent) {
+
+        sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_STARTED));
+
+        Cursor c = getContentResolver().query(Probes.CONTENT_URI, ProbeQuery.PROJECTION, null,
+                null, Probes.OBSERVER_ID + ", " + Probes.OBSERVER_VERSION);
+
+        JSONArray probes = new JSONArray();
+        long maxId = 0;
+
+        for (int i = 0; i < c.getCount(); i++) {
+            c.moveToPosition(i);
+            addProbe(probes, c);
+            maxId = Math.max(c.getLong(ProbeQuery._ID), maxId);
+
+            // Upload if we are at the last point or we have 100 points already
+            if (c.isLast() || i % 100 == 0) {
+                if (!upload(probes, c))
+                    break;
+            } else {
+                String observerId = c.getString(ProbeQuery.OBSERVER_ID);
+                String observerVersion = c.getString(ProbeQuery.OBSERVER_VERSION);
+
+                c.moveToNext();
+
+                // Upload if the next point is from a different observer
+                if (!observerId.equals(c.getString(ProbeQuery.OBSERVER_ID))
+                        || !observerVersion.equals(c.getString(ProbeQuery.OBSERVER_VERSION))) {
+                    if (!upload(probes, c))
+                        break;
+                }
+
+                c.moveToPrevious();
+            }
+        }
+
+        c.close();
+        getContentResolver().delete(Probes.CONTENT_URI, Probes._ID + "<=" + maxId, null);
+        sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_FINISHED));
+    }
+
+    private boolean upload(JSONArray probes, Cursor c) {
+
+        UserPreferencesHelper helper = new UserPreferencesHelper(this);
+
+        String username = helper.getUsername();
+        String hashedPassword = helper.getHashedPassword();
+
+        if (probes.length() > 0) {
+            UploadResponse response = mApi.observerUpload(ConfigHelper.serverUrl(), username,
+                    hashedPassword, OhmageApi.CLIENT_NAME, c.getString(ProbeQuery.OBSERVER_ID),
+                    c.getString(ProbeQuery.OBSERVER_VERSION), probes.toString());
+            response.handleError(this);
+
+            if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
+                NotificationHelper.hideMobilityErrorNotification(this);
+            } else {
+                if (isBackground && !response.hasAuthError()
+                        && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
+                    NotificationHelper.showMobilityErrorNotification(this);
+                return false;
+            }
+            probes = new JSONArray();
+        }
+        return true;
+    }
+
+    public void addProbe(JSONArray probes, Cursor c) {
+        try {
+            JSONObject probe = new JSONObject();
+            probe.put("stream_id", c.getString(ProbeQuery.STREAM_ID));
+            probe.put("stream_version", c.getInt(ProbeQuery.STREAM_VERSION));
+            probe.put("data", new JSONObject(c.getString(ProbeQuery.PROBE_DATA)));
+            probe.put("metadata", new JSONObject(c.getString(ProbeQuery.PROBE_METADATA)));
+            probes.put(probe);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }

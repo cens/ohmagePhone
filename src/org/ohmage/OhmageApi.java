@@ -71,7 +71,7 @@ public class OhmageApi {
 
 	private static final String AUTHENTICATE_PATH = "app/user/auth";
 	private static final String AUTHENTICATE_TOKEN_PATH = "app/user/auth_token";
-	private static final String MOBILITY_UPLOAD_PATH = "app/mobility/upload";
+	private static final String OBSERVER_UPLOAD_PATH = "app/stream/upload";
 	private static final String SURVEY_UPLOAD_PATH = "app/survey/upload";
 	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
 	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
@@ -400,18 +400,20 @@ public class OhmageApi {
 		}
 	}
 
-	public UploadResponse mobilityUpload(String serverUrl, String username, String hashedPassword, String client, String data) {
+	public UploadResponse observerUpload(String serverUrl, String username, String hashedPassword, String client, String observerId, String observerVersion, String data) {
 
 		final boolean GZIP = true;
 
-		String url = serverUrl + MOBILITY_UPLOAD_PATH;
+		String url = serverUrl + OBSERVER_UPLOAD_PATH;
 
 		try {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 			nameValuePairs.add(new BasicNameValuePair("user", username));
 			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
 			nameValuePairs.add(new BasicNameValuePair("client", client));
-			nameValuePairs.add(new BasicNameValuePair("data", data));
+			nameValuePairs.add(new BasicNameValuePair("observer_id", observerId));
+	        nameValuePairs.add(new BasicNameValuePair("observer_version", observerVersion));
+	        nameValuePairs.add(new BasicNameValuePair("data", data));
 			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
 			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));

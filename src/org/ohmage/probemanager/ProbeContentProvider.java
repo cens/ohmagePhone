@@ -29,8 +29,13 @@ public class ProbeContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        switch (sUriMatcher.match(uri)) {
+
+            case MatcherTypes.PROBES:
+                return dbHelper.getWritableDatabase().delete(Tables.Probes, selection == null ? "1" : selection, selectionArgs);
+            default:
+                throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
+        }
     }
 
     @Override
