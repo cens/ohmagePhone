@@ -16,16 +16,6 @@
 package org.ohmage.activity;
 
 
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.NIHConfig;
-import org.ohmage.NIHConfig.ExtraPromptData;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.db.DbContract.PromptResponses;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Campaign;
-
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
@@ -44,6 +34,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.NIHConfig;
+import org.ohmage.NIHConfig.ExtraPromptData;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.db.DbContract.PromptResponses;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
 
 import java.util.HashMap;
 
@@ -273,17 +273,16 @@ public class PostSurveyActivity extends FragmentActivity {
 				@Override
 				public void onClick(View v) {
 					dismiss();
-					getActivity().finish();
 				}
 			});
 
 			return view;
 		}
 
-		@Override
-		public void onDismiss(DialogInterface dialog) {
+	    @Override
+        public void onDismiss(DialogInterface dialog) {
+	        getActivity().finish();
 			super.onDismiss(dialog);
-			getActivity().finish();
 		}
 	}
 }
