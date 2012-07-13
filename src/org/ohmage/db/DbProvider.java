@@ -1,5 +1,17 @@
 package org.ohmage.db;
 
+import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.OperationApplicationException;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.util.Log;
+
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -12,18 +24,6 @@ import org.ohmage.db.Models.DbModel;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.triggers.glue.TriggerFramework;
-
-import android.content.ContentProvider;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.OperationApplicationException;
-import android.content.UriMatcher;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
