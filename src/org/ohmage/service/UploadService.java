@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -354,7 +355,9 @@ public class UploadService extends WakefulIntentService {
             probe.put("stream_id", c.getString(ProbeQuery.STREAM_ID));
             probe.put("stream_version", c.getInt(ProbeQuery.STREAM_VERSION));
             probe.put("data", new JSONObject(c.getString(ProbeQuery.PROBE_DATA)));
-            probe.put("metadata", new JSONObject(c.getString(ProbeQuery.PROBE_METADATA)));
+            String metadata = c.getString(ProbeQuery.PROBE_METADATA);
+            if(!TextUtils.isEmpty(metadata))
+                probe.put("metadata", new JSONObject(metadata));
             probes.put(probe);
         } catch (JSONException e) {
             // TODO Auto-generated catch block
