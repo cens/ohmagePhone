@@ -15,6 +15,13 @@ public class DbContract {
     public static final String CONTENT_AUTHORITY = "org.ohmage.probemanager";
     private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
+    public interface BaseProbeColumns {
+        /** Upload priority */
+        String UPLOAD_PRIORITY = "upload_priority";
+        /** Username */
+        String USERNAME = "username";
+    }
+
     interface ProbeColumns {
         /** Unique string identifying the observer */
         String OBSERVER_ID = "observer_id";
@@ -24,8 +31,6 @@ public class DbContract {
         String STREAM_ID = "stream_id";
         /** Version to identify stream */
         String STREAM_VERSION = "stream_version";
-        /** Upload priority */
-        String UPLOAD_PRIORITY = "upload_priority";
         /** Probe metadata */
         String PROBE_METADATA = "probe_metadata";
         /** Probe Data */
@@ -37,7 +42,7 @@ public class DbContract {
     /**
      * Represents a probe.
      */
-    public static final class Probes implements BaseColumns, ProbeColumns {
+    public static final class Probes implements BaseColumns, BaseProbeColumns, ProbeColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PROBES)
                 .build();
@@ -60,10 +65,10 @@ public class DbContract {
     /**
      * Represents a response submitted from a remote apk
      */
-    public static final class Responses implements BaseColumns, ResponseColumns {
+    public static final class Responses implements BaseColumns, BaseProbeColumns, ResponseColumns {
 
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_RESPONSES)
-                .build();
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(PATH_RESPONSES).build();
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.ohmage.response";
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.ohmage.response";
 

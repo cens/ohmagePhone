@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 
@@ -40,6 +41,7 @@ public class ProbeManager extends Service {
     }
 
     PointFlushHandler mHandler = new PointFlushHandler(this);
+    private UserPreferencesHelper mUserPrefs;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -57,6 +59,7 @@ public class ProbeManager extends Service {
                 values.put(Probes.UPLOAD_PRIORITY, uploadPriority);
                 values.put(Probes.PROBE_METADATA, metadata);
                 values.put(Probes.PROBE_DATA, data);
+                values.put(Probes.USERNAME, mUserPrefs.getUsername());
 
                 if (BUFFER_POINTS) {
                     synchronized (points) {
@@ -78,10 +81,18 @@ public class ProbeManager extends Service {
                 ContentValues values = new ContentValues();
                 values.put(Responses.CAMPAIGN_URN, campaignUrn);
                 values.put(Responses.CAMPAIGN_CREATED, campaignCreationTimestamp);
+                values.put(Responses.UPLOAD_PRIORITY, uploadPriority);
                 values.put(Responses.RESPONSE_DATA, data);
+                values.put(Responses.USERNAME, mUserPrefs.getUsername());
                 return getContentResolver().insert(Responses.CONTENT_URI, values) != null;
             }
         };
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mUserPrefs = new UserPreferencesHelper(this);
     }
 
     @Override

@@ -27,7 +27,7 @@ import org.ohmage.probemanager.DbContract.Responses;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "probes.db";
-    private static final int DB_VERSION = 4;
+    private static final int DB_VERSION = 5;
 
     public interface Tables {
         static final String Probes = "probes";
@@ -47,6 +47,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 + Probes.STREAM_ID + " TEXT NOT NULL, "
                 + Probes.STREAM_VERSION + " INTEGER NOT NULL, "
                 + Probes.UPLOAD_PRIORITY + " INTEGER DEFAULT 0, "
+                + Probes.USERNAME + " TEXT NOT NULL, "
                 + Probes.PROBE_METADATA + " TEXT, "
                 + Probes.PROBE_DATA + " TEXT);");
 
@@ -54,6 +55,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + Responses.CAMPAIGN_URN + " TEXT NOT NULL, "
                 + Responses.CAMPAIGN_CREATED + " TEXT NOT NULL, "
+                + Responses.UPLOAD_PRIORITY + " INTEGER DEFAULT 0, "
+                + Responses.USERNAME + " TEXT NOT NULL, "
                 + Responses.RESPONSE_DATA + " TEXT);");
     }
 

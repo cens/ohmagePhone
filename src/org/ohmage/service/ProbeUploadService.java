@@ -20,6 +20,7 @@ import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.UploadResponse;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 
@@ -42,6 +43,8 @@ public class ProbeUploadService extends WakefulIntentService {
 
     private boolean isBackground;
 
+    private UserPreferencesHelper mUserPrefs;
+
     public ProbeUploadService() {
         super(TAG);
     }
@@ -60,6 +63,8 @@ public class ProbeUploadService extends WakefulIntentService {
 
     @Override
     protected void doWakefulWork(Intent intent) {
+
+        mUserPrefs = new UserPreferencesHelper(ProbeUploadService.this);
 
         if (mApi == null)
             setOhmageApi(new OhmageApi(this));
@@ -105,8 +110,10 @@ public class ProbeUploadService extends WakefulIntentService {
 
             uploadStarted();
 
-            Cursor c = getContentResolver().query(getContentURI(), getProjection(), null,
-                    null, getNameColumn() + ", " + getVersionColumn());
+            Cursor c = getContentResolver().query(getContentURI(), getProjection(),
+                    BaseProbeColumns.USERNAME + "=?", new String[] {
+                        mUserPrefs.getUsername()
+                    }, getNameColumn() + ", " + getVersionColumn());
 
             int id_idx = c.getColumnIndex(BaseColumns._ID);
 
@@ -141,16 +148,18 @@ public class ProbeUploadService extends WakefulIntentService {
             }
 
             c.close();
-            getContentResolver().delete(getContentURI(), BaseColumns._ID + "<=" + maxId, null);
+            getContentResolver().delete(getContentURI(),
+                    BaseColumns._ID + "<=" + maxId + " AND " + BaseProbeColumns.USERNAME + "=?",
+                    new String[] {
+                        mUserPrefs.getUsername()
+                    });
             uploadFinished();
         }
 
         private boolean upload(JSONArray probes, Cursor c) {
 
-            UserPreferencesHelper helper = new UserPreferencesHelper(ProbeUploadService.this);
-
-            String username = helper.getUsername();
-            String hashedPassword = helper.getHashedPassword();
+            String username = mUserPrefs.getUsername();
+            String hashedPassword = mUserPrefs.getHashedPassword();
 
             if (probes.length() > 0) {
                 UploadResponse response = uploadCall(ConfigHelper.serverUrl(), username,
