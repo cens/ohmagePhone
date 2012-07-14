@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -39,6 +40,8 @@ import edu.ucla.cens.systemlog.Log;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.probemanager.DbContract.BaseProbeColumns;
+import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.service.ProbeUploadService;
 import org.ohmage.ui.BaseActivity;
 
@@ -338,9 +341,8 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 				if (uploadAfterTimestamp == 0) {
 					uploadAfterTimestamp = mPrefHelper.getLoginTimestamp();
 				}
-				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI,
-						MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > " + uploadAfterTimestamp + " AND "
-								+ filterUser, filterUserParams, null);
+				return new CursorLoader(getActivity(), Probes.CONTENT_URI,
+						new String[] { BaseColumns._ID }, BaseProbeColumns.USERNAME + "=?", new String[] { username }, null);
 
 			default:
 				return null;
