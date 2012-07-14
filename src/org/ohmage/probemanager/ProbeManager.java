@@ -22,7 +22,8 @@ public class ProbeManager extends Service {
     private static final int MAX_BUFFER = 600;
     private static final long FLUSH_DELAY = 300;
 
-    ArrayList<ContentValues> points = new ArrayList<ContentValues>();
+    ArrayList<ContentValues> probePoints = new ArrayList<ContentValues>();
+    ArrayList<ContentValues> responsePoints = new ArrayList<ContentValues>();
 
     static class PointFlushHandler extends Handler {
         private final WeakReference<ProbeManager> mService;
@@ -35,7 +36,8 @@ public class ProbeManager extends Service {
         public void handleMessage(Message msg) {
             ProbeManager service = mService.get();
             if (service != null) {
-                service.flushPoints();
+                service.flushProbes();
+                service.flushResponses();
             }
         }
     }
@@ -62,10 +64,10 @@ public class ProbeManager extends Service {
                 values.put(Probes.USERNAME, mUserPrefs.getUsername());
 
                 if (BUFFER_POINTS) {
-                    synchronized (points) {
-                        points.add(values);
-                        if (points.size() > MAX_BUFFER)
-                            flushPoints();
+                    synchronized (probePoints) {
+                        probePoints.add(values);
+                        if (probePoints.size() > MAX_BUFFER)
+                            flushProbes();
                         else
                             queueFlush();
                     }
@@ -84,7 +86,19 @@ public class ProbeManager extends Service {
                 values.put(Responses.UPLOAD_PRIORITY, uploadPriority);
                 values.put(Responses.RESPONSE_DATA, data);
                 values.put(Responses.USERNAME, mUserPrefs.getUsername());
-                return getContentResolver().insert(Responses.CONTENT_URI, values) != null;
+
+                if (BUFFER_POINTS) {
+                    synchronized (responsePoints) {
+                        responsePoints.add(values);
+                        if (responsePoints.size() > MAX_BUFFER)
+                            flushResponses();
+                        else
+                            queueFlush();
+                    }
+                    return true;
+                } else {
+                    return getContentResolver().insert(Responses.CONTENT_URI, values) != null;
+                }
             }
         };
     }
@@ -98,22 +112,33 @@ public class ProbeManager extends Service {
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        flushPoints();
+        flushProbes();
+        flushResponses();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        flushPoints();
+        flushProbes();
+        flushResponses();
     }
 
-    private void flushPoints() {
+    private void flushProbes() {
         ContentValues[] toFlush;
-        synchronized (points) {
-            toFlush = points.toArray(new ContentValues[] {});
-            points.clear();
+        synchronized (probePoints) {
+            toFlush = probePoints.toArray(new ContentValues[] {});
+            probePoints.clear();
         }
         getContentResolver().bulkInsert(Probes.CONTENT_URI, toFlush);
+    }
+
+    private void flushResponses() {
+        ContentValues[] toFlush;
+        synchronized (responsePoints) {
+            toFlush = responsePoints.toArray(new ContentValues[] {});
+            responsePoints.clear();
+        }
+        getContentResolver().bulkInsert(Responses.CONTENT_URI, toFlush);
     }
 
     private void queueFlush() {
