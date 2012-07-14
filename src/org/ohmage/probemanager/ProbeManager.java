@@ -10,6 +10,7 @@ import android.os.Message;
 import android.os.RemoteException;
 
 import org.ohmage.probemanager.DbContract.Probes;
+import org.ohmage.probemanager.DbContract.Responses;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class ProbeManager extends Service {
         return new IProbeManager.Stub() {
 
             @Override
-            public boolean send(String observerId, int observerVersion, String streamId,
+            public boolean writeProbe(String observerId, int observerVersion, String streamId,
                     int streamVersion, int uploadPriority, String metadata, String data)
                     throws RemoteException {
                 ContentValues values = new ContentValues();
@@ -69,6 +70,16 @@ public class ProbeManager extends Service {
                 } else {
                     return getContentResolver().insert(Probes.CONTENT_URI, values) != null;
                 }
+            }
+
+            @Override
+            public boolean writeResponse(String campaignUrn, String campaignCreationTimestamp,
+                    int uploadPriority, String data) throws RemoteException {
+                ContentValues values = new ContentValues();
+                values.put(Responses.CAMPAIGN_URN, campaignUrn);
+                values.put(Responses.CAMPAIGN_CREATED, campaignCreationTimestamp);
+                values.put(Responses.RESPONSE_DATA, data);
+                return getContentResolver().insert(Responses.CONTENT_URI, values) != null;
             }
         };
     }

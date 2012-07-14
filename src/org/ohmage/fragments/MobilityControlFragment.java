@@ -2,20 +2,6 @@
 
 package org.ohmage.fragments;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.mobility.glue.IMobility;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.MobilityHelper;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.service.UploadService;
-import org.ohmage.ui.BaseActivity;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -42,6 +28,19 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.mobility.glue.IMobility;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.MobilityHelper;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.service.ProbeUploadService;
+import org.ohmage.ui.BaseActivity;
 
 public class MobilityControlFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
@@ -143,8 +142,9 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 	@Override
 	public void onStart() {
 		super.onStart();
-		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(UploadService.MOBILITY_UPLOAD_STARTED));
-		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(UploadService.MOBILITY_UPLOAD_FINISHED));
+		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_STARTED));
+		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_ERROR));
+		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_FINISHED));
 	}
 
 	@Override
@@ -171,21 +171,19 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 			String action = intent.getAction();
 
 			if(getActivity() instanceof BaseActivity)
-				((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
+				((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 
-			mUploadButton.setEnabled(!UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
+			mUploadButton.setEnabled(!ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 
-			if (UploadService.MOBILITY_UPLOAD_STARTED.equals(action)) {
+			if (ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action)) {
 				mUploadButton.setText("Uploading...");
 				mLastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-			} else if (UploadService.MOBILITY_UPLOAD_FINISHED.equals(action)) {
+			} else if (ProbeUploadService.PROBE_UPLOAD_ERROR.equals(action)) {
+                Toast.makeText(getActivity(), R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
+			} else if (ProbeUploadService.PROBE_UPLOAD_FINISHED.equals(action)) {
 				mUploadButton.setText("Upload Now");
 				Long newUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 
-				// There must have been a problem with the upload since the upload timestamp didn't change
-				if(newUploadTimestamp.equals(mLastMobilityUploadTimestamp)) {
-					Toast.makeText(getActivity(), R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
-				}
 				mLastMobilityUploadTimestamp = newUploadTimestamp;
 
 				if(mLastMobilityUploadTimestamp != 0) {
@@ -201,9 +199,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 		@Override
 		public void onClick(View v) {
 			Analytics.widget(v);
-			Intent intent = new Intent(getActivity(), UploadService.class);
-			intent.setData(Responses.CONTENT_URI);
-			intent.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
+			Intent intent = new Intent(getActivity(), ProbeUploadService.class);
 			WakefulIntentService.sendWakefulWork(getActivity(), intent);
 		}
 	};

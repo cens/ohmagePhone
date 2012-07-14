@@ -197,6 +197,7 @@
 	    </receiver>
 	        
 	    <service android:name=".service.UploadService"/>
+	    <service android:name=".service.ProbeUploadService"/>
     	
 		<receiver android:name=".service.UploadReceiver">
 			<intent-filter>

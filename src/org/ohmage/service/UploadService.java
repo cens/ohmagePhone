@@ -1,3 +1,4 @@
+
 package org.ohmage.service;
 
 import android.content.ContentResolver;
@@ -5,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.TextUtils;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -21,7 +21,6 @@ import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.MediaPart;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.OhmageApi.UploadResponse;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -30,7 +29,6 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Response;
-import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.prompt.AbstractPrompt;
 
 import java.io.File;
@@ -38,154 +36,151 @@ import java.util.ArrayList;
 
 public class UploadService extends WakefulIntentService {
 
-	/** Extra to tell the upload service to upload mobility points */
-	public static final String EXTRA_UPLOAD_MOBILITY = "upload_mobility";
+    /** Extra to tell the upload service if it is running in the background */
+    public static final String EXTRA_BACKGROUND = "is_background";
 
-	/** Extra to tell the upload service to upload surveys */
-	public static final String EXTRA_UPLOAD_SURVEYS = "upload_surveys";
+    private static final String TAG = "UploadService";
 
-	/** Extra to tell the upload service if it is running in the background */
-	public static final String EXTRA_BACKGROUND = "is_background";
+    private OhmageApi mApi;
 
-	private static final String TAG = "UploadService";
-	
-	public static final String MOBILITY_UPLOAD_STARTED = "org.ohmage.MOBILITY_UPLOAD_STARTED";
-	public static final String MOBILITY_UPLOAD_FINISHED = "org.ohmage.MOBILITY_UPLOAD_FINISHED";
+    private boolean isBackground;
 
-	private OhmageApi mApi;
+    public UploadService() {
+        super(TAG);
+    }
 
-	private boolean isBackground;
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Analytics.service(this, Status.ON);
+    }
 
-	public UploadService() {
-		super(TAG);
-	}
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Analytics.service(this, Status.OFF);
+    }
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		Analytics.service(this, Status.ON);
-	}
+    @Override
+    protected void doWakefulWork(Intent intent) {
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		Analytics.service(this, Status.OFF);
-	}
+        if (mApi == null)
+            setOhmageApi(new OhmageApi(this));
 
-	@Override
-	protected void doWakefulWork(Intent intent) {
-		
-		if(mApi == null)
-			setOhmageApi(new OhmageApi(this));
+        isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 
-		isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
+        String serverUrl = ConfigHelper.serverUrl();
 
-		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
-			uploadSurveyResponses(intent);
-		}
-		
-		if (intent.getBooleanExtra(EXTRA_UPLOAD_MOBILITY, false)) {
-			uploadMobility(intent);
-		}
-	}
+        UserPreferencesHelper helper = new UserPreferencesHelper(this);
+        String username = helper.getUsername();
+        String hashedPassword = helper.getHashedPassword();
+        boolean uploadErrorOccurred = false;
+        boolean authErrorOccurred = false;
 
-	public void setOhmageApi(OhmageApi api) {
-		mApi = api;
-	}
+        DbHelper dbHelper = new DbHelper(this);
 
-	private void uploadSurveyResponses(Intent intent) {
-		String serverUrl = ConfigHelper.serverUrl();
-		
-		UserPreferencesHelper helper = new UserPreferencesHelper(this);
-		String username = helper.getUsername();
-		String hashedPassword = helper.getHashedPassword();
-		boolean uploadErrorOccurred = false;
-		boolean authErrorOccurred = false;
-		
-		DbHelper dbHelper = new DbHelper(this);
-		
-		Uri dataUri = intent.getData();
-		if(!Responses.isResponseUri(dataUri)) {
-			Log.e(TAG, "Upload service can only be called with a response URI");
-			return;
-		}
+        Uri dataUri = intent.getData();
+        if (!Responses.isResponseUri(dataUri)) {
+            Log.e(TAG, "Upload service can only be called with a response URI");
+            return;
+        }
 
-		ContentResolver cr = getContentResolver();
-		
-		String [] projection = new String [] {
-										Tables.RESPONSES + "." + Responses._ID,
-										Responses.RESPONSE_UUID,
-										Responses.RESPONSE_DATE,
-										Responses.RESPONSE_TIME,
-										Responses.RESPONSE_TIMEZONE,
-										Responses.RESPONSE_LOCATION_STATUS,
-										Responses.RESPONSE_LOCATION_LATITUDE,
-										Responses.RESPONSE_LOCATION_LONGITUDE,
-										Responses.RESPONSE_LOCATION_PROVIDER,
-										Responses.RESPONSE_LOCATION_ACCURACY,
-										Responses.RESPONSE_LOCATION_TIME,
-										Tables.RESPONSES + "." + Responses.SURVEY_ID,
-										Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT,
-										Responses.RESPONSE_JSON,
-										Tables.RESPONSES + "." + Responses.CAMPAIGN_URN,
-										Campaigns.CAMPAIGN_CREATED};
-		
-		String select =  Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + 
-						Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED + " AND " + 
-						Responses.RESPONSE_STATUS + "!=" + Response.STATUS_WAITING_FOR_LOCATION;
-		
-		Cursor cursor = cr.query(dataUri, projection, select, null, null);
+        ContentResolver cr = getContentResolver();
 
-		// If there is no data we should just return
-		if(cursor == null)
-			return;
-		else if(!cursor.moveToFirst()) {
-			cursor.close();
-			return;
-		}
+        String[] projection = new String[] {
+                Tables.RESPONSES + "." + Responses._ID,
+                Responses.RESPONSE_UUID,
+                Responses.RESPONSE_DATE,
+                Responses.RESPONSE_TIME,
+                Responses.RESPONSE_TIMEZONE,
+                Responses.RESPONSE_LOCATION_STATUS,
+                Responses.RESPONSE_LOCATION_LATITUDE,
+                Responses.RESPONSE_LOCATION_LONGITUDE,
+                Responses.RESPONSE_LOCATION_PROVIDER,
+                Responses.RESPONSE_LOCATION_ACCURACY,
+                Responses.RESPONSE_LOCATION_TIME,
+                Tables.RESPONSES + "." + Responses.SURVEY_ID,
+                Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT,
+                Responses.RESPONSE_JSON,
+                Tables.RESPONSES + "." + Responses.CAMPAIGN_URN,
+                Campaigns.CAMPAIGN_CREATED
+        };
 
-		ContentValues cv = new ContentValues();
-		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
-		cr.update(dataUri, cv, select, null);
-		
-		for (int i = 0; i < cursor.getCount(); i++) {
-			
-			long responseId = cursor.getLong(cursor.getColumnIndex(Responses._ID));
-			
-			ContentValues values = new ContentValues();
-			values.put(Responses.RESPONSE_STATUS, Response.STATUS_UPLOADING);
-			cr.update(Responses.buildResponseUri(responseId), values, null, null);
-//			cr.update(Responses.CONTENT_URI, values, Tables.RESPONSES + "." + Responses._ID + "=" + responseId, null);
-			
-			JSONArray responsesJsonArray = new JSONArray(); 
-			JSONObject responseJson = new JSONObject();
-			final ArrayList<MediaPart> media = new ArrayList<MediaPart>();
-            
-			try {
-				responseJson.put("survey_key", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
-				responseJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
-				responseJson.put("timezone", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
-				String locationStatus = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
-				responseJson.put("location_status", locationStatus);
-				if (! locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
-					JSONObject locationJson = new JSONObject();
-					locationJson.put("latitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
-					locationJson.put("longitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
-					String provider = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
-					locationJson.put("provider", provider);
-					Log.i(TAG, "Response uploaded with " + provider + " location");
-					locationJson.put("accuracy", cursor.getFloat(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
-					locationJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
-					locationJson.put("timezone", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
-					responseJson.put("location", locationJson);
-				} else {
-					Log.w(TAG, "Response uploaded without a location");
-				}
-				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
-				responseJson.put("survey_launch_context", new JSONObject(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
-				responseJson.put("responses", new JSONArray(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON))));
+        String select = Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " +
+                Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED + " AND " +
+                Responses.RESPONSE_STATUS + "!=" + Response.STATUS_WAITING_FOR_LOCATION;
 
-				ContentResolver cr2 = getContentResolver();
+        Cursor cursor = cr.query(dataUri, projection, select, null, null);
+
+        // If there is no data we should just return
+        if (cursor == null)
+            return;
+        else if (!cursor.moveToFirst()) {
+            cursor.close();
+            return;
+        }
+
+        ContentValues cv = new ContentValues();
+        cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
+        cr.update(dataUri, cv, select, null);
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+
+            long responseId = cursor.getLong(cursor.getColumnIndex(Responses._ID));
+
+            ContentValues values = new ContentValues();
+            values.put(Responses.RESPONSE_STATUS, Response.STATUS_UPLOADING);
+            cr.update(Responses.buildResponseUri(responseId), values, null, null);
+            // cr.update(Responses.CONTENT_URI, values, Tables.RESPONSES + "." +
+            // Responses._ID + "=" + responseId, null);
+
+            JSONArray responsesJsonArray = new JSONArray();
+            JSONObject responseJson = new JSONObject();
+            final ArrayList<MediaPart> media = new ArrayList<MediaPart>();
+
+            try {
+                responseJson.put("survey_key",
+                        cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
+                responseJson.put("time",
+                        cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
+                responseJson.put("timezone",
+                        cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
+                String locationStatus = cursor.getString(cursor
+                        .getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
+                responseJson.put("location_status", locationStatus);
+                if (!locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
+                    JSONObject locationJson = new JSONObject();
+                    locationJson.put("latitude", cursor.getDouble(cursor
+                            .getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
+                    locationJson.put("longitude", cursor.getDouble(cursor
+                            .getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
+                    String provider = cursor.getString(cursor
+                            .getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
+                    locationJson.put("provider", provider);
+                    Log.i(TAG, "Response uploaded with " + provider + " location");
+                    locationJson.put("accuracy", cursor.getFloat(cursor
+                            .getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
+                    locationJson
+                            .put("time", cursor.getLong(cursor
+                                    .getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
+                    locationJson.put("timezone",
+                            cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
+                    responseJson.put("location", locationJson);
+                } else {
+                    Log.w(TAG, "Response uploaded without a location");
+                }
+                responseJson.put("survey_id",
+                        cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
+                responseJson.put(
+                        "survey_launch_context",
+                        new JSONObject(cursor.getString(cursor
+                                .getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
+                responseJson.put(
+                        "responses",
+                        new JSONArray(cursor.getString(cursor
+                                .getColumnIndex(Responses.RESPONSE_JSON))));
+
+                ContentResolver cr2 = getContentResolver();
                 Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId),
                         new String[] {
                                 PromptResponses.PROMPT_RESPONSE_VALUE,
@@ -199,30 +194,34 @@ public class UploadService extends WakefulIntentService {
                         }, null);
 
                 while (promptsCursor.moveToNext()) {
-					media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(), promptsCursor.getString(0)), promptsCursor.getString(1)));
-				}
-				
-				promptsCursor.close();
-				
-			} catch (JSONException e) {
-				throw new RuntimeException(e);
-			}
-			
-			responsesJsonArray.put(responseJson);
-			
-			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
+                    media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(),
+                            promptsCursor.getString(0)), promptsCursor.getString(1)));
+                }
 
-			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), media);
-			response.handleError(this);
+                promptsCursor.close();
 
-			int responseStatus = Response.STATUS_UPLOADED;
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
 
-			if (response.getResult() == Result.SUCCESS) {
-				NotificationHelper.hideUploadErrorNotification(this);
-			} else {
-				responseStatus = Response.STATUS_ERROR_OTHER;
-				
+            responsesJsonArray.put(responseJson);
+
+            String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
+            String campaignCreationTimestamp = cursor.getString(cursor
+                    .getColumnIndex(Campaigns.CAMPAIGN_CREATED));
+
+            OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username,
+                    hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp,
+                    responsesJsonArray.toString(), media);
+            response.handleError(this);
+
+            int responseStatus = Response.STATUS_UPLOADED;
+
+            if (response.getResult() == Result.SUCCESS) {
+                NotificationHelper.hideUploadErrorNotification(this);
+            } else {
+                responseStatus = Response.STATUS_ERROR_OTHER;
+
                 switch (response.getResult()) {
                     case FAILURE:
                         if (response.hasAuthError()) {
@@ -253,115 +252,21 @@ public class UploadService extends WakefulIntentService {
                 }
             }
 
-			ContentValues cv2 = new ContentValues();
-			cv2.put(Responses.RESPONSE_STATUS, responseStatus);
-			cr.update(Responses.buildResponseUri(responseId), cv2, null, null);
+            ContentValues cv2 = new ContentValues();
+            cv2.put(Responses.RESPONSE_STATUS, responseStatus);
+            cr.update(Responses.buildResponseUri(responseId), cv2, null, null);
 
-			cursor.moveToNext();
-		}
-
-		cursor.close();
-		
-		if (isBackground && uploadErrorOccurred) {
-			NotificationHelper.showUploadErrorNotification(this);
-		}
-	}
-
-    private interface ProbeQuery {
-        static final String[] PROJECTION = new String[] {
-                Probes._ID, Probes.OBSERVER_ID, Probes.OBSERVER_VERSION, Probes.STREAM_ID,
-                Probes.STREAM_VERSION, Probes.PROBE_METADATA, Probes.PROBE_DATA
-        };
-
-        static final int _ID = 0;
-        static final int OBSERVER_ID = 1;
-        static final int OBSERVER_VERSION = 2;
-        static final int STREAM_ID = 3;
-        static final int STREAM_VERSION = 4;
-        static final int PROBE_METADATA = 5;
-        static final int PROBE_DATA = 6;
-    }
-
-    private void uploadMobility(Intent intent) {
-
-        sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_STARTED));
-
-        Cursor c = getContentResolver().query(Probes.CONTENT_URI, ProbeQuery.PROJECTION, null,
-                null, Probes.OBSERVER_ID + ", " + Probes.OBSERVER_VERSION);
-
-        JSONArray probes = new JSONArray();
-        long maxId = 0;
-
-        for (int i = 0; i < c.getCount(); i++) {
-            c.moveToPosition(i);
-            addProbe(probes, c);
-            maxId = Math.max(c.getLong(ProbeQuery._ID), maxId);
-
-            // Upload if we are at the last point or we have 100 points already
-            if (c.isLast() || i % 100 == 0) {
-                if (!upload(probes, c))
-                    break;
-            } else {
-                String observerId = c.getString(ProbeQuery.OBSERVER_ID);
-                String observerVersion = c.getString(ProbeQuery.OBSERVER_VERSION);
-
-                c.moveToNext();
-
-                // Upload if the next point is from a different observer
-                if (!observerId.equals(c.getString(ProbeQuery.OBSERVER_ID))
-                        || !observerVersion.equals(c.getString(ProbeQuery.OBSERVER_VERSION))) {
-                    if (!upload(probes, c))
-                        break;
-                }
-
-                c.moveToPrevious();
-            }
+            cursor.moveToNext();
         }
 
-        c.close();
-        getContentResolver().delete(Probes.CONTENT_URI, Probes._ID + "<=" + maxId, null);
-        sendBroadcast(new Intent(UploadService.MOBILITY_UPLOAD_FINISHED));
+        cursor.close();
+
+        if (isBackground && uploadErrorOccurred) {
+            NotificationHelper.showUploadErrorNotification(this);
+        }
     }
 
-    private boolean upload(JSONArray probes, Cursor c) {
-
-        UserPreferencesHelper helper = new UserPreferencesHelper(this);
-
-        String username = helper.getUsername();
-        String hashedPassword = helper.getHashedPassword();
-
-        if (probes.length() > 0) {
-            UploadResponse response = mApi.observerUpload(ConfigHelper.serverUrl(), username,
-                    hashedPassword, OhmageApi.CLIENT_NAME, c.getString(ProbeQuery.OBSERVER_ID),
-                    c.getString(ProbeQuery.OBSERVER_VERSION), probes.toString());
-            response.handleError(this);
-
-            if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
-                NotificationHelper.hideMobilityErrorNotification(this);
-            } else {
-                if (isBackground && !response.hasAuthError()
-                        && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
-                    NotificationHelper.showMobilityErrorNotification(this);
-                return false;
-            }
-            probes = new JSONArray();
-        }
-        return true;
-    }
-
-    public void addProbe(JSONArray probes, Cursor c) {
-        try {
-            JSONObject probe = new JSONObject();
-            probe.put("stream_id", c.getString(ProbeQuery.STREAM_ID));
-            probe.put("stream_version", c.getInt(ProbeQuery.STREAM_VERSION));
-            probe.put("data", new JSONObject(c.getString(ProbeQuery.PROBE_DATA)));
-            String metadata = c.getString(ProbeQuery.PROBE_METADATA);
-            if(!TextUtils.isEmpty(metadata))
-                probe.put("metadata", new JSONObject(metadata));
-            probes.put(probe);
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public void setOhmageApi(OhmageApi api) {
+        mApi = api;
     }
 }

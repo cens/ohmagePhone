@@ -22,14 +22,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 import org.ohmage.probemanager.DbContract.Probes;
+import org.ohmage.probemanager.DbContract.Responses;
 
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "probes.db";
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 4;
 
     public interface Tables {
         static final String Probes = "probes";
+        static final String Responses = "responses";
     }
 
     public DbHelper(Context context) {
@@ -47,17 +49,25 @@ public class DbHelper extends SQLiteOpenHelper {
                 + Probes.UPLOAD_PRIORITY + " INTEGER DEFAULT 0, "
                 + Probes.PROBE_METADATA + " TEXT, "
                 + Probes.PROBE_DATA + " TEXT);");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.Responses + " ("
+                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + Responses.CAMPAIGN_URN + " TEXT NOT NULL, "
+                + Responses.CAMPAIGN_CREATED + " TEXT NOT NULL, "
+                + Responses.RESPONSE_DATA + " TEXT);");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + Tables.Probes);
+        db.execSQL("DROP TABLE IF EXISTS " + Tables.Responses);
         onCreate(db);
     }
 
     public void clearAll() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + Tables.Probes);
+        db.execSQL("DROP TABLE IF EXISTS " + Tables.Responses);
         onCreate(db);
     }
 }

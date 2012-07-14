@@ -436,7 +436,7 @@ public class OhmageApi {
 			nameValuePairs.add(new BasicNameValuePair("user", username));
 			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
 			nameValuePairs.add(new BasicNameValuePair("client", client));
-			nameValuePairs.add(new BasicNameValuePair("data", data));
+			nameValuePairs.add(new BasicNameValuePair("surveys", data));
 			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
 			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));

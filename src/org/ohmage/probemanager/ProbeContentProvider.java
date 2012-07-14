@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 import org.ohmage.probemanager.DbContract.Probes;
+import org.ohmage.probemanager.DbContract.Responses;
 import org.ohmage.probemanager.DbHelper.Tables;
 
 public class ProbeContentProvider extends ContentProvider {
@@ -18,6 +19,7 @@ public class ProbeContentProvider extends ContentProvider {
     // enum of the URIs we can match using sUriMatcher
     private interface MatcherTypes {
         int PROBES = 0;
+        int RESPONSES = 1;
     }
 
     private DbHelper dbHelper;
@@ -25,6 +27,7 @@ public class ProbeContentProvider extends ContentProvider {
     {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "probes", MatcherTypes.PROBES);
+        sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
     }
 
     @Override
@@ -32,7 +35,11 @@ public class ProbeContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
 
             case MatcherTypes.PROBES:
-                return dbHelper.getWritableDatabase().delete(Tables.Probes, selection == null ? "1" : selection, selectionArgs);
+                return dbHelper.getWritableDatabase().delete(Tables.Probes,
+                        selection == null ? "1" : selection, selectionArgs);
+            case MatcherTypes.RESPONSES:
+                return dbHelper.getWritableDatabase().delete(Tables.Responses,
+                        selection == null ? "1" : selection, selectionArgs);
             default:
                 throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
         }
@@ -44,6 +51,8 @@ public class ProbeContentProvider extends ContentProvider {
 
             case MatcherTypes.PROBES:
                 return Probes.CONTENT_TYPE;
+            case MatcherTypes.RESPONSES:
+                return Responses.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("getType(): Unknown URI: " + uri);
         }
@@ -51,17 +60,21 @@ public class ProbeContentProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        switch (sUriMatcher.match(uri)) {
+        long id = -1;
 
+        switch (sUriMatcher.match(uri)) {
             case MatcherTypes.PROBES:
-                long id = dbHelper.getWritableDatabase().insert(Tables.Probes, BaseColumns._ID,
+                id = dbHelper.getWritableDatabase().insert(Tables.Probes, BaseColumns._ID, values);
+                break;
+            case MatcherTypes.RESPONSES:
+                id = dbHelper.getWritableDatabase().insert(Tables.Responses, BaseColumns._ID,
                         values);
-                if (id != -1)
-                    return ContentUris.withAppendedId(Probes.CONTENT_URI, id);
                 break;
             default:
                 throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
         }
+        if (id != -1)
+            return ContentUris.withAppendedId(Probes.CONTENT_URI, id);
         return null;
     }
 
@@ -78,6 +91,10 @@ public class ProbeContentProvider extends ContentProvider {
 
             case MatcherTypes.PROBES:
                 return dbHelper.getReadableDatabase().query(Tables.Probes, projection, selection,
+                        selectionArgs, null, null, null);
+            case MatcherTypes.RESPONSES:
+                return dbHelper.getReadableDatabase().query(Tables.Responses, projection,
+                        selection,
                         selectionArgs, null, null, null);
             default:
                 throw new UnsupportedOperationException("query(): Unknown URI: " + uri);
@@ -100,16 +117,23 @@ public class ProbeContentProvider extends ContentProvider {
         try {
             db.beginTransaction();
 
+            String table;
             switch (sUriMatcher.match(uri)) {
                 case MatcherTypes.PROBES:
-                    for (ContentValues v : values) {
-                        if (db.insert(Tables.Probes, BaseColumns._ID, v) != -1)
-                            count++;
-                    }
+                    table = Tables.Probes;
+                    break;
+                case MatcherTypes.RESPONSES:
+                    table = Tables.Responses;
                     break;
                 default:
                     throw new UnsupportedOperationException("bulkInsert(): Unknown URI: " + uri);
             }
+
+            for (ContentValues v : values) {
+                if (db.insert(table, BaseColumns._ID, v) != -1)
+                    count++;
+            }
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
