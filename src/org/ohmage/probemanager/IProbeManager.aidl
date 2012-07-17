@@ -10,8 +10,8 @@ interface IProbeManager
      * 
      * @param       observerId       Id of observer
      * @param       observerVersion  version of observer
-     * @param       probeName        Id of stream for observer
-     * @param       probeVersion     version of stream
+     * @param       streamId         Id of stream for observer
+     * @param       streamVersion    version of stream
      * @param       uploadPriority   upload priority (not used)
      * @param       metadata         metadata for point
      * @param       data             data for point
