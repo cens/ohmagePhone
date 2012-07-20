@@ -119,31 +119,30 @@ public class ProbeUploadService extends WakefulIntentService {
 
             JSONArray probes = new JSONArray();
             long maxId = 0;
+            long nextMax = 0;
 
             for (int i = 0; i < c.getCount(); i++) {
                 c.moveToPosition(i);
                 addProbe(probes, c);
-                maxId = Math.max(c.getLong(id_idx), maxId);
+                nextMax = Math.max(c.getLong(id_idx), nextMax);
 
-                // Upload if we are at the last point or we have 100 points
-                // already
-                if (c.isLast() || i % 100 == 0) {
-                    if (!upload(probes, c))
-                        break;
-                } else {
-                    String observerId = c.getString(getNameColumn());
-                    String observerVersion = c.getString(getVersionColumn());
+                String observerId = c.getString(getNameColumn());
+                String observerVersion = c.getString(getVersionColumn());
 
+                // Only move to the next one if we aren't at the last one
+                if(!c.isLast())
                     c.moveToNext();
 
-                    // Upload if the next point is from a different observer
-                    if (!observerId.equals(c.getString(getNameColumn()))
-                            || !observerVersion.equals(c.getString(getVersionColumn()))) {
-                        if (!upload(probes, c))
-                            break;
-                    }
-
-                    c.moveToPrevious();
+                // Upload if we have no more points, we already have 100 points
+                // defined or the next point is from a different observer
+                if (c.isLast() || i % 100 == 0
+                        || (!observerId.equals(c.getString(getNameColumn()))
+                        || !observerVersion.equals(c.getString(getVersionColumn())))) {
+                    // Try to upload. If it is an HTTP error, we stop uploading
+                    if (!upload(probes, c))
+                        break;
+                    else
+                        maxId = nextMax;
                 }
             }
 
@@ -156,6 +155,14 @@ public class ProbeUploadService extends WakefulIntentService {
             uploadFinished();
         }
 
+        /**
+         * Uploads probes to the server
+         * 
+         * @param probes the probe json
+         * @param c the cursor object
+         * @return false only if there was an HTTP error indicating we shouldn't
+         *         continue to try uploading
+         */
         private boolean upload(JSONArray probes, Cursor c) {
 
             String username = mUserPrefs.getUsername();
@@ -172,9 +179,11 @@ public class ProbeUploadService extends WakefulIntentService {
                     if (isBackground && !response.hasAuthError()
                             && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
                         NotificationHelper.showMobilityErrorNotification(ProbeUploadService.this);
-                    return false;
                 }
                 probes = new JSONArray();
+                if(response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
+                    return false;
+                }
             }
             return true;
         }
