@@ -133,9 +133,9 @@ public class ProbeUploadService extends WakefulIntentService {
                 if(!c.isLast())
                     c.moveToNext();
 
-                // Upload if we have no more points, we already have 100 points
+                // Upload if we have no more points, we already have 50 points
                 // defined or the next point is from a different observer
-                if (c.isLast() || i % 100 == 0
+                if (c.isLast() || i % 50 == 0
                         || (!observerId.equals(c.getString(getNameColumn()))
                         || !observerVersion.equals(c.getString(getVersionColumn())))) {
                     // Try to upload. If it is an HTTP error, we stop uploading
