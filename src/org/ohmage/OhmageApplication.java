@@ -19,12 +19,14 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
@@ -37,8 +39,7 @@ import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
-import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.service.UploadService;
+import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import java.io.IOException;
@@ -127,6 +128,7 @@ public class OhmageApplication extends Application {
      *  <li>{@link UploadService}, uploading or queued status</li>
      * <ul>
      * 
+     * It also deletes any responses which have no uuid
      */
 	private void verifyState() {
 		ContentValues values = new ContentValues();
@@ -138,6 +140,12 @@ public class OhmageApplication extends Application {
                         + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADING + " OR "
                         + Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION,
                 null);
+
+		if(getContentResolver().delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " is null", null) != 0) {
+           // If there were some responses with no uuid, start the feedback service
+           Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
+           WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
+       }
 	}
 
 	public void resetAll() {
