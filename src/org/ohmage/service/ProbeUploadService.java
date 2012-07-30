@@ -8,13 +8,13 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -79,7 +79,7 @@ public class ProbeUploadService extends WakefulIntentService {
         mApi = api;
     }
 
-    /**
+/**
      * Abstraction to upload object from the probes db. Uploads data in chunks
      * based on the {@link #getName(Cursor)} and {@link #getVersion(Cursor) values.
      * @author cketcham
@@ -87,10 +87,16 @@ public class ProbeUploadService extends WakefulIntentService {
      */
     public abstract class Uploader {
 
+        protected JsonParser mParser;
+
+        public Uploader() {
+            mParser = new JsonParser();
+        }
+
         protected abstract Uri getContentURI();
 
         protected abstract UploadResponse uploadCall(String serverUrl, String username,
-                String password, String client, Cursor c, JSONArray data);
+                String password, String client, Cursor c, JsonArray data);
 
         protected abstract void uploadStarted();
 
@@ -98,7 +104,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
         protected abstract void uploadError();
 
-        protected abstract void addProbe(JSONArray probes, Cursor c);
+        protected abstract void addProbe(JsonArray probes, Cursor c);
 
         protected abstract int getVersionColumn();
 
@@ -117,7 +123,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
             int id_idx = c.getColumnIndex(BaseColumns._ID);
 
-            JSONArray probes = new JSONArray();
+            JsonArray probes = new JsonArray();
             long maxId = 0;
             long nextMax = 0;
 
@@ -130,7 +136,7 @@ public class ProbeUploadService extends WakefulIntentService {
                 String observerVersion = c.getString(getVersionColumn());
 
                 // Only move to the next one if we aren't at the last one
-                if(!c.isLast())
+                if (!c.isLast())
                     c.moveToNext();
 
                 // Upload if we have no more points, we already have 50 points
@@ -163,12 +169,12 @@ public class ProbeUploadService extends WakefulIntentService {
          * @return false only if there was an HTTP error indicating we shouldn't
          *         continue to try uploading
          */
-        private boolean upload(JSONArray probes, Cursor c) {
+        private boolean upload(JsonArray probes, Cursor c) {
 
             String username = mUserPrefs.getUsername();
             String hashedPassword = mUserPrefs.getHashedPassword();
 
-            if (probes.length() > 0) {
+            if (probes.size() > 0) {
                 UploadResponse response = uploadCall(ConfigHelper.serverUrl(), username,
                         hashedPassword, OhmageApi.CLIENT_NAME, c, probes);
                 response.handleError(ProbeUploadService.this);
@@ -180,8 +186,8 @@ public class ProbeUploadService extends WakefulIntentService {
                             && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
                         NotificationHelper.showMobilityErrorNotification(ProbeUploadService.this);
                 }
-                probes = new JSONArray();
-                if(response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
+                probes = new JsonArray();
+                if (response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
                     return false;
                 }
             }
@@ -205,32 +211,31 @@ public class ProbeUploadService extends WakefulIntentService {
 
     public class ProbesUploader extends Uploader {
 
+        @Override
         protected String[] getProjection() {
             return ProbeQuery.PROJECTION;
         }
 
+        @Override
         protected int getNameColumn() {
             return ProbeQuery.OBSERVER_ID;
         }
 
+        @Override
         protected int getVersionColumn() {
             return ProbeQuery.OBSERVER_VERSION;
         }
 
-        public void addProbe(JSONArray probes, Cursor c) {
-            try {
-                JSONObject probe = new JSONObject();
-                probe.put("stream_id", c.getString(ProbeQuery.STREAM_ID));
-                probe.put("stream_version", c.getInt(ProbeQuery.STREAM_VERSION));
-                probe.put("data", new JSONObject(c.getString(ProbeQuery.PROBE_DATA)));
-                String metadata = c.getString(ProbeQuery.PROBE_METADATA);
-                if (!TextUtils.isEmpty(metadata))
-                    probe.put("metadata", new JSONObject(metadata));
-                probes.put(probe);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        @Override
+        public void addProbe(JsonArray probes, Cursor c) {
+            JsonObject probe = new JsonObject();
+            probe.addProperty("stream_id", c.getString(ProbeQuery.STREAM_ID));
+            probe.addProperty("stream_version", c.getInt(ProbeQuery.STREAM_VERSION));
+            probe.add("data", mParser.parse(c.getString(ProbeQuery.PROBE_DATA)));
+            String metadata = c.getString(ProbeQuery.PROBE_METADATA);
+            if (!TextUtils.isEmpty(metadata))
+                probe.add("metadata", mParser.parse(metadata));
+            probes.add(probe);
         }
 
         @Override
@@ -255,7 +260,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
         @Override
         protected UploadResponse uploadCall(String serverUrl, String username, String password,
-                String client, Cursor c, JSONArray data) {
+                String client, Cursor c, JsonArray data) {
             return mApi.observerUpload(ConfigHelper.serverUrl(), username,
                     password, OhmageApi.CLIENT_NAME, c.getString(ProbeQuery.OBSERVER_ID),
                     c.getString(ProbeQuery.OBSERVER_VERSION), data.toString());
@@ -275,26 +280,24 @@ public class ProbeUploadService extends WakefulIntentService {
 
     public class ResponsesUploader extends Uploader {
 
+        @Override
         protected String[] getProjection() {
             return ResponseQuery.PROJECTION;
         }
 
+        @Override
         protected int getNameColumn() {
             return ResponseQuery.CAMPAIGN_URN;
         }
 
+        @Override
         protected int getVersionColumn() {
             return ResponseQuery.CAMPAIGN_CREATED;
         }
 
-        public void addProbe(JSONArray probes, Cursor c) {
-            try {
-                JSONObject response = new JSONObject(c.getString(ResponseQuery.RESPONSE_DATA));
-                probes.put(response);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        @Override
+        public void addProbe(JsonArray probes, Cursor c) {
+            probes.add(mParser.parse(c.getString(ResponseQuery.RESPONSE_DATA)));
         }
 
         @Override
@@ -319,7 +322,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
         @Override
         protected UploadResponse uploadCall(String serverUrl, String username, String password,
-                String client, Cursor c, JSONArray data) {
+                String client, Cursor c, JsonArray data) {
             return mApi.surveyUpload(ConfigHelper.serverUrl(), username,
                     password, OhmageApi.CLIENT_NAME, c.getString(ResponseQuery.CAMPAIGN_URN),
                     c.getString(ResponseQuery.CAMPAIGN_CREATED), data.toString());
