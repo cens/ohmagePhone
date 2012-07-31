@@ -29,6 +29,8 @@ public class ProbeUploadService extends WakefulIntentService {
     /** Extra to tell the upload service if it is running in the background */
     public static final String EXTRA_BACKGROUND = "is_background";
 
+    private static final int BATCH_SIZE = 200;
+
     private static final String TAG = "ProbeUploadService";
 
     public static final String PROBE_UPLOAD_STARTED = "org.ohmage.PROBE_UPLOAD_STARTED";
@@ -139,9 +141,10 @@ public class ProbeUploadService extends WakefulIntentService {
                 if (!c.isLast())
                     c.moveToNext();
 
-                // Upload if we have no more points, we already have 100 points
+                // Upload if we have no more points, we already have a batch
+                // size of points
                 // defined or the next point is from a different observer
-                if (c.isLast() || i % 100 == 0
+                if (c.isLast() || i % BATCH_SIZE == 0
                         || (!observerId.equals(c.getString(getNameColumn()))
                         || !observerVersion.equals(c.getString(getVersionColumn())))) {
                     // Try to upload. If it is an HTTP error, we stop uploading
