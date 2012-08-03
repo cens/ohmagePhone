@@ -91,11 +91,11 @@ public class ProbeContentProvider extends ContentProvider {
 
             case MatcherTypes.PROBES:
                 return dbHelper.getReadableDatabase().query(Tables.Probes, projection, selection,
-                        selectionArgs, null, null, null);
+                        selectionArgs, null, null, sortOrder);
             case MatcherTypes.RESPONSES:
                 return dbHelper.getReadableDatabase().query(Tables.Responses, projection,
                         selection,
-                        selectionArgs, null, null, null);
+                        selectionArgs, null, null, sortOrder);
             default:
                 throw new UnsupportedOperationException("query(): Unknown URI: " + uri);
         }
