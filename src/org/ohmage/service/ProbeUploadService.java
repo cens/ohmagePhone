@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.gson.JsonArray;
@@ -75,7 +76,9 @@ public class ProbeUploadService extends WakefulIntentService {
 
         isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 
+        Log.d(TAG, "upload probes");
         new ProbesUploader().upload();
+        Log.d(TAG, "upload responses");
         new ResponsesUploader().upload();
     }
 
@@ -167,7 +170,7 @@ public class ProbeUploadService extends WakefulIntentService {
                         || c.isAfterLast()
                         || (!observerId.equals(currentObserver) || !observerVersion
                                 .equals(currentVersion))) {
-
+                    Log.d(TAG, "total payload for " + currentObserver + "=" + payloadSize);
                     if (!upload(probes, currentObserver, currentVersion)) {
                         c.close();
                         uploadError();
