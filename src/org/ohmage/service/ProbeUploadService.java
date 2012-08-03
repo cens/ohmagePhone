@@ -4,6 +4,7 @@ package org.ohmage.service;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -134,6 +135,8 @@ public class ProbeUploadService extends WakefulIntentService {
             String observerId = null;
             String observerVersion = null;
 
+            StringBuilder delete = new StringBuilder();
+
             if (c.moveToFirst()) {
                 currentObserver = c.getString(getNameIndex());
                 currentVersion = c.getString(getVersionIndex());
@@ -161,6 +164,10 @@ public class ProbeUploadService extends WakefulIntentService {
                         return;
                     }
 
+                    // Deleting this batch of points
+                    getContentResolver().delete(getContentURI(), delete.toString(), null);
+                    delete = new StringBuilder();
+
                     if (c.isAfterLast())
                         break;
 
@@ -171,14 +178,10 @@ public class ProbeUploadService extends WakefulIntentService {
                 currentVersion = observerVersion;
 
                 addProbe(probes, c);
+                if (delete.length() != 0)
+                    delete.append(" OR ");
+                delete.append(BaseColumns._ID + "=" + c.getLong(0));
             }
-
-            // Deleting all points since it is very slow to delete in batches if
-            // there are lots of points
-            getContentResolver().delete(getContentURI(), BaseProbeColumns.USERNAME + "=?",
-                    new String[] {
-                        mUserPrefs.getUsername()
-                    });
 
             c.close();
             uploadFinished();
