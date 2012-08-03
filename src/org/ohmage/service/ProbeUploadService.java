@@ -26,10 +26,11 @@ import org.ohmage.probemanager.DbContract.Responses;
 
 public class ProbeUploadService extends WakefulIntentService {
 
-    /** Extra to tell the upload service if it is running in the background */
+    /** Extra to tell the upload service if it is running in the background **/
     public static final String EXTRA_BACKGROUND = "is_background";
 
-    private static final int BATCH_SIZE = 500;
+    /** Uploaded in batches of 0.5 mb */
+    private static final int BATCH_SIZE = 1024 * 1024 / 2;
 
     private static final String TAG = "ProbeUploadService";
 
@@ -107,7 +108,14 @@ public class ProbeUploadService extends WakefulIntentService {
 
         protected abstract void uploadError();
 
-        protected abstract void addProbe(JsonArray probes, Cursor c);
+        /**
+         * Adds a probe to the json array
+         * 
+         * @param probes
+         * @param c
+         * @return the number of bytes in the payload
+         */
+        protected abstract int addProbe(JsonArray probes, Cursor c);
 
         protected abstract int getVersionIndex();
 
@@ -137,6 +145,8 @@ public class ProbeUploadService extends WakefulIntentService {
 
             StringBuilder delete = new StringBuilder();
 
+            int payloadSize = 0;
+
             if (c.moveToFirst()) {
                 currentObserver = c.getString(getNameIndex());
                 currentVersion = c.getString(getVersionIndex());
@@ -153,7 +163,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
                 // If we have a batch or we see a different point, upload all
                 // the points we have so far
-                if (probes.size() % BATCH_SIZE == 0
+                if (payloadSize > BATCH_SIZE
                         || c.isAfterLast()
                         || (!observerId.equals(currentObserver) || !observerVersion
                                 .equals(currentVersion))) {
@@ -171,13 +181,14 @@ public class ProbeUploadService extends WakefulIntentService {
                     if (c.isAfterLast())
                         break;
 
+                    payloadSize = 0;
                     probes = new JsonArray();
                 }
 
                 currentObserver = observerId;
                 currentVersion = observerVersion;
 
-                addProbe(probes, c);
+                payloadSize += addProbe(probes, c);
                 if (delete.length() != 0)
                     delete.append(" OR ");
                 delete.append(BaseColumns._ID + "=" + c.getLong(0));
@@ -252,15 +263,23 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
-        public void addProbe(JsonArray probes, Cursor c) {
+        public int addProbe(JsonArray probes, Cursor c) {
             JsonObject probe = new JsonObject();
             probe.addProperty("stream_id", c.getString(ProbeQuery.STREAM_ID));
             probe.addProperty("stream_version", c.getInt(ProbeQuery.STREAM_VERSION));
-            probe.add("data", mParser.parse(c.getString(ProbeQuery.PROBE_DATA)));
+            String data = c.getString(ProbeQuery.PROBE_DATA);
+            int size = 0;
+            if (!TextUtils.isEmpty(data)) {
+                size += data.getBytes().length;
+                probe.add("data", mParser.parse(data));
+            }
             String metadata = c.getString(ProbeQuery.PROBE_METADATA);
-            if (!TextUtils.isEmpty(metadata))
+            if (!TextUtils.isEmpty(metadata)) {
+                size += metadata.getBytes().length;
                 probe.add("metadata", mParser.parse(metadata));
+            }
             probes.add(probe);
+            return size;
         }
 
         @Override
@@ -330,8 +349,14 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
-        public void addProbe(JsonArray probes, Cursor c) {
-            probes.add(mParser.parse(c.getString(ResponseQuery.RESPONSE_DATA)));
+        public int addProbe(JsonArray probes, Cursor c) {
+            String data = c.getString(ResponseQuery.RESPONSE_DATA);
+            int size = 0;
+            if (!TextUtils.isEmpty(data)) {
+                size += data.getBytes().length;
+                probes.add(mParser.parse(data));
+            }
+            return size;
         }
 
         @Override
