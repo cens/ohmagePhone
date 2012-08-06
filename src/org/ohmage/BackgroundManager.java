@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
+
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
@@ -21,45 +30,54 @@ import org.ohmage.responsesync.ResponseSyncReceiver;
 import org.ohmage.service.UploadReceiver;
 import org.ohmage.triggers.base.TriggerInit;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.os.SystemClock;
-import edu.ucla.cens.systemlog.Log;
-
 public class BackgroundManager {
 
-	private static final String TAG = "BACKGROUND_MANAGER";
+    private static final String TAG = "BACKGROUND_MANAGER";
 
-	public static void initComponents(Context context) {
+    public static void initComponents(Context context) {
 
-		Log.i(TAG, "initializing application components");
+        Log.i(TAG, "initializing application components");
 
-		Context appContext = context.getApplicationContext();
+        // init triggers for all campaigns
+        DbHelper dbHelper = new DbHelper(context);
+        for (Campaign c : dbHelper.getReadyCampaigns()) {
+            TriggerInit.initTriggers(context, c.mUrn);
+        }
+    }
 
-		//uploadservice
-		AlarmManager alarms = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
-		Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intentToFire, 0);
-		//alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), pendingIntent);
-		alarms.cancel(pendingIntent);
-		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
-		Log.i(TAG, "UploadReceiver repeating alarm set");
+    public static void verifyAlarms(Context context) {
 
-		// FAISAL: feedback service repeating alarm registered here
-		if (context.getResources().getBoolean(R.bool.allows_feedback)) {
-			Intent fbServiceSyncIntent = new Intent(ResponseSyncReceiver.ACTION_FBSYNC_ALARM);
-			PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
-			alarms.cancel(fbServiceSyncPendingIntent);
-			alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);
-			Log.i(TAG, "Feedback sync repeating alarm set");
-		}
+        Log.i(TAG, "verifying application alarms");
 
-		//init triggers for all campaigns
-		DbHelper dbHelper = new DbHelper(context);
-		for (Campaign c : dbHelper.getReadyCampaigns()) {
-			TriggerInit.initTriggers(context, c.mUrn);
-		}
-	}
+        Context appContext = context.getApplicationContext();
+
+        // uploadservice
+        AlarmManager alarms = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
+        Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
+
+        // Set the alarm if it is not already set
+        if (PendingIntent.getBroadcast(context, 0, intentToFire, PendingIntent.FLAG_NO_CREATE) == null) {
+            PendingIntent pendingIntent = PendingIntent
+                    .getBroadcast(appContext, 0, intentToFire, 0);
+            alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
+            Log.i(TAG, "UploadReceiver repeating alarm set");
+        }
+
+        // response sync service
+        if (context.getResources().getBoolean(R.bool.allows_feedback)) {
+            Intent fbServiceSyncIntent = new Intent(ResponseSyncReceiver.ACTION_FBSYNC_ALARM);
+
+            // Set the alarm if it is not already set
+            if (PendingIntent.getBroadcast(context, 0, fbServiceSyncIntent,
+                    PendingIntent.FLAG_NO_CREATE) == null) {
+                PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext,
+                        0, fbServiceSyncIntent, 0);
+                alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR,
+                        fbServiceSyncPendingIntent);
+                Log.i(TAG, "Feedback sync repeating alarm set");
+            }
+        }
+    }
 }

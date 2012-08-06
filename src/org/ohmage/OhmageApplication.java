@@ -40,6 +40,8 @@ import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.responsesync.ResponseSyncService;
+import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.service.UploadService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import java.io.IOException;
@@ -102,6 +104,9 @@ public class OhmageApplication extends Application {
 			
 			prefs.setLastVersionCode(currentVersionCode);
 		}
+
+		// Verfiy all the alarms are set to upload and sync data
+		BackgroundManager.verifyAlarms(this);
 
 		// Make sure mobility is registered to collect points for the current user and it has the correct aggregate data
 		// This will happen if mobility is
