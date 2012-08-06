@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.gson.JsonArray;
@@ -15,6 +14,7 @@ import com.google.gson.JsonParser;
 
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
@@ -157,7 +157,17 @@ public class ProbeUploadService extends WakefulIntentService {
 
             for (int i = 0; i < c.getCount() + 1; i++) {
 
-                c.moveToPosition(i);
+                try {
+                    c.moveToPosition(i);
+                } catch(IllegalStateException e) {
+                    // Due to a bug in 4.0 and greater(?) a crash can occur during the move.
+                    // There is no good way to recover so we just restart
+                    // More info here: http://code.google.com/p/android/issues/detail?id=32472
+                    Log.e(TAG, "illegal state exception moving to " + i + " of " + (c.getCount() + 1));
+                    // Lets restart!
+                    upload();
+                    return;
+                }
 
                 if (!c.isAfterLast()) {
                     observerId = c.getString(getNameIndex());
