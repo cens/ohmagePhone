@@ -38,4 +38,7 @@ public class TrigUserConfig {
 	public static boolean editTimeTriggerTime = true;
 	public static boolean editTimeTriggerRepeat = false;
 	public static boolean editTimeTriggerRange = false;
+	
+	/* UI options in activity triggers affected by admin mode*/
+	public static boolean editActTrigger = true;
 }

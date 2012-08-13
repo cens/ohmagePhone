@@ -33,4 +33,8 @@ public class TriggerTypesConfig {
 	//Flag which decides if time triggers must be 
 	//present in the build
 	public static final boolean timeTriggers = true;
+	
+	//Flag which decides if activity triggers must be
+	//present in the build
+	public static final boolean activityTriggers = true;
 }

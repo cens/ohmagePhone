@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<Preference
+        android:key="actions"
+        android:title="@string/trigger_actions_title"
+        android:persistent="false"
+        android:summary="None"/>
+                 
+	<ListPreference
+	    android:key="state"
+	    android:persistent="false"
+	    android:title="@string/trigger_act_title"
+	    android:summary="Select state"
+	    android:entries="@array/activity_states"
+        android:entryValues="@array/activity_states_values" />
+	
+	
+	
+	<org.ohmage.triggers.utils.DurationPickerPreference
+	    android:key="duration"
+	    android:persistent="false"
+	    android:title="Duration"
+	    android:summary="Set Duration"/>
+	    
+
+	<Preference
+        android:key="days"
+        android:title="@string/trigger_time_repeat_title"
+        android:persistent="false"
+        android:summary="Everyday"/>
+       
+	    
+	<CheckBoxPreference
+        android:key="enable_time_range"
+        android:title="@string/trigger_time_range_title"
+        android:persistent="false"
+        android:summary="@string/trigger_act_time_range_summary" />
+        
+		<org.ohmage.triggers.utils.TimePickerPreference
+		    android:key="interval_start_time"
+		    android:dependency="enable_time_range"
+		    android:persistent="false"
+		    android:title="@string/trigger_time_start_title"
+		    android:summary="@string/trigger_time_not_selected" />
+		    
+		<org.ohmage.triggers.utils.TimePickerPreference
+		    android:key="interval_end_time"
+		    android:dependency="enable_time_range"
+		    android:persistent="false"
+		    android:title="@string/trigger_time_end_title"
+		    android:summary="@string/trigger_time_not_selected" />
+		
+		<CheckBoxPreference
+	        android:key="trigger_always"
+	        android:dependency="enable_time_range"
+	        android:persistent="false"
+	        android:title="@string/trigger_loc_always_title"
+	        android:summary="Show Reminder at End Time even if activity requirements not met" />
+		
+</PreferenceScreen>

@@ -317,6 +317,23 @@
 	    		<action android:name="org.ohmage.triggers.types.location.LocTrigService.PASS_THROUGH" />
 	    	</intent-filter>
 		</receiver>
+		/<!-- Service registered, alarm receiver registered, and actTrigEditActivity registered. -->
+		<activity android:name=".triggers.types.activity.ActTrigEditActivity"
+		    android:screenOrientation="portrait"/>
+    	<service android:name=".triggers.types.activity.ActTrigService"/>
+    	<receiver android:name=".triggers.types.activity.ActTrigService$AlarmReceiver">
+    	    <intent-filter >
+    	        <action android:name="org.ohmage.triggers.types.activity.ActTrigService.TRIGGER_ALWAYS"/>
+    	        <data android:scheme="activitytrigger"/>
+    	    </intent-filter>
+    	    <intent-filter >
+    	        <action android:name="org.ohmage.triggers.types.activity.ActTrigService.COUNT_TIMEOUT"/>
+    	    </intent-filter>
+    	    <intent-filter >
+    	        <action android:name="org.ohmage.triggers.types.activity.ActTrigService.WAKEUP_CHECK"/>
+    	    </intent-filter>
+    	    
+    	</receiver>
 		
 		<receiver android:name=".triggers.notif.Notifier$NotifReceiver">
 	    	<intent-filter>

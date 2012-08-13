@@ -6,10 +6,13 @@
     <ListView
         android:id="@+id/android:list"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" />
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/trigger_editor_linearLayout" >
+
+    </ListView>
 
     <LinearLayout
+        android:id="@+id/trigger_editor_linearLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import org.ohmage.triggers.config.TriggerTypesConfig;
+import org.ohmage.triggers.types.activity.ActivityTrigger;
 import org.ohmage.triggers.types.location.LocationTrigger;
 import org.ohmage.triggers.types.time.TimeTrigger;
 
@@ -56,6 +57,11 @@ public class TriggerTypeMap {
 		if(TriggerTypesConfig.locationTriggers) {
 			TriggerBase locTrig = new LocationTrigger();
 			mTrigTypeMap.put(locTrig.getTriggerType(), locTrig);
+		}
+		
+		if (TriggerTypesConfig.activityTriggers){
+			TriggerBase actTrig = new ActivityTrigger();
+			mTrigTypeMap.put(actTrig.getTriggerType(), actTrig);
 		}
 	}
 
