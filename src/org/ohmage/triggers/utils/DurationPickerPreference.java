@@ -1,12 +1,15 @@
 package org.ohmage.triggers.utils;
 
 import org.ohmage.NumberPicker;
+import org.ohmage.R.color;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -76,13 +79,35 @@ public class DurationPickerPreference extends DialogPreference {
 		mHourPicker.setCurrent(mHours);
 		mMinPicker.setCurrent(mMin);
 		this.setSummary(durationString());
-		
+		Log.d(tag, "step 1");
 		LinearLayout layout = new LinearLayout(getContext());
-		layout.addView(mHourPicker);
-		layout.addView(mMinPicker);
-		TextView tv = new TextView(getContext());
-		tv.setText("hrs:min");
-		layout.addView(tv);
+		LinearLayout hourLayout = new LinearLayout(getContext());
+		LinearLayout minLayout = new LinearLayout(getContext());
+		Log.d(tag, "step 2");
+		TextView tvHour = new TextView(getContext());
+		tvHour.setTextSize(14);
+		tvHour.setText("     hour(s)");
+		tvHour.setTextColor(Color.WHITE);
+		tvHour.setVisibility(TextView.VISIBLE);
+		Log.d(tag,"step 3");
+		
+		hourLayout.setOrientation(LinearLayout.VERTICAL);
+		hourLayout.addView(mHourPicker);
+		hourLayout.addView(tvHour);
+		Log.d(tag, "step 4");
+		
+		minLayout.setOrientation(LinearLayout.VERTICAL);
+		minLayout.addView(mMinPicker);
+		TextView tvMin = new TextView(getContext());
+		tvMin.setTextSize(14);
+		tvMin.setText("     min(s)");
+		tvMin.setTextColor(Color.WHITE);
+		minLayout.addView(tvMin);
+		Log.d(tag, "step 5");
+		layout.addView(hourLayout);
+		Log.d(tag, "step 6");
+		layout.addView(minLayout);
+		
 		return layout;
 	}
 	public String durationString(){

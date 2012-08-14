@@ -1,9 +1,7 @@
 /*
  * TODO 
  * bad things:
- * 				-it sets an alarm to check for wakeup every morning when there are open ranges
- * 				-when setting the wakeup alarm, it makes it the next day, meaning if the sleep range is after midnight,
- * 				  it won't wake up the morning after midnight, it will wake up the next day in the morning.
+ * 				
  * 
  */
 
@@ -57,10 +55,6 @@ public class ActTrigService extends Service {
 			ActTrigService.class.getName() + ".stop_trigger";
 	public static final String ACTION_RESET_TRIGGER = 
 			ActTrigService.class.getName() + ".reset_trigger";
-	public static final String ACTION_UPDATE_COUNT = 
-			ActTrigService.class.getName() + ".update_count";
-	public static final String ACTION_UPDATE_COUNTING_STATUS = 
-			ActTrigService.class.getName() + ".update_counting";
 	public static final String ACTION_HANDLE_ALARM = 
 			ActTrigService.class.getName() + ".handle_alarm";
 	
@@ -427,8 +421,16 @@ public class ActTrigService extends Service {
 					
 					continue;
 				}
-				//trigger if necessary
-						//did check = true
+				
+				if (triggerOnceOpenTimeRange){
+					this.updateTriggerStart(
+							trigId, 
+							new SimpleTime(OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR , OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE) , 
+							false);
+					
+					continue;
+				}
+				
 				this.triggerIfRequired(trigId, startTime, desc.getState(), desc.getDuration(), true);
 				didCheck = true;
 				

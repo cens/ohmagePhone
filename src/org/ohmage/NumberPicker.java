@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -86,7 +87,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         }
     };
 
-    private final TextView mText;
+    private final EditText mText;
     private final InputFilter mNumberInputFilter;
 
     private String[] mDisplayedValues;
@@ -127,7 +128,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         mDecrementButton.setOnLongClickListener(this);
         mDecrementButton.setNumberPicker(this);
 
-        mText = (TextView) findViewById(R.id.timepicker_text);
+        mText = (EditText) findViewById(R.id.timepicker_text);
         mText.setOnFocusChangeListener(this);
         mText.setFilters(new InputFilter[] {inputFilter});
         mText.setRawInputType(InputType.TYPE_CLASS_NUMBER);
