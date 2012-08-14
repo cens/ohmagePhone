@@ -15,6 +15,8 @@ package org.ohmage.triggers.types.activity;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
@@ -84,7 +86,11 @@ public class ActTrigService extends Service {
 	private static final long COUNT_TIMEOUT = ActTrigConfig.COUNT_TIMEOUT; // 1min.
 	private static final long FIVE_MIN = 1000L * 60L * 5L;
 	private static final long TWO_MIN = 1000L * 60L * 2L;
+	private Set<Integer> openTrigSet;
+	private Set<Integer> closedTrigSet;
 	
+	private static boolean triggerOnceClosedTimeRange = ActTrigConfig.TRIGGER_ONCE_CLOSED_TIME_RANGE;
+	private static boolean triggerOnceOpenTimeRange = ActTrigConfig.TRIGGER_ONCE_OPEN_TIME_RANGE;
 	private static int OPEN_TIME_RANGE_SLEEP_HOUR = ActTrigConfig.OPEN_TIME_RANGE_SLEEP_HOUR;
 	private static int OPEN_TIME_RANGE_SLEEP_MINUTE = ActTrigConfig.OPEN_TIME_RANGE_SLEEP_MINUTE;
 	private static int OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR = ActTrigConfig.OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR;
@@ -141,24 +147,22 @@ public class ActTrigService extends Service {
 		
 		if(intent.getAction().equals(ACTION_START_TRIGGER)) {
 			setTriggerAlwaysAlarm(trigId, trigDesc);
+			updateSamplingStatus();
 		}
 		else if(intent.getAction().equals(ACTION_REMOVE_TRIGGER)) {
 			cancelTriggerAlwaysAlarm(trigId);
+			updateSamplingStatus();
 		}
 		else if(intent.getAction().equals(ACTION_RESET_TRIGGER)) {
 			setTriggerAlwaysAlarm(trigId, trigDesc);
+			updateSamplingStatus();
 		}
 		else if(intent.getAction().equals(ACTION_HANDLE_ALARM)) {
 			Log.d(TAG, "service started with HANDLE_ALARM intent action");
 			handleAlarm(intent.getExtras());
 		}
-		
-		else if(intent.getAction().equals(ACTION_UPDATE_COUNTING_STATUS)) {
-			//updateCountingState();
-			//don't really need this one.
-		}
 
-		updateSamplingStatus(); 
+		 
 		//-- check if any timeperiods to watch for or if already sampling, and somewhere from there set new alarm for future.
 		//releaseWakeLock() here too?
 		releaseRecvrWakeLock();
@@ -188,28 +192,26 @@ public class ActTrigService extends Service {
 		if(alm.equals(ACTION_ALRM_TRIGGER_ALWAYS)) {
 			Log.d(TAG, "handleAlarm called with ALRM_TRIGGER_ALWAYS");
 			handleTriggerAlwaysAlarm(extras.getInt(KEY_TRIG_ID));
+			updateSamplingStatus();
 		}
-//		else if(alm.equals(ACTION_ALRM_GPS_SAMPLE)) {
-//			handleSampleGPSAlarm();
-//		}
 		else if(alm.equals(ACTION_ALRM_COUNT_TIMEOUT)) {
-			//do nothing, because updateSamplingStatus() happens after this method returns
+			updateSamplingStatus();
 		}
 		else if(alm.equals(ACTION_ALRM_WAKEUP_CHECK)){
-			if (!turnOnTriggersIfAwake()){
+			if (checkAwake()){
+				turnOnTriggers();
+				updateSamplingStatus();
+			}
+			else{
 				setSamplingAlarm(ACTION_ALRM_WAKEUP_CHECK , WAKEUP_SCAN_INTERVAL , 0);
-			
 			}
 		}
-//		else if(alm.equals(ACTION_ALRM_PASS_THROUGH)) {
-//			handlePassThroughCheckAlarm(extras.getInt(KEY_SAMPLING_ALARM_EXTRA));
-//		}
 	}
 	
-	private boolean turnOnTriggersIfAwake(){
+	private boolean checkAwake(){
 		Calendar instance = Calendar.getInstance();
 		if (instance.get(Calendar.HOUR) >= OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR && instance.get(Calendar.MINUTE) >= OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE){
-			turnOnTriggers();
+			
 			return true;
 		}
 		instance.set(Calendar.HOUR , WAKEUP_SCAN_HOUR);
@@ -255,7 +257,7 @@ public class ActTrigService extends Service {
 					gettinShifty = false;
 				}
 				if (elapsedTime > TWO_MIN - 5000){
-					turnOnTriggers();
+					
 					return true;
 				}
 				
@@ -270,17 +272,26 @@ public class ActTrigService extends Service {
 		ActivityTrigger at = new ActivityTrigger();
 		SimpleTime now  = new SimpleTime();
 		DbHelper dbHelper = new DbHelper(this);
+		Calendar instance = Calendar.getInstance();
+		String dayStr = ActTrigDesc.getDayOfWeekString(
+				instance.get(Calendar.DAY_OF_WEEK));
 		for (Campaign c : dbHelper.getReadyCampaigns()) {
 			Log.d(TAG, "adding all active trigs from campaign: " + c.toString());
 			actTrigs.addAll(at.getAllActiveTriggerIds(this, c.mUrn));
 		}
 		for (Integer i: actTrigs){
-			updateTriggerStart(i , now , true);
+			ActTrigDesc desc = new ActTrigDesc();
+			desc.loadString(at.getTrigger(this, i));
+			if (desc.doesRepeatOnDay(dayStr)){
+				updateTriggerStart(i , now , true);
+			}
 		}
 	}
 	
 	
 	private void updateSamplingStatus() {
+		openTrigSet = new TreeSet<Integer>();
+		closedTrigSet = new TreeSet<Integer>();
 		Log.d(TAG, "updateSamplingStatus");
 		LinkedList<Integer> actTrigs = new LinkedList<Integer>();
 		ActivityTrigger at = new ActivityTrigger();
@@ -292,15 +303,19 @@ public class ActTrigService extends Service {
 		}
 		
 		
-		//Sample if we are within the time range of any
-		//surveys or any of them don't have a time range.
 		if((actTrigs.size() > 0) && timeRangeCheck(actTrigs)) {
 			Log.d(TAG, "actTrigs and timeRangeCheck are true, setting sampling alarm");
 			this.setSamplingAlarm(ACTION_ALRM_COUNT_TIMEOUT, COUNT_TIMEOUT, 0);
+			if (areAllOpenTrigsOffForToday(openTrigSet)){
+				//set wakeup alarm.
+			}
 		}
 		else if (actTrigs.size() > 0) {
 			Log.d(TAG, "timeRangeCheck false, setting alarm for beginning of next alarm.");
-			this.setAlarmForSampleNextStartRangeOfTrigger(actTrigs);
+			this.setAlarmForSampleNextStartRangeOfTrigger(closedTrigSet);
+			if (areAllOpenTrigsOffForToday(openTrigSet)){
+				this.setWakeupAlarm(openTrigSet);
+			}
 			stopSampling();
 		}
 		else{
@@ -310,10 +325,28 @@ public class ActTrigService extends Service {
 		}
 	}
 	
+	private boolean areAllOpenTrigsOffForToday(Set<Integer> openTrigIds){
+		if (openTrigIds.size() == 0){
+			return false;
+		}
+		ActivityTrigger actTrig = new ActivityTrigger();
+		for (Integer id: openTrigIds){
+			ActTrigDesc desc = new ActTrigDesc();
+			desc.loadString(actTrig.getTrigger(this, id));
+			if (desc.getSwitch()){
+				return false;
+			}
+		}
+		return true;
+		
+	}
+	
 	private boolean timeRangeCheck(LinkedList<Integer> activeTriggers){
 		Calendar instance = Calendar.getInstance();
 		boolean didCheck = false;
 		ActivityTrigger actTrig = new ActivityTrigger();
+		String dayStr = ActTrigDesc.getDayOfWeekString(
+				instance.get(Calendar.DAY_OF_WEEK));
 		for (Integer trigId: activeTriggers){
 			
 			ActTrigDesc desc = new ActTrigDesc();
@@ -322,18 +355,17 @@ public class ActTrigService extends Service {
 				Log.d(TAG, "didn't load properly");
 				continue;
 			}
-			if (!desc.getSwitch()){
-				continue;
-			}
-			
-			String dayStr = ActTrigDesc.getDayOfWeekString(
-					instance.get(Calendar.DAY_OF_WEEK));
-
-
-			if (desc.isRangeEnabled()){
-				if(!desc.doesRepeatOnDay(dayStr)) {
+			boolean closedTimeRange = desc.isRangeEnabled();
+			if (closedTimeRange){
+				//add to closedTrigList
+				closedTrigSet.add(trigId);
+				
+				//check if repeats today
+				if (!desc.doesRepeatOnDay(dayStr)){
 					continue;
 				}
+				
+				//if currently in the time range
 				SimpleTime now = new SimpleTime();
 				SimpleTime startTime = desc.getStartTime();
 				if(now.isBefore(startTime)) {
@@ -344,44 +376,64 @@ public class ActTrigService extends Service {
 				if(now.isAfter(endTime)) {
 					continue;
 				}
-				else if(now.equals(endTime) && instance.get(Calendar.SECOND) > 0){
-					continue;
-				}
+//				else if(now.equals(endTime) && instance.get(Calendar.SECOND) > 0){
+//					continue;
+//				}
+				
+				//has Trigged today
+					//if so update timestamp
 				if (actTrig.hasTriggeredToday(this, trigId)){
+					if (triggerOnceClosedTimeRange){
+						continue;
+					}
 					Calendar temp = Calendar.getInstance();
 					temp.setTimeInMillis(actTrig.getTriggerLatestTimeStamp(this, trigId));
 					startTime = new SimpleTime(temp.get(Calendar.HOUR_OF_DAY), temp.get(Calendar.MINUTE));
 					
 				}
-				//TRIG if requ. should return the didCheck. true, if it's capable of going off.
-				//check if it's capable of going off here.
-				int minIntoDay = startTime.getHour() * 60 + startTime.getMinute() + desc.getDurationMinTotal();
-				SimpleTime earliestTrigTime = new SimpleTime(minIntoDay / 60 , minIntoDay % 60);
-				if (earliestTrigTime.isAfter(desc.getEndTime())){
-					continue;
-				}
-				triggerIfRequired(trigId, startTime , desc.getState() , desc.getDuration() , false);
+				
+				//trigger if necessary and didCheck = true
+				this.triggerIfRequired(trigId, startTime, desc.getState(), desc.getDuration(), false);
 				didCheck = true;
-				
-				
-					
 				
 			}
 			else{
-				SimpleTime startTime = desc.getStartTime();
-				int minIntoDay = startTime.getHour() * 60 + startTime.getMinute() + desc.getDurationMinTotal();
-				SimpleTime earliestTrigTime = new SimpleTime(minIntoDay / 60 , minIntoDay % 60);
-				if (earliestTrigTime.isAfter(new SimpleTime(OPEN_TIME_RANGE_SLEEP_HOUR , OPEN_TIME_RANGE_SLEEP_MINUTE)) || !desc.doesRepeatOnDay(dayStr)){
-					this.updateTriggerStart(trigId, new SimpleTime(OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR , OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE) , false);
-					this.setWakeupAlarm();
+				//add to openTrigList
+				openTrigSet.add(trigId);
+				//check if on or off
+				if (!desc.getSwitch()){
+					continue;
+				}
+				//repeats today
+						//if not, turn off, and continue
+				if (!desc.doesRepeatOnDay(dayStr)){
+					this.updateTriggerStart(
+							trigId, 
+							new SimpleTime(OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR , OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE), 
+							false);
 					continue;
 				}
 				
-				triggerIfRequired(trigId, startTime, desc.getState(), desc.getDuration(), true);
-				
+				//if duration will go over sleep time
+						//if so, turn off, and continue
+				SimpleTime startTime = desc.getStartTime();
+				int minIntoDay = startTime.getHour() * 60 + startTime.getMinute() + desc.getDurationMinTotal();
+				SimpleTime earliestTrigTime = new SimpleTime(minIntoDay / 60 , minIntoDay % 60);
+				if (earliestTrigTime.isAfter(new SimpleTime(OPEN_TIME_RANGE_SLEEP_HOUR , OPEN_TIME_RANGE_SLEEP_MINUTE))){
+					this.updateTriggerStart(
+							trigId, 
+							new SimpleTime(OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR , OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE) , 
+							false);
+					
+					continue;
+				}
+				//trigger if necessary
+						//did check = true
+				this.triggerIfRequired(trigId, startTime, desc.getState(), desc.getDuration(), true);
 				didCheck = true;
 				
 			}
+			
 			
 		}
 		
@@ -399,8 +451,8 @@ public class ActTrigService extends Service {
 		
 		//count backwards till you hit either 1) opposite activity 2)start time 3)sleep filter?
 		if (now.differenceInMinutes(startTime) * 60 * 1000 < duration){
-			Log.d(TAG, "time from startTime is less than duration, returning false");
-			return true;
+			Log.d(TAG, "time from startTime is less than duration, returning");
+			return false;
 		}
 		instance.set(Calendar.HOUR_OF_DAY, startTime.getHour());
 		instance.set(Calendar.MINUTE, startTime.getMinute());
@@ -515,15 +567,26 @@ public class ActTrigService extends Service {
 	/*
 	 * sets wake up alarm for next day. 
 	 */
-	private void setWakeupAlarm(){
+	private void setWakeupAlarm(Set<Integer> openTrigs){
 		Log.d(TAG, "setWakeupAlarm() entered");
 		cancelSamplingAlarm(ACTION_ALRM_WAKEUP_CHECK);
+		long now = System.currentTimeMillis();
+		long target = now + 1000L * 60L * 60L * 24L * 7L; //7 days
+		ActivityTrigger trig = new ActivityTrigger();
+		for (Integer id: openTrigs){
+			ActTrigDesc desc = new ActTrigDesc();
+			desc.loadString(trig.getTrigger(this, id));
+			long nextStartTime = this.getNextStartTime(desc);
+			if (this.getNextStartTime(desc) < target){
+				target = nextStartTime;
+			}
+		}
 		
 		Calendar instance = Calendar.getInstance();
-		instance.add(Calendar.DAY_OF_YEAR, 1);
+		instance.setTimeInMillis(target);
 		instance.set(Calendar.HOUR_OF_DAY, WAKEUP_SCAN_HOUR);
 		instance.set(Calendar.MINUTE, WAKEUP_SCAN_MINUTE);
-		long elapsedTime = instance.getTimeInMillis() - System.currentTimeMillis();
+		long elapsedTime = instance.getTimeInMillis() - now;
 		Log.d(TAG, "setting wakeup alarm, elapsedTime: " + elapsedTime);
 		setSamplingAlarm(ACTION_ALRM_WAKEUP_CHECK , elapsedTime, 0);
 	}
@@ -608,7 +671,7 @@ public class ActTrigService extends Service {
 			actTrig.notifyTrigger(this, trigId);
 		}
 		
-		//Set the alarm for the next day
+		//Set the alarm for the next time
 		setTriggerAlwaysAlarm(trigId, actTrig.getTrigger(this, trigId));
 	}
 	
@@ -633,7 +696,10 @@ public class ActTrigService extends Service {
 	/*
 	 * here I will check for earliest day/time of next trigger.  
 	 */
-	private void setAlarmForSampleNextStartRangeOfTrigger(LinkedList<Integer> actTrigs){
+	private void setAlarmForSampleNextStartRangeOfTrigger(Set<Integer> closedTrigSet){
+		if (closedTrigSet.size()==0){
+			return;
+		}
 		Log.d(TAG, "setAlarmForSampleNextStartRangeOfTrigger() entered");
 		Calendar cal = Calendar.getInstance();
 		ActivityTrigger actTrig = new ActivityTrigger();
@@ -641,7 +707,7 @@ public class ActTrigService extends Service {
 		long elapsedTime = 1000L * 60L * 60L * 24L * 7L; //1 week. a big enough time just to be safe
 		
 		
-		for (Integer trigId: actTrigs){
+		for (Integer trigId: closedTrigSet){
 			ActTrigDesc desc = new ActTrigDesc();
 			if(!desc.loadString(actTrig.getTrigger(this, trigId))) {
 				continue;
@@ -846,21 +912,6 @@ public class ActTrigService extends Service {
 		}
 	}
 	
-	//don't really need this.
-	class MobilityObserver extends ContentObserver{
-		 public MobilityObserver(Handler h){
-			 super(h);
-		 }
-		 
-		 @Override
-		 public boolean deliverSelfNotifications() {
-		     return false;
-		     }
-		 
-		 @Override
-		 public void onChange(boolean selfChange){
-			 
-		 }
-	}
+	 
 	
 }

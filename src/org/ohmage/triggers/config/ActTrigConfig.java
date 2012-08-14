@@ -7,6 +7,14 @@ public class ActTrigConfig {
 	 */
 	public static final long COUNT_TIMEOUT = 1000L * 60L * 1L; // 1min.
 
+	
+	/*
+	 * whether trigger should go off once in a set time range and then stop,
+	 * or reset itself and look for another bout of inactivity/activity in one day
+	 */
+	public static final boolean TRIGGER_ONCE_CLOSED_TIME_RANGE = false;
+	public static final boolean TRIGGER_ONCE_OPEN_TIME_RANGE = false;
+
 	/*
 	 * The time after which "open time range" triggers should not go off
 	 */
