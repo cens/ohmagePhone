@@ -694,7 +694,7 @@ public class ActTrigService extends Service {
 	
 	
 	/*
-	 * here I will check for earliest day/time of next trigger.  
+	 * here I will check for earliest day/time of next closedTimeRange trigger.  
 	 */
 	private void setAlarmForSampleNextStartRangeOfTrigger(Set<Integer> closedTrigSet){
 		if (closedTrigSet.size()==0){
