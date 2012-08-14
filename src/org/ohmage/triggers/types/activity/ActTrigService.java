@@ -422,7 +422,7 @@ public class ActTrigService extends Service {
 					continue;
 				}
 				
-				if (triggerOnceOpenTimeRange){
+				if (triggerOnceOpenTimeRange && actTrig.hasTriggeredToday(this, trigId)){
 					this.updateTriggerStart(
 							trigId, 
 							new SimpleTime(OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR , OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE) , 
