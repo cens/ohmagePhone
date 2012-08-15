@@ -33,6 +33,13 @@
 			android:summaryOff="Show Mobility on Dashboard"
 			android:summaryOn="Hide Mobility from Dashboard"
 			android:title="Show Mobility" />
+		
+		<CheckBoxPreference
+			android:key="key_show_mobility_feedback"
+			android:summaryOff="Show Mobility Feedback"
+			android:summaryOn="Hide Mobility Feedback"
+			android:title="Show Mobility Feedback"
+			android:dependency="key_show_mobility" />
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="Account Management">

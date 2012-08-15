@@ -1,18 +1,20 @@
 package org.ohmage.activity;
 
 
+import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.TabHost;
+import android.widget.TextView;
+
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.fragments.MobilityControlFragment;
 import org.ohmage.fragments.RecentMobilityChartFragment;
 import org.ohmage.ui.BaseActivity;
 import org.ohmage.ui.TabsAdapter;
-
-import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.widget.TabHost;
-import android.widget.TextView;
 
 
 public class MobilityActivity extends BaseActivity {
@@ -22,6 +24,8 @@ public class MobilityActivity extends BaseActivity {
 	TabHost mTabHost;
 	ViewPager mViewPager;
 	TabsAdapter mTabsAdapter;
+
+    private UserPreferencesHelper mUserPrefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,7 @@ public class MobilityActivity extends BaseActivity {
 			view.setGravity(Gravity.CENTER);
 			setContentView(view);
 		} else {
+		    mUserPrefs = new UserPreferencesHelper(this);
 			setContentView(R.layout.tab_layout);
 			setActionBarShadowVisibility(false);
 
@@ -50,7 +55,11 @@ public class MobilityActivity extends BaseActivity {
 
 			mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
-			mTabsAdapter.addTab("Analytics", RecentMobilityChartFragment.class, null);
+			if(mUserPrefs.showMobilityFeedback()) {
+			    mTabsAdapter.addTab("Analytics", RecentMobilityChartFragment.class, null);
+			} else {
+			    findViewById(android.R.id.tabs).setVisibility(View.GONE);
+			}
 			mTabsAdapter.addTab("Control", MobilityControlFragment.class, null);
 
 			if (savedInstanceState != null) {
