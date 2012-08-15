@@ -30,11 +30,13 @@ public class UserPreferencesHelper {
 	private static final boolean DEFAULT_SHOW_PROFILE = true;
 	private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = true;
 	private static final boolean DEFAULT_SHOW_MOBILITY = true;
+	private static final boolean DEFAULT_SHOW_MOBILITY_FEEDBACK = true;
 
 	public static final String KEY_SHOW_FEEDBACK = "key_show_feedback";
 	public static final String KEY_SHOW_PROFILE = "key_show_profile";
 	public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
 	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
+	public static final String KEY_SHOW_MOBILITY_FEEDBACK = "key_show_mobility_feedback";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
 	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
 	private static final String KEY_USERNAME = "username";
@@ -78,6 +80,10 @@ public class UserPreferencesHelper {
 
 	public boolean showMobility() {
 		return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
+	}
+
+	public boolean showMobilityFeedback() {
+	    return mPreferences.getBoolean(KEY_SHOW_MOBILITY_FEEDBACK, DEFAULT_SHOW_MOBILITY_FEEDBACK);
 	}
 
 	/**

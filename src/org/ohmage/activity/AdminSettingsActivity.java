@@ -56,6 +56,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_PROFILE)).setChecked(userPrefHelper.showProfile());
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_UPLOAD_QUEUE)).setChecked(userPrefHelper.showUploadQueue());
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY)).setChecked(userPrefHelper.showMobility());
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY_FEEDBACK)).setChecked(userPrefHelper.showMobilityFeedback());
 
 		((CheckBoxPreference) findPreference(ConfigHelper.KEY_SINGLE_CAMPAIGN_MODE)).setChecked(ConfigHelper.isSingleCampaignMode());
 
