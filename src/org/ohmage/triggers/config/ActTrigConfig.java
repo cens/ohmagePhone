@@ -5,7 +5,7 @@ public class ActTrigConfig {
 	/*
 	 * The timeout between sampling when there are valid triggers to be checked for.
 	 */
-	public static final long COUNT_TIMEOUT = 1000L * 60L * 1L; // 1min.
+	public static final long COUNT_TIMEOUT = 1000L * 60L * 5L; // 5min.
 
 	
 	/*

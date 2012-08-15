@@ -218,11 +218,11 @@ public class ActTrigService extends Service {
 	
 	private boolean checkAwake(){
 		Calendar instance = Calendar.getInstance();
-		if (instance.get(Calendar.HOUR) >= OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR && instance.get(Calendar.MINUTE) >= OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE){
+		if (instance.get(Calendar.HOUR_OF_DAY) >= OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR && instance.get(Calendar.MINUTE) >= OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE){
 			
 			return true;
 		}
-		instance.set(Calendar.HOUR , WAKEUP_SCAN_HOUR);
+		instance.set(Calendar.HOUR_OF_DAY , WAKEUP_SCAN_HOUR);
 		instance.set(Calendar.MINUTE, WAKEUP_SCAN_MINUTE);
 		instance.set(Calendar.SECOND, 0);
 		
@@ -767,7 +767,7 @@ public class ActTrigService extends Service {
 				}
 			}
 			instance.add(Calendar.DAY_OF_YEAR, daysAhead);
-			instance.set(Calendar.HOUR, desc.getStartTime().getHour());
+			instance.set(Calendar.HOUR_OF_DAY, desc.getStartTime().getHour());
 			instance.set(Calendar.MINUTE, desc.getStartTime().getMinute());
 			instance.set(Calendar.SECOND, 0);
 			
