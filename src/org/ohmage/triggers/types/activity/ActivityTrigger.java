@@ -1,4 +1,25 @@
-//TODO write launchSettingsEditActivity()
+/*******************************************************************************
+ * Copyright 2011 The Regents of the University of California
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+/*
+ * Authored by: Ankit Gupta. for questions, please email: agupta423@gmail.com
+ * Adapted from Location Triggers and Time Triggers by: Kannan Parameswaran
+ * 
+ */
+
 package org.ohmage.triggers.types.activity;
 
 import org.json.JSONObject;
@@ -46,8 +67,14 @@ public class ActivityTrigger extends TriggerBase	{
 		
 		String state = actDesc.getStateString();
 		String result = state + " - ";
-		String duration = actDesc.getDurationString();
-		result += duration;
+		int hours = actDesc.getDurationHours();
+		int min = actDesc.getDurationMin();
+		if (hours != 0){
+			result =+ hours + "h";
+		}
+		if (min != 0){
+			result += min + "m";
+		}
 		return result;
 	}
 
