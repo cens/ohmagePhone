@@ -464,9 +464,12 @@ public class ActTrigService extends Service {
 		Calendar instance = Calendar.getInstance();
 		SimpleTime now = new SimpleTime();
 		
-		
+		Log.d(TAG, "start time is: " + startTime);
+		Log.d(TAG, "duration is: " + duration/1000/60 + " min");
+		Log.d(TAG, "open: " + open);
 		//count backwards till you hit either 1) opposite activity 2)start time 3)sleep filter?
 		if (now.differenceInMinutes(startTime) * 60 * 1000 < duration){
+			
 			Log.d(TAG, "time from startTime is less than duration, returning");
 			return false;
 		}
@@ -507,7 +510,7 @@ public class ActTrigService extends Service {
 					oppTimeChecker += difference;
 					
 				}
-				else if (mode != state && !gettinShifty){
+				else if (mode != state && !gettinShifty && elapsedTime > 0){
 					//elapsedTime += difference;
 					tempMemory += difference;
 					oppTime += difference;
