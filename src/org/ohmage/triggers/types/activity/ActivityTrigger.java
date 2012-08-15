@@ -70,7 +70,7 @@ public class ActivityTrigger extends TriggerBase	{
 		int hours = actDesc.getDurationHours();
 		int min = actDesc.getDurationMin();
 		if (hours != 0){
-			result =+ hours + "h";
+			result += hours + "h ";
 		}
 		if (min != 0){
 			result += min + "m";
