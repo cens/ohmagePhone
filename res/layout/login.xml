@@ -84,6 +84,15 @@
                         android:inputType="textUri"
                         android:textSize="@dimen/font_size_default" />
                 </RelativeLayout>
+                
+                <TextView
+                   	android:id="@+id/login_register_new_account"
+                   	style="@style/SignupLabel"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:clickable="true"
+					android:textColor="@color/powderkegblue"
+					android:text="@string/login_register_new_account" />
             </LinearLayout>
 
             <Button

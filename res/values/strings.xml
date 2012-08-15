@@ -62,6 +62,8 @@
     <string name="login_submit">Login</string>
     <string name="login_invalid_server">Please Enter a valid server name</string>
     <string name="login_activity_login_button_description">Login Button</string>
+    
+    <string name="login_register_new_account"><a href="#">register an account</a></string>
 
     <!-- Mobility -->
     <string name="mobility_missing_desc">Please make sure the Mobility package is installed.</string>

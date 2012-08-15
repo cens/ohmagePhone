@@ -20,6 +20,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
@@ -77,6 +78,7 @@ public class LoginActivity extends FragmentActivity {
 	private EditText mUsernameEdit;
 	private EditText mPasswordEdit;
 	private EditText mServerEdit;
+	private TextView mRegisterAccountLink;
 	private Button mLoginButton;
 	private TextView mVersionText;
 	private UserPreferencesHelper mPreferencesHelper;
@@ -111,6 +113,7 @@ public class LoginActivity extends FragmentActivity {
         mUsernameEdit = (EditText) findViewById(R.id.login_username); 
         mPasswordEdit = (EditText) findViewById(R.id.login_password);
 		mServerEdit = (EditText) findViewById(R.id.login_server_edit);
+		mRegisterAccountLink = (TextView) findViewById(R.id.login_register_new_account);
 
         mVersionText = (TextView) findViewById(R.id.version);
         
@@ -122,6 +125,8 @@ public class LoginActivity extends FragmentActivity {
 		}
         
         mLoginButton.setOnClickListener(mClickListener);
+        mRegisterAccountLink.setOnClickListener(mClickListener);
+        
 
 		if(getResources().getBoolean(R.bool.allow_custom_server)) {
 			View serverContainer = findViewById(R.id.login_server_container);
@@ -260,15 +265,32 @@ public class LoginActivity extends FragmentActivity {
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
-			case R.id.login:
-				Log.i(TAG, "login button clicked");
-				Analytics.widget(v);
-				if(ensureServerUrl()) {
-					ConfigHelper.setServerUrl(mServerEdit.getText().toString());
-					doLogin();
-				} else
-					Toast.makeText(LoginActivity.this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
-				break;
+				case R.id.login:
+					Log.i(TAG, "login button clicked");
+					Analytics.widget(v);
+					if(ensureServerUrl()) {
+						ConfigHelper.setServerUrl(mServerEdit.getText().toString());
+						doLogin();
+					} else
+						Toast.makeText(LoginActivity.this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
+					break;
+					
+				case R.id.login_register_new_account:
+					// reads the currently selected server and fires a browser intent
+					// which takes the user to the registration page for that server
+					Log.i(TAG, "register new account linkbutton clicked");
+					
+					Analytics.widget(v);
+					if (ensureServerUrl()) {
+						// use the textbox to make a url and send the user on their way
+						String url = mServerEdit.getText().toString() + "#register";
+						Intent i = new Intent(Intent.ACTION_VIEW);
+						i.setData(Uri.parse(url));
+						startActivity(i);
+					} else
+						Toast.makeText(LoginActivity.this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
+					
+					break;
 			}
 		}
 	};
