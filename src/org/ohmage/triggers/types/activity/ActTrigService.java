@@ -54,6 +54,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 
 public class ActTrigService extends Service {
 
@@ -99,8 +100,11 @@ public class ActTrigService extends Service {
 	
 	private static boolean triggerOnceClosedTimeRange = ActTrigConfig.TRIGGER_ONCE_CLOSED_TIME_RANGE;
 	private static boolean triggerOnceOpenTimeRange = ActTrigConfig.TRIGGER_ONCE_OPEN_TIME_RANGE;
-	private static int OPEN_TIME_RANGE_SLEEP_HOUR = ActTrigConfig.OPEN_TIME_RANGE_SLEEP_HOUR;
-	private static int OPEN_TIME_RANGE_SLEEP_MINUTE = ActTrigConfig.OPEN_TIME_RANGE_SLEEP_MINUTE;
+	
+	//the sleep hour and minute go to preferences, b/c user can change that now
+	//but it can also be changed to fetch it from ActTrigConfig so it's always the same
+	private int OPEN_TIME_RANGE_SLEEP_HOUR;
+	private int OPEN_TIME_RANGE_SLEEP_MINUTE;
 	private static int OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR = ActTrigConfig.OPEN_TIME_RANGE_WAKEUP_DEFAULT_HOUR;
 	private static int OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE = ActTrigConfig.OPEN_TIME_RANGE_WAKEUP_DEFAULT_MINUTE;
 	
@@ -143,12 +147,14 @@ public class ActTrigService extends Service {
     	builder.authority("edu.ucla.cens.mobility.MobilityContentProvider");
     	builder.path(MOBILITY);
 		uriMobility = builder.build();
-		
 		super.onCreate();
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
+		OPEN_TIME_RANGE_SLEEP_HOUR = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_hour", 21);
+		OPEN_TIME_RANGE_SLEEP_MINUTE = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_minute", 0);
+		
 		Log.d(TAG, "onStartCommand()");
 		int trigId = intent.getIntExtra(KEY_TRIG_ID, -1);
 		String trigDesc = intent.getStringExtra(KEY_TRIG_DESC);
@@ -611,8 +617,11 @@ public class ActTrigService extends Service {
 	}
 	//0 is inactive, 1 is active
 	private int modeToInt(String mode){
-		if (mode.equals("error") || mode.equals("still") || mode.equals("drive")){
+		if (mode.equals("still") || mode.equals("drive")){
 			return 0;
+		}
+		if (mode.equals("error")){
+			return 2;
 		}
 		else return 1;
 	}

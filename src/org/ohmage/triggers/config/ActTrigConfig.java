@@ -1,6 +1,10 @@
 package org.ohmage.triggers.config;
 
+import android.content.Context;
+import android.preference.PreferenceManager;
+
 public class ActTrigConfig {
+	
 	
 	/*
 	 * The timeout between sampling when there are valid triggers to be checked for.
@@ -39,4 +43,5 @@ public class ActTrigConfig {
 	 * 1 hour, it will scan at 6am , 7am, 8am, and at 9am, it will just turn the triggers back on
 	 */
 	public static long WAKEUP_SCAN_INTERVAL = 1000L * 60L * 60L; //1 hour
+	
 }

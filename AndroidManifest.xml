@@ -320,6 +320,8 @@
 		/<!-- Service registered, alarm receiver registered, and actTrigEditActivity registered. -->
 		<activity android:name=".triggers.types.activity.ActTrigEditActivity"
 		    android:screenOrientation="portrait"/>
+		<activity android:name=".triggers.types.activity.ActTrigSettingsActivity"
+		    android:screenOrientation="portrait"/>
     	<service android:name=".triggers.types.activity.ActTrigService"/>
     	<receiver android:name=".triggers.types.activity.ActTrigService$AlarmReceiver">
     	    <intent-filter >

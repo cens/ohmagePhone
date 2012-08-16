@@ -190,7 +190,8 @@ public class ActivityTrigger extends TriggerBase	{
 
 	@Override
 	public void launchSettingsEditActivity(Context context, boolean adminMode) {
-		// TODO Auto-generated method stub
+		Intent i = new Intent(context , ActTrigSettingsActivity.class);
+		context.startActivity(i);
 		
 	}
 

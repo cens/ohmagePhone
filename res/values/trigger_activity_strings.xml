@@ -4,4 +4,5 @@
     <string name="trigger_act_title">Activity State</string>
     <string name="trigger_act_no_state_selected">(Not selected)</string>
     <string name="trigger_act_time_range_summary">Evaluate only during following interval</string>
+    <string name="trigger_act_setting_summary">Activity Reminder Settings</string>
 </resources>

@@ -45,11 +45,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -94,6 +96,9 @@ public class ActTrigEditActivity extends PreferenceActivity
 	private static final int DIALOG_ID_OUT_OF_RANGE = 6;
 	private static final int DIALOG_ID_DAY_SEL = 7;
 	
+	private int SLEEP_HOUR ;
+	private int SLEEP_MINUTE;
+	
 	private boolean mAdminMode = false;
 	
 	public interface ExitListener {
@@ -133,6 +138,10 @@ public class ActTrigEditActivity extends PreferenceActivity
 			return;
 		}
 		Log.d(TAG, "onCreate ActTRigEditActivity");
+		
+		SLEEP_HOUR = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_hour", -1);
+		SLEEP_MINUTE = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_minute", -1);
+
 		PreferenceScreen screen = getPreferenceScreen();
 		int prefCount = screen.getPreferenceCount();
 		for(int i = 0; i < prefCount; i++) {
@@ -505,6 +514,10 @@ public class ActTrigEditActivity extends PreferenceActivity
 					return;
 				}
 				
+				if (!rangePref.isChecked() && SLEEP_HOUR == -1 && SLEEP_MINUTE == -1){
+					Intent i = new Intent(this , ActTrigSettingsActivity.class);
+					startActivity(i);
+				}
 				mExitListener.onDone(this, mTrigId, mTrigDesc.toString(), mActDesc.toString());
 				
 			}

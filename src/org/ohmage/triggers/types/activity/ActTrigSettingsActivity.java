@@ -21,6 +21,93 @@
  */
 package org.ohmage.triggers.types.activity;
 
-public class ActTrigSettingsActivity {
+import org.ohmage.R;
+import org.ohmage.triggers.utils.SimpleTime;
+import org.ohmage.triggers.utils.TimePickerPreference;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.Toast;
+
+public class ActTrigSettingsActivity extends PreferenceActivity 
+									implements OnPreferenceClickListener, 
+									OnPreferenceChangeListener {
+	private SharedPreferences sharedPref;
+	private static final String PREF_KEY_SLEEP_TIME = "activity_sleep";
+	private static final String SLEEP_HOUR_KEY = "activity_trigger_sleep_hour";
+	private static final String SLEEP_MIN_KEY = "activity_trigger_sleep_minute";
+	
+	private static int HOUR = -1;
+	private static int MIN = -1;
+	
+
+	
+	@Override
+    public void onCreate(Bundle savedInstanceState) {
+		
+		super.onCreate(savedInstanceState);
+		
+		addPreferencesFromResource(R.xml.trig_act_settings_preferences);
+		setContentView(R.layout.trigger_act_settings);
+		
+		Button done = (Button) findViewById(R.id.trigger_act_settings_done);
+		final TimePickerPreference sleepPicker = (TimePickerPreference) getPreferenceScreen().findPreference(PREF_KEY_SLEEP_TIME);
+		
+		done.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				SimpleTime time = sleepPicker.getTime();
+				HOUR = time.getHour();
+				MIN = time.getMinute();
+				
+				if (HOUR < 16){
+					Toast.makeText(getBaseContext(), "Please pick a later time", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				updateSleepPref(HOUR,MIN);
+				finish();
+			}
+		
+		});
+		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		HOUR = sharedPref.getInt(SLEEP_HOUR_KEY, -1);
+		MIN = sharedPref.getInt(SLEEP_MIN_KEY, -1);
+		
+		if (HOUR != -1 && MIN != -1){
+			sleepPicker.setTime(HOUR, MIN);
+		}
+		else{
+			sleepPicker.setTime(21, 0);
+			HOUR = 21;
+			MIN = 0;
+		}
+	}
+
+	private void updateSleepPref(int hour, int minute){
+		Editor editor = sharedPref.edit();
+		editor.putInt(SLEEP_HOUR_KEY, hour);
+		editor.putInt(SLEEP_MIN_KEY, minute);
+		editor.commit();
+	}
+	@Override
+	public boolean onPreferenceChange(Preference arg0, Object arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onPreferenceClick(Preference preference) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
