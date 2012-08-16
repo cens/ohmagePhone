@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<org.ohmage.triggers.utils.TimePickerPreference
+		    android:key="activity_sleep"
+		    android:persistent="true"
+		    android:title="Stop notifications at"
+		    android:summary="Please pick the time when you would like Activity Reminders to stop notifying at night (when you go to sleep)" />
+	
+	
+</PreferenceScreen>

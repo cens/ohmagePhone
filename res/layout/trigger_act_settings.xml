@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/text1"
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:paddingLeft="6dip"
+        android:text="@string/trigger_act_setting_summary"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please pick the time when you would like Activity Reminders to stop notifying at night (when you go to sleep)"
+        android:textSize="@dimen/font_size_medium" />
+
+    <ListView
+        android:id="@+id/android:list"
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/halfgutter"
+        android:layout_marginLeft="@dimen/halfgutter"
+        android:layout_marginRight="@dimen/halfgutter"
+        android:weightSum="1.0" >
+
+        <Button
+            android:id="@+id/trigger_act_settings_done"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.3"
+            android:gravity="center"
+            android:text="Done" />
+
+    </LinearLayout>
+
+</LinearLayout>
