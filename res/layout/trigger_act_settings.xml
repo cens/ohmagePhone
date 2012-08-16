@@ -19,7 +19,7 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Please pick the time when you would like Activity Reminders to stop notifying at night (when you go to sleep)"
+        android:text="For activity triggers with no time range enforced, please pick the time when you would like Activity Reminders to stop notifying at night (when you go to sleep)"
         android:textSize="@dimen/font_size_medium" />
 
     <ListView

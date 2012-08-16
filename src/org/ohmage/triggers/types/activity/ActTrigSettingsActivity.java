@@ -80,17 +80,11 @@ public class ActTrigSettingsActivity extends PreferenceActivity
 		
 		});
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		HOUR = sharedPref.getInt(SLEEP_HOUR_KEY, -1);
-		MIN = sharedPref.getInt(SLEEP_MIN_KEY, -1);
+		HOUR = sharedPref.getInt(SLEEP_HOUR_KEY, 21);
+		MIN = sharedPref.getInt(SLEEP_MIN_KEY, 0);
 		
-		if (HOUR != -1 && MIN != -1){
-			sleepPicker.setTime(HOUR, MIN);
-		}
-		else{
-			sleepPicker.setTime(21, 0);
-			HOUR = 21;
-			MIN = 0;
-		}
+		sleepPicker.setTime(HOUR, MIN);
+		
 	}
 
 	private void updateSleepPref(int hour, int minute){

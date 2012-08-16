@@ -132,6 +132,9 @@ public class ActTrigService extends Service {
 	public void onCreate(){
 		
 		//initState() -- initialize any constants or anything like that.
+
+		OPEN_TIME_RANGE_SLEEP_HOUR = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_hour", 21);
+		OPEN_TIME_RANGE_SLEEP_MINUTE = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_minute", 0);
 		
 		
 		PowerManager powerMan = (PowerManager) getSystemService(POWER_SERVICE);
@@ -152,9 +155,6 @@ public class ActTrigService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
-		OPEN_TIME_RANGE_SLEEP_HOUR = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_hour", 21);
-		OPEN_TIME_RANGE_SLEEP_MINUTE = PreferenceManager.getDefaultSharedPreferences(this).getInt("activity_trigger_sleep_minute", 0);
-		
 		Log.d(TAG, "onStartCommand()");
 		int trigId = intent.getIntExtra(KEY_TRIG_ID, -1);
 		String trigDesc = intent.getStringExtra(KEY_TRIG_DESC);
@@ -270,7 +270,7 @@ public class ActTrigService extends Service {
 					elapsedTime = 0L;
 					gettinShifty = false;
 				}
-				if (elapsedTime > TWO_MIN - 5000){
+				if (elapsedTime > FIVE_MIN){
 					
 					return true;
 				}
@@ -516,9 +516,11 @@ public class ActTrigService extends Service {
 					oppTimeChecker += difference;
 					
 				}
-				else if (mode != state && !gettinShifty && elapsedTime > 0){
+				else if (mode != state && !gettinShifty){
 					//elapsedTime += difference;
+					if (elapsedTime > 0){
 					tempMemory += difference;
+					}
 					oppTime += difference;
 					gettinShifty = true;
 					

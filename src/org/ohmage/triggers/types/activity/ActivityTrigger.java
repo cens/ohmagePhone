@@ -185,7 +185,7 @@ public class ActivityTrigger extends TriggerBase	{
 	@Override
 	public boolean hasSettings() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
