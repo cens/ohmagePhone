@@ -25,6 +25,8 @@ import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 
+import java.util.ArrayList;
+
 public class ProbeUploadService extends WakefulIntentService {
 
     /** Extra to tell the upload service if it is running in the background **/
@@ -105,7 +107,7 @@ public class ProbeUploadService extends WakefulIntentService {
     public abstract class Uploader {
 
         protected JsonParser mParser;
-        private boolean mInternalError = false;
+        protected ArrayList<String> mErrors = new ArrayList<String>();
 
         public Uploader() {
             mParser = new JsonParser();
@@ -117,6 +119,8 @@ public class ProbeUploadService extends WakefulIntentService {
                 String password, String client, String name, String version, JsonArray data);
 
         protected abstract void uploadStarted();
+
+        protected abstract void uploadBatchSuccess();
 
         protected abstract void uploadFinished();
 
@@ -244,12 +248,12 @@ public class ProbeUploadService extends WakefulIntentService {
                 response.handleError(ProbeUploadService.this);
 
                 if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
-                    NotificationHelper.hideMobilityErrorNotification(ProbeUploadService.this);
+                    uploadBatchSuccess();
                 } else {
-                    if (isBackground && !response.hasAuthError()
+                    if (!response.hasAuthError()
                             && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
-                        mInternalError = true;
-                        NotificationHelper.showMobilityErrorNotification(ProbeUploadService.this);
+                        mErrors.add(observerId);
+                        uploadError();
                     }
                 }
                 if (response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
@@ -260,7 +264,7 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         public boolean hadError() {
-            return mInternalError;
+            return !mErrors.isEmpty();
         }
     }
 
@@ -321,12 +325,18 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
+        protected void uploadBatchSuccess() {
+            NotificationHelper.hideProbeUploadErrorNotification(ProbeUploadService.this);
+        }
+
+        @Override
         protected void uploadFinished() {
             sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_FINISHED));
         }
 
         @Override
         protected void uploadError() {
+            NotificationHelper.showProbeUploadErrorNotification(ProbeUploadService.this, mErrors);
             sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_ERROR));
         }
 
@@ -398,12 +408,18 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
+        protected void uploadBatchSuccess() {
+            NotificationHelper.hideResponseUploadErrorNotification(ProbeUploadService.this);
+        }
+
+        @Override
         protected void uploadFinished() {
             sendBroadcast(new Intent(ProbeUploadService.RESPONSE_UPLOAD_FINISHED));
         }
 
         @Override
         protected void uploadError() {
+            NotificationHelper.showResponseUploadErrorNotification(ProbeUploadService.this, mErrors);
             sendBroadcast(new Intent(ProbeUploadService.RESPONSE_UPLOAD_ERROR));
         }
 
