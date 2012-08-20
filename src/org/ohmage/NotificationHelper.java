@@ -1,16 +1,21 @@
 package org.ohmage;
 
-import org.ohmage.activity.LoginActivity;
-import org.ohmage.activity.MobilityActivity;
-import org.ohmage.activity.UploadQueueActivity;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import org.ohmage.activity.LoginActivity;
+import org.ohmage.activity.MobilityActivity;
+import org.ohmage.activity.UploadQueueActivity;
+
 public class NotificationHelper {
+
+    private static final int AUTH_ERROR_ID = 0;
+    private static final int NOTIFICATION_ID = 1;
+    private static final int UPLOAD_ERROR_ID = 2;
+    private static final int MOBILITY_ERROR_ID = 3;
 
 	public static void showAuthNotification(Context context) {
 		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -28,11 +33,11 @@ public class NotificationHelper {
 		note.when = System.currentTimeMillis();
 		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
 		note.setLatestEventInfo(context, title, body, pendingIntent);
-		noteManager.notify(1, note);
+		noteManager.notify(AUTH_ERROR_ID, note);
 	}
 
 	public static void hideAuthNotification(Context context) {
-		hideNotification(context, 1);
+		hideNotification(context, AUTH_ERROR_ID);
 	}
 
 	public static void showUploadErrorNotification(Context context) {
@@ -49,11 +54,11 @@ public class NotificationHelper {
 		note.when = System.currentTimeMillis();
 		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
 		note.setLatestEventInfo(context, title, body, pendingIntent);
-		noteManager.notify(2, note);
+		noteManager.notify(UPLOAD_ERROR_ID, note);
 	}
 
 	public static void hideUploadErrorNotification(Context context) {
-		hideNotification(context, 2);
+		hideNotification(context, UPLOAD_ERROR_ID);
 	}
 
 	public static void showMobilityErrorNotification(Context context) {
@@ -70,11 +75,11 @@ public class NotificationHelper {
 		note.when = System.currentTimeMillis();
 		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
 		note.setLatestEventInfo(context, title, body, pendingIntent);
-		noteManager.notify(3, note);
+		noteManager.notify(MOBILITY_ERROR_ID, note);
 	}
 
 	public static void hideMobilityErrorNotification(Context context) {
-		hideNotification(context, 3);
+		hideNotification(context, MOBILITY_ERROR_ID);
 	}
 
 	public static void showNotification(Context context, String title, String message, Intent intent) {
@@ -88,7 +93,7 @@ public class NotificationHelper {
 		note.when = System.currentTimeMillis();
 		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
 		note.setLatestEventInfo(context, title, message, pendingIntent);
-		noteManager.notify(4, note);
+		noteManager.notify(NOTIFICATION_ID, note);
 	}
 
 	private static void hideNotification(Context context, int id) {
