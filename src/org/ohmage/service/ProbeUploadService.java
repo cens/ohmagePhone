@@ -43,6 +43,8 @@ public class ProbeUploadService extends WakefulIntentService {
     public static final String RESPONSE_UPLOAD_FINISHED = "org.ohmage.RESPONSE_UPLOAD_FINISHED";
     public static final String RESPONSE_UPLOAD_ERROR = "org.ohmage.RESPONSE_UPLOAD_ERROR";
 
+    public static final String PROBE_UPLOAD_SERVICE_FINISHED = "org.ohmage.PROBE_UPLOAD_SERVICE_FINISHED";
+
     private OhmageApi mApi;
 
     private boolean isBackground;
@@ -77,16 +79,24 @@ public class ProbeUploadService extends WakefulIntentService {
         isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 
         Log.d(TAG, "upload probes");
-        new ProbesUploader().upload();
+        ProbesUploader probesUploader = new ProbesUploader();
+        probesUploader.upload();
         Log.d(TAG, "upload responses");
-        new ResponsesUploader().upload();
+        ResponsesUploader responsesUploader = new ResponsesUploader();
+        responsesUploader.upload();
+
+        // If there were no internal errors, we can say it was successful
+        if (!probesUploader.hadError() && !responsesUploader.hadError())
+            mUserPrefs.putLastProbeUploadTimestamp(System.currentTimeMillis());
+
+        sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
     }
 
     public void setOhmageApi(OhmageApi api) {
         mApi = api;
     }
 
-/**
+    /**
      * Abstraction to upload object from the probes db. Uploads data in chunks
      * based on the {@link #getName(Cursor)} and {@link #getVersion(Cursor) values.
      * @author cketcham
@@ -95,6 +105,7 @@ public class ProbeUploadService extends WakefulIntentService {
     public abstract class Uploader {
 
         protected JsonParser mParser;
+        private boolean mInternalError = false;
 
         public Uploader() {
             mParser = new JsonParser();
@@ -159,11 +170,14 @@ public class ProbeUploadService extends WakefulIntentService {
 
                 try {
                     c.moveToPosition(i);
-                } catch(IllegalStateException e) {
-                    // Due to a bug in 4.0 and greater(?) a crash can occur during the move.
+                } catch (IllegalStateException e) {
+                    // Due to a bug in 4.0 and greater(?) a crash can occur
+                    // during the move.
                     // There is no good way to recover so we just restart
-                    // More info here: http://code.google.com/p/android/issues/detail?id=32472
-                    Log.e(TAG, "illegal state exception moving to " + i + " of " + (c.getCount() + 1));
+                    // More info here:
+                    // http://code.google.com/p/android/issues/detail?id=32472
+                    Log.e(TAG, "illegal state exception moving to " + i + " of "
+                            + (c.getCount() + 1));
                     // Lets restart!
                     upload();
                     return;
@@ -233,14 +247,20 @@ public class ProbeUploadService extends WakefulIntentService {
                     NotificationHelper.hideMobilityErrorNotification(ProbeUploadService.this);
                 } else {
                     if (isBackground && !response.hasAuthError()
-                            && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
+                            && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
+                        mInternalError = true;
                         NotificationHelper.showMobilityErrorNotification(ProbeUploadService.this);
+                    }
                 }
                 if (response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
                     return false;
                 }
             }
             return true;
+        }
+
+        public boolean hadError() {
+            return mInternalError;
         }
     }
 

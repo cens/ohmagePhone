@@ -76,12 +76,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 		mPrefHelper = new UserPreferencesHelper(getActivity());
 
-		long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-		if (lastMobilityUploadTimestamp == 0) {
-			mLastUploadText.setText(emptyValue);
-		} else {
-			mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
-		}
+		setLastUploadTimestamp();
 
 		getLoaderManager().initLoader(RECENT_LOADER, null, this);
 		getLoaderManager().initLoader(ALL_LOADER, null, this);
@@ -91,7 +86,16 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 		isBound = true;
 	}
 
-	@Override
+	private void setLastUploadTimestamp() {
+        long lastMobilityUploadTimestamp = mPrefHelper.getLastProbeUploadTimestamp();
+        if (lastMobilityUploadTimestamp == 0) {
+            mLastUploadText.setText(emptyValue);
+        } else {
+            mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
+        }
+    }
+
+    @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.mobility_control_layout, container, false);
 
@@ -147,7 +151,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 		super.onStart();
 		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_STARTED));
 		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_ERROR));
-		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_FINISHED));
+		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
 	}
 
 	@Override
@@ -167,8 +171,6 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 	private final BroadcastReceiver mMobilityUploadReceiver = new BroadcastReceiver() {
 
-		private Long mLastMobilityUploadTimestamp;
-
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
@@ -180,19 +182,11 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 			if (ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action)) {
 				mUploadButton.setText("Uploading...");
-				mLastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 			} else if (ProbeUploadService.PROBE_UPLOAD_ERROR.equals(action)) {
                 Toast.makeText(getActivity(), R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
-			} else if (ProbeUploadService.PROBE_UPLOAD_FINISHED.equals(action)) {
+			} else if (ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED.equals(action)) {
 				mUploadButton.setText("Upload Now");
-				Long newUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-
-				mLastMobilityUploadTimestamp = newUploadTimestamp;
-
-				if(mLastMobilityUploadTimestamp != 0) {
-					mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", mLastMobilityUploadTimestamp));
-				}
-				getLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityControlFragment.this);
+		        setLastUploadTimestamp();
 			}
 		}
 	};
@@ -337,10 +331,6 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 						MobilityQuery.PROJECTION, filterUser, filterUserParams, null);
 
 			case UPLOAD_LOADER:
-				long uploadAfterTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-				if (uploadAfterTimestamp == 0) {
-					uploadAfterTimestamp = mPrefHelper.getLoginTimestamp();
-				}
 				return new CursorLoader(getActivity(), Probes.CONTENT_URI,
 						new String[] { BaseColumns._ID }, BaseProbeColumns.USERNAME + "=?", new String[] { username }, null);
 
