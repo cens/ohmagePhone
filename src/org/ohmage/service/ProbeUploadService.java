@@ -254,7 +254,7 @@ public class ProbeUploadService extends WakefulIntentService {
                 } else {
                     if (!response.hasAuthError()
                             && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
-                        mErrors.add(observerId);
+                        mErrors.add(observerId + response.getErrorCodes().toString());
                         uploadError();
                     }
                 }
