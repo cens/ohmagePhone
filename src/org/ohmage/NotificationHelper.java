@@ -17,87 +17,60 @@ public class NotificationHelper {
     private static final int UPLOAD_ERROR_ID = 2;
     private static final int MOBILITY_ERROR_ID = 3;
 
-	public static void showAuthNotification(Context context) {
-		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification note = new Notification();
-		
-		Intent intentToLaunch = new Intent(context, LoginActivity.class);
-		intentToLaunch.putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true);
-		intentToLaunch.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
-		String title = "Authentication error!";
-		String body = "Tap here to re-enter credentials.";
-		note.icon = R.drawable.ic_stat_warning;
-		note.tickerText = "Authentication error!";
-		note.defaults |= Notification.DEFAULT_ALL;
-		note.when = System.currentTimeMillis();
-		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
-		note.setLatestEventInfo(context, title, body, pendingIntent);
-		noteManager.notify(AUTH_ERROR_ID, note);
-	}
+    public static void showAuthNotification(Context context) {
+        showNotification(context, AUTH_ERROR_ID, "Authentication error!",
+                "Tap here to re-enter credentials.", new Intent(context, LoginActivity.class));
+    }
 
-	public static void hideAuthNotification(Context context) {
-		hideNotification(context, AUTH_ERROR_ID);
-	}
+    public static void hideAuthNotification(Context context) {
+        hideNotification(context, AUTH_ERROR_ID);
+    }
 
-	public static void showUploadErrorNotification(Context context) {
-		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification note = new Notification();
-		
-		Intent intentToLaunch = new Intent(context, UploadQueueActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
-		String title = "Upload error!";
-		String body = "An error occurred while trying to upload survey responses.";
-		note.icon = R.drawable.ic_stat_warning;
-		note.tickerText = "Upload error!";
-		note.defaults |= Notification.DEFAULT_ALL;
-		note.when = System.currentTimeMillis();
-		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
-		note.setLatestEventInfo(context, title, body, pendingIntent);
-		noteManager.notify(UPLOAD_ERROR_ID, note);
-	}
+    public static void showGeneralNotification(Context context, String title, String message,
+            Intent intent) {
+        showNotification(context, NOTIFICATION_ID, title, message, intent);
+    }
 
-	public static void hideUploadErrorNotification(Context context) {
-		hideNotification(context, UPLOAD_ERROR_ID);
-	}
+    public static void showUploadErrorNotification(Context context) {
+        showNotification(context, UPLOAD_ERROR_ID, "Upload error!",
+                "An error occurred while trying to upload survey responses.", new Intent(context,
+                        UploadQueueActivity.class));
+    }
 
-	public static void showMobilityErrorNotification(Context context) {
-		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification note = new Notification();
-		
-		Intent intentToLaunch = new Intent(context, MobilityActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
-		String title = "Mobility upload error!";
-		String body = "An error occurred while trying to upload mobility data points.";
-		note.icon = R.drawable.ic_stat_warning;
-		note.tickerText = "Mobility upload error!";
-		note.defaults |= Notification.DEFAULT_ALL;
-		note.when = System.currentTimeMillis();
-		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
-		note.setLatestEventInfo(context, title, body, pendingIntent);
-		noteManager.notify(MOBILITY_ERROR_ID, note);
-	}
+    public static void hideUploadErrorNotification(Context context) {
+        hideNotification(context, UPLOAD_ERROR_ID);
+    }
 
-	public static void hideMobilityErrorNotification(Context context) {
-		hideNotification(context, MOBILITY_ERROR_ID);
-	}
+    public static void showMobilityErrorNotification(Context context) {
+        showNotification(context, MOBILITY_ERROR_ID, "Mobility upload error!",
+                "An error occurred while trying to upload mobility data points.", new Intent(
+                        context, MobilityActivity.class));
+    }
 
-	public static void showNotification(Context context, String title, String message, Intent intent) {
-		NotificationManager noteManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification note = new Notification();
+    public static void hideMobilityErrorNotification(Context context) {
+        hideNotification(context, MOBILITY_ERROR_ID);
+    }
 
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		note.icon = R.drawable.ic_stat_warning;
-		note.tickerText = title;
-		note.defaults |= Notification.DEFAULT_ALL;
-		note.when = System.currentTimeMillis();
-		note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
-		note.setLatestEventInfo(context, title, message, pendingIntent);
-		noteManager.notify(NOTIFICATION_ID, note);
-	}
+    private static void showNotification(Context context, int id, String title, String message,
+            Intent intent) {
+        NotificationManager noteManager = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification note = new Notification();
 
-	private static void hideNotification(Context context, int id) {
-		NotificationManager notifMan = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-		notifMan.cancel(id);
-	}
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        note.icon = R.drawable.ic_stat_warning;
+        note.tickerText = title;
+        note.defaults |= Notification.DEFAULT_ALL;
+        note.when = System.currentTimeMillis();
+        note.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
+        note.setLatestEventInfo(context, title, message, pendingIntent);
+        noteManager.notify(id, note);
+    }
+
+    private static void hideNotification(Context context, int id) {
+        NotificationManager notifMan = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        notifMan.cancel(id);
+    }
 }
