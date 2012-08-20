@@ -79,7 +79,7 @@
     <string name="mobility_control_no_points">No mobility modes were collected recently.</string>
     <string name="mobility_control_upload_count_title">To upload</string>
     <string name="mobility_control_total_title">Total</string>
-    <string name="mobility_upload_error_message">There was an error uploading mobility</string>
+    <string name="mobility_upload_error_message">There was an error uploading: %s</string>
     <string name="recent_mobility_aggregate_last_week_title">Last Week</string>
     <string name="recent_mobility_aggregate_baseline_title">During Baseline</string>
 

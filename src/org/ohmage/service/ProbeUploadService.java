@@ -47,6 +47,8 @@ public class ProbeUploadService extends WakefulIntentService {
 
     public static final String PROBE_UPLOAD_SERVICE_FINISHED = "org.ohmage.PROBE_UPLOAD_SERVICE_FINISHED";
 
+    public static final String EXTRA_PROBE_ERRORS = "extra_probe_errors";
+
     private OhmageApi mApi;
 
     private boolean isBackground;
@@ -336,8 +338,10 @@ public class ProbeUploadService extends WakefulIntentService {
 
         @Override
         protected void uploadError() {
-            NotificationHelper.showProbeUploadErrorNotification(ProbeUploadService.this, mErrors);
-            sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_ERROR));
+            if(isBackground)
+                NotificationHelper.showProbeUploadErrorNotification(ProbeUploadService.this, mErrors);
+            else
+                sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_ERROR).putExtra(EXTRA_PROBE_ERRORS, mErrors));
         }
 
         @Override
@@ -419,8 +423,10 @@ public class ProbeUploadService extends WakefulIntentService {
 
         @Override
         protected void uploadError() {
-            NotificationHelper.showResponseUploadErrorNotification(ProbeUploadService.this, mErrors);
-            sendBroadcast(new Intent(ProbeUploadService.RESPONSE_UPLOAD_ERROR));
+            if(isBackground)
+                NotificationHelper.showResponseUploadErrorNotification(ProbeUploadService.this, mErrors);
+            else
+                sendBroadcast(new Intent(ProbeUploadService.RESPONSE_UPLOAD_ERROR).putExtra(EXTRA_PROBE_ERRORS, mErrors));
         }
 
         @Override
