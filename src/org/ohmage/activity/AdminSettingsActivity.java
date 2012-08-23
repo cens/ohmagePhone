@@ -51,6 +51,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_UPLOAD_QUEUE)).setChecked(userPrefHelper.showUploadQueue());
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY)).setChecked(userPrefHelper.showMobility());
         ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY_FEEDBACK)).setChecked(userPrefHelper.showMobilityFeedback());
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_POST_SURVEY_FEEDBACK)).setChecked(userPrefHelper.showPostSurveyFeedback());
 
 		mUpdatePassword = (PreferenceScreen) findPreference(KEY_UPDATE_PASSWORD);
 		mUpdatePassword.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

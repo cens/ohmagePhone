@@ -58,6 +58,7 @@ import java.util.HashMap;
  */
 public class PostSurveyActivity extends FragmentActivity {
 	private static final String TAG = "PostSurveyActivity";
+    private UserPreferencesHelper mUserPrefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,13 @@ public class PostSurveyActivity extends FragmentActivity {
 			finish();
 			return;
 		}
+
+        mUserPrefs = new UserPreferencesHelper(this);
+
+        if (!mUserPrefs.showPostSurveyFeedback()) {
+            finish();
+            return;
+        }
 
 		if(savedInstanceState == null) {
 			CheckFeedbackDialogFragment.newInstance(ContentUris.parseId(getIntent().getData())).show(getSupportFragmentManager(), "dialog");

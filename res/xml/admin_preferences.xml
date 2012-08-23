@@ -40,6 +40,12 @@
 			android:summaryOn="Hide Mobility Feedback"
 			android:title="Show Mobility Feedback"
 			android:dependency="key_show_mobility" />
+
+		<CheckBoxPreference
+			android:key="key_show_post_survey_feedback"
+			android:summaryOff="Show feedback after submitting a survey"
+			android:summaryOn="Hide feedback after submitting a survey"
+			android:title="Show Post Survey Feedback" />
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="Account Management">

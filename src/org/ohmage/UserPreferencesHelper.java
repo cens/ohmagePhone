@@ -31,12 +31,14 @@ public class UserPreferencesHelper {
 	private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = true;
 	private static final boolean DEFAULT_SHOW_MOBILITY = true;
 	private static final boolean DEFAULT_SHOW_MOBILITY_FEEDBACK = true;
+    private static final boolean DEFAULT_SHOW_POST_SURVEY_FEEDBACK = true;
 
 	public static final String KEY_SHOW_FEEDBACK = "key_show_feedback";
 	public static final String KEY_SHOW_PROFILE = "key_show_profile";
 	public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
 	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
 	public static final String KEY_SHOW_MOBILITY_FEEDBACK = "key_show_mobility_feedback";
+    public static final String KEY_SHOW_POST_SURVEY_FEEDBACK = "key_show_post_survey_feedback";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
 	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
 
@@ -69,6 +71,10 @@ public class UserPreferencesHelper {
 	public boolean showMobilityFeedback() {
 	    return mPreferences.getBoolean(KEY_SHOW_MOBILITY_FEEDBACK, DEFAULT_SHOW_MOBILITY_FEEDBACK);
 	}
+
+    public boolean showPostSurveyFeedback() {
+        return mPreferences.getBoolean(KEY_SHOW_POST_SURVEY_FEEDBACK, DEFAULT_SHOW_POST_SURVEY_FEEDBACK);
+    }
 
 	/**
 	 * Returns the baseline, or a time 10 weeks after the start time if it is set, or a time 1 month ago.
