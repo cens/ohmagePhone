@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:layout_gravity="center">
-    <Button style="@style/InfoButton"
-    	android:id="@+id/profile_info_button_update_password"
-		android:text="@string/profile_info_update_password"
-    	android:layout_marginRight="5dp"
-    	android:textSize="12dp"
-    	android:drawableLeft="@drawable/update_password" />
-    	
-    <Button style="@style/InfoButton"
-    	android:id="@+id/profile_info_button_logout_wipe"
-		android:text="@string/profile_info_logout"
-    	android:textSize="12dp"
-    	android:drawableLeft="@drawable/logout_wipe" />
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center" >
+
+    <Button
+        android:id="@+id/profile_info_button_update_password"
+        style="@style/InfoButton"
+        android:layout_marginRight="5dp"
+        android:contentDescription="@string/profile_info_entity_action_button_update_password_description"
+        android:drawableLeft="@drawable/update_password"
+        android:text="@string/profile_info_update_password"
+        android:textSize="12dp" />
+
+    <Button
+        android:id="@+id/profile_info_button_logout_wipe"
+        style="@style/InfoButton"
+        android:contentDescription="@string/profile_info_entity_action_button_logout_description"
+        android:drawableLeft="@drawable/logout_wipe"
+        android:text="@string/profile_info_logout"
+        android:textSize="12dp" />
+
 </merge>

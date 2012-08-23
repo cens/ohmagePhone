@@ -350,4 +350,14 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void setDefaultValue(String defaultValue) {
+		this.mDefaultValue = defaultValue;
+		try {
+			mSelectedIndex = Integer.valueOf(defaultValue);
+		} catch(NumberFormatException e) {
+			// No number...
+		}
+	}
 }

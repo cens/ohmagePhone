@@ -16,6 +16,10 @@
 package org.ohmage.triggers.types.location;
 
 
+import com.google.android.maps.GeoPoint;
+
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.R;
 
 import android.content.ContentValues;
@@ -24,9 +28,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import com.google.android.maps.GeoPoint;
 
 /*
  * Database to store the location triggers settings. 
@@ -41,7 +42,7 @@ import com.google.android.maps.GeoPoint;
  */
 public class LocTrigDB {
 	
-	private static final String DEBUG_TAG = "LocationTrigger";
+	private static final String TAG = "LocTrigDB";
 	
 	private static final String DATABASE_NAME = "location_triggers"; 
 	private static final int DATABASE_VERSION = 1;
@@ -65,7 +66,7 @@ public class LocTrigDB {
 	public static final String KEY_LONG = "longitude";
 	public static final String KEY_RADIUS = "radius";
 	
-	private Context mContext;
+	private final Context mContext;
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
 	
@@ -79,16 +80,14 @@ public class LocTrigDB {
 	}
 	
 	/* Open the database */
-	public boolean open() {
-		Log.i(DEBUG_TAG, "DB: open");
-		
+	public boolean open() {		
 		mDbHelper = new DatabaseHelper(mContext);
 		
 		try {
 			mDb = mDbHelper.getWritableDatabase();
 		}
 		catch (SQLException e) {
-			Log.e(DEBUG_TAG, "DB: " + e.toString());
+			Log.e(TAG, "DB: " + e.toString());
 			return false;
 		}
 		return true;
@@ -276,7 +275,7 @@ public class LocTrigDB {
 	/* Database helper inner class */
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
-		private Context context;
+		private final Context context;
 		
 		public DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

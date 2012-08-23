@@ -338,9 +338,6 @@ public class UploadServiceTest extends ServiceTestCase<UploadService> {
 			@Override
 			public int update(Uri uri, ContentValues values, String where, String[] selectionArgs) {
 				if(update == 2) {
-					assertCampaign(ResponseCursor.MOCK_CAMPAIGN_URN, uri, where);
-					assertTrue(values.getAsLong(Campaigns.CAMPAIGN_STATUS) == campaignStatusId);
-				} else if(update == 3) {	
 					assertResponse(0, uri, where);
 					assertTrue(values.getAsLong(Responses.RESPONSE_STATUS) == responseStatusId);
 				}

@@ -197,12 +197,15 @@ public class DbProvider extends ContentProvider {
 				insertID = dbHelper.addResponseRow(db, values);
 				campaignUrn = values.getAsString(Responses.CAMPAIGN_URN);
 				surveyID = values.getAsString(Responses.SURVEY_ID);
-				resultingUri = Responses.buildResponseUri(insertID);
 				
-				// notify on the related entity URIs
-				cr.notifyChange(Responses.CONTENT_URI, null);
-				cr.notifyChange(PromptResponses.CONTENT_URI, null);
-				cr.notifyChange(Campaigns.buildCampaignUri(campaignUrn), null);
+				if(insertID != -1) {
+					resultingUri = Responses.buildResponseUri(insertID);
+
+					// notify on the related entity URIs
+					cr.notifyChange(Responses.CONTENT_URI, null);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.buildCampaignUri(campaignUrn), null);
+				}
 
 				break;
 			case MatcherTypes.CAMPAIGNS:

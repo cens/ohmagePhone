@@ -1,6 +1,8 @@
 package org.ohmage;
 
 import org.ohmage.activity.LoginActivity;
+import org.ohmage.activity.UploadQueueActivity;
+import org.ohmage.db.Models.Campaign;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.text.Html;
 
 /**
  * Helper class which makes it easy to show the account management dialogs
@@ -19,9 +22,11 @@ import android.os.AsyncTask;
  */
 public class AccountHelper {
 	private static final int DIALOG_CLEAR_USER_CONFIRM = 100;
-	private static final int DIALOG_WIPE_PROGRESS = 101;
+	private static final int DIALOG_CLEAR_USER_CONFIRM_RESPONSES = 101;
+	private static final int DIALOG_WIPE_PROGRESS = 102;
 
 	private final Activity mActivity;
+	private int responseCount;
 
 	public AccountHelper(Activity activity) {
 		mActivity = activity;
@@ -31,7 +36,12 @@ public class AccountHelper {
 	 * Shows the confirmation dialog for the user to logout
 	 */
 	public void logout() {
-		mActivity.showDialog(DIALOG_CLEAR_USER_CONFIRM);
+		responseCount = Campaign.localResponseCount(mActivity);
+
+		if(responseCount == 0)
+			mActivity.showDialog(DIALOG_CLEAR_USER_CONFIRM);
+		else
+			mActivity.showDialog(DIALOG_CLEAR_USER_CONFIRM_RESPONSES);
 	}
 
 	/**
@@ -44,34 +54,45 @@ public class AccountHelper {
 		mActivity.startActivity(intent);
 	}
 
+	public void onPrepareDialog(int id, Dialog d) {
+		if(id == DIALOG_CLEAR_USER_CONFIRM_RESPONSES) {
+			((AlertDialog) d).setMessage(Html.fromHtml(mActivity.getResources().getQuantityString(R.plurals.logout_message_responses, responseCount, responseCount)));
+		}
+	}
+
 	public Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mActivity);
 		switch (id) {
+			case DIALOG_CLEAR_USER_CONFIRM_RESPONSES:
+				dialogBuilder.setNeutralButton(R.string.upload, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mActivity.startActivity(new Intent(mActivity, UploadQueueActivity.class));
+					}
+				});
+				// Fall through to the next case statement. The correct message will be applied in onPrepareDialog
 			case DIALOG_CLEAR_USER_CONFIRM:			
-				dialogBuilder.setTitle("Confirm")
-				.setMessage("Are you sure you wish to clear all user data? Any data that has not been uploaded will be lost, and the app will be restored to its initial state.")
-				.setNegativeButton("No", null)
-				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				dialogBuilder.setTitle(R.string.confirm)
+				.setMessage(R.string.logout_message)
+				.setNegativeButton(R.string.cancel, null)
+				.setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						clearAndGotoLogin();
 					}
-
 				});
-				dialog = dialogBuilder.create();        	
+
 				break;
 			case DIALOG_WIPE_PROGRESS:
 				ProgressDialog pDialog = new ProgressDialog(mActivity);
-				pDialog.setMessage("Clearing local user data...");
+				pDialog.setMessage(mActivity.getString(R.string.logging_out_message));
 				pDialog.setCancelable(false);
-				//pDialog.setIndeterminate(true);
-				dialog = pDialog;
-				break;
+				return pDialog;
 		}
 
-		return dialog;
+		return dialogBuilder.create();
 	}
 
 	/**

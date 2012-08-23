@@ -2,6 +2,8 @@ package org.ohmage.async;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONException;
 import org.ohmage.Config;
 import org.ohmage.NotificationHelper;
@@ -10,20 +12,18 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.feedback.FeedbackService;
+import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -35,17 +35,22 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 	private final String mCampaignUrn;
 
+	private final Context mContext;
+	private OhmageApi mApi;
+
 	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
         super(context, username, hashedPassword);
         mCampaignUrn = campaignUrn;
+        mContext = context;
     }
 
     @Override
     public Response loadInBackground() {
-		OhmageApi api = OhmageApplication.getOhmageApi();
+		if(mApi == null)
+			mApi = new OhmageApi(mContext);
 		ContentResolver cr = getContext().getContentResolver();
 
-		CampaignReadResponse campaignResponse = api.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
+		CampaignReadResponse campaignResponse = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", mCampaignUrn);
 
 		if(campaignResponse.getResult() == Result.SUCCESS) {
 			ContentValues values = new ContentValues();
@@ -60,7 +65,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			return campaignResponse;
 		}
 
-		CampaignXmlResponse response =  api.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
+		CampaignXmlResponse response =  mApi.campaignXmlRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", mCampaignUrn);
 		
 		if (response.getResult() == Result.SUCCESS) {
 			
@@ -83,9 +88,10 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			
 			if (Config.ALLOWS_FEEDBACK) {
 				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(getContext(), FeedbackService.class);
+				Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
 				// annotate the request with the current campaign's URN
-				fbIntent.putExtra("campaign_urn", mCampaignUrn);
+				fbIntent.putExtra(ResponseSyncService.EXTRA_CAMPAIGN_URN, mCampaignUrn);
+				fbIntent.putExtra(ResponseSyncService.EXTRA_FORCE_ALL, true);
 				// and go!
 				WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
 			}
@@ -114,7 +120,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			TriggerFramework.setDefaultTriggers(getContext(), mCampaignUrn);
 		} else if (response.getResult() == Result.FAILURE) {
 			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-			
+
 			boolean isAuthenticationError = false;
 			boolean isUserDisabled = false;
 			
@@ -140,12 +146,10 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 			}
 			
 		} else if (response.getResult() == Result.HTTP_ERROR) {
-			Log.e(TAG, "http error");
-			
+			Log.e(TAG, "Read failed due to http error");
 			Toast.makeText(getContext(), R.string.campaign_xml_network_error, Toast.LENGTH_SHORT).show();
 		} else {
-			Log.e(TAG, "internal error");
-			
+			Log.e(TAG, "Read failed due to internal error");
 			Toast.makeText(getContext(), R.string.campaign_xml_internal_error, Toast.LENGTH_SHORT).show();
 		} 
 

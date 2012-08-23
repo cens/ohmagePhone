@@ -15,11 +15,12 @@
  ******************************************************************************/
 package org.ohmage;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.feedback.FeedbackSyncReceiver;
+import org.ohmage.responsesync.ResponseSyncReceiver;
 import org.ohmage.service.UploadReceiver;
-import org.ohmage.storagemonitor.StorageMonitorService;
 import org.ohmage.triggers.base.TriggerInit;
 
 import android.app.AlarmManager;
@@ -27,18 +28,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import edu.ucla.cens.systemlog.Log;
 
 public class BackgroundManager {
-	
+
 	private static final String TAG = "BACKGROUND_MANAGER";
 
 	public static void initComponents(Context context) {
-		
+
 		Log.i(TAG, "initializing application components");
-		
+
 		Context appContext = context.getApplicationContext();
-		
+
 		//uploadservice
 		AlarmManager alarms = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
 		Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
@@ -47,20 +47,16 @@ public class BackgroundManager {
 		alarms.cancel(pendingIntent);
 		alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
 		Log.i(TAG, "UploadReceiver repeating alarm set");
-		
-		//storagemonitor
-		appContext.startService(new Intent(appContext, StorageMonitorService.class));
-		Log.i(TAG, "started storage monitor service");
-		
+
 		// FAISAL: feedback service repeating alarm registered here
 		if (Config.ALLOWS_FEEDBACK) {
-			Intent fbServiceSyncIntent = new Intent(FeedbackSyncReceiver.ACTION_FBSYNC_ALARM);
+			Intent fbServiceSyncIntent = new Intent(ResponseSyncReceiver.ACTION_FBSYNC_ALARM);
 			PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext, 0, fbServiceSyncIntent, 0);
 			alarms.cancel(fbServiceSyncPendingIntent);
 			alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, fbServiceSyncPendingIntent);
 			Log.i(TAG, "Feedback sync repeating alarm set");
 		}
-		
+
 		//init triggers for all campaigns
 		DbHelper dbHelper = new DbHelper(context);
 		for (Campaign c : dbHelper.getReadyCampaigns()) {

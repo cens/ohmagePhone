@@ -41,8 +41,6 @@
         android:id="@+id/mapViewContainer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:enabled="true"
-        android:clickable="true"
         />
  	
 </LinearLayout>

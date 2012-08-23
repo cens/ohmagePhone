@@ -22,7 +22,7 @@ public class NotificationHelper {
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
 		String title = "Authentication error!";
 		String body = "Tap here to re-enter credentials.";
-		note.icon = android.R.drawable.stat_notify_error;
+		note.icon = R.drawable.ic_stat_warning;
 		note.tickerText = "Authentication error!";
 		note.defaults |= Notification.DEFAULT_ALL;
 		note.when = System.currentTimeMillis();
@@ -43,7 +43,7 @@ public class NotificationHelper {
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
 		String title = "Upload error!";
 		String body = "An error occurred while trying to upload survey responses.";
-		note.icon = android.R.drawable.stat_notify_error;
+		note.icon = R.drawable.ic_stat_warning;
 		note.tickerText = "Upload error!";
 		note.defaults |= Notification.DEFAULT_ALL;
 		note.when = System.currentTimeMillis();
@@ -64,7 +64,7 @@ public class NotificationHelper {
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentToLaunch, 0);
 		String title = "Mobility upload error!";
 		String body = "An error occurred while trying to upload mobility data points.";
-		note.icon = android.R.drawable.stat_notify_error;
+		note.icon = R.drawable.ic_stat_warning;
 		note.tickerText = "Mobility upload error!";
 		note.defaults |= Notification.DEFAULT_ALL;
 		note.when = System.currentTimeMillis();
@@ -82,7 +82,7 @@ public class NotificationHelper {
 		Notification note = new Notification();
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		note.icon = android.R.drawable.stat_notify_error;
+		note.icon = R.drawable.ic_stat_warning;
 		note.tickerText = title;
 		note.defaults |= Notification.DEFAULT_ALL;
 		note.when = System.currentTimeMillis();

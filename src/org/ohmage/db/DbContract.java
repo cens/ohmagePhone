@@ -88,8 +88,6 @@ public class DbContract {
 		String RESPONSE_JSON = "response_json";
 		/** read-only, an int indicating the status of a response; use constants supplied in this class (e.g. STATUS_UPLOADED) */
 		String RESPONSE_STATUS = "response_status";
-		/** read-only, a hash that uniquely identifies this response */
-		String RESPONSE_HASHCODE = "response_hashcode";
 		/** read-only, a UUID that uniquely identifies this response */
 		String RESPONSE_UUID = "response_uuid";
     }
@@ -186,6 +184,7 @@ public class DbContract {
     			"vnd.android.cursor.item/vnd.ohmage.survey";
 
     	public static final String CAMPAIGN_URN = "campaign_urn";
+	public static final String CAMPAIGN_NAME = "campaign_name";
 
     	/** Default "ORDER BY" clause. */
     	public static final String DEFAULT_SORT = SurveyColumns.SURVEY_TITLE;
@@ -281,7 +280,7 @@ public class DbContract {
 	 * Represents a single response to a prompt.
 	 * 
 	 * These are extracted from the survey response json at the time of survey completion,
-	 * or in FeedbackService from the downloaded response data.
+	 * or in ResponseSyncService from the downloaded response data.
 	 */
 	public static final class PromptResponses implements BaseColumns, PromptResponseColumns {
 

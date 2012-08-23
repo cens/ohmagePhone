@@ -38,8 +38,6 @@ public class SharedPreferencesHelper {
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
-//	private static final String KEY_CAMPAIGN_NAME = "campaign_name";
-//	private static final String KEY_SERVER_URL = "server_url";
 
 	private final SharedPreferences mPreferences;
 	
@@ -115,30 +113,18 @@ public class SharedPreferencesHelper {
 		return mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
 	}
 	
-	public Long getLastFeedbackRefreshTimestamp() {
-		return mPreferences.getLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP, 0);
+	public Long getLastFeedbackRefreshTimestamp(String urn) {
+		return mPreferences.getLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn, -1);
 	}
 	
-	public boolean putLastFeedbackRefreshTimestamp(Long timestamp) {
-		return mPreferences.edit().putLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP, timestamp).commit();
+	public boolean putLastFeedbackRefreshTimestamp(String urn, Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn, timestamp).commit();
 	}
-	
-//	public String getCampaignName() {
-//		return mPreferences.getString(KEY_CAMPAIGN_NAME, "");
-//	}
-//	
-//	public boolean putCampaignName(String campaignName) {
-//		return mPreferences.edit().putString(KEY_CAMPAIGN_NAME, campaignName).commit();
-//	}
-//	
-//	public String getServerUrl() {
-//		return mPreferences.getString(KEY_SERVER_URL, DEFAULT_SERVER_URL);
-//	}
-//	
-//	public boolean putServerUrl(String serverUrl) {
-//		return mPreferences.edit().putString(KEY_SERVER_URL, serverUrl).commit();
-//	}
-	
+
+	public boolean removeLastFeedbackRefreshTimestamp(String urn) {
+		return mPreferences.edit().remove(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn).commit();
+	}
+
 	public boolean isAuthenticated() {
 		if (getUsername().length() > 0 && getHashedPassword().length() > 0) {
 			return true;
@@ -162,12 +148,4 @@ public class SharedPreferencesHelper {
 	public boolean setLastCampaignRefreshTime(long time) {
 		return mPreferences.edit().putLong(KEY_CAMPAIGN_REFRESH_TIME, time).commit();
 	}
-
-	/*public boolean isAuthenticated() {
-		return mPreferences.getBoolean(KEY_IS_AUTHENTICATED, false);
-	}
-	
-	public void setAuthenticated(boolean isAuthenticated) {
-		mPreferences.edit().putBoolean(KEY_IS_AUTHENTICATED, isAuthenticated).commit();
-	}*/
 }

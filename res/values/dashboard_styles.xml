@@ -84,6 +84,5 @@
     ======================================================
     -->
     <string name="description_logo">ohmage</string>
-    <string name="description_logo_home">back to dashboard</string>
     <string name="description_search">Search</string>
 </resources>

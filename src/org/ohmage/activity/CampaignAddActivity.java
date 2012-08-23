@@ -1,11 +1,11 @@
 package org.ohmage.activity;
 
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.fragments.CampaignListFragment;
 
 import android.os.Bundle;
-import android.util.Log;
-
 
 public class CampaignAddActivity extends BaseCampaignListActivity {
 
@@ -20,11 +20,11 @@ public class CampaignAddActivity extends BaseCampaignListActivity {
 
 	@Override
 	public void onCampaignActionSurveys(String campaignUrn) {
-		Log.w(TAG, "onCampaignActionSurveys should not be exposed in this activity.");
+		Log.e(TAG, "onCampaignActionSurveys should not be exposed in this activity.");
 	}
 
 	@Override
 	public void onCampaignActionError(String campaignUrn, int status) {
-		Log.w(TAG, "onCampaignActionError should not be exposed in this activity.");
+		Log.e(TAG, "onCampaignActionError should not be exposed in this activity.");
 	}
 }

@@ -1,6 +1,8 @@
 package org.ohmage.fragments;
 
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
@@ -18,7 +20,6 @@ import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
@@ -88,10 +89,13 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		
 		Cursor cursor = (Cursor) getListAdapter().getItem(position);
-		
-		Uri uri = Campaigns.buildSurveysUri(cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN)), cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID)));
+		String campaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
+		String surveyId = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
+
+		Analytics.widget(v, null, campaignUrn + ":" + surveyId);
+
+		Uri uri = Campaigns.buildSurveysUri(campaignUrn, surveyId);
 		mListener.onSurveyActionView(uri);
 	}
 	
@@ -129,7 +133,6 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Log.i(TAG, "Creating loader - filter: " + getCampaignUrn());
 		Uri baseUri = Surveys.CONTENT_URI;
 		
 		SelectionBuilder builder = new SelectionBuilder();

@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage.triggers.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.AdminPincodeActivity;
@@ -36,7 +40,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -55,7 +58,7 @@ import android.widget.Toast;
 public class TriggerListActivity extends ListActivity 
 			implements OnClickListener {
 	
-	private static final String DEBUG_TAG = "TriggerFramework";
+	private static final String TAG = "TriggerListActivity";
 		
 	private static final String PREF_FILE_NAME = 
 		TriggerListActivity.class.getName();
@@ -104,12 +107,7 @@ public class TriggerListActivity extends ListActivity
 	/**
 	 * Instead of having a shared preference admin mode, we want admin mode to end once the user leaves the activity
 	 */
-	private boolean mAdminMode = TRIGGER_ADMIN_MODE;
-
-	/**
-	 * Set the default admin mode. If it is true, we don't need to show the admin menu
-	 */
-	public static boolean TRIGGER_ADMIN_MODE = Config.ADMIN_MODE;
+	private boolean mAdminMode = Config.REMINDER_ADMIN_MODE;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,9 +127,8 @@ public class TriggerListActivity extends ListActivity
 		Intent i = getIntent();
 		if(i.hasExtra(KEY_ACTIONS)) {
 			mActions = i.getStringArrayExtra(KEY_ACTIONS);
-		}
-		else {
-			Log.e(DEBUG_TAG, "TriggerListActivity: Invoked with out passing surveys");
+		} else {
+			Log.e(TAG, "TriggerListActivity: Invoked with out passing surveys");
 			finish();
 			return;
 		}
@@ -144,9 +141,8 @@ public class TriggerListActivity extends ListActivity
 		
 		if(i.hasExtra(KEY_CAMPAIGN_URN)) {
 			mCampaignUrn = i.getStringExtra(KEY_CAMPAIGN_URN);
-		}
-		else {
-			Log.e(DEBUG_TAG, "TriggerListActivity: Invoked with out passing campaign urn");
+		} else {
+			Log.e(TAG, "TriggerListActivity: Invoked with out passing campaign urn");
 			finish();
 			return;
 		}
@@ -171,7 +167,19 @@ public class TriggerListActivity extends ListActivity
 		TrigPrefManager.registerPreferenceFile(this, mCampaignUrn, PREF_FILE_NAME);
 		TrigPrefManager.registerPreferenceFile(this, "GLOBAL", PREF_FILE_NAME);
     }
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -552,7 +560,7 @@ public class TriggerListActivity extends ListActivity
 		menu.removeItem(MENU_ID_SETTINGS);
 		
 		boolean adminMode = isAdminLoggedIn();
-		if(!TRIGGER_ADMIN_MODE) {
+		if(!Config.REMINDER_ADMIN_MODE) {
 			if(!adminMode) {
 				menu.add(0, MENU_ID_ADMIN_LOGIN, 0, R.string.trigger_menu_admin_turn_on)
 				.setIcon(R.drawable.ic_menu_login);
@@ -569,7 +577,7 @@ public class TriggerListActivity extends ListActivity
 			
 			if(trig.hasSettings()) {
 				menu.add(0, MENU_ID_SETTINGS, 0, R.string.trigger_menu_preferences)
-					.setIcon(R.drawable.ic_menu_preferences)
+					.setIcon(android.R.drawable.ic_menu_preferences)
 					.setEnabled(adminMode || TrigUserConfig.editTriggerSettings);
 				
 				break;

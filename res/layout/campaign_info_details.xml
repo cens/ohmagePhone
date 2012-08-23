@@ -21,34 +21,42 @@
 			android:id="@+id/campaign_info_desc" />
 
 		<!-- collapsible(?) sections with attribute info -->
-		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<TableLayout style="@style/InfoSectionTable" android:layout_width="fill_parent" android:layout_height="wrap_content" android:shrinkColumns="2">
 			<TableRow style="@style/InfoSectionHeader"
-				android:id="@+id/campaign_info_privacy_row">
+				android:id="@+id/campaign_info_privacy_row"
+				android:contentDescription="@string/campaign_info_privacy_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_privacy_title" />
+				<View style="@style/InfoSectionDivider" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_privacy_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
 				android:id="@+id/campaign_info_privacy_details" />
 			
 			<TableRow style="@style/InfoSectionHeader"
-				android:id="@+id/campaign_info_status_row">
+				android:id="@+id/campaign_info_status_row"
+				android:contentDescription="@string/campaign_info_status_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_status_title" />
+				<View style="@style/InfoSectionDivider" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_status_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
 				android:id="@+id/campaign_info_status_details" />
 			
 			<TableRow style="@style/InfoSectionHeader"
-				android:id="@+id/campaign_info_responses_row">
+				android:id="@+id/campaign_info_responses_row"
+				android:contentDescription="@string/campaign_info_responses_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_responses_title" />
+				<View style="@style/InfoSectionDivider" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_responses_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"
 				android:id="@+id/campaign_info_responses_details" />
 				
 			<TableRow style="@style/InfoSectionHeader"
-				android:id="@+id/campaign_info_triggers_row">
+				android:id="@+id/campaign_info_triggers_row"
+				android:contentDescription="@string/campaign_info_reminders_header_description">
 				<TextView style="@style/InfoSectionLabel" android:text="@string/campaign_info_triggers_title" />
+				<View style="@style/InfoSectionDivider" />
 				<TextView style="@style/InfoSectionValue" android:id="@+id/campaign_info_triggers_value" />
 			</TableRow>
 			<TextView style="@style/InfoSectionDetails"

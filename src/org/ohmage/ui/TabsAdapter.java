@@ -1,5 +1,7 @@
 package org.ohmage.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 
 import android.content.Context;
@@ -116,6 +118,10 @@ public class TabsAdapter extends FragmentPagerAdapter
 
     @Override
     public void onPageSelected(int position) {
+	if(mPrevState == 0)
+		Analytics.widget(mViewPager.getContext(), "Filter Button To: " + position);
+	else
+		Analytics.widget(mViewPager.getContext(), "Swipe To: " + position);
         // Unfortunately when TabHost changes the current tab, it kindly
         // also takes care of putting focus on it when not in touch mode.
         // The jerk.
@@ -128,7 +134,12 @@ public class TabsAdapter extends FragmentPagerAdapter
         widget.setDescendantFocusability(oldFocusability);
     }
 
+        private int mState;
+        private int mPrevState;
+
     @Override
     public void onPageScrollStateChanged(int state) {
+        mPrevState = mState;
+        mState = state;
     }
 }

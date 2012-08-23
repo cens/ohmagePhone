@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ohmage"
-    android:versionCode="12021000"
-    android:versionName="2.9.6" >
+    android:versionCode="12052100"
+    android:versionName="2.10.6" >
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -20,6 +20,8 @@
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.BROADCAST_STICKY"/>
 
+	<uses-sdk android:minSdkVersion="8" />
+
 	<application
 		android:name="OhmageApplication"
 		android:theme="@style/OhmageTheme"
@@ -34,6 +36,17 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+		</activity>
+
+		<activity
+			android:name=".ui.ImageLoaderActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+			<intent-filter>
+				<action android:name="org.ohmage.action.VIEW_REMOTE_IMAGE" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="http" />
+				<data android:scheme="https" />
+			</intent-filter>
 		</activity>
 
 		<!-- 
@@ -144,10 +157,7 @@
             </intent-filter>
              -->
 		</activity>
-		
-		<activity android:name=".activity.TestActivity" android:label="@string/app_name">
-		</activity>
-		
+
 		<!-- allows queries against the contentprovider to be tested -->
 		<activity android:name=".activity.QueryTestActivity" android:label="@string/app_name"
 			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light">
@@ -173,7 +183,7 @@
 			</intent-filter> -->
 	    </receiver>
 	    
-	    <receiver android:name=".activity.TriggerReceiver">
+	    <receiver android:name=".service.TriggerReceiver">
 			<intent-filter>
 	    		<action android:name="org.ohmage.triggers.SURVEY_LIST_CHANGED"/>
 	    	</intent-filter>
@@ -185,32 +195,9 @@
 			<intent-filter>
 	    		<action android:name="org.ohmage.service.ACTION_UPLOAD_ALARM"/>
 	    	</intent-filter>
-	    	<intent-filter>
-	    		<action android:name="org.ohmage.storagemonitor.ACTION_STORAGE_REPORT"/>
-	    	</intent-filter>
 	    </receiver>
 	    
 	    <service android:name=".service.SurveyGeotagService"/>
-	    
-	 	<receiver android:name=".service.SurveyGeotagTimeoutReceiver">
-			<intent-filter>
-	    		<action android:name="org.ohmage.service.ACTION_GEOTAG_TIMEOUT_ALARM"/>
-	    	</intent-filter>
-	    </receiver>
-    
-	    <activity android:name=".storagemonitor.StorageMonitorSettingsActivity"
-	                  android:label="Storage Monitor">
-	    </activity>
-	    
-	    <service android:name=".appwidget.StressButtonService"/>
-	    
-	    <service android:name=".storagemonitor.StorageMonitorService"/>
-	    
-	    <receiver android:name=".storagemonitor.StorageMonitorAlarmReceiver">
-	    	<intent-filter>
-	    		<action android:name="org.ohmage.storagemonitor.ACTION_STORAGE_MONITOR_ALARM"/>
-	    	</intent-filter>
-	    </receiver>
 
 	    <activity android:name=".activity.AdminPincodeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 	    <activity android:name=".activity.ErrorDialogActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
@@ -327,9 +314,9 @@
         ******************************************************
         -->       
 
-	    <service android:name=".feedback.FeedbackService" />
+	    <service android:name=".responsesync.ResponseSyncService" />
 	    
-	   	<receiver android:name=".feedback.FeedbackSyncReceiver">
+	   	<receiver android:name=".responsesync.ResponseSyncReceiver">
 	    	<intent-filter>
 	    		<action android:name="org.ohmage.feedback.ACTION_FBSYNC_ALARM"/>
 	    	</intent-filter>
@@ -348,6 +335,4 @@
 		<uses-library android:name="com.google.android.maps" />
 
 	</application>
-    <uses-sdk android:minSdkVersion="4" />
-
 </manifest> 

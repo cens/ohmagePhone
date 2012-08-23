@@ -3,6 +3,8 @@ package org.ohmage.service;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
 import org.json.JSONArray;
@@ -56,10 +58,22 @@ public class UploadService extends WakefulIntentService {
 	}
 
 	@Override
+	public void onCreate() {
+		super.onCreate();
+		Analytics.service(this, Status.ON);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Analytics.service(this, Status.OFF);
+	}
+
+	@Override
 	protected void doWakefulWork(Intent intent) {
 		
 		if(mApi == null)
-			setOhmageApi(new OhmageApi());
+			setOhmageApi(new OhmageApi(this));
 
 		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
 			uploadSurveyResponses(intent);
@@ -149,11 +163,15 @@ public class UploadService extends WakefulIntentService {
 					JSONObject locationJson = new JSONObject();
 					locationJson.put("latitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
 					locationJson.put("longitude", cursor.getDouble(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
-					locationJson.put("provider", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER)));
+					String provider = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
+					locationJson.put("provider", provider);
+					Log.i(TAG, "Response uploaded with " + provider + " location");
 					locationJson.put("accuracy", cursor.getFloat(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
 					locationJson.put("time", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
-					locationJson.put("timezone", cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
+					locationJson.put("timezone", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
 					responseJson.put("location", locationJson);
+				} else {
+					Log.w(TAG, "Response uploaded without a location");
 				}
 				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
 				responseJson.put("survey_launch_context", new JSONObject(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
@@ -177,7 +195,7 @@ public class UploadService extends WakefulIntentService {
 			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 			
-			File [] photos = Response.getResponsesImageDir(this, campaignUrn, String.valueOf(responseId)).listFiles(new FilenameFilter() {
+			File [] photos = Response.getResponseImageUploadDir(this).listFiles(new FilenameFilter() {
 				
 				@Override
 				public boolean accept(File dir, String filename) {
@@ -405,7 +423,6 @@ public class UploadService extends WakefulIntentService {
 					
 					c.moveToNext();
 				}
-				SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
 				response = mApi.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
@@ -417,23 +434,45 @@ public class UploadService extends WakefulIntentService {
 					NotificationHelper.hideMobilityErrorNotification(this);
 				} else {
 					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
-					
 					switch (response.getResult()) {
-					case FAILURE:
-						Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-						NotificationHelper.showMobilityErrorNotification(this);
-						break;
-						
-					case INTERNAL_ERROR:
-						Log.e(TAG, "Upload failed due to unknown internal error");
-						NotificationHelper.showMobilityErrorNotification(this);
-						break;
-						
-					case HTTP_ERROR:
-						Log.e(TAG, "Upload failed due to network error");
-						break;
+						case FAILURE:
+							Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
+
+							boolean isAuthenticationError = false;
+							boolean isUserDisabled = false;
+
+							for (String code : response.getErrorCodes()) {
+								if (code.charAt(1) == '2') {
+									isAuthenticationError = true;
+
+									if (code.equals("0201")) {
+										isUserDisabled = true;
+									}
+								}
+							}
+
+							if (isUserDisabled) {
+								new SharedPreferencesHelper(this).setUserDisabled(true);
+							}
+
+							if (isAuthenticationError) {
+								NotificationHelper.showAuthNotification(this);
+							} else {
+								NotificationHelper.showMobilityErrorNotification(this);
+							}
+
+							break;
+
+						case INTERNAL_ERROR:
+							Log.e(TAG, "Upload failed due to unknown internal error");
+							NotificationHelper.showMobilityErrorNotification(this);
+							break;
+
+						case HTTP_ERROR:
+							Log.e(TAG, "Upload failed due to network error");
+							break;
 					}
-					
+
 					break;						
 				}
 			}

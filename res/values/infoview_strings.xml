@@ -55,7 +55,13 @@
 		Any other status indicates that there\'s a problem with the campaign.
 		]]>
 	</string>
-	
+
+	<string name="survey_info_campaign_urn_details">
+		<![CDATA[
+		The above displays the urn of the campaign to which this survey belongs.
+		]]>
+	</string>
+
 	<string name="campaign_info_responses_details">
 		<![CDATA[
 		The above count is the number of responses you have submitted for all surveys in this campaign.

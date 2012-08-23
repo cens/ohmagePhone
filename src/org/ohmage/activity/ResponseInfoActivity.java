@@ -16,9 +16,15 @@
 package org.ohmage.activity;
 
 import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.google.android.imageloader.ImageLoader.Callback;
+
+import edu.ucla.cens.systemlog.Analytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.ohmage.Config;
+import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.db.DbContract;
@@ -39,6 +45,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -46,6 +53,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
+import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +61,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -101,6 +110,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mapViewButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				startActivity(new Intent(OhmageApplication.VIEW_MAP, getIntent().getData()));
 			}
 		});
@@ -109,6 +119,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		uploadButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				if(mStatus == Response.STATUS_STANDBY)
 					mResponseHelper.queueForUpload(getIntent().getData());
 				else {
@@ -125,6 +136,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		super.onContentChanged();
 
 		mEntityHeader.setVisibility(View.GONE);
+	}
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		mResponseHelper.onPrepareDialog(id, dialog, args);
 	}
 
 	@Override
@@ -157,6 +173,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 		if (!data.moveToFirst()) {
+			Toast.makeText(this, R.string.response_info_response_deleted, Toast.LENGTH_SHORT).show();
+			finish();
 			return;
 		}
 
@@ -164,8 +182,17 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		final Long completedDate = data.getLong(ResponseQuery.TIME);
 		mStatus = data.getInt(ResponseQuery.STATUS);
 
+		if(mStatus == Response.STATUS_STANDBY)
+			uploadButton.setContentDescription(getString(R.string.response_info_entity_action_button_upload_description));
+		else if(mStatus == Response.STATUS_WAITING_FOR_LOCATION)
+			uploadButton.setContentDescription(getString(R.string.response_info_entity_action_button_upload_force_description));
+		else
+			uploadButton.setContentDescription(getString(R.string.response_info_entity_action_button_upload_error_description));
+
 		mHeadertext.setText(surveyName);
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
+		// If we aren't in single campaign mode, show the campaign name
+		mSubtext.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
 		SimpleDateFormat df = new SimpleDateFormat();
 		mNotetext.setText(df.format(new Date(completedDate)));
 		
@@ -289,10 +316,12 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public static final int REMOTE_RESPONSE = 9;
 			public static final int UNKNOWN_RESPONSE = 10;
 			private final String mResponseId;
+			private final ImageLoader mImageLoader;
 
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
 					int[] to, int flags, String responseId) {
 				super(context, R.layout.response_prompt_list_item, c, from, to, flags);
+				mImageLoader = ImageLoader.get(context);
 				setViewBinder(this);
 				mResponseId = responseId;
 			}
@@ -351,6 +380,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
 				View view = super.newView(context, cursor, parent);
 				View image = view.findViewById(R.id.prompt_image_value);
+				View progress = view.findViewById(R.id.prompt_image_progress);
 				View text = view.findViewById(R.id.prompt_text_value);
 				View value = view.findViewById(R.id.prompt_value);
 				ImageView icon = (ImageView) view.findViewById(R.id.prompt_icon);
@@ -396,10 +426,12 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				if (itemViewType != IMAGE_RESPONSE
 						// also if the image was skipped we are showing the text view
 						|| AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)))) {
+					progress.setVisibility(View.GONE);
 					image.setVisibility(View.GONE);
 					text.setVisibility(View.VISIBLE);
 					value.setTag(text);
 				} else {
+					progress.setVisibility(View.VISIBLE);
 					image.setVisibility(View.VISIBLE);
 					text.setVisibility(View.GONE);
 					value.setTag(image);
@@ -432,31 +464,80 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						File file = Response.getResponsesImage(mContext, campaignUrn, mResponseId, value);
+						final File file = Response.getTemporaryResponsesImage(mContext, value);
+						final ImageView imageView = (ImageView) view.getTag();
 
 						if(file != null && file.exists()) {
 							try {
 								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
-								((ImageView) view.getTag()).setImageBitmap(img);
+								imageView.setImageBitmap(img);
+								imageView.setOnClickListener(new View.OnClickListener() {
+
+									@Override
+									public void onClick(View v) {
+										Analytics.widget(v, "View Local Fullsize Image");
+										Intent intent = new Intent(Intent.ACTION_VIEW);
+										intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+										mContext.startActivity(intent);
+									}
+								});
+								return true;
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
 
+						String url = OhmageApi.defaultImageReadUrl(value, campaignUrn, "small");
+						final String largeUrl = OhmageApi.defaultImageReadUrl(value, campaignUrn, null);
+						imageView.setOnClickListener(new View.OnClickListener() {
+
+							@Override
+							public void onClick(View v) {
+								Analytics.widget(v, "View Fullsize Image");
+								Intent intent = new Intent(OhmageApplication.ACTION_VIEW_REMOTE_IMAGE, Uri.parse(largeUrl));
+								mContext.startActivity(intent);
+							}
+						});
+
+						mImageLoader.clearErrors();
+						BindResult bindResult = mImageLoader.bind((ImageView)view.getTag(), url, new Callback() {
+
+							@Override
+							public void onImageLoaded(ImageView view, String url) {
+								imageView.setVisibility(View.VISIBLE);
+								imageView.setClickable(true);
+								imageView.setFocusable(true);
+							}
+
+							@Override
+							public void onImageError(ImageView view, String url, Throwable error) {
+								imageView.setVisibility(View.VISIBLE);
+								imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+								imageView.setClickable(false);
+								imageView.setFocusable(false);
+							}
+						});
+						if(bindResult == ImageLoader.BindResult.ERROR) {
+							imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+							imageView.setClickable(false);
+							imageView.setFocusable(false);
+						} else  if(bindResult == ImageLoader.BindResult.LOADING){
+							imageView.setVisibility(View.GONE);
+						}
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
-						if("multi_choice_custom".equals(prompt_type)) {
+						if("multi_choice_custom".equals(prompt_type) || "multi_choice".equals(prompt_type)) {
 							try {
 								JSONArray choices = new JSONArray(value);
 								StringBuilder builder = new StringBuilder();
 								for(int i=0;i<choices.length();i++) {
 									if(i != 0)
-										builder.append("\n");
-									builder.append("� ");
+										builder.append("<br\\>");
+									builder.append("&bull; ");
 									builder.append(choices.get(i));
 								}
-								((TextView) view.getTag()).setText(builder.toString());
+								((TextView) view.getTag()).setText(Html.fromHtml(builder.toString()));
 								return true;
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block

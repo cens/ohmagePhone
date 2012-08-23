@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TabHost;
@@ -34,7 +33,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.survey_list);
+		setContentView(R.layout.survey_list_layout);
 
 		boolean showPending = getIntent().getBooleanExtra(EXTRA_SHOW_PENDING, false);
 
@@ -75,8 +74,6 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
-		Log.d(TAG, "campaign changed");
-
 		super.onCampaignFilterChanged(filter);
 		((CampaignFilterable) mTabManager.getCurrentTab().getFragment()).setCampaignUrn(filter);
 	}

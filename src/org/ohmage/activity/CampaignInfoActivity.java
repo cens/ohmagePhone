@@ -2,15 +2,15 @@ package org.ohmage.activity;
 
 import com.google.android.imageloader.ImageLoader;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Response;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
@@ -25,6 +25,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -149,8 +150,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			if (campaignStatus == Campaign.STATUS_READY) {
 				// FIXME: temporarily removed "take survey" button and moved it to the entity info header button tray
 				// actionBar.addActionBarCommand(ACTION_TAKE_SURVEY, "take survey", R.drawable.dashboard_title_survey);
-				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
-				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.dashboard_title_resphist);
+				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.dashboard_title_trigger);
 				
 				// route the actions to the appropriate places
 				actionBar.setOnActionListener(new ActionListener() {
@@ -183,6 +184,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 				surveysButton.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
+						Analytics.widget(v);
 						Intent intent = new Intent(mContext, SurveyListActivity.class);
 						intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 						startActivity(intent);
@@ -198,8 +200,9 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			removeButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					Analytics.widget(v);
 					AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-					StringBuilder message = new StringBuilder(getString(R.string.campaign_info_remove_text));
+					SpannableStringBuilder message = new SpannableStringBuilder(getString(R.string.campaign_info_remove_text));
 
 					if(mTriggerCount != 0) {
 						message.append(" ");
@@ -255,6 +258,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 			participateButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					Analytics.widget(v);
 					// when clicked, it fires off a download task,
 					// waits for it to finish, then goes back to the list when it's done
 					new CampaignXmlDownloadTask(CampaignInfoActivity.this, campaignUrn, mSharedPreferencesHelper.getUsername(), mSharedPreferencesHelper.getHashedPassword()).startLoading();
@@ -314,9 +318,9 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// set the appropriate text and icon for the privacy state
 		String privacy = data.getString(QueryParams.PRIVACY);
 		mPrivacyValue.setText(privacy);
-		if (privacy.equalsIgnoreCase("private"))
+		if ("private".equalsIgnoreCase(privacy))
 			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);
-		else if (privacy.equalsIgnoreCase("shared"))
+		else if ("shared".equalsIgnoreCase(privacy))
 			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_shared, 0, 0, 0);
 		else
 			mPrivacyValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_private, 0, 0, 0);
@@ -372,9 +376,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), null, null, null, null);
 		mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
 
-		Cursor localResponses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), new String[] { Responses._ID },
-				Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
-		mLocalResponses = localResponses.getCount();
+		mLocalResponses = Campaign.localResponseCount(this, mCampaignUrn);
 
 		// get the number of triggers for this survey
 		setTriggerCount();

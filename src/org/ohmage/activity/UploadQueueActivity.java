@@ -2,6 +2,8 @@ package org.ohmage.activity;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.adapters.ResponseListCursorAdapter;
@@ -115,7 +117,7 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		
 		@Override
 		public void onClick(View v) {
-			
+			Analytics.widget(v);
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
 			intent.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
@@ -140,7 +142,12 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		bundle.putParcelable(ResponseActivityHelper.KEY_URI, responseUri);
 		showDialog(status, bundle);
 	}
-	
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		mResponseHelper.onPrepareDialog(id, dialog, args);
+	}
+
 	@Override
 	protected Dialog onCreateDialog(int id, Bundle args) {
 		return mResponseHelper.onCreateDialog(id, args);

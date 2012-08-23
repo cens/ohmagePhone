@@ -1,11 +1,12 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.R;
 import org.ohmage.fragments.CampaignListFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 public class CampaignListActivity extends BaseCampaignListActivity {
@@ -24,7 +25,7 @@ public class CampaignListActivity extends BaseCampaignListActivity {
 	@Override
 	public void onContentChanged() {
 		// throw some actions on it
-		getActionBar().addActionBarCommand(ACTION_ADD_CAMPAIGNS, "add campaign", R.drawable.dashboard_title_add);
+		getActionBar().addActionBarCommand(ACTION_ADD_CAMPAIGNS, getString(R.string.campaign_list_add_action_button_description), R.drawable.dashboard_title_add);
 
 		super.onContentChanged();
 	}
@@ -43,6 +44,6 @@ public class CampaignListActivity extends BaseCampaignListActivity {
 	@Override
 	public void onCampaignActionDownload(String campaignUrn) {
 		Toast.makeText(this, R.string.campaign_list_download_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.w(TAG, "onCampaignActionDownload should not be exposed in this activity.");
+		Log.e(TAG, "onCampaignActionDownload should not be exposed in this activity.");
 	}
 }

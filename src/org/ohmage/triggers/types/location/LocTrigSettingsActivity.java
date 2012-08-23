@@ -17,8 +17,8 @@ package org.ohmage.triggers.types.location;
 
 
 
-import java.util.HashSet;
-import java.util.LinkedList;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 import org.ohmage.R;
 import org.ohmage.db.DbHelper;
@@ -36,20 +36,22 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+
+import java.util.HashSet;
+import java.util.LinkedList;
 
 /*
  * Location triggers settings activity.
@@ -62,7 +64,7 @@ public class LocTrigSettingsActivity extends ListActivity
 			 implements OnClickListener, 
 			 			TextWatcher {
 
-	private static final String DEBUG_TAG = "LocationTrigger";
+	private static final String TAG = "LocTrigSettingsActivity";
 	
 	/* Menu ids */
 	private static final int MENU_DELETE_CATEG = Menu.FIRST;
@@ -87,11 +89,9 @@ public class LocTrigSettingsActivity extends ListActivity
 	private boolean mAdminMode = false;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	Log.i(DEBUG_TAG, "Main: onCreate");
-    	
+    public void onCreate(Bundle savedInstanceState) {    	
         super.onCreate(savedInstanceState);
-        
+
         setContentView(R.layout.trigger_loc_settings);
         
         Button bAdd = (Button) findViewById(R.id.trigger_button_add_categ);
@@ -118,6 +118,18 @@ public class LocTrigSettingsActivity extends ListActivity
         initializeList();
         registerForContextMenu(getListView()); 
     }
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -140,8 +152,6 @@ public class LocTrigSettingsActivity extends ListActivity
 
     @Override
     public void onDestroy() {
-    	Log.i(DEBUG_TAG, "Main: onDestroy");
-    	
     	mCategNames.clear();
     	
     	mCursor.close();

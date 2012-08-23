@@ -20,7 +20,7 @@
             android:layout_marginTop="4dip"
             android:background="@drawable/entity_icon_background"
             android:scaleType="centerInside"
-            android:src="@drawable/icon" />
+            android:src="@drawable/apple_logo" />
 
         <TextView
             android:id="@+id/entity_header"

@@ -1,16 +1,17 @@
 package org.ohmage.adapters;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
@@ -30,6 +31,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		super.bindView(view, context, c);
 		
 		final long responseId = c.getLong(c.getColumnIndex(Responses._ID));
+		final String uuid = c.getString(c.getColumnIndex(Responses.RESPONSE_UUID));
 		
 		view.findViewById(R.id.action_separator).setVisibility(View.VISIBLE);
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
@@ -40,6 +42,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 			
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v, null, uuid);
 				mListener.onSubActionClicked(Responses.buildResponseUri(responseId));
 			}
 		});
@@ -54,12 +57,12 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		
 		switch (status) {
 		case Response.STATUS_STANDBY:
-			// actionButton.setImageResource(R.drawable.ic_menu_upload);
+			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_upload_description));
 			actionButton.setImageResource(R.drawable.subaction_upload_response);
 			break;
 			
 		case Response.STATUS_QUEUED:
-			// actionButton.setImageResource(R.drawable.ic_menu_upload_you_tube);
+			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_queued_description));
 			actionButton.setImageResource(R.drawable.subaction_queued_response);
 			
 			// makes the queued indicator fade in and out gently
@@ -70,6 +73,8 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 			break;
 			
 		case Response.STATUS_UPLOADING:
+			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_uploading_description));
+
 			actionButton.setImageResource(R.drawable.spinner_white_48);
 
 			// makes the progress indicator rotate
@@ -81,7 +86,8 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 			break;
 			
 		case Response.STATUS_WAITING_FOR_LOCATION:
-			// actionButton.setImageResource(R.drawable.ic_menu_recent_history);
+			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_waiting_description));
+
 			actionButton.setImageResource(R.drawable.subaction_location_pending_question);
 			
 			// makes the missing location indicator fade in and out gently
@@ -98,7 +104,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		case Response.STATUS_ERROR_INVALID_USER_ROLE:
 		case Response.STATUS_ERROR_HTTP:
 		case Response.STATUS_ERROR_OTHER:
-			// actionButton.setImageResource(R.drawable.ic_menu_close_clear_cancel);
+			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_error_description));
 			actionButton.setImageResource(R.drawable.subaction_campaign_broken);
 			break;
 			

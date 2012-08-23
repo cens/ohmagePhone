@@ -25,7 +25,8 @@
 			android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
 			android:background="@drawable/entity_action_button"
-			android:text="@string/upload_queue_upload_all" />
+			android:text="@string/upload_queue_upload_all"
+			android:contentDescription="@string/upload_button_description" />
 	</RelativeLayout>
 
 	<fragment

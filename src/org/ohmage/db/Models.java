@@ -1,28 +1,32 @@
 package org.ohmage.db;
 
-import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
-import org.ohmage.Utilities;
+import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
+import android.text.TextUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,20 +117,6 @@ public class Models {
 			return values;
 		}
 
-		public static File getCampaignImageDir(Context context, String campaignUrn) {
-			File f = new File(OhmageApplication.getImageDirectory(context), campaignUrn.replace(':', '_'));
-			f.mkdirs();
-			return f;
-		}
-		
-		private File getCampaignImageDir(Context context) {
-			return getCampaignImageDir(context, mUrn);
-		}
-		
-		public static File getCampaignImage(Context context, String campaignUrn, String uuid) {
-			return new File(Campaign.getCampaignImageDir(context, campaignUrn), "temp" + uuid);
-		}
-
 		/**
 		 * Launch the Trigger list for this campaign
 		 * @param context
@@ -182,17 +172,46 @@ public class Models {
 		 * @param context
 		 * @param campaignUrn
 		 */
-		public static void setRemote(Context context, String campaignUrn) {
-			Cursor cursor = context.getContentResolver().query(Campaigns.CONTENT_URI, null, Campaigns.CAMPAIGN_URN + "=?", new String[] { campaignUrn }, null);
-			List<Campaign> campaign = fromCursor(cursor);
+		public static void setRemote(Context context, String... campaignUrns) {
+			SelectionBuilder builder = new SelectionBuilder();
+			for(String c : campaignUrns)
+				builder.where(Campaigns.CAMPAIGN_URN + "=?", SelectionBuilder.OR, c);
 
-			if(campaign.size() > 0) {
+			setRemote(context, builder);
+		}
+
+		/**
+		 * Makes sure that we only have one campaign if we can
+		 * @param context
+		 */
+		public static void ensureSingleCampaign(Context context) {
+			String campaignUrn = getSingleCampaign(context);
+
+			if(campaignUrn != null) {
+				SelectionBuilder builder = new SelectionBuilder();
+				builder.where(Campaigns.CAMPAIGN_URN + "!=?", campaignUrn);
+				setRemote(context, builder);
+			}
+		}
+
+		private static void setRemote(Context context, SelectionBuilder builder) {
+			// Query for all campaigns
+			Cursor cursor = context.getContentResolver().query(Campaigns.CONTENT_URI, null, builder.getSelection(), builder.getSelectionArgs(), null);
+			List<Campaign> campaigns = fromCursor(cursor);
+
+			if(campaigns.size() > 0) {
+				// Update campaigns to be remote
 				ContentValues cv = new ContentValues();
 				cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
 				cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
-				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, Campaigns.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-				context.getContentResolver().delete(Responses.CONTENT_URI, Responses.CAMPAIGN_URN + "=?", new String[]{campaignUrn});
-				campaign.get(0).cleanUp(context);
+				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, builder.getSelection(), builder.getSelectionArgs());
+
+				// Delete responses
+				context.getContentResolver().delete(Responses.CONTENT_URI, builder.getSelection(), builder.getSelectionArgs());
+
+				// Clean up after campaigns
+				for(Campaign c : campaigns)
+					c.cleanUp(context);
 			}
 		}
 
@@ -202,17 +221,9 @@ public class Models {
 				TriggerFramework.resetTriggerSettings(context, mUrn);
 
 			try {
-				if(mIcon != null)
+				if(!TextUtils.isEmpty(mIcon))
 					OhmageCache.getCachedFile(context, new URI(mIcon)).delete();
 			}catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			try {
-				if(getCampaignImageDir(context).exists())
-					Utilities.delete(getCampaignImageDir(context));
-			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -228,6 +239,65 @@ public class Models {
 				customSingleChoices.clearCampaign(mUrn);
 				customSingleChoices.close();
 			}
+
+			// Remove last synced time
+			SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+			prefs.removeLastFeedbackRefreshTimestamp(mUrn);
+		}
+
+		/**
+		 * Retuns the campaign xml from the db
+		 * @param context
+		 * @param campaignUrn
+		 * @return
+		 * @throws IOException
+		 */
+		public static InputStream loadCampaignXml(Context context, String campaignUrn) throws IOException {
+			ContentResolver cr = context.getContentResolver();
+			Cursor cursor = cr.query(Campaigns.buildCampaignUri(campaignUrn), new String[] { Campaigns.CAMPAIGN_CONFIGURATION_XML }, null, null, null);
+
+			// ensure that only one record is returned
+			if (cursor.moveToFirst() && cursor.getCount() == 1) {
+				String xml = cursor.getString(0);
+				cursor.close();
+				return new ByteArrayInputStream(xml.getBytes("UTF-8"));
+			} else {
+				cursor.close();
+				return null;
+			}
+		}
+
+		/**
+		 * Counts the number of local responses for the given urn
+		 * @param context
+		 * @param campaignUrn
+		 * @return
+		 */
+		public static int localResponseCount(Context context, String campaignUrn) {
+			return localResponseCount(context, Campaigns.buildResponsesUri(campaignUrn));
+		}
+
+		/**
+		 * Counts the number of local responses on the phone
+		 * @param context
+		 * @return
+		 */
+		public static int localResponseCount(Context context) {
+			return localResponseCount(context, Responses.CONTENT_URI);
+		}
+
+		/**
+		 * Helper method to consistently calculate the number of local responses
+		 * @param context
+		 * @param uri
+		 * @return
+		 */
+		private static int localResponseCount(Context context, Uri uri) {
+			Cursor localResponses = context.getContentResolver().query(uri, new String[] { Responses._ID },
+					Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED + " AND " + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED, null, null);
+			int count = localResponses.getCount();
+			localResponses.close();
+			return count;
 		}
 	}
 
@@ -461,87 +531,52 @@ public class Models {
 		}
 
 		public ContentValues toCV() {
-			try {
-				ContentValues values = new ContentValues();
+			ContentValues values = new ContentValues();
 
-				values.put(Responses.RESPONSE_UUID, uuid);
-				values.put(Responses.CAMPAIGN_URN, campaignUrn);
-				values.put(Responses.RESPONSE_USERNAME, username);
-				values.put(Responses.RESPONSE_DATE, date);
-				values.put(Responses.RESPONSE_TIME, time);
-				values.put(Responses.RESPONSE_TIMEZONE, timezone);
-				values.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
+			values.put(Responses.RESPONSE_UUID, uuid);
+			values.put(Responses.CAMPAIGN_URN, campaignUrn);
+			values.put(Responses.RESPONSE_USERNAME, username);
+			values.put(Responses.RESPONSE_DATE, date);
+			values.put(Responses.RESPONSE_TIME, time);
+			values.put(Responses.RESPONSE_TIMEZONE, timezone);
+			values.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
 
-				if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE)
-				{
-					values.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
-					values.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
-					values.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
-					values.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
-				}
-
-				values.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
-				values.put(Responses.SURVEY_ID, surveyId);
-				values.put(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
-				values.put(Responses.RESPONSE_JSON, response);
-				values.put(Responses.RESPONSE_STATUS, status);
-
-				String hashableData = campaignUrn + surveyId + username + date;
-				String hashcode = DbHelper.getSHA1Hash(hashableData);
-				values.put(Responses.RESPONSE_HASHCODE, hashcode);
-
-				return values;
+			if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE)
+			{
+				values.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
+				values.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
+				values.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
+				values.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
 			}
-			catch (NoSuchAlgorithmException e) {
-				throw new UnsupportedOperationException("The SHA1 algorithm is not available, can't make a response CV", e);
-			}
-		}
 
-		public static File getResponsesImageDir(Context context, String campaignUrn, String id) {
-			File f = new File(Campaign.getCampaignImageDir(context, campaignUrn), id);
-			f.mkdirs();
-			return f;
+			values.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
+			values.put(Responses.SURVEY_ID, surveyId);
+			values.put(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
+			values.put(Responses.RESPONSE_JSON, response);
+			values.put(Responses.RESPONSE_STATUS, status);
+
+			return values;
 		}
 
 		/**
-		 * Returns the image for a given uuid for this response id and campaign. Usually it is in the response dir
-		 * but it also checks the old locations and moves them if appropriate
+		 * Returns the file for given image uuid
 		 * @param context
-		 * @param campaignUrn
-		 * @param id
 		 * @param uuid
-		 * @return the image file
+		 * @return
 		 */
-		public static File getResponsesImage(Context context, String campaignUrn, String id, final String uuid) {
-			File image = new File(Response.getResponsesImageDir(context, campaignUrn, id), uuid);
-
-			// If the image isnt there for some reason, maybe its in the old location under the campaign urn
-			if(image == null || !image.exists()) {
-				File jpgImage = new File(Campaign.getCampaignImageDir(context, campaignUrn), uuid + ".jpg");
-				if(jpgImage != null && jpgImage.exists())
-					jpgImage.renameTo(image);
-				else {
-					File pngImage = new File(Campaign.getCampaignImageDir(context, campaignUrn), uuid + ".png");
-					if(pngImage != null && pngImage.exists())
-						pngImage.renameTo(image);
-				}
-			}
-			return image;
+		public static File getTemporaryResponsesImage(Context context, String uuid) {
+			return new File(getResponseImageUploadDir(context), uuid);
 		}
 
-		private File getResponseImageDir(Context context) {
-			return getResponsesImageDir(context, campaignUrn, String.valueOf(_id));
-		}
-
-		@Override
-		public void cleanUp(Context context) {
-			try {
-				if(getResponseImageDir(context).exists())
-					Utilities.delete(getResponseImageDir(context));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		/**
+		 * Returns the directory to store images to upload in
+		 * @param context
+		 * @return
+		 */
+		public static File getResponseImageUploadDir(Context context) {
+			File dir = new File(context.getExternalCacheDir(), "uploads");
+			dir.mkdirs();
+			return dir;
 		}
 	}
 	

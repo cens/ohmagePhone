@@ -1,5 +1,8 @@
 package org.ohmage.fragments;
 
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Log;
+
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.activity.UploadQueueActivity;
@@ -19,7 +22,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
@@ -76,6 +78,9 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
+		Cursor cursor = (Cursor) getListAdapter().getItem(position);
+		String uuid = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID));
+		Analytics.widget(v, null, uuid);
 //		startActivity(new Intent(Intent.ACTION_VIEW, DbContract.Response.getResponseByID(id)));
 		mListener.onResponseActionView(Responses.buildResponseUri(id));
 	}
@@ -135,7 +140,8 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 				Campaigns.CAMPAIGN_NAME,
 				Surveys.SURVEY_TITLE,
 				Responses.RESPONSE_TIME,
-				Tables.RESPONSES + "." + Responses.RESPONSE_STATUS
+				Tables.RESPONSES + "." + Responses.RESPONSE_STATUS,
+				Responses.RESPONSE_UUID
 		};
 	}
 

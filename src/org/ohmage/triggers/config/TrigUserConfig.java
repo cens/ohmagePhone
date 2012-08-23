@@ -20,14 +20,7 @@ package org.ohmage.triggers.config;
  * behavior of the user interface in non-admin mode
  */
 public class TrigUserConfig {
-	
-	/*
-	 * The admin password. Currently, the admin mode
-	 * is a mechanism to prevent the user from accidentally
-	 * changing the trigger settings.  
-	 */
-	public static final String adminPass = "0000";
-	
+
 	/* UI options in trigger list affected by admin mode */
 	public static boolean addTrigers = false;
 	public static boolean removeTrigers = false;

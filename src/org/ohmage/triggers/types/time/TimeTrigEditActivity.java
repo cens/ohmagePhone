@@ -15,10 +15,11 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.time;
 
-import java.util.LinkedHashMap;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.ui.ActionSelectorView;
@@ -32,22 +33,15 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceScreen;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckedTextView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.LinkedHashMap;
 
 public class TimeTrigEditActivity extends PreferenceActivity 
 							implements View.OnClickListener, 
@@ -56,7 +50,7 @@ public class TimeTrigEditActivity extends PreferenceActivity
 									   DialogInterface.OnMultiChoiceClickListener, 
 									   DialogInterface.OnClickListener {
 	
-	private static final String DEBUG_TAG = "TimeTrigEditActivity";
+	private static final String TAG = "TimeTrigEditActivity";
 	
 	public static final String KEY_TRIG_DESC = "trig_desc";
 	public static final String KEY_ACT_DESC = "act_desc";
@@ -108,9 +102,8 @@ public class TimeTrigEditActivity extends PreferenceActivity
 		
 		if(getIntent().hasExtra(TriggerListActivity.KEY_ACTIONS)) {
 			mActions = getIntent().getStringArrayExtra(TriggerListActivity.KEY_ACTIONS);
-		}
-		else {
-			Log.e(DEBUG_TAG, "TimeTrigEditActivity: Invoked with out passing surveys");
+		} else {
+			Log.e(TAG, "TimeTrigEditActivity: Invoked with out passing surveys");
 			finish();
 			return;
 		}
@@ -177,7 +170,19 @@ public class TimeTrigEditActivity extends PreferenceActivity
 			mRepeatStatus = savedInstanceState.getBooleanArray(KEY_SAVE_REPEAT_STATUS);
 		}
     }
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Analytics.activity(this, Status.ON);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Analytics.activity(this, Status.OFF);
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);

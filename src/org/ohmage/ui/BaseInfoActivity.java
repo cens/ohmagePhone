@@ -1,5 +1,7 @@
 package org.ohmage.ui;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
 
 import android.support.v4.app.Fragment;
@@ -91,6 +93,7 @@ public abstract class BaseInfoActivity extends BaseSingleFragmentActivity {
 		parent.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				int currentVis = child.getVisibility();
 				child.setVisibility((currentVis == View.INVISIBLE || currentVis == View.GONE)?View.VISIBLE:View.GONE);
 			}

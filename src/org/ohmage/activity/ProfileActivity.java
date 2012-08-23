@@ -1,5 +1,7 @@
 package org.ohmage.activity;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
@@ -48,6 +50,7 @@ public class ProfileActivity extends BaseInfoActivity {
 		OnClickListener profileActionListener = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				switch (v.getId()) {
 					case R.id.profile_info_button_logout_wipe:
 						mAccountHelper.logout();
@@ -66,7 +69,11 @@ public class ProfileActivity extends BaseInfoActivity {
 		updatePasswordButton.setOnClickListener(profileActionListener);
 		logoutWipeButton.setOnClickListener(profileActionListener);
 	}
-	
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		mAccountHelper.onPrepareDialog(id, dialog);
+	}
 	
 	@Override
 	protected Dialog onCreateDialog(int id) {

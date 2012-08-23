@@ -13,112 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage.service;
-
-import org.ohmage.activity.UploadQueueActivity;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbHelper.Tables;
-import org.ohmage.db.Models.Response;
-import org.ohmage.storagemonitor.StorageMonitorService;
-
-import android.app.AlarmManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Log;
 
+import org.ohmage.db.DbContract.Responses;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+
 public class UploadReceiver extends BroadcastReceiver {
 
-private static final String TAG = "UploadReceiver";
-	
-	//alarm to check for new data while phone is plugged in
+	private static final String TAG = "UploadReceiver";
+
+	// alarm to check for new data while phone is plugged in
 	public static final String ACTION_UPLOAD_ALARM = "org.ohmage.service.ACTION_UPLOAD_ALARM";
-	private static final long ALARM_FREQ = AlarmManager.INTERVAL_HOUR; 
-	
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		
 		String action = intent.getAction();
-		Log.i(TAG, "Broadcast received: " + action);
-		
-		//When the alarm goes off, get battery change sticky intent, if plugged in, start upload
+
 		if (UploadReceiver.ACTION_UPLOAD_ALARM.equals(action)) {
-			
-			/*AlarmManager alarms = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-			Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intentToFire, 0);
-			alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + ALARM_FREQ, pendingIntent);
-			Log.i(TAG, "Alarm set for " + String.valueOf(ALARM_FREQ/60000) + " minutes from now.");*/
-			
+
+			// When the alarm goes off, get battery change sticky intent, if
+			// plugged in, start upload
 			Context appContext = context.getApplicationContext();
-			Intent battIntent = appContext.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-			int level = battIntent.getIntExtra("level", -1);
-			int scale = battIntent.getIntExtra("scale", -1);
-			float percent = (float) level * 100 / (float) scale;
-			Log.i(TAG, "Battey level: " + percent + "% ("+ level + " / " + scale + ")");
-			if (percent > 20) {
-				Log.i(TAG, "Power is not low.");
-				Log.i(TAG, "Starting UploadService.");
-				
-				Intent i = new Intent(context, UploadService.class);
-				i.setData(Responses.CONTENT_URI);
-				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
-				i.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
-				i.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
-				WakefulIntentService.sendWakefulWork(context, i);
-			} else {
-				Log.i(TAG, "Power is low.");
-				Log.i(TAG, "Not starting UploadService.");
+			Intent battIntent = appContext.registerReceiver(null, new IntentFilter(
+					Intent.ACTION_BATTERY_CHANGED));
+			int level = battIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+			int scale = battIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+			int status = battIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+			if (level == -1 || scale == -1 || status == -1) {
+				Log.e(TAG, "Battery did not report level correctly");
+				return;
 			}
-			
-			/*int plugged = battIntent.getIntExtra("plugged", -1);
-			if (	plugged == BatteryManager.BATTERY_PLUGGED_AC ||
-					plugged == BatteryManager.BATTERY_PLUGGED_USB) {
-				
-				Log.i(TAG, "Power is connected.");
-				Log.i(TAG, "Starting UploadService.");
-				
-				WakefulIntentService.acquireStaticLock(context);
-				context.startService(new Intent(context, UploadService.class));
-				
-			} else {
-				Log.i(TAG, "Power is disconnected.");
-			}*/
 
-		}
-		
-		//If the storage monitor reports low or very low storage, the upload thread is started. Simple.
-		if (StorageMonitorService.ACTION_STORAGE_REPORT.equals(action)) {
-			int status = intent.getIntExtra(StorageMonitorService.EXTRA_STORAGE_STATUS, -1);
-			if (	status == StorageMonitorService.FREE_STORAGE_LOW ||
-					status == StorageMonitorService.FREE_STORAGE_VERY_LOW) {
-				
-				Log.i(TAG, "Storage is low.");
-				Log.i(TAG, "Starting UploadService.");
-				
+			float percent = (float) level * 100 / scale;
+
+			// If we have more than 20% battery or we are currently charging,
+			// start the upload service
+			if (percent > 20 || status == BatteryManager.BATTERY_STATUS_CHARGING) {
 				Intent i = new Intent(context, UploadService.class);
 				i.setData(Responses.CONTENT_URI);
 				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
 				i.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
 				i.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 				WakefulIntentService.sendWakefulWork(context, i);
-				
-			} else {
-				Log.i(TAG, "Storage is not low.");
 			}
 		}
-		
-		
-		//The following code passes the original intent data to the UploadService if needed.
-		//It's not needed now because the UploadService doesn't care about anything except being told to start Uploading.
-		//The UploadService should remain as such.
-		//Intent uploadIntent = new Intent(intent).setClass(context, UploadService.class);
-		//context.startService(uploadIntent);
-		
 	}
-
 }

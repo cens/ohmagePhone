@@ -16,8 +16,9 @@
 package org.ohmage.triggers.notif;
 
 
-import java.util.List;
-import java.util.Set;
+import edu.ucla.cens.systemlog.Log;
+import edu.ucla.cens.systemlog.OhmageAnalytics;
+import edu.ucla.cens.systemlog.OhmageAnalytics.TriggerStatus;
 
 import org.ohmage.R;
 import org.ohmage.db.DbHelper;
@@ -36,7 +37,9 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
+
+import java.util.List;
+import java.util.Set;
 
 /*
  * The trigger notification manager. The logic which displays, repeats and
@@ -55,7 +58,7 @@ import android.util.Log;
  */
 public class Notifier {
 
-	private static final String DEBUG_TAG = "TriggerFramework";
+	private static final String TAG = "Notifier";
 	
 	//TODO - This needs to be defined in a common place in order
 	//make sure that it does not collide with any other notification
@@ -190,14 +193,14 @@ public class Notifier {
 	 */
 	public static void refreshNotification(Context context, String campaignUrn, boolean quiet) {
 		
-		Log.i(DEBUG_TAG, "Notifier: Refreshing notification, quiet = " + quiet);
+		Log.i(TAG, "Notifier: Refreshing notification, quiet = " + quiet);
 		
 		//Get the list of all the surveys active at the moment
 		Set<String> actSurveys = NotifSurveyAdaptor.getAllActiveSurveys(context, campaignUrn);
 		
 		//Remove the notification if there are no active surveys
 		if(actSurveys.size() == 0) {
-			Log.i(DEBUG_TAG, "Notifier: No active surveys");
+			Log.i(TAG, "Notifier: No active surveys");
 			hideNotification(context, campaignUrn);
 		}
 		else {
@@ -254,7 +257,7 @@ public class Notifier {
 						  		 int mins,
 						  		 Bundle extras) {
 		
-		Log.i(DEBUG_TAG, "Notifier: Setting alarm(" + trigId + 
+		Log.i(TAG, "Notifier: Setting alarm(" + trigId + 
 						 ", " + mins + ", " + action + ")");
 		
 		AlarmManager alarmMan = (AlarmManager) 
@@ -479,9 +482,11 @@ public class Notifier {
 	
 	private static void handleTriggerExpired(Context context, int trigId) {
 	
-		Log.i(DEBUG_TAG, "Notifier: Handling expiration alarm for: " 
+		Log.i(TAG, "Notifier: Handling expiration alarm for: " 
 				+ trigId);
-		
+
+		OhmageAnalytics.trigger(context, TriggerStatus.IGNORE, trigId);
+
 		//Log information related to expired triggers.
 		NotifSurveyAdaptor.handleExpiredTrigger(context, trigId);
 		
@@ -514,7 +519,7 @@ public class Notifier {
 		
 		NotifDesc desc = new NotifDesc();
 		if(!desc.loadString(notifDesc)) {	
-			Log.e(DEBUG_TAG, "Notifier: Error parsing notif desc in " +
+			Log.e(TAG, "Notifier: Error parsing notif desc in " +
 					"notifyNewTrigger()");
 			return;
 		}

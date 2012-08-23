@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.location;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +27,6 @@ import org.ohmage.triggers.ui.TriggerListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 
 /*
  * The concrete instance of the location based triggers class. 
@@ -37,7 +38,7 @@ import android.util.Log;
  */
 public class LocationTrigger extends TriggerBase {
 
-	private static final String DEBUG_TAG = "LocationTrigger";
+	private static final String TAG = "LocationTrigger";
 	
 	//This string must be unique across all trigger types 
 	//registered with the framework.
@@ -186,7 +187,7 @@ public class LocationTrigger extends TriggerBase {
 
 	@Override
 	public void stopTrigger(Context context, int trigId, String trigDesc) {
-		Log.i(DEBUG_TAG, "LocationTrigger: removeTrigger(" + trigId +
+		Log.i(TAG, "LocationTrigger: removeTrigger(" + trigId +
 										", " + trigDesc + ")");
 		
 		//Tell the service to stop this trigger
@@ -199,7 +200,7 @@ public class LocationTrigger extends TriggerBase {
 
 	@Override
 	public void resetTrigger(Context context, int trigId, String trigDesc) {
-		Log.i(DEBUG_TAG, "LocationTrigger: resetTrigger(" + trigId +
+		Log.i(TAG, "LocationTrigger: resetTrigger(" + trigId +
 				", " + trigDesc + ")");
 		
 		//Tell the service to restart the trigger
@@ -212,7 +213,7 @@ public class LocationTrigger extends TriggerBase {
 
 	@Override
 	public void startTrigger(Context context, int trigId, String trigDesc) {
-		Log.i(DEBUG_TAG, "LocationTrigger: startTrigger(" + trigId +
+		Log.i(TAG, "LocationTrigger: startTrigger(" + trigId +
 				", " + trigDesc + ")");
 		
 		//Tell the service to start the trigger
@@ -246,13 +247,13 @@ public class LocationTrigger extends TriggerBase {
 				
 				JSONObject jLoc = new JSONObject();
 				try {
-					jLoc.put(KEY_LATITUDE, (double)(lat / 1E6));
-					jLoc.put(KEY_LONGITUDE, (double)(lng / 1E6));
+					jLoc.put(KEY_LATITUDE, (lat / 1E6));
+					jLoc.put(KEY_LONGITUDE, (lng / 1E6));
 					jLoc.put(KEY_RADIUS, radius);
 					
 					jLocs.put(jLoc);
 				} catch (JSONException e) {
-					Log.e(DEBUG_TAG, "LocationTrigger: Error adding locations to " +
+					Log.e(TAG, "LocationTrigger: Error adding locations to " +
 									 "preference JSON");
 				}
 				
@@ -291,7 +292,7 @@ public class LocationTrigger extends TriggerBase {
 					
 					jPlaces.put(jPlace);
 				} catch (JSONException e) {
-					Log.e(DEBUG_TAG, "LocationTrigger: Error adding place to " +
+					Log.e(TAG, "LocationTrigger: Error adding place to " +
 					 				  "preference JSON");
 				}
 				
@@ -306,7 +307,7 @@ public class LocationTrigger extends TriggerBase {
 		try {
 			jPref.put(KEY_PLACES, jPlaces);
 		} catch (JSONException e) {
-			Log.e(DEBUG_TAG, "LocationTrigger: Error adding places to " +
+			Log.e(TAG, "LocationTrigger: Error adding places to " +
 			 				 "preference JSON");
 		}
 		

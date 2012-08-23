@@ -168,14 +168,14 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	@SmallTest
 	public void testLoadingState() {
 		assertEquals(true, mLoadingView.getVisibility() == View.VISIBLE);
-		provider.setCampaign(getBasicCampaign());
+		provider.setCampaigns(getBasicCampaign());
 		solo.searchText(FAKE_TITLE);
 		assertEquals(false, mLoadingView.getVisibility() == View.VISIBLE);
 	}
 
 	@SmallTest
 	public void testHeaderText() {
-		provider.setCampaign(getBasicCampaign());
+		provider.setCampaigns(getBasicCampaign());
 		solo.searchText(FAKE_TITLE);
 		assertEquals(FAKE_TITLE, mHeaderText.getText());
 		assertEquals(CampaignCursor.DEFAULT_CAMPAIGN_URN, mSubtext.getText());
@@ -185,7 +185,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testDeletedState() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_NO_EXIST;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("deleted on server", mStatusValue.getText());
@@ -199,7 +199,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testStateStopped() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_STOPPED;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals(true, mErrorBox.getVisibility() == View.VISIBLE);
@@ -214,7 +214,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testStateDownloading() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_DOWNLOADING;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("downloading...", mStatusValue.getText());
@@ -228,7 +228,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testStateInvalidUserRole() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_INVALID_USER_ROLE;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("invalid role", mStatusValue.getText());
@@ -242,7 +242,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testStateOutOfDate() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_OUT_OF_DATE;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("out of date", mStatusValue.getText());
@@ -256,7 +256,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testStateReady() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_READY;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("participating", mStatusValue.getText());
@@ -270,7 +270,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testStateRemote() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_REMOTE;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("available for participation", mStatusValue.getText());
@@ -284,7 +284,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testStateVague() {
 		Campaign c = getBasicCampaign();
 		c.mStatus = Campaign.STATUS_VAGUE;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("not available", mStatusValue.getText());
@@ -298,7 +298,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testCampaignPrivacyStatePrivate() {
 		Campaign c = getBasicCampaign();
 		c.mPrivacy = Campaign.PRIVACY_PRIVATE;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("private", mPrivacyValue.getText());
@@ -308,7 +308,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testCampaignPrivacyStateUnknown() {
 		Campaign c = getBasicCampaign();
 		c.mPrivacy = Campaign.PRIVACY_UNKNOWN;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("unknown", mPrivacyValue.getText());
@@ -318,7 +318,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testCampaignPrivacyStateInvalid() {
 		Campaign c = getBasicCampaign();
 		c.mPrivacy = "not real privacy state";
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("unknown", mPrivacyValue.getText());
@@ -328,7 +328,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testCampaignPrivacyStateInvalid2() {
 		Campaign c = getBasicCampaign();
 		c.mPrivacy = "8";
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("unknown", mPrivacyValue.getText());
@@ -338,7 +338,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testCampaignPrivacyStateShared() {
 		Campaign c = getBasicCampaign();
 		c.mPrivacy = Campaign.PRIVACY_SHARED;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("shared", mPrivacyValue.getText());
@@ -346,7 +346,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 
 	@MediumTest
 	public void testResponseCount() {
-		provider.setCampaign(getBasicCampaign());
+		provider.setCampaigns(getBasicCampaign());
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals(responses.length + " responses submitted", mResponsesValue.getText());
@@ -356,7 +356,7 @@ public class CampaignInfoActivityTest extends ActivityInstrumentationTestCase2<C
 	public void testResponseCount1() {
 		Campaign c = getBasicCampaign();
 		c.mUrn = CAMPAIGN_URN_W_ONE_RESPONSE;
-		provider.setCampaign(c);
+		provider.setCampaigns(c);
 		solo.searchText(FAKE_TITLE);
 
 		assertEquals("1 response submitted", mResponsesValue.getText());

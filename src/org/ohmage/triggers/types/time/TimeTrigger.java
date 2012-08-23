@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.time;
 
+import edu.ucla.cens.systemlog.Log;
+
 import org.json.JSONObject;
 import org.ohmage.R;
 import org.ohmage.triggers.base.TriggerBase;
@@ -22,12 +24,11 @@ import org.ohmage.triggers.ui.TriggerListActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 
 public class TimeTrigger extends TriggerBase {
 	
-	private static final String DEBUG_TAG = "TimeTrigger";
+	private static final String TAG = "TimeTrigger";
 	
 	private static final String TRIGGER_TYPE = "TimeTrigger";	
 	
@@ -85,7 +86,7 @@ public class TimeTrigger extends TriggerBase {
 			public void onDone(Context context, int trigId, 
 							   String trigDesc, String actDesc) {
 				
-				Log.i(DEBUG_TAG, "TimeTrigger: Saving new trigger: " + trigDesc);
+				Log.i(TAG, "TimeTrigger: Saving new trigger: " + trigDesc);
 				addNewTrigger(context, campaignUrn, trigDesc, actDesc);
 			}
 		});

@@ -1,10 +1,10 @@
 package org.ohmage.activity;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
 import com.google.android.imageloader.ImageLoader;
 
+import edu.ucla.cens.systemlog.Analytics;
+
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
@@ -35,6 +35,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	protected static final int TRIGGER_UPDATE_FINISHED = 0;
 
@@ -50,6 +53,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	// handles to views we'll be manipulating
 	private TextView mErrorBox;
 	private TextView mDescView;
+	private TextView mCampaignUrnValue;
 	private TextView mStatusValue;
 	private TextView mResponsesValue;
 	private TextView mLastResponseValue;
@@ -87,6 +91,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// nab references to things we'll be populating
 		mErrorBox = (TextView)findViewById(R.id.survey_info_errorbox);
 		mDescView = (TextView)findViewById(R.id.survey_info_desc);
+		mCampaignUrnValue = (TextView)findViewById(R.id.survey_info_campaign_urn_value);
 		mStatusValue = (TextView)findViewById(R.id.survey_info_status_value);
 		mResponsesValue = (TextView)findViewById(R.id.survey_info_responses_value);
 		mLastResponseValue = (TextView)findViewById(R.id.survey_info_last_response_value);
@@ -94,6 +99,14 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		
 		// and attach some handlers + populate some html data
 		// status
+		TextView campaignUrnDetails = (TextView)findViewById(R.id.survey_info_campaign_urn_details);
+		campaignUrnDetails.setText(Html.fromHtml(getString(R.string.survey_info_campaign_urn_details)));
+		setDetailsExpansionHandler(
+				findViewById(R.id.survey_info_campaign_urn_row),
+				campaignUrnDetails);
+		// If we aren't in single campaign mode, show the campaign urn details
+		findViewById(R.id.survey_info_campaign_urn_row).setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
+
 		TextView statusDetails = (TextView)findViewById(R.id.survey_info_status_details);
 		statusDetails.setText(Html.fromHtml(getString(R.string.survey_info_status_details)));
 		setDetailsExpansionHandler(
@@ -152,8 +165,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		if (campaignStatus == Campaign.STATUS_READY) {
 			// only add response history if show feedback is true
 			if(new UserPreferencesHelper(this).showFeedback())
-				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, "view response history", R.drawable.dashboard_title_resphist);
-			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, "setup triggers", R.drawable.dashboard_title_trigger);
+				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.dashboard_title_resphist);
+			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.dashboard_title_trigger);
 			
 			// route the actions to the appropriate places
 			actionBar.setOnActionListener(new ActionListener() {
@@ -182,6 +195,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 			takeSurveyButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					Analytics.widget(v);
 					// fire off the survey intent
 					Intent intent = new Intent(mContext, SurveyActivity.class);
 					intent.putExtra("campaign_urn", campaignUrn);
@@ -246,6 +260,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// set the header fields first
 		mHeadertext.setText(data.getString(QueryParams.TITLE));
 		mSubtext.setText(data.getString(QueryParams.CAMPAIGN_NAME));
+		// If we aren't in single campaign mode, show the campaign name
+		mSubtext.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
 		
 		final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
 		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
@@ -258,6 +274,8 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// hide our error box; it'll become visible below (and filled w/text) if the status is appropriate
 		mErrorBox.setVisibility(View.GONE);
 		
+		mCampaignUrnValue.setText(mCampaignUrn);
+
 		// set many things on the view according to the campaign status, too
 		mStatusValue.setCompoundDrawablesWithIntrinsicBounds(R.drawable.website_stopped, 0, 0, 0); // start out a default gray sphere
 		mCampaignStatus = data.getInt(QueryParams.CAMPAIGN_STATUS);

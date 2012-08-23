@@ -1,6 +1,9 @@
 package org.ohmage.controls;
 
+import edu.ucla.cens.systemlog.Analytics;
+
 import org.ohmage.R;
+import org.ohmage.UIUtils;
 import org.ohmage.activity.DashboardActivity;
 
 import android.app.Activity;
@@ -59,7 +62,11 @@ public class ActionBarControl extends LinearLayout {
 		mHomeButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				mActivity.startActivity(new Intent(mActivity, DashboardActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+		        if (!UIUtils.isHoneycomb()) {
+		            mActivity.overridePendingTransition(R.anim.home_enter, R.anim.home_exit);
+		        }
 				mActivity.finish();
 			}
 		});
@@ -68,6 +75,7 @@ public class ActionBarControl extends LinearLayout {
 		mActionButtonClickListener = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v);
 				// route clicks on the action bar to the user-supplied action handler, if present
 				if (mActionBarClickedListener != null)
 					mActionBarClickedListener.onActionClicked(v.getId());

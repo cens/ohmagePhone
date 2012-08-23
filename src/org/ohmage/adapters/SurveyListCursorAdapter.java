@@ -1,5 +1,8 @@
 package org.ohmage.adapters;
 
+import edu.ucla.cens.systemlog.Analytics;
+
+import org.ohmage.Config;
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
@@ -38,17 +41,21 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
 		
 		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_URN));
+		final String campaignName = cursor.getString(cursor.getColumnIndex(Surveys.CAMPAIGN_NAME));
 		final int campaignStatus = cursor.getInt(cursor.getColumnIndex(Campaigns.CAMPAIGN_STATUS));
 		final String surveyId = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_ID));
 		
 		iconImage.setVisibility(View.GONE);
 		titleText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
-		campaignText.setText(campaignUrn);
+		campaignText.setText(campaignName);
+		// Only show campaign name if we aren't in single campaign mode
+		campaignText.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
 		actionButton.setFocusable(false);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
+				Analytics.widget(v, null, campaignUrn + ":" + surveyId);
 				if(campaignStatus == Campaign.STATUS_READY) {
 					mListener.onSubActionClicked(Campaigns.buildSurveysUri(campaignUrn, surveyId));
 				} else {
@@ -66,17 +73,17 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 			switch (status) {
 				case Survey.STATUS_NORMAL:
 					if (anytime) {
-						// actionButton.setImageResource(R.drawable.ic_menu_pencil_yellow);
+						actionButton.setContentDescription(context.getString(R.string.survey_list_item_action_button_description));
 						actionButton.setImageResource(R.drawable.subaction_survey_ready);
 					} else {
-						// actionButton.setImageResource(R.drawable.ic_menu_pencil_grey);
+						actionButton.setContentDescription(context.getString(R.string.survey_list_item_action_button_disabled_description));
 						actionButton.setImageResource(R.drawable.subaction_survey_disabled);
 						actionButton.setEnabled(false);
 					}
 					break;
 
 				case Survey.STATUS_TRIGGERED:
-					// actionButton.setImageResource(R.drawable.ic_menu_pencil_green);
+					actionButton.setContentDescription(context.getString(R.string.survey_list_item_action_button_pending_description));
 					actionButton.setImageResource(R.drawable.subaction_survey_pending);
 					break;
 
@@ -86,6 +93,7 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 					break;
 			}
 		} else {
+			actionButton.setContentDescription(context.getString(R.string.survey_list_item_action_button_disabled_description));
 			actionButton.setImageResource(R.drawable.subaction_survey_disabled);
 		}
 	}

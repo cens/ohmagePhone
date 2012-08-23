@@ -1,9 +1,14 @@
 package org.ohmage.activity;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.ohmage.R;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.fragments.ResponseHistoryCalendarFragment;
 import org.ohmage.fragments.ResponseMapFragment;
+import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.ui.CampaignSurveyFilterActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
@@ -13,9 +18,10 @@ import org.ohmage.ui.OhmageFilterable.TimeFilter;
 import org.ohmage.ui.OhmageFilterable.TimeFilterable;
 import org.ohmage.ui.TabManager;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TabHost;
@@ -35,6 +41,9 @@ import java.util.Calendar;
 public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 	private static final String TAG = "RHTabHost";
+	
+	// action bar actions
+	private static final int ACTION_RESPONSESYNC = 1;
 
 	TabHost mTabHost;
 	TabManager mTabManager;
@@ -53,7 +62,6 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 			@Override
 			public void onFilterChanged(Calendar curValue) {
-				Log.d(TAG, "calendar changed");
 				((TimeFilterable)mTabManager.getCurrentTab().getFragment()).setMonth(curValue.get(Calendar.MONTH), curValue.get(Calendar.YEAR));
 			}
 		});
@@ -83,6 +91,28 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 		if (savedInstanceState != null) {
 			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
 		}
+		
+		// store context so we can access it from the actionbar handler
+		final Context context = this;
+		
+		// add a sync command to the response history action bar
+		ActionBarControl actionBar = getActionBar();
+		actionBar.clearActionBarCommands();
+		
+		actionBar.addActionBarCommand(ACTION_RESPONSESYNC, "sync responses", R.drawable.dashboard_title_refresh);
+		
+		actionBar.setOnActionListener(new ActionListener() {
+			@Override
+			public void onActionClicked(int commandID) {
+				switch (commandID) {
+					case ACTION_RESPONSESYNC:
+						Intent i = new Intent(context, ResponseSyncService.class);
+						i.putExtra(ResponseSyncService.EXTRA_INTERACTIVE, true);
+						WakefulIntentService.sendWakefulWork(context, i);
+						break;
+				}
+			}
+		});
 	}
 
 	private View createTabView(final int textResource){
@@ -101,16 +131,12 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 	@Override
 	protected void onCampaignFilterChanged(String filter) {
-		Log.d(TAG, "campaign changed");
-
 		super.onCampaignFilterChanged(filter);
 		((CampaignFilterable) mTabManager.getCurrentTab().getFragment()).setCampaignUrn(filter);
 	}
 
 	@Override
 	protected void onSurveyFilterChanged(String filter) {
-		Log.d(TAG, "survey changed");
-
 		super.onSurveyFilterChanged(filter);
 		((SurveyFilterable) mTabManager.getCurrentTab().getFragment()).setSurveyId(filter);
 	}

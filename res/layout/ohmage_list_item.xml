@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/ohmage_list_item"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:minHeight="64dp"
-  android:orientation="horizontal">
+  android:minHeight="66dp"
+  android:orientation="horizontal"
+  android:contentDescription="@string/list_item_description">
   
     <ImageView 
     	android:id="@+id/icon_image" 
@@ -17,7 +19,7 @@
     	android:src="@drawable/apple_logo"/>
     	
     <LinearLayout
-    	android:layout_width="1dp"
+	android:layout_width="0dp"
     	android:layout_height="fill_parent"
     	android:layout_weight="1"
     	android:layout_marginTop="8dp"
@@ -31,16 +33,18 @@
 	    	android:id="@+id/main_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"  
-	    	android:textAppearance="?android:attr/textAppearanceMedium" 
-	    	android:text="Main Text" />
-	    	
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:singleLine="true"
+			android:ellipsize="end" />
+
 	    <TextView 
 	    	android:id="@+id/sub_text" 
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content" 
 	    	android:layout_marginTop="6dp"
-	    	android:textAppearance="?android:attr/textAppearanceSmall" 
-	    	android:text="Sub Text" />
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:singleLine="true"
+			android:ellipsize="end" />
     
     </LinearLayout>
     
@@ -56,8 +60,7 @@
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"  
 	    	android:layout_gravity="right"
-	    	android:textAppearance="?android:attr/textAppearanceSmall" 
-	    	android:text="Extra 1" 
+		android:textAppearance="?android:attr/textAppearanceSmall"
     		android:visibility="gone" />
 	    	
 	    <TextView 
@@ -66,8 +69,7 @@
 	    	android:layout_height="wrap_content" 
 	    	android:layout_marginTop="1dp"
 	    	android:layout_gravity="right"
-	    	android:textAppearance="?android:attr/textAppearanceSmall" 
-	    	android:text="Extra 2" 
+		android:textAppearance="?android:attr/textAppearanceSmall"
     		android:visibility="gone" />
     
     </LinearLayout>
@@ -85,6 +87,7 @@
     	android:layout_width="64dp" 
     	android:layout_height="match_parent" 
     	android:layout_gravity="center"
-    	android:background="@android:drawable/list_selector_background" />
+	android:background="@android:drawable/list_selector_background"
+	android:contentDescription="@string/list_item_action_button_description" />
     	    	
 </LinearLayout>

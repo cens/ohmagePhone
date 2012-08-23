@@ -15,13 +15,15 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
+import edu.ucla.cens.systemlog.Log;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 /*
  * The database to store all triggers in the system. Each row 
@@ -40,7 +42,7 @@ import android.util.Log;
  */
 public class TriggerDB {
 
-	private static final String DEBUG_TAG = "TriggerFramework";
+	private static final String TAG = "TriggerFramework";
 	
 	private static final String DATABASE_NAME = "trigger_framework"; 
 	private static final int DATABASE_VERSION = 1;
@@ -57,7 +59,7 @@ public class TriggerDB {
 	public static final String KEY_NOTIF_DESCRIPT = "notif_descript";
 	public static final String KEY_RUNTIME_DESCRIPT = "runtime_descript";
 	
-	private Context mContext;
+	private final Context mContext;
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
 	
@@ -67,7 +69,7 @@ public class TriggerDB {
 	
 	/* Open the database */
 	public boolean open() {
-		Log.i(DEBUG_TAG, "DB: open");
+		Log.i(TAG, "DB: open");
 	
 		
 		mDbHelper = new DatabaseHelper(mContext);
@@ -76,7 +78,7 @@ public class TriggerDB {
 			mDb = mDbHelper.getWritableDatabase();
 		}
 		catch (SQLException e) {
-			Log.e(DEBUG_TAG, e.toString());
+			Log.e(TAG, e.toString());
 			return false;
 		}
 		return true;
@@ -84,7 +86,7 @@ public class TriggerDB {
 	
 	/* Close the database */
 	public void close() {
-		Log.i(DEBUG_TAG, "DB: close");
+		Log.i(TAG, "DB: close");
 		
 		if(mDbHelper != null) {
 			mDbHelper.close();
@@ -100,7 +102,7 @@ public class TriggerDB {
 					      String notifDescript, 
 					      String rtDescript) {
 		
-		Log.i(DEBUG_TAG, "DB: addTrigger(" + campaignUrn +
+		Log.i(TAG, "DB: addTrigger(" + campaignUrn +
 										 ", " + trigType  +
 										 ", " + trigDescript + 
 										 ", " + trigActDesc + 
@@ -122,7 +124,7 @@ public class TriggerDB {
 	 * Get the row corresponding to a trigger id
 	 */
 	public Cursor getTrigger(int trigId) {
-		Log.i(DEBUG_TAG, "DB: getTrigger(" + trigId + ")");
+		Log.i(TAG, "DB: getTrigger(" + trigId + ")");
 		
 		return mDb.query(TABLE_TRIGGERS, null, 
 						 KEY_ID + "=?", new String[] {String.valueOf(trigId)},  
@@ -134,7 +136,7 @@ public class TriggerDB {
 	 */
 	public Cursor getSurveyTriggers(String campaignUrn, String surveyTitle) {
 		return mDb.query(TABLE_TRIGGERS, null,
-						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_ACTION_DESCRIPT + " LIKE '%" + surveyTitle + "%'",
+						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_ACTION_DESCRIPT + " LIKE " + DatabaseUtils.sqlEscapeString("%" + surveyTitle + "%"),
 						 new String[] {campaignUrn},
 						 null, null, null);
 	}
@@ -143,7 +145,7 @@ public class TriggerDB {
 	 * Get all the triggers corresponding to a type for a campaign
 	 */
 	public Cursor getTriggers(String campaignUrn, String trigType) {
-		Log.i(DEBUG_TAG, "DB: getTriggers(" + trigType + ")");
+		Log.i(TAG, "DB: getTriggers(" + trigType + ")");
 		
 		return mDb.query(TABLE_TRIGGERS, null, 
 						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_TYPE + "=?", 
@@ -155,7 +157,7 @@ public class TriggerDB {
 	 * Get all triggers in the system for a campaign
 	 */
 	public Cursor getAllTriggers(String campaignUrn) {
-		Log.i(DEBUG_TAG, "DB: getAllTriggers");
+		Log.i(TAG, "DB: getAllTriggers");
 		
 		return mDb.query(TABLE_TRIGGERS, null, 
 				KEY_CAMPAIGN_URN + "=?", 
@@ -189,7 +191,7 @@ public class TriggerDB {
 	 * Get the notification description for a trigger
 	 */
 	public String getNotifDescription(int trigId) {
-		Log.i(DEBUG_TAG, "DB: getNotifDescription(" + trigId + ")");
+		Log.i(TAG, "DB: getNotifDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_NOTIF_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -208,7 +210,7 @@ public class TriggerDB {
 	 * Get the type of a trigger
 	 */
 	public String getTriggerType(int trigId) {
-		Log.i(DEBUG_TAG, "DB: getTriggerType(" + trigId + ")");
+		Log.i(TAG, "DB: getTriggerType(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_TRIG_TYPE}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -227,7 +229,7 @@ public class TriggerDB {
 	 * Get the campaignUrn of a trigger
 	 */
 	public String getCampaignUrn(int trigId) {
-		Log.i(DEBUG_TAG, "DB: getCampaignUrn(" + trigId + ")");
+		Log.i(TAG, "DB: getCampaignUrn(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_CAMPAIGN_URN}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -246,7 +248,7 @@ public class TriggerDB {
 	 * Get the description of a trigger
 	 */
 	public String getTriggerDescription(int trigId) {
-		Log.i(DEBUG_TAG, "DB: getTriggerDescription(" + trigId + ")");
+		Log.i(TAG, "DB: getTriggerDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_TRIG_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -265,7 +267,7 @@ public class TriggerDB {
 	 * Get the action description of a trigger
 	 */
 	public String getActionDescription(int trigId) {
-		Log.i(DEBUG_TAG, "DB: getActionDescription(" + trigId + ")");
+		Log.i(TAG, "DB: getActionDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_TRIG_ACTION_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -284,7 +286,7 @@ public class TriggerDB {
 	 * Get the run time description of a trigger
 	 */
 	public String getRunTimeDescription(int trigId) {
-		Log.i(DEBUG_TAG, "DB: getRunTimeDescription(" + trigId + ")");
+		Log.i(TAG, "DB: getRunTimeDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_RUNTIME_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -303,7 +305,7 @@ public class TriggerDB {
 	 * Update the trigger description of an existing trigger
 	 */
 	public boolean updateTriggerDescription(int trigId, String newDesc) {
-		Log.i(DEBUG_TAG, "DB: updateTriggerDescription(" + trigId + 
+		Log.i(TAG, "DB: updateTriggerDescription(" + trigId + 
 													   ", " + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
@@ -322,7 +324,7 @@ public class TriggerDB {
 	 * Update the action description of an existing trigger
 	 */
 	public boolean updateActionDescription(int trigId, String newDesc) {
-		Log.i(DEBUG_TAG, "DB: updateActionDescription(" + trigId + 
+		Log.i(TAG, "DB: updateActionDescription(" + trigId + 
 				   ", " + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
@@ -341,7 +343,7 @@ public class TriggerDB {
 	 * Update the run time description of an existing trigger
 	 */
 	public boolean updateRunTimeDescription(int trigId, String newDesc) {
-		Log.i(DEBUG_TAG, "DB: updateRunTimeDescription(" + trigId + 
+		Log.i(TAG, "DB: updateRunTimeDescription(" + trigId + 
 				   ", " + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
@@ -375,7 +377,7 @@ public class TriggerDB {
 	 * a new one
 	 */
 	public boolean updateAllNotificationDescriptions(String newDesc) {
-		Log.i(DEBUG_TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
+		Log.i(TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
 		values.put(KEY_NOTIF_DESCRIPT, newDesc);
@@ -388,7 +390,7 @@ public class TriggerDB {
 	 * Delete a specific trigger
 	 */
 	public boolean deleteTrigger(int trigId) {
-		Log.i(DEBUG_TAG, "DB: deleteTrigger(" + trigId + ")");
+		Log.i(TAG, "DB: deleteTrigger(" + trigId + ")");
 		
 		mDb.delete(TABLE_TRIGGERS, KEY_ID + "=?", 
 				   new String[] {String.valueOf(trigId)});
@@ -406,7 +408,7 @@ public class TriggerDB {
 
 		@Override
 		public void onCreate(SQLiteDatabase mDb) {
-			Log.i(DEBUG_TAG, "DB: SQLiteOpenHelper.onCreate");
+			Log.i(TAG, "DB: SQLiteOpenHelper.onCreate");
 			
 			final String QUERY_CREATE_TRIGGERS_TB = 
 				"create table " + TABLE_TRIGGERS + " ("
