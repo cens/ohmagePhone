@@ -2,13 +2,12 @@
 <resources>
 
     <string name="trigger_loc_display_name">Location Reminder</string>
-    <string name="menu_open_maps">Open maps</string>
     <string name="menu_my_loc">My location</string>
     <string name="menu_search">Search</string>
     <string name="menu_delete">Delete</string>
     <string name="menu_rename">Rename</string>
     <string name="menu_help">Help</string>
-    <string name="determining_loc">Trying to determine your location...</string>
+    <string name="determining_loc">Trying to determine your location…</string>
     <string name="gps_out">GPS out of service</string>
     <string name="location_on_map">location on map</string>
     <string name="locations_on_map">locations on map</string>
@@ -23,13 +22,12 @@
     <string name="search_addr_title">Enter address to search</string>
     <string name="exisiting_loc">Existing location</string>
     <string name="delete_loc">Delete this location?</string>
-    <string name="no_addr_found">No address found</string>
     <string name="loc_overlap_title">Location overlap</string>
     <string name="loc_overlap_msg">This location is too close to %s. Choose a different location</string>
     <string name="loc_too_big_msg">The size of this location cannot be increased further as it gets too close to %s. Choose a different location</string>
-    <string name="searching_msg">Searching, Please wait...</string>
+    <string name="searching_msg">Searching, Please wait…</string>
     <string name="search_fail">Search failed!</string>
-    <string name="trigger_loc_loading_address">Loading approximate address...</string>
+    <string name="trigger_loc_loading_address">Loading approximate address…</string>
     <string name="trigger_loc_address_error">Unable to fetch the address!\n</string>
     <string name="trigger_loc_defining_locations">Defining locations</string>
     <string name="trigger_loc_menu_satellite_mode">Satellite mode</string>

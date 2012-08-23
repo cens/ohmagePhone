@@ -1,12 +1,12 @@
 package org.ohmage.db;
 
 import org.ohmage.OhmageCache;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
@@ -67,6 +67,7 @@ public class Models {
 		public int mStatus;
 		public String mIcon;
 		public String mPrivacy;
+		public long updated;
 
 		/**
 		 * Returns a list of Campaign objects from the given cursor.
@@ -92,6 +93,7 @@ public class Models {
 				c.mStatus = cursor.getInt(cursor.getColumnIndex(Campaigns.CAMPAIGN_STATUS));
 				c.mIcon = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_ICON));
 				c.mPrivacy = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_PRIVACY));
+				c.updated = cursor.getLong(cursor.getColumnIndexOrThrow(Campaigns.CAMPAIGN_UPDATED));
 				campaigns.add(c);
 
 				cursor.moveToNext();
@@ -131,6 +133,7 @@ public class Models {
 			while (surveys.moveToNext()) {
 				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
+			surveys.close();
 			
 			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]));
 		}
@@ -143,9 +146,11 @@ public class Models {
 		public static String getSingleCampaign(Context context) {
 			Cursor campaign = context.getContentResolver().query(Campaigns.CONTENT_URI, new String[] { Campaigns.CAMPAIGN_URN },
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, Campaigns.CAMPAIGN_CREATED + " DESC");
+			String campaignUrn = null;
 			if(campaign.moveToFirst())
-				return campaign.getString(0);
-			return null;
+				campaignUrn = campaign.getString(0);
+			campaign.close();
+			return campaignUrn;
 		}
 
 		/**
@@ -158,13 +163,14 @@ public class Models {
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_REMOTE + " OR " +
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY + " OR " +
 					Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_OUT_OF_DATE, null, Campaigns.CAMPAIGN_CREATED + " DESC");
+			Campaign c = null;
 			if(campaign.moveToFirst()) {
-				Campaign c = new Campaign();
+				c = new Campaign();
 				c.mUrn = campaign.getString(0);
 				c.mStatus = campaign.getInt(1);
-				return c;
 			}
-			return null;
+			campaign.close();
+			return c;
 		}
 
 		/**
@@ -204,6 +210,7 @@ public class Models {
 				ContentValues cv = new ContentValues();
 				cv.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);
 				cv.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, "");
+				cv.put(Campaigns.CAMPAIGN_UPDATED, System.currentTimeMillis());
 				context.getContentResolver().update(Campaigns.CONTENT_URI, cv, builder.getSelection(), builder.getSelectionArgs());
 
 				// Delete responses
@@ -239,10 +246,6 @@ public class Models {
 				customSingleChoices.clearCampaign(mUrn);
 				customSingleChoices.close();
 			}
-
-			// Remove last synced time
-			SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
-			prefs.removeLastFeedbackRefreshTimestamp(mUrn);
 		}
 
 		/**
@@ -298,6 +301,25 @@ public class Models {
 			int count = localResponses.getCount();
 			localResponses.close();
 			return count;
+		}
+
+		/**
+		 * Returns the time of the last downloaded response for this campaign. We should be able to sync all responses newer than it
+		 * @param responseSyncService
+		 * @return the last downloaded response time or 0 if there are none;
+		 */
+		public long getLastDownloadedResponseTime(Context context) {
+			Cursor c = context.getContentResolver().query(
+					Responses.CONTENT_URI, new String[] { Responses.RESPONSE_TIME },
+					Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED + " AND "
+							+ Qualified.RESPONSES_CAMPAIGN_URN + "=?", new String[] { mUrn },
+							Responses.RESPONSE_TIME + " DESC");
+			long time = 0;
+			if(c.moveToFirst()) {
+				time = c.getLong(0);
+			}
+			c.close();
+			return time;
 		}
 	}
 
@@ -387,6 +409,7 @@ public class Models {
 			while (surveys.moveToNext()) {
 				surveyTitles.add(surveys.getString(surveys.getColumnIndex(Surveys.SURVEY_TITLE)));
 			}
+			surveys.close();
 			
 			return TriggerFramework.launchTriggersIntent(context, campaignUrn, surveyTitles.toArray(new String[surveyTitles.size()]), selectedSurveys);
 		}

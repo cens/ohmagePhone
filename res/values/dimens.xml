@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<!-- header entity -->
-	<dimen name="entity_icon_width">60dp</dimen>
-	<dimen name="entity_icon_height">60dp</dimen>
-	<dimen name="entity_button_height">35dp</dimen>	
-	
-	<dimen name="actionbar_height">68px</dimen>
+    <!-- header entity -->
+    <dimen name="entity_icon_width">60dp</dimen>
+    <dimen name="entity_icon_height">60dp</dimen>
+    <dimen name="entity_button_height">35dp</dimen>
+    <dimen name="actionbar_height">45dp</dimen>
 
     <!-- body content -->
-	<dimen name="gutter">10dp</dimen>
-	<dimen name="halfgutter">5dp</dimen>
-	<dimen name="gutter_thin">3dp</dimen>
-    <dimen name="text_size_small">14sp</dimen>
-    <dimen name="text_size_medium">18sp</dimen>
-    <dimen name="text_size_large">22sp</dimen>
-    <dimen name="text_size_xlarge">18sp</dimen>
-    <dimen name="text_size_dash">20sp</dimen>
-    <dimen name="speaker_image_size">36dp</dimen>
-    <dimen name="speaker_image_padding">8dp</dimen>
-    <dimen name="vendor_image_size">100dp</dimen>
-    
-    <!-- Upload Layout -->
+    <dimen name="gutter">10dp</dimen>
+    <dimen name="halfgutter">5dp</dimen>
+    <dimen name="gutter_thin">3dp</dimen>
+    <dimen name="button_padding">8.0dip</dimen>
+
+    <!-- Layouts -->
     <dimen name="upload_all_container_height">50dp</dimen>
-    <dimen name="upload_mobility_container_height">65dp</dimen>
+
+    <!-- Fonts -->
+    <dimen name="font_size_default">14.0sp</dimen>
+    <dimen name="font_size_medium">16.0sp</dimen>
+    <dimen name="font_size_large">18.0sp</dimen>
+    <dimen name="font_size_xlarge">20.0sp</dimen>
+
 </resources>

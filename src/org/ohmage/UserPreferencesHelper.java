@@ -15,9 +15,14 @@
  ******************************************************************************/
 package org.ohmage;
 
+import org.ohmage.db.DbContract.Responses;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
+
+import java.util.Calendar;
 
 public class UserPreferencesHelper {
 
@@ -30,6 +35,8 @@ public class UserPreferencesHelper {
 	public static final String KEY_SHOW_PROFILE = "key_show_profile";
 	public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
 	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
+	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
+	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
 
 	private final SharedPreferences mPreferences;
 
@@ -55,5 +62,58 @@ public class UserPreferencesHelper {
 	
 	public boolean showMobility() {
 		return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
+	}
+
+	/**
+	 * Returns the baseline, or a time 10 weeks after the start time if it is set, or a time 1 month ago.
+	 * @param context
+	 * @return
+	 */
+	public static long getBaseLineEndTime(Context context) {
+		long base = PreferenceManager.getDefaultSharedPreferences(context).getLong(KEY_BASELINE_END_TIME, -1);
+		if(base == -1) {
+			//If baseline is not set, we set it to 10 weeks after the baseline start time
+			long startTime = getBaseLineStartTime(context);
+			Calendar cal = Calendar.getInstance();
+			if(startTime != 0) {
+				// If start time is set, end time is 10 weeks after it
+				cal.setTimeInMillis(startTime);
+				cal.add(Calendar.DATE, 70);
+			} else {
+				// If no start time is set, end time is 1 month ago
+				Utilities.clearTime(cal);
+				cal.add(Calendar.MONTH, -1);
+			}
+			base = cal.getTimeInMillis();
+		}
+		return base;
+	}
+
+	/**
+	 * Returns the baseline, or 1 week after the first response, or 0 if not set
+	 * @param context
+	 * @return
+	 */
+	public static long getBaseLineStartTime(Context context) {
+		long startTime = PreferenceManager.getDefaultSharedPreferences(context).getLong(KEY_BASELINE_START_TIME, -1);
+		// If the base line start time isn't set, we set it to 1 week after the first response
+		if(startTime == -1) {
+			Cursor c = context.getContentResolver().query(Responses.CONTENT_URI, new String[] { Responses.RESPONSE_TIME }, null, null, Responses.RESPONSE_TIME + " ASC");
+			if(c.moveToFirst()) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(c.getLong(0));
+				Utilities.clearTime(cal);
+				cal.add(Calendar.DATE, 7);
+				startTime = cal.getTimeInMillis();
+			} else {
+				startTime = 0;
+			}
+			c.close();
+		}
+		return startTime;
+	}
+
+	public static void clearBaseLineTime(Context context) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit().remove(KEY_BASELINE_END_TIME).remove(KEY_BASELINE_START_TIME).commit();
 	}
 }

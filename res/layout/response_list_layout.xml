@@ -1,29 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/campaign_filter"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
-		
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/survey_filter"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
+    <org.ohmage.controls.FilterControl
+        android:id="@+id/campaign_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-	<org.ohmage.controls.DateFilterControl
-		android:id="@+id/date_filter"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
-		
-	<FrameLayout
-		android:id="@+id/response_list_fragment"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_weight="1" />
-    
+    <View style="@style/DividerHorizontal" />
+
+    <org.ohmage.controls.FilterControl
+        android:id="@+id/survey_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View style="@style/DividerHorizontal" />
+
+    <org.ohmage.controls.DateFilterControl
+        android:id="@+id/date_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View style="@style/DividerHorizontal" />
+
+    <FrameLayout
+        android:id="@+id/response_list_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
 </LinearLayout>

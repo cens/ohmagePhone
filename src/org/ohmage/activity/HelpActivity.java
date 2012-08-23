@@ -52,7 +52,10 @@ public class HelpActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.help_layout);
+        setContentView(R.layout.tab_layout);
+
+		setActionBarShadowVisibility(false);
+
         mTabHost = (TabHost)findViewById(android.R.id.tabhost);
         mTabHost.setup();
 
@@ -60,9 +63,9 @@ public class HelpActivity extends BaseActivity {
 
         mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
-		mTabsAdapter.addTab("Dashboard",DashboardWebViewFragment.class, null);
-		mTabsAdapter.addTab("Filter",FilterWebViewFragment.class, WebViewFragment.instanceBundle(URLS[0]));
-		mTabsAdapter.addTab("List",WebViewFragment.class, WebViewFragment.instanceBundle(URLS[1]));
+		mTabsAdapter.addTab(getString(R.string.help_goto_dashboard),DashboardWebViewFragment.class, null);
+		mTabsAdapter.addTab(getString(R.string.help_goto_filter),FilterWebViewFragment.class, WebViewFragment.instanceBundle(URLS[0]));
+		mTabsAdapter.addTab(getString(R.string.help_goto_list),WebViewFragment.class, WebViewFragment.instanceBundle(URLS[1]));
 
         if (savedInstanceState != null) {
             mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));

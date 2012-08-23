@@ -95,6 +95,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	private static final int DIALOG_CANCEL_ID = 0;
 
+	protected static final int PROMPT_RESULT = 0;
+
 	private TextView mSurveyTitleText;
 	private ProgressBar mProgressBar;
 	private TextView mPromptText;
@@ -179,7 +181,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 					Log.e(TAG, "Error parsing prompts from xml", e);
 				}
 
-				if(mSurveyElements == null) {
+				if(mSurveyElements == null || mSurveyElements.isEmpty()) {
 					// If there are no survey elements, something is wrong
 					finish();
 					Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT).show();
@@ -249,7 +251,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 	public void onDestroy() {
 		super.onDestroy();
 
-		if(mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof PhotoPrompt)
+		if(mSurveyElements != null && mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof PhotoPrompt)
 			PhotoPrompt.clearView(mPromptFrame);
 	}
 
@@ -313,6 +315,11 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 				// After we click the submit button once, it should not be clickable again
 				v.setClickable(true);
+			}
+
+			if (mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof AbstractPrompt) {
+				// Tell the current prompt that it is being hidden
+				((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).onHidden();
 			}
 
 			switch (v.getId()) {
@@ -687,8 +694,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, requestCode, resultCode, data);
+		if (requestCode == Prompt.REQUEST_CODE && mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, resultCode, data);
 		}
 	}
 

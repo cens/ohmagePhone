@@ -23,6 +23,13 @@
     <string name="discard">Discard</string>
     <string name="logout">Logout</string>
     <string name="confirm">Confirm</string>
+    <string name="all">All</string>
+    <string name="set">Set</string>
+    <string name="continue_string">Continue</string>
+    <string name="off">Off</string>
+    <string name="last_successful_upload">Last successful upload</string>
+    <string name="upload_now">Upload Now</string>
+    <string name="empty_value">-</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -30,7 +37,7 @@
     <string name="menu_satellite">Satellite</string>
 
     <!-- Maps -->
-    <string name="maps_debug_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
+    <string name="maps_debug_api_key">0EdfpwSqYgf-sUTf8ZKTfeUB2RQihIRqKtfT4HA</string>
     <string name="maps_release_api_key">0v-wLH9cxlVMxbPMFw81x2mmbeUcsS9rHCFTgkQ</string>
 
     <!-- EULA -->
@@ -54,11 +61,19 @@
     <string name="login_activity_login_button_description">Login Button</string>
 
     <!-- Mobility -->
-    <string name="mobilityservicestarted">Mobility service is running.</string>
-    <string name="mobilityservicestopped">Mobility service is not running.</string>
-    <string name="mobility_radio_button_off_description">Off Button</string>
-    <string name="mobility_radio_button_1min_description">1 Minute Button</string>
-    <string name="mobility_radio_button_5min_description">5 Minutes Button</string>
+    <string name="mobiltiy_control_1min">1 min</string>
+    <string name="mobility_control_5min">5 min</string>
+    <string name="mobility_control_off_description">Off Button</string>
+    <string name="mobility_control_1min_description">1 Minute Button</string>
+    <string name="mobility_control_5min_description">5 Minutes Button</string>
+    <string name="mobility_control_sampling_interval">Sampling interval:</string>
+    <string name="mobility_control_recent_mobility_modes_title">Most recent mobility modes (last 20 minutes)</string>
+    <string name="mobility_control_no_points">No mobility modes were collected recently.</string>
+    <string name="mobility_control_upload_count_title">To upload</string>
+    <string name="mobility_control_total_title">Total</string>
+    <string name="mobility_upload_error_message">There was an error uploading mobility</string>
+    <string name="recent_mobility_aggregate_last_week_title">Last Week</string>
+    <string name="recent_mobility_aggregate_baseline_title">During Baseline</string>
 
     <!-- Admin Pincode -->
     <string name="admin_dialog_title">Enter pin code:</string>
@@ -78,7 +93,6 @@
     <string name="title_response_history">Response History</string>
     <string name="title_upload_queue">Upload Queue</string>
     <string name="title_profile">Profile</string>
-    <string name="title_settings">Settings</string>
     <string name="title_help">Help</string>
     <string name="title_mobility">Mobility</string>
 
@@ -87,7 +101,6 @@
     <string name="title_response">Response</string>
     <string name="title_campaign_info">Campaign Info</string>
     <string name="title_survey_info">Survey Info</string>
-    <string name="title_login">Login</string>
 
     <!-- Dashboard entries -->
     <string name="dashboard_campaigns">Campaigns</string>
@@ -103,7 +116,6 @@
     <string name="dashboard_upload_queue_btn_description">Upload Queue Dashboard Button</string>
     <string name="dashboard_profile_btn_description">Profile Dashboard Button</string>
     <string name="dashboard_mobility_btn_description">Mobility Dashboard Button</string>
-    <string name="dashboard_settings_btn_description">Settings Dashboard Button</string>
     <string name="dashboard_help_btn_description">Help Dashboard Button</string>
     <string name="description_logo_home">Home Button</string>
 
@@ -142,8 +154,7 @@
     <string name="prompt_repeatable_set_repeat">Would you like to repeat the set?</string>
     <string name="prompt_remote_launch">Launch</string>
     <string name="prompt_remote_relaunch">Relaunch</string>
-    <string name="prompt_custom_single_choice_add">Add new choice</string>
-    <string name="prompt_custom_multi_choice_add">Add new item</string>
+    <string name="prompt_custom_choice_add">Add new choice</string>
     <string name="prompt_custom_choice_duplicate">Duplicate choices are not allowed</string>
     <string name="prompt_custom_choice_db_open_error">Error opening custom choice db</string>
     <string name="prompt_hours_ago">hours ago</string>
@@ -227,6 +238,10 @@
     <string name="preferences_profile_title">Profile</string>
     <string name="preferences_upload_queue_title">Upload Queue</string>
     <string name="preferences_mobility_title">Mobility</string>
+    <string name="preferences_baseline_starttime_title">Baseline Start Date</string>
+    <string name="preferences_baseline_endtime_title">Baseline End Date</string>
+    <string name="preferences_baseline_clear_title">Clear Baseline</string>
+    <string name="preferences_ohamage_version_title">Version</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
@@ -307,7 +322,7 @@
     </plurals>
 
     <!-- Survey List -->
-    <string name="surveys_all">All</string>
+    <string name="surveys_all">@string/all</string>
     <string name="surveys_pending">Pending</string>
     <string name="surveys_empty_all">There are no surveys to display.\n\nAfter selecting campaigns to participate in, you can view a list of their surveys here.</string>
     <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey reminders via each campaign\'s information screen.</string>
@@ -348,4 +363,13 @@
     <string name="survey_activity_previous_description">Survey Previous Button</string>
     <string name="survey_activity_skip_description">Survey Skip Button</string>
     <string name="survey_activity_next_description">Survey Next Button</string>
+ 
+    <!-- Crash Reporting -->
+    <string name="crash_report_label">Send Force-Close Report</string>
+    <string name="crash_report_preference_summary">Send a force-close report by email.</string>
+    <string name="crash_report_error">Couldn\'t find configured email client.</string>
+    <string name="crash_report_more">Please enter a short description of what you were doing when ohmage crashed:</string>
+    <string name="crash_report_subject">Ohmage Crash Report: %1$s</string>
+    <string name="crash_report_acquiring_logs">Collecting logs from system…</string>
+    <string name="crash_report_chooser_title">Ohmage Force-Close Report</string>
 </resources>

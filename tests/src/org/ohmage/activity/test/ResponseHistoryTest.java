@@ -406,7 +406,7 @@ public class ResponseHistoryTest extends ActivityInstrumentationTestCase2<Respon
 		assertTrue(solo.searchText("urn:mock:campaign", true));
 		assertTrue(solo.searchText("1/8", true));
 		// click on the X
-		solo.clickOnImage(4);
+		solo.clickOnImage(3);
 		assertFalse(solo.searchText("urn:mock:campaign", true));
 		assertFalse(solo.searchText("1/8", true));
 	}
@@ -420,7 +420,7 @@ public class ResponseHistoryTest extends ActivityInstrumentationTestCase2<Respon
 		assertTrue(solo.searchText("urn:mock:campaign", true));
 		assertTrue(solo.searchText("2/8", true));
 		// click on the X
-		solo.clickOnImage(4);
+		solo.clickOnImage(3);
 		assertFalse(solo.searchText("urn:mock:campaign", true));
 		assertFalse(solo.searchText("2/8", true));
 	}

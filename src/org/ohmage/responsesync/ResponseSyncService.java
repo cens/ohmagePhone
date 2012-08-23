@@ -18,19 +18,20 @@ import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
 import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbHelper;
+import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
-import android.net.Uri;
-import android.text.TextUtils;
+import android.os.RemoteException;
 import android.widget.Toast;
 
 import java.io.File;
@@ -41,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -97,16 +99,15 @@ public class ResponseSyncService extends WakefulIntentService {
 		mPrefs = new SharedPreferencesHelper(this);
 		String username = mPrefs.getUsername();
 		String hashedPassword = mPrefs.getHashedPassword();
-		
-		if (username == null || username.equals("")) {
-			Log.e(TAG, "User isn't logged in, ResponseSyncService terminating");
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+
 			return;
 		}
-		
-		// get a ref to the dbhelper for maintenance funcs that should be moved into the provider someday
-		// grab a contentresolver for proper db queries 
-		DbHelper dbHelper = new DbHelper(this);
+
 		final ContentResolver cr = getContentResolver();
+		final ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 		// and also create a list to hold some campaigns
 		List<Campaign> campaigns;
         
@@ -159,10 +160,15 @@ public class ResponseSyncService extends WakefulIntentService {
 		for (final Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+				return;
+			}
+
 			String cutoffDate = null;
 			if (!intent.getBooleanExtra(EXTRA_FORCE_ALL, false)) {
 				// I add 1 second since the request is inclusive of this time
-				cutoffDate = inputSDF.format(mPrefs.getLastFeedbackRefreshTimestamp(c.mUrn) + 1000);
+				cutoffDate = inputSDF.format(c.getLastDownloadedResponseTime(this) + 1000);
 			}
 
 			// ==================================================================
@@ -170,8 +176,14 @@ public class ResponseSyncService extends WakefulIntentService {
 			// ===   * anything not in this list should be deleted off the phone
 			// ===   * anything in this list that's not on the phone should be downloaded
 			// ==================================================================
-			
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
+
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+
+				return;
+			}
+
+			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
 				new StreamingResponseListener() {
 					List<String> responseIDs;
 					
@@ -194,41 +206,32 @@ public class ResponseSyncService extends WakefulIntentService {
 						
 						// TODO: ask server team for a way to specify responses by ID
 					}
-					
+
 					@Override
 					public void afterRead() {
-						// if there's nothing in the list, there's nothing to do, so return
-						if (responseIDs == null || responseIDs.size() <= 0)
-							return;
-						
-						// use the list we built in readObject() to clear deleted responses
-						// from the historical data
-						String[] args = responseIDs.toArray(new String[responseIDs.size()]);
-						
-						// build a comma-delimited list of elements in our list
-						// (it's kind of sad that there isn't a built-in func to do this @_@)
-						StringBuilder total = new StringBuilder();
-						
-						for (int i = 0; i < args.length; ++i) {
-							total.append("?");
-							
-							if (i < (args.length - 1))
-								total.append(", ");
+
+						HashSet<String> idsSet = new HashSet<String>();
+						idsSet.addAll(responseIDs);
+
+						Cursor responses = cr.query(Responses.CONTENT_URI, new String[] { Responses.RESPONSE_UUID }, Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
+								" OR " + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADED +
+								" AND " + Qualified.RESPONSES_CAMPAIGN_URN + "=?", new String[] { c.mUrn }, null);
+
+
+						String uuid;
+						while(responses.moveToNext()) {
+							uuid = responses.getString(0);
+							if(!idsSet.contains(uuid)) {
+								operations.add(ContentProviderOperation.newDelete(Responses.CONTENT_URI)
+										.withSelection("(" + Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
+												" OR " + Responses.RESPONSE_STATUS + "=" + Response.STATUS_UPLOADED + ")" +
+												" AND " + Responses.CAMPAIGN_URN + "=?" + " AND " + Responses.RESPONSE_UUID + "=?",
+												new String[] {c.mUrn, uuid }).build());
+							}
 						}
-						
-						// remove any record that's not in our server collection for this campaign
-						// (usually meaning it was deleted from the server)
-						int delCount = cr.delete(Responses.CONTENT_URI, Responses.RESPONSE_STATUS + "=" + Response.STATUS_DOWNLOADED +
-								" AND " + Responses.CAMPAIGN_URN + "='" + c.mUrn + "'" +
-								" AND " + Responses.RESPONSE_UUID + " not in (" + total + ")", args);
-						
-						// after, we need to find out if any response we found is not in the database
-						// we then use the timestamp of the response to push back the cutoff date
-						// (should we do this? it's risky)
-						
-						Log.v(TAG, "Finished UUID read, deleted " + delCount + " stale record(s) out of " + args.length);
+						responses.close();
 					}
-				});
+			});
 
 			// ==================================================================
 			// === 3b. download responses from after the cutoff date
@@ -246,8 +249,14 @@ public class ResponseSyncService extends WakefulIntentService {
 			}
 			final LinkedList<ResponseImage> responsePhotos = new LinkedList<ResponseImage>();
 
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+
+				return;
+			}
+
 			// do the call and process the streaming response data
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, "android", c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
+			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
 				new StreamingResponseListener() {
 					int curRecord;
 					
@@ -265,10 +274,7 @@ public class ResponseSyncService extends WakefulIntentService {
 						// for each survey, insert a record into our feedback db
 						// if we're unable to insert, just continue (likely a duplicate)
 						// also, note the schema follows the definition in the documentation
-						
-						// store all the photos found in this thing, too
-						ArrayList<String> photoUUIDs = new ArrayList<String>();
-						
+
 						try {
 							// create an instance of a response to hold the data we're going to insert
 							Response candidate = new Response();
@@ -358,7 +364,7 @@ public class ResponseSyncService extends WakefulIntentService {
 										
 										// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
 										if (curItem.get("prompt_type").asText().equalsIgnoreCase("photo") && !value.equalsIgnoreCase(AbstractPrompt.NOT_DISPLAYED_VALUE) && !value.equalsIgnoreCase(AbstractPrompt.SKIPPED_VALUE)) {
-											photoUUIDs.add(value);
+											responsePhotos.add(new ResponseImage(candidate.campaignUrn, value));
 										}
 										
 										// add the value, which is generally just a number
@@ -376,29 +382,8 @@ public class ResponseSyncService extends WakefulIntentService {
 							// render it to a string for storage into our db
 							candidate.response = responseJson.toString();
 							candidate.status = Response.STATUS_DOWNLOADED;
-							
-							// ok, gathered everything; time to insert into the feedback DB
-							// note that we mark this entry as "remote", meaning it came from the server
-	
-							try {
-								Uri responseUri = cr.insert(Responses.CONTENT_URI, candidate.toCV());
 
-								if(responseUri != null && candidate.time != 0 && !TextUtils.isEmpty(candidate.date)) {
-									// If the time is greater than the cut off time, we should update the last synced time with that
-									if(candidate.time > mPrefs.getLastFeedbackRefreshTimestamp(candidate.campaignUrn)) {
-										mPrefs.putLastFeedbackRefreshTimestamp(candidate.campaignUrn, candidate.time);
-									}
-									// Download the thumbnail if it has a date (because we can't get to it otherwise)
-									for(String uuid : photoUUIDs) {
-										responsePhotos.add(new ResponseImage(candidate.campaignUrn, uuid));
-									}
-								}
-							} catch (SQLiteConstraintException e) {
-								Log.v(TAG, "Record not inserted due to constraint failure (likely a duplicate)");
-							}
-							
-							// it's possible that the above will fail, in which case it silently returns -1
-							// we don't do anything differently in that case, so there's no need to check
+							operations.add(ContentProviderOperation.newInsert(Responses.CONTENT_URI).withValues(candidate.toCV()).build());
 						}
 				        catch (JSONException e) {
 							Log.e(TAG, "Problem parsing response json: " + e.getMessage(), e);
@@ -433,11 +418,20 @@ public class ResponseSyncService extends WakefulIntentService {
 						String url;
 						for(int i=0; i < responsePhotos.size(); i++) {
 							ResponseImage responseImage = responsePhotos.get(i);
+							if(!mPrefs.isAuthenticated()) {
+								Log.e(TAG, "User isn't logged in, terminating task");
+
+								return;
+							}
 							try {
 								if(downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE) {
 									url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
 									imageLoader.prefetchBlocking(url);
 									File file = OhmageCache.getCachedFile(ResponseSyncService.this, URI.create(url));
+									if(file == null) {
+										Log.e(TAG, "Unable to save thumbnail, aborting sync process");
+										return;
+									}
 									downloadedAmount += file.length();
 									file.setLastModified(time - 1000 * i);
 								}
@@ -457,6 +451,23 @@ public class ResponseSyncService extends WakefulIntentService {
 						OhmageApplication.checkCacheUsage();
 					}
 				});
+		}
+
+		if(!mPrefs.isAuthenticated()) {
+			Log.e(TAG, "User isn't logged in, terminating task");
+
+			return;
+		}
+
+		// Apply the operations
+		try {
+			cr.applyBatch(DbContract.CONTENT_AUTHORITY, operations);
+		} catch (RemoteException e) {
+			Log.e(TAG, "Error applying database operations");
+			e.printStackTrace();
+		} catch (OperationApplicationException e) {
+			Log.e(TAG, "Error applying database operations");
+			e.printStackTrace();
 		}
 
 		// ==================================================================

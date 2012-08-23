@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ohmage"
-    android:versionCode="12052100"
-    android:versionName="2.10.6" >
+    android:versionCode="12072300"
+    android:versionName="2.11.8" >
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -19,8 +19,9 @@
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.BROADCAST_STICKY"/>
+	<uses-permission android:name="android.permission.READ_LOGS" />
 
-	<uses-sdk android:minSdkVersion="8" />
+	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"/>
 
 	<application
 		android:name="OhmageApplication"
@@ -46,6 +47,12 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<data android:scheme="http" />
 				<data android:scheme="https" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".activity.SendLogActivity">
+			<intent-filter>
+				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 		</activity>
 
@@ -318,7 +325,7 @@
 	    
 	   	<receiver android:name=".responsesync.ResponseSyncReceiver">
 	    	<intent-filter>
-	    		<action android:name="org.ohmage.feedback.ACTION_FBSYNC_ALARM"/>
+				<action android:name="org.ohmage.responsesync.ACTION_FBSYNC_ALARM"/>
 	    	</intent-filter>
 	    </receiver>
 	    

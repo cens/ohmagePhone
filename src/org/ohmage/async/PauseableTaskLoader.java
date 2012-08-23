@@ -9,9 +9,17 @@ import android.support.v4.content.AsyncTaskLoader;
 public abstract class PauseableTaskLoader<T> extends AsyncTaskLoader<T> {
 
 	private boolean mPause;
+	protected long startTime;
 
 	public PauseableTaskLoader(Context context) {
 		super(context);
+		startTime = System.currentTimeMillis();
+	}
+
+	@Override
+	protected T onLoadInBackground() {
+		startTime = System.currentTimeMillis();
+		return super.onLoadInBackground();
 	}
 
 	@Override

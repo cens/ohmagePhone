@@ -26,55 +26,63 @@ public abstract class FilterableMapFragment extends OhmageMapFragment implements
 
 	@Override
 	public void setCampaignUrn(String campaignUrn) {
-		mCampaignSurveyFilter.setCampaignUrn(campaignUrn);
-		getLoaderManager().restartLoader(0, null, this);
+		if (mCampaignSurveyFilter != null) {
+			mCampaignSurveyFilter.setCampaignUrn(campaignUrn);
+			getLoaderManager().restartLoader(0, null, this);
+		}
 	}
 
 	@Override
 	public String getCampaignUrn() {
-		return mCampaignSurveyFilter.getCampaignUrn();
+		return (mCampaignSurveyFilter != null) ? mCampaignSurveyFilter.getCampaignUrn() : null;
 	}
 
 	@Override
 	public void setSurveyId(String surveyId) {
-		mCampaignSurveyFilter.setSurveyId(surveyId);
-		getLoaderManager().restartLoader(0, null, this);
+		if (mCampaignSurveyFilter != null) {
+			mCampaignSurveyFilter.setSurveyId(surveyId);
+			getLoaderManager().restartLoader(0, null, this);
+		}
 	}
 
 	@Override
 	public String getSurveyId() {
-		return mCampaignSurveyFilter.getSurveyId();
+		return (mCampaignSurveyFilter != null) ? mCampaignSurveyFilter.getSurveyId() : null;
 	}
 
 	@Override
 	public void setDate(int day, int month, int year) {
-		mTimeFilter.setDate(day, month, year);
-		getLoaderManager().restartLoader(0, null, this);
+		if (mTimeFilter != null) {
+			mTimeFilter.setDate(day, month, year);
+			getLoaderManager().restartLoader(0, null, this);
+		}
 	}
 
 	@Override
 	public void setMonth(int month, int year) {
-		mTimeFilter.setMonth(month, year);
-		getLoaderManager().restartLoader(0, null, this);
+		if (mTimeFilter != null) {
+			mTimeFilter.setMonth(month, year);
+			getLoaderManager().restartLoader(0, null, this);
+		}
 	}
 
 	@Override
 	public long getStartBounds() {
-		return mTimeFilter.getStartBounds();
+		return (mTimeFilter != null) ? mTimeFilter.getStartBounds() : 0;
 	}
 
 	@Override
 	public long getEndBounds() {
-		return mTimeFilter.getEndBounds();
+		return (mTimeFilter != null) ? mTimeFilter.getEndBounds() : 0;
 	}
 
 	@Override
 	public int getMonth() {
-		return mTimeFilter.getMonth();
+		return (mTimeFilter != null) ? mTimeFilter.getMonth() : 0;
 	}
 
 	@Override
 	public int getYear() {
-		return mTimeFilter.getYear();
+		return (mTimeFilter != null) ? mTimeFilter.getYear() : 0;
 	}
 }

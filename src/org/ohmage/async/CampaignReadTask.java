@@ -43,22 +43,26 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 	private static final String TAG = "CampaignReadTask";
 	private OhmageApi mApi;
 	private final Context mContext;
+	private final SharedPreferencesHelper mPrefs;
 
 	public CampaignReadTask(Context context) {
 		super(context);
 		mContext = context;
+		mPrefs = new SharedPreferencesHelper(mContext);
 	}
 
 	public CampaignReadTask(Context context, String username, String hashedPassword) {
 		super(context, username, hashedPassword);
 		mContext = context;
+		mPrefs = new SharedPreferencesHelper(mContext);
 	}
 
 	@Override
 	public CampaignReadResponse loadInBackground() {
 		if(mApi == null)
 			mApi = new OhmageApi(mContext);
-		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), "android", "short", null);
+
+		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -108,7 +112,16 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 						c.mStatus = Campaign.STATUS_REMOTE;
 						c.mPrivacy = data.getJSONObject(c.mUrn).optString("privacy_state", Campaign.PRIVACY_UNKNOWN);
 						c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
+						c.updated = startTime;
 						boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
+						boolean participant = false;
+						JSONArray roles = data.getJSONObject(c.mUrn).getJSONArray("user_roles");
+						for(int j=0;j<roles.length();j++) {
+							if("participant".equals(roles.getString(j))) {
+								participant = true;
+								break;
+							}
+						}
 
 						if (localCampaignUrns.containsKey(c.mUrn)) { //campaign has already been downloaded
 
@@ -118,9 +131,12 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 							ContentValues values = new ContentValues();
 							// FAISAL: include things here that may change at any time on the server
 							values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
+							values.put(Campaigns.CAMPAIGN_UPDATED, c.updated);
 
 							if(!c.mCreationTimestamp.equals(old.mCreationTimestamp))
 								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
+							else if(running && !participant)
+								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_INVALID_USER_ROLE);
 							else
 								values.put(Campaigns.CAMPAIGN_STATUS, (running) ? Campaign.STATUS_READY : Campaign.STATUS_STOPPED);
 
@@ -150,7 +166,13 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			for (String urn : localCampaignUrns.keySet()) {
 				ContentValues values = new ContentValues();
 				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
+				values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
 				operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn)).withValues(values).build());
+			}
+
+			if(!mPrefs.isAuthenticated()) {
+				Log.e(TAG, "User isn't logged in, terminating task");
+				return response;
 			}
 
 			try {

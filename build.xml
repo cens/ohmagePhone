@@ -103,6 +103,25 @@
 		<delete dir="${gen.absolute.dir}" />
 	</target>
 
+	<target name="ohmage-push" depends="clean-for-release"
+		description="Builds and pushes the apk to lecs.">
+		<input
+		    message="Please enter lecs username:"
+		    addproperty="server.username"
+		  />
+		<input message="Please enter lecs password:" addproperty="server.password">
+		    <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+		</input>
+
+		<scp todir="${server.username}:${server.password}@lecs.cs.ucla.edu:/home/httpd/lecs/ohmage/sw">
+			<fileset dir="${out.absolute.dir}" includes="**/*SIGNED.apk" />
+		</scp>
+
+		<scp todir="${server.username}:${server.password}@lecs.cs.ucla.edu:/home/httpd/lecs/ohmage/testing">
+			<fileset dir="${out.absolute.dir}" includes="**/*.apk" excludes="**/*SIGNED.apk" />
+		</scp>
+	</target>
+
 	<!-- ********** git specific targets ********** -->
 
 	<target name="checkout-cuttingedge" depends="clean-for-release">

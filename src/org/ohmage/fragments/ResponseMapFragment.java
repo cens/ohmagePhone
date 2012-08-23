@@ -125,7 +125,7 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 
 		//Add overlays to the map
 		List<Overlay> mapOverlays = getMapView().getOverlays();
-		Drawable drawable = this.getResources().getDrawable(R.drawable.pens1);
+		Drawable drawable = this.getResources().getDrawable(R.drawable.bg_map_marker);
 		if(mItemizedOverlay != null)
 			mItemizedOverlay.clearBalloon();
 		mItemizedOverlay = new MapViewItemizedOverlay(drawable, getMapView());

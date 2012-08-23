@@ -17,6 +17,7 @@ package org.ohmage;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,46 +28,48 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.List;
 
 
 public class Utilities {
 
 	public static class KVPair {
-		
+
 		public String key;
 		public String value;
-		
+
 		public KVPair(String key, String value) {
 			this.key = key;
 			this.value = value;
 		}
 	}
-	
+
 	public static class KVLTriplet {
-		
+
 		public String key;
 		public String value;
 		public String label;
-		
+
 		public KVLTriplet(String key, String value, String label) {
 			this.key = key;
 			this.value = value;
 			this.label = label;
 		}
 	}
-	
+
 	public static String stringArrayToString(String [] array, String separator) {
 		StringBuilder result = new StringBuilder();
-	    if (array.length > 0) {
-	        result.append(array[0]);
-	        for (int i=1; i<array.length; i++) {
-	            result.append(separator);
-	            result.append(array[i]);
-	        }
-	    }
-	    return result.toString();
+		if (array.length > 0) {
+			result.append(array[0]);
+			for (int i=1; i<array.length; i++) {
+				result.append(separator);
+				result.append(array[i]);
+			}
+		}
+		return result.toString();
 	}
-	
+
 	public static void delete(File f) throws IOException {
 		if(f == null)
 			return;
@@ -79,30 +82,43 @@ public class Utilities {
 	}
 
 	public static String convertStreamToString(InputStream is) {
-        /*
-         * To convert the InputStream to String we use the BufferedReader.readLine()
-         * method. We iterate until the BufferedReader return null which means
-         * there's no more data to read. Each line will appended to a StringBuilder
-         * and returned as String.
-         */
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
+		/*
+		 * To convert the InputStream to String we use the BufferedReader.readLine()
+		 * method. We iterate until the BufferedReader return null which means
+		 * there's no more data to read. Each line will appended to a StringBuilder
+		 * and returned as String.
+		 */
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder sb = new StringBuilder();
 
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
+		String line = null;
+		try {
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Converts an array of numbers to an array of doubles that can be used by
+	 * the histogram and sparkline charts
+	 * @param data
+	 * @return
+	 */
+	public static double[] toArray(List<? extends Number> data) {
+		double[] ret = new double[data.size()];
+		for(int i=0;i<ret.length;i++)
+			ret[i] = data.get(i).doubleValue();
+		return ret;
 	}
 
 	public static Bitmap decodeFile(File f, int maxSize){
@@ -201,5 +217,84 @@ public class Utilities {
 		public long amountRead() {
 			return mLength;
 		}
+	}
+
+	/**
+	 * Darkens the color value
+	 * @param color
+	 * @return
+	 */
+	public static int darkenColor(int color) {
+		return changeColor(color, -60);
+	}
+
+	/**
+	 * Lightens color value
+	 * @param color
+	 * @return
+	 */
+	public static int lightenColor(int color) {
+		return changeColor(color, 15);
+	}
+
+	/**
+	 * Change the color by the specified amount
+	 * @param color
+	 * @param amount
+	 * @return
+	 */
+	private static int changeColor(int color, int amount) {
+		amount = fitToColor(Color.red(color), amount);
+		amount = fitToColor(Color.green(color), amount);
+		amount = fitToColor(Color.blue(color), amount);
+		return Color.rgb(Color.red(color) + amount, Color.green(color) + amount, Color.blue(color) + amount);
+	}
+
+	/**
+	 * Makes sure that an adjustment by this amount for this part of the color
+	 * wont overflow (which will cause the overall color to change)
+	 * 
+	 * @param color
+	 * @param change
+	 * @return
+	 */
+	private static int fitToColor(int color, int change) {
+		if(color + change < 0 || color + change > 255)
+			return 255 - color;
+		return change;
+	}
+
+	/**
+	 * Calculates the grayscale value of the color
+	 * @param color
+	 * @return the gray scale color
+	 */
+	public static int colorGrayscale(int color) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(color, hsv);
+		hsv[0] = 0;
+		hsv[1] = 0;
+		return Color.HSVToColor(hsv);
+	}
+
+	/**
+	 * utility method for converting dp to pixels, since the setters only take pixel values :\
+	 * @param dp value
+	 * @return
+	 */
+	public static int dpToPixels(int dp) {
+		final float scale = OhmageApplication.getContext().getResources().getDisplayMetrics().density;
+	    return (int) (dp * scale + 0.5f);
+	}
+
+	/**
+	 * Clears the time component of a calendar object
+	 * @param cal
+	 */
+	public static void clearTime(Calendar cal) {
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
 	}
 }

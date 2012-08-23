@@ -25,14 +25,13 @@ import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter.ViewBinder;
 
 public class MultiChoicePrompt extends AbstractPrompt {
@@ -149,13 +148,6 @@ public class MultiChoicePrompt extends AbstractPrompt {
 		});
 		
 		return listView;
-	}
-
-	@Override
-	public void handleActivityResult(Context context, int requestCode,
-			int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

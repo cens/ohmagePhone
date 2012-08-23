@@ -53,6 +53,8 @@ public class UploadService extends WakefulIntentService {
 
 	private OhmageApi mApi;
 
+	private boolean isBackground;
+
 	public UploadService() {
 		super(TAG);
 	}
@@ -75,6 +77,8 @@ public class UploadService extends WakefulIntentService {
 		if(mApi == null)
 			setOhmageApi(new OhmageApi(this));
 
+		isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
+
 		if (intent.getBooleanExtra(EXTRA_UPLOAD_SURVEYS, false)) {
 			uploadSurveyResponses(intent);
 		}
@@ -94,7 +98,6 @@ public class UploadService extends WakefulIntentService {
 		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
-		boolean isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 		boolean uploadErrorOccurred = false;
 		boolean authErrorOccurred = false;
 		
@@ -133,9 +136,13 @@ public class UploadService extends WakefulIntentService {
 		Cursor cursor = cr.query(dataUri, projection, select, null, null);
 
 		// If there is no data we should just return
-		if(cursor == null || !cursor.moveToFirst())
+		if(cursor == null)
 			return;
-		
+		else if(!cursor.moveToFirst()) {
+			cursor.close();
+			return;
+		}
+
 		ContentValues cv = new ContentValues();
 		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
 		cr.update(dataUri, cv, select, null);
@@ -206,7 +213,7 @@ public class UploadService extends WakefulIntentService {
 				}
 			});
 			
-			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), photos);
+			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), photos);
 			
 			int responseStatus = Response.STATUS_UPLOADED;
 
@@ -415,7 +422,8 @@ public class UploadService extends WakefulIntentService {
 						
 					} catch (JSONException e) {
 						Log.e(TAG, "error creating mobility json", e);
-						NotificationHelper.showMobilityErrorNotification(this);
+						if(isBackground)
+							NotificationHelper.showMobilityErrorNotification(this);
 						throw new RuntimeException(e);
 					}
 					
@@ -423,7 +431,7 @@ public class UploadService extends WakefulIntentService {
 					
 					c.moveToNext();
 				}
-				response = mApi.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, SharedPreferencesHelper.CLIENT_STRING, mobilityJsonArray.toString());
+				response = mApi.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
 				
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
@@ -455,17 +463,20 @@ public class UploadService extends WakefulIntentService {
 								new SharedPreferencesHelper(this).setUserDisabled(true);
 							}
 
-							if (isAuthenticationError) {
-								NotificationHelper.showAuthNotification(this);
-							} else {
-								NotificationHelper.showMobilityErrorNotification(this);
+							if (isBackground) {
+								if (isAuthenticationError) {
+									NotificationHelper.showAuthNotification(this);
+								} else {
+									NotificationHelper.showMobilityErrorNotification(this);
+								}
 							}
 
 							break;
 
 						case INTERNAL_ERROR:
 							Log.e(TAG, "Upload failed due to unknown internal error");
-							NotificationHelper.showMobilityErrorNotification(this);
+							if (isBackground)
+								NotificationHelper.showMobilityErrorNotification(this);
 							break;
 
 						case HTTP_ERROR:

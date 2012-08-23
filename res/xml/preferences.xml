@@ -12,6 +12,12 @@
         android:persistent="false"
         android:title="@string/admin_settings" />
 
+    <PreferenceScreen android:title="Send Crash Report">
+		<intent
+			android:targetPackage="org.ohmage"
+			android:targetClass="org.ohmage.activity.SendLogActivity"/>
+	</PreferenceScreen>
+
     <PreferenceCategory android:title="Status" >
 
         <PreferenceScreen
@@ -54,6 +60,16 @@
             android:key="status_mobility_visibility"
             android:persistent="false"
             android:title="@string/preferences_mobility_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Info" >
+
+        <PreferenceScreen
+            style="?android:attr/preferenceInformationStyle"
+            android:enabled="false"
+            android:key="info_ohmage_version"
+            android:persistent="false"
+            android:title="@string/preferences_ohamage_version_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

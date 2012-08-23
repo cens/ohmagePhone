@@ -23,6 +23,7 @@ import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.BackgroundManager;
 import org.ohmage.Config;
+import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -101,8 +102,8 @@ public class LoginActivity extends FragmentActivity {
 		}
 		
 		mLoginButton = (Button) findViewById(R.id.login);
-        mUsernameEdit = (EditText) findViewById(R.id.user_input); 
-        mPasswordEdit = (EditText) findViewById(R.id.password);
+        mUsernameEdit = (EditText) findViewById(R.id.login_username); 
+        mPasswordEdit = (EditText) findViewById(R.id.login_password);
         mVersionText = (TextView) findViewById(R.id.version);
         
         try {
@@ -181,6 +182,7 @@ public class LoginActivity extends FragmentActivity {
 				String urn = Campaign.getSingleCampaign(LoginActivity.this);
 				if(urn == null) {
 					// Downloading the campaign failed so we should reset the username and password
+					MobilityHelper.setUsername(LoginActivity.this, null);
 					mPreferencesHelper.clearCredentials();
 					Toast.makeText(LoginActivity.this, R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
 				} else {
@@ -193,6 +195,13 @@ public class LoginActivity extends FragmentActivity {
 			public void onLoaderReset(Loader<CampaignReadResponse> loader) {
 			}
 		});
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		getSupportLoaderManager().destroyLoader(0);
 	}
 
 	@Override
@@ -415,6 +424,10 @@ public class LoginActivity extends FragmentActivity {
 		mPreferencesHelper.putUsername(username);
 		mPreferencesHelper.putHashedPassword(hashedPassword);
 
+		// Upgrading the mobility data will set the username so we only need to set it if we don't upgrade
+		if(MobilityHelper.upgradeMobilityData(this) != MobilityHelper.VERSION_AGGREGATE_AND_USERNAME)
+			MobilityHelper.setUsername(this, username);
+
 		//clear related notifications
 		//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
 		//makes more sense to clear notification on launch, so moved to oncreate
@@ -492,7 +505,7 @@ public class LoginActivity extends FragmentActivity {
 //		        }
 //			}
 			OhmageApi api = new OhmageApi(getActivity());
-			return api.authenticate(Config.DEFAULT_SERVER_URL, mUsername, mPassword, SharedPreferencesHelper.CLIENT_STRING);
+			return api.authenticate(Config.DEFAULT_SERVER_URL, mUsername, mPassword, OhmageApi.CLIENT_NAME);
 		}
 
 		@Override

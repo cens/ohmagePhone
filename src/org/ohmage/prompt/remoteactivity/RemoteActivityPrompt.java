@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.ohmage.prompt.remoteactivity;
 
-import edu.ucla.cens.systemlog.Log;
+import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,8 +36,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Iterator;
+import edu.ucla.cens.systemlog.Log;
 
 /**
  * Prompt that will launch a remote Activity that can either be part of this
@@ -73,6 +72,8 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	private int runs;
 	private int minRuns;
 	private int retries;
+
+	private String mFeedback;
 	
 	/**
 	 * Basic default constructor.
@@ -108,6 +109,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.prompt_remote_activity, null);
 		
 		feedbackText = (TextView) layout.findViewById(R.id.prompt_remote_activity_feedback);
+		feedbackText.setText(mFeedback);
 		launchButton = (Button) layout.findViewById(R.id.prompt_remote_activity_replay_button);
 		launchButton.setOnClickListener(this);
 		launchButton.setText((!launched && !autolaunch) ? R.string.prompt_remote_launch : R.string.prompt_remote_relaunch);
@@ -154,7 +156,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	 * return value for this prompt type.
 	 */
 	@Override
-	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) 
+	public void handleActivityResult(Context context, int resultCode, Intent data)
 	{
 		if(resultCode == Activity.RESULT_CANCELED)
 		{
@@ -192,7 +194,8 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 					String nextKey = keysIter.next();
 					if(FEEDBACK_STRING.equals(nextKey))
 					{
-						feedbackText.setText(extras.getString(nextKey));
+						mFeedback = extras.getString(nextKey);
+						feedbackText.setText(mFeedback);
 					}
 					else
 					{
@@ -489,7 +492,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 			activityToLaunch.putExtra("input", input);
 			
 			try {
-				callingActivity.startActivityForResult(activityToLaunch, 0);
+				callingActivity.startActivityForResult(activityToLaunch, REQUEST_CODE);
 				launched = true;
 				runs++;
 			} catch (ActivityNotFoundException e) {

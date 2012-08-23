@@ -15,6 +15,18 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.app.Application;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Handler;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
@@ -22,19 +34,13 @@ import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
+import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
+import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.triggers.glue.TriggerFramework;
-
-import android.app.Application;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Handler;
 
 import java.io.IOException;
 import java.net.ContentHandler;
@@ -94,17 +100,41 @@ public class OhmageApplication extends Application {
 			
 			prefs.setLastVersionCode(currentVersionCode);
 		}
+
+		// Make sure mobility is registered to collect points for the current user and it has the correct aggregate data
+		// This will happen if mobility is
+		MobilityHelper.upgradeMobilityData(this);
+
+		verifyState();
 	}
-	
+
+	/**
+	 * This method verifies that the state of ohmage is correct when it starts up.
+	 * 
+	 * For now it changes responses which say they are waiting for a location to say they have no location.
+	 * It also deletes any responses which have no uuid
+	 */
+	private void verifyState() {
+		ContentValues values = new ContentValues();
+		values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
+		getContentResolver().update(Responses.CONTENT_URI, values, Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION, null);
+
+       if(getContentResolver().delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " is null", null) != 0) {
+           // If there were some responses with no uuid, start the feedback service
+           Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
+           WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
+       }
+	}
+
 	public void resetAll() {
 		//clear everything?
 		Log.i(TAG, "Reseting all data");
-		
+
+		//clear shared prefs first so isAuthenticated call will return false
+		new SharedPreferencesHelper(this).clearAll();
+
 		//clear triggers
 		TriggerFramework.resetAllTriggerSettings(this);
-		
-		//clear shared prefs
-		new SharedPreferencesHelper(this).clearAll();
 		
 		//clear user prefs
 		new UserPreferencesHelper(this).clearAll();
@@ -136,6 +166,9 @@ public class OhmageApplication extends Application {
 		} catch (IOException e) {
 			Log.e(TAG, "Error deleting cache directory", e);
 		}
+
+		// Reset mobility username
+		MobilityHelper.setUsername(this, null);
 	}
 	
     private static ImageLoader createImageLoader(Context context) {

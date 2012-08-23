@@ -36,6 +36,8 @@ public abstract class BaseActivity extends FragmentActivity {
 	private ActionBarControl mActionBar;
 	private FrameLayout mContainer;
 
+	private View mActionBarShadow;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -107,6 +109,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	private View initLayout() {
 		LinearLayout baseLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.base_activity, null);
 		mActionBar = (ActionBarControl) baseLayout.findViewById(R.id.action_bar);
+		mActionBarShadow = baseLayout.findViewById(R.id.action_bar_shadow);
 		mContainer = (FrameLayout) baseLayout.findViewById(R.id.root_container);
 		return baseLayout;
 	}
@@ -146,6 +149,10 @@ public abstract class BaseActivity extends FragmentActivity {
 
 		// and finally set the actual visibility of the thing
 		pv.setVisibility(isLoading?View.VISIBLE:View.GONE);
+	}
+
+	protected void setActionBarShadowVisibility(boolean visible) {
+		mActionBarShadow.setVisibility(visible?View.VISIBLE:View.GONE);
 	}
 
 	/**

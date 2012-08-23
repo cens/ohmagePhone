@@ -19,9 +19,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class SharedPreferencesHelper {
-	
-	public static final String CLIENT_STRING = "android";
-	
 	private static final String PREFERENCES_NAME = "preferences_name";
 	public static final String PREFERENCES_CREDENTIALS = "preferences_credentials";
 	public static final String PREFERENCES_TRIGGERS = "preferences_triggers";
@@ -38,6 +35,7 @@ public class SharedPreferencesHelper {
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
+	private static final String KEY_MOBILITY_VERSION = "mobility_version";
 
 	private final SharedPreferences mPreferences;
 	
@@ -112,18 +110,6 @@ public class SharedPreferencesHelper {
 	public boolean putLastSurveyTimestamp(String surveyId, Long timestamp) {
 		return mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp).commit();
 	}
-	
-	public Long getLastFeedbackRefreshTimestamp(String urn) {
-		return mPreferences.getLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn, -1);
-	}
-	
-	public boolean putLastFeedbackRefreshTimestamp(String urn, Long timestamp) {
-		return mPreferences.edit().putLong(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn, timestamp).commit();
-	}
-
-	public boolean removeLastFeedbackRefreshTimestamp(String urn) {
-		return mPreferences.edit().remove(KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP+"_"+urn).commit();
-	}
 
 	public boolean isAuthenticated() {
 		if (getUsername().length() > 0 && getHashedPassword().length() > 0) {
@@ -147,5 +133,13 @@ public class SharedPreferencesHelper {
 	
 	public boolean setLastCampaignRefreshTime(long time) {
 		return mPreferences.edit().putLong(KEY_CAMPAIGN_REFRESH_TIME, time).commit();
+	}
+
+	public int getLastMobilityVersion() {
+		return mPreferences.getInt(KEY_MOBILITY_VERSION, -1);
+	}
+
+	public boolean setMobilityVersion(int mobilityVersion) {
+		return mPreferences.edit().putInt(KEY_MOBILITY_VERSION, mobilityVersion).commit();
 	}
 }

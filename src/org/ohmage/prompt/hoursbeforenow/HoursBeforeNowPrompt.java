@@ -16,12 +16,11 @@
 package org.ohmage.prompt.hoursbeforenow;
 
 import org.ohmage.NumberPicker;
-import org.ohmage.R;
 import org.ohmage.NumberPicker.OnChangedListener;
+import org.ohmage.R;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -106,12 +105,4 @@ public class HoursBeforeNowPrompt extends AbstractPrompt {
 		
 		return layout;
 	}
-
-	@Override
-	public void handleActivityResult(Context context, int requestCode,
-			int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

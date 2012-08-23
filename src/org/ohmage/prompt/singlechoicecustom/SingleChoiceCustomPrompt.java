@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoicecustom;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.ohmage.R;
 import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
@@ -23,7 +27,6 @@ import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.CustomChoiceListView;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -45,10 +48,6 @@ import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class SingleChoiceCustomPrompt extends AbstractPrompt {
 	
@@ -345,13 +344,6 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 	}
 
 	@Override
-	public void handleActivityResult(Context context, int requestCode,
-			int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void setDefaultValue(String defaultValue) {
 		this.mDefaultValue = defaultValue;
 		try {
@@ -359,5 +351,11 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		} catch(NumberFormatException e) {
 			// No number...
 		}
+	}
+
+	@Override
+	public void onHidden() {
+		mEnteredText = "";
+		mIsAddingNewItem = false;
 	}
 }

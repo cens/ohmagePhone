@@ -1,39 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-	<org.ohmage.controls.FilterControl
-		android:id="@+id/campaign_filter"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/action_bar" />
+    <org.ohmage.controls.FilterControl
+        android:id="@+id/campaign_filter"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/action_bar" />
 
-	<RelativeLayout
-		android:id="@+id/upload_all_container"
-		android:layout_width="fill_parent"
-		android:layout_height="@dimen/upload_all_container_height"
-		android:background="@drawable/entity_header_background"
-		android:layout_alignParentBottom="true"
-		android:visibility="invisible">
-		<Button
-			android:id="@+id/upload_button"
-			android:layout_width="200dp"
-			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:background="@drawable/entity_action_button"
-			android:text="@string/upload_queue_upload_all"
-			android:contentDescription="@string/upload_button_description" />
-	</RelativeLayout>
+    <View
+        style="@style/DividerHorizontal"
+        android:layout_below="@id/campaign_filter" />
 
-	<fragment
-		android:id="@+id/upload_queue_response_list_fragment"
-		android:name="org.ohmage.activity.UploadQueueActivity$UploadingResponseListFragment"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:layout_below="@id/campaign_filter" 
-		android:layout_above="@id/upload_all_container"/>
+    <RelativeLayout
+        android:id="@+id/upload_all_container"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/upload_all_container_height"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/entity_header_background"
+        android:visibility="invisible" >
+
+        <Button
+            android:id="@+id/upload_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/entity_action_button"
+            android:contentDescription="@string/upload_button_description"
+            android:text="@string/upload_queue_upload_all" />
+    </RelativeLayout>
+
+    <fragment
+        android:id="@+id/upload_queue_response_list_fragment"
+        android:name="org.ohmage.activity.UploadQueueActivity$UploadingResponseListFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/upload_all_container"
+        android:layout_below="@id/campaign_filter" />
+
 </RelativeLayout>
