@@ -1014,6 +1014,7 @@ public class OhmageApi {
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
 						} else {
+						    Log.e(TAG, rootJson.toString());
 							result = Result.FAILURE;
 							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
 							int errorCount = errorsJsonArray.length();
