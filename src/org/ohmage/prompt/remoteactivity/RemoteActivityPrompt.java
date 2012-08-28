@@ -15,19 +15,11 @@
  ******************************************************************************/
 package org.ohmage.prompt.remoteactivity;
 
-import java.util.Iterator;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ohmage.R;
-import org.ohmage.prompt.AbstractPrompt;
-
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +28,17 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import edu.ucla.cens.systemlog.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.R;
+import org.ohmage.prompt.AbstractPrompt;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Prompt that will launch a remote Activity that can either be part of this
@@ -491,17 +493,22 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 			activityToLaunch.setComponent(new ComponentName(packageName, activityName));
 			activityToLaunch.putExtra("input", input);
 			
-			try {
+			if(isCallable(activityToLaunch)) {
 				callingActivity.startActivityForResult(activityToLaunch, REQUEST_CODE);
 				launched = true;
 				runs++;
-			} catch (ActivityNotFoundException e) {
-				Toast.makeText(callingActivity, "Required component is not installed", Toast.LENGTH_SHORT).show();
+			} else {
+				 Toast.makeText(callingActivity, "Required component is not installed", Toast.LENGTH_SHORT).show();
 			}
 		}
 		else
 		{
 			Log.e(TAG, "The calling Activity was null.");
 		}
+	}
+
+	private boolean isCallable(Intent intent) {
+		List<ResolveInfo> list = callingActivity.getPackageManager().queryIntentActivities(intent, 0);
+		return list.size() > 0;
 	}
 }
