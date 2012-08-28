@@ -163,7 +163,8 @@ public class ProbeUploadService extends WakefulIntentService {
             String observerId = null;
             String observerVersion = null;
 
-            StringBuilder delete = new StringBuilder();
+            ArrayList<Long> delete = new ArrayList<Long>();
+            StringBuilder deleteString = new StringBuilder();
 
             int payloadSize = 0;
 
@@ -207,9 +208,22 @@ public class ProbeUploadService extends WakefulIntentService {
                         return;
                     }
 
-                    // Deleting this batch of points
-                    getContentResolver().delete(getContentURI(), delete.toString(), null);
-                    delete = new StringBuilder();
+                    // Deleting this batch of points. We can only delete with a
+                    // maximum expression tree depth of 1000
+                    for (int batch = 0; batch < delete.size(); batch++) {
+                        if (deleteString.length() != 0)
+                            deleteString.append(" OR ");
+                        deleteString.append(BaseColumns._ID + "=" + delete.get(batch));
+
+                        // If we have 1000 Expressions or we are at the last
+                        // point, delete them
+                        if ((batch != 0 && batch % (1000 - 2) == 0) || batch == delete.size() - 1) {
+                            getContentResolver().delete(getContentURI(), deleteString.toString(),
+                                    null);
+                            deleteString = new StringBuilder();
+                        }
+                    }
+                    delete.clear();
 
                     if (c.isAfterLast())
                         break;
@@ -222,9 +236,7 @@ public class ProbeUploadService extends WakefulIntentService {
                 currentVersion = observerVersion;
 
                 payloadSize += addProbe(probes, c);
-                if (delete.length() != 0)
-                    delete.append(" OR ");
-                delete.append(BaseColumns._ID + "=" + c.getLong(0));
+                delete.add(c.getLong(0));
             }
 
             c.close();
