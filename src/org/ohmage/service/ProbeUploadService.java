@@ -350,9 +350,10 @@ public class ProbeUploadService extends WakefulIntentService {
 
         @Override
         protected void uploadError() {
-            if(isBackground)
-                NotificationHelper.showProbeUploadErrorNotification(ProbeUploadService.this, mErrors);
-            else
+            if(isBackground) {
+            	if(!mErrors.isEmpty())
+            		NotificationHelper.showProbeUploadErrorNotification(ProbeUploadService.this, mErrors);
+            } else
                 sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_ERROR).putExtra(EXTRA_PROBE_ERRORS, mErrors));
         }
 

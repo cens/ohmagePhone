@@ -187,7 +187,10 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 				mUploadButton.setText("Uploading...");
 			} else if (ProbeUploadService.PROBE_UPLOAD_ERROR.equals(action) || ProbeUploadService.RESPONSE_UPLOAD_ERROR.equals(action)) {
 			    ArrayList<String> errors = intent.getStringArrayListExtra(ProbeUploadService.EXTRA_PROBE_ERRORS);
-                Toast.makeText(getActivity(), getString(R.string.mobility_upload_error_message, errors.toString()), Toast.LENGTH_SHORT).show();
+			    if(errors.size() == 0)
+	                Toast.makeText(getActivity(), R.string.mobility_network_error_message, Toast.LENGTH_SHORT).show();
+			    else
+			    	Toast.makeText(getActivity(), getString(R.string.mobility_upload_error_message, errors.toString()), Toast.LENGTH_SHORT).show();
 			} else if (ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED.equals(action)) {
 				mUploadButton.setText("Upload Now");
 		        setLastUploadTimestamp();
