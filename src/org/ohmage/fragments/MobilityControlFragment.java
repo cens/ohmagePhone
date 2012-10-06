@@ -194,7 +194,6 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 			} else if (ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED.equals(action)) {
 				mUploadButton.setText("Upload Now");
 		        setLastUploadTimestamp();
-		        getLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityControlFragment.this);
 			}
 		}
 	};

@@ -2,6 +2,7 @@
 package org.ohmage.probemanager;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -32,17 +33,24 @@ public class ProbeContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+        int count = 0;
+
         switch (sUriMatcher.match(uri)) {
 
             case MatcherTypes.PROBES:
-                return dbHelper.getWritableDatabase().delete(Tables.Probes,
+                count = dbHelper.getWritableDatabase().delete(Tables.Probes,
                         selection == null ? "1" : selection, selectionArgs);
+                break;
             case MatcherTypes.RESPONSES:
-                return dbHelper.getWritableDatabase().delete(Tables.Responses,
+                count = dbHelper.getWritableDatabase().delete(Tables.Responses,
                         selection == null ? "1" : selection, selectionArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
         }
+
+        notifyInsert(uri, count);
+        return count;
     }
 
     @Override
@@ -61,14 +69,17 @@ public class ProbeContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         long id = -1;
+        ContentResolver cr = getContext().getContentResolver();
 
         switch (sUriMatcher.match(uri)) {
             case MatcherTypes.PROBES:
                 id = dbHelper.getWritableDatabase().insert(Tables.Probes, BaseColumns._ID, values);
+                cr.notifyChange(Probes.CONTENT_URI, null);
                 break;
             case MatcherTypes.RESPONSES:
                 id = dbHelper.getWritableDatabase().insert(Tables.Responses, BaseColumns._ID,
                         values);
+                cr.notifyChange(Responses.CONTENT_URI, null);
                 break;
             default:
                 throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
@@ -85,25 +96,29 @@ public class ProbeContentProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
-            String[] selectionArgs, String sortOrder) {
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+            String sortOrder) {
+        Cursor cursor;
         switch (sUriMatcher.match(uri)) {
 
             case MatcherTypes.PROBES:
-                return dbHelper.getReadableDatabase().query(Tables.Probes, projection, selection,
+                cursor = dbHelper.getReadableDatabase().query(Tables.Probes, projection, selection,
                         selectionArgs, null, null, sortOrder);
+                break;
             case MatcherTypes.RESPONSES:
-                return dbHelper.getReadableDatabase().query(Tables.Responses, projection,
-                        selection,
-                        selectionArgs, null, null, sortOrder);
+                cursor = dbHelper.getReadableDatabase().query(Tables.Responses, projection,
+                        selection, selectionArgs, null, null, sortOrder);
+                break;
             default:
                 throw new UnsupportedOperationException("query(): Unknown URI: " + uri);
         }
+
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection,
-            String[] selectionArgs) {
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // TODO: Implement this to handle requests to update one or more rows.
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -139,6 +154,26 @@ public class ProbeContentProvider extends ContentProvider {
             db.endTransaction();
         }
 
+        notifyInsert(uri, count);
+
         return count;
+    }
+
+    private void notifyInsert(Uri uri, Integer count) {
+        if (count > 0) {
+            ContentResolver cr = getContext().getContentResolver();
+
+            // depending on the type of the thing deleted, we have to notify
+            // potentially many URIs
+            switch (sUriMatcher.match(uri)) {
+                case MatcherTypes.PROBES:
+                    cr.notifyChange(Probes.CONTENT_URI, null);
+                    break;
+
+                case MatcherTypes.RESPONSES:
+                    cr.notifyChange(Responses.CONTENT_URI, null);
+                    break;
+            }
+        }
     }
 }
