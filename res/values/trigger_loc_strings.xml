@@ -41,7 +41,6 @@
     <string name="trigger_loc_always_title">Always show Reminder</string>
     <string name="trigger_loc_always_text">Show Reminder at End Time even if the location is not reached</string>
     <string name="trigger_loc_min_reentry_title">Minimum re-entry interval</string>
-    <string name="trigger_loc_min_reenetry_text">30 minutes</string>
     <string name="trigger_loc_add_place_hint">Type to add a new place</string>
     <string name="trigger_loc_add_place">Add</string>
     <string name="trigger_loc_manage_places_summary">Tap on a place to view it on the maps. Press and hold a place for more options</string>

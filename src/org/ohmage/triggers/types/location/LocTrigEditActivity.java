@@ -35,12 +35,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -131,10 +133,10 @@ public class LocTrigEditActivity extends PreferenceActivity
 		
 		
 		//Set global value for minimum reentry interval
-		Preference minIntervalPref = getPreferenceScreen()
+		EditTextPreference minIntervalPref = (EditTextPreference) getPreferenceScreen()
 									.findPreference(PREF_KEY_RENETRY_INTERVAL);
-		minIntervalPref.setSummary(LocTrigDesc.getGlobalMinReentryInterval(this) + 
-									" minutes");
+		minIntervalPref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
+		minIntervalPref.setSummary(mTrigDesc.getMinReentryInterval() + " minutes");
 
 		mAdminMode = getIntent().getBooleanExtra(KEY_ADMIN_MODE, false);
 		
@@ -345,6 +347,8 @@ public class LocTrigEditActivity extends PreferenceActivity
 							.findPreference(PREF_KEY_START_TIME);
 		TimePickerPreference endPref = (TimePickerPreference) getPreferenceScreen()
 							.findPreference(PREF_KEY_END_TIME);
+		EditTextPreference minIntervalPref = (EditTextPreference) getPreferenceScreen()
+				.findPreference(PREF_KEY_RENETRY_INTERVAL);
 		
 		Preference actionsPref = getPreferenceScreen().findPreference(PREF_KEY_ACTIONS);
 
@@ -376,6 +380,8 @@ public class LocTrigEditActivity extends PreferenceActivity
 		endPref.setEnabled(mAdminMode || TrigUserConfig.editLocationTrigger);
 		((Button) findViewById(R.id.trig_edit_done))
 				.setEnabled(mAdminMode || TrigUserConfig.editLocationTrigger);
+		
+		minIntervalPref.setSummary(mTrigDesc.getMinReentryInterval() + " minutes");
 	}
 
 	@Override
@@ -397,6 +403,18 @@ public class LocTrigEditActivity extends PreferenceActivity
 				pref.setSummary((String) val);
 			}
 		}
+		else if(pref.getKey().equals(PREF_KEY_RENETRY_INTERVAL)) {
+			
+			if(val instanceof String) {
+				try {
+					int interval = Integer.parseInt((String) val);
+					if(interval > 0) {
+						mTrigDesc.setMinReentryInterval(interval);
+						pref.setSummary(interval + " minutes");
+					}
+				} catch (NumberFormatException e) {}
+			}
+		}
 		
 		return true;
 	}
@@ -414,8 +432,6 @@ public class LocTrigEditActivity extends PreferenceActivity
 									.findPreference(PREF_KEY_END_TIME);
 		
 		mTrigDesc.setLocation(locPref.getValue());
-		//Currently, there is only a global setting for the reentry interval
-		mTrigDesc.setMinReentryInterval(LocTrigDesc.getGlobalMinReentryInterval(this));
 		
 		if(rangePref.isChecked()) {
 			mTrigDesc.setRangeEnabled(true);
@@ -502,7 +518,7 @@ public class LocTrigEditActivity extends PreferenceActivity
 		finish();
 	}
 
-private Dialog createEditActionDialog() {
+	private Dialog createEditActionDialog() {
 		
 		if(mActSelected == null) {
 			mActSelected = new boolean[mActions.length];

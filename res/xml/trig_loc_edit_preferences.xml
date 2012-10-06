@@ -42,11 +42,9 @@
 	        android:title="@string/trigger_loc_always_title"
 	        android:summary="@string/trigger_loc_always_text" />
 	        
-	<Preference
+	<EditTextPreference
         android:key="minimum_reentry"
         android:title="@string/trigger_loc_min_reentry_title"
-        android:persistent="false"
-        android:enabled="false"
-        android:summary="@string/trigger_loc_min_reenetry_text" />
+        android:persistent="false" />
          
 </PreferenceScreen>
