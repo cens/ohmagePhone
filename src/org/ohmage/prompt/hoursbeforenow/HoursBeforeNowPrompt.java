@@ -15,94 +15,22 @@
  ******************************************************************************/
 package org.ohmage.prompt.hoursbeforenow;
 
-import org.ohmage.NumberPicker;
-import org.ohmage.NumberPicker.OnChangedListener;
 import org.ohmage.R;
-import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.number.NumberPrompt;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.LinearLayout;
+public class HoursBeforeNowPrompt extends NumberPrompt {
 
-public class HoursBeforeNowPrompt extends AbstractPrompt {
-
-	private int mMinimum;
-	private int mMaximum;
-	private int mValue;
-	
 	public HoursBeforeNowPrompt() {
 		super();
-	}
-	
-	void setMinimum(int value) {
-		mMinimum = value;
-	}
-	
-	void setMaximum(int value) {
-		mMaximum = value;
-	}
-	
-	public int getValue(){
-		return mValue;
 	}
 
 	@Override
 	protected void clearTypeSpecificResponseData() {
-		if (mDefaultValue != null && ! mDefaultValue.equals("")) {
-			mValue = Integer.parseInt(getDefaultValue());
-		} else {
-			mValue = mMinimum;
-		}
-	}
-	
-	/**
-	 * Returns true if the current value falls between the minimum and the
-	 * maximum.
-	 */
-	@Override
-	public boolean isPromptAnswered() {
-		return((mValue >= mMinimum) && (mValue <= mMaximum));
-	}
-
-	@Override
-	protected Object getTypeSpecificResponseObject() {
-		return Integer.valueOf(mValue);
-	}
-	
-	/**
-	 * The text to be displayed to the user if the prompt is considered
-	 * unanswered.
-	 */
-	@Override
-	public String getUnansweredPromptText() {
-		return("Please choose a value between " + mMinimum + " and " + mMaximum + ".");
+		super.clearTypeSpecificResponseData();
 	}
 	
 	@Override
-	protected Object getTypeSpecificExtrasObject() {
-		return null;
-	}
-
-	@Override
-	public View getView(Context context) {
-		
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.prompt_hours_before_now, null);
-		
-		NumberPicker numberPicker = (NumberPicker) layout.findViewById(R.id.number_picker);
-		
-		numberPicker.setRange(mMinimum, mMaximum);
-		numberPicker.setCurrent(mValue);
-				
-		numberPicker.setOnChangeListener(new OnChangedListener() {
-			
-			@Override
-			public void onChanged(NumberPicker picker, int oldVal, int newVal) {
-				mValue = newVal;				
-			}
-		});
-		
-		return layout;
+	protected int getLayoutResource() {
+		return R.layout.prompt_hours_before_now;
 	}
 }

@@ -1,24 +1,5 @@
 package org.ohmage.async;
 
-import edu.ucla.cens.systemlog.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ohmage.Config;
-import org.ohmage.NotificationHelper;
-import org.ohmage.OhmageApi;
-import org.ohmage.OhmageApi.CampaignReadResponse;
-import org.ohmage.OhmageApi.Response;
-import org.ohmage.OhmageApi.Result;
-import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.Utilities;
-import org.ohmage.activity.ErrorDialogActivity;
-import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.Models.Campaign;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -29,7 +10,24 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.widget.Toast;
+
+import edu.ucla.cens.systemlog.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.ConfigHelper;
+import org.ohmage.NotificationHelper;
+import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Response;
+import org.ohmage.OhmageApi.Result;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.activity.ErrorDialogActivity;
+import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,18 +41,18 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 	private static final String TAG = "CampaignReadTask";
 	private OhmageApi mApi;
 	private final Context mContext;
-	private final SharedPreferencesHelper mPrefs;
+	private final UserPreferencesHelper mPrefs;
 
 	public CampaignReadTask(Context context) {
 		super(context);
 		mContext = context;
-		mPrefs = new SharedPreferencesHelper(mContext);
+		mPrefs = new UserPreferencesHelper(mContext);
 	}
 
 	public CampaignReadTask(Context context, String username, String hashedPassword) {
 		super(context, username, hashedPassword);
 		mContext = context;
-		mPrefs = new SharedPreferencesHelper(mContext);
+		mPrefs = new UserPreferencesHelper(mContext);
 	}
 
 	@Override
@@ -62,7 +60,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 		if(mApi == null)
 			mApi = new OhmageApi(mContext);
 
-		CampaignReadResponse response = mApi.campaignRead(Config.DEFAULT_SERVER_URL, getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
+		CampaignReadResponse response = mApi.campaignRead(ConfigHelper.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
 
 		if (response.getResult() == Result.SUCCESS) {
 			ContentResolver cr = getContext().getContentResolver();
@@ -144,7 +142,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 
 						} else { //campaign has not been downloaded
 
-							if (running) { //campaign is running
+							if (running && participant) { //campaign is running and we are a participant
 								// We don't need to delete it
 								toDelete.remove(c.mUrn);
 								operations.add(ContentProviderOperation.newInsert(Campaigns.CONTENT_URI).withValues(c.toCV()).build());
@@ -186,7 +184,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			}
 
 			// If we are in single campaign mode, we should automatically download the xml for the best campaign
-			if(Config.IS_SINGLE_CAMPAIGN) {
+			if(ConfigHelper.isSingleCampaignMode()) {
 				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
 
 				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it
@@ -223,48 +221,6 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 		} 
 
 		return response;
-	}
-
-	@Override 
-	public void deliverResult(CampaignReadResponse response) {
-		super.deliverResult(response);
-
-		if (response.getResult() == Result.SUCCESS) {
-
-		} else if (response.getResult() == Result.FAILURE) {
-			Log.e(TAG, "Read failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-
-			boolean isAuthenticationError = false;
-			boolean isUserDisabled = false;
-
-			for (String code : response.getErrorCodes()) {
-				if (code.charAt(1) == '2') {
-					isAuthenticationError = true;
-
-					if (code.equals("0201")) {
-						isUserDisabled = true;
-					}
-				}
-			}
-
-			if (isUserDisabled) {
-				new SharedPreferencesHelper(getContext()).setUserDisabled(true);
-			}
-
-			if (isAuthenticationError) {
-				NotificationHelper.showAuthNotification(getContext());
-				Toast.makeText(getContext(), R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
-			} else {
-				Toast.makeText(getContext(), R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
-			}
-
-		} else if (response.getResult() == Result.HTTP_ERROR) {
-			Log.e(TAG, "Read failed due to http error");
-			Toast.makeText(getContext(), R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
-		} else {
-			Log.e(TAG, "Read failed due to internal error");
-			Toast.makeText(getContext(), R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
-		} 
 	}
 
 	public void setOhmageApi(OhmageApi api) {

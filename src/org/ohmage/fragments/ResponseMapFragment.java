@@ -5,7 +5,7 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
@@ -150,7 +150,7 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 			String title = cursor.getString(ResponseMapQuery.TITLE);
 			StringBuilder text = new StringBuilder();
 			// Only show the campaign urn if we aren't in single campaign mode
-			if(!Config.IS_SINGLE_CAMPAIGN)
+			if(!ConfigHelper.isSingleCampaignMode())
 				text.append(cursor.getString(ResponseMapQuery.CAMPAIGN_URN) + "\n");
 			text.append(cursor.getString(ResponseMapQuery.DATE));
 			String id = cursor.getString(ResponseMapQuery.ID);

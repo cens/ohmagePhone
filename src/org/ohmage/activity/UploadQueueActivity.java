@@ -4,7 +4,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Analytics;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.adapters.UploadingResponseListCursorAdapter;
@@ -49,7 +49,8 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		
 		mUploadAll.setOnClickListener(mUploadAllListener);
 
-		if(Config.IS_SINGLE_CAMPAIGN)
+		// Show the upload button immediately in single campaign mode since we don't query for the campaign
+		if(ConfigHelper.isSingleCampaignMode())
 			ensureButtons();
 	}
 	

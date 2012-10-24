@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage.activity.test;
 
+import android.test.ActivityInstrumentationTestCase2;
+import android.test.mock.MockContentResolver;
+import android.test.suitebuilder.annotation.Smoke;
+
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.OhmageApplication;
@@ -24,10 +28,6 @@ import org.ohmage.activity.DashboardActivity;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.test.CampaignContentProvider;
-
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.mock.MockContentResolver;
-import android.test.suitebuilder.annotation.Smoke;
 
 /**
  * <p>This class contains tests for the {@link CampaignAddActivity}</p>
@@ -76,6 +76,7 @@ public class CampaignAddActivityTest extends ActivityInstrumentationTestCase2<Ca
 	@Smoke
 	public void testHomeButton() {
 		solo.clickOnImageButton(0);
+		solo.waitForActivity("DashboardActivity");
 		solo.assertCurrentActivity("Expected Dashboard", DashboardActivity.class);
 		solo.goBack();
 	}

@@ -57,10 +57,16 @@
     <string name="login_error_downloading_campaign">Error downloading campaign</string>
     <string name="login_username_title">Username:</string>
     <string name="login_password_title">Password:</string>
+    <string name="login_server_title">Server:</string>
+    <string name="login_choose_server">Default Servers</string>
     <string name="login_submit">Login</string>
+    <string name="login_invalid_server">Please Enter a valid server name</string>
     <string name="login_activity_login_button_description">Login Button</string>
 
     <!-- Mobility -->
+    <string name="mobility_missing_desc">Please make sure the Mobility package is installed.</string>
+    <string name="mobility_market_btn_label">Install Mobility</string>
+    <string name="mobility_market_link">market://details?id=com.android.example</string>
     <string name="mobiltiy_control_1min">1 min</string>
     <string name="mobility_control_5min">5 min</string>
     <string name="mobility_control_off_description">Off Button</string>
@@ -163,6 +169,8 @@
     <string name="prompt_text_hint">Tap this box or slide out the keyboard (if exists) to start typing.</string>
     <string name="discard_survey_title">Discard Survey?</string>
     <string name="discard_survey_message">Your survey will not be saved</string>
+    <string name="video_prompt_instructions">You can record a video which is at most 300 MB in size. If the video is longer than 300 MB you will have the option to keep the video on your sdcard, but it will not be uploaded to the server.</string>
+    <string name="survey_campaign_instructions_title">Instructions</string>
 
     <!-- Upload Queue -->
     <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>

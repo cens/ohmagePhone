@@ -23,34 +23,34 @@ import org.ohmage.prompt.AbstractPrompt;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 
 public class NumberPrompt extends AbstractPrompt {
-	
+
 	private int mMinimum;
 	private int mMaximum;
 	private int mValue;
-	
+	private NumberPicker mNumberPicker;
+
 	public NumberPrompt() {
 		super();
 	}
-	
-	void setMinimum(int value) {
+
+	public void setMinimum(int value) {
 		mMinimum = value;
 	}
-	
-	void setMaximum(int value) {
+
+	public void setMaximum(int value) {
 		mMaximum = value;
 	}
-	
+
 	public int getMinimum(){
 		return mMinimum;
 	}
-	
+
 	public int getMaximum(){
 		return mMaximum;
 	}
-	
+
 	public int getValue(){
 		return mValue;
 	}
@@ -62,23 +62,26 @@ public class NumberPrompt extends AbstractPrompt {
 		} else {
 			mValue = mMinimum;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Returns true if the current value falls between the minimum and the
 	 * maximum.
 	 */
 	@Override
 	public boolean isPromptAnswered() {
-		return((mValue >= mMinimum) && (mValue <= mMaximum));
+		// If there is a number picker, see if the value is valid
+		// And check the value is between min and max
+		return (mNumberPicker != null && mNumberPicker.forceValidateInput() || mNumberPicker == null)
+				&& ((mValue >= mMinimum) && (mValue <= mMaximum));
 	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
 		return Integer.valueOf(mValue);
 	}
-	
+
 	/**
 	 * The text to be displayed to the user if the prompt is considered
 	 * unanswered.
@@ -87,7 +90,7 @@ public class NumberPrompt extends AbstractPrompt {
 	public String getUnansweredPromptText() {
 		return("Please choose a value between " + mMinimum + " and " + mMaximum + ".");
 	}
-	
+
 	@Override
 	protected Object getTypeSpecificExtrasObject() {
 		return null;
@@ -95,23 +98,26 @@ public class NumberPrompt extends AbstractPrompt {
 
 	@Override
 	public View getView(Context context) {
-		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.prompt_number, null);
-		
-		NumberPicker numberPicker = (NumberPicker) layout.findViewById(R.id.number_picker);
-		
-		numberPicker.setRange(mMinimum, mMaximum);
-		numberPicker.setCurrent(mValue);
-				
-		numberPicker.setOnChangeListener(new OnChangedListener() {
-			
+		View layout = inflater.inflate(getLayoutResource(), null);
+
+		mNumberPicker = (NumberPicker) layout.findViewById(R.id.number_picker);
+
+		mNumberPicker.setRange(mMinimum, mMaximum);
+		mNumberPicker.setCurrent(mValue);
+
+		mNumberPicker.setOnChangeListener(new OnChangedListener() {
+
 			@Override
 			public void onChanged(NumberPicker picker, int oldVal, int newVal) {
 				mValue = newVal;				
 			}
 		});
-		
+
 		return layout;
+	}
+
+	protected int getLayoutResource() {
+		return R.layout.prompt_number;
 	}
 }

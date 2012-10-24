@@ -45,6 +45,8 @@ import org.ohmage.triggers.glue.TriggerFramework;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
+import java.util.Arrays;
+import java.util.List;
 
 public class OhmageApplication extends Application {
 	
@@ -91,7 +93,7 @@ public class OhmageApplication extends Application {
 			Log.e(TAG, "unable to retrieve current version code", e);
 		}
 		
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(this);
+		ConfigHelper prefs = new ConfigHelper(this);
 		int lastVersionCode = prefs.getLastVersionCode();
 		boolean isFirstRun = prefs.isFirstRun();
 		
@@ -106,6 +108,15 @@ public class OhmageApplication extends Application {
 		MobilityHelper.upgradeMobilityData(this);
 
 		verifyState();
+
+		// If they can't set a custom server, verify the server that is set is
+		// the first in the list of servers
+		if (!getResources().getBoolean(R.bool.allow_custom_server)) {
+			List<String> servers = Arrays.asList(getResources().getStringArray(R.array.servers));
+			if (servers.isEmpty())
+				throw new RuntimeException("At least one server must be specified in config.xml");
+			ConfigHelper.setServerUrl(servers.get(0));
+		}
 	}
 
 	/**
@@ -130,14 +141,14 @@ public class OhmageApplication extends Application {
 		//clear everything?
 		Log.i(TAG, "Reseting all data");
 
-		//clear shared prefs first so isAuthenticated call will return false
-		new SharedPreferencesHelper(this).clearAll();
+		//clear user prefs first so isAuthenticated call will return false
+		new UserPreferencesHelper(this).clearAll();
 
 		//clear triggers
 		TriggerFramework.resetAllTriggerSettings(this);
-		
-		//clear user prefs
-		new UserPreferencesHelper(this).clearAll();
+
+		//delete campaign specific settings
+		CampaignPreferencesHelper.clearAll(this);
 
 		//clear db
 		new DbHelper(this).clearAll();

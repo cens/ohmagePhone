@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.content.Context;
+import android.os.Build;
+import android.widget.Toast;
+
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Log;
 
@@ -52,14 +56,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.CountingInputStream;
-
-import android.content.Context;
-import android.os.Build;
+import org.ohmage.conditionevaluator.DataPoint.PromptType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -95,33 +98,31 @@ public class OhmageApi {
 		INTERNAL_ERROR
 	}
 
-	public static enum Error {
-
-	}
+	public static String ERROR_AUTHENTICATION = "0200";
+	public static String ERROR_ACCOUNT_DISABLED = "0201";
 
 	public static class Response {
 		protected Result mResult;
-		protected String[] mErrorCodes;
+		protected List<String> mErrorCodes;
 
 		public Response() {
 			// do-nothing constructor so we can create instances via reflection
 		}
 
 		public Response(Result result, String[] errorCodes) {
-			mResult = result;
-			mErrorCodes = errorCodes;
+		    setResponseStatus(result, errorCodes);
 		}
 
 		public void setResponseStatus(Result result, String[] errorCodes) {
 			mResult = result;
-			mErrorCodes = errorCodes;
+			mErrorCodes = errorCodes == null ? new ArrayList<String>() : Arrays.asList(errorCodes);
 		}
 
 		public Result getResult() {
 			return mResult;
 		}
 
-		public String[] getErrorCodes() {
+		public List<String> getErrorCodes() {
 			return mErrorCodes;
 		}
 
@@ -130,11 +131,45 @@ public class OhmageApi {
 		}
 
 		public void setErrorCodes(String[] errorCodes) {
-			this.mErrorCodes = errorCodes;
+			this.mErrorCodes = Arrays.asList(errorCodes);
 		}
 
 		public void populateFromJSON(JSONObject rootJson) throws JSONException {
 			// do nothing here
+		}
+
+		public void handleError(Context context) {
+			switch(mResult) {
+			case SUCCESS:
+				NotificationHelper.hideAuthNotification(context);
+				break;
+			case FAILURE:
+				Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
+
+				if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
+					new UserPreferencesHelper(context).setUserDisabled(true);
+				}
+
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+					NotificationHelper.showAuthNotification(context);
+				}
+				break;
+			case HTTP_ERROR:
+				Log.e(TAG, "Failed due to http error");
+				break;
+			case INTERNAL_ERROR:
+				Log.e(TAG, "Failed due to internal error");
+				break;
+			}
+		}
+
+		public boolean hasAuthError() {
+			for (String code : mErrorCodes) {
+				if (code.charAt(1) == '2') {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
@@ -172,6 +207,24 @@ public class OhmageApi {
 			if (rootJson.has("token"))
 				mToken = rootJson.getString("token");
 		}
+
+		@Override
+		public void handleError(Context context) {
+            switch(mResult) {
+            case SUCCESS:
+                NotificationHelper.hideAuthNotification(context);
+                break;
+            case FAILURE:
+                Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
+                break;
+            case HTTP_ERROR:
+                Log.e(TAG, "Failed due to http error");
+                break;
+            case INTERNAL_ERROR:
+                Log.e(TAG, "Failed due to internal error");
+                break;
+            }
+        }
 	}
 
 	public static class UploadResponse extends Response {
@@ -211,6 +264,27 @@ public class OhmageApi {
 				mData = rootJson.getJSONObject("data");
 			if (rootJson.has("metadata"))
 				mMetadata = rootJson.getJSONObject("metadata");
+		}
+
+		@Override
+		public void handleError(Context context) {
+			super.handleError(context);
+
+			switch(mResult) {
+			case FAILURE:
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+					Toast.makeText(context, R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(context, R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
+				}
+				break;
+			case HTTP_ERROR:
+				Toast.makeText(context, R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
+				break;
+			case INTERNAL_ERROR:
+				Toast.makeText(context, R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
+				break;
+			}
 		}
 	}
 
@@ -370,7 +444,42 @@ public class OhmageApi {
 		}
 	}
 
-	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, File [] photos) {
+	public static class MediaPart {
+		public static final int IMAGE_TYPE = 0;
+		public static final int VIDEO_TYPE = 1;
+		private final File mFile;
+		private final int mType;
+
+		public MediaPart(File file, String type) {
+			mFile = file;
+			if(PromptType.photo.toString().equals(type))
+				mType = IMAGE_TYPE;
+			else if(PromptType.video.toString().equals(type))
+				mType = VIDEO_TYPE;
+			else
+				throw new RuntimeException("Invalid media type");
+		}
+
+		public FileBody getFileBody() {
+			return new FileBody(mFile, getFileType());
+		}
+
+		private String getFileType() {
+			switch(mType) {
+				case IMAGE_TYPE:
+					return "image/jpeg";
+				case VIDEO_TYPE:
+					return "video/mp4";
+			}
+			return null;
+		}
+
+		public String getName() {
+			return mFile.getName().split("\\.")[0];
+		}
+	}
+
+	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, ArrayList<MediaPart> media) {
 
 		final boolean GZIP = false;
 
@@ -385,10 +494,8 @@ public class OhmageApi {
 			multipartEntity.addPart("client", new StringBody(client));
 			multipartEntity.addPart("surveys", new StringBody(responseJson));
 
-			if (photos != null) {
-				for (int i = 0; i < photos.length; i++) {
-					multipartEntity.addPart(photos[i].getName().split("\\.")[0], new FileBody(photos[i], "image/jpeg"));
-				}
+			for(MediaPart m : media) {
+				multipartEntity.addPart(m.getName(), m.getFileBody());
 			}
 
 			return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
@@ -713,10 +820,10 @@ public class OhmageApi {
 	}
 
 	public static String defaultImageReadUrl(String uuid, String campaign, String size) {
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(OhmageApplication.getContext());
+		UserPreferencesHelper prefs = new UserPreferencesHelper(OhmageApplication.getContext());
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
-		return OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
+		return OhmageApi.imageReadUrl(ConfigHelper.serverUrl(), username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
 
 	}
 

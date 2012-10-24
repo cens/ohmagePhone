@@ -4,7 +4,7 @@ import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 import edu.ucla.cens.systemlog.Log;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
@@ -49,24 +49,19 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 		addPreferencesFromResource(R.xml.preferences);
 
 		mReminders = (PreferenceScreen) findPreference(KEY_REMINDERS);
+		mReminders.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
-		if(Config.IS_SINGLE_CAMPAIGN) {
-			mReminders.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					String urn = Campaign.getSingleCampaign(OhmagePreferenceActivity.this);
-					if(!TextUtils.isEmpty(urn)) {
-						Intent triggers = Campaign.launchTriggerIntent(OhmagePreferenceActivity.this, Campaign.getSingleCampaign(OhmagePreferenceActivity.this));
-						startActivity(triggers);
-					} else
-						Toast.makeText(OhmagePreferenceActivity.this, R.string.preferences_no_single_campaign, Toast.LENGTH_LONG).show();
-					return true;
-				}
-			});
-		} else {
-			getPreferenceScreen().removePreference(mReminders);
-		}
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				String urn = Campaign.getSingleCampaign(OhmagePreferenceActivity.this);
+				if(!TextUtils.isEmpty(urn)) {
+					Intent triggers = Campaign.launchTriggerIntent(OhmagePreferenceActivity.this, Campaign.getSingleCampaign(OhmagePreferenceActivity.this));
+					startActivity(triggers);
+				} else
+					Toast.makeText(OhmagePreferenceActivity.this, R.string.preferences_no_single_campaign, Toast.LENGTH_LONG).show();
+				return true;
+			}
+		});
 
 		mAdmin = (PreferenceScreen) findPreference(KEY_ADMIN_SETTINGS);
 		mAdmin.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -78,7 +73,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 			}
 		});
 
-		findPreference(STATUS_SERVER_URL).setSummary(Config.DEFAULT_SERVER_URL);
+		findPreference(STATUS_SERVER_URL).setSummary(ConfigHelper.serverUrl());
 
 		try {
 			findPreference(INFO_OHMAGE_VERSION).setSummary(getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
@@ -92,6 +87,14 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	public void onResume() {
 		super.onResume();
 		Analytics.activity(this, Status.ON);
+
+		// Hide and show reminders setting if we are in single campaign mode or not
+		if(ConfigHelper.isSingleCampaignMode()) {
+			getPreferenceScreen().addPreference(mReminders);
+		} else {
+			getPreferenceScreen().removePreference(mReminders);
+		}
+
 		setStatusInfo();
 	}
 
@@ -103,7 +106,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 	private void setStatusInfo() {
 		Preference campaignUrnStatus = findPreference(STATUS_CAMPAIGN_URN);
-		if(Config.IS_SINGLE_CAMPAIGN) {
+		if(ConfigHelper.isSingleCampaignMode()) {
 			campaignUrnStatus.setTitle(R.string.preferences_single_campaign_status);
 			campaignUrnStatus.setSummary(Campaign.getSingleCampaign(this));
 			if(campaignUrnStatus.getSummary() == null)

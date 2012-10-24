@@ -15,9 +15,12 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.provider.MediaStore;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,6 +31,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.List;
 
@@ -56,18 +60,6 @@ public class Utilities {
 			this.value = value;
 			this.label = label;
 		}
-	}
-
-	public static String stringArrayToString(String [] array, String separator) {
-		StringBuilder result = new StringBuilder();
-		if (array.length > 0) {
-			result.append(array[0]);
-			for (int i=1; i<array.length; i++) {
-				result.append(separator);
-				result.append(array[i]);
-			}
-		}
-		return result.toString();
 	}
 
 	public static void delete(File f) throws IOException {
@@ -296,5 +288,59 @@ public class Utilities {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
+	}
+
+	public static File fileForMediaStore(Uri uri) {
+		String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+		Cursor cursor = OhmageApplication.getContext().getContentResolver().query(uri, filePathColumn, null, null, null);
+		cursor.moveToFirst();
+
+		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+		String filePath = cursor.getString(columnIndex);
+		cursor.close();
+		return new File(filePath);
+	}
+
+	public static int moveMediaStoreFile(Uri uri, File file) {
+	    if(moveFile(fileForMediaStore(uri), file))
+	        return OhmageApplication.getContext().getContentResolver().delete(uri, null, null);
+	    return -1;
+	}
+
+	public static boolean moveFile(File src, File dest) {
+	    if(!src.renameTo(dest)) {
+	        try {
+	            copy(src, dest);
+	            return src.delete();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return false;
+	        }
+	    }
+	    return true;
+	}
+
+	public static void copy(File src, File dst) throws IOException {
+	    InputStream in = new FileInputStream(src);
+	    OutputStream out = new FileOutputStream(dst);
+
+	    // Transfer bytes from in to out
+	    byte[] buf = new byte[1024];
+	    int len;
+	    while ((len = in.read(buf)) > 0) {
+	        out.write(buf, 0, len);
+	    }
+	    in.close();
+	    out.close();
+	}
+
+	/**
+	 * Formats an object that might be null to be displayed
+	 * @param disp
+	 * @return ? if it is null, the object otherwise
+	 */
+	public static String getHtmlSafeDisplayString(Object disp) {
+		return (disp == null) ? "?" : disp.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 	}
 }

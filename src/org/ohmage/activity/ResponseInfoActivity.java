@@ -15,30 +15,6 @@
  ******************************************************************************/
 package org.ohmage.activity;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.google.android.imageloader.ImageLoader.Callback;
-
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.ohmage.Config;
-import org.ohmage.OhmageApi;
-import org.ohmage.OhmageApplication;
-import org.ohmage.R;
-import org.ohmage.db.DbContract;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.PromptResponses;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.SurveyPrompts;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.AbstractPrompt;
-import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.ui.BaseInfoActivity;
-import org.ohmage.ui.ResponseActivityHelper;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -62,6 +38,31 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.google.android.imageloader.ImageLoader.Callback;
+
+import edu.ucla.cens.systemlog.Analytics;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.ohmage.ConfigHelper;
+import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApplication;
+import org.ohmage.OhmageMarkdown;
+import org.ohmage.R;
+import org.ohmage.db.DbContract;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.PromptResponses;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.SurveyPrompts;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.ResponseActivityHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -192,7 +193,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mHeadertext.setText(surveyName);
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
 		// If we aren't in single campaign mode, show the campaign name
-		mSubtext.setVisibility((Config.IS_SINGLE_CAMPAIGN) ? View.GONE : View.VISIBLE);
+		mSubtext.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 		SimpleDateFormat df = new SimpleDateFormat();
 		mNotetext.setText(df.format(new Date(completedDate)));
 		
@@ -304,6 +305,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 		private static class PromptResponsesAdapter extends SimpleCursorAdapter implements ViewBinder {
 
+			public static final int UNKNOWN_RESPONSE = -1;
 			public static final int TEXT_RESPONSE = 0;
 			public static final int IMAGE_RESPONSE = 1;
 			public static final int HOURSBEFORENOW_RESPONSE = 2;
@@ -314,7 +316,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public static final int SINGLECHOICE_CUSTOM_RESPONSE = 7;
 			public static final int NUMBER_RESPONSE = 8;
 			public static final int REMOTE_RESPONSE = 9;
-			public static final int UNKNOWN_RESPONSE = 10;
+			public static final int VIDEO_RESPONSE = 10;
+
 			private final String mResponseId;
 			private final ImageLoader mImageLoader;
 
@@ -344,6 +347,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				
 				if("photo".equals(promptType))
 					return IMAGE_RESPONSE;
+				else if ("video".equals(promptType))
+					return VIDEO_RESPONSE;
 				else if ("text".equals(promptType))
 					return TEXT_RESPONSE;
 				else if ("hours_before_now".equals(promptType))
@@ -389,6 +394,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				
 				// set the icon for each prompt type
 				switch(itemViewType) {
+					case VIDEO_RESPONSE:
 					case IMAGE_RESPONSE:
 						icon.setImageResource(R.drawable.prompttype_photo);
 						break;
@@ -443,7 +449,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			@Override
 			public int getViewTypeCount() {
-				return 10;
+				return 11;
 			}
 
 			@Override
@@ -464,7 +470,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 					if(view.getTag() instanceof ImageView) {
 						String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-						final File file = Response.getTemporaryResponsesImage(mContext, value);
+						final File file = Response.getTemporaryResponsesMedia(value);
 						final ImageView imageView = (ImageView) view.getTag();
 
 						if(file != null && file.exists()) {
@@ -535,7 +541,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 									if(i != 0)
 										builder.append("<br\\>");
 									builder.append("&bull; ");
-									builder.append(choices.get(i));
+									builder.append(OhmageMarkdown.parseHtml(choices.get(i).toString()));
 								}
 								((TextView) view.getTag()).setText(Html.fromHtml(builder.toString()));
 								return true;
@@ -543,6 +549,9 @@ LoaderManager.LoaderCallbacks<Cursor> {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
+						} else if("single_choice_custom".equals(prompt_type) || "single_choice".equals(prompt_type)) {
+								((TextView) view.getTag()).setText(OhmageMarkdown.parse(value));
+								return true;
 						} else if("timestamp".equals(prompt_type)) {
 							SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 							try {

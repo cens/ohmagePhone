@@ -1,5 +1,13 @@
 package org.ohmage.responsesync;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.os.RemoteException;
+import android.widget.Toast;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.ImageLoader;
 
@@ -11,13 +19,14 @@ import org.codehaus.jackson.JsonNode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
@@ -25,14 +34,6 @@ import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
-
-import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.content.OperationApplicationException;
-import android.database.Cursor;
-import android.os.RemoteException;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class ResponseSyncService extends WakefulIntentService {
 	/** If present, the last synced time will be ignored */
 	public static final String EXTRA_FORCE_ALL = "extra_force_all";
 
-	private SharedPreferencesHelper mPrefs;
+	private UserPreferencesHelper mPrefs;
 
 	public ResponseSyncService() {
 		super(TAG);
@@ -85,7 +86,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		
 		Log.v(TAG, "Response sync service starting");
 		
-		if (!Config.ALLOWS_FEEDBACK) {
+		if (!getResources().getBoolean(R.bool.allows_feedback)) {
 			Log.e(TAG, "Response sync service aborted, because feedback is not allowed in the preferences");
 			return;
 		}
@@ -96,7 +97,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		
 		// grab an instance of the api connector so we can do calls to the server for responses
 		OhmageApi api = new OhmageApi(this);
-		mPrefs = new SharedPreferencesHelper(this);
+		mPrefs = new UserPreferencesHelper(this);
 		String username = mPrefs.getUsername();
 		String hashedPassword = mPrefs.getHashedPassword();
 
@@ -183,7 +184,7 @@ public class ResponseSyncService extends WakefulIntentService {
 				return;
 			}
 
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
+			OhmageApi.Response deleteResult = api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, "urn:ohmage:survey:id", "json-rows", true, farPastDate, cutoffDate,
 				new StreamingResponseListener() {
 					List<String> responseIDs;
 					
@@ -232,6 +233,7 @@ public class ResponseSyncService extends WakefulIntentService {
 						responses.close();
 					}
 			});
+			deleteResult.handleError(this);
 
 			// ==================================================================
 			// === 3b. download responses from after the cutoff date
@@ -256,7 +258,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			}
 
 			// do the call and process the streaming response data
-			api.surveyResponseRead(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
+			OhmageApi.Response readResult = api.surveyResponseRead(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, c.mUrn, username, null, null, "json-rows", true, cutoffDate, nearFutureDate,
 				new StreamingResponseListener() {
 					int curRecord;
 					
@@ -437,7 +439,7 @@ public class ResponseSyncService extends WakefulIntentService {
 								}
 
 								// As we download thumbnails, we can delete the old images
-								Response.getTemporaryResponsesImage(ResponseSyncService.this, responseImage.uuid).delete();
+								Response.getTemporaryResponsesMedia(responseImage.uuid).delete();
 							} catch (MalformedURLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -450,7 +452,8 @@ public class ResponseSyncService extends WakefulIntentService {
 						// Now that we have downloaded potentially a lot of images, we should remove any old ones
 						OhmageApplication.checkCacheUsage();
 					}
-				});
+			});
+			readResult.handleError(this);
 		}
 
 		if(!mPrefs.isAuthenticated()) {

@@ -1,5 +1,11 @@
 package org.ohmage.service;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.mobility.glue.MobilityInterface;
@@ -10,12 +16,13 @@ import edu.ucla.cens.systemlog.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.MediaPart;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.Utilities;
+import org.ohmage.OhmageApi.UploadResponse;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -23,15 +30,9 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Response;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
+import org.ohmage.prompt.AbstractPrompt;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -93,9 +94,9 @@ public class UploadService extends WakefulIntentService {
 	}
 
 	private void uploadSurveyResponses(Intent intent) {
-		String serverUrl = Config.DEFAULT_SERVER_URL;
+		String serverUrl = ConfigHelper.serverUrl();
 		
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		UserPreferencesHelper helper = new UserPreferencesHelper(this);
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
 		boolean uploadErrorOccurred = false;
@@ -158,7 +159,7 @@ public class UploadService extends WakefulIntentService {
 			
 			JSONArray responsesJsonArray = new JSONArray(); 
 			JSONObject responseJson = new JSONObject();
-			final ArrayList<String> photoUUIDs = new ArrayList<String>();
+			final ArrayList<MediaPart> media = new ArrayList<MediaPart>();
             
 			try {
 				responseJson.put("survey_key", cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
@@ -183,12 +184,22 @@ public class UploadService extends WakefulIntentService {
 				responseJson.put("survey_id", cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
 				responseJson.put("survey_launch_context", new JSONObject(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
 				responseJson.put("responses", new JSONArray(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON))));
-				
+
 				ContentResolver cr2 = getContentResolver();
-				Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId), new String [] {PromptResponses.PROMPT_RESPONSE_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE}, SurveyPrompts.SURVEY_PROMPT_TYPE + "='photo'", null, null);
-				
-				while (promptsCursor.moveToNext()) {
-					photoUUIDs.add(promptsCursor.getString(promptsCursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)));
+                Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId),
+                        new String[] {
+                                PromptResponses.PROMPT_RESPONSE_VALUE,
+                                SurveyPrompts.SURVEY_PROMPT_TYPE
+                        }, PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND "
+                                + PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND ("
+                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
+                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?)", new String[] {
+                                AbstractPrompt.SKIPPED_VALUE, AbstractPrompt.NOT_DISPLAYED_VALUE,
+                                "photo", "video"
+                        }, null);
+
+                while (promptsCursor.moveToNext()) {
+					media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(), promptsCursor.getString(0)), promptsCursor.getString(1)));
 				}
 				
 				promptsCursor.close();
@@ -201,87 +212,46 @@ public class UploadService extends WakefulIntentService {
 			
 			String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
 			String campaignCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
-			
-			File [] photos = Response.getResponseImageUploadDir(this).listFiles(new FilenameFilter() {
-				
-				@Override
-				public boolean accept(File dir, String filename) {
-					if (photoUUIDs.contains(filename.split("\\.")[0])) {
-						return true;
-					}
-					return false;
-				}
-			});
-			
-			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), photos);
-			
+
+			OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username, hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp, responsesJsonArray.toString(), media);
+			response.handleError(this);
+
 			int responseStatus = Response.STATUS_UPLOADED;
 
 			if (response.getResult() == Result.SUCCESS) {
 				NotificationHelper.hideUploadErrorNotification(this);
-				NotificationHelper.hideAuthNotification(this);
 			} else {
 				responseStatus = Response.STATUS_ERROR_OTHER;
 				
-				switch (response.getResult()) {
-				case FAILURE:
-					Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-					
-					uploadErrorOccurred = true;
-					
-					boolean isAuthenticationError = false;
-					boolean isUserDisabled = false;
-					
-					String errorCode = null;
-					
-					for (String code : response.getErrorCodes()) {
-						if (code.charAt(1) == '2') {
-							authErrorOccurred = true;
-							
-							isAuthenticationError = true;
-							
-							if (code.equals("0201")) {
-								isUserDisabled = true;
-							}
-						}
-						
-						if (code.equals("0700") || code.equals("0707") || code.equals("0703") || code.equals("0710")) {
-							errorCode = code;
-							break;
-						}
-					}
-					
-					if (isUserDisabled) {
-						new SharedPreferencesHelper(this).setUserDisabled(true);
-					}
-					
-					if (isAuthenticationError) {
-						responseStatus = Response.STATUS_ERROR_AUTHENTICATION;
+                switch (response.getResult()) {
+                    case FAILURE:
+                        if (response.hasAuthError()) {
+                            responseStatus = Response.STATUS_ERROR_AUTHENTICATION;
+                        } else {
+                            uploadErrorOccurred = true;
 
-					} else if ("0700".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
-					} else if ("0707".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_INVALID_USER_ROLE;
-					} else if ("0703".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
-					} else if ("0710".equals(errorCode)) {
-						responseStatus = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
-					} else {
-						responseStatus = Response.STATUS_ERROR_OTHER;
-					}
-					
-					break;
+                            if (response.getErrorCodes().contains("0700")) {
+                                responseStatus = Response.STATUS_ERROR_CAMPAIGN_NO_EXIST;
+                            } else if (response.getErrorCodes().contains("0707")) {
+                                responseStatus = Response.STATUS_ERROR_INVALID_USER_ROLE;
+                            } else if (response.getErrorCodes().contains("0703")) {
+                                responseStatus = Response.STATUS_ERROR_CAMPAIGN_STOPPED;
+                            } else if (response.getErrorCodes().contains("0710")) {
+                                responseStatus = Response.STATUS_ERROR_CAMPAIGN_OUT_OF_DATE;
+                            }
+                        }
 
-				case INTERNAL_ERROR:
-					uploadErrorOccurred = true;
-					responseStatus = Response.STATUS_ERROR_OTHER;
-					break;
-					
-				case HTTP_ERROR:
-					responseStatus = Response.STATUS_ERROR_HTTP;
-					break;
-				}
-			}
+                        break;
+
+                    case INTERNAL_ERROR:
+                        uploadErrorOccurred = true;
+                        break;
+
+                    case HTTP_ERROR:
+                        responseStatus = Response.STATUS_ERROR_HTTP;
+                        break;
+                }
+            }
 
 			ContentValues cv2 = new ContentValues();
 			cv2.put(Responses.RESPONSE_STATUS, responseStatus);
@@ -292,12 +262,8 @@ public class UploadService extends WakefulIntentService {
 
 		cursor.close();
 		
-		if (isBackground) {
-			if (authErrorOccurred) {
-				NotificationHelper.showAuthNotification(this);
-			} else if (uploadErrorOccurred) {
-				NotificationHelper.showUploadErrorNotification(this);
-			}
+		if (isBackground && uploadErrorOccurred) {
+			NotificationHelper.showUploadErrorNotification(this);
 		}
 	}
 	
@@ -307,7 +273,7 @@ public class UploadService extends WakefulIntentService {
 		
 		boolean uploadSensorData = true;
 		
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(this);
+		UserPreferencesHelper helper = new UserPreferencesHelper(this);
 		
 		String username = helper.getUsername();
 		String hashedPassword = helper.getHashedPassword();
@@ -318,8 +284,6 @@ public class UploadService extends WakefulIntentService {
 		
 		Long now = System.currentTimeMillis();
 		Cursor c = MobilityInterface.getMobilityCursor(this, uploadAfterTimestamp);
-		
-		OhmageApi.UploadResponse response = new OhmageApi.UploadResponse(OhmageApi.Result.SUCCESS, null);
 		
 		if (c != null && c.getCount() > 0) {
 			
@@ -431,8 +395,9 @@ public class UploadService extends WakefulIntentService {
 					
 					c.moveToNext();
 				}
-				response = mApi.mobilityUpload(Config.DEFAULT_SERVER_URL, username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
-				
+				UploadResponse response = mApi.mobilityUpload(ConfigHelper.serverUrl(), username, hashedPassword, OhmageApi.CLIENT_NAME, mobilityJsonArray.toString());
+				response.handleError(this);
+
 				if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
 					Log.i(TAG, "Successfully uploaded " + String.valueOf(limit) + " mobility points.");
 					helper.putLastMobilityUploadTimestamp(uploadAfterTimestamp);
@@ -441,50 +406,11 @@ public class UploadService extends WakefulIntentService {
 
 					NotificationHelper.hideMobilityErrorNotification(this);
 				} else {
-					Log.e(TAG, "Failed to upload mobility points. Cancelling current round of mobility uploads.");
-					switch (response.getResult()) {
-						case FAILURE:
-							Log.e(TAG, "Upload failed due to error codes: " + Utilities.stringArrayToString(response.getErrorCodes(), ", "));
-
-							boolean isAuthenticationError = false;
-							boolean isUserDisabled = false;
-
-							for (String code : response.getErrorCodes()) {
-								if (code.charAt(1) == '2') {
-									isAuthenticationError = true;
-
-									if (code.equals("0201")) {
-										isUserDisabled = true;
-									}
-								}
-							}
-
-							if (isUserDisabled) {
-								new SharedPreferencesHelper(this).setUserDisabled(true);
-							}
-
-							if (isBackground) {
-								if (isAuthenticationError) {
-									NotificationHelper.showAuthNotification(this);
-								} else {
-									NotificationHelper.showMobilityErrorNotification(this);
-								}
-							}
-
-							break;
-
-						case INTERNAL_ERROR:
-							Log.e(TAG, "Upload failed due to unknown internal error");
-							if (isBackground)
-								NotificationHelper.showMobilityErrorNotification(this);
-							break;
-
-						case HTTP_ERROR:
-							Log.e(TAG, "Upload failed due to network error");
-							break;
-					}
-
-					break;						
+				    // If we were unable to upload one batch, stop for now
+				    c.close();
+				    if(isBackground && !response.hasAuthError() && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR))
+				        NotificationHelper.showMobilityErrorNotification(this);
+				    break;
 				}
 			}
 			

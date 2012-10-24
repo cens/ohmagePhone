@@ -7,7 +7,7 @@ import edu.ucla.cens.systemlog.Log;
 import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 
 import android.content.ContentResolver;
@@ -42,7 +42,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+		UserPreferencesHelper preferencesHelper = new UserPreferencesHelper(this);
 
 		if (preferencesHelper.isUserDisabled()) {
 			((OhmageApplication) getApplication()).resetAll();

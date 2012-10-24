@@ -15,15 +15,13 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoice;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import org.ohmage.OhmageMarkdown;
 import org.ohmage.R;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +30,10 @@ import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SingleChoicePrompt extends AbstractPrompt {
 	
@@ -138,11 +140,11 @@ public class SingleChoicePrompt extends AbstractPrompt {
 		String [] from = new String [] {"value"};
 		int [] to = new int [] {android.R.id.text1};
 		
-		List<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
+		List<HashMap<String, CharSequence>> data = new ArrayList<HashMap<String, CharSequence>>();
 		for (int i = 0; i < mChoices.size(); i++) {
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
 			map.put("key", mChoices.get(i).key);
-			map.put("value", mChoices.get(i).label);
+			map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
 			data.add(map);
 		}
 		
@@ -152,7 +154,7 @@ public class SingleChoicePrompt extends AbstractPrompt {
 			
 			@Override
 			public boolean setViewValue(View view, Object data, String textRepresentation) {
-				((CheckedTextView) view).setText((String) data);
+				((CheckedTextView) view).setText((SpannableStringBuilder)data);
 				return true;
 			}
 		});

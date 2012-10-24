@@ -1,15 +1,14 @@
 package org.ohmage.activity;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
-import org.ohmage.Config;
+import org.ohmage.R;
 import org.ohmage.fragments.AdminDialogFragment;
 import org.ohmage.fragments.AdminDialogFragment.AdminCodeListener;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
 
 /**
  * <p>This activity marshals the admin pin code dialog for activities which can't start fragments on their own.</p>
@@ -29,7 +28,7 @@ public class AdminPincodeActivity extends FragmentActivity implements AdminCodeL
 		if(savedInstanceState == null) {
 
 			// If we have admin mode set, we don't need to show the pincode
-			if(Config.ADMIN_MODE) {
+			if(getResources().getBoolean(R.bool.admin_mode)) {
 				setResult(RESULT_OK);
 				finish();
 			}

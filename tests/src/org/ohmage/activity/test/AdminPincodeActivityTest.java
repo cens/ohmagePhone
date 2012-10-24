@@ -13,74 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage.activity.test;
-
-import com.jayway.android.robotium.solo.Solo;
-
-import org.ohmage.Config;
-import org.ohmage.activity.AdminPincodeActivity;
-import org.ohmage.activity.ProfileActivity;
 
 import android.test.ActivityInstrumentationTestCase2;
 
+import com.jayway.android.robotium.solo.Solo;
+
+import org.ohmage.R;
+import org.ohmage.activity.AdminPincodeActivity;
+import org.ohmage.activity.ProfileActivity;
+
 /**
- * <p>This class contains tests for the {@link ProfileActivity}</p>
+ * <p>
+ * This class contains tests for the {@link ProfileActivity}
+ * </p>
  * 
  * @author cketcham
- *
  */
 public class AdminPincodeActivityTest extends ActivityInstrumentationTestCase2<AdminPincodeActivity> {
 
-	private static final String BAD_ADMIN_PIN_STRING = "1000";
+    private static final String BAD_ADMIN_PIN_STRING = "1000";
 
-	private Solo solo;
+    private Solo solo;
 
-	public AdminPincodeActivityTest() {
-		super(AdminPincodeActivity.class);
-	}
+    public AdminPincodeActivityTest() {
+        super(AdminPincodeActivity.class);
+    }
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
 
-		solo = new Solo(getInstrumentation(), getActivity());
-	}
+        solo = new Solo(getInstrumentation(), getActivity());
+    }
 
-	@Override
-	protected void tearDown() throws Exception{
+    @Override
+    protected void tearDown() throws Exception {
 
-		try {
-			solo.finalize();
-		} catch (Throwable e) { 
-			e.printStackTrace();
-		}
-		getActivity().finish(); 
-		super.tearDown();
-	}
+        try {
+            solo.finalize();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        getActivity().finish();
+        super.tearDown();
+    }
 
-	public void testInvalidPin() {
-		// Make sure the Ok button isn't enabled until they enter a pin
-		solo.enterText(0, BAD_ADMIN_PIN_STRING);
+    public void testInvalidPin() {
+        // Make sure the Ok button isn't enabled until they enter a pin
+        solo.enterText(0, BAD_ADMIN_PIN_STRING);
 
-		solo.clickOnText("OK");
-		solo.searchText("Wrong pin code.");
-		
-		assertTrue(getActivity().isFinishing());
-	}
-	
-	public void testOkDisabledAtFirst() {
-		// Make sure the Ok button isn't enabled until they enter a pin
-		assertFalse(solo.getButton(0).isEnabled());
-		solo.enterText(0, BAD_ADMIN_PIN_STRING);
-		assertTrue(solo.getButton(0).isEnabled());
-	}
-	
-	public void testCorrectPin() {
-		fail("Make sure the correct pin works");
-	}
+        solo.clickOnText("OK");
+        solo.searchText("Wrong pin code.");
 
-	public void testPreconditions() {
-		if(Config.ADMIN_MODE)
-			fail("Make sure to do these tests with admin mode off");
-	}
+        assertTrue(getActivity().isFinishing());
+    }
+
+    public void testOkDisabledAtFirst() {
+        // Make sure the Ok button isn't enabled until they enter a pin
+        assertFalse(solo.getButton(0).isEnabled());
+        solo.enterText(0, BAD_ADMIN_PIN_STRING);
+        assertTrue(solo.getButton(0).isEnabled());
+    }
+
+    public void testCorrectPin() {
+        fail("Make sure the correct pin works");
+    }
+
+    public void testPreconditions() {
+        if (getActivity().getResources().getBoolean(R.bool.admin_mode))
+            fail("Make sure to do these tests with admin mode off");
+    }
 }

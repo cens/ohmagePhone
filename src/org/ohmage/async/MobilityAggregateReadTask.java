@@ -5,13 +5,12 @@ import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
 import org.codehaus.jackson.JsonNode;
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
-import org.ohmage.SharedPreferencesHelper;
 import org.ohmage.UserPreferencesHelper;
 
 import android.content.ContentProviderOperation;
@@ -37,7 +36,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 	private final ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 	private final Date mStartDate;
 	private final Date mEndDate;
-	private final SharedPreferencesHelper mPrefs;
+	private final UserPreferencesHelper mPrefs;
 
 	public MobilityAggregateReadTask(final Context context) {
 		super(context);
@@ -47,7 +46,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 		now.add(Calendar.DATE, 1);
 		mEndDate = now.getTime();
 
-		mPrefs = new SharedPreferencesHelper(mContext);
+		mPrefs = new UserPreferencesHelper(mContext);
 	}
 
 	@Override
@@ -65,7 +64,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		sdf.setLenient(false);
 
-		Response response = mApi.mobilityAggregateRead(Config.DEFAULT_SERVER_URL, getUsername(),
+		Response response = mApi.mobilityAggregateRead(ConfigHelper.serverUrl(), getUsername(),
 				getHashedPassword(), OhmageApi.CLIENT_NAME, sdf.format(mStartDate), sdf.format(mEndDate),
 				1, new StreamingResponseListener() {
 
@@ -97,7 +96,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 				getContext().getContentResolver().applyBatch(MobilityInterface.AUTHORITY, operations);
 
 				// Since we could loose the mobility timestamp by logging out, we do a sanity check
-				SharedPreferencesHelper sharedPrefs = new SharedPreferencesHelper(mContext);
+				UserPreferencesHelper sharedPrefs = new UserPreferencesHelper(mContext);
 				Long mobilityTimestamp = sharedPrefs.getLastMobilityUploadTimestamp();
 				if(mobilityTimestamp == 0)
 					mobilityTimestamp = sharedPrefs.getLoginTimestamp();

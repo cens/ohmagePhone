@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.util.Xml;
+
 import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.Utilities.KVLTriplet;
@@ -28,8 +30,6 @@ import org.ohmage.prompt.RepeatableSetTerminator;
 import org.ohmage.prompt.SurveyElement;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
-import android.util.Xml;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -74,6 +74,8 @@ public class PromptXmlParser {
 	private static final String MESSAGE = "message";
 	private static final String MESSAGE_TEXT = "messageText";
 	private static final String MESSAGE_CONDITION = "condition";
+
+    private static final String INSTRUCTIONS = "instructions";
 
 	public static List<SurveyElement> parseSurveyElements(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
 		if(promptXmlStream == null)
@@ -283,4 +285,32 @@ public class PromptXmlParser {
 		
 		return surveyElements;
 	}
+
+	/**
+	 * parse the instructions from a campaign
+	 * @param campaignXml
+	 * @return
+	 * @throws XmlPullParserException
+	 * @throws IOException
+	 */
+    public static String parseCampaignInstructions(InputStream campaignXml)
+            throws XmlPullParserException, IOException {
+        if (campaignXml == null)
+            return null;
+
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(new BufferedReader(new InputStreamReader(campaignXml, "UTF-8")));
+
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.START_TAG
+                    && parser.getName().equalsIgnoreCase(INSTRUCTIONS)) {
+                parser.next();
+                return parser.getText();
+            }
+            eventType = parser.next();
+        }
+
+        return null;
+    }
 }

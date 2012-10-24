@@ -11,7 +11,7 @@ import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.service.UploadService;
 import org.ohmage.ui.BaseActivity;
@@ -62,7 +62,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 	private SimpleCursorAdapter mAdapter;
 
-	private SharedPreferencesHelper mPrefHelper;
+	private UserPreferencesHelper mPrefHelper;
 	private IMobility mMobility = null;
 	private boolean isBound = false;
 
@@ -72,7 +72,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		mPrefHelper = new SharedPreferencesHelper(getActivity());
+		mPrefHelper = new UserPreferencesHelper(getActivity());
 
 		long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
 		if (lastMobilityUploadTimestamp == 0) {

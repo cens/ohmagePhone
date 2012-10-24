@@ -1,13 +1,14 @@
 package org.ohmage.async;
 
-import org.ohmage.SharedPreferencesHelper;
-
 import android.content.Context;
+
+import org.ohmage.OhmageApi.Response;
+import org.ohmage.UserPreferencesHelper;
 
 /**
  * A custom Loader that uses a username and password
  */
-public abstract class AuthenticatedTaskLoader<T> extends PauseableTaskLoader<T> {
+public abstract class AuthenticatedTaskLoader<T extends Response> extends PauseableTaskLoader<T> {
 	private String mUsername;
 	private String mHashedPassword;
 
@@ -31,7 +32,7 @@ public abstract class AuthenticatedTaskLoader<T> extends PauseableTaskLoader<T> 
 	}
 
 	public void setCredentials() {
-		SharedPreferencesHelper sharedPrefs = new SharedPreferencesHelper(getContext());
+		UserPreferencesHelper sharedPrefs = new UserPreferencesHelper(getContext());
 		setCredentials(sharedPrefs.getUsername(), sharedPrefs.getHashedPassword());
 	}
 
@@ -51,5 +52,11 @@ public abstract class AuthenticatedTaskLoader<T> extends PauseableTaskLoader<T> 
 		mUsername = null;
 		mHashedPassword = null;
 		pause(true);
+	}
+
+	@Override
+	public void deliverResult(T response) {
+		response.handleError(getContext());
+		super.deliverResult(response);
 	}
 }

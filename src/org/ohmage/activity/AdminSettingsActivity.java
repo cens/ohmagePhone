@@ -4,6 +4,7 @@ import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Analytics.Status;
 
 import org.ohmage.AccountHelper;
+import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -50,6 +51,8 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_PROFILE)).setChecked(userPrefHelper.showProfile());
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_UPLOAD_QUEUE)).setChecked(userPrefHelper.showUploadQueue());
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY)).setChecked(userPrefHelper.showMobility());
+
+		((CheckBoxPreference) findPreference(ConfigHelper.KEY_SINGLE_CAMPAIGN_MODE)).setChecked(ConfigHelper.isSingleCampaignMode());
 
 		mUpdatePassword = (PreferenceScreen) findPreference(KEY_UPDATE_PASSWORD);
 		mUpdatePassword.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

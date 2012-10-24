@@ -5,6 +5,7 @@ import org.ohmage.R;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,15 +36,14 @@ public class Message implements SurveyElement, Displayable {
 	}
 
 	@Override
-	public View getView(Context context) {
+	public View inflateView(Context context, ViewGroup parent) {
 		// TODO Auto-generated method stub
 		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.message, null);
+		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.message, parent);
 		TextView messageText = (TextView) layout.findViewById(R.id.message_text);
 		messageText.setText(mMessageText);
 		
 		return layout;
 	}
-
 }

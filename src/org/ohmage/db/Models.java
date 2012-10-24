@@ -1,5 +1,15 @@
 package org.ohmage.db;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.text.TextUtils;
+
+import org.ohmage.CampaignPreferencesHelper;
+import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -12,14 +22,6 @@ import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.triggers.glue.TriggerFramework;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.text.TextUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -246,6 +248,8 @@ public class Models {
 				customSingleChoices.clearCampaign(mUrn);
 				customSingleChoices.close();
 			}
+
+			CampaignPreferencesHelper.clearAll(context, mUrn);
 		}
 
 		/**
@@ -583,21 +587,19 @@ public class Models {
 
 		/**
 		 * Returns the file for given image uuid
-		 * @param context
 		 * @param uuid
 		 * @return
 		 */
-		public static File getTemporaryResponsesImage(Context context, String uuid) {
-			return new File(getResponseImageUploadDir(context), uuid);
+		public static File getTemporaryResponsesMedia(String uuid) {
+			return new File(getResponseMediaUploadDir(), uuid);
 		}
 
 		/**
 		 * Returns the directory to store images to upload in
-		 * @param context
 		 * @return
 		 */
-		public static File getResponseImageUploadDir(Context context) {
-			File dir = new File(context.getExternalCacheDir(), "uploads");
+		public static File getResponseMediaUploadDir() {
+			File dir = new File(OhmageApplication.getContext().getExternalCacheDir(), "uploads");
 			dir.mkdirs();
 			return dir;
 		}

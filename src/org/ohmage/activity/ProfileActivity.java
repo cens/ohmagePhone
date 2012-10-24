@@ -4,7 +4,7 @@ import edu.ucla.cens.systemlog.Analytics;
 
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.ui.BaseInfoActivity;
 
 import android.app.Dialog;
@@ -19,7 +19,7 @@ import android.widget.Button;
 public class ProfileActivity extends BaseInfoActivity {
 	
 	private FragmentActivity mContext;
-	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private UserPreferencesHelper mPrefs;
 	private AccountHelper mAccountHelper;
 
 	@Override
@@ -32,9 +32,9 @@ public class ProfileActivity extends BaseInfoActivity {
 		
 		// set up some generic stuff for the profile, since it's not databound in any respect
 		mContext = this;
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mPrefs = new UserPreferencesHelper(this);
 		mIconView.setImageResource(R.drawable.entity_profile);
-		mHeadertext.setText(mSharedPreferencesHelper.getUsername());
+		mHeadertext.setText(mPrefs.getUsername());
 		/*
 		mSubtext.setVisibility(View.INVISIBLE);
 		mNotetext.setVisibility(View.INVISIBLE);

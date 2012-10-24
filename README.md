@@ -34,7 +34,7 @@ Build Instructions
 
 1. Make sure the Android SDK dependencies are installed on your system.
 2. Download/clone the ohmagePhone repository form github.
-3. Edit any of the config information in `ant.properties` such as the server, or campaign mode.
+3. Edit any of the config information in `res/values/config.xml` such as the server, or campaign mode.
 4. Go to the ohmagePhone directory and run `/path/to/android-sdk/tools/android update project --path .`
 5. Run the project in eclipse or build the project from the command line using `ant debug`. Alternatively
 you can use `ant release` if you want to sign it with a release key.
@@ -43,6 +43,15 @@ Copy it to the phone and open it to install. Alternatively, if the phone is plug
 can use `adb install bin/<apk_name>.apk` (where `<apk_name>` is the name of the apk which was 
 shown by the ant command).
 
-If you are trying to build in eclipse and have a problem where the Config.java file can't be
-found, make sure you clean the project as this will cause the Config.java file to be generated
-with the values in ant.properties
+Testing
+-------
+
+We are using a combination of [robotium](http://code.google.com/p/robotium/) and
+[calabash-android](https://github.com/calabash/calabash-android) (which is basically an android
+implementation of [cucumber](https://github.com/cucumber/cucumber)). Robotium tests are in the test folder
+and can be run as unit tests. The cucumber tests requires calabash-android to be installed. At this point
+this [fork](https://github.com/cketcham/calabash-android) must be used to do the testing as it includes
+additional functionality not available in the main branch. Clone the fork, change into the `ruby-gem`
+directory and run `rake install` (you might need `sudo rake install` depending on how your gems are
+installed.) Then you can run `calabash-android build` to build the testing apk, and finally
+`calabash-android run` to start the tests.

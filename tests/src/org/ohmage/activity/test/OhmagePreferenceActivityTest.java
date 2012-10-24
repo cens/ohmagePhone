@@ -15,14 +15,15 @@
  ******************************************************************************/
 package org.ohmage.activity.test;
 
+import android.test.ActivityInstrumentationTestCase2;
+
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
+import org.ohmage.R;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.activity.AdminSettingsActivity;
 import org.ohmage.activity.OhmagePreferenceActivity;
-
-import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * <p>This class contains tests for the {@link OhmagePreferenceActivity}</p>
@@ -64,7 +65,7 @@ public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCas
 	public void testAdminSettings() {
 		solo.clickOnText("Admin Settings");
 
-		if(Config.ADMIN_MODE) {
+		if(getActivity().getResources().getBoolean(R.bool.admin_mode)) {
 			solo.assertCurrentActivity("Expected Admin settings", AdminSettingsActivity.class);
 		} else {
 			solo.assertCurrentActivity("Expected Admin Pincode", AdminPincodeActivity.class);
@@ -77,7 +78,7 @@ public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCas
 	}
 
 	public void testCampaignStatus() {
-		if(Config.IS_SINGLE_CAMPAIGN) {
+		if(ConfigHelper.isSingleCampaignMode()) {
 			assertTrue(solo.searchText("Single-Campaign Mode", true));
 		} else {
 			assertTrue(solo.searchText("Multi-Campaign Mode", true));
@@ -85,6 +86,6 @@ public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCas
 	}
 
 	public void testUrlShown() {
-		assertTrue(solo.searchText(Config.DEFAULT_SERVER_URL, true));
+		assertTrue(solo.searchText(ConfigHelper.serverUrl(), true));
 	}
 }

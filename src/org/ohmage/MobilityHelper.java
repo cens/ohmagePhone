@@ -103,9 +103,19 @@ public class MobilityHelper {
 	private static PackageInfo getMobilityPackageInfo(Context context) {
 		try {
 			PackageInfo info = context.getPackageManager().getPackageInfo("edu.ucla.cens.mobility", 0 );
-			PackageInfo info2 = context.getPackageManager().getPackageInfo("edu.ucla.cens.accelservice", 0 );
+			// PackageInfo info2 = context.getPackageManager().getPackageInfo("edu.ucla.cens.accelservice", 0 );
+			
+			// if it's not the combined mobility package specifically, check for accelservice, too
+			if (info != null && !info.versionName.equalsIgnoreCase("1.3.7_combined")) {
+				PackageInfo info2 = context.getPackageManager().getPackageInfo("edu.ucla.cens.accelservice", 0 );
+				
+				// if accelservice is missing, we need to notify the client
+				if (info2 == null)
+					return null;
+			}
 
-			if (info != null && info2 != null) {
+			// mobility is present in some form if we got this far; tell the client all is well
+			if (info != null) {
 				return info;
 			}
 		} catch( PackageManager.NameNotFoundException e ) {
@@ -122,16 +132,18 @@ public class MobilityHelper {
 	 * @return int version that mobility was upgraded to
 	 */
 	public static int upgradeMobilityData(Context context) {
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+		UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 
 		// The user needs to be logged in before we can upgrade mobility data
 		if(!prefs.isAuthenticated())
 			return -1;
 		setUsername(context, prefs.getUsername(), prefs.getLoginTimestamp());
 
-		int oldMobilityVersion = prefs.getLastMobilityVersion();
+		ConfigHelper appPrefs = new ConfigHelper(context);
+
+		int oldMobilityVersion = appPrefs.getLastMobilityVersion();
 		int newMobilityVersion = getMobilityVersion(context);
-		prefs.setMobilityVersion(newMobilityVersion);
+		appPrefs.setMobilityVersion(newMobilityVersion);
 
 		if(oldMobilityVersion < VERSION_AGGREGATE_AND_USERNAME && newMobilityVersion >= VERSION_AGGREGATE_AND_USERNAME) {
 

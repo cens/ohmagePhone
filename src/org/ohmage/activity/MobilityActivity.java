@@ -8,9 +8,16 @@ import org.ohmage.fragments.RecentMobilityChartFragment;
 import org.ohmage.ui.BaseActivity;
 import org.ohmage.ui.TabsAdapter;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -28,11 +35,20 @@ public class MobilityActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 
 		if (!MobilityHelper.isMobilityInstalled(this)) {
-			TextView view = new TextView(this);
-			view.setText("Please make sure the Mobility and AccelService packages are installed.");
-			view.setTextAppearance(this, android.R.attr.textAppearanceLarge);
-			view.setGravity(Gravity.CENTER);
-			setContentView(view);
+			setContentView(R.layout.mobility_missing);
+			
+			// hook up market link
+			Button installMobilityButton = (Button)findViewById(R.id.mobility_install_btn);
+
+			installMobilityButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// launch the market and show mobility's details page
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setData(Uri.parse(getString(R.string.mobility_market_link)));
+					startActivity(intent);
+				}
+			});
 		} else if (!MobilityHelper.isMobilityVersionCorrect(this)) {
 			TextView view = new TextView(this);
 			view.setText("Please make sure Mobility is up to date.");

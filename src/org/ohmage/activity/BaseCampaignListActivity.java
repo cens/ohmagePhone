@@ -2,7 +2,7 @@ package org.ohmage.activity;
 
 
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -26,7 +26,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 	// action bar commands
 	protected static final int ACTION_REFRESH_CAMPAIGNS = 0;
 
-	SharedPreferencesHelper mSharedPreferencesHelper;
+	UserPreferencesHelper mSharedPreferencesHelper;
 
 	private CampaignReadLoaderCallbacks mCampaignReadLoader;
 
@@ -34,7 +34,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mSharedPreferencesHelper = new UserPreferencesHelper(this);
 
 		mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
 	}

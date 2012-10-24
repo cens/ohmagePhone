@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- List of default servers to be used with this build -->
+    <string-array name="servers">
+        <item>https://play.ohmage.org/</item>
+        <item>https://dev.ohmage.org/</item>
+        <item>https://test.ohmage.org/</item>
+        <item>https://dev.andwellness.org/</item>
+        <item>https://dev.mobilizingcs.org/</item>
+        <item>https://internal.ohmage.org/</item>
+        <item>https://pilots.ohmage.org/</item>
+        <item>https://demo.ohmage.org/</item>
+        <item>https://dev.omh.io/</item>
+        <item>https://pilots.omh.io/</item>
+    </string-array>
+
+    <!--
+         If false, the user will not be able to change the server and the first
+         server in the server list will be used.
+    -->
+    <item name="allow_custom_server" type="bool">true</item>
+
+    <!--
+         Default option for single campaign mode. This can be changed by the user
+         in the admin settings.
+    -->
+    <item name="single_campaign_mode" type="bool">false</item>
+
+    <!--
+         If false, the user needs to enter the correct pin number to access the
+         admin settings.
+    -->
+    <item name="admin_mode" type="bool">true</item>
+
+    <!--
+         If false, the user needs to enter the correct pin number to access the
+         admin options for reminders.
+    -->
+    <item name="reminder_admin_mode" type="bool">true</item>
+
+    <!--
+         If false, the ResponseSyncService wont run. This is useful if access to
+         the response history is not being allowed.
+    -->
+    <item name="allows_feedback" type="bool">true</item>
+
+    <!-- If true, analaytics interactions will be logged to systemlog -->
+    <item name="log_analytics" type="bool">true</item>
+
+    <!-- Determines the log level to be logged to systemlog -->
+    <item name="log_level" type="string">verbose</item>
+
+</resources>

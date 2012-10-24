@@ -40,7 +40,7 @@ public class DataPoint {
     
     // Possible prompt types
     public static enum PromptType {
-        timestamp, number, hours_before_now, text, multi_choice, single_choice, single_choice_custom, multi_choice_custom, photo
+        timestamp, number, hours_before_now, text, multi_choice, single_choice, single_choice_custom, multi_choice_custom, photo, video
     }
    
     // Nothing to do here!
@@ -179,6 +179,9 @@ public class DataPoint {
         }
         else if (PromptType.photo.toString().equals(_promptType)) {
             promptType = PromptType.photo;
+        }
+        else if (PromptType.video.toString().equals(_promptType)) {
+            promptType = PromptType.video;
         }
         else {
             throw new IllegalArgumentException("Prompt type does not exist: " + _promptType);

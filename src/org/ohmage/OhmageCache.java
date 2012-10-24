@@ -67,7 +67,7 @@ public class OhmageCache extends FileResponseCache {
 	public static boolean isResponseImageRequest(URI uri) {
 		if(uri == null || uri.getHost() == null || uri.getPath() == null)
 			return false;
-		URI responseUri = URI.create(Config.DEFAULT_SERVER_URL + OhmageApi.IMAGE_READ_PATH);
+		URI responseUri = URI.create(ConfigHelper.serverUrl() + OhmageApi.IMAGE_READ_PATH);
 		return uri.getHost().equals(responseUri.getHost()) && uri.getPath().startsWith(responseUri.getPath());
 	}
 
