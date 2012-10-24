@@ -1,13 +1,12 @@
 package org.ohmage.prompt;
 
-import org.ohmage.R;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.ohmage.R;
 
 public class RepeatableSetTerminator implements SurveyElement, Displayable {
 	
@@ -37,7 +36,7 @@ public class RepeatableSetTerminator implements SurveyElement, Displayable {
 	public View inflateView(Context context, ViewGroup parent) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.message, parent);
+		View layout = inflater.inflate(R.layout.message, parent);
 		TextView questionText = (TextView) layout.findViewById(R.id.message_text);
 		//submitText.setText("Thank you for completing the survey!");
 		

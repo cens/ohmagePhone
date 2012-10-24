@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ohmage"
-    android:versionCode="12062900"
-    android:versionName="2.12.4" >
+    android:versionCode="12100800"
+    android:versionName="2.13.3" >
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -197,6 +197,7 @@
 	    </receiver>
 	        
 	    <service android:name=".service.UploadService"/>
+	    <service android:name=".service.ProbeUploadService"/>
     	
 		<receiver android:name=".service.UploadReceiver">
 			<intent-filter>
@@ -340,6 +341,22 @@
 		-->
 
 		<uses-library android:name="com.google.android.maps" />
+
+		<service
+            android:name=".probemanager.ProbeManager"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="org.ohmage.probemanager.ACTION_WRITE_PROBE" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name=".probemanager.ProbeContentProvider"
+            android:authorities="org.ohmage.probemanager"
+            android:enabled="true"
+            android:exported="true" >
+	    </provider>
 
 	</application>
 </manifest> 

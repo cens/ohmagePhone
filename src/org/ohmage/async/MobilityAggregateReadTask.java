@@ -1,6 +1,12 @@
 
 package org.ohmage.async;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
+
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 import edu.ucla.cens.systemlog.Log;
 
@@ -12,12 +18,6 @@ import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.UserPreferencesHelper;
-
-import android.content.ContentProviderOperation;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.OperationApplicationException;
-import android.os.RemoteException;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 
 				// Since we could loose the mobility timestamp by logging out, we do a sanity check
 				UserPreferencesHelper sharedPrefs = new UserPreferencesHelper(mContext);
-				Long mobilityTimestamp = sharedPrefs.getLastMobilityUploadTimestamp();
+				Long mobilityTimestamp = sharedPrefs.getLastProbeUploadTimestamp();
 				if(mobilityTimestamp == 0)
 					mobilityTimestamp = sharedPrefs.getLoginTimestamp();
 				if(mobilityTimestamp != 0 || operations.isEmpty())

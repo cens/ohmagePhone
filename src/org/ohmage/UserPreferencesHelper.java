@@ -15,12 +15,12 @@
  ******************************************************************************/
 package org.ohmage;
 
-import org.ohmage.db.DbContract.Responses;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
+
+import org.ohmage.db.DbContract.Responses;
 
 import java.util.Calendar;
 
@@ -30,17 +30,19 @@ public class UserPreferencesHelper {
 	private static final boolean DEFAULT_SHOW_PROFILE = true;
 	private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = true;
 	private static final boolean DEFAULT_SHOW_MOBILITY = true;
+	private static final boolean DEFAULT_SHOW_MOBILITY_FEEDBACK = true;
 
 	public static final String KEY_SHOW_FEEDBACK = "key_show_feedback";
 	public static final String KEY_SHOW_PROFILE = "key_show_profile";
 	public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
 	public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
+	public static final String KEY_SHOW_MOBILITY_FEEDBACK = "key_show_mobility_feedback";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
 	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
 	private static final String KEY_USERNAME = "username";
 	private static final String KEY_PASSWORD_HASHED = "hashedPassword";
 	private static final String KEY_IS_DISABLED = "is_disabled";
-	private static final String KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP = "last_mobility_upload_timestamp";
+	private static final String KEY_LAST_PROBE_UPLOAD_TIMESTAMP = "last_probe_upload_timestamp";
 	private static final String KEY_LOGIN_TIMESTAMP = "login_timestamp";
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
@@ -53,7 +55,11 @@ public class UserPreferencesHelper {
 	}
 
 	public SharedPreferences getUserSharedPreferences(Context context) {
-		return context.getSharedPreferences(context.getPackageName() + "_user_preferences", Context.MODE_PRIVATE);
+		return context.getSharedPreferences(getPreferencesName(context), Context.MODE_PRIVATE);
+	}
+
+	public static String getPreferencesName(Context context) {
+	    return context.getPackageName() + "_user_preferences";
 	}
 
 	public boolean clearAll() {
@@ -74,6 +80,10 @@ public class UserPreferencesHelper {
 
 	public boolean showMobility() {
 		return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
+	}
+
+	public boolean showMobilityFeedback() {
+	    return mPreferences.getBoolean(KEY_SHOW_MOBILITY_FEEDBACK, DEFAULT_SHOW_MOBILITY_FEEDBACK);
 	}
 
 	/**
@@ -149,12 +159,12 @@ public class UserPreferencesHelper {
 		return mPreferences.edit().remove(KEY_USERNAME).remove(KEY_PASSWORD_HASHED).commit();
 	}
 
-	public Long getLastMobilityUploadTimestamp() {
-		return mPreferences.getLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, 0);
+	public Long getLastProbeUploadTimestamp() {
+		return mPreferences.getLong(KEY_LAST_PROBE_UPLOAD_TIMESTAMP, 0);
 	}
 
-	public boolean putLastMobilityUploadTimestamp(Long timestamp) {
-		return mPreferences.edit().putLong(KEY_LAST_MOBILITY_UPLOAD_TIMESTAMP, timestamp).commit();
+	public boolean putLastProbeUploadTimestamp(Long timestamp) {
+		return mPreferences.edit().putLong(KEY_LAST_PROBE_UPLOAD_TIMESTAMP, timestamp).commit();
 	}
 
 	public Long getLoginTimestamp() {

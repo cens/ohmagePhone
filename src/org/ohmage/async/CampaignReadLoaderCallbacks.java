@@ -45,7 +45,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 	public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
 		// We should pause the task if it is within 5 minutes of the last request
 		boolean pause = mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 > System.currentTimeMillis();
-		mActivity.getActionBar().setProgressVisible(!pause);
+		mActivity.getActionBarControl().setProgressVisible(!pause);
 		mHashedPassword = mSharedPreferencesHelper.getHashedPassword();
 		CampaignReadTask loader = new CampaignReadTask(mActivity, mSharedPreferencesHelper.getUsername(), mHashedPassword);
 		loader.pause(pause);
@@ -60,7 +60,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 		} else
 			((AuthenticatedTaskLoader<CampaignReadResponse>) loader).clearCredentials();
 
-		mActivity.getActionBar().setProgressVisible(false);
+		mActivity.getActionBarControl().setProgressVisible(false);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 
 	public void forceLoad() {
 		Loader<Object> loader = mActivity.getSupportLoaderManager().getLoader(0);
-		mActivity.getActionBar().setProgressVisible(true);
+		mActivity.getActionBarControl().setProgressVisible(true);
 		mHashedPassword = mSharedPreferencesHelper.getHashedPassword();
 		((AuthenticatedTaskLoader)loader).setCredentials(mSharedPreferencesHelper.getUsername(), mHashedPassword);
 		loader.forceLoad();

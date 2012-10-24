@@ -2,20 +2,6 @@
 
 package org.ohmage.fragments;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.mobility.glue.IMobility;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.MobilityHelper;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.service.UploadService;
-import org.ohmage.ui.BaseActivity;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -42,6 +29,23 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.mobility.glue.IMobility;
+import edu.ucla.cens.mobility.glue.MobilityInterface;
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.MobilityHelper;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.probemanager.DbContract.BaseProbeColumns;
+import org.ohmage.probemanager.DbContract.Probes;
+import org.ohmage.service.ProbeUploadService;
+import org.ohmage.ui.BaseActivity;
+
+import java.util.ArrayList;
 
 public class MobilityControlFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
@@ -74,12 +78,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 		mPrefHelper = new UserPreferencesHelper(getActivity());
 
-		long lastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-		if (lastMobilityUploadTimestamp == 0) {
-			mLastUploadText.setText(emptyValue);
-		} else {
-			mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
-		}
+		setLastUploadTimestamp();
 
 		getLoaderManager().initLoader(RECENT_LOADER, null, this);
 		getLoaderManager().initLoader(ALL_LOADER, null, this);
@@ -89,7 +88,16 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 		isBound = true;
 	}
 
-	@Override
+	private void setLastUploadTimestamp() {
+        long lastMobilityUploadTimestamp = mPrefHelper.getLastProbeUploadTimestamp();
+        if (lastMobilityUploadTimestamp == 0) {
+            mLastUploadText.setText(emptyValue);
+        } else {
+            mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", lastMobilityUploadTimestamp));
+        }
+    }
+
+    @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.mobility_control_layout, container, false);
 
@@ -143,8 +151,10 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 	@Override
 	public void onStart() {
 		super.onStart();
-		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(UploadService.MOBILITY_UPLOAD_STARTED));
-		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(UploadService.MOBILITY_UPLOAD_FINISHED));
+		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_STARTED));
+		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_ERROR));
+        getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.RESPONSE_UPLOAD_ERROR));
+		getActivity().registerReceiver(mMobilityUploadReceiver, new IntentFilter(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
 	}
 
 	@Override
@@ -164,34 +174,26 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 	private final BroadcastReceiver mMobilityUploadReceiver = new BroadcastReceiver() {
 
-		private Long mLastMobilityUploadTimestamp;
-
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 
 			if(getActivity() instanceof BaseActivity)
-				((BaseActivity) getActivity()).getActionBar().setProgressVisible(UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
+				((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 
-			mUploadButton.setEnabled(!UploadService.MOBILITY_UPLOAD_STARTED.equals(action));
+			mUploadButton.setEnabled(!ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 
-			if (UploadService.MOBILITY_UPLOAD_STARTED.equals(action)) {
+			if (ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action)) {
 				mUploadButton.setText("Uploading...");
-				mLastMobilityUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-			} else if (UploadService.MOBILITY_UPLOAD_FINISHED.equals(action)) {
+			} else if (ProbeUploadService.PROBE_UPLOAD_ERROR.equals(action) || ProbeUploadService.RESPONSE_UPLOAD_ERROR.equals(action)) {
+			    ArrayList<String> errors = intent.getStringArrayListExtra(ProbeUploadService.EXTRA_PROBE_ERRORS);
+			    if(errors.size() == 0)
+	                Toast.makeText(getActivity(), R.string.mobility_network_error_message, Toast.LENGTH_SHORT).show();
+			    else
+			    	Toast.makeText(getActivity(), getString(R.string.mobility_upload_error_message, errors.toString()), Toast.LENGTH_SHORT).show();
+			} else if (ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED.equals(action)) {
 				mUploadButton.setText("Upload Now");
-				Long newUploadTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-
-				// There must have been a problem with the upload since the upload timestamp didn't change
-				if(newUploadTimestamp.equals(mLastMobilityUploadTimestamp)) {
-					Toast.makeText(getActivity(), R.string.mobility_upload_error_message, Toast.LENGTH_SHORT).show();
-				}
-				mLastMobilityUploadTimestamp = newUploadTimestamp;
-
-				if(mLastMobilityUploadTimestamp != 0) {
-					mLastUploadText.setText(DateFormat.format("yyyy-MM-dd kk:mm:ss", mLastMobilityUploadTimestamp));
-				}
-				getLoaderManager().restartLoader(UPLOAD_LOADER, null, MobilityControlFragment.this);
+		        setLastUploadTimestamp();
 			}
 		}
 	};
@@ -201,9 +203,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 		@Override
 		public void onClick(View v) {
 			Analytics.widget(v);
-			Intent intent = new Intent(getActivity(), UploadService.class);
-			intent.setData(Responses.CONTENT_URI);
-			intent.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
+			Intent intent = new Intent(getActivity(), ProbeUploadService.class);
 			WakefulIntentService.sendWakefulWork(getActivity(), intent);
 		}
 	};
@@ -338,13 +338,8 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 						MobilityQuery.PROJECTION, filterUser, filterUserParams, null);
 
 			case UPLOAD_LOADER:
-				long uploadAfterTimestamp = mPrefHelper.getLastMobilityUploadTimestamp();
-				if (uploadAfterTimestamp == 0) {
-					uploadAfterTimestamp = mPrefHelper.getLoginTimestamp();
-				}
-				return new CursorLoader(getActivity(), MobilityInterface.CONTENT_URI,
-						MobilityQuery.PROJECTION, MobilityInterface.KEY_TIME + " > " + uploadAfterTimestamp + " AND "
-								+ filterUser, filterUserParams, null);
+				return new CursorLoader(getActivity(), Probes.CONTENT_URI,
+						new String[] { BaseColumns._ID }, BaseProbeColumns.USERNAME + "=?", new String[] { username }, null);
 
 			default:
 				return null;

@@ -1,12 +1,5 @@
 package org.ohmage.ui;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import org.ohmage.R;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Response;
-import org.ohmage.service.UploadService;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,6 +10,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import org.ohmage.R;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Response;
+import org.ohmage.service.UploadService;
 
 /**
  * A helper for activities which have responses. This helper provides access to a dialog which
@@ -121,7 +121,6 @@ public class ResponseActivityHelper {
 
 		Intent intent = new Intent(mContext, UploadService.class);
 		intent.setData(responseUri);
-		intent.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 		WakefulIntentService.sendWakefulWork(mContext, intent);
 	}
 

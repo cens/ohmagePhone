@@ -7,6 +7,7 @@
 	<TextView
 		android:id="@+id/prompt_remote_activity_feedback"
 		android:layout_width="fill_parent"
+		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:layout_height="wrap_content" android:layout_weight="1.0"
 		android:gravity="center"/>
 	<Button

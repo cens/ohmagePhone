@@ -62,6 +62,8 @@
     <string name="login_submit">Login</string>
     <string name="login_invalid_server">Please Enter a valid server name</string>
     <string name="login_activity_login_button_description">Login Button</string>
+    
+    <string name="login_register_new_account"><a href="#">register an account</a></string>
 
     <!-- Mobility -->
     <string name="mobility_missing_desc">Please make sure the Mobility package is installed.</string>
@@ -77,7 +79,8 @@
     <string name="mobility_control_no_points">No mobility modes were collected recently.</string>
     <string name="mobility_control_upload_count_title">To upload</string>
     <string name="mobility_control_total_title">Total</string>
-    <string name="mobility_upload_error_message">There was an error uploading mobility</string>
+    <string name="mobility_upload_error_message">There was an error uploading: %s</string>
+    <string name="mobility_network_error_message">Network error occurred while trying upload probes</string>
     <string name="recent_mobility_aggregate_last_week_title">Last Week</string>
     <string name="recent_mobility_aggregate_baseline_title">During Baseline</string>
 

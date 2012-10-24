@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
@@ -193,7 +194,7 @@ public class SendLogActivity extends Activity
 
                 Process process = Runtime.getRuntime().exec(commandLine.toArray(new String[0]));
 
-                file = File.createTempFile("ohmage_crash", ".log");
+                file = File.createTempFile("ohmage_crash", ".log", Environment.getExternalStorageDirectory());
                 OutputStream out=new FileOutputStream(file);
                 out.write(mAdditonalInfo.getBytes());
 

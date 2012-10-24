@@ -1,5 +1,16 @@
 package org.ohmage.activity;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Analytics;
@@ -18,17 +29,6 @@ import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.service.UploadService;
 import org.ohmage.ui.CampaignFilterActivity;
 import org.ohmage.ui.ResponseActivityHelper;
-
-import android.app.Dialog;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 public class UploadQueueActivity extends CampaignFilterActivity implements OnResponseActionListener {
 	private static final String TAG = "UploadQueueActivity";
@@ -121,7 +121,6 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 			Analytics.widget(v);
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
-			intent.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}
 	};

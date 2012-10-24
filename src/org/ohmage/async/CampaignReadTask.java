@@ -205,7 +205,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 										Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
 										intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getContext().getString(R.string.single_campaign_changed_title));
 										intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getContext().getString(R.string.single_campaign_changed_message));
-										NotificationHelper.showNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
+										NotificationHelper.showGeneralNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
 									}
 								}
 							}

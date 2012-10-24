@@ -52,7 +52,7 @@ public class LocTrigDesc {
 	private SimpleTime mEndTime = new SimpleTime();
 	private boolean mRangeEnabled = false;
 	private boolean mTriggerAlways = false;
-	private int mMinInterval;
+	private int mMinInterval = LocTrigConfig.MIN_REENTRY;
 	
 	private void initialize() {
 		mLocation = null;
