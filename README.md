@@ -9,10 +9,11 @@ applications onboard the mobile device.
 Branches
 --------
 
-* master - the latest stable build (might be older)
-* cuttingedge - Contains the newest changes
+* master - Contains the newest changes
 * NIH - Defaults to the single campaign version and includes the newest changes and changes
 specific to the NIH campaign including charts and the food/stress button
+* mobilize - mobilize version of ohmage which has mobilize branding
+* ptsd - ptsd version of ohmage
 
 Dependencies
 ------------
