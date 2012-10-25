@@ -16,6 +16,7 @@
 package org.ohmage;
 
 import android.content.Context;
+import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.widget.Toast;
 
@@ -30,22 +31,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
@@ -831,22 +821,8 @@ public class OhmageApi {
 
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
 
-		HttpParams params = new BasicHttpParams();
-		HttpConnectionParams.setStaleCheckingEnabled(params, false);
-		HttpConnectionParams.setConnectionTimeout(params, 20 * 1000);
-		HttpConnectionParams.setSoTimeout(params, 20 * 1000);
-		HttpConnectionParams.setSocketBufferSize(params, 8192);
-		HttpClientParams.setRedirecting(params, false);
-		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-		schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-		ClientConnectionManager manager = new ThreadSafeClientConnManager(params, schemeRegistry);
-
-		HttpClient httpClient = new DefaultHttpClient(manager, params);
+		HttpClient httpClient = AndroidHttpClient.newInstance(Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.VERSION.RELEASE + ")");
 		HttpPost httpPost = new HttpPost(url);
-
-		// include the device in the user-agent string
-		httpPost.addHeader("user-agent", Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.VERSION.RELEASE + ")");
 
 		if (gzip) {
 			try {
