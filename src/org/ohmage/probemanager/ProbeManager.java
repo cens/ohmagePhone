@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.text.TextUtils;
 
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.Probes;
@@ -53,6 +54,11 @@ public class ProbeManager extends Service {
             public boolean writeProbe(String observerId, int observerVersion, String streamId,
                     int streamVersion, int uploadPriority, String metadata, String data)
                     throws RemoteException {
+                // Don't write a probe unless a user is logged into ohmage
+                if(TextUtils.isEmpty(mUserPrefs.getUsername())) {
+                    return false;
+                }
+
                 ContentValues values = new ContentValues();
                 values.put(Probes.OBSERVER_ID, observerId);
                 values.put(Probes.OBSERVER_VERSION, observerVersion);
@@ -80,6 +86,10 @@ public class ProbeManager extends Service {
             @Override
             public boolean writeResponse(String campaignUrn, String campaignCreationTimestamp,
                     int uploadPriority, String data) throws RemoteException {
+                // Don't write a response unless a user is logged into ohmage
+                if(TextUtils.isEmpty(mUserPrefs.getUsername()))
+                    return false;
+
                 ContentValues values = new ContentValues();
                 values.put(Responses.CAMPAIGN_URN, campaignUrn);
                 values.put(Responses.CAMPAIGN_CREATED, campaignCreationTimestamp);
