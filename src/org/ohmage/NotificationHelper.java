@@ -19,7 +19,9 @@ public class NotificationHelper {
 
     public static void showAuthNotification(Context context) {
         showNotification(context, AUTH_ERROR_ID, "Authentication error!",
-                "Tap here to re-enter credentials.", new Intent(context, LoginActivity.class));
+                "Tap here to re-enter credentials.",
+                new Intent(context, LoginActivity.class).putExtra(
+                        LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
     }
 
     public static void hideAuthNotification(Context context) {
