@@ -24,6 +24,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.http.AndroidHttpClient;
+import android.os.Build;
 import android.os.Handler;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -74,6 +76,8 @@ public class OhmageApplication extends Application {
 	private static OhmageApplication self;
 
 	private static ContentResolver mFakeContentResolver;
+
+	private static AndroidHttpClient mHttpClient;
     
 	@Override
 	public void onCreate() {
@@ -233,6 +237,10 @@ public class OhmageApplication extends Application {
 
 	@Override
     public void onTerminate() {
+	    if(mHttpClient != null) {
+	        mHttpClient.close();
+	        mHttpClient = null;
+	    }
         mImageLoader = null;
 		Analytics.activity(this, Status.OFF);
         super.onTerminate();
@@ -288,4 +296,10 @@ public class OhmageApplication extends Application {
 			return false;
 		}
 	}
+
+    public static AndroidHttpClient getHttpClient() {
+        if(mHttpClient == null)
+            mHttpClient = AndroidHttpClient.newInstance(Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.VERSION.RELEASE + ")");
+        return mHttpClient;
+    }
 }

@@ -17,7 +17,6 @@ package org.ohmage;
 
 import android.content.Context;
 import android.net.http.AndroidHttpClient;
-import android.os.Build;
 import android.widget.Toast;
 
 import edu.ucla.cens.systemlog.Analytics;
@@ -28,7 +27,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
@@ -821,7 +819,6 @@ public class OhmageApi {
 
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
 
-		HttpClient httpClient = AndroidHttpClient.newInstance(Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.VERSION.RELEASE + ")");
 		HttpPost httpPost = new HttpPost(url);
 
 		if (gzip) {
@@ -875,7 +872,7 @@ public class OhmageApi {
 
 		try {
 			Analytics.network(mContext, httpPost);
-			return httpClient.execute(httpPost);
+			return OhmageApplication.getHttpClient().execute(httpPost);
 		} catch (ClientProtocolException e) {
 			Log.e(TAG, "ClientProtocolException while executing httpPost", e);
 			return null;
