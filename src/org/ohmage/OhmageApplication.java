@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage;
 
 import android.app.Application;
@@ -53,12 +54,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class OhmageApplication extends Application {
-	
-	private static final String TAG = "OhmageApplication";
-	
-	public static final String VIEW_MAP = "ohmage.intent.action.VIEW_MAP";
-	
-	public static final String ACTION_VIEW_REMOTE_IMAGE = "org.ohmage.action.VIEW_REMOTE_IMAGE";
+
+    private static final String TAG = "OhmageApplication";
+
+    public static final String VIEW_MAP = "ohmage.intent.action.VIEW_MAP";
+
+    public static final String ACTION_VIEW_REMOTE_IMAGE = "org.ohmage.action.VIEW_REMOTE_IMAGE";
 
     private static final int IMAGE_TASK_LIMIT = 3;
 
@@ -69,79 +70,79 @@ public class OhmageApplication extends Application {
     /**
      * 10MB max for cached thumbnails
      */
-	public static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
+    public static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
 
     private ImageLoader mImageLoader;
 
-	private static OhmageApplication self;
+    private static OhmageApplication self;
 
-	private static ContentResolver mFakeContentResolver;
+    private static ContentResolver mFakeContentResolver;
 
-	private static AndroidHttpClient mHttpClient;
-    
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		
-		self = this;
-		
-		Log.initialize(this, "Ohmage");
+    private static AndroidHttpClient mHttpClient;
 
-		Analytics.activity(this, Status.ON);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        self = this;
+
+        Log.initialize(this, "Ohmage");
+
+        Analytics.activity(this, Status.ON);
 
         mImageLoader = createImageLoader(this);
 
         int currentVersionCode = 0;
-        
+
         try {
-			currentVersionCode = getPackageManager().getPackageInfo("org.ohmage", 0).versionCode;
-		} catch (NameNotFoundException e) {
-			Log.e(TAG, "unable to retrieve current version code", e);
-		}
-		
-		ConfigHelper prefs = new ConfigHelper(this);
-		int lastVersionCode = prefs.getLastVersionCode();
-		boolean isFirstRun = prefs.isFirstRun();
-		
-		if (currentVersionCode != lastVersionCode && !isFirstRun) {
-			BackgroundManager.initComponents(this);
-			
-			prefs.setLastVersionCode(currentVersionCode);
-		}
+            currentVersionCode = getPackageManager().getPackageInfo("org.ohmage", 0).versionCode;
+        } catch (NameNotFoundException e) {
+            Log.e(TAG, "unable to retrieve current version code", e);
+        }
 
-		// Verfiy all the alarms are set to upload and sync data
-		BackgroundManager.verifyAlarms(this);
+        ConfigHelper prefs = new ConfigHelper(this);
+        int lastVersionCode = prefs.getLastVersionCode();
+        boolean isFirstRun = prefs.isFirstRun();
 
-		// Make sure mobility is registered to collect points for the current user and it has the correct aggregate data
-		// This will happen if mobility is
-		MobilityHelper.upgradeMobilityData(this);
+        if (currentVersionCode != lastVersionCode && !isFirstRun) {
+            BackgroundManager.initComponents(this);
 
-		verifyState();
+            prefs.setLastVersionCode(currentVersionCode);
+        }
 
-		// If they can't set a custom server, verify the server that is set is
-		// the first in the list of servers
-		if (!getResources().getBoolean(R.bool.allow_custom_server)) {
-			List<String> servers = Arrays.asList(getResources().getStringArray(R.array.servers));
-			if (servers.isEmpty())
-				throw new RuntimeException("At least one server must be specified in config.xml");
-			ConfigHelper.setServerUrl(servers.get(0));
-		}
-	}
+        // Verfiy all the alarms are set to upload and sync data
+        BackgroundManager.verifyAlarms(this);
+
+        // Make sure mobility is registered to collect points for the current
+        // user and it has the correct aggregate data
+        // This will happen if mobility is
+        MobilityHelper.upgradeMobilityData(this);
+
+        verifyState();
+
+        // If they can't set a custom server, verify the server that is set is
+        // the first in the list of servers
+        if (!getResources().getBoolean(R.bool.allow_custom_server)) {
+            List<String> servers = Arrays.asList(getResources().getStringArray(R.array.servers));
+            if (servers.isEmpty())
+                throw new RuntimeException("At least one server must be specified in config.xml");
+            ConfigHelper.setServerUrl(servers.get(0));
+        }
+    }
 
     /**
      * This method verifies that the state of ohmage is correct when it starts
      * up. fixes response state for crashes while waiting for:
-     * 
      * <ul>
-     *  <li>location from the {@link SurveyGeotagService}, waiting for location status</li>
-     *  <li>{@link UploadService}, uploading or queued status</li>
+     * <li>location from the {@link SurveyGeotagService}, waiting for location
+     * status</li>
+     * <li>{@link UploadService}, uploading or queued status</li>
      * <ul>
-     * 
      * It also deletes any responses which have no uuid
      */
-	private void verifyState() {
-		ContentValues values = new ContentValues();
-		values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
+    private void verifyState() {
+        ContentValues values = new ContentValues();
+        values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
         getContentResolver().update(
                 Responses.CONTENT_URI,
                 values,
@@ -150,63 +151,65 @@ public class OhmageApplication extends Application {
                         + Responses.RESPONSE_STATUS + "=" + Response.STATUS_WAITING_FOR_LOCATION,
                 null);
 
-		if(getContentResolver().delete(Responses.CONTENT_URI, Responses.RESPONSE_UUID + " is null", null) != 0) {
-           // If there were some responses with no uuid, start the feedback service
-           Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
-           WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
-       }
-	}
+        if (getContentResolver().delete(Responses.CONTENT_URI,
+                Responses.RESPONSE_UUID + " is null", null) != 0) {
+            // If there were some responses with no uuid, start the feedback
+            // service
+            Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
+            WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
+        }
+    }
 
-	public void resetAll() {
-		//clear everything?
-		Log.i(TAG, "Reseting all data");
+    public void resetAll() {
+        // clear everything?
+        Log.i(TAG, "Reseting all data");
 
-		//clear user prefs first so isAuthenticated call will return false
-		new UserPreferencesHelper(this).clearAll();
+        // clear user prefs first so isAuthenticated call will return false
+        new UserPreferencesHelper(this).clearAll();
 
-		//clear triggers
-		TriggerFramework.resetAllTriggerSettings(this);
+        // clear triggers
+        TriggerFramework.resetAllTriggerSettings(this);
 
-		//delete campaign specific settings
-		CampaignPreferencesHelper.clearAll(this);
+        // delete campaign specific settings
+        CampaignPreferencesHelper.clearAll(this);
 
-		//clear db
-		new DbHelper(this).clearAll();
-		
-		//clear custom type dbs
-		SingleChoiceCustomDbAdapter singleChoiceDbAdapter = new SingleChoiceCustomDbAdapter(this); 
-		if (singleChoiceDbAdapter.open()) {
-			singleChoiceDbAdapter.clearAll();
-			singleChoiceDbAdapter.close();
-		}
-		MultiChoiceCustomDbAdapter multiChoiceDbAdapter = new MultiChoiceCustomDbAdapter(this); 
-		if (multiChoiceDbAdapter.open()) {
-			multiChoiceDbAdapter.clearAll();
-			multiChoiceDbAdapter.close();
-		}
-		
-		//clear images
-		try {
-			Utilities.delete(getExternalCacheDir());
-		} catch (IOException e) {
-			Log.e(TAG, "Error deleting external cache directory", e);
-		}
+        // clear db
+        new DbHelper(this).clearAll();
 
-		try {
-			Utilities.delete(getCacheDir());
-		} catch (IOException e) {
-			Log.e(TAG, "Error deleting cache directory", e);
-		}
+        // clear custom type dbs
+        SingleChoiceCustomDbAdapter singleChoiceDbAdapter = new SingleChoiceCustomDbAdapter(this);
+        if (singleChoiceDbAdapter.open()) {
+            singleChoiceDbAdapter.clearAll();
+            singleChoiceDbAdapter.close();
+        }
+        MultiChoiceCustomDbAdapter multiChoiceDbAdapter = new MultiChoiceCustomDbAdapter(this);
+        if (multiChoiceDbAdapter.open()) {
+            multiChoiceDbAdapter.clearAll();
+            multiChoiceDbAdapter.close();
+        }
 
-		// Reset mobility username
-		MobilityHelper.setUsername(this, null);
-	}
-	
+        // clear images
+        try {
+            Utilities.delete(getExternalCacheDir());
+        } catch (IOException e) {
+            Log.e(TAG, "Error deleting external cache directory", e);
+        }
+
+        try {
+            Utilities.delete(getCacheDir());
+        } catch (IOException e) {
+            Log.e(TAG, "Error deleting cache directory", e);
+        }
+
+        // Reset mobility username
+        MobilityHelper.setUsername(this, null);
+    }
+
     private static ImageLoader createImageLoader(Context context) {
         // Install the file cache (if it is not already installed)
         OhmageCache.install(context);
         checkCacheUsage();
-        
+
         // Just use the default URLStreamHandlerFactory because
         // it supports all of the required URI schemes (http).
         URLStreamHandlerFactory streamFactory = null;
@@ -223,7 +226,7 @@ public class OhmageApplication extends Application {
 
         // Perform callbacks on the main thread
         Handler handler = null;
-        
+
         return new ImageLoader(IMAGE_TASK_LIMIT, streamFactory, bitmapHandler, prefetchHandler,
                 IMAGE_CACHE_SIZE, handler);
     }
@@ -232,21 +235,20 @@ public class OhmageApplication extends Application {
      * check the cache usage
      */
     public static void checkCacheUsage() {
-		OhmageCache.checkCacheUsage(self, MAX_DISK_CACHE_SIZE);
-	}
+        OhmageCache.checkCacheUsage(self, MAX_DISK_CACHE_SIZE);
+    }
 
-	@Override
+    @Override
     public void onTerminate() {
-	    if(mHttpClient != null) {
-	        mHttpClient.close();
-	        mHttpClient = null;
-	    }
+        if (mHttpClient != null) {
+            mHttpClient.close();
+            mHttpClient = null;
+        }
         mImageLoader = null;
-		Analytics.activity(this, Status.OFF);
+        Analytics.activity(this, Status.OFF);
         super.onTerminate();
     }
 
-	
     @Override
     public Object getSystemService(String name) {
         if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
@@ -256,50 +258,53 @@ public class OhmageApplication extends Application {
         }
     }
 
-	public static void setFakeContentResolver(ContentResolver resolver) {
-		mFakeContentResolver = resolver;
-	}
+    public static void setFakeContentResolver(ContentResolver resolver) {
+        mFakeContentResolver = resolver;
+    }
 
-	public static ContentResolver getFakeContentResolver() {
-		return mFakeContentResolver;
-	}
+    public static ContentResolver getFakeContentResolver() {
+        return mFakeContentResolver;
+    }
 
-	@Override
-	public ContentResolver getContentResolver() {
-		if(mFakeContentResolver != null)
-			return mFakeContentResolver;
-		return super.getContentResolver();
-	}
+    @Override
+    public ContentResolver getContentResolver() {
+        if (mFakeContentResolver != null)
+            return mFakeContentResolver;
+        return super.getContentResolver();
+    }
 
-	/**
-	 * Static reference from the Application to return the context
-	 * @return the application context
-	 */
-	public static Application getContext() {
-		return self;
-	}
+    /**
+     * Static reference from the Application to return the context
+     * 
+     * @return the application context
+     */
+    public static Application getContext() {
+        return self;
+    }
 
-	/**
-	 * Determines if we are running on release or debug
-	 * @return true if we are running Debug
-	 * @throws Exception
-	 */
-	public static boolean isDebugBuild()
-	{
-		PackageManager pm = getContext().getPackageManager();
-		PackageInfo pi;
-		try {
-			pi = pm.getPackageInfo(getContext().getPackageName(), 0);
-			return ((pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+    /**
+     * Determines if we are running on release or debug
+     * 
+     * @return true if we are running Debug
+     * @throws Exception
+     */
+    public static boolean isDebugBuild()
+    {
+        PackageManager pm = getContext().getPackageManager();
+        PackageInfo pi;
+        try {
+            pi = pm.getPackageInfo(getContext().getPackageName(), 0);
+            return ((pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public static AndroidHttpClient getHttpClient() {
-        if(mHttpClient == null)
-            mHttpClient = AndroidHttpClient.newInstance(Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.VERSION.RELEASE + ")");
+        if (mHttpClient == null)
+            mHttpClient = AndroidHttpClient.newInstance(Build.MANUFACTURER + " " + Build.MODEL
+                    + " (" + Build.VERSION.RELEASE + ")");
         return mHttpClient;
     }
 }
