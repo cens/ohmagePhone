@@ -45,8 +45,6 @@ import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.service.ProbeUploadService;
 import org.ohmage.ui.BaseActivity;
 
-import java.util.ArrayList;
-
 public class MobilityControlFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
 	private static final String TAG = "MobilityFeedbackActivity";
@@ -186,11 +184,11 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 			if (ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action)) {
 				mUploadButton.setText("Uploading...");
 			} else if (ProbeUploadService.PROBE_UPLOAD_ERROR.equals(action) || ProbeUploadService.RESPONSE_UPLOAD_ERROR.equals(action)) {
-			    ArrayList<String> errors = intent.getStringArrayListExtra(ProbeUploadService.EXTRA_PROBE_ERRORS);
-			    if(errors.size() == 0)
+			    String error = intent.getStringExtra(ProbeUploadService.EXTRA_PROBE_ERROR);
+			    if(error == null)
 	                Toast.makeText(getActivity(), R.string.mobility_network_error_message, Toast.LENGTH_SHORT).show();
 			    else
-			    	Toast.makeText(getActivity(), getString(R.string.mobility_upload_error_message, errors.toString()), Toast.LENGTH_SHORT).show();
+			        Toast.makeText(getActivity(), getString(R.string.mobility_upload_error_message, error), Toast.LENGTH_SHORT).show();
 			} else if (ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED.equals(action)) {
 				mUploadButton.setText("Upload Now");
 		        setLastUploadTimestamp();

@@ -47,11 +47,16 @@ public class ProbeUploadService extends WakefulIntentService {
 
     public static final String PROBE_UPLOAD_SERVICE_FINISHED = "org.ohmage.PROBE_UPLOAD_SERVICE_FINISHED";
 
-    public static final String EXTRA_PROBE_ERRORS = "extra_probe_errors";
+    public static final String EXTRA_PROBE_ERROR = "extra_probe_error";
 
     private OhmageApi mApi;
 
     private boolean isBackground;
+
+    /**
+     * Set to true if there was an error uploading data
+     */
+    private boolean mError = false;
 
     private UserPreferencesHelper mUserPrefs;
 
@@ -102,14 +107,14 @@ public class ProbeUploadService extends WakefulIntentService {
 
     /**
      * Abstraction to upload object from the probes db. Uploads data in chunks
-     * based on the {@link #getName(Cursor)} and {@link #getVersion(Cursor) values.
+     * based on the {@link #getName(Cursor)} and {@link #getVersion(Cursor)}
+     * values.
+     * 
      * @author cketcham
-     *
      */
     public abstract class Uploader {
 
         protected JsonParser mParser;
-        protected ArrayList<String> mErrors = new ArrayList<String>();
 
         public Uploader() {
             mParser = new JsonParser();
@@ -122,11 +127,9 @@ public class ProbeUploadService extends WakefulIntentService {
 
         protected abstract void uploadStarted();
 
-        protected abstract void uploadBatchSuccess();
-
         protected abstract void uploadFinished();
 
-        protected abstract void uploadError();
+        protected abstract void uploadError(String string);
 
         /**
          * Adds a probe to the json array
@@ -204,7 +207,6 @@ public class ProbeUploadService extends WakefulIntentService {
                     Log.d(TAG, "total payload for " + currentObserver + "=" + payloadSize);
                     if (!upload(probes, currentObserver, currentVersion)) {
                         c.close();
-                        uploadError();
                         return;
                     }
 
@@ -248,29 +250,30 @@ public class ProbeUploadService extends WakefulIntentService {
          * 
          * @param probes the probe json
          * @param c the cursor object
-         * @return false only if there was an HTTP error indicating we shouldn't
-         *         continue to try uploading
+         * @return false only if there was an error which indicates we shouldn't
+         *         continue uploading
          */
         private boolean upload(JsonArray probes, String observerId, String observerVersion) {
 
             String username = mUserPrefs.getUsername();
             String hashedPassword = mUserPrefs.getHashedPassword();
 
+            // If there are no probes to upload just return successful
             if (probes.size() > 0) {
+
                 UploadResponse response = uploadCall(ConfigHelper.serverUrl(), username,
                         hashedPassword, OhmageApi.CLIENT_NAME, observerId, observerVersion, probes);
                 response.handleError(ProbeUploadService.this);
 
-                if (response.getResult().equals(OhmageApi.Result.SUCCESS)) {
-                    uploadBatchSuccess();
-                } else {
-                    if (!response.hasAuthError()
-                            && !response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
-                        mErrors.add(observerId + response.getErrorCodes().toString());
-                        uploadError();
-                    }
-                }
-                if (response.getResult().equals(OhmageApi.Result.HTTP_ERROR) || response.hasAuthError()) {
+                if (response.getResult().equals(OhmageApi.Result.FAILURE)) {
+                    if (response.hasAuthError())
+                        return false;
+                    mError = true;
+                    uploadError(observerId + response.getErrorCodes().toString());
+                    Log.d(TAG, "failed probes: " + probes.toString());
+                } else if (!response.getResult().equals(OhmageApi.Result.SUCCESS)) {
+                    mError = true;
+                    uploadError(null);
                     return false;
                 }
             }
@@ -278,7 +281,7 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         public boolean hadError() {
-            return !mErrors.isEmpty();
+            return mError;
         }
     }
 
@@ -339,22 +342,22 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
-        protected void uploadBatchSuccess() {
-            NotificationHelper.hideProbeUploadErrorNotification(ProbeUploadService.this);
-        }
-
-        @Override
         protected void uploadFinished() {
             sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_FINISHED));
         }
 
         @Override
-        protected void uploadError() {
-            if(isBackground) {
-            	if(!mErrors.isEmpty())
-            		NotificationHelper.showProbeUploadErrorNotification(ProbeUploadService.this, mErrors);
-            } else
-                sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_ERROR).putExtra(EXTRA_PROBE_ERRORS, mErrors));
+        protected void uploadError(String error) {
+            if (isBackground) {
+                if (error != null)
+                    NotificationHelper.showProbeUploadErrorNotification(ProbeUploadService.this,
+                            error);
+            } else {
+                Intent broadcast = new Intent(ProbeUploadService.PROBE_UPLOAD_ERROR);
+                if (error != null)
+                    broadcast.putExtra(EXTRA_PROBE_ERROR, error);
+                sendBroadcast(broadcast);
+            }
         }
 
         @Override
@@ -425,22 +428,22 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
-        protected void uploadBatchSuccess() {
-            NotificationHelper.hideResponseUploadErrorNotification(ProbeUploadService.this);
-        }
-
-        @Override
         protected void uploadFinished() {
             sendBroadcast(new Intent(ProbeUploadService.RESPONSE_UPLOAD_FINISHED));
         }
 
         @Override
-        protected void uploadError() {
-            if(isBackground) {
-            	if(!mErrors.isEmpty())
-                    NotificationHelper.showResponseUploadErrorNotification(ProbeUploadService.this, mErrors);
-            } else
-                sendBroadcast(new Intent(ProbeUploadService.RESPONSE_UPLOAD_ERROR).putExtra(EXTRA_PROBE_ERRORS, mErrors));
+        protected void uploadError(String error) {
+            if (isBackground) {
+                if (error != null)
+                    NotificationHelper.showResponseUploadErrorNotification(ProbeUploadService.this,
+                            error);
+            } else {
+                Intent broadcast = new Intent(ProbeUploadService.RESPONSE_UPLOAD_ERROR);
+                if (error != null)
+                    broadcast.putExtra(EXTRA_PROBE_ERROR, error);
+                sendBroadcast(broadcast);
+            }
         }
 
         @Override

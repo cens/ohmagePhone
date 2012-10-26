@@ -11,15 +11,11 @@ import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.MobilityActivity;
 import org.ohmage.activity.UploadQueueActivity;
 
-import java.util.ArrayList;
-
 public class NotificationHelper {
 
     private static final int AUTH_ERROR_ID = 0;
     private static final int NOTIFICATION_ID = 1;
     private static final int UPLOAD_ERROR_ID = 2;
-    private static final int PROBE_UPLOAD_ERROR_ID = 3;
-    private static final int RESPONSE_UPLOAD_ERROR_ID = 4;
 
     public static void showAuthNotification(Context context) {
         showNotification(context, AUTH_ERROR_ID, "Authentication error!",
@@ -45,31 +41,15 @@ public class NotificationHelper {
         hideNotification(context, UPLOAD_ERROR_ID);
     }
 
-    public static void showProbeUploadErrorNotification(Context context, ArrayList<String> probes) {
-        StringBuilder body = new StringBuilder("Error uploading probes: ");
-        for (String probe : probes) {
-            body.append(probe).append(" ");
-        }
-        showNotification(context, PROBE_UPLOAD_ERROR_ID, "Probe upload error!", body.toString(),
-                new Intent(context, MobilityActivity.class));
+    public static void showProbeUploadErrorNotification(Context context, String probe) {
+        showNotification(context, probe.hashCode(), "Probe upload error!",
+                "Error uploading probes: " + probe, new Intent(context, MobilityActivity.class));
     }
 
-    public static void hideProbeUploadErrorNotification(Context context) {
-        hideNotification(context, PROBE_UPLOAD_ERROR_ID);
-    }
-
-    public static void showResponseUploadErrorNotification(Context context, ArrayList<String> probes) {
-        StringBuilder body = new StringBuilder("Error uploading responses: ");
-        for (String probe : probes) {
-            body.append(probe).append(" ");
-        }
-        showNotification(context, RESPONSE_UPLOAD_ERROR_ID, "Response upload error!",
-                body.toString(),
-                new Intent(context, MobilityActivity.class));
-    }
-
-    public static void hideResponseUploadErrorNotification(Context context) {
-        hideNotification(context, RESPONSE_UPLOAD_ERROR_ID);
+    public static void showResponseUploadErrorNotification(Context context, String response) {
+        showNotification(context, response.hashCode(), "Response upload error!",
+                "Error uploading responses: " + response, new Intent(context,
+                        MobilityActivity.class));
     }
 
     private static void showNotification(Context context, int id, String title, String message,
