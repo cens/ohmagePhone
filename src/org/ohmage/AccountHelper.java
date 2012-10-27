@@ -51,7 +51,8 @@ public class AccountHelper {
 	 */
 	public void updatePassword() {
 		Intent intent = new Intent(mActivity, LoginActivity.class);
-		intent.putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true);
+		UserPreferencesHelper user = new UserPreferencesHelper(mActivity);
+		intent.putExtra(LoginActivity.PARAM_USERNAME, user.getUsername());
 		mActivity.startActivity(intent);
 	}
 

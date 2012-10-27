@@ -48,7 +48,6 @@ import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
-import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadTask;
@@ -60,9 +59,9 @@ public class LoginActivity extends FragmentActivity {
 	
 	/**
 	 * The {@link LoginActivity} looks for this extra to determine if
-	 * it should update the credentials for the user rather than just passing through
+	 * it should update the credentials for the user
 	 */
-	public static final String EXTRA_UPDATE_CREDENTIALS = "extra_update_credentials";
+	public static final String PARAM_USERNAME = "username";
 	
     private static final int DIALOG_FIRST_RUN = 1;
     private static final int DIALOG_LOGIN_ERROR = 2;
@@ -81,9 +80,11 @@ public class LoginActivity extends FragmentActivity {
 	private TextView mVersionText;
 	private UserPreferencesHelper mPreferencesHelper;
 
-	private boolean mUpdateCredentials;
-
 	private ConfigHelper mAppPrefs;
+
+    private String mUsername;
+
+    private boolean mRequestNewAccount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -95,11 +96,8 @@ public class LoginActivity extends FragmentActivity {
         mPreferencesHelper = new UserPreferencesHelper(this);
 		mAppPrefs = new ConfigHelper(LoginActivity.this);
 		
-		if (mPreferencesHelper.isUserDisabled()) {
-        	((OhmageApplication) getApplication()).resetAll();
-        }
-		
-		mUpdateCredentials = getIntent().getBooleanExtra(EXTRA_UPDATE_CREDENTIALS, false);
+		mUsername = getIntent().getStringExtra(PARAM_USERNAME);
+		mRequestNewAccount = mUsername == null;
 
 		mLoginButton = (Button) findViewById(R.id.login);
         mUsernameEdit = (EditText) findViewById(R.id.login_username); 
@@ -118,7 +116,12 @@ public class LoginActivity extends FragmentActivity {
         
         mLoginButton.setOnClickListener(mClickListener);
         mRegisterAccountLink.setOnClickListener(mClickListener);
-        
+
+        if(!mRequestNewAccount) {
+            mUsernameEdit.setText(mUsername);
+            mUsernameEdit.setEnabled(false);
+            mUsernameEdit.setFocusable(false);
+        }
 
 		if(getResources().getBoolean(R.bool.allow_custom_server)) {
 			View serverContainer = findViewById(R.id.login_server_container);
@@ -149,58 +152,6 @@ public class LoginActivity extends FragmentActivity {
 				showDialog(DIALOG_SERVER_LIST);
 			}
 		});
-
-		if (savedInstanceState == null) {
-        	Log.i(TAG, "creating from scratch");
-        	
-        	//clear login fail notification (if such notification existed) 
-        	//NotificationHelper.cancel(this, NotificationHelper.NOTIFY_LOGIN_FAIL, null);
-        	//move this down so notification is only cleared if login is successful???
-        	
-        	//the following block is commented out to support single user lock-in, implemented in the code below
-        	/*String username = mPreferencesHelper.getUsername();
-            if (username.length() > 0) {
-            	Log.i(TAG, "saved credentials exist");
-    			mUsernameEdit.setText(username);
-            	mPasswordEdit.setText(DUMMY_PASSWORD);
-            	//launch main activity and finish
-            	//WE CAN'T DO THIS BECAUSE IF THE ACTIVITY IS LAUNCHED AFTER AN HTTP ERROR NOTIFICATION, CREDS WILL STILL BE STORED
-            	//startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            	//finish();
-            	//OR do Login?
-            	doLogin();
-            	
-            	
-            	//what if this works the other way around? make main activity the starting point, and launch login if needed? 
-            } else {
-            	Log.i(TAG, "saved credentials do not exist");
-            }*/
-            
-            if (mPreferencesHelper.isUserDisabled()) {
-            	((OhmageApplication) getApplication()).resetAll();
-            }
-        	
-        	//code for single user lock-in
-        	String username = mPreferencesHelper.getUsername();
-        	if (username.length() > 0) {
-        		Log.i(TAG, "saved username exists");
-    			mUsernameEdit.setText(username);
-    			mUsernameEdit.setEnabled(false);
-    			mUsernameEdit.setFocusable(false);
-    			
-//    			String hashedPassword = mPreferencesHelper.getHashedPassword();
-//    			if (hashedPassword.length() > 0) {
-//    				Log.i(TAG, "saved password exists");
-//    				mPasswordEdit.setText(DUMMY_PASSWORD);
-//    				//doLogin();
-//    			} else {
-//    				Log.i(TAG, "no saved password, must have had a login problem");
-//    			}
-    			
-        	} else {
-        		Log.i(TAG, "no saved username");
-        	}
-        }
 
         mCampaignDownloadTask = (CampaignReadTask) getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
 
@@ -510,7 +461,7 @@ public class LoginActivity extends FragmentActivity {
 
 		mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
 
-		if(mUpdateCredentials)
+		if(!mRequestNewAccount)
 			finish();
 		else {
 			startActivity(new Intent(this, OhmageLauncher.class));

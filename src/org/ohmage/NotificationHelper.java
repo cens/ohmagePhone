@@ -17,11 +17,11 @@ public class NotificationHelper {
     private static final int NOTIFICATION_ID = 1;
     private static final int UPLOAD_ERROR_ID = 2;
 
-    public static void showAuthNotification(Context context) {
+    public static void showAuthNotification(Context context, String username) {
         showNotification(context, AUTH_ERROR_ID, "Authentication error!",
                 "Tap here to re-enter credentials.",
                 new Intent(context, LoginActivity.class).putExtra(
-                        LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
+                        LoginActivity.PARAM_USERNAME, username));
     }
 
     public static void hideAuthNotification(Context context) {

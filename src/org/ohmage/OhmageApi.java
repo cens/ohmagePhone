@@ -16,7 +16,6 @@
 package org.ohmage;
 
 import android.content.Context;
-import android.net.http.AndroidHttpClient;
 import android.widget.Toast;
 
 import edu.ucla.cens.systemlog.Analytics;
@@ -139,7 +138,8 @@ public class OhmageApi {
 				}
 
 				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
-					NotificationHelper.showAuthNotification(context);
+				    UserPreferencesHelper user = new UserPreferencesHelper(context);
+					NotificationHelper.showAuthNotification(context, user.getUsername());
 				}
 				break;
 			case HTTP_ERROR:
