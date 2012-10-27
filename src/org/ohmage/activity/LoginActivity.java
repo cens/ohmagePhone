@@ -73,8 +73,6 @@ public class LoginActivity extends FragmentActivity {
 	private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 7;
 	private static final int DIALOG_SERVER_LIST = 8;
 
-	private static final int LOGIN_FINISHED = 0;
-	
 	private EditText mUsernameEdit;
 	private EditText mPasswordEdit;
 	private EditText mServerEdit;
@@ -102,13 +100,7 @@ public class LoginActivity extends FragmentActivity {
         }
 		
 		mUpdateCredentials = getIntent().getBooleanExtra(EXTRA_UPDATE_CREDENTIALS, false);
-		
-		// if they are, redirect them to the dashboard
-		if (mPreferencesHelper.isAuthenticated() && !mUpdateCredentials) {
-			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
-			return;
-		}
-		
+
 		mLoginButton = (Button) findViewById(R.id.login);
         mUsernameEdit = (EditText) findViewById(R.id.login_username); 
         mPasswordEdit = (EditText) findViewById(R.id.login_password);
@@ -520,18 +512,9 @@ public class LoginActivity extends FragmentActivity {
 
 		if(mUpdateCredentials)
 			finish();
-		else
-			startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch(requestCode) {
-			case LOGIN_FINISHED:
-				finish();
-			break;
-			default:
-				this.onActivityResult(requestCode, resultCode, data);
+		else {
+			startActivity(new Intent(this, OhmageLauncher.class));
+			finish();
 		}
 	}
 	

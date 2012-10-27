@@ -52,6 +52,7 @@ import edu.ucla.cens.systemlog.OhmageAnalytics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApplication;
@@ -176,7 +177,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 			if (!preferencesHelper.isAuthenticated()) {
 				Log.i(TAG, "no credentials saved, so launch Login");
-				startActivity(new Intent(this, LoginActivity.class));
+				startActivity(AccountHelper.getLoginIntent(this));
 				finish();
 				return;
 			} else {
