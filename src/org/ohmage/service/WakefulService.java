@@ -9,7 +9,7 @@ import android.os.PowerManager;
 
 /**
  * A wakeful intent service based on {@link WakefulIntentService} but which
- * allows more flexiblity related to when the lock is release.
+ * allows more flexiblity related to when the lock is released.
  * 
  * @see {@link WakefulService#releaseLock() }
  * @author cketcham
@@ -45,9 +45,12 @@ public abstract class WakefulService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if ((flags & START_FLAG_REDELIVERY)!=0) { // if crash restart...
-			getLock(this.getApplicationContext()).acquire();  // ...then quick grab the lock
+		PowerManager.WakeLock lock=getLock(this.getApplicationContext());
+
+		if (!lock.isHeld() || (flags & START_FLAG_REDELIVERY) != 0) {
+			lock.acquire();
 		}
+
 		super.onStartCommand(intent, flags, startId);
 
 		doWakefulWork(intent);
@@ -68,6 +71,10 @@ public abstract class WakefulService extends Service {
 	 * </pre>
 	 */
 	protected void releaseLock() {
-		getLock(this.getApplicationContext()).release();
+		PowerManager.WakeLock lock=getLock(this.getApplicationContext());
+
+		if (lock.isHeld()) {
+			lock.release();
+		}
 	}
 }

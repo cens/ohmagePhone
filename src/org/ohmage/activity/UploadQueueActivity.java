@@ -1,10 +1,21 @@
 package org.ohmage.activity;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Analytics;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.adapters.UploadingResponseListCursorAdapter;
@@ -18,17 +29,6 @@ import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.service.UploadService;
 import org.ohmage.ui.CampaignFilterActivity;
 import org.ohmage.ui.ResponseActivityHelper;
-
-import android.app.Dialog;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 public class UploadQueueActivity extends CampaignFilterActivity implements OnResponseActionListener {
 	private static final String TAG = "UploadQueueActivity";
@@ -49,7 +49,8 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 		
 		mUploadAll.setOnClickListener(mUploadAllListener);
 
-		if(Config.IS_SINGLE_CAMPAIGN)
+		// Show the upload button immediately in single campaign mode since we don't query for the campaign
+		if(ConfigHelper.isSingleCampaignMode())
 			ensureButtons();
 	}
 	
@@ -120,7 +121,6 @@ public class UploadQueueActivity extends CampaignFilterActivity implements OnRes
 			Analytics.widget(v);
 			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
 			intent.setData(Responses.CONTENT_URI);
-			intent.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
 		}
 	};

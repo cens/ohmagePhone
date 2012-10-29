@@ -15,8 +15,6 @@
  ******************************************************************************/
 package org.ohmage.db;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,7 +58,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 32;
+	private static final int DB_VERSION = 33;
 	
 	private final Context mContext;
 
@@ -129,7 +127,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Campaigns.CAMPAIGN_CONFIGURATION_XML + " TEXT, "
 				+ Campaigns.CAMPAIGN_STATUS + " INTEGER, "
 				+ Campaigns.CAMPAIGN_ICON + " TEXT, "
-				+ Campaigns.CAMPAIGN_PRIVACY + " TEXT " +
+				+ Campaigns.CAMPAIGN_PRIVACY + " TEXT, "
+				+ Campaigns.CAMPAIGN_UPDATED + " INTEGER NOT NULL DEFAULT 0 " +
 				");");
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + Tables.SURVEYS + " ("
@@ -251,9 +250,9 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO: create an actual upgrade plan rather than just dumping and
-		// recreating everything
-		clearAll(db);
+		if(oldVersion < 33) {
+			db.execSQL("ALTER TABLE " + Tables.CAMPAIGNS + " ADD COLUMN " +  Campaigns.CAMPAIGN_UPDATED + " INTEGER NOT NULL DEFAULT 0");
+		}
 	}
 
 	public void clearAll(SQLiteDatabase db) {
@@ -304,12 +303,14 @@ public class DbHelper extends SQLiteOpenHelper {
 		String campaignUrn = values.getAsString(Responses.CAMPAIGN_URN);
 		String surveyId = values.getAsString(Responses.SURVEY_ID);
 
+		boolean madeTransaction = !db.inTransaction();
+
 		try {
 			// start a transaction involving the following operations:
 			// 1) insert feedback response row
 			// 2) parse json-encoded responses and insert one row into prompts
 			// per entry
-			db.beginTransaction();
+			if(madeTransaction) db.beginTransaction();
 
 			// do the actual insert into feedback responses
 			rowId = db.insert(Tables.RESPONSES, null, values);
@@ -324,17 +325,17 @@ public class DbHelper extends SQLiteOpenHelper {
 						db.update(Tables.RESPONSES, values, Responses.RESPONSE_UUID + "=?", new String[] { values.getAsString(Responses.RESPONSE_UUID) });
 					}
 				}
-				if(rowId != -1)
+				if(rowId != -1 && madeTransaction)
 					db.setTransactionSuccessful();
 			} else {
 				if (populatePromptsFromResponseJSON(db, rowId, response,
 						campaignUrn, surveyId)) {
 					// and we're done; finalize the transaction
-					db.setTransactionSuccessful();
+					if(madeTransaction) db.setTransactionSuccessful();
 				}
 			}
 		} finally {
-			db.endTransaction();
+			if(madeTransaction) db.endTransaction();
 		}
 
 		return rowId;
@@ -418,10 +419,12 @@ public class DbHelper extends SQLiteOpenHelper {
 		long rowId = -1; // the row ID for the campaign that we'll eventually be
 							// returning
 
+		boolean madeTransaction = !db.inTransaction();
+
 		try {
 			// start the transaction that will include inserting the campaign +
 			// surveys + survey prompts
-			db.beginTransaction();
+			if(madeTransaction) db.beginTransaction();
 
 			// hold onto some variables for processing
 			String configurationXml = values
@@ -436,16 +439,15 @@ public class DbHelper extends SQLiteOpenHelper {
 				if (populateSurveysFromCampaignXML(db, campaignUrn,
 						configurationXml)) {
 					// i think we're done now; finish up the transaction
-					db.setTransactionSuccessful();
+					if(madeTransaction) db.setTransactionSuccessful();
 				}
 				// else we fail and the transaction gets rolled back
 			}
 			else {
-				db.setTransactionSuccessful();
+				if(madeTransaction) db.setTransactionSuccessful();
 			}
-		}
-		finally {
-			db.endTransaction();
+		} finally {
+			if(madeTransaction) db.endTransaction();
 		}
 
 		return rowId;
@@ -693,30 +695,18 @@ public class DbHelper extends SQLiteOpenHelper {
 		return true;
 	}
 
-	/**
-	 * Thrown when the associated metadata for a prompt ID (usually found in the
-	 * SurveyPrompts table) can't be found.
-	 */
-	public class NoMetadataException extends Exception {
-		private static final long serialVersionUID = -3002929068033069759L;
-	}
-
 	public boolean populatePromptsFromResponseJSON(SQLiteDatabase db, long responseRowID, String response, String campaignUrn, String surveyId) {
 		try {
 			// create a list of metadata for this survey from the surveyprompts table
 			// this will help in remapping values for single and multichoice prompts, etc.
-			HashMap<String, SurveyPrompt> promptsMap = new HashMap<String, SurveyPrompt>();
 			List<SurveyPrompt> promptsList = SurveyPrompt.fromCursor(
 						db.query(Tables.SURVEY_PROMPTS, null, SurveyPrompts.COMPOSITE_ID + "='" + campaignUrn + ":" + surveyId + "'", null, null, null, null)
 					);
-			// remap list to hashmap; i know this looks crazy, but it'll make lookups slightly faster and doesn't take much memory
-			for (SurveyPrompt sp : promptsList)
-				promptsMap.put(sp.mPromptID, sp);
-			
-			// convert response data to JSON for parsing
+
 			JSONArray responseData = new JSONArray(response);
+
+			HashMap<String, JSONObject> promptsMap = new HashMap<String, JSONObject>();
 			
-			// iterate through the responses and add them to the prompt table one by one
 			for (int i = 0; i < responseData.length(); ++i) {
 				// nab the jsonobject, which contains "prompt_id" and "value"
 				JSONObject item = responseData.getJSONObject(i);
@@ -725,105 +715,97 @@ public class DbHelper extends SQLiteOpenHelper {
 				if (!item.has("prompt_id") || !item.has("value"))
 					continue;
 				
-				// look up the metadata for this prompt
-				SurveyPrompt promptData = promptsMap.get(item.getString("prompt_id"));
-				
+				promptsMap.put(item.getString("prompt_id"), item);
+			}
+
+			for (SurveyPrompt promptData : promptsList) {
+
+				// nab the jsonobject, which contains "prompt_id" and "value"
+				JSONObject item = promptsMap.get(promptData.mPromptID);
+
 				// construct a new PromptResponse object to populate
 				PromptResponse p = new PromptResponse();
-				
+
 				p.mCompositeID = campaignUrn + ":" + surveyId;
 				p.mResponseID = responseRowID;
 				p.mPromptID = item.getString("prompt_id");
-				
-				// determine too if we have to remap the value from a number to text
-				// if custom_choices is included, then we do
-				try {
-					// before we determine what to do for this prompt, we need to see if we
-					// have metadata. if we don't, we have to go for the default behavior.
-					if (promptData == null)
-						throw new NoMetadataException();
-					
-					if (item.has("custom_choices")) {
-						// build a hashmap of ID->label so we can do the remapping
-						JSONArray choicesArray = item.getJSONArray("custom_choices");
-						HashMap<String,String> glossary = new HashMap<String, String>();
-						
-						for (int iv = 0; iv < choicesArray.length(); ++iv) {
-							JSONObject choiceObject = choicesArray.getJSONObject(iv);
-							glossary.put(choiceObject.getString("choice_id"), choiceObject.getString("choice_value"));
-						}
-						
-						// determine if the value is singular or an array
-						// if it's an array, we need to remap each element
-						try {
-							JSONArray remapper = item.getJSONArray("value");
-							
-							for (int ir = 0; ir < remapper.length(); ++ir)
-								remapper.put(ir, glossary.get(remapper.getString(ir)));
-							
-							p.mValue = remapper.toString();
-						}
-						catch (JSONException e) {
-							// it wasn't a json array, so just remap the single value
-							p.mValue = glossary.get(item.getString("value"));
+
+				if (item.has("custom_choices")) {
+					// build a hashmap of ID->label so we can do the remapping
+					JSONArray choicesArray = item.getJSONArray("custom_choices");
+					HashMap<String,String> glossary = new HashMap<String, String>();
+
+					for (int iv = 0; iv < choicesArray.length(); ++iv) {
+						JSONObject choiceObject = choicesArray.getJSONObject(iv);
+						glossary.put(choiceObject.getString("choice_id"), choiceObject.getString("choice_value"));
+					}
+
+					// determine if the value is singular or an array
+					// if it's an array, we need to remap each element
+					try {
+						JSONArray remapper = item.getJSONArray("value");
+
+						for (int ir = 0; ir < remapper.length(); ++ir)
+							remapper.put(ir, glossary.get(remapper.getString(ir)));
+
+						p.mValue = remapper.toString();
+					}
+					catch (JSONException e) {
+						// it wasn't a json array, so just remap the single value
+						p.mValue = glossary.get(item.getString("value"));
+					}
+				}
+				else if (promptData.mPromptType.equalsIgnoreCase("single_choice")) {
+					// unload the json properties
+					JSONArray values = new JSONArray(promptData.mProperties);
+					// set the explicit value as the default; if we don't find a match, it'll end up as this
+					p.mValue = item.getString("value");
+
+					// search for a key that matches the given value
+					for (int ir = 0; ir < values.length(); ++ir) {
+						JSONObject entry = values.getJSONObject(ir);
+						if (entry.getString("key").equals(p.mValue)) {
+							p.mValue = entry.getString("label");
+							p.mExtraValue = item.getString("value");
+							break;
 						}
 					}
-					else if (promptData.mPromptType.equalsIgnoreCase("single_choice")) {
+				}
+				else if (promptData.mPromptType.equalsIgnoreCase("multi_choice")) {
+					// same procedure as above, except that we need to remap every value
+
+					try {
 						// unload the json properties
 						JSONArray values = new JSONArray(promptData.mProperties);
 						// set the explicit value as the default; if we don't find a match, it'll end up as this
-						p.mValue = item.getString("value");
-						
-						// search for a key that matches the given value
-						for (int ir = 0; ir < values.length(); ++ir) {
-							JSONObject entry = values.getJSONObject(ir);
-							if (entry.getString("key").equals(p.mValue)) {
-								p.mValue = entry.getString("label");
-								p.mExtraValue = item.getString("value");
-								break;
-							}
-						}
-					}
-					else if (promptData.mPromptType.equalsIgnoreCase("multi_choice")) {
-						// same procedure as above, except that we need to remap every value
-						
-						try {
-							// unload the json properties
-							JSONArray values = new JSONArray(promptData.mProperties);
-							// set the explicit value as the default; if we don't find a match, it'll end up as this
-							JSONArray newValues = new JSONArray(item.getString("value"));
-							
-							// for each entry in newValues...
-							for (int io = 0; io < newValues.length(); ++io) {
-								// search for a key that matches the given value
-								for (int ir = 0; ir < values.length(); ++ir) {
-									JSONObject entry = values.getJSONObject(ir);
-									if (entry.getString("key").equals(newValues.getString(io))) {
-										// assign the remapped value to this index
-										newValues.put(io, entry.getString("label"));
-										break;
-									}
+						JSONArray newValues = new JSONArray(item.getString("value"));
+
+						// for each entry in newValues...
+						for (int io = 0; io < newValues.length(); ++io) {
+							// search for a key that matches the given value
+							for (int ir = 0; ir < values.length(); ++ir) {
+								JSONObject entry = values.getJSONObject(ir);
+								if (entry.getString("key").equals(newValues.getString(io))) {
+									// assign the remapped value to this index
+									newValues.put(io, entry.getString("label"));
+									break;
 								}
 							}
-							
-							// and reassign mValue here
-							p.mValue = newValues.toString();
-							p.mExtraValue = item.getString("value");	
 						}
-						catch (JSONException e) {
-							// it wasn't a json array, so just remap the value
-							p.mValue = item.getString("value");
-						}
+
+						// and reassign mValue here
+						p.mValue = newValues.toString();
+						p.mExtraValue = item.getString("value");
 					}
-					else {
+					catch (JSONException e) {
+						// it wasn't a json array, so just remap the value
 						p.mValue = item.getString("value");
 					}
 				}
-				catch (NoMetadataException e) {
-					Log.e(TAG, "Couldn't find the associated metadata for prompt ID " + (i+1) + ", assigning default value");
+				else {
 					p.mValue = item.getString("value");
 				}
-				
+
 				// and insert this into prompts				
 				db.insert(Tables.PROMPT_RESPONSES, null, p.toCV());
 			}

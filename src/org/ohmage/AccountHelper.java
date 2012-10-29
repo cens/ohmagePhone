@@ -1,9 +1,5 @@
 package org.ohmage;
 
-import org.ohmage.activity.LoginActivity;
-import org.ohmage.activity.UploadQueueActivity;
-import org.ohmage.db.Models.Campaign;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,6 +9,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.Html;
+
+import org.ohmage.activity.LoginActivity;
+import org.ohmage.activity.OhmageLauncher;
+import org.ohmage.activity.UploadQueueActivity;
+import org.ohmage.db.Models.Campaign;
 
 /**
  * Helper class which makes it easy to show the account management dialogs
@@ -50,7 +51,8 @@ public class AccountHelper {
 	 */
 	public void updatePassword() {
 		Intent intent = new Intent(mActivity, LoginActivity.class);
-		intent.putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true);
+		UserPreferencesHelper user = new UserPreferencesHelper(mActivity);
+		intent.putExtra(LoginActivity.PARAM_USERNAME, user.getUsername());
 		mActivity.startActivity(intent);
 	}
 
@@ -140,7 +142,7 @@ public class AccountHelper {
 	}
 
 	public static Intent getLoginIntent(Context context) {
-		Intent intent = new Intent(context, LoginActivity.class);
+		Intent intent = new Intent(context, OhmageLauncher.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		return intent;

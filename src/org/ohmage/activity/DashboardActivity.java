@@ -2,7 +2,7 @@ package org.ohmage.activity;
 
 import edu.ucla.cens.systemlog.Analytics;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
@@ -35,7 +35,7 @@ public class DashboardActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.dashboard_layout);
-		getActionBar().setShowLogo(true);
+		getActionBarControl().setShowLogo(true);
 		
 		// gather up all the buttons and tie them to the dashboard button listener
 		// you'll specify what the buttons do in DashboardButtonListener rather than here
@@ -62,7 +62,7 @@ public class DashboardActivity extends BaseActivity {
 	}
 
 	private void ensureUI() {
-		if(Config.IS_SINGLE_CAMPAIGN) {
+		if(ConfigHelper.isSingleCampaignMode()) {
 			mCampaignBtn.setVisibility(View.GONE);
 		} else {
 			mCampaignBtn.setVisibility(View.VISIBLE);

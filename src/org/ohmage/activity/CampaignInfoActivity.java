@@ -1,20 +1,5 @@
 package org.ohmage.activity;
 
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.async.CampaignXmlDownloadTask;
-import org.ohmage.controls.ActionBarControl;
-import org.ohmage.controls.ActionBarControl.ActionListener;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.ui.BaseInfoActivity;
-import org.ohmage.ui.OhmageFilterable.CampaignFilter;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,12 +16,27 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.imageloader.ImageLoader;
+
+import edu.ucla.cens.systemlog.Analytics;
+
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.async.CampaignXmlDownloadTask;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.triggers.base.TriggerDB;
+import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
+
 public class CampaignInfoActivity extends BaseInfoActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int TRIGGER_UPDATE_FINISHED = 0;
 
 	// helpers
 	private FragmentActivity mContext;
-	private SharedPreferencesHelper mSharedPreferencesHelper;
+	private UserPreferencesHelper mSharedPreferencesHelper;
 	private ImageLoader mImageLoader;
 	
 	// action bar commands
@@ -66,7 +66,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mSharedPreferencesHelper = new UserPreferencesHelper(this);
 		mImageLoader = ImageLoader.get(this);
 		
 		setContentView(R.layout.campaign_info_details);
@@ -135,7 +135,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 
 	protected void populateCommands(final String campaignUrn, final int campaignStatus) {
 		// first remove all the commands from the action bar...
-		ActionBarControl actionBar = getActionBar();
+		ActionBarControl actionBar = getActionBarControl();
 		actionBar.clearActionBarCommands();
 		
 		// ...and gather up the commands in the command tray so we can hide/show them
@@ -148,7 +148,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		if (campaignStatus != Campaign.STATUS_REMOTE) {
 			// only show data-related actions if it's ready
 			if (campaignStatus == Campaign.STATUS_READY) {
-				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.btn_title_resphist);
+			    if(new UserPreferencesHelper(this).showFeedback())
+			        actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.btn_title_resphist);
 				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.btn_title_trigger);
 				
 				// route the actions to the appropriate places
@@ -373,6 +374,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		// and getting the number of responses submitted for this campaign
 		Cursor responses = getContentResolver().query(Campaigns.buildResponsesUri(mCampaignUrn), null, null, null, null);
 		mResponsesValue.setText(getResources().getQuantityString(R.plurals.campaign_info_response_count, responses.getCount(), responses.getCount()));
+		responses.close();
 
 		mLocalResponses = Campaign.localResponseCount(this, mCampaignUrn);
 

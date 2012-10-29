@@ -15,15 +15,15 @@
  ******************************************************************************/
 package org.ohmage.activity.test;
 
+import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.Smoke;
+
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.ProfileActivity;
-
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.Smoke;
 
 /**
  * <p>This class contains tests for the {@link ProfileActivity}</p>
@@ -36,7 +36,7 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	private static final int INDEX_IMAGE_BUTTON_OHMAGE_HOME = 0;
 
 	private Solo solo;
-	private SharedPreferencesHelper mPrefsHelper;
+	private UserPreferencesHelper mPrefsHelper;
 
 	private String userName;
 	private String hashedPass;
@@ -51,7 +51,7 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 
 		solo = new Solo(getInstrumentation(), getActivity());
 		
-		mPrefsHelper = new SharedPreferencesHelper(getActivity());
+		mPrefsHelper = new UserPreferencesHelper(getActivity());
 		userName = mPrefsHelper.getUsername();
 		hashedPass = mPrefsHelper.getHashedPassword();
 	}

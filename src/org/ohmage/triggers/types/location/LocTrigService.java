@@ -299,7 +299,7 @@ public class LocTrigService extends Service
 		
 		releaseRecvrWakeLock();
 		
-		return START_REDELIVER_INTENT;
+		return START_NOT_STICKY;
 	}
 	
 	@Override

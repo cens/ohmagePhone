@@ -16,7 +16,7 @@
 package org.ohmage.service;
 
 import org.ohmage.BackgroundManager;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.ConfigHelper;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,7 +31,7 @@ public class BootReceiver extends BroadcastReceiver {
 	public void onReceive(final Context context, Intent intent) {
 		Log.i(TAG, "onReceive");
 		
-		final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(context);
+		final ConfigHelper preferencesHelper = new ConfigHelper(context);
 		boolean isFirstRun = preferencesHelper.isFirstRun();
 		
 		if (isFirstRun) {

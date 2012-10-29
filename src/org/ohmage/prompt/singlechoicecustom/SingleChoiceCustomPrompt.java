@@ -15,17 +15,18 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoicecustom;
 
+import org.ohmage.OhmageMarkdown;
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.CustomChoiceListView;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.text.Editable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -132,7 +133,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		mCustomChoices.clear();
 		SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+		UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
@@ -174,7 +175,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 				if (!TextUtils.isEmpty(mEnteredText)) {
 					SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
-					SharedPreferencesHelper prefs = new SharedPreferencesHelper(context);
+					UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 
@@ -254,17 +255,17 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		String [] from = new String [] {"value"};
 		int [] to = new int [] {android.R.id.text1};
 		
-		List<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
+		List<HashMap<String, CharSequence>> data = new ArrayList<HashMap<String, CharSequence>>();
 		for (int i = 0; i < mChoices.size(); i++) {
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
 			map.put("key", mChoices.get(i).key);
-			map.put("value", mChoices.get(i).label);
+			map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
 			data.add(map);
 		}
 		for (int i = 0; i < mCustomChoices.size(); i++) {
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
 			map.put("key", mCustomChoices.get(i).key);
-			map.put("value", mCustomChoices.get(i).label);
+			map.put("value", OhmageMarkdown.parse(mCustomChoices.get(i).label));
 			data.add(map);
 		}
 		
@@ -274,7 +275,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 			
 			@Override
 			public boolean setViewValue(View view, Object data, String textRepresentation) {
-				((CheckedTextView) view).setText((String) data);
+				((CheckedTextView) view).setText((SpannableStringBuilder) data);
 				return true;
 			}
 		});
@@ -345,13 +346,6 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 	}
 
 	@Override
-	public void handleActivityResult(Context context, int requestCode,
-			int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void setDefaultValue(String defaultValue) {
 		this.mDefaultValue = defaultValue;
 		try {
@@ -359,5 +353,11 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		} catch(NumberFormatException e) {
 			// No number...
 		}
+	}
+
+	@Override
+	public void onHidden() {
+		mEnteredText = "";
+		mIsAddingNewItem = false;
 	}
 }

@@ -37,6 +37,8 @@ public class DbContract {
 		String CAMPAIGN_ICON = "campaign_icon";
 		/** Privacy status of this campaign */
 		String CAMPAIGN_PRIVACY = "campaign_privacy";
+		/** Update time in db so we don't change things which we updated more recently */
+		String CAMPAIGN_UPDATED = "campaign_updated";
     }
 
     interface SurveyColumns {

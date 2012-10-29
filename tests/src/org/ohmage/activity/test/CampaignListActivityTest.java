@@ -128,7 +128,7 @@ public class CampaignListActivityTest extends ActivityInstrumentationTestCase2<C
 		campaign.mStatus = Campaign.STATUS_INVALID_USER_ROLE;
 		provider.setCampaigns(campaign);
 
-		solo.clickOnImage(7);
+		solo.clickOnImage(5);
 		assertTrue(solo.searchText("Invalid user role.", true));
 	}
 
@@ -137,7 +137,7 @@ public class CampaignListActivityTest extends ActivityInstrumentationTestCase2<C
 		campaign.mStatus = Campaign.STATUS_NO_EXIST;
 		provider.setCampaigns(campaign);
 
-		solo.clickOnImage(7);
+		solo.clickOnImage(5);
 		assertTrue(solo.searchText("This campaign no longer exists", true));
 	}
 
@@ -146,7 +146,7 @@ public class CampaignListActivityTest extends ActivityInstrumentationTestCase2<C
 		campaign.mStatus = Campaign.STATUS_OUT_OF_DATE;
 		provider.setCampaigns(campaign);
 
-		solo.clickOnImage(7);
+		solo.clickOnImage(5);
 		assertTrue(solo.searchText("This campaign is out of date", true));
 	}
 
@@ -155,7 +155,7 @@ public class CampaignListActivityTest extends ActivityInstrumentationTestCase2<C
 		campaign.mStatus = Campaign.STATUS_STOPPED;
 		provider.setCampaigns(campaign);
 
-		solo.clickOnImage(7);
+		solo.clickOnImage(5);
 		assertTrue(solo.searchText("This campaign is stopped.", true));
 	}
 
@@ -164,7 +164,7 @@ public class CampaignListActivityTest extends ActivityInstrumentationTestCase2<C
 		campaign.mStatus = Campaign.STATUS_READY;
 		provider.setCampaigns(campaign);
 
-		solo.clickOnImage(7);
+		solo.clickOnImage(5);
 		solo.assertCurrentActivity("Expected Survey List", SurveyListActivity.class);
 		assertEquals(campaign.mUrn, solo.getCurrentActivity().getIntent().getExtras().getString(CampaignFilter.EXTRA_CAMPAIGN_URN));
 		solo.goBack();

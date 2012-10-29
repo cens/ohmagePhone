@@ -16,44 +16,6 @@
 package org.ohmage.activity;
 
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-import edu.ucla.cens.systemlog.OhmageAnalytics;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ohmage.Config;
-import org.ohmage.OhmageApplication;
-import org.ohmage.PromptXmlParser;
-import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.conditionevaluator.DataPoint;
-import org.ohmage.conditionevaluator.DataPoint.PromptType;
-import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.AbstractPrompt;
-import org.ohmage.prompt.Message;
-import org.ohmage.prompt.Prompt;
-import org.ohmage.prompt.RepeatableSetHeader;
-import org.ohmage.prompt.RepeatableSetTerminator;
-import org.ohmage.prompt.SurveyElement;
-import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
-import org.ohmage.prompt.multichoice.MultiChoicePrompt;
-import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
-import org.ohmage.prompt.number.NumberPrompt;
-import org.ohmage.prompt.photo.PhotoPrompt;
-import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
-import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
-import org.ohmage.prompt.text.TextPrompt;
-import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.service.WakefulService;
-import org.ohmage.triggers.glue.TriggerFramework;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -75,11 +37,54 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
+import edu.ucla.cens.systemlog.OhmageAnalytics;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.AccountHelper;
+import org.ohmage.CampaignPreferencesHelper;
+import org.ohmage.ConfigHelper;
+import org.ohmage.OhmageApplication;
+import org.ohmage.PromptXmlParser;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.conditionevaluator.DataPoint;
+import org.ohmage.conditionevaluator.DataPoint.PromptType;
+import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Response;
+import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.Message;
+import org.ohmage.prompt.Prompt;
+import org.ohmage.prompt.RepeatableSetHeader;
+import org.ohmage.prompt.RepeatableSetTerminator;
+import org.ohmage.prompt.SurveyElement;
+import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
+import org.ohmage.prompt.media.MediaPrompt;
+import org.ohmage.prompt.media.PhotoPrompt;
+import org.ohmage.prompt.media.VideoPrompt;
+import org.ohmage.prompt.multichoice.MultiChoicePrompt;
+import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
+import org.ohmage.prompt.number.NumberPrompt;
+import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
+import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
+import org.ohmage.prompt.text.TextPrompt;
+import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.service.WakefulService;
+import org.ohmage.triggers.glue.TriggerFramework;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -94,6 +99,9 @@ public class SurveyActivity extends Activity implements LocationListener {
 	private static final String TAG = "SurveyActivity";
 
 	private static final int DIALOG_CANCEL_ID = 0;
+    private static final int DIALOG_INSTRUCTIONS_ID = 1;
+
+	protected static final int PROMPT_RESULT = 0;
 
 	private TextView mSurveyTitleText;
 	private ProgressBar mProgressBar;
@@ -120,6 +128,10 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	private final Handler mHandler = new Handler();
 
+    private String mInstructions;
+
+    private CampaignPreferencesHelper mCampaignPref;
+
 	public String getSurveyId() {
 		return mSurveyId;
 	}
@@ -134,11 +146,13 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 		if(getIntent().hasExtra("campaign_urn")) {
 			mCampaignUrn = getIntent().getStringExtra("campaign_urn");
-		} else if(Config.IS_SINGLE_CAMPAIGN) {
+		} else if(ConfigHelper.isSingleCampaignMode()) {
 			mCampaignUrn = Campaign.getSingleCampaign(this);
 		} else {
 			throw new RuntimeException("The campaign urn must be passed to the Survey Activity");
 		}
+
+		mCampaignPref = new CampaignPreferencesHelper(this, mCampaignUrn);
 
 		mSurveyId = getIntent().getStringExtra("survey_id");
 		mSurveyTitle = getIntent().getStringExtra("survey_title");
@@ -155,7 +169,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			Calendar now = Calendar.getInstance();
 			mLaunchTime = now.getTimeInMillis();
 
-			final SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+			final UserPreferencesHelper preferencesHelper = new UserPreferencesHelper(this);
 
 			if (preferencesHelper.isUserDisabled()) {
 				((OhmageApplication) getApplication()).resetAll();
@@ -163,11 +177,26 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 			if (!preferencesHelper.isAuthenticated()) {
 				Log.i(TAG, "no credentials saved, so launch Login");
-				startActivity(new Intent(this, LoginActivity.class));
+				startActivity(AccountHelper.getLoginIntent(this));
 				finish();
 				return;
 			} else {
-				mSurveyElements = null;
+
+                mInstructions = null;
+
+                try {
+                    mInstructions = PromptXmlParser.parseCampaignInstructions(Campaign
+                            .loadCampaignXml(this, mCampaignUrn));
+                } catch (XmlPullParserException e) {
+                    Log.e(TAG, "Error parsing campaign instructions from xml", e);
+                } catch (IOException e) {
+                    Log.e(TAG, "Error parsing campaign instructions from xml", e);
+                }
+
+                if (mInstructions != null && mCampaignPref.showInstructions())
+                    showDialog(DIALOG_INSTRUCTIONS_ID);
+
+                mSurveyElements = null;
 
 				try {
 					mSurveyElements = PromptXmlParser.parseSurveyElements(Campaign.loadCampaignXml(this, mCampaignUrn), mSurveyId);
@@ -179,7 +208,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 					Log.e(TAG, "Error parsing prompts from xml", e);
 				}
 
-				if(mSurveyElements == null) {
+				if(mSurveyElements == null || mSurveyElements.isEmpty()) {
 					// If there are no survey elements, something is wrong
 					finish();
 					Toast.makeText(this, R.string.invalid_survey, Toast.LENGTH_SHORT).show();
@@ -197,6 +226,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 			mReachedEnd = instance.reachedEnd;
 			mLastSeenRepeatableSetId = instance.lastSeenRepeatableSetId;
 			mLastElement = instance.lastElement;
+			mSurveyFinished = instance.surveyFinished;
+			mInstructions = instance.instructions;
 		}
 
 		setContentView(R.layout.survey_activity);
@@ -245,6 +276,14 @@ public class SurveyActivity extends Activity implements LocationListener {
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		if(mSurveyElements != null && mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof PhotoPrompt)
+			PhotoPrompt.clearView(mPromptFrame);
+	}
+
+	@Override
 	public void onLocationChanged(Location location) {
 		if(SurveyGeotagService.locationValid(location)) {
 			// We got a good enough location so lets stop the gps
@@ -269,7 +308,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement);
+		return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime, mReachedEnd, mLastSeenRepeatableSetId, mLastElement, mSurveyFinished, mInstructions);
 	}
 
 	private class NonConfigurationInstance {
@@ -279,14 +318,18 @@ public class SurveyActivity extends Activity implements LocationListener {
 		boolean reachedEnd;
 		String lastSeenRepeatableSetId;
 		SurveyElement lastElement;
+		boolean surveyFinished;
+		String instructions;
 
-		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element) {
+		public NonConfigurationInstance(List<SurveyElement> surveyElements, int index, long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId, SurveyElement element, boolean surveyFinished, String instructions) {
 			this.surveyElements = surveyElements;
 			this.index = index;
 			this.launchTime = launchTime;
 			this.reachedEnd = reachedEnd;
 			this.lastSeenRepeatableSetId = lastSeenRepeatableSetId;
 			this.lastElement = element;
+			this.surveyFinished = surveyFinished;
+			this.instructions = instructions;
 		}
 	}
 
@@ -304,6 +347,11 @@ public class SurveyActivity extends Activity implements LocationListener {
 				v.setClickable(true);
 			}
 
+			if (mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof AbstractPrompt) {
+				// Tell the current prompt that it is being hidden
+				((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).onHidden();
+			}
+
 			switch (v.getId()) {
 				case R.id.next_button:
 					if (mReachedEnd) {
@@ -311,7 +359,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 						String uuid = storeResponse();
 						Analytics.widget(v, null, uuid);
 						TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
-						SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
+						UserPreferencesHelper prefs = new UserPreferencesHelper(SurveyActivity.this);
 						prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
 						finish();
 					} else {
@@ -676,8 +724,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, requestCode, resultCode, data);
+		if (requestCode == Prompt.REQUEST_CODE && mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
+			((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).handleActivityResult(this, resultCode, data);
 		}
 	}
 
@@ -739,7 +787,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 
 			mPromptFrame.removeAllViews();
-			mPromptFrame.addView(message.getView(this));
+			message.inflateView(this, mPromptFrame);
 		} else {
 			Log.e(TAG, "trying to showMessage for element that is not a message!");
 		}
@@ -748,6 +796,10 @@ public class SurveyActivity extends Activity implements LocationListener {
 	private void showPrompt(int index) {
 
 		if (mSurveyElements.get(index) instanceof AbstractPrompt) {
+
+			//If its a photo prompt we need to recycle the image
+			if(mLastElement instanceof PhotoPrompt)
+				PhotoPrompt.clearView(mPromptFrame);
 
 			AbstractPrompt prompt = (AbstractPrompt)mSurveyElements.get(index);
 			handlePromptChangeLogging(prompt);
@@ -782,12 +834,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 				mSkipButton.setVisibility(View.INVISIBLE);
 			}
 
-			//If its a photo prompt we need to recycle the image
-			if(mSurveyElements.get(index) instanceof PhotoPrompt)
-				PhotoPrompt.clearView(mPromptFrame);
-
 			mPromptFrame.removeAllViews();
-			mPromptFrame.addView(prompt.getView(this));
+			prompt.inflateView(this, mPromptFrame);
 			//mPromptFrame.invalidate();
 		} else {
 			Log.e(TAG, "trying to showPrompt for element that is not a prompt!");
@@ -853,7 +901,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			//			}
 
 			mPromptFrame.removeAllViews();
-			mPromptFrame.addView(terminator.getView(this));
+			terminator.inflateView(this, mPromptFrame);
 			//mPromptFrame.invalidate();
 		} else {
 			Log.e(TAG, "trying to showTerminator for element that is not a RepeatableSetTerminator!");
@@ -890,7 +938,9 @@ public class SurveyActivity extends Activity implements LocationListener {
 					dataPoint.setPromptType("text");
 				} else if (prompt instanceof PhotoPrompt) {
 					dataPoint.setPromptType("photo");
-				} 
+				} else if (prompt instanceof VideoPrompt) {
+					dataPoint.setPromptType("video");
+				}
 
 				if (prompt.isSkipped()) {
 					dataPoint.setSkipped();
@@ -950,7 +1000,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	public static String storeResponse(Context context, String surveyId, long launchTime, String campaignUrn, String surveyTitle, List<SurveyElement> surveyElements) {
 
-		SharedPreferencesHelper helper = new SharedPreferencesHelper(context);
+		UserPreferencesHelper helper = new UserPreferencesHelper(context);
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
@@ -1073,17 +1123,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 		intent.setData(responseUri);
 		WakefulService.sendWakefulWork(context, intent);
 
-		// finalize photos now that we have the responseUri
-		// the photos are initially in the campaign dir, until the response is saved
-		for (int i = 0; i < surveyElements.size(); i++) {
-			if (surveyElements.get(i) instanceof PhotoPrompt) {
-				PhotoPrompt photoPrompt = (PhotoPrompt)surveyElements.get(i);
-				if (photoPrompt.isPromptAnswered()) {
-					photoPrompt.saveImageFile(Responses.getResponseId(responseUri));
-				}
-			}
-		}
-
 		// create an intent and broadcast it to any interested receivers
 		Intent i = new Intent("org.ohmage.SURVEY_COMPLETE");
 
@@ -1116,8 +1155,8 @@ public class SurveyActivity extends Activity implements LocationListener {
 			//clean up the survey photo prompt
 			if(!mSurveyFinished) {
 				for(SurveyElement element : mSurveyElements)
-					if (element instanceof PhotoPrompt)
-						((PhotoPrompt) element).clearImage();
+					if (element instanceof MediaPrompt)
+						((MediaPrompt) element).delete();
 			}
 		}
 	}
@@ -1145,7 +1184,26 @@ public class SurveyActivity extends Activity implements LocationListener {
 				.setNegativeButton(R.string.cancel, null);
 				dialog = dialogBuilder.create();
 				break;
-		}
+            case DIALOG_INSTRUCTIONS_ID:
+                View view = getLayoutInflater().inflate(R.layout.checkable_dialog_layout, null);
+                TextView text = (TextView) view.findViewById(R.id.text);
+                final CheckBox skip = (CheckBox) view.findViewById(R.id.skip);
+                text.setText(mInstructions);
+                dialogBuilder
+                        .setTitle(R.string.survey_campaign_instructions_title)
+                        .setView(view)
+                        .setCancelable(true)
+                        .setPositiveButton(R.string.continue_string,
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mCampaignPref.setShowInstructions(!skip.isChecked());
+                                    }
+                                });
+                dialog = dialogBuilder.create();
+                break;
+        }
 		return dialog;
 	}
 }

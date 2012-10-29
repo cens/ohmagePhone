@@ -16,10 +16,11 @@
 package org.ohmage.prompt;
 
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPromptBuilder;
+import org.ohmage.prompt.media.PhotoPromptBuilder;
+import org.ohmage.prompt.media.VideoPromptBuilder;
 import org.ohmage.prompt.multichoice.MultiChoicePromptBuilder;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPromptBuilder;
 import org.ohmage.prompt.number.NumberPromptBuilder;
-import org.ohmage.prompt.photo.PhotoPromptBuilder;
 import org.ohmage.prompt.remoteactivity.RemoteActivityPromptBuilder;
 import org.ohmage.prompt.singlechoice.SingleChoicePromptBuilder;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPromptBuilder;
@@ -50,6 +51,8 @@ public class PromptBuilderFactory {
 			return new TextPromptBuilder();
 		} else if (promptType.equals(PromptFactory.PHOTO)) {
 			return new PhotoPromptBuilder();
+		} else if (promptType.equals(PromptFactory.VIDEO)) {
+			return new VideoPromptBuilder();
 		} else if (promptType.equals(PromptFactory.REMOTE_ACTIVITY)) {
 			return new RemoteActivityPromptBuilder();
 		}

@@ -1,8 +1,14 @@
 package org.ohmage.activity;
 
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+
 import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -12,12 +18,6 @@ import org.ohmage.fragments.CampaignListFragment.OnCampaignActionListener;
 import org.ohmage.ui.BaseSingleFragmentActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
-
 
 public class BaseCampaignListActivity extends BaseSingleFragmentActivity implements OnCampaignActionListener, ActionListener{
 
@@ -26,7 +26,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 	// action bar commands
 	protected static final int ACTION_REFRESH_CAMPAIGNS = 0;
 
-	SharedPreferencesHelper mSharedPreferencesHelper;
+	UserPreferencesHelper mSharedPreferencesHelper;
 
 	private CampaignReadLoaderCallbacks mCampaignReadLoader;
 
@@ -34,7 +34,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mSharedPreferencesHelper = new SharedPreferencesHelper(this);
+		mSharedPreferencesHelper = new UserPreferencesHelper(this);
 
 		mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
 	}
@@ -64,10 +64,10 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 		mCampaignReadLoader.onCreate();
 
 		// throw some actions on it
-		getActionBar().addActionBarCommand(ACTION_REFRESH_CAMPAIGNS, getString(R.string.campaign_list_refresh_action_button_description), R.drawable.btn_title_refresh);
+		getActionBarControl().addActionBarCommand(ACTION_REFRESH_CAMPAIGNS, getString(R.string.campaign_list_refresh_action_button_description), R.drawable.btn_title_refresh);
 
 		// and attach handlers for said actions
-		getActionBar().setOnActionListener(this);
+		getActionBarControl().setOnActionListener(this);
 	}
 
 	@Override

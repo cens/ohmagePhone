@@ -15,19 +15,11 @@
  ******************************************************************************/
 package org.ohmage.prompt.remoteactivity;
 
-import edu.ucla.cens.systemlog.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ohmage.R;
-import org.ohmage.prompt.AbstractPrompt;
-
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +29,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import edu.ucla.cens.systemlog.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.R;
+import org.ohmage.prompt.AbstractPrompt;
+
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Prompt that will launch a remote Activity that can either be part of this
@@ -73,6 +74,8 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	private int runs;
 	private int minRuns;
 	private int retries;
+
+	private String mFeedback;
 	
 	/**
 	 * Basic default constructor.
@@ -108,6 +111,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.prompt_remote_activity, null);
 		
 		feedbackText = (TextView) layout.findViewById(R.id.prompt_remote_activity_feedback);
+		feedbackText.setText(mFeedback);
 		launchButton = (Button) layout.findViewById(R.id.prompt_remote_activity_replay_button);
 		launchButton.setOnClickListener(this);
 		launchButton.setText((!launched && !autolaunch) ? R.string.prompt_remote_launch : R.string.prompt_remote_relaunch);
@@ -154,7 +158,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 	 * return value for this prompt type.
 	 */
 	@Override
-	public void handleActivityResult(Context context, int requestCode, int resultCode, Intent data) 
+	public void handleActivityResult(Context context, int resultCode, Intent data)
 	{
 		if(resultCode == Activity.RESULT_CANCELED)
 		{
@@ -192,7 +196,8 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 					String nextKey = keysIter.next();
 					if(FEEDBACK_STRING.equals(nextKey))
 					{
-						feedbackText.setText(extras.getString(nextKey));
+						mFeedback = extras.getString(nextKey);
+						feedbackText.setText(mFeedback);
 					}
 					else
 					{
@@ -488,17 +493,22 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 			activityToLaunch.setComponent(new ComponentName(packageName, activityName));
 			activityToLaunch.putExtra("input", input);
 			
-			try {
-				callingActivity.startActivityForResult(activityToLaunch, 0);
+			if(isCallable(activityToLaunch)) {
+				callingActivity.startActivityForResult(activityToLaunch, REQUEST_CODE);
 				launched = true;
 				runs++;
-			} catch (ActivityNotFoundException e) {
-				Toast.makeText(callingActivity, "Required component is not installed", Toast.LENGTH_SHORT).show();
+			} else {
+				 Toast.makeText(callingActivity, "Required component is not installed", Toast.LENGTH_SHORT).show();
 			}
 		}
 		else
 		{
 			Log.e(TAG, "The calling Activity was null.");
 		}
+	}
+
+	private boolean isCallable(Intent intent) {
+		List<ResolveInfo> list = callingActivity.getPackageManager().queryIntentActivities(intent, 0);
+		return list.size() > 0;
 	}
 }

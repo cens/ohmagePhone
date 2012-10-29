@@ -28,9 +28,6 @@
 		 -->
 	<property file="ant.properties" />
 
-	<!-- The default release name for the omage-debug and ohmage-release tasks -->
-	<property name="release.name" value="release" />
-
 	<!-- The project.properties file is created and updated by the 'android'
 		 tool, as well as ADT.
 
@@ -51,7 +48,7 @@
 <!-- extension targets. Uncomment the ones where you want to do custom work
 	 in between standard targets -->
 
-	<target name="-pre-build" depends="gen-config" />
+	<target name="-pre-build" />
 
 	<target name="-pre-compile" />
 
@@ -75,18 +72,6 @@
 		description="Builds the release version of the application">
 	</target>
 
-	<target name="tag-release">
-		<sequential>
-			<git-checkout-local branch="cuttingedge" dir="." />
-			<read-release-name />
-			<git-tag tagName="${ant.project.name}-${manifest.versionName}-cuttingedge" dir="." />
-			<git-checkout-local branch="NIH" dir="." />
-			<git-tag tagName="${ant.project.name}-${manifest.versionName}-NIH" dir="." />
-			<git-checkout-local branch="mobilize" dir="." />
-			<git-tag tagName="${ant.project.name}-${manifest.versionName}-mobilize" dir="." />
-		</sequential>
-	</target>
-
 	<target name="clean-for-release">
 		<delete>
 			<fileset dir="${out.absolute.dir}" erroronmissingdir="false">
@@ -101,6 +86,25 @@
 			</fileset>
 		</delete>
 		<delete dir="${gen.absolute.dir}" />
+	</target>
+
+	<target name="ohmage-push" depends="clean-for-release"
+		description="Builds and pushes the apk to lecs.">
+		<input
+		    message="Please enter lecs username:"
+		    addproperty="server.username"
+		  />
+		<input message="Please enter lecs password:" addproperty="server.password">
+		    <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+		</input>
+
+		<scp todir="${server.username}:${server.password}@lecs.cs.ucla.edu:/home/httpd/lecs/ohmage/sw">
+			<fileset dir="${out.absolute.dir}" includes="**/*SIGNED.apk" />
+		</scp>
+
+		<scp todir="${server.username}:${server.password}@lecs.cs.ucla.edu:/home/httpd/lecs/ohmage/testing">
+			<fileset dir="${out.absolute.dir}" includes="**/*.apk" excludes="**/*SIGNED.apk" />
+		</scp>
 	</target>
 
 	<!-- ********** git specific targets ********** -->
@@ -122,33 +126,40 @@
 	<target name="-set-output-file">
 		<sequential>
 			<read-release-name />
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-unaligned.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-unaligned.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}.apk" />
 		</sequential>
 	</target>
 
 	<target name="-set-release-output-file">
 		<sequential>
 			<read-release-name />
-			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-unaligned-SIGNED.apk" />
-			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-packaged-SIGNED.apk" />
-			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}-${config.server.shortname}-${release.name}-${manifest.versionCode}-SIGNED.apk" />
+			<property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-unaligned-SIGNED.apk" />
+			<property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-packaged-SIGNED.apk" />
+			<property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}-${manifest.versionName}${internal.release.name}-SIGNED.apk" />
 		</sequential>
 	</target>
 
 	<macrodef name="read-release-name">
 		<sequential>
-			<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionCode"
-				output="manifest.versionCode" />
 			<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
 				output="manifest.versionName" />
-			</sequential>
+				<if>
+					<condition>
+						<isset property="release.name"/>
+					</condition>
+					<then>
+						<property name="internal.release.name" value="-${release.name}" />
+					</then>
+					<else>
+						<property name="internal.release.name" value="" />
+					</else>
+				</if>
+		</sequential>
 	</macrodef>
 
 	<!-- version-tag: custom -->
 	<import file="${sdk.dir}/tools/ant/build.xml" />
 
 	<import file="git-build.xml" />
-
-	<import file="gen-config.xml" />
 </project>

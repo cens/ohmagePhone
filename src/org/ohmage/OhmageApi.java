@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import edu.ucla.cens.systemlog.Analytics;
 import edu.ucla.cens.systemlog.Log;
 
@@ -23,25 +26,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
@@ -52,14 +43,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.CountingInputStream;
-
-import android.content.Context;
-import android.os.Build;
+import org.ohmage.conditionevaluator.DataPoint.PromptType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -68,11 +58,12 @@ public class OhmageApi {
 
 	private static final String AUTHENTICATE_PATH = "app/user/auth";
 	private static final String AUTHENTICATE_TOKEN_PATH = "app/user/auth_token";
-	private static final String MOBILITY_UPLOAD_PATH = "app/mobility/upload";
+	private static final String OBSERVER_UPLOAD_PATH = "app/stream/upload";
 	private static final String SURVEY_UPLOAD_PATH = "app/survey/upload";
 	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
 	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
 	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
+	private static final String MOBILITY_AGGREGATE_READ_PATH = "app/mobility/aggregate/read";
 	public static final String IMAGE_READ_PATH = "app/image/read";
 
 	public static final String CLIENT_NAME = "ohmage-android";
@@ -94,33 +85,31 @@ public class OhmageApi {
 		INTERNAL_ERROR
 	}
 
-	public static enum Error {
-
-	}
+	public static String ERROR_AUTHENTICATION = "0200";
+	public static String ERROR_ACCOUNT_DISABLED = "0201";
 
 	public static class Response {
 		protected Result mResult;
-		protected String[] mErrorCodes;
+		protected List<String> mErrorCodes;
 
 		public Response() {
 			// do-nothing constructor so we can create instances via reflection
 		}
 
 		public Response(Result result, String[] errorCodes) {
-			mResult = result;
-			mErrorCodes = errorCodes;
+		    setResponseStatus(result, errorCodes);
 		}
 
 		public void setResponseStatus(Result result, String[] errorCodes) {
 			mResult = result;
-			mErrorCodes = errorCodes;
+			mErrorCodes = errorCodes == null ? new ArrayList<String>() : Arrays.asList(errorCodes);
 		}
 
 		public Result getResult() {
 			return mResult;
 		}
 
-		public String[] getErrorCodes() {
+		public List<String> getErrorCodes() {
 			return mErrorCodes;
 		}
 
@@ -129,11 +118,46 @@ public class OhmageApi {
 		}
 
 		public void setErrorCodes(String[] errorCodes) {
-			this.mErrorCodes = errorCodes;
+			this.mErrorCodes = Arrays.asList(errorCodes);
 		}
 
 		public void populateFromJSON(JSONObject rootJson) throws JSONException {
 			// do nothing here
+		}
+
+		public void handleError(Context context) {
+			switch(mResult) {
+			case SUCCESS:
+				NotificationHelper.hideAuthNotification(context);
+				break;
+			case FAILURE:
+				Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
+
+				if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
+					new UserPreferencesHelper(context).setUserDisabled(true);
+				}
+
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+				    UserPreferencesHelper user = new UserPreferencesHelper(context);
+					NotificationHelper.showAuthNotification(context, user.getUsername());
+				}
+				break;
+			case HTTP_ERROR:
+				Log.e(TAG, "Failed due to http error");
+				break;
+			case INTERNAL_ERROR:
+				Log.e(TAG, "Failed due to internal error");
+				break;
+			}
+		}
+
+		public boolean hasAuthError() {
+			for (String code : mErrorCodes) {
+				if (code.charAt(1) == '2') {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
@@ -171,6 +195,24 @@ public class OhmageApi {
 			if (rootJson.has("token"))
 				mToken = rootJson.getString("token");
 		}
+
+		@Override
+		public void handleError(Context context) {
+            switch(mResult) {
+            case SUCCESS:
+                NotificationHelper.hideAuthNotification(context);
+                break;
+            case FAILURE:
+                Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
+                break;
+            case HTTP_ERROR:
+                Log.e(TAG, "Failed due to http error");
+                break;
+            case INTERNAL_ERROR:
+                Log.e(TAG, "Failed due to internal error");
+                break;
+            }
+        }
 	}
 
 	public static class UploadResponse extends Response {
@@ -210,6 +252,27 @@ public class OhmageApi {
 				mData = rootJson.getJSONObject("data");
 			if (rootJson.has("metadata"))
 				mMetadata = rootJson.getJSONObject("metadata");
+		}
+
+		@Override
+		public void handleError(Context context) {
+			super.handleError(context);
+
+			switch(mResult) {
+			case FAILURE:
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+					Toast.makeText(context, R.string.campaign_read_auth_error, Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(context, R.string.campaign_read_unexpected_response, Toast.LENGTH_SHORT).show();
+				}
+				break;
+			case HTTP_ERROR:
+				Toast.makeText(context, R.string.campaign_read_network_error, Toast.LENGTH_SHORT).show();
+				break;
+			case INTERNAL_ERROR:
+				Toast.makeText(context, R.string.campaign_read_internal_error, Toast.LENGTH_SHORT).show();
+				break;
+			}
 		}
 	}
 
@@ -325,18 +388,20 @@ public class OhmageApi {
 		}
 	}
 
-	public UploadResponse mobilityUpload(String serverUrl, String username, String hashedPassword, String client, String data) {
+	public UploadResponse observerUpload(String serverUrl, String username, String hashedPassword, String client, String observerId, String observerVersion, String data) {
 
 		final boolean GZIP = true;
 
-		String url = serverUrl + MOBILITY_UPLOAD_PATH;
+		String url = serverUrl + OBSERVER_UPLOAD_PATH;
 
 		try {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 			nameValuePairs.add(new BasicNameValuePair("user", username));
 			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
 			nameValuePairs.add(new BasicNameValuePair("client", client));
-			nameValuePairs.add(new BasicNameValuePair("data", data));
+			nameValuePairs.add(new BasicNameValuePair("observer_id", observerId));
+	        nameValuePairs.add(new BasicNameValuePair("observer_version", observerVersion));
+	        nameValuePairs.add(new BasicNameValuePair("data", data));
 			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
 			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
@@ -359,7 +424,7 @@ public class OhmageApi {
 			nameValuePairs.add(new BasicNameValuePair("user", username));
 			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
 			nameValuePairs.add(new BasicNameValuePair("client", client));
-			nameValuePairs.add(new BasicNameValuePair("data", data));
+			nameValuePairs.add(new BasicNameValuePair("surveys", data));
 			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
 			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
@@ -369,7 +434,42 @@ public class OhmageApi {
 		}
 	}
 
-	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, File [] photos) {
+	public static class MediaPart {
+		public static final int IMAGE_TYPE = 0;
+		public static final int VIDEO_TYPE = 1;
+		private final File mFile;
+		private final int mType;
+
+		public MediaPart(File file, String type) {
+			mFile = file;
+			if(PromptType.photo.toString().equals(type))
+				mType = IMAGE_TYPE;
+			else if(PromptType.video.toString().equals(type))
+				mType = VIDEO_TYPE;
+			else
+				throw new RuntimeException("Invalid media type");
+		}
+
+		public FileBody getFileBody() {
+			return new FileBody(mFile, getFileType());
+		}
+
+		private String getFileType() {
+			switch(mType) {
+				case IMAGE_TYPE:
+					return "image/jpeg";
+				case VIDEO_TYPE:
+					return "video/mp4";
+			}
+			return null;
+		}
+
+		public String getName() {
+			return mFile.getName().split("\\.")[0];
+		}
+	}
+
+	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String responseJson, ArrayList<MediaPart> media) {
 
 		final boolean GZIP = false;
 
@@ -384,10 +484,8 @@ public class OhmageApi {
 			multipartEntity.addPart("client", new StringBody(client));
 			multipartEntity.addPart("surveys", new StringBody(responseJson));
 
-			if (photos != null) {
-				for (int i = 0; i < photos.length; i++) {
-					multipartEntity.addPart(photos[i].getName().split("\\.")[0], new FileBody(photos[i], "image/jpeg"));
-				}
+			for(MediaPart m : media) {
+				multipartEntity.addPart(m.getName(), m.getFileBody());
 			}
 
 			return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
@@ -483,7 +581,7 @@ public class OhmageApi {
 				if (responseEntity != null) {
 					if (responseEntity.getContentType().getValue().equals("text/xml")) {
 						try {
-							String xml = parseAndLogContent(url, responseEntity);
+							String xml = parseContent(url, responseEntity);
 							result = Result.SUCCESS;
 							candidate.setXml(xml);
 						} catch (ParseException e) {
@@ -495,12 +593,7 @@ public class OhmageApi {
 						}
 					} else if (responseEntity.getContentType().getValue().equals("text/html")) {
 						try {
-							String content = EntityUtils.toString(responseEntity);
-							Log.i(TAG, content);
-
-							JSONObject rootJson;
-
-							rootJson = new JSONObject(content);
+							JSONObject rootJson = parseContentToJSON(url, responseEntity);
 							if (rootJson.getString("result").equals("success")) {
 								result = Result.INTERNAL_ERROR;
 								Log.e(TAG, "CampaignReadXml should never return json with SUCCESS!");
@@ -544,6 +637,74 @@ public class OhmageApi {
 		Analytics.network(mContext, url, result);
 
 		return candidate;
+	}
+	
+
+	/**
+	 * Returns survey responses for the specified campaign, with a number of parameters to filter the result.<br><br>
+	 * 
+	 * Note that all results are subject to the specified user's permissions; even if results for other
+	 * users are requested, they won't be returned if the specified user does not have sufficient permission to view them.<br><br>
+	 * 
+	 * Consult <a href="http://www.lecs.cs.ucla.edu/wikis/andwellness/index.php/AndWellness_Survey_Manipulation_2.4#Survey_Response__Read">the documentation on survey_response_read</a> for more information.
+	 * @param serverUrl the url of the server to contact for the list
+	 * @param username username of a valid user; will constrain the result in keeping with the user's permissions
+	 * @param hashedPassword hashed password of the aforementioned user
+	 * @param client the client used to retrieve the results, generally "android"
+	 * @param campaignUrn the urn of the campaign for which to retrieve survey results
+	 * @param userList a comma-separated list of usernames for which to return responses, or "urn:ohmage:special:all" (if null, "all" is assumed)
+	 * @param surveyIdList a comma-separated list of surveys for which to return results, or "urn:ohmage:special:all" (if null, "all" is assumed)
+	 * @param columnList a comma-separated lits of column values as specified in the docuemntation, or "urn:ohmage:special:all" (if null, "all" is assumed)
+	 * @param outputFormat one of json-rows, json-columns, or csv (FIXME: this method can't handle csv yet)
+	 * @param startDate must be present if end_date is present: allows querying against a date range. 
+	 * @param endDate must be present if start_date is present; allows querying against a date range 
+	 * @return an instance of type {@link ReadResponse} containing the resulting data; note that the Object returned by getData() is a JSONArray, not a JSONObject
+	 */
+	
+	/**
+	 * Returns mobility aggregate responses for a specified date range chunked by the given duration
+	 * 
+	 * @param serverUrl the url of the server to contact for the list
+	 * @param username username of a valid user; will constrain the result in keeping with the user's permissions
+	 * @param hashedPassword hashed password of the aforementioned user
+	 * @param client the client used to retrieve the results, generally "android"
+	 * @param startDate must be present
+	 * @param endDate must be present and at most 10 days after start date
+	 * @param days specifies the maximum size of a chunk in days
+	 * @param listener
+	 * @return an instance of type {@link ReadResponse} containing the resulting data; note that the Object returned by getData() is a JSONObject
+	 */
+	public Response mobilityAggregateRead(String serverUrl,
+			String username,
+			String hashedPassword,
+			String client,
+			String startDate,
+			String endDate,
+			int days,
+			StreamingResponseListener listener) {
+
+		final boolean GZIP = false;
+
+		String url = serverUrl + MOBILITY_AGGREGATE_READ_PATH;
+
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
+			nameValuePairs.add(new BasicNameValuePair("end_date", endDate));
+			nameValuePairs.add(new BasicNameValuePair("duration", String.valueOf(days)));
+
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+
+			return parseStreamingReadResponse(url, doHttpPost(url, formEntity, GZIP), listener);
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			SurveyReadResponse candidate = new SurveyReadResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
 	}
 
 	/**
@@ -649,31 +810,16 @@ public class OhmageApi {
 	}
 
 	public static String defaultImageReadUrl(String uuid, String campaign, String size) {
-		SharedPreferencesHelper prefs = new SharedPreferencesHelper(OhmageApplication.getContext());
+		UserPreferencesHelper prefs = new UserPreferencesHelper(OhmageApplication.getContext());
 		String username = prefs.getUsername();
 		String hashedPassword = prefs.getHashedPassword();
-		return OhmageApi.imageReadUrl(Config.DEFAULT_SERVER_URL, username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
+		return OhmageApi.imageReadUrl(ConfigHelper.serverUrl(), username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
 
 	}
 
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
 
-		HttpParams params = new BasicHttpParams();
-		HttpConnectionParams.setStaleCheckingEnabled(params, false);
-		HttpConnectionParams.setConnectionTimeout(params, 20 * 1000);
-		HttpConnectionParams.setSoTimeout(params, 20 * 1000);
-		HttpConnectionParams.setSocketBufferSize(params, 8192);
-		HttpClientParams.setRedirecting(params, false);
-		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-		schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-		ClientConnectionManager manager = new ThreadSafeClientConnManager(params, schemeRegistry);
-
-		HttpClient httpClient = new DefaultHttpClient(manager, params);
 		HttpPost httpPost = new HttpPost(url);
-
-		// include the device in the user-agent string
-		httpPost.addHeader("user-agent", Build.MANUFACTURER + " " + Build.MODEL + " (" + Build.VERSION.RELEASE + ")");
 
 		if (gzip) {
 			try {
@@ -726,7 +872,7 @@ public class OhmageApi {
 
 		try {
 			Analytics.network(mContext, httpPost);
-			return httpClient.execute(httpPost);
+			return OhmageApplication.getHttpClient().execute(httpPost);
 		} catch (ClientProtocolException e) {
 			Log.e(TAG, "ClientProtocolException while executing httpPost", e);
 			return null;
@@ -736,12 +882,33 @@ public class OhmageApi {
 		}
 	}
 
-	private String parseAndLogContent(String url, HttpEntity entity) throws ParseException, IOException {
+	/**
+	 * Parses and logs to the network analytics
+	 * @param url
+	 * @param entity
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	private String parseContent(String url, HttpEntity entity) throws ParseException, IOException {
 		String content = EntityUtils.toString(entity);
 		Analytics.network(mContext, url, content.length());
-		// Log the data but hide any passwords
-		Log.v(TAG, content.replaceAll("\"hashed_password\":\".*\"", "\"hashed_password\":\"redacted\""));
 		return content;
+	}
+
+	/**
+	 * Parses the content to JSON
+	 * @param url
+	 * @param entity
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
+	private JSONObject parseContentToJSON(String url, HttpEntity entity) throws ParseException, IOException, JSONException {
+		JSONObject json = new JSONObject(parseContent(url, entity));
+		Log.v(TAG, "result: " + json.getString("result"));
+		return json;
 	}
 
 	private AuthenticateResponse parseAuthenticateResponse(HttpResponse response) {
@@ -757,10 +924,8 @@ public class OhmageApi {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
 					try {
-						String content = parseAndLogContent(url, responseEntity);
-						JSONObject rootJson;
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
-						rootJson = new JSONObject(content);
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
 							if (rootJson.has("hashed_password")) {
@@ -817,14 +982,12 @@ public class OhmageApi {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
 					try {
-						String content = parseAndLogContent(url, responseEntity);
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
-						JSONObject rootJson;
-
-						rootJson = new JSONObject(content);
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
 						} else {
+						    Log.e(TAG, rootJson.toString());
 							result = Result.FAILURE;
 							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
 							int errorCount = errorsJsonArray.length();
@@ -882,9 +1045,7 @@ public class OhmageApi {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
 					try {
-						String content = parseAndLogContent(url, responseEntity);
-
-						JSONObject rootJson = new JSONObject(content);
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;

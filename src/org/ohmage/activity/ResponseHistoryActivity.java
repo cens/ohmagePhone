@@ -96,7 +96,7 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 		final Context context = this;
 		
 		// add a sync command to the response history action bar
-		ActionBarControl actionBar = getActionBar();
+		ActionBarControl actionBar = getActionBarControl();
 		actionBar.clearActionBarCommands();
 		
 		actionBar.addActionBarCommand(ACTION_RESPONSESYNC, "sync responses", R.drawable.btn_title_refresh);

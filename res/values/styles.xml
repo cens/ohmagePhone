@@ -88,4 +88,15 @@
         <item name="android:background">@color/lightgray</item>
     </style>
 
+    <style name="RecentMobilityState">
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:padding">@dimen/gutter</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:text">0 min</item>
+        <item name="android:drawablePadding">@dimen/gutter</item>
+        <item name="android:textColor">@color/primary_text</item>
+    </style>
+
 </resources>

@@ -24,6 +24,12 @@
     <string name="logout">Logout</string>
     <string name="confirm">Confirm</string>
     <string name="all">All</string>
+    <string name="set">Set</string>
+    <string name="continue_string">Continue</string>
+    <string name="off">Off</string>
+    <string name="last_successful_upload">Last successful upload</string>
+    <string name="upload_now">Upload Now</string>
+    <string name="empty_value">-</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -31,7 +37,7 @@
     <string name="menu_satellite">Satellite</string>
 
     <!-- Maps -->
-    <string name="maps_debug_api_key">0vDqGHwHyQbGWV6uI1Zahy4w6_zfWuTnOUVXytA</string>
+    <string name="maps_debug_api_key">0EdfpwSqYgf-sUTf8ZKTfeUB2RQihIRqKtfT4HA</string>
     <string name="maps_release_api_key">0v-wLH9cxlVMxbPMFw81x2mmbeUcsS9rHCFTgkQ</string>
 
     <!-- EULA -->
@@ -51,14 +57,32 @@
     <string name="login_error_downloading_campaign">Error downloading campaign</string>
     <string name="login_username_title">Username:</string>
     <string name="login_password_title">Password:</string>
+    <string name="login_server_title">Server:</string>
+    <string name="login_choose_server">Default Servers</string>
     <string name="login_submit">Login</string>
+    <string name="login_invalid_server">Please Enter a valid server name</string>
     <string name="login_activity_login_button_description">Login Button</string>
+    
+    <string name="login_register_new_account"><a href="#">register an account</a></string>
 
     <!-- Mobility -->
-    <string name="mobility_radio_button_off_description">Off Button</string>
-    <string name="mobility_radio_button_1min_description">1 Minute Button</string>
-    <string name="mobility_radio_button_5min_description">5 Minutes Button</string>
-    <string name="mobility_upload_error_message">There was an error uploading mobility</string>
+    <string name="mobility_missing_desc">Please make sure the Mobility package is installed.</string>
+    <string name="mobility_market_btn_label">Install Mobility</string>
+    <string name="mobility_market_link">market://details?id=com.android.example</string>
+    <string name="mobiltiy_control_1min">1 min</string>
+    <string name="mobility_control_5min">5 min</string>
+    <string name="mobility_control_off_description">Off Button</string>
+    <string name="mobility_control_1min_description">1 Minute Button</string>
+    <string name="mobility_control_5min_description">5 Minutes Button</string>
+    <string name="mobility_control_sampling_interval">Sampling interval:</string>
+    <string name="mobility_control_recent_mobility_modes_title">Most recent mobility modes (last 20 minutes)</string>
+    <string name="mobility_control_no_points">No mobility modes were collected recently.</string>
+    <string name="mobility_control_upload_count_title">To upload</string>
+    <string name="mobility_control_total_title">Total</string>
+    <string name="mobility_upload_error_message">There was an error uploading: %s</string>
+    <string name="mobility_network_error_message">Network error occurred while trying upload probes</string>
+    <string name="recent_mobility_aggregate_last_week_title">Last Week</string>
+    <string name="recent_mobility_aggregate_baseline_title">During Baseline</string>
 
     <!-- Admin Pincode -->
     <string name="admin_dialog_title">Enter pin code:</string>
@@ -148,6 +172,8 @@
     <string name="prompt_text_hint">Tap this box or slide out the keyboard (if exists) to start typing.</string>
     <string name="discard_survey_title">Discard Survey?</string>
     <string name="discard_survey_message">Your survey will not be saved</string>
+    <string name="video_prompt_instructions">You can record a video which is at most 300 MB in size. If the video is longer than 300 MB you will have the option to keep the video on your sdcard, but it will not be uploaded to the server.</string>
+    <string name="survey_campaign_instructions_title">Instructions</string>
 
     <!-- Upload Queue -->
     <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>
@@ -223,6 +249,10 @@
     <string name="preferences_profile_title">Profile</string>
     <string name="preferences_upload_queue_title">Upload Queue</string>
     <string name="preferences_mobility_title">Mobility</string>
+    <string name="preferences_baseline_starttime_title">Baseline Start Date</string>
+    <string name="preferences_baseline_endtime_title">Baseline End Date</string>
+    <string name="preferences_baseline_clear_title">Clear Baseline</string>
+    <string name="preferences_ohamage_version_title">Version</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
@@ -344,4 +374,13 @@
     <string name="survey_activity_previous_description">Survey Previous Button</string>
     <string name="survey_activity_skip_description">Survey Skip Button</string>
     <string name="survey_activity_next_description">Survey Next Button</string>
+ 
+    <!-- Crash Reporting -->
+    <string name="crash_report_label">Send Force-Close Report</string>
+    <string name="crash_report_preference_summary">Send a force-close report by email.</string>
+    <string name="crash_report_error">Couldn\'t find configured email client.</string>
+    <string name="crash_report_more">Please enter a short description of what you were doing when ohmage crashed:</string>
+    <string name="crash_report_subject">Ohmage Crash Report: %1$s</string>
+    <string name="crash_report_acquiring_logs">Collecting logs from system…</string>
+    <string name="crash_report_chooser_title">Ohmage Force-Close Report</string>
 </resources>

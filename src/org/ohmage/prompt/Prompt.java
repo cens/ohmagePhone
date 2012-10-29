@@ -29,6 +29,9 @@ public interface Prompt extends SurveyElement, Displayable{
 
 	Object getResponseObject();
 	
-	void handleActivityResult(Context context, int requestCode, int resultCode, Intent data);
+	final static int REQUEST_CODE = 0;
+	void handleActivityResult(Context context, int resultCode, Intent data);
 
+	// Called by the survey activity when a prompt leaves the screen
+	void onHidden();
 }

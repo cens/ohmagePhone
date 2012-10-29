@@ -1,15 +1,5 @@
 package org.ohmage.ui;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.AccountHelper;
-import org.ohmage.OhmageApplication;
-import org.ohmage.R;
-import org.ohmage.SharedPreferencesHelper;
-import org.ohmage.controls.ActionBarControl;
-
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,6 +10,16 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import edu.ucla.cens.systemlog.Analytics;
+import edu.ucla.cens.systemlog.Analytics.Status;
+import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.AccountHelper;
+import org.ohmage.OhmageApplication;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.controls.ActionBarControl;
 
 /**
  * A base activity for all screens. It handles showing the action bar and setting the title correctly as
@@ -42,7 +42,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		SharedPreferencesHelper preferencesHelper = new SharedPreferencesHelper(this);
+		UserPreferencesHelper preferencesHelper = new UserPreferencesHelper(this);
 
 		if (preferencesHelper.isUserDisabled()) {
 			((OhmageApplication) getApplication()).resetAll();
@@ -77,7 +77,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	@Override
 	public void onContentChanged() {
 		super.onContentChanged();
-		getActionBar().setTitle(getTitle());
+		getActionBarControl().setTitle(getTitle());
 	}
 
 	@Override
@@ -117,11 +117,11 @@ public abstract class BaseActivity extends FragmentActivity {
 	@Override
 	public View findViewById(int id) {
 		// There is no reason for people to be searching through the whole hierarchy
-		// since they have access to getActionBar()
+		// since they have access to getActionBarControl()
 		return mContainer.findViewById(id);
 	}
 
-	public ActionBarControl getActionBar() {
+	public ActionBarControl getActionBarControl() {
 		return mActionBar;
 	}
 
@@ -181,6 +181,6 @@ public abstract class BaseActivity extends FragmentActivity {
 	public ContentResolver getContentResolver() {
 		// The Ohmage Application has code which makes it possible to switch content resolvers during testing.
 		// We need to make sure to get the right one here.
-		return getApplication().getContentResolver();
+		return OhmageApplication.getContext().getContentResolver();
 	}
 }

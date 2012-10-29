@@ -19,7 +19,6 @@ import org.ohmage.R;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -136,12 +135,4 @@ public class TextPrompt extends AbstractPrompt {
 		
 		return layout;
 	}
-
-	@Override
-	public void handleActivityResult(Context context, int requestCode,
-			int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

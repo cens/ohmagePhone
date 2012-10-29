@@ -16,17 +16,17 @@
 
 package org.ohmage.service;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.db.DbContract.Responses;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
+import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.db.DbContract.Responses;
 
 public class UploadReceiver extends BroadcastReceiver {
 
@@ -59,12 +59,17 @@ public class UploadReceiver extends BroadcastReceiver {
 			// If we have more than 20% battery or we are currently charging,
 			// start the upload service
 			if (percent > 20 || status == BatteryManager.BATTERY_STATUS_CHARGING) {
+			    // Start the normal upload service
 				Intent i = new Intent(context, UploadService.class);
 				i.setData(Responses.CONTENT_URI);
 				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
-				i.putExtra(UploadService.EXTRA_UPLOAD_MOBILITY, true);
-				i.putExtra(UploadService.EXTRA_UPLOAD_SURVEYS, true);
 				WakefulIntentService.sendWakefulWork(context, i);
+
+				// And start the probe upload service
+                i = new Intent(context, ProbeUploadService.class);
+                i.setData(Responses.CONTENT_URI);
+                i.putExtra(UploadService.EXTRA_BACKGROUND, true);
+                WakefulIntentService.sendWakefulWork(context, i);
 			}
 		}
 	}

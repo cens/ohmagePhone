@@ -1,5 +1,17 @@
 package org.ohmage.db;
 
+import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.OperationApplicationException;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.util.Log;
+
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -12,14 +24,6 @@ import org.ohmage.db.Models.DbModel;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.utils.SelectionBuilder;
 import org.ohmage.triggers.glue.TriggerFramework;
-
-import android.content.ContentProvider;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.UriMatcher;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +96,8 @@ import java.util.List;
  *
  */
 public class DbProvider extends ContentProvider {		
+	private static final String TAG = "DbProvider";
+
 	private static UriMatcher sUriMatcher = buildUriMatcher();
 	private DbHelper dbHelper;
 	
@@ -167,7 +173,7 @@ public class DbProvider extends ContentProvider {
 	}
 
 	@Override
-	public synchronized Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -184,7 +190,7 @@ public class DbProvider extends ContentProvider {
 	}
 	
 	@Override
-	public synchronized Uri insert(Uri uri, ContentValues values) {
+	public Uri insert(Uri uri, ContentValues values) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		long insertID = -1;
 		Uri resultingUri = null;
@@ -228,7 +234,7 @@ public class DbProvider extends ContentProvider {
 	}
 
 	@Override
-	public synchronized int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;
@@ -238,7 +244,16 @@ public class DbProvider extends ContentProvider {
 		// feed the uri to our selection builder, which will
 		// nab the appropriate rows from the right table.
 		SelectionBuilder builder = buildSelection(uri, true);
-		
+
+		// Only update the campaign if it hasn't been updated more recently
+		if(values.containsKey(Campaigns.CAMPAIGN_UPDATED)) {
+			if(selection != null)
+				selection += " AND ";
+			else
+				selection = "";
+			selection += Campaigns.CAMPAIGN_UPDATED + "<=" + values.getAsLong(Campaigns.CAMPAIGN_UPDATED);
+		}
+
 		// we should also add on the client's selection
 		builder.where(selection, selectionArgs);
 		
@@ -254,6 +269,7 @@ public class DbProvider extends ContentProvider {
 				if (values.containsKey(Campaigns.CAMPAIGN_CONFIGURATION_XML))
 					dbHelper.populateSurveysFromCampaignXML(db, oldCampaigns.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 			}
+			oldCampaigns.close();
 		}
 
 		// we assume we've matched it correctly, so proceed with the update
@@ -291,7 +307,7 @@ public class DbProvider extends ContentProvider {
 	}
 	
 	@Override
-	public synchronized int delete(Uri uri, String selection, String[] selectionArgs) {
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		// get a handle to our db
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		int count = 0;
@@ -670,6 +686,22 @@ public class DbProvider extends ContentProvider {
 			default:
 				throw new UnsupportedOperationException("buildSelection(): Unknown URI: " + uri);
 		}
+	}
+
+	@Override
+	public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) {
+		ContentProviderResult[] results = null;
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			results  = super.applyBatch(operations);
+			db.setTransactionSuccessful();
+		} catch (OperationApplicationException e) {
+			Log.e(TAG, "Error applying batch: " + e.getMessage());
+		} finally {
+			db.endTransaction();
+		}
+		return results;
 	}
 
 	/**

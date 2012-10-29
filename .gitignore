@@ -2,3 +2,8 @@ gen
 bin
 .DS_Store
 local.properties
+results
+.calabash_settings
+features/support/Test.apk
+.irbrc
+irb_android.sh

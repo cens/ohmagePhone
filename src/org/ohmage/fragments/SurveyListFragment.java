@@ -3,7 +3,7 @@ package org.ohmage.fragments;
 
 import edu.ucla.cens.systemlog.Analytics;
 
-import org.ohmage.Config;
+import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.SurveyListCursorAdapter;
@@ -124,12 +124,12 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 	
 	private void setShowPending() {
 		if (mShowPending) {
-			if(Config.IS_SINGLE_CAMPAIGN)
+			if(ConfigHelper.isSingleCampaignMode())
 				setEmptyText(getString(R.string.surveys_empty_pending_single));
 			else
 				setEmptyText(getString(R.string.surveys_empty_pending));
 		} else {
-			if(Config.IS_SINGLE_CAMPAIGN)
+			if(ConfigHelper.isSingleCampaignMode())
 				setEmptyText(getString(R.string.single_campaign_error));
 			else
 				setEmptyText(getString(R.string.surveys_empty_all));
