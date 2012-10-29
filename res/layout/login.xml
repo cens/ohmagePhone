@@ -92,7 +92,8 @@
 					android:layout_height="wrap_content"
 					android:clickable="true"
 					android:textColor="@color/powderkegblue"
-					android:text="@string/login_register_new_account" />
+					android:text="@string/login_register_new_account"
+					android:visibility="gone" />
             </LinearLayout>
 
             <Button
