@@ -3,21 +3,14 @@
 
     <!-- List of default servers to be used with this build -->
     <string-array name="servers">
-        <item>https://play.ohmage.org/</item>
-        <item>https://dev.ohmage.org/</item>
-        <item>https://test.ohmage.org/</item>
-        <item>https://internal.ohmage.org/</item>
-        <item>https://pilots.ohmage.org/</item>
-        <item>https://demo.ohmage.org/</item>
-        <item>https://dev.omh.io/</item>
-        <item>https://pilots.omh.io/</item>
+        <item>https://lausd.mobilizingcs.org/</item>
     </string-array>
 
     <!--
          If false, the user will not be able to change the server and the first
          server in the server list will be used.
     -->
-    <item name="allow_custom_server" type="bool">true</item>
+    <item name="allow_custom_server" type="bool">false</item>
 
     <!--
          Default option for single campaign mode. This can be changed by the user
