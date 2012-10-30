@@ -71,6 +71,10 @@ public class UploadReceiver extends BroadcastReceiver {
 
             }
 
+            // If we aren't connected don't try to upload
+            if (!isOnline(context))
+                return;
+
             // Start the normal upload service
             Intent i = new Intent(context, UploadService.class);
             i.setData(Responses.CONTENT_URI);
@@ -83,5 +87,12 @@ public class UploadReceiver extends BroadcastReceiver {
             i.putExtra(UploadService.EXTRA_BACKGROUND, true);
             WakefulIntentService.sendWakefulWork(context, i);
         }
+    }
+
+    public boolean isOnline(Context context) {
+        ConnectivityManager connMgr = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
     }
 }
