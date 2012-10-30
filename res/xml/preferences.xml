@@ -18,6 +18,14 @@
 			android:targetClass="org.ohmage.activity.SendLogActivity"/>
 	</PreferenceScreen>
 
+    <PreferenceCategory android:title="Network" >
+		<CheckBoxPreference
+			android:key="key_upload_wifi_only"
+			android:summaryOn="Synchronize data using Wi-Fi only. May extend battery life slightly."
+			android:summaryOff="Synchronize data using any avaliable connection."
+			android:title="Use Wi-Fi only" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="Status" >
 
         <PreferenceScreen

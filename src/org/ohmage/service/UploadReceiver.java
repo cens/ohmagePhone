@@ -20,57 +20,68 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.BatteryManager;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.systemlog.Log;
 
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Responses;
 
 public class UploadReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "UploadReceiver";
+    private static final String TAG = "UploadReceiver";
 
-	// alarm to check for new data while phone is plugged in
-	public static final String ACTION_UPLOAD_ALARM = "org.ohmage.service.ACTION_UPLOAD_ALARM";
+    // alarm to check for new data while phone is plugged in
+    public static final String ACTION_UPLOAD_ALARM = "org.ohmage.service.ACTION_UPLOAD_ALARM";
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		String action = intent.getAction();
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
 
-		if (UploadReceiver.ACTION_UPLOAD_ALARM.equals(action)) {
+        if (UploadReceiver.ACTION_UPLOAD_ALARM.equals(action)) {
 
-			// When the alarm goes off, get battery change sticky intent, if
-			// plugged in, start upload
-			Context appContext = context.getApplicationContext();
-			Intent battIntent = appContext.registerReceiver(null, new IntentFilter(
-					Intent.ACTION_BATTERY_CHANGED));
-			int level = battIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-			int scale = battIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-			int status = battIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-			if (level == -1 || scale == -1 || status == -1) {
-				Log.e(TAG, "Battery did not report level correctly");
-				return;
-			}
+            // Don't try to upload if we have less than 20% battery
+            Context appContext = context.getApplicationContext();
+            Intent battIntent = appContext.registerReceiver(null, new IntentFilter(
+                    Intent.ACTION_BATTERY_CHANGED));
+            int level = battIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = battIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            int status = battIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            if (level == -1 || scale == -1 || status == -1) {
+                Log.e(TAG, "Battery did not report level correctly");
+                return;
+            }
+            if ((float) level * 100 / scale < 20
+                    && status != BatteryManager.BATTERY_STATUS_CHARGING)
+                return;
 
-			float percent = (float) level * 100 / scale;
+            // Check if user wants uploads to only happen over wifi
+            UserPreferencesHelper user = new UserPreferencesHelper(context);
+            ConnectivityManager connManager = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (user.getUploadWifiOnly()) {
+                NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                // Don't upload if wifi isn't connected
+                if (networkInfo == null || !networkInfo.isConnected())
+                    return;
 
-			// If we have more than 20% battery or we are currently charging,
-			// start the upload service
-			if (percent > 20 || status == BatteryManager.BATTERY_STATUS_CHARGING) {
-			    // Start the normal upload service
-				Intent i = new Intent(context, UploadService.class);
-				i.setData(Responses.CONTENT_URI);
-				i.putExtra(UploadService.EXTRA_BACKGROUND, true);
-				WakefulIntentService.sendWakefulWork(context, i);
+            }
 
-				// And start the probe upload service
-                i = new Intent(context, ProbeUploadService.class);
-                i.setData(Responses.CONTENT_URI);
-                i.putExtra(UploadService.EXTRA_BACKGROUND, true);
-                WakefulIntentService.sendWakefulWork(context, i);
-			}
-		}
-	}
+            // Start the normal upload service
+            Intent i = new Intent(context, UploadService.class);
+            i.setData(Responses.CONTENT_URI);
+            i.putExtra(UploadService.EXTRA_BACKGROUND, true);
+            WakefulIntentService.sendWakefulWork(context, i);
+
+            // And start the probe upload service
+            i = new Intent(context, ProbeUploadService.class);
+            i.setData(Responses.CONTENT_URI);
+            i.putExtra(UploadService.EXTRA_BACKGROUND, true);
+            WakefulIntentService.sendWakefulWork(context, i);
+        }
+    }
 }
