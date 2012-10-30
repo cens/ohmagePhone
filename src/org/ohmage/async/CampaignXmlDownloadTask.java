@@ -18,7 +18,6 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
@@ -114,15 +113,13 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				//update occurred successfully
 			}
 			
-			if (getContext().getResources().getBoolean(R.bool.allows_feedback)) {
-				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
-				// annotate the request with the current campaign's URN
-				fbIntent.putExtra(ResponseSyncService.EXTRA_CAMPAIGN_URN, mCampaignUrn);
-				fbIntent.putExtra(ResponseSyncService.EXTRA_FORCE_ALL, true);
-				// and go!
-				WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
-			}
+			// create an intent to fire off the feedback service
+			Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
+			// annotate the request with the current campaign's URN
+			fbIntent.putExtra(ResponseSyncService.EXTRA_CAMPAIGN_URN, mCampaignUrn);
+			fbIntent.putExtra(ResponseSyncService.EXTRA_FORCE_ALL, true);
+			// and go!
+			WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
 		} else { 
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);

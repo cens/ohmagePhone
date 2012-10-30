@@ -200,9 +200,9 @@
 	    <service android:name=".service.UploadService"/>
 	    <service android:name=".service.ProbeUploadService"/>
     	
-		<receiver android:name=".service.UploadReceiver">
+		<receiver android:name=".service.SyncReceiver">
 			<intent-filter>
-	    		<action android:name="org.ohmage.service.ACTION_UPLOAD_ALARM"/>
+			<action android:name="org.ohmage.service.ACTION_SYNC_ALARM"/>
 	    	</intent-filter>
 	    </receiver>
 	    
@@ -324,13 +324,7 @@
         -->       
 
 	    <service android:name=".responsesync.ResponseSyncService" />
-	    
-	   	<receiver android:name=".responsesync.ResponseSyncReceiver">
-	    	<intent-filter>
-				<action android:name="org.ohmage.responsesync.ACTION_FBSYNC_ALARM"/>
-	    	</intent-filter>
-	    </receiver>
-	    
+
 	    <provider android:name=".db.DbProvider"
 	    	android:authorities="org.ohmage.db">
 	    </provider>

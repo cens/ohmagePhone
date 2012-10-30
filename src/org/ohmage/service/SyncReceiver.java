@@ -30,19 +30,20 @@ import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.responsesync.ResponseSyncService;
 
-public class UploadReceiver extends BroadcastReceiver {
+public class SyncReceiver extends BroadcastReceiver {
 
     private static final String TAG = "UploadReceiver";
 
     // alarm to check for new data while phone is plugged in
-    public static final String ACTION_UPLOAD_ALARM = "org.ohmage.service.ACTION_UPLOAD_ALARM";
+    public static final String ACTION_SYNC_ALARM = "org.ohmage.service.ACTION_SYNC_ALARM";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
 
-        if (UploadReceiver.ACTION_UPLOAD_ALARM.equals(action)) {
+        if (SyncReceiver.ACTION_SYNC_ALARM.equals(action)) {
 
             // Don't try to upload if we have less than 20% battery
             Context appContext = context.getApplicationContext();
@@ -86,6 +87,9 @@ public class UploadReceiver extends BroadcastReceiver {
             i.setData(Responses.CONTENT_URI);
             i.putExtra(UploadService.EXTRA_BACKGROUND, true);
             WakefulIntentService.sendWakefulWork(context, i);
+
+            // Download responses
+            WakefulIntentService.sendWakefulWork(context, ResponseSyncService.class);
         }
     }
 

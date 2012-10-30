@@ -37,12 +37,6 @@
     -->
     <item name="reminder_admin_mode" type="bool">true</item>
 
-    <!--
-         If false, the ResponseSyncService wont run. This is useful if access to
-         the response history is not being allowed.
-    -->
-    <item name="allows_feedback" type="bool">true</item>
-
     <!-- If true, analaytics interactions will be logged to systemlog -->
     <item name="log_analytics" type="bool">true</item>
 
