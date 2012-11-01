@@ -39,7 +39,8 @@ public class UserPreferencesHelper {
 	public static final String KEY_SHOW_MOBILITY_FEEDBACK = "key_show_mobility_feedback";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
 	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
-	private static final String KEY_UPLOAD_WIFI_ONLY = "key_upload_wifi_only";
+	private static final String KEY_UPLOAD_PROBES_WIFI_ONLY = "key_upload_probes_wifi_only";
+    private static final String KEY_UPLOAD_RESPONSES_WIFI_ONLY = "key_upload_responses_wifi_only";
 	private static final String KEY_USERNAME = "username";
 	private static final String KEY_PASSWORD_HASHED = "hashedPassword";
 	private static final String KEY_IS_DISABLED = "is_disabled";
@@ -208,11 +209,19 @@ public class UserPreferencesHelper {
 		return mPreferences.edit().putLong(KEY_CAMPAIGN_REFRESH_TIME, time).commit();
 	}
 
-    public boolean getUploadWifiOnly() {
-        return mPreferences.getBoolean(KEY_UPLOAD_WIFI_ONLY, false);
+    public boolean getUploadProbesWifiOnly() {
+        return mPreferences.getBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY, false);
     }
 
-    public boolean setUploadWifiOnly(boolean wifiOnly) {
-        return mPreferences.edit().putBoolean(KEY_UPLOAD_WIFI_ONLY, wifiOnly).commit();
+    public boolean setUploadProbesWifiOnly(boolean wifiOnly) {
+        return mPreferences.edit().putBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY, wifiOnly).commit();
+    }
+
+    public boolean getUploadResponsesWifiOnly() {
+        return mPreferences.getBoolean(KEY_UPLOAD_RESPONSES_WIFI_ONLY, false);
+    }
+
+    public boolean setUploadResponsesWifiOnly(boolean wifiOnly) {
+        return mPreferences.edit().putBoolean(KEY_UPLOAD_RESPONSES_WIFI_ONLY, wifiOnly).commit();
     }
 }

@@ -60,36 +60,36 @@ public class SyncReceiver extends BroadcastReceiver {
                     && status != BatteryManager.BATTERY_STATUS_CHARGING)
                 return;
 
-            // Check if user wants uploads to only happen over wifi
-            UserPreferencesHelper user = new UserPreferencesHelper(context);
-            ConnectivityManager connManager = (ConnectivityManager) context
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (user.getUploadWifiOnly()) {
-                NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                // Don't upload if wifi isn't connected
-                if (networkInfo == null || !networkInfo.isConnected())
-                    return;
-
-            }
-
             // If we aren't connected don't try to upload
             if (!isOnline(context))
                 return;
 
-            // Start the normal upload service
-            Intent i = new Intent(context, UploadService.class);
-            i.setData(Responses.CONTENT_URI);
-            i.putExtra(UploadService.EXTRA_BACKGROUND, true);
-            WakefulIntentService.sendWakefulWork(context, i);
+            // Check if user wants uploads to only happen over wifi
+            UserPreferencesHelper user = new UserPreferencesHelper(context);
+            ConnectivityManager connManager = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-            // And start the probe upload service
-            i = new Intent(context, ProbeUploadService.class);
-            i.setData(Responses.CONTENT_URI);
-            i.putExtra(UploadService.EXTRA_BACKGROUND, true);
-            WakefulIntentService.sendWakefulWork(context, i);
+            if (!user.getUploadResponsesWifiOnly()
+                    || (wifiInfo != null && wifiInfo.isConnected())) {
+                // Start the normal upload service
+                Intent i = new Intent(context, UploadService.class);
+                i.setData(Responses.CONTENT_URI);
+                i.putExtra(UploadService.EXTRA_BACKGROUND, true);
+                WakefulIntentService.sendWakefulWork(context, i);
 
-            // Download responses
-            WakefulIntentService.sendWakefulWork(context, ResponseSyncService.class);
+                // Download responses
+                WakefulIntentService.sendWakefulWork(context, ResponseSyncService.class);
+            }
+
+            if (!user.getUploadProbesWifiOnly()
+                    || (wifiInfo != null && wifiInfo.isConnected())) {
+                // And start the probe upload service
+                Intent i = new Intent(context, ProbeUploadService.class);
+                i.setData(Responses.CONTENT_URI);
+                i.putExtra(UploadService.EXTRA_BACKGROUND, true);
+                WakefulIntentService.sendWakefulWork(context, i);
+            }
         }
     }
 
