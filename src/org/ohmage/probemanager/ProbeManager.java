@@ -72,9 +72,10 @@ public class ProbeManager extends Service {
                 if (BUFFER_POINTS) {
                     synchronized (probePoints) {
                         probePoints.add(values);
-                        if (probePoints.size() > MAX_BUFFER)
+                        if (probePoints.size() > MAX_BUFFER) {
+                            mHandler.removeMessages(0);
                             flushProbes();
-                        else
+                        } else
                             queueFlush();
                     }
                     return true;
@@ -100,9 +101,10 @@ public class ProbeManager extends Service {
                 if (BUFFER_POINTS) {
                     synchronized (responsePoints) {
                         responsePoints.add(values);
-                        if (responsePoints.size() > MAX_BUFFER)
+                        if (responsePoints.size() > MAX_BUFFER) {
+                            mHandler.removeMessages(0);
                             flushResponses();
-                        else
+                        } else
                             queueFlush();
                     }
                     return true;
