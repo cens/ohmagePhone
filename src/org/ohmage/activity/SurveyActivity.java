@@ -310,16 +310,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 		@Override
 		public void onClick(View v) {
-			v.setClickable(false);
-
-			if(v.getId() != R.id.next_button || !mReachedEnd) {
-				// We have special logic for logging the submit button
-				Analytics.widget(v);
-
-				// After we click the submit button once, it should not be clickable again
-				v.setClickable(true);
-			}
-
 			if (mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof AbstractPrompt) {
 				// Tell the current prompt that it is being hidden
 				((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).onHidden();
@@ -328,16 +318,18 @@ public class SurveyActivity extends Activity implements LocationListener {
 			switch (v.getId()) {
 				case R.id.next_button:
 					if (mReachedEnd) {
-						mSurveyFinished = true;
-						Response response = storeResponse();
-						String uuid = response.uuid;
-						Analytics.widget(v, null, uuid);
-						TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
-						SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
-						prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
-						Intent postSurveyIntent = new Intent(SurveyActivity.this, PostSurveyActivity.class);
-						postSurveyIntent.setData(Responses.buildResponseUri(response._id));
-						startActivityForResult(postSurveyIntent, POST_SURVEY_ACTIVITY);
+					    if(!mSurveyFinished) {
+							mSurveyFinished = true;
+							Response response = storeResponse();
+							String uuid = response.uuid;
+							Analytics.widget(v, null, uuid);
+							TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
+							SharedPreferencesHelper prefs = new SharedPreferencesHelper(SurveyActivity.this);
+							prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
+							Intent postSurveyIntent = new Intent(SurveyActivity.this, PostSurveyActivity.class);
+							postSurveyIntent.setData(Responses.buildResponseUri(response._id));
+							startActivityForResult(postSurveyIntent, POST_SURVEY_ACTIVITY);
+						}
 					} else {
 						if (mSurveyElements.get(mCurrentPosition) instanceof Prompt || mSurveyElements.get(mCurrentPosition) instanceof Message) {
 							//show toast if not answered
