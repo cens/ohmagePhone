@@ -19,13 +19,52 @@ import java.util.ArrayList;
 
 public class ProbeManager extends Service {
 
+    /**
+     * Set to true if we want to buffer points
+     */
     private static final boolean BUFFER_POINTS = true;
+
+    /**
+     * buffer 25% of available memory, up to a maximum of 16MB
+     */
+    private static final long MAX_BYTE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 4,
+            16 * 1024 * 1024);
+
+    /**
+     * Maximum number of points which should be in the buffer at any give time
+     */
     private static final int MAX_BUFFER = 600;
+
+    /**
+     * Maximum number of milliseconds to wait before flushing data to db
+     */
     private static final long FLUSH_DELAY = 300;
 
+    /**
+     * Number of bytes allocated to the data portions of probePoints
+     */
+    private int probeByteSize = 0;
+
+    /**
+     * Number of bytes allocated to the data portion of responsePoints
+     */
+    private int responseByteSize = 0;
+
+    /**
+     * Probe data
+     */
     ArrayList<ContentValues> probePoints = new ArrayList<ContentValues>();
+
+    /**
+     * Response data
+     */
     ArrayList<ContentValues> responsePoints = new ArrayList<ContentValues>();
 
+    /**
+     * Handles a flush message
+     * 
+     * @author cketcham
+     */
     static class PointFlushHandler extends Handler {
         private final WeakReference<ProbeManager> mService;
 
@@ -55,7 +94,7 @@ public class ProbeManager extends Service {
                     int streamVersion, int uploadPriority, String metadata, String data)
                     throws RemoteException {
                 // Don't write a probe unless a user is logged into ohmage
-                if(TextUtils.isEmpty(mUserPrefs.getUsername())) {
+                if (TextUtils.isEmpty(mUserPrefs.getUsername())) {
                     return false;
                 }
 
@@ -71,8 +110,10 @@ public class ProbeManager extends Service {
 
                 if (BUFFER_POINTS) {
                     synchronized (probePoints) {
+                        probeByteSize += metadata.length() + data.length();
                         probePoints.add(values);
-                        if (probePoints.size() > MAX_BUFFER) {
+                        if (probePoints.size() > MAX_BUFFER
+                                || probeByteSize + responseByteSize > MAX_BYTE_SIZE) {
                             mHandler.removeMessages(0);
                             flushProbes();
                         } else
@@ -88,7 +129,7 @@ public class ProbeManager extends Service {
             public boolean writeResponse(String campaignUrn, String campaignCreationTimestamp,
                     int uploadPriority, String data) throws RemoteException {
                 // Don't write a response unless a user is logged into ohmage
-                if(TextUtils.isEmpty(mUserPrefs.getUsername()))
+                if (TextUtils.isEmpty(mUserPrefs.getUsername()))
                     return false;
 
                 ContentValues values = new ContentValues();
@@ -100,8 +141,10 @@ public class ProbeManager extends Service {
 
                 if (BUFFER_POINTS) {
                     synchronized (responsePoints) {
+                        responseByteSize += data.length();
                         responsePoints.add(values);
-                        if (responsePoints.size() > MAX_BUFFER) {
+                        if (responsePoints.size() > MAX_BUFFER
+                                || probeByteSize + responseByteSize > MAX_BYTE_SIZE) {
                             mHandler.removeMessages(0);
                             flushResponses();
                         } else
@@ -140,6 +183,7 @@ public class ProbeManager extends Service {
         synchronized (probePoints) {
             toFlush = probePoints.toArray(new ContentValues[] {});
             probePoints.clear();
+            probeByteSize = 0;
         }
         getContentResolver().bulkInsert(Probes.CONTENT_URI, toFlush);
     }
@@ -149,6 +193,7 @@ public class ProbeManager extends Service {
         synchronized (responsePoints) {
             toFlush = responsePoints.toArray(new ContentValues[] {});
             responsePoints.clear();
+            responseByteSize = 0;
         }
         getContentResolver().bulkInsert(Responses.CONTENT_URI, toFlush);
     }
