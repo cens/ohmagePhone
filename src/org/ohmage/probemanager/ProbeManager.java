@@ -38,7 +38,7 @@ public class ProbeManager extends Service {
     /**
      * Maximum number of milliseconds to wait before flushing data to db
      */
-    private static final long FLUSH_DELAY = 300;
+    private static final long FLUSH_DELAY = 500;
 
     /**
      * Number of bytes allocated to the data portions of probePoints
