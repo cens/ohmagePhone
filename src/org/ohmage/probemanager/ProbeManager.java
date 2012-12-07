@@ -110,7 +110,10 @@ public class ProbeManager extends Service {
 
                 if (BUFFER_POINTS) {
                     synchronized (probePoints) {
-                        probeByteSize += metadata.length() + data.length();
+                        if(data != null)
+                            probeByteSize += data.length();
+                        if(metadata != null)
+                            probeByteSize += metadata.length();
                         probePoints.add(values);
                         if (probePoints.size() > MAX_BUFFER
                                 || probeByteSize + responseByteSize > MAX_BYTE_SIZE) {
@@ -141,7 +144,8 @@ public class ProbeManager extends Service {
 
                 if (BUFFER_POINTS) {
                     synchronized (responsePoints) {
-                        responseByteSize += data.length();
+                        if(data != null)
+                            responseByteSize += data.length();
                         responsePoints.add(values);
                         if (responsePoints.size() > MAX_BUFFER
                                 || probeByteSize + responseByteSize > MAX_BYTE_SIZE) {
