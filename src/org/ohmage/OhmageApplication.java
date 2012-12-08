@@ -33,13 +33,13 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Response;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe;
+import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.responsesync.ResponseSyncService;
@@ -74,6 +74,8 @@ public class OhmageApplication extends Application {
 
     private ImageLoader mImageLoader;
 
+    private LogProbe logger;
+
     private static OhmageApplication self;
 
     private static ContentResolver mFakeContentResolver;
@@ -83,12 +85,13 @@ public class OhmageApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Analytics.activity(this, Status.ON);
 
         self = this;
 
-        Log.initialize(this, "Ohmage");
-
-        Analytics.activity(this, Status.ON);
+        logger = new LogProbe(getResources().getBoolean(R.bool.log_analytics),
+                getResources().getString(R.string.log_level));
+        logger.connect(this);
 
         mImageLoader = createImageLoader(this);
 
@@ -243,6 +246,10 @@ public class OhmageApplication extends Application {
         if (mHttpClient != null) {
             mHttpClient.close();
             mHttpClient = null;
+        }
+        if (logger != null) {
+            logger.close();
+            logger = null;
         }
         mImageLoader = null;
         Analytics.activity(this, Status.OFF);

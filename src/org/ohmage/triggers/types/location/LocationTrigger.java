@@ -15,18 +15,17 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.location;
 
-import edu.ucla.cens.systemlog.Log;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.R;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.ui.TriggerListActivity;
-
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
 
 /*
  * The concrete instance of the location based triggers class. 

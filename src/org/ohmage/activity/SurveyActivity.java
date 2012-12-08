@@ -44,11 +44,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-import edu.ucla.cens.systemlog.OhmageAnalytics;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,6 +78,10 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.WakefulService;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.OhmageAnalytics;
+import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -842,10 +841,10 @@ public class SurveyActivity extends Activity implements LocationListener {
 			return;
 
 		if(mLastElement instanceof AbstractPrompt) {
-			OhmageAnalytics.prompt(this, (AbstractPrompt) mLastElement, Status.OFF);
+			OhmageAnalytics.prompt((AbstractPrompt) mLastElement, Status.OFF);
 		}
 		if(element  instanceof AbstractPrompt) {
-			OhmageAnalytics.prompt(this, (AbstractPrompt) element, Status.ON);
+			OhmageAnalytics.prompt((AbstractPrompt) element, Status.ON);
 		}
 		mLastElement = element;
 	}

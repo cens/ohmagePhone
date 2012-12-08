@@ -8,7 +8,6 @@ import android.content.OperationApplicationException;
 import android.os.RemoteException;
 
 import edu.ucla.cens.mobility.glue.MobilityInterface;
-import edu.ucla.cens.systemlog.Log;
 
 import org.codehaus.jackson.JsonNode;
 import org.ohmage.ConfigHelper;
@@ -18,6 +17,7 @@ import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.logprobe.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

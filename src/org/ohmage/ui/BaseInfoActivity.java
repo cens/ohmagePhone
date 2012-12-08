@@ -1,9 +1,5 @@
 package org.ohmage.ui;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,6 +7,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.ohmage.R;
+import org.ohmage.logprobe.Analytics;
 
 /**
  * A base activity for entity info screens that includes the entity info header, and provides a view

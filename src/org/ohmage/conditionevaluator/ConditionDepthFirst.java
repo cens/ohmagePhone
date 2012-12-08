@@ -15,8 +15,6 @@
  ******************************************************************************/
 package org.ohmage.conditionevaluator;
 
-import java.util.List;
-
 import org.andwellness.config.grammar.syntaxtree.NodeOptional;
 import org.andwellness.config.grammar.syntaxtree.NodeSequence;
 import org.andwellness.config.grammar.syntaxtree.NodeToken;
@@ -31,8 +29,9 @@ import org.andwellness.config.grammar.syntaxtree.value;
 import org.andwellness.config.grammar.visitor.GJDepthFirst;
 import org.ohmage.conditionevaluator.comparator.DataPointComparator;
 import org.ohmage.conditionevaluator.comparator.DataPointComparatorFactory;
+import org.ohmage.logprobe.Log;
 
-import edu.ucla.cens.systemlog.Log;
+import java.util.List;
 
 /**
  * Check to see if the condition outputs to true or false, based on previous responses.
@@ -55,7 +54,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
 	private static final String TAG = "ConditionDepthFirst";
 	
     // Holds the List of current ID/value pairs
-    private List<DataPoint> _currentIdList;
+    private final List<DataPoint> _currentIdList;
     //private static Logger _logger = Logger.getLogger(ConditionDepthFirst.class);
     
     /**
@@ -72,6 +71,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
      * 
      * @return A String representing the token's value.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public R visit(NodeToken n, A argu) { 
         return (R) n.toString(); 
@@ -83,6 +83,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
      * 
      * @return The validity of the sentence.
      */
+    @Override
     public R visit(start n, A argu) {
        R _ret=null;
        // Return the evaluation of the overall sentence
@@ -102,6 +103,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
      *       
      * @return The validity of the sentence_prime
      */
+    @Override
     @SuppressWarnings("unchecked")
     public R visit(sentence n, A argu) {
        R _ret=null;
@@ -150,6 +152,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
      * @param argu A Boolean that represents the left side of the conjunction
      * @return A Boolean that represents the valisity of this sentence_prime
      */
+    @Override
     @SuppressWarnings("unchecked")
     public R visit(sentence_prime n, A argu) {
        R _ret=null;
@@ -158,7 +161,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
        Boolean initialValue = (Boolean) argu;
        
        // The NodeOptional will tell us if this node exists
-       NodeOptional nodeOptional = (NodeOptional) n.f0;
+       NodeOptional nodeOptional = n.f0;
        
        // If this is a nullified sentence_prime, just return the initial value back
        // (The base case of the recursiveness)
@@ -242,6 +245,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
      * 
      * @return A Boolean representing the validity of this expression.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public R visit(expr n, A argu) {
        R _ret=null;
@@ -260,8 +264,6 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
            /*if (ConditionDepthFirst._logger.isDebugEnabled()) {
                ConditionDepthFirst._logger.debug("Could not find node id " + nodeId);
            }*/
-           
-           Log.d(TAG, "Could not find node id " + nodeId);
        }
        // If we find the ID, evaluation the expression
        else {
@@ -282,7 +284,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
                    " " + nodeValue + " and got " + ((Boolean) _ret).toString());
        }*/
        
-       Log.d(TAG, "Evaluated " + nodeId + " " + nodeCondition + " " + nodeValue + " and got " + ((Boolean) _ret).toString());
+       Log.i(TAG, "Evaluated " + nodeId + " " + nodeCondition + " " + nodeValue + " and got " + ((Boolean) _ret).toString());
        
        return _ret;
     }
@@ -290,6 +292,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
     /**
      * f0 -> <TEXT>
      */
+    @Override
     public R visit(id n, A argu) {
        R _ret=null;
        _ret = n.f0.accept(this, argu);
@@ -304,6 +307,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
      *       | "<="
      *       | ">="
      */
+    @Override
     public R visit(condition n, A argu) {
        R _ret=null;
        _ret = n.f0.accept(this, argu);
@@ -313,6 +317,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
     /**
      * f0 -> <TEXT>
      */
+    @Override
     public R visit(value n, A argu) {
        R _ret=null;
        _ret = n.f0.accept(this, argu);
@@ -323,6 +328,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
      * f0 -> "and"
      *       | "or"
      */
+    @Override
     public R visit(conjunction n, A argu) {
        R _ret=null;
        _ret = n.f0.accept(this, argu);

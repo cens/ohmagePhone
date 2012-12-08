@@ -43,8 +43,6 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.google.android.imageloader.ImageLoader.Callback;
 
-import edu.ucla.cens.systemlog.Analytics;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.ConfigHelper;
@@ -61,6 +59,7 @@ import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.service.SurveyGeotagService;
+import org.ohmage.logprobe.Analytics;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.ResponseActivityHelper;
 

@@ -15,13 +15,13 @@
  ******************************************************************************/
 package org.ohmage.service;
 
-import org.ohmage.BackgroundManager;
-import org.ohmage.ConfigHelper;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.BackgroundManager;
+import org.ohmage.ConfigHelper;
+import org.ohmage.logprobe.Log;
 
 public class BootReceiver extends BroadcastReceiver {
 	
@@ -29,7 +29,6 @@ public class BootReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(final Context context, Intent intent) {
-		Log.i(TAG, "onReceive");
 		
 		final ConfigHelper preferencesHelper = new ConfigHelper(context);
 		boolean isFirstRun = preferencesHelper.isFirstRun();

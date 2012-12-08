@@ -16,12 +16,6 @@
 
 package com.google.android.imageloader;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.OhmageApi;
-import org.ohmage.OhmageApplication;
-
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
@@ -39,6 +33,11 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+
+import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApplication;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;

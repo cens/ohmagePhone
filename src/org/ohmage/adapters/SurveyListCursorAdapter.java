@@ -1,15 +1,5 @@
 package org.ohmage.adapters;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.ConfigHelper;
-import org.ohmage.R;
-import org.ohmage.activity.SubActionClickListener;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Survey;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -20,6 +10,15 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.ohmage.ConfigHelper;
+import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Survey;
+import org.ohmage.logprobe.Analytics;
 
 public class SurveyListCursorAdapter extends CursorAdapter{
 	

@@ -1,9 +1,5 @@
 package org.ohmage.controls;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -14,6 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
+import org.ohmage.R;
+import org.ohmage.logprobe.Analytics;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -24,22 +24,6 @@ package org.ohmage.triggers.types.location;
  * location.
  */
 
-import com.google.android.maps.GeoPoint;
-
-import edu.ucla.cens.accelservice.IAccelService;
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
-import edu.ucla.cens.wifigpslocation.IWiFiGPSLocationService;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ohmage.db.DbHelper;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.triggers.config.LocTrigConfig;
-import org.ohmage.triggers.utils.SimpleTime;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -63,6 +47,22 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+
+import com.google.android.maps.GeoPoint;
+
+import edu.ucla.cens.accelservice.IAccelService;
+import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
+import edu.ucla.cens.wifigpslocation.IWiFiGPSLocationService;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.triggers.config.LocTrigConfig;
+import org.ohmage.triggers.utils.SimpleTime;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -904,7 +904,7 @@ public class LocTrigService extends Service
 		}
 		
 		String msg = "Location trace: " + jLoc.toString();
-		//Upload the trace using SystemLog
+		//Upload the trace using LogProbe
 		Log.i(TAG, "LocTrigService: Upload location trace: " + msg);
 		
 		//Save this location locally

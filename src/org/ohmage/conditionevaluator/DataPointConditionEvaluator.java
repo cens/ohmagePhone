@@ -15,14 +15,13 @@
  ******************************************************************************/
 package org.ohmage.conditionevaluator;
 
-import java.io.StringReader;
-import java.util.List;
-
 import org.andwellness.config.grammar.parser.ConditionParser;
 import org.andwellness.config.grammar.parser.ParseException;
 import org.andwellness.config.grammar.syntaxtree.start;
+import org.ohmage.logprobe.Log;
 
-import edu.ucla.cens.systemlog.Log;
+import java.io.StringReader;
+import java.util.List;
 
 /**
  * Basic utility class to evaluate a string condition against a list of data points.
@@ -76,7 +75,7 @@ public class DataPointConditionEvaluator {
                 /*if (DataPointConditionEvaluator._logger.isDebugEnabled()) {
                     DataPointConditionEvaluator._logger.debug("Condition [" + condition + "] evaluated as " + conditionValue.toString());
                 }*/
-                Log.d(TAG, "Condition [" + condition + "] evaluated as " + conditionValue.toString());
+                Log.i(TAG, "Condition [" + condition + "] evaluated as " + conditionValue.toString());
                 
                 return conditionValue.booleanValue();
                 

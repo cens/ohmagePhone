@@ -1,18 +1,6 @@
 package org.ohmage.fragments;
 
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.ConfigHelper;
-import org.ohmage.R;
-import org.ohmage.activity.SubActionClickListener;
-import org.ohmage.adapters.SurveyListCursorAdapter;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.Models.Survey;
-import org.ohmage.db.utils.SelectionBuilder;
-import org.ohmage.ui.OhmageFilterable.CampaignFilter;
-
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,6 +12,17 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.ohmage.ConfigHelper;
+import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.adapters.SurveyListCursorAdapter;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Survey;
+import org.ohmage.db.utils.SelectionBuilder;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 /**
  * <p>The {@link SurveyListFragment} shows a list of surveys</p>

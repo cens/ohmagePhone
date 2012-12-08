@@ -1,18 +1,5 @@
 package org.ohmage.activity;
 
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-import org.ohmage.adapters.ResponseListCursorAdapter;
-import org.ohmage.controls.DateFilterControl;
-import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
-import org.ohmage.fragments.ResponseListFragment;
-import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
-import org.ohmage.ui.CampaignSurveyFilterActivity;
-import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
-import org.ohmage.ui.OhmageFilterable.SurveyFilterable;
-import org.ohmage.ui.OhmageFilterable.TimeFilter;
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -22,6 +9,18 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.Toast;
+
+import org.ohmage.R;
+import org.ohmage.adapters.ResponseListCursorAdapter;
+import org.ohmage.controls.DateFilterControl;
+import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;
+import org.ohmage.fragments.ResponseListFragment;
+import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
+import org.ohmage.logprobe.Log;
+import org.ohmage.ui.CampaignSurveyFilterActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
+import org.ohmage.ui.OhmageFilterable.SurveyFilterable;
+import org.ohmage.ui.OhmageFilterable.TimeFilter;
 
 import java.util.Calendar;
 
@@ -107,7 +106,7 @@ public class ResponseListActivity extends CampaignSurveyFilterActivity implement
 	@Override
 	public void onResponseActionUpload(Uri responseUri) {
 		Toast.makeText(this, R.string.response_list_upload_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.e(TAG, "onResponseActionUpload should not be exposed in this activity.");		
+		Log.e(TAG, "onResponseActionUpload should not be exposed in this activity.");
 	}
 
 	@Override

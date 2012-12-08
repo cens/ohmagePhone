@@ -13,8 +13,6 @@ import android.widget.Button;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import edu.ucla.cens.systemlog.Analytics;
-
 import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.adapters.ResponseListCursorAdapter;
@@ -27,6 +25,7 @@ import org.ohmage.db.Models.Response;
 import org.ohmage.fragments.ResponseListFragment;
 import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
 import org.ohmage.service.UploadService;
+import org.ohmage.logprobe.Analytics;
 import org.ohmage.ui.CampaignFilterActivity;
 import org.ohmage.ui.ResponseActivityHelper;
 

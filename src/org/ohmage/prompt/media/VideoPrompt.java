@@ -33,11 +33,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.R;
 import org.ohmage.Utilities;
 import org.ohmage.activity.SurveyActivity;
+import org.ohmage.logprobe.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -79,7 +78,7 @@ public class VideoPrompt extends MediaPrompt {
 					}
 				}
 			} else {
-				Log.d(TAG, "Video was not found!");
+				Log.e(TAG, "Video was not found!");
 			}
 			((SurveyActivity) context).reloadCurrentPrompt();
 		} 

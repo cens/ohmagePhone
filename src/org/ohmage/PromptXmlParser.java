@@ -17,8 +17,6 @@ package org.ohmage;
 
 import android.util.Xml;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
@@ -28,6 +26,7 @@ import org.ohmage.prompt.PromptFactory;
 import org.ohmage.prompt.RepeatableSetHeader;
 import org.ohmage.prompt.RepeatableSetTerminator;
 import org.ohmage.prompt.SurveyElement;
+import org.ohmage.logprobe.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 

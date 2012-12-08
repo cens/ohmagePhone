@@ -7,8 +7,6 @@ import android.content.Intent;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +20,7 @@ import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.responsesync.ResponseSyncService;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import java.text.SimpleDateFormat;

@@ -1,14 +1,5 @@
 package org.ohmage.adapters;
 
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-import org.ohmage.activity.SubActionClickListener;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.Models.Campaign;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -21,6 +12,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.imageloader.ImageLoader;
+
+import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
 
 public class CampaignListCursorAdapter extends CursorAdapter{
 	

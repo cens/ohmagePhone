@@ -11,15 +11,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
 
 /**
  * A base activity for all screens. It handles showing the action bar and setting the title correctly as

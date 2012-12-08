@@ -17,15 +17,6 @@ package org.ohmage.triggers.types.location;
 
 
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
-import org.ohmage.R;
-import org.ohmage.db.DbHelper;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.triggers.config.TrigUserConfig;
-import org.ohmage.triggers.utils.TrigTextInput;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -49,6 +40,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
+import org.ohmage.R;
+import org.ohmage.db.DbHelper;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.utils.TrigTextInput;
 
 import java.util.HashSet;
 import java.util.LinkedList;

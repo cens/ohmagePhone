@@ -1,9 +1,5 @@
 package org.ohmage.ui;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +12,9 @@ import android.view.ViewGroup;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
+
+import org.ohmage.R;
+import org.ohmage.logprobe.Analytics;
 
 import java.util.ArrayList;
 

@@ -15,15 +15,14 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.time;
 
-import edu.ucla.cens.systemlog.Log;
+import android.content.Context;
+import android.content.Intent;
 
 import org.json.JSONObject;
 import org.ohmage.R;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.ui.TriggerListActivity;
-
-import android.content.Context;
-import android.content.Intent;
 
 
 public class TimeTrigger extends TriggerBase {

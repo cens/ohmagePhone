@@ -1,12 +1,5 @@
 package org.ohmage.activity;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.AccountHelper;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.ui.BaseInfoActivity;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -15,6 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+
+import org.ohmage.AccountHelper;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.ui.BaseInfoActivity;
 
 public class ProfileActivity extends BaseInfoActivity {
 	

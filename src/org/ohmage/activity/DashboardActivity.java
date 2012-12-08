@@ -1,13 +1,5 @@
 package org.ohmage.activity;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.ConfigHelper;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.async.CampaignReadLoaderCallbacks;
-import org.ohmage.ui.BaseActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +8,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+
+import org.ohmage.ConfigHelper;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.async.CampaignReadLoaderCallbacks;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.ui.BaseActivity;
 
 public class DashboardActivity extends BaseActivity {
 	private static final String TAG = "DashboardActivity";

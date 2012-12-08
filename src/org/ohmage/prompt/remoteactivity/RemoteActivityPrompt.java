@@ -29,13 +29,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.R;
 import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.logprobe.Log;
 
 import java.util.Iterator;
 import java.util.List;

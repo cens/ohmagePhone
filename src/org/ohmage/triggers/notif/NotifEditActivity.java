@@ -15,14 +15,6 @@
  ******************************************************************************/
 package org.ohmage.triggers.notif;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-import org.ohmage.triggers.config.NotifConfig;
-import org.ohmage.triggers.utils.TrigTextInput;
-
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
@@ -37,6 +29,13 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.ohmage.R;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.triggers.config.NotifConfig;
+import org.ohmage.triggers.utils.TrigTextInput;
 
 import java.util.ArrayList;
 import java.util.Iterator;

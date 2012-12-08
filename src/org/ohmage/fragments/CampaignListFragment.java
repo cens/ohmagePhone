@@ -1,14 +1,5 @@
 package org.ohmage.fragments;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-import org.ohmage.activity.SubActionClickListener;
-import org.ohmage.adapters.CampaignListCursorAdapter;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.Models.Campaign;
-
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,6 +14,14 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.adapters.CampaignListCursorAdapter;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
 
 public class CampaignListFragment extends ListFragment implements SubActionClickListener, LoaderCallbacks<Cursor> {
 	

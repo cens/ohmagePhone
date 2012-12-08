@@ -10,14 +10,13 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
 import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.LogProbe.Status;
 
 public class AdminSettingsActivity extends PreferenceActivity  {
 

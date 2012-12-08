@@ -1,12 +1,5 @@
 package org.ohmage.adapters;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-import org.ohmage.activity.SubActionClickListener;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Response;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
@@ -15,6 +8,12 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+
+import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Response;
+import org.ohmage.logprobe.Analytics;
 
 public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapter {
 	

@@ -16,15 +16,6 @@
 package org.ohmage.triggers.notif;
 
 
-import edu.ucla.cens.systemlog.Log;
-import edu.ucla.cens.systemlog.OhmageAnalytics;
-import edu.ucla.cens.systemlog.OhmageAnalytics.TriggerStatus;
-
-import org.ohmage.R;
-import org.ohmage.db.DbHelper;
-import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.triggers.utils.TrigPrefManager;
-
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -37,6 +28,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+
+import org.ohmage.R;
+import org.ohmage.db.DbHelper;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.OhmageAnalytics;
+import org.ohmage.logprobe.OhmageAnalytics.TriggerStatus;
+import org.ohmage.triggers.base.TriggerDB;
+import org.ohmage.triggers.utils.TrigPrefManager;
 
 import java.util.List;
 import java.util.Set;

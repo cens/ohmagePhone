@@ -15,17 +15,6 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.time;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-import org.ohmage.triggers.base.TriggerActionDesc;
-import org.ohmage.triggers.config.TrigUserConfig;
-import org.ohmage.triggers.ui.ActionSelectorView;
-import org.ohmage.triggers.ui.TriggerListActivity;
-import org.ohmage.triggers.utils.TimePickerPreference;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -40,6 +29,16 @@ import android.preference.PreferenceScreen;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import org.ohmage.R;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.triggers.base.TriggerActionDesc;
+import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.ui.ActionSelectorView;
+import org.ohmage.triggers.ui.TriggerListActivity;
+import org.ohmage.triggers.utils.TimePickerPreference;
 
 import java.util.LinkedHashMap;
 

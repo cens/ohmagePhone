@@ -22,11 +22,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.service.SyncReceiver;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.base.TriggerInit;
 
 public class BackgroundManager {

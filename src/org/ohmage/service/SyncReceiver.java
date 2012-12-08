@@ -26,11 +26,10 @@ import android.os.BatteryManager;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.responsesync.ResponseSyncService;
+import org.ohmage.logprobe.Log;
 
 public class SyncReceiver extends BroadcastReceiver {
 

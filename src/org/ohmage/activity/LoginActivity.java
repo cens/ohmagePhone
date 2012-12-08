@@ -38,10 +38,6 @@ import android.widget.Toast;
 
 import com.slezica.tools.async.ManagedAsyncTask;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
@@ -52,6 +48,9 @@ import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
 
 public class LoginActivity extends FragmentActivity {
 	
@@ -89,7 +88,6 @@ public class LoginActivity extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i(TAG, "onCreate");
 		setContentView(R.layout.login);
 
 		// first see if they are already logged in
@@ -209,8 +207,7 @@ public class LoginActivity extends FragmentActivity {
 		public void onClick(View v) {
 			switch (v.getId()) {
 				case R.id.login:
-					Log.i(TAG, "login button clicked");
-					Analytics.widget(v);
+				    Analytics.widget(v);
 					if(ensureServerUrl()) {
 						ConfigHelper.setServerUrl(mServerEdit.getText().toString());
 						doLogin();
@@ -221,9 +218,7 @@ public class LoginActivity extends FragmentActivity {
 				case R.id.login_register_new_account:
 					// reads the currently selected server and fires a browser intent
 					// which takes the user to the registration page for that server
-					Log.i(TAG, "register new account linkbutton clicked");
-					
-					Analytics.widget(v);
+				    Analytics.widget(v);
 					if (ensureServerUrl()) {
 						// use the textbox to make a url and send the user on their way
 						String url = mServerEdit.getText().toString() + "#register";

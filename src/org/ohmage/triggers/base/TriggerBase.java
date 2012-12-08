@@ -15,19 +15,18 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
-import edu.ucla.cens.systemlog.Log;
-import edu.ucla.cens.systemlog.OhmageAnalytics;
-import edu.ucla.cens.systemlog.OhmageAnalytics.TriggerStatus;
-
-import org.json.JSONObject;
-import org.ohmage.triggers.notif.NotifDesc;
-import org.ohmage.triggers.notif.Notifier;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.text.format.DateUtils;
+
+import org.json.JSONObject;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.OhmageAnalytics;
+import org.ohmage.logprobe.OhmageAnalytics.TriggerStatus;
+import org.ohmage.triggers.notif.NotifDesc;
+import org.ohmage.triggers.notif.Notifier;
 
 import java.util.LinkedList;
 

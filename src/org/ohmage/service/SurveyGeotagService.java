@@ -16,12 +16,6 @@
 
 package org.ohmage.service;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.Models.Response;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -32,6 +26,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.Models.Response;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.LogProbe.Status;
 
 import java.util.LinkedList;
 import java.util.List;
