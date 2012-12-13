@@ -468,9 +468,11 @@ public class LoginActivity extends FragmentActivity {
 
 		private String mUsername;
 		private String mPassword;
+		private final OhmageApi mApi;
 
 		public LoginTask(FragmentActivity activity) {
 			super(activity);
+	         mApi = new OhmageApi(activity);
 		}
 		
 		@Override
@@ -496,8 +498,7 @@ public class LoginActivity extends FragmentActivity {
 //		        	e.printStackTrace();
 //		        }
 //			}
-			OhmageApi api = new OhmageApi(getActivity());
-			return api.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword, OhmageApi.CLIENT_NAME);
+			return mApi.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword, OhmageApi.CLIENT_NAME);
 		}
 
 		@Override
