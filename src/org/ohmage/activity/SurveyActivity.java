@@ -975,6 +975,11 @@ public class SurveyActivity extends Activity implements LocationListener {
 							e.printStackTrace();
 						}
 						dataPoint.setValue(dataPointValue);
+						
+	                      // The condition evaluator needs to know the index of hardcoded options
+                        if(prompt instanceof MultiChoiceCustomPrompt) {
+                            dataPoint.setIndexes(((MultiChoiceCustomPrompt) prompt).getSelectedIndexes());
+                        }
 					} else if (PromptType.number.equals(dataPoint.getPromptType())) {
 						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.hours_before_now.equals(dataPoint.getPromptType())) {

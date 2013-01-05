@@ -372,4 +372,14 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		mEnteredText = "";
 		mIsAddingNewItem = false;
 	}
+
+    public List<Integer> getSelectedIndexes() {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for (int index : mSelectedIndexes) {
+            if (index >= 0 && index < mChoices.size()) {
+                list.add(index);
+            }
+        }
+        return list;
+    }
 }

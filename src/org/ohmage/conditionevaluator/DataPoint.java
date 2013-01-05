@@ -16,6 +16,7 @@
 package org.ohmage.conditionevaluator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DataPoint {
@@ -113,6 +114,14 @@ public class DataPoint {
     
     public Integer getIndex() {
         return (Integer) metadata.get("index");
+    }
+    
+    public void setIndexes(List<Integer> idxs) {
+        metadata.put("indexes", idxs);
+    }
+    
+    public List<Integer> getIndexes() {
+        return (List<Integer>) metadata.get("indexes");
     }
     
     public void setDisplayType(DisplayType _displayType) {
