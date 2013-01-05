@@ -31,10 +31,8 @@ public class ConfigHelper {
 	private static final String KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String KEY_MOBILITY_VERSION = "mobility_version";
 	private static final String KEY_SERVER_URL = "key_server_url";
-	public static final String KEY_SINGLE_CAMPAIGN_MODE = "key_single_campaign_mode";
 
 	private static String serverUrl;
-	private static Boolean isSingleCampaignMode;
 	private final SharedPreferences mPreferences;
 
 	public ConfigHelper(Context context) {
@@ -80,7 +78,8 @@ public class ConfigHelper {
 		return serverUrl;
 	}
 
-	public static boolean isSingleCampaignMode() {
-		return getSharedPreferences(OhmageApplication.getContext()).getBoolean(KEY_SINGLE_CAMPAIGN_MODE, OhmageApplication.getContext().getResources().getBoolean(R.bool.single_campaign_mode));
-	}
+    public static boolean isSingleCampaignMode() {
+        UserPreferencesHelper prefHelper = new UserPreferencesHelper(OhmageApplication.getContext());
+        return prefHelper.isSingleCampaignMode();
+    }
 }

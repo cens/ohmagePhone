@@ -49,6 +49,7 @@ public class UserPreferencesHelper {
 	private static final String KEY_LAST_SURVEY_TIMESTAMP = "last_timestamp_";
 	private static final String KEY_LAST_FEEDBACK_REFRESH_TIMESTAMP = "last_fb_refresh_timestamp";
 	private static final String KEY_CAMPAIGN_REFRESH_TIME = "campaign_refresh_time";
+	public static final String KEY_SINGLE_CAMPAIGN_MODE = "key_single_campaign_mode";
 
 	private final SharedPreferences mPreferences;
 
@@ -223,5 +224,9 @@ public class UserPreferencesHelper {
 
     public boolean setUploadResponsesWifiOnly(boolean wifiOnly) {
         return mPreferences.edit().putBoolean(KEY_UPLOAD_RESPONSES_WIFI_ONLY, wifiOnly).commit();
+    }
+
+    public boolean isSingleCampaignMode() {
+        return mPreferences.getBoolean(KEY_SINGLE_CAMPAIGN_MODE, OhmageApplication.getContext().getResources().getBoolean(R.bool.single_campaign_mode));
     }
 }
