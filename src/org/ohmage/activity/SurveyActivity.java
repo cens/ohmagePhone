@@ -942,6 +942,13 @@ public class SurveyActivity extends Activity implements LocationListener {
 						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.single_choice_custom.equals(dataPoint.getPromptType())) {
 						dataPoint.setValue(prompt.getResponseObject());
+						
+						// The condition evaluator needs to know the index of hardcoded options
+						if(prompt instanceof SingleChoiceCustomPrompt) {
+						    int idx = ((SingleChoiceCustomPrompt) prompt).getSelectedIndex();
+						    if(idx != -1)
+						        dataPoint.setIndex(idx);
+						}
 					} else if (PromptType.multi_choice.equals(dataPoint.getPromptType())) {
 						JSONArray jsonArray;
 						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();

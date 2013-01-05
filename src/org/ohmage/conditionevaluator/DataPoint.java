@@ -107,6 +107,14 @@ public class DataPoint {
         return (String) metadata.get("lon");
     }
     
+    public void setIndex(int idx) {
+        metadata.put("index", idx);
+    }
+    
+    public Integer getIndex() {
+        return (Integer) metadata.get("index");
+    }
+    
     public void setDisplayType(DisplayType _displayType) {
         displayType = _displayType;
     }
