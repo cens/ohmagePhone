@@ -67,6 +67,8 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				JSONObject campaignJson = campaignResponse.getData().getJSONObject(mCampaignUrn);
 				values.put(Campaigns.CAMPAIGN_CREATED, campaignJson.getString("creation_timestamp"));
 				values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+				if("stopped".equals(campaignJson.getString("running_state")))
+				    values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_STOPPED);
 				cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
 
 				// We iterate through the list of user roles, if participant is included, then the status of this
