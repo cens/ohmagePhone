@@ -52,6 +52,7 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		nameText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		urnText.setText(campaignUrn);
 		actionButton.setFocusable(false);
+		actionButton.setEnabled(true);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -89,6 +90,7 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 			
 		case Campaign.STATUS_DOWNLOADING:
 			actionButton.setContentDescription(context.getString(R.string.campaign_list_item_action_button_downloading_description));
+	        actionButton.setEnabled(false);
 			actionButton.setImageResource(R.drawable.spinner_white_48);
 			
 			if (actionButton.getAnimation() == null) {

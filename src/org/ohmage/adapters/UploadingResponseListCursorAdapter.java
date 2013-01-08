@@ -37,6 +37,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		
 		actionButton.setVisibility(View.VISIBLE);
 		actionButton.setFocusable(false);
+        actionButton.setEnabled(true);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -73,7 +74,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 			
 		case Response.STATUS_UPLOADING:
 			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_uploading_description));
-
+	        actionButton.setEnabled(false);
 			actionButton.setImageResource(R.drawable.spinner_white_48);
 
 			// makes the progress indicator rotate
