@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoicecustom;
 
+import org.ohmage.AccountHelper;
 import org.ohmage.OhmageMarkdown;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -133,7 +134,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		mCustomChoices.clear();
 		SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
-		UserPreferencesHelper prefs = new UserPreferencesHelper(context);
+        AccountHelper prefs = new AccountHelper(context);
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
@@ -175,7 +176,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 				if (!TextUtils.isEmpty(mEnteredText)) {
 					SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
-					UserPreferencesHelper prefs = new UserPreferencesHelper(context);
+                    AccountHelper prefs = new AccountHelper(context);
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 

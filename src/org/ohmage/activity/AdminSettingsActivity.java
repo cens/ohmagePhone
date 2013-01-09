@@ -10,6 +10,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
+import org.ohmage.AccountActivityHelper;
 import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
@@ -31,7 +32,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 	private PreferenceScreen mLogout;
 	private PreferenceScreen mQueryTest;
 
-	private AccountHelper mAccountHelper;
+	private AccountActivityHelper mAccountHelper;
 	private Preference mBaseLineClear;
 
 	@Override
@@ -40,7 +41,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 
 		setTitle(R.string.admin_settings);
 
-		mAccountHelper = new AccountHelper(this);
+		mAccountHelper = new AccountActivityHelper(this);
 
 		PreferenceManager prefMgr = getPreferenceManager();
 		prefMgr.setSharedPreferencesName(UserPreferencesHelper.getPreferencesName(this));

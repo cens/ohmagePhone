@@ -1,5 +1,11 @@
+
 package org.ohmage;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -8,143 +14,135 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Looper;
 import android.text.Html;
 
-import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.OhmageLauncher;
 import org.ohmage.activity.UploadQueueActivity;
+import org.ohmage.authenticator.AuthenticatorActivity;
 import org.ohmage.db.Models.Campaign;
 
+import java.io.IOException;
+
 /**
- * Helper class which makes it easy to show the account management dialogs
- * such as the auth pin dialog, logout dialog, etc.
+ * Helper class which makes it easy to show the account management dialogs such
+ * as the auth pin dialog, logout dialog, etc.
+ * 
  * @author cketcham
- *
  */
 public class AccountHelper {
-	private static final int DIALOG_CLEAR_USER_CONFIRM = 100;
-	private static final int DIALOG_CLEAR_USER_CONFIRM_RESPONSES = 101;
-	private static final int DIALOG_WIPE_PROGRESS = 102;
 
-	private final Activity mActivity;
-	private int responseCount;
+    protected final AccountManager mAccountManager;
 
-	public AccountHelper(Activity activity) {
-		mActivity = activity;
-	}
+    public AccountHelper(Context context) {
+        mAccountManager = AccountManager.get(context);
+    }
 
-	/**
-	 * Shows the confirmation dialog for the user to logout
-	 */
-	public void logout() {
-		responseCount = Campaign.localResponseCount(mActivity);
+    /**
+     * Checks to see if there is an account to determine if the user is already
+     * authenticated
+     * 
+     * @return true if there is an account, and false if there isn't
+     */
+    public static boolean accountExists() {
+        Account[] accounts = OhmageApplication.getAccountManager().getAccountsByType(
+                OhmageApplication.ACCOUNT_TYPE);
+        return accounts != null && accounts.length > 0;
+    }
 
-		if(responseCount == 0)
-			mActivity.showDialog(DIALOG_CLEAR_USER_CONFIRM);
-		else
-			mActivity.showDialog(DIALOG_CLEAR_USER_CONFIRM_RESPONSES);
-	}
+    public Account getAccount() {
+        Account[] accounts = mAccountManager.getAccountsByType(OhmageApplication.ACCOUNT_TYPE);
+        if (accounts.length == 0)
+            return null;
+        return accounts[0];
+    }
 
-	/**
-	 * Take the user to the login activity,
-	 * but allow them to back out of it if they change their mind
-	 */
-	public void updatePassword() {
-		Intent intent = new Intent(mActivity, LoginActivity.class);
-		UserPreferencesHelper user = new UserPreferencesHelper(mActivity);
-		intent.putExtra(LoginActivity.PARAM_USERNAME, user.getUsername());
-		mActivity.startActivity(intent);
-	}
+    /**
+     * Returns the current account username
+     * 
+     * @return
+     */
+    public String getUsername() {
+        Account account = getAccount();
+        if (account != null)
+            return account.name;
+        return null;
+    }
 
-	public void onPrepareDialog(int id, Dialog d) {
-		if(id == DIALOG_CLEAR_USER_CONFIRM_RESPONSES) {
-			((AlertDialog) d).setMessage(Html.fromHtml(mActivity.getResources().getQuantityString(R.plurals.logout_message_responses, responseCount, responseCount)));
-		}
-	}
+    /**
+     * Retrieve the auth token. Either from our cached token or from the account
+     * manager
+     * 
+     * @return the authtoken or null if we don't have it yet
+     */
+    public String getAuthToken() {
+        if (Thread.currentThread() == Looper.getMainLooper().getThread())
+            return mAccountManager.peekAuthToken(getAccount(), OhmageApplication.AUTHTOKEN_TYPE);
 
-	public Dialog onCreateDialog(int id) {
-		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mActivity);
-		switch (id) {
-			case DIALOG_CLEAR_USER_CONFIRM_RESPONSES:
-				dialogBuilder.setNeutralButton(R.string.upload, new DialogInterface.OnClickListener() {
+        AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(getAccount(),
+                OhmageApplication.AUTHTOKEN_TYPE, false, null, null);
+        try {
+            Bundle result = future.getResult();
+            if (result != null)
+                return result.getString(AccountManager.KEY_AUTHTOKEN);
+        } catch (OperationCanceledException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (AuthenticatorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						mActivity.startActivity(new Intent(mActivity, UploadQueueActivity.class));
-					}
-				});
-				// Fall through to the next case statement. The correct message will be applied in onPrepareDialog
-			case DIALOG_CLEAR_USER_CONFIRM:			
-				dialogBuilder.setTitle(R.string.confirm)
-				.setMessage(R.string.logout_message)
-				.setNegativeButton(R.string.cancel, null)
-				.setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
+    /**
+     * Take the user to the login activity, but allow them to back out of it if
+     * they change their mind
+     * 
+     * @return
+     */
+    public AccountManagerFuture<Bundle> updatePassword() {
+        Account account = getAccount();
+        if (account != null) {
+            return mAccountManager.confirmCredentials(account, null, null, null, null);
+        }
+        return null;
+    }
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						clearAndGotoLogin();
-					}
-				});
+    /**
+     * Returns the intent to update the password. Should not be run on UI thread
+     * 
+     * @param context
+     * @return intent to update the password
+     */
+    public static Intent updatePasswordIntent(Context context) {
+        AccountManager accountManager = AccountManager.get(context);
+        Account[] accounts = accountManager.getAccountsByType(OhmageApplication.ACCOUNT_TYPE);
+        AccountManagerFuture<Bundle> future = accountManager.confirmCredentials(accounts[0], null,
+                null, null, null);
+        try {
+            return (Intent) future.getResult().get(AccountManager.KEY_INTENT);
+        } catch (OperationCanceledException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (AuthenticatorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-				break;
-			case DIALOG_WIPE_PROGRESS:
-				ProgressDialog pDialog = new ProgressDialog(mActivity);
-				pDialog.setMessage(mActivity.getString(R.string.logging_out_message));
-				pDialog.setCancelable(false);
-				return pDialog;
-		}
-
-		return dialogBuilder.create();
-	}
-
-	/**
-	 * 1) Clears the user's data,
-	 * 2) redirects the user to the login page, and
-	 * 3) clears the backstack + makes it a new task, so they can't get back into the app
-	 */
-	private void clearAndGotoLogin()  {
-		// create a task that asynchronously clears their data and displays a "waiting" dialog in the meantime
-		AsyncTask<Void, Void, Void> wipeTask = new AsyncTask<Void,Void,Void>() {
-			@Override
-			protected void onPreExecute() {
-				super.onPreExecute();
-
-				mActivity.showDialog(DIALOG_WIPE_PROGRESS);
-			}
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				((OhmageApplication)mActivity.getApplication()).resetAll();
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				super.onPostExecute(result);
-
-				mActivity.dismissDialog(DIALOG_WIPE_PROGRESS);
-
-				// then send them on a one-way trip to the login screen
-				mActivity.startActivity(getLoginIntent(mActivity));
-				mActivity.finish();
-			}
-
-			@Override
-			protected void onCancelled() {
-				super.onCancelled();
-
-				// FIXME: we should probably indicate that the task is cancelled, but this is probably fine for now
-				mActivity.dismissDialog(DIALOG_WIPE_PROGRESS);
-			}
-		};
-
-		wipeTask.execute();
-	}
-
-	public static Intent getLoginIntent(Context context) {
-		Intent intent = new Intent(context, OhmageLauncher.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		return intent;
-	}
+    public static Intent getLoginIntent(Context context) {
+        Intent intent = new Intent(context, OhmageLauncher.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return intent;
+    }
 }

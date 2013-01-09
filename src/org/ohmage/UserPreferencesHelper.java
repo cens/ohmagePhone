@@ -173,26 +173,6 @@ public class UserPreferencesHelper {
                 .remove(KEY_BASELINE_START_TIME).commit();
     }
 
-    public String getUsername() {
-        return mPreferences.getString(KEY_USERNAME, "");
-    }
-
-    public boolean putUsername(String username) {
-        return mPreferences.edit().putString(KEY_USERNAME, username).commit();
-    }
-
-    public String getHashedPassword() {
-        return mPreferences.getString(KEY_PASSWORD_HASHED, "");
-    }
-
-    public boolean putHashedPassword(String hashedPassword) {
-        return mPreferences.edit().putString(KEY_PASSWORD_HASHED, hashedPassword).commit();
-    }
-
-    public boolean clearCredentials() {
-        return mPreferences.edit().remove(KEY_USERNAME).remove(KEY_PASSWORD_HASHED).commit();
-    }
-
     public Long getLastProbeUploadTimestamp() {
         return mPreferences.getLong(KEY_LAST_PROBE_UPLOAD_TIMESTAMP, 0);
     }
@@ -216,14 +196,6 @@ public class UserPreferencesHelper {
     public boolean putLastSurveyTimestamp(String surveyId, Long timestamp) {
         return mPreferences.edit().putLong(KEY_LAST_SURVEY_TIMESTAMP + surveyId, timestamp)
                 .commit();
-    }
-
-    public boolean isAuthenticated() {
-        if (getUsername().length() > 0 && getHashedPassword().length() > 0) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public boolean isUserDisabled() {

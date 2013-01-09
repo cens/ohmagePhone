@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -167,7 +168,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 				operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn)).withValues(values).build());
 			}
 
-			if(!mPrefs.isAuthenticated()) {
+			if(!AccountHelper.accountExists()) {
 				Log.e(TAG, "User isn't logged in, terminating task");
 				return response;
 			}

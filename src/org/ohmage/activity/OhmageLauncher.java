@@ -1,12 +1,15 @@
 
 package org.ohmage.activity;
 
+import android.accounts.AccountAuthenticatorActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.ohmage.AccountHelper;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.authenticator.AuthenticatorActivity;
 
 /**
  * Delegates showing login or dashboard depending on if the user is logged in
@@ -17,7 +20,7 @@ public class OhmageLauncher extends Activity {
 
     private static final int FINISHED = 0;
     private static final String TAG = "OhmageLauncher";
-    private UserPreferencesHelper mUser;
+    private AccountHelper mAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +28,7 @@ public class OhmageLauncher extends Activity {
 
         Log.i(TAG, "OhmageLauncher is created!");
 
-        mUser = new UserPreferencesHelper(this);
+        mAccount = new AccountHelper(this);
     }
 
     @Override
@@ -33,10 +36,10 @@ public class OhmageLauncher extends Activity {
         super.onResume();
 
         // Check account status
-        if (mUser.isAuthenticated()) {
+        if (AccountHelper.accountExists()) {
             startActivityForResult(new Intent(this, DashboardActivity.class), FINISHED);
         } else {
-            startActivityForResult(new Intent(this, LoginActivity.class), FINISHED);
+            startActivityForResult(new Intent(this, AuthenticatorActivity.class), FINISHED);
         }
     }
 

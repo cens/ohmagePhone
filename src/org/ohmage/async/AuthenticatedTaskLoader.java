@@ -3,6 +3,7 @@ package org.ohmage.async;
 import android.content.Context;
 
 import org.ohmage.OhmageApi.Response;
+import org.ohmage.AccountHelper;
 import org.ohmage.UserPreferencesHelper;
 
 /**
@@ -32,8 +33,8 @@ public abstract class AuthenticatedTaskLoader<T extends Response> extends Pausea
 	}
 
 	public void setCredentials() {
-		UserPreferencesHelper sharedPrefs = new UserPreferencesHelper(getContext());
-		setCredentials(sharedPrefs.getUsername(), sharedPrefs.getHashedPassword());
+		AccountHelper sharedPrefs = new AccountHelper(getContext());
+		setCredentials(sharedPrefs.getUsername(), sharedPrefs.getAuthToken());
 	}
 
 	public String getUsername() {

@@ -12,6 +12,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -70,9 +71,9 @@ public class UploadService extends WakefulIntentService {
 
         String serverUrl = ConfigHelper.serverUrl();
 
-        UserPreferencesHelper helper = new UserPreferencesHelper(this);
+        AccountHelper helper = new AccountHelper(this);
         String username = helper.getUsername();
-        String hashedPassword = helper.getHashedPassword();
+        String hashedPassword = helper.getAuthToken();
         boolean uploadErrorOccurred = false;
         boolean authErrorOccurred = false;
 

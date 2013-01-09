@@ -19,6 +19,7 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
+import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
 import org.ohmage.UserPreferencesHelper;
@@ -57,7 +58,7 @@ public class ResponseSyncService extends WakefulIntentService {
 	/** If present, the last synced time will be ignored */
 	public static final String EXTRA_FORCE_ALL = "extra_force_all";
 
-	private UserPreferencesHelper mPrefs;
+	private AccountHelper mPrefs;
 
 	public ResponseSyncService() {
 		super(TAG);
@@ -90,11 +91,11 @@ public class ResponseSyncService extends WakefulIntentService {
 		
 		// grab an instance of the api connector so we can do calls to the server for responses
 		OhmageApi api = new OhmageApi(this);
-		mPrefs = new UserPreferencesHelper(this);
+		mPrefs = new AccountHelper(this);
 		String username = mPrefs.getUsername();
-		String hashedPassword = mPrefs.getHashedPassword();
+		String hashedPassword = mPrefs.getAuthToken();
 
-		if(!mPrefs.isAuthenticated()) {
+		if(!AccountHelper.accountExists()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
 
 			return;
@@ -154,7 +155,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		for (final Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 
-			if(!mPrefs.isAuthenticated()) {
+			if(!AccountHelper.accountExists()) {
 				Log.e(TAG, "User isn't logged in, terminating task");
 				return;
 			}
@@ -171,7 +172,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			// ===   * anything in this list that's not on the phone should be downloaded
 			// ==================================================================
 
-			if(!mPrefs.isAuthenticated()) {
+			if(!AccountHelper.accountExists()) {
 				Log.e(TAG, "User isn't logged in, terminating task");
 
 				return;
@@ -244,7 +245,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			}
 			final LinkedList<ResponseImage> responsePhotos = new LinkedList<ResponseImage>();
 
-			if(!mPrefs.isAuthenticated()) {
+			if(!AccountHelper.accountExists()) {
 				Log.e(TAG, "User isn't logged in, terminating task");
 
 				return;
@@ -413,7 +414,7 @@ public class ResponseSyncService extends WakefulIntentService {
 						String url;
 						for(int i=0; i < responsePhotos.size(); i++) {
 							ResponseImage responseImage = responsePhotos.get(i);
-							if(!mPrefs.isAuthenticated()) {
+							if(!AccountHelper.accountExists()) {
 								Log.e(TAG, "User isn't logged in, terminating task");
 
 								return;
@@ -449,7 +450,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			readResult.handleError(this);
 		}
 
-		if(!mPrefs.isAuthenticated()) {
+		if(!AccountHelper.accountExists()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
 
 			return;

@@ -1,72 +1,73 @@
-/*******************************************************************************
- * Copyright 2011 The Regents of the University of California
+/*
+ * Copyright (C) 2010 The Android Open Source Project
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  * 
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
-package org.ohmage.activity;
+package org.ohmage.authenticator;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.os.Handler;
+import android.provider.ContactsContract;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.URLUtil;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.slezica.tools.async.ManagedAsyncTask;
-
+import org.ohmage.AccountHelper;
 import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
-import org.ohmage.OhmageApi;
+import org.ohmage.OhmageApi.AuthenticateResponse;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.activity.DashboardActivity;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.utils.Lists;
 import org.ohmage.logprobe.Analytics;
-import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class LoginActivity extends FragmentActivity {
+/**
+ * Activity which displays login screen to the user.
+ */
+public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity {
+    private static final String TAG = "AuthenticatorActivity";
 
-    public static final String TAG = "LoginActivity";
-
-    /**
-     * The {@link LoginActivity} looks for this extra to determine if it should
-     * update the credentials for the user
-     */
-    public static final String PARAM_USERNAME = "username";
-
+    private static final int LOGIN_FINISHED = 0;
     private static final int DIALOG_FIRST_RUN = 1;
     private static final int DIALOG_LOGIN_ERROR = 2;
     private static final int DIALOG_NETWORK_ERROR = 3;
@@ -76,56 +77,113 @@ public class LoginActivity extends FragmentActivity {
     private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 7;
     private static final int DIALOG_SERVER_LIST = 8;
 
-    private EditText mUsernameEdit;
-    private EditText mPasswordEdit;
-    private EditText mServerEdit;
-    private TextView mRegisterAccountLink;
-    private Button mLoginButton;
-    private TextView mVersionText;
-    private UserPreferencesHelper mPreferencesHelper;
+    public static final String PARAM_CONFIRMCREDENTIALS = "confirmCredentials";
+    public static final String PARAM_PASSWORD = "password";
 
-    private ConfigHelper mAppPrefs;
+    /**
+     * The {@link AuthenticatorActivity} looks for this extra to determine if it
+     * should update the credentials for the user
+     */
+    public static final String PARAM_USERNAME = "username";
+    public static final String PARAM_AUTHTOKEN_TYPE = "authtokenType";
+
+    private AccountManager mAccountManager;
+    private Thread mAuthThread;
+    private String mAuthtoken;
+    private String mAuthtokenType;
+
+    /**
+     * If set we are just checking that the user knows their credentials; this
+     * doesn't cause the user's password to be changed on the device.
+     */
+    private Boolean mConfirmCredentials = false;
+
+    /** for posting authentication attempts back to UI thread */
+    private final Handler mHandler = new Handler();
+    private TextView mMessage;
+    private String mPassword;
+    private EditText mPasswordEdit;
+
+    /** Was the original caller asking for an entirely new account? */
+    protected boolean mRequestNewAccount = false;
 
     private String mUsername;
+    private EditText mUsernameEdit;
 
-    private boolean mRequestNewAccount;
+    private EditText mServerEdit;
+    private UserPreferencesHelper mPreferencesHelper;
+    private ConfigHelper mAppPrefs;
+    private CampaignReadTask mCampaignDownloadTask;
+    private String mHashedPassword;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
+        mAccountManager = AccountManager.get(this);
+
+        final Intent intent = getIntent();
+        mUsername = intent.getStringExtra(PARAM_USERNAME);
+        mAuthtokenType = intent.getStringExtra(PARAM_AUTHTOKEN_TYPE);
+
+        // If we are just logging in regularly, we need to set the authtoken
+        // type
+        if (mAuthtokenType == null) {
+            mAuthtokenType = OhmageApplication.AUTHTOKEN_TYPE;
+        }
+
+        mRequestNewAccount = mUsername == null;
+        mConfirmCredentials = intent.getBooleanExtra(PARAM_CONFIRMCREDENTIALS, false);
+
+        mPreferencesHelper = new UserPreferencesHelper(this);
+        mAppPrefs = new ConfigHelper(this);
+
+        if (mPreferencesHelper.isUserDisabled()) {
+            ((OhmageApplication) getApplication()).resetAll();
+        }
+
+        // if they are, redirect them to the dashboard
+        if (AccountHelper.accountExists() && !mConfirmCredentials) {
+            startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
+            return;
+        }
+
         setContentView(R.layout.login);
 
-        // first see if they are already logged in
-        mPreferencesHelper = new UserPreferencesHelper(this);
-        mAppPrefs = new ConfigHelper(LoginActivity.this);
-
-        mUsername = getIntent().getStringExtra(PARAM_USERNAME);
-        mRequestNewAccount = mUsername == null;
-
-        mLoginButton = (Button) findViewById(R.id.login);
+        mMessage = (TextView) findViewById(R.id.version);
         mUsernameEdit = (EditText) findViewById(R.id.login_username);
         mPasswordEdit = (EditText) findViewById(R.id.login_password);
         mServerEdit = (EditText) findViewById(R.id.login_server_edit);
-        mRegisterAccountLink = (TextView) findViewById(R.id.login_register_new_account);
 
-        mVersionText = (TextView) findViewById(R.id.version);
-
-        try {
-            mVersionText.setText("v"
-                    + getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
-        } catch (Exception e) {
-            Log.e(TAG, "unable to retrieve version", e);
-            mVersionText.setText(" ");
-        }
-
-        mLoginButton.setOnClickListener(mClickListener);
-        mRegisterAccountLink.setOnClickListener(mClickListener);
-
-        if (!mRequestNewAccount) {
-            mUsernameEdit.setText(mUsername);
+        if (mConfirmCredentials) {
             mUsernameEdit.setEnabled(false);
-            mUsernameEdit.setFocusable(false);
+            mPasswordEdit.requestFocus();
         }
+
+        mUsernameEdit.setText(mUsername);
+        mMessage.setText(getVersion());
+
+        TextView registerAccountLink = (TextView) findViewById(R.id.login_register_new_account);
+        registerAccountLink.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // reads the currently selected server and fires a browser
+                // intent which takes the user to the registration page for that
+                // server
+                if (ensureServerUrl()) {
+                    // use the textbox to make a url
+                    String url = mServerEdit.getText().toString().split(" ")[0] + "#register";
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                } else
+                    Toast.makeText(v.getContext(), R.string.login_invalid_server,
+                            Toast.LENGTH_SHORT).show();
+            }
+        });
 
         if (getResources().getBoolean(R.bool.allow_custom_server)) {
             View serverContainer = findViewById(R.id.login_server_container);
@@ -162,24 +220,22 @@ public class LoginActivity extends FragmentActivity {
 
                     @Override
                     public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-                        return new CampaignReadTask(LoginActivity.this, null, null);
+                        return new CampaignReadTask(AuthenticatorActivity.this, null, null);
                     }
 
                     @Override
                     public void onLoadFinished(Loader<CampaignReadResponse> loader,
                             CampaignReadResponse data) {
-                        String urn = Campaign.getSingleCampaign(LoginActivity.this);
+                        String urn = Campaign.getSingleCampaign(AuthenticatorActivity.this);
                         if (urn == null) {
                             // Downloading the campaign failed so we should
                             // reset the username and password
-                            MobilityHelper.setUsername(LoginActivity.this, null);
-                            mPreferencesHelper.clearCredentials();
-                            Toast.makeText(LoginActivity.this,
+                            MobilityHelper.setUsername(AuthenticatorActivity.this, null);
+                            Toast.makeText(AuthenticatorActivity.this,
                                     R.string.login_error_downloading_campaign, Toast.LENGTH_LONG)
                                     .show();
                         } else {
-                            loginFinished(((CampaignReadTask) loader).getUsername(),
-                                    ((CampaignReadTask) loader).getHashedPassword());
+                            finishLogin();
                         }
                         dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
                     }
@@ -188,13 +244,6 @@ public class LoginActivity extends FragmentActivity {
                     public void onLoaderReset(Loader<CampaignReadResponse> loader) {
                     }
                 });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        getSupportLoaderManager().destroyLoader(0);
     }
 
     @Override
@@ -212,52 +261,27 @@ public class LoginActivity extends FragmentActivity {
         NotificationHelper.hideAuthNotification(this);
     }
 
-    private final OnClickListener mClickListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.login:
-                    Analytics.widget(v);
-                    if (ensureServerUrl()) {
-                        String server = mServerEdit.getText().toString();
-                        ConfigHelper.setServerUrl(server.split("\\(")[0].trim());
-                        configureForDeployment(server);
-                        doLogin();
-                    } else
-                        Toast.makeText(LoginActivity.this, R.string.login_invalid_server,
-                                Toast.LENGTH_SHORT).show();
-                    break;
-
-                case R.id.login_register_new_account:
-                    // reads the currently selected server and fires a browser
-                    // intent
-                    // which takes the user to the registration page for that
-                    // server
-                    Analytics.widget(v);
-                    if (ensureServerUrl()) {
-                        // use the textbox to make a url and send the user on
-                        // their way
-                        String url = mServerEdit.getText().toString().split(" ")[0] + "#register";
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(url));
-                        startActivity(i);
-                    } else
-                        Toast.makeText(LoginActivity.this, R.string.login_invalid_server,
-                                Toast.LENGTH_SHORT).show();
-
-                    break;
-            }
+    private CharSequence getVersion() {
+        try {
+            return "v" + getPackageManager().getPackageInfo("org.ohmage", 0).versionName;
+        } catch (Exception e) {
+            Log.e(TAG, "unable to retrieve version", e);
+            return null;
         }
-    };
+    }
 
-    private CampaignReadTask mCampaignDownloadTask;
+    /**
+     * The easiest way to make sure the progress dialog is hidden when it is
+     * supposed to be is to have a static reference to it...
+     */
+    private static ProgressDialog pDialog;
 
-    private void doLogin() {
-        String username = mUsernameEdit.getText().toString();
-        String password = mPasswordEdit.getText().toString();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        pDialog = null;
 
-        new LoginTask(LoginActivity.this).execute(username, password);
+        getSupportLoaderManager().destroyLoader(0);
     }
 
     @Override
@@ -281,7 +305,7 @@ public class LoginActivity extends FragmentActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        LoginActivity.this.finish();
+                                        AuthenticatorActivity.this.finish();
                                     }
                                 });
                 dialog = dialogBuilder.create();
@@ -352,11 +376,20 @@ public class LoginActivity extends FragmentActivity {
                 break;
 
             case DIALOG_LOGIN_PROGRESS: {
-                ProgressDialog pDialog = new ProgressDialog(this);
+                pDialog = new ProgressDialog(this);
                 pDialog.setMessage(getString(R.string.login_authenticating,
                         getString(R.string.server_name)));
-                pDialog.setCancelable(false);
-                // pDialog.setIndeterminate(true);
+                pDialog.setIndeterminate(true);
+                pDialog.setCancelable(true);
+                pDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        if (mAuthThread != null) {
+                            mAuthThread.interrupt();
+                            finish();
+                        }
+                    }
+                });
                 dialog = pDialog;
                 break;
             }
@@ -400,78 +433,90 @@ public class LoginActivity extends FragmentActivity {
         return dialog;
     }
 
-    private void onLoginTaskDone(OhmageApi.AuthenticateResponse response, final String username) {
+    /**
+     * Handles onClick event on the Submit button. Sends username/password to
+     * the server for authentication.
+     * 
+     * @param view The Submit button for which this method is invoked
+     */
+    public void handleLogin(View view) {
+        Analytics.widget(view);
 
-        try {
-            dismissDialog(DIALOG_LOGIN_PROGRESS);
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "Attempting to dismiss dialog that had not been shown.");
-            e.printStackTrace();
+        if (!ensureServerUrl()) {
+            Toast.makeText(this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        switch (response.getResult()) {
-            case SUCCESS:
-                Log.v(TAG, "login success");
-                final String hashedPassword = response.getHashedPassword();
+        String server = mServerEdit.getText().toString();
+        ConfigHelper.setServerUrl(server.split("\\(")[0].trim());
+        configureForDeployment(server);
 
-                if (ConfigHelper.isSingleCampaignMode()) {
-                    // Download the single campaign
-                    showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
-
-                    // Temporarily set the user credentials. If the download
-                    // fails, they will be removed
-                    // We need to set this so the ResponseSyncService can use
-                    // them once the campaign is downloaded
-                    mPreferencesHelper.putUsername(username);
-                    mPreferencesHelper.putHashedPassword(hashedPassword);
-
-                    mCampaignDownloadTask.setCredentials(username, hashedPassword);
-                    mCampaignDownloadTask.forceLoad();
-                } else {
-                    loginFinished(username, hashedPassword);
-                }
-                break;
-            case FAILURE:
-                // clear password so user will re-enter it
-                mPasswordEdit.setText("");
-
-                // show error dialog
-                if (response.getErrorCodes().contains(OhmageApi.ERROR_ACCOUNT_DISABLED)) {
-                    showDialog(DIALOG_USER_DISABLED);
-                } else {
-                    showDialog(DIALOG_LOGIN_ERROR);
-                }
-                break;
-            case HTTP_ERROR:
-                // show error dialog
-                showDialog(DIALOG_NETWORK_ERROR);
-                break;
-            case INTERNAL_ERROR:
-                // show error dialog
-                showDialog(DIALOG_INTERNAL_ERROR);
-                break;
+        if (mRequestNewAccount) {
+            mUsername = mUsernameEdit.getText().toString();
+        }
+        mPassword = mPasswordEdit.getText().toString();
+        if (!TextUtils.isEmpty(mUsername) && !TextUtils.isEmpty(mPassword)) {
+            showDialog(DIALOG_LOGIN_PROGRESS);
+            // Start authenticating...
+            mAuthThread = AuthenticationUtilities.attemptAuth(mUsername, mPassword, mHandler,
+                    AuthenticatorActivity.this);
         }
     }
 
-    private void loginFinished(String username, String hashedPassword) {
+    /**
+     * Called when response is received from the server for confirm credentials
+     * request. See onAuthenticationResult(). Sets the
+     * AccountAuthenticatorResult which is sent back to the caller.
+     * 
+     * @param the confirmCredentials result.
+     */
+    protected void finishConfirmCredentials(boolean result) {
+        Log.v(TAG, "finishConfirmCredentials()");
+        final Account account = new Account(mUsername, OhmageApplication.ACCOUNT_TYPE);
+        mAccountManager.setPassword(account, mPassword);
+        if (mAuthtokenType != null && mAuthtokenType.equals(OhmageApplication.AUTHTOKEN_TYPE)) {
+            mAccountManager.setAuthToken(account, mAuthtokenType, mHashedPassword);
+        }
+        final Intent intent = new Intent();
+        intent.putExtra(AccountManager.KEY_BOOLEAN_RESULT, result);
+        setAccountAuthenticatorResult(intent.getExtras());
+        setResult(RESULT_OK, intent);
+        finish();
+    }
 
-        // save creds
-        mPreferencesHelper.putUsername(username);
-        mPreferencesHelper.putHashedPassword(hashedPassword);
+    /**
+     * Called when response is received from the server for authentication
+     * request. See onAuthenticationResult(). Sets the
+     * AccountAuthenticatorResult which is sent back to the caller. Also sets
+     * the authToken in AccountManager for this account.
+     * 
+     * @param the confirmCredentials result.
+     */
+
+    protected void finishLogin() {
+        Log.v(TAG, "finishLogin()");
+        final Account account = new Account(mUsername, OhmageApplication.ACCOUNT_TYPE);
+        mAuthtoken = mHashedPassword;
+
+        if (mRequestNewAccount) {
+            mAccountManager.addAccountExplicitly(account, mPassword, null);
+            mAccountManager.setAuthToken(account, OhmageApplication.AUTHTOKEN_TYPE, mAuthtoken);
+            // Set contacts sync for this account.
+            ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY, true);
+        } else {
+            mAccountManager.setPassword(account, mPassword);
+        }
+        final Intent intent = new Intent();
+        intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, mUsername);
+        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, OhmageApplication.ACCOUNT_TYPE);
+        if (mAuthtokenType != null && mAuthtokenType.equals(OhmageApplication.AUTHTOKEN_TYPE)) {
+            intent.putExtra(AccountManager.KEY_AUTHTOKEN, mAuthtoken);
+        }
+        setAccountAuthenticatorResult(intent.getExtras());
+        setResult(RESULT_OK, intent);
 
         // Tell mobility what the username is
-        MobilityHelper.setUsername(this, username);
-
-        // clear related notifications
-        // NotificationHelper.cancel(LoginActivity.this,
-        // NotificationHelper.NOTIFY_LOGIN_FAIL);
-        // makes more sense to clear notification on launch, so moved to
-        // oncreate
-
-        // start services
-        // set alarms
-        // register receivers
-        // BackgroundManager.initAuthComponents(this);
+        MobilityHelper.setUsername(this, mUsername);
 
         if (mAppPrefs.isFirstRun()) {
             Log.v(TAG, "this is the first run");
@@ -486,52 +531,82 @@ public class LoginActivity extends FragmentActivity {
             // show intro dialog
             // showDialog(DIALOG_FIRST_RUN);
             mAppPrefs.setFirstRun(false);
-        } else {
-            Log.v(TAG, "this is not the first run");
         }
 
         mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
 
-        if (!mRequestNewAccount)
+        if (mConfirmCredentials)
             finish();
-        else {
-            startActivity(new Intent(this, OhmageLauncher.class));
-            finish();
+        else
+            startActivityForResult(new Intent(this, DashboardActivity.class), LOGIN_FINISHED);
+    }
+
+    /**
+     * Called when the authentication process completes (see attemptLogin()).
+     */
+    public void onAuthenticationResult(AuthenticateResponse response) {
+
+        try {
+            dismissDialog(DIALOG_LOGIN_PROGRESS);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Attempting to dismiss dialog that had not been shown.");
+            e.printStackTrace();
+            if (pDialog != null)
+                pDialog.dismiss();
+        }
+
+        switch (response.getResult()) {
+            case SUCCESS:
+                Log.v(TAG, "login success");
+                mHashedPassword = response.getHashedPassword();
+                if (!mConfirmCredentials) {
+                    if (ConfigHelper.isSingleCampaignMode()) {
+                        final String hashedPassword = response.getHashedPassword();
+                        // Download the single campaign
+                        showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+                        mCampaignDownloadTask.setCredentials(mUsername, mHashedPassword);
+                        mCampaignDownloadTask.forceLoad();
+                    } else {
+                        finishLogin();
+                    }
+                } else {
+                    finishConfirmCredentials(true);
+                }
+                break;
+            case FAILURE:
+                Log.e(TAG, "login failure: " + response.getErrorCodes());
+
+                // show error dialog
+                if (Arrays.asList(response.getErrorCodes()).contains("0201")) {
+                    mPreferencesHelper.setUserDisabled(true);
+                    showDialog(DIALOG_USER_DISABLED);
+                } else {
+                    showDialog(DIALOG_LOGIN_ERROR);
+                }
+                break;
+            case HTTP_ERROR:
+                Log.w(TAG, "login http error");
+
+                // show error dialog
+                showDialog(DIALOG_NETWORK_ERROR);
+                break;
+            case INTERNAL_ERROR:
+                Log.e(TAG, "login internal error");
+
+                // show error dialog
+                showDialog(DIALOG_INTERNAL_ERROR);
+                break;
         }
     }
 
-    private static class LoginTask extends
-            ManagedAsyncTask<String, Void, OhmageApi.AuthenticateResponse> {
-
-        private String mUsername;
-        private String mPassword;
-        private final OhmageApi mApi;
-
-        public LoginTask(FragmentActivity activity) {
-            super(activity);
-            mApi = new OhmageApi(activity);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            getActivity().showDialog(DIALOG_LOGIN_PROGRESS);
-        }
-
-        @Override
-        protected OhmageApi.AuthenticateResponse doInBackground(String... params) {
-            mUsername = params[0];
-            mPassword = params[1];
-
-            return mApi.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword,
-                    OhmageApi.CLIENT_NAME);
-        }
-
-        @Override
-        protected void onPostExecute(OhmageApi.AuthenticateResponse response) {
-            super.onPostExecute(response);
-            response.handleError(getActivity());
-            ((LoginActivity) getActivity()).onLoginTaskDone(response, mUsername);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case LOGIN_FINISHED:
+                finish();
+                break;
+            default:
+                this.onActivityResult(requestCode, resultCode, data);
         }
     }
 

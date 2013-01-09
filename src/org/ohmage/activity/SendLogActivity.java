@@ -6,6 +6,7 @@
 package org.ohmage.activity;
 
 
+import org.ohmage.AccountHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 
@@ -80,7 +81,7 @@ public class SendLogActivity extends Activity
         body.append(LINE_SEPARATOR);
         mSendIntent.putExtra(Intent.EXTRA_TEXT, body.toString());
 
-        UserPreferencesHelper prefs = new UserPreferencesHelper(this);
+        AccountHelper prefs = new AccountHelper(this);
 
         StringBuilder logHeader = new StringBuilder();
         logHeader.append("--------------------------------------");

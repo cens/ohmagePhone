@@ -10,6 +10,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
+import org.ohmage.AccountHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
@@ -83,7 +84,7 @@ public class ProbeManager extends Service {
     }
 
     PointFlushHandler mHandler = new PointFlushHandler(this);
-    private UserPreferencesHelper mUserPrefs;
+    private AccountHelper mAccount;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -94,7 +95,7 @@ public class ProbeManager extends Service {
                     int streamVersion, int uploadPriority, String metadata, String data)
                     throws RemoteException {
                 // Don't write a probe unless a user is logged into ohmage
-                if (TextUtils.isEmpty(mUserPrefs.getUsername())) {
+                if (TextUtils.isEmpty(mAccount.getUsername())) {
                     return false;
                 }
 
@@ -106,7 +107,7 @@ public class ProbeManager extends Service {
                 values.put(Probes.UPLOAD_PRIORITY, uploadPriority);
                 values.put(Probes.PROBE_METADATA, metadata);
                 values.put(Probes.PROBE_DATA, data);
-                values.put(Probes.USERNAME, mUserPrefs.getUsername());
+                values.put(Probes.USERNAME, mAccount.getUsername());
 
                 if (BUFFER_POINTS) {
                     synchronized (probePoints) {
@@ -132,7 +133,7 @@ public class ProbeManager extends Service {
             public boolean writeResponse(String campaignUrn, String campaignCreationTimestamp,
                     int uploadPriority, String data) throws RemoteException {
                 // Don't write a response unless a user is logged into ohmage
-                if (TextUtils.isEmpty(mUserPrefs.getUsername()))
+                if (TextUtils.isEmpty(mAccount.getUsername()))
                     return false;
 
                 ContentValues values = new ContentValues();
@@ -140,7 +141,7 @@ public class ProbeManager extends Service {
                 values.put(Responses.CAMPAIGN_CREATED, campaignCreationTimestamp);
                 values.put(Responses.UPLOAD_PRIORITY, uploadPriority);
                 values.put(Responses.RESPONSE_DATA, data);
-                values.put(Responses.USERNAME, mUserPrefs.getUsername());
+                values.put(Responses.USERNAME, mAccount.getUsername());
 
                 if (BUFFER_POINTS) {
                     synchronized (responsePoints) {
@@ -165,7 +166,7 @@ public class ProbeManager extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mUserPrefs = new UserPreferencesHelper(this);
+        mAccount = new AccountHelper(this);
     }
 
     @Override

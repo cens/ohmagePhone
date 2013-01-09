@@ -34,6 +34,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.mobility.glue.IMobility;
 
+import org.ohmage.AccountHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -65,6 +66,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 	private SimpleCursorAdapter mAdapter;
 
 	private UserPreferencesHelper mPrefHelper;
+	private AccountHelper mAccount;
 	private IMobility mMobility = null;
 	private boolean isBound = false;
 
@@ -75,6 +77,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 		super.onActivityCreated(savedInstanceState);
 
 		mPrefHelper = new UserPreferencesHelper(getActivity());
+		mAccount = new AccountHelper(getActivity());
 
 		setLastUploadTimestamp();
 
@@ -318,7 +321,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		long loginTimestamp = mPrefHelper.getLoginTimestamp();
-		String username = mPrefHelper.getUsername();
+		String username = mAccount.getUsername();
 
 		// Filters the user by username and login time (in case they just upgraded mobility)
 		final String filterUser = " (" + MobilityInterface.KEY_USERNAME + "=? OR " + MobilityInterface.KEY_TIME + " > " + loginTimestamp + ") ";

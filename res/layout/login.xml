@@ -104,7 +104,8 @@
                 android:layout_marginLeft="@dimen/gutter"
                 android:layout_marginRight="@dimen/gutter"
                 android:contentDescription="@string/login_activity_login_button_description"
-                android:text="@string/login_submit" />
+                android:text="@string/login_submit"
+                android:onClick="handleLogin" />
 
             <TextView
                 android:id="@+id/version"

@@ -2,6 +2,7 @@ package org.ohmage.fragments;
 
 
 import org.achartengine.GraphicalView;
+import org.ohmage.AccountHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -48,7 +49,7 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 	private TextView mTodayRun;
 	private TextView mTodayDrive;
 
-	private UserPreferencesHelper mSharedPreferences;
+	private AccountHelper mAccount;
 
 	private TextView mAggregateBaseline;
 
@@ -58,7 +59,7 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		mSharedPreferences = new UserPreferencesHelper(getActivity());
+		mAccount = new AccountHelper(getActivity());
 
 		getLoaderManager().initLoader(LOAD_MOBILITY_DATA, null, this);
 		getLoaderManager().initLoader(LOAD_MOBILITY_BASELINE_AGGREGATE, null, this);
@@ -98,13 +99,13 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 						MobilityInterface.KEY_DAY + " <= date('now', 'localtime')" + " AND " +
 						MobilityInterface.KEY_DAY + " > date('now', 'localtime', '-10 days') AND " +
 						MobilityInterface.KEY_USERNAME + "=?", new String[] {
-					MobilityHelper.getMobilityUsername(mSharedPreferences.getUsername())
+					MobilityHelper.getMobilityUsername(mAccount.getUsername())
 				}, MobilityInterface.KEY_DAY + " DESC");
 			case LOAD_MOBILITY_BASELINE_AGGREGATE:
 				return new MobilityAggregateLoader(getActivity(),
 						UserPreferencesHelper.getBaseLineStartTime(getActivity()),
 						UserPreferencesHelper.getBaseLineEndTime(getActivity()),
-						mSharedPreferences.getUsername());
+						mAccount.getUsername());
 			case LOAD_MOBILITY_LASTWEEK_AGGREGATE:
 				Calendar cal = Calendar.getInstance();
 				cal.add(Calendar.DATE, -7);
@@ -113,7 +114,7 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 				return new MobilityAggregateLoader(getActivity(),
 						cal.getTimeInMillis(),
 						endtime,
-						mSharedPreferences.getUsername());
+						mAccount.getUsername());
 		}
 		return null;
 	}

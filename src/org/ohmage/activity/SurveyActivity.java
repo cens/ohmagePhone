@@ -175,7 +175,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 				((OhmageApplication) getApplication()).resetAll();
 			}
 
-			if (!preferencesHelper.isAuthenticated()) {
+			if (!AccountHelper.accountExists()) {
 				Log.v(TAG, "no credentials saved, so launch Login");
 				startActivity(AccountHelper.getLoginIntent(this));
 				finish();
@@ -1005,7 +1005,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 	public static String storeResponse(Context context, String surveyId, long launchTime, String campaignUrn, String surveyTitle, List<SurveyElement> surveyElements) {
 
-		UserPreferencesHelper helper = new UserPreferencesHelper(context);
+		AccountHelper helper = new AccountHelper(context);
 		String username = helper.getUsername();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();

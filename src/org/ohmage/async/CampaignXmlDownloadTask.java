@@ -10,6 +10,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -35,13 +36,10 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 	private final Context mContext;
 	private OhmageApi mApi;
 
-	private final UserPreferencesHelper mPrefs;
-
 	public CampaignXmlDownloadTask(Context context, String campaignUrn, String username, String hashedPassword) {
         super(context, username, hashedPassword);
         mCampaignUrn = campaignUrn;
         mContext = context;
-		mPrefs = new UserPreferencesHelper(mContext);
     }
 
     @Override
@@ -55,7 +53,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 		CampaignReadResponse campaignResponse = mApi.campaignRead(ConfigHelper.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
 
-		if(!mPrefs.isAuthenticated()) {
+		if(!AccountHelper.accountExists()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
 			return campaignResponse;
 		}
@@ -89,7 +87,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
 		CampaignXmlResponse response =  mApi.campaignXmlRead(ConfigHelper.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, mCampaignUrn);
 
-		if(!mPrefs.isAuthenticated()) {
+		if(!AccountHelper.accountExists()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
 			return response;
 		}
@@ -133,7 +131,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     public void deliverResult(Response response) {
-		if(!mPrefs.isAuthenticated()) {
+		if(!AccountHelper.accountExists()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
 			return;
 		}
@@ -159,7 +157,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     protected void onForceLoad() {
 		super.onForceLoad();
 
-		if(!mPrefs.isAuthenticated()) {
+		if(!AccountHelper.accountExists()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
 			return;
 		}

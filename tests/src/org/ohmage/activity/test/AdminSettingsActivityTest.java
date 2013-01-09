@@ -22,8 +22,8 @@ import com.jayway.android.robotium.solo.Solo;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.AdminSettingsActivity;
 import org.ohmage.activity.CampaignListActivity;
-import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.OhmagePreferenceActivity;
+import org.ohmage.authenticator.AuthenticatorActivity;
 
 /**
  * <p>This class contains tests for the {@link OhmagePreferenceActivity}</p>
@@ -113,7 +113,7 @@ public class AdminSettingsActivityTest extends ActivityInstrumentationTestCase2<
 
 	public void testUpdatePassword() {
 		solo.clickOnText("Update Password");
-		solo.assertCurrentActivity("Expected Login Activity", LoginActivity.class);
+		solo.assertCurrentActivity("Expected AuthenticatorActivity", AuthenticatorActivity.class);
 		boolean enabled = solo.getEditText(0).isEnabled();
 		solo.goBack();
 		solo.goBack();

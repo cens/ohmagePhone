@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import org.ohmage.AccountActivityHelper;
 import org.ohmage.AccountHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -18,8 +19,7 @@ import org.ohmage.ui.BaseInfoActivity;
 public class ProfileActivity extends BaseInfoActivity {
 	
 	private FragmentActivity mContext;
-	private UserPreferencesHelper mPrefs;
-	private AccountHelper mAccountHelper;
+	private AccountActivityHelper mAccountHelper;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +31,13 @@ public class ProfileActivity extends BaseInfoActivity {
 		
 		// set up some generic stuff for the profile, since it's not databound in any respect
 		mContext = this;
-		mPrefs = new UserPreferencesHelper(this);
+		mAccountHelper = new AccountActivityHelper(this);
 		mIconView.setImageResource(R.drawable.entity_profile);
-		mHeadertext.setText(mPrefs.getUsername());
+		mHeadertext.setText(mAccountHelper.getUsername());
 		/*
 		mSubtext.setVisibility(View.INVISIBLE);
 		mNotetext.setVisibility(View.INVISIBLE);
 		*/
-		
-		mAccountHelper = new AccountHelper(this);
 
 		// fill up the button tray with the profile's regular buttons
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);

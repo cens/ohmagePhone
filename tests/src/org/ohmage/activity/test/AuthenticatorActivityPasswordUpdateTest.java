@@ -20,16 +20,16 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.UserPreferencesHelper;
+import org.ohmage.AccountHelper;
 import org.ohmage.activity.DashboardActivity;
-import org.ohmage.activity.LoginActivity;
+import org.ohmage.authenticator.AuthenticatorActivity;
 import org.ohmage.test.helper.SharedPreferencesHelper;
 
 /**
- * <p>This class contains tests for the {@link LoginActivity}</p>
+ * <p>This class contains tests for the {@link AuthenticatorActivity}</p>
  * 
- * <p>These tests are similar to those contained in {@link LoginActivityPasswordUpdateTest} except these tests simulate the case
- * where the user is logging into the app for the first time</p>
+ * <p>These tests are similar to those contained in {@link AuthenticatorActivityTest} except these tests simulate the case
+ * where the user is still logged into the system and is just updating their password</p>
  * 
  * TODO:
  * Other Testing
@@ -40,48 +40,37 @@ import org.ohmage.test.helper.SharedPreferencesHelper;
  * @author cketcham
  *
  */
-public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginActivity> {
+public class AuthenticatorActivityPasswordUpdateTest extends ActivityInstrumentationTestCase2<AuthenticatorActivity> {
 
 	private Solo solo;
-	private UserPreferencesHelper mPrefsHelper;
+	private AccountHelper mAccountHelper;
 
 	private String userName;
-	private String hashedPass;
 
-	public LoginActivityTest() {
-		super(LoginActivity.class);
+	public AuthenticatorActivityPasswordUpdateTest() {
+		super(AuthenticatorActivity.class);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		// We need to get the username and hashed pass from the preferences and clear them with a context object
-		// but also before the activity starts. So the first time we setUp, we will create an activity, change the
-		// data we need to change and close the activity. The next time we start the activity for realz.
-		mPrefsHelper = new UserPreferencesHelper(getActivity());
-		userName = mPrefsHelper.getUsername();
-		hashedPass = mPrefsHelper.getHashedPassword();
-        setActivityIntent(new Intent().putExtra(LoginActivity.PARAM_USERNAME, userName));
 
-		// Clear the user information
-		mPrefsHelper.clearCredentials();
-
-		// Stop this instance of the activity where the username and password exist
+		mAccountHelper = new AccountHelper(getActivity());
+		userName = mAccountHelper.getUsername();
+		
 		getActivity().finish();
 		setActivityIntent(null);
 		setActivity(null);
+		
+		setActivityIntent(new Intent().putExtra(AuthenticatorActivity.PARAM_CONFIRMCREDENTIALS,
+				true).putExtra(AuthenticatorActivity.PARAM_USERNAME, userName));
 
-		// Start and instance of the activity that we want to test
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 
 	@Override
 	protected void tearDown() throws Exception{
-
-		// When we tear down, we want to replace the username and hashed pass
-		mPrefsHelper.putUsername(userName);
-		mPrefsHelper.putHashedPassword(hashedPass);
 
 		try {
 			solo.finalize();
@@ -92,28 +81,47 @@ public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginAct
 		super.tearDown();
 	}
 
-	public void testInitialLogin() {
+	public void testInitialLogin() throws Throwable {
 		if(SharedPreferencesHelper.PASSWORD == null || (SharedPreferencesHelper.USERNAME == null && userName == null))
 			throw new RuntimeException("The username and password constants must be set in order to log in");
 
-		solo.enterText(0, (SharedPreferencesHelper.USERNAME == null) ? userName : SharedPreferencesHelper.USERNAME);
+		assertFalse(solo.getEditText(0).isEnabled());
+		assertEquals((SharedPreferencesHelper.USERNAME == null) ? userName : SharedPreferencesHelper.USERNAME, solo.getEditText(0).getText().toString());
 		solo.enterText(1, SharedPreferencesHelper.PASSWORD);
 		solo.clickOnText("Login");
+
+		// Wait for the dialog to close
+		solo.waitForDialogToClose(30000);
+
+		// Should finish
 		solo.assertCurrentActivity("Expected to go to dash", DashboardActivity.class);
 		solo.goBack();
+
+		// We should have a username and password in the shared prefs
+		assertTrue(mAccountHelper.getUsername() != null);
+		assertTrue(mAccountHelper.getAuthToken() != null);
 	}
 
+	/**
+	 * Test that an invalid login causes the unable to authenticate error to be shown
+	 */
 	public void testInvalidLogin() {
 		if(SharedPreferencesHelper.PASSWORD == null || (SharedPreferencesHelper.USERNAME == null && userName == null))
 			throw new RuntimeException("The username and password constants must be set in order to log in");
 
-		solo.enterText(0, (SharedPreferencesHelper.USERNAME == null) ? userName : SharedPreferencesHelper.USERNAME);
+		assertFalse(solo.getEditText(0).isEnabled());
+		assertEquals((SharedPreferencesHelper.USERNAME == null) ? userName : SharedPreferencesHelper.USERNAME, solo.getEditText(0).getText().toString());
 		solo.enterText(1, SharedPreferencesHelper.PASSWORD+"bad");
 		solo.clickOnText("Login");
 
 		solo.searchText("Error");
 		solo.searchText("Unable to authenticate");
 		solo.clickOnText("OK");
-		solo.assertCurrentActivity("Expected to stay on login", LoginActivity.class);
+		solo.assertCurrentActivity("Expected to stay on login", AuthenticatorActivity.class);
+		solo.goBack();
+
+		// Even though we failed to update our credentials, we should keep what we had before
+		assertTrue(mAccountHelper.getUsername() != null);
+		assertTrue(mAccountHelper.getAuthToken() != null);
 	}
 }

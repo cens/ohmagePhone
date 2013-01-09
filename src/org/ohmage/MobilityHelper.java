@@ -97,11 +97,12 @@ public class MobilityHelper {
      */
     public static int ensureMobilityData(Context context) {
         UserPreferencesHelper prefs = new UserPreferencesHelper(context);
+        AccountHelper account = new AccountHelper(context);
 
         // The user needs to be logged in before we can upgrade mobility data
-        if (!prefs.isAuthenticated())
+        if (!AccountHelper.accountExists())
             return -1;
-        setUsername(context, prefs.getUsername(), prefs.getLoginTimestamp());
+        setUsername(context, account.getUsername(), prefs.getLoginTimestamp());
 
         ConfigHelper appPrefs = new ConfigHelper(context);
 

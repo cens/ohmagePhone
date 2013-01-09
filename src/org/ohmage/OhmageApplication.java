@@ -16,6 +16,10 @@
 
 package org.ohmage;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -33,6 +37,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
+import org.ohmage.authenticator.Authenticator;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Response;
@@ -52,10 +57,21 @@ import java.net.ContentHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class OhmageApplication extends Application {
 
     private static final String TAG = "OhmageApplication";
+
+    /**
+     * Account type string.
+     */
+    public static final String ACCOUNT_TYPE = "org.ohmage";
+
+    /**
+     * Authtoken type string.
+     */
+    public static final String AUTHTOKEN_TYPE = "org.ohmage";
 
     public static final String VIEW_MAP = "ohmage.intent.action.VIEW_MAP";
 
@@ -79,6 +95,8 @@ public class OhmageApplication extends Application {
     private static ContentResolver mFakeContentResolver;
 
     private static AndroidHttpClient mHttpClient;
+    
+    private static AccountManager mAccountManager;
 
     @Override
     public void onCreate() {
@@ -171,7 +189,22 @@ public class OhmageApplication extends Application {
         // clear everything?
         Log.v(TAG, "Reseting all data");
 
-        // clear user prefs first so isAuthenticated call will return false
+        // clear the user account
+        AccountManager accountManager = AccountManager.get(self);
+        Account[] accounts = accountManager.getAccountsByType(ACCOUNT_TYPE);
+        final CountDownLatch latch = new CountDownLatch(accounts.length);
+        Authenticator.setAllowRemovingAccounts(true);
+        for (Account account : accounts) {
+            accountManager.removeAccount(account, new AccountManagerCallback<Boolean>() {
+
+                @Override
+                public void run(AccountManagerFuture<Boolean> future) {
+                    latch.countDown();
+                }
+            }, null);
+        }
+
+        // clear user prefs
         new UserPreferencesHelper(this).clearAll();
 
         // clear all deployment settings
@@ -316,5 +349,11 @@ public class OhmageApplication extends Application {
             mHttpClient = AndroidHttpClient.newInstance(Build.MANUFACTURER + " " + Build.MODEL
                     + " (" + Build.VERSION.RELEASE + ")");
         return mHttpClient;
+    }
+
+    public static AccountManager getAccountManager() {
+        if(mAccountManager == null)
+            mAccountManager = AccountManager.get(self);
+        return mAccountManager;
     }
 }

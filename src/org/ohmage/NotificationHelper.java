@@ -7,9 +7,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.MobilityActivity;
 import org.ohmage.activity.UploadQueueActivity;
+import org.ohmage.authenticator.AuthenticatorActivity;
 
 public class NotificationHelper {
 
@@ -18,10 +18,14 @@ public class NotificationHelper {
     private static final int UPLOAD_ERROR_ID = 2;
 
     public static void showAuthNotification(Context context, String username) {
-        showNotification(context, AUTH_ERROR_ID, "Authentication error!",
+        showNotification(
+                context,
+                AUTH_ERROR_ID,
+                "Authentication error!",
                 "Tap here to re-enter credentials.",
-                new Intent(context, LoginActivity.class).putExtra(
-                        LoginActivity.PARAM_USERNAME, username));
+                new Intent(context, AuthenticatorActivity.class).putExtra(
+                        AuthenticatorActivity.PARAM_CONFIRMCREDENTIALS, true).putExtra(
+                        AuthenticatorActivity.PARAM_USERNAME, username));
     }
 
     public static void hideAuthNotification(Context context) {

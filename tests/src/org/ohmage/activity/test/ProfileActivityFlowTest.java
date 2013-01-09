@@ -15,15 +15,17 @@
  ******************************************************************************/
 package org.ohmage.activity.test;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.Smoke;
 
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.UserPreferencesHelper;
+import org.ohmage.OhmageApplication;
 import org.ohmage.activity.DashboardActivity;
-import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.ProfileActivity;
+import org.ohmage.authenticator.AuthenticatorActivity;
 
 /**
  * <p>This class contains tests for the {@link ProfileActivity}</p>
@@ -36,10 +38,12 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	private static final int INDEX_IMAGE_BUTTON_OHMAGE_HOME = 0;
 
 	private Solo solo;
-	private UserPreferencesHelper mPrefsHelper;
 
-	private String userName;
-	private String hashedPass;
+	private AccountManager am;
+
+	private Account account;
+
+	private String password;
 
 	public ProfileActivityFlowTest() {
 		super(ProfileActivity.class);
@@ -51,9 +55,12 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 
 		solo = new Solo(getInstrumentation(), getActivity());
 		
-		mPrefsHelper = new UserPreferencesHelper(getActivity());
-		userName = mPrefsHelper.getUsername();
-		hashedPass = mPrefsHelper.getHashedPassword();
+		am = AccountManager.get(getActivity());
+		Account[] accounts = am.getAccountsByType(OhmageApplication.ACCOUNT_TYPE);
+		if(accounts.length > 0) {
+			account = accounts[0];
+			password = am.peekAuthToken(account, OhmageApplication.AUTHTOKEN_TYPE);
+		}
 	}
 
 	@Override
@@ -78,7 +85,7 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	@Smoke
 	public void testUpdatePasswordFlow() {
 		solo.clickOnText("Update Password");
-		solo.assertCurrentActivity("Expected Login Screen", LoginActivity.class);
+		solo.assertCurrentActivity("Expected Login Screen", AuthenticatorActivity.class);
 
 		// Hide the keyboard
 		solo.goBack();
@@ -100,7 +107,7 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 		solo.clickOnText("Log Out");
 		solo.clickOnText("Logout");
 
-		solo.assertCurrentActivity("Expected Login Screen", LoginActivity.class);
+		solo.assertCurrentActivity("Expected Login Screen", AuthenticatorActivity.class);
 
 		resetCredentials();
 
@@ -116,7 +123,7 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	}
 
 	private void resetCredentials() {
-		mPrefsHelper.putUsername(userName);
-		mPrefsHelper.putHashedPassword(hashedPass);
+	    if(account != null)
+	        am.addAccountExplicitly(account, password, null);
 	}
 }

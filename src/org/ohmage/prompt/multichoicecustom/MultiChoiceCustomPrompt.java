@@ -16,6 +16,7 @@
 package org.ohmage.prompt.multichoicecustom;
 
 import org.json.JSONArray;
+import org.ohmage.AccountHelper;
 import org.ohmage.OhmageMarkdown;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
@@ -137,7 +138,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		mCustomChoices.clear();
 		MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 		String surveyId = ((SurveyActivity)context).getSurveyId();
-		UserPreferencesHelper prefs = new UserPreferencesHelper(context);
+        AccountHelper prefs = new AccountHelper(context);
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
@@ -179,7 +180,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 				if (!TextUtils.isEmpty(mEnteredText)) {
 					MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
 					String surveyId = ((SurveyActivity)context).getSurveyId();
-					UserPreferencesHelper prefs = new UserPreferencesHelper(context);
+					AccountHelper prefs = new AccountHelper(context);
 					String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 					String username = prefs.getUsername();
 					

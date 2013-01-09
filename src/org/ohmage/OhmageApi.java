@@ -137,7 +137,7 @@ public class OhmageApi {
 				}
 
 				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
-				    UserPreferencesHelper user = new UserPreferencesHelper(context);
+				    AccountHelper user = new AccountHelper(context);
 					NotificationHelper.showAuthNotification(context, user.getUsername());
 				}
 				break;
@@ -807,11 +807,10 @@ public class OhmageApi {
 	}
 
 	public static String defaultImageReadUrl(String uuid, String campaign, String size) {
-		UserPreferencesHelper prefs = new UserPreferencesHelper(OhmageApplication.getContext());
-		String username = prefs.getUsername();
-		String hashedPassword = prefs.getHashedPassword();
-		return OhmageApi.imageReadUrl(ConfigHelper.serverUrl(), username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
-
+	    AccountHelper account = new AccountHelper(OhmageApplication.getContext());
+	    String username = account.getUsername();
+	    String hashedPassword = account.getAuthToken();
+	    return OhmageApi.imageReadUrl(ConfigHelper.serverUrl(), username, hashedPassword, CLIENT_NAME, campaign, username, uuid, size);
 	}
 
 	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {

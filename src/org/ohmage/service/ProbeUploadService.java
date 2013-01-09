@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -57,7 +58,8 @@ public class ProbeUploadService extends WakefulIntentService {
      */
     private boolean mError = false;
 
-    private UserPreferencesHelper mUserPrefs;
+    private AccountHelper mAccount;
+    private UserPreferencesHelper mPrefs;
 
     public ProbeUploadService() {
         super(TAG);
@@ -79,8 +81,9 @@ public class ProbeUploadService extends WakefulIntentService {
     @Override
     protected void doWakefulWork(Intent intent) {
 
-        mUserPrefs = new UserPreferencesHelper(ProbeUploadService.this);
-
+        mAccount = new AccountHelper(ProbeUploadService.this);
+        mPrefs = new UserPreferencesHelper(this);
+        
         if (mApi == null)
             setOhmageApi(new OhmageApi(this));
 
@@ -95,7 +98,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
         // If there were no internal errors, we can say it was successful
         if (!probesUploader.hadError() && !responsesUploader.hadError())
-            mUserPrefs.putLastProbeUploadTimestamp(System.currentTimeMillis());
+            mPrefs.putLastProbeUploadTimestamp(System.currentTimeMillis());
 
         sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
     }
@@ -155,7 +158,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
             Cursor c = getContentResolver().query(getContentURI(), getProjection(),
                     BaseProbeColumns.USERNAME + "=?", new String[] {
-                        mUserPrefs.getUsername()
+                        mAccount.getUsername()
                     }, getNameColumn() + ", " + getVersionColumn());
 
             JsonArray probes = new JsonArray();
@@ -254,8 +257,8 @@ public class ProbeUploadService extends WakefulIntentService {
          */
         private boolean upload(JsonArray probes, String observerId, String observerVersion) {
 
-            String username = mUserPrefs.getUsername();
-            String hashedPassword = mUserPrefs.getHashedPassword();
+            String username = mAccount.getUsername();
+            String hashedPassword = mAccount.getAuthToken();
 
             // If there are no probes to upload just return successful
             if (probes.size() > 0) {
