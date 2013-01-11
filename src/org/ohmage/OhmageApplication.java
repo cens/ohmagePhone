@@ -89,8 +89,9 @@ public class OhmageApplication extends Application {
 
         self = this;
 
-        logger = new LogProbe(getResources().getBoolean(R.bool.log_analytics),
-                getResources().getString(R.string.log_level));
+        ConfigHelper config = new ConfigHelper(this);
+
+        logger = new LogProbe(config.getLogAnalytics(), config.getLogLevel());
         logger.connect(this);
 
         mImageLoader = createImageLoader(this);
@@ -131,6 +132,13 @@ public class OhmageApplication extends Application {
                 throw new RuntimeException("At least one server must be specified in config.xml");
             ConfigHelper.setServerUrl(servers.get(0));
         }
+    }
+
+    public void updateLogLevel() {
+        ConfigHelper config = new ConfigHelper(this);
+        logger.close();
+        logger = new LogProbe(config.getLogAnalytics(), config.getLogLevel());
+        logger.connect(this);
     }
 
     /**
@@ -295,8 +303,7 @@ public class OhmageApplication extends Application {
      * @return true if we are running Debug
      * @throws Exception
      */
-    public static boolean isDebugBuild()
-    {
+    public static boolean isDebugBuild() {
         PackageManager pm = getContext().getPackageManager();
         PackageInfo pi;
         try {

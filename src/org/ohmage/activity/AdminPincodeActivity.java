@@ -5,7 +5,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import org.ohmage.R;
+import org.ohmage.ConfigHelper;
 import org.ohmage.fragments.AdminDialogFragment;
 import org.ohmage.fragments.AdminDialogFragment.AdminCodeListener;
 import org.ohmage.logprobe.Analytics;
@@ -31,10 +31,12 @@ public class AdminPincodeActivity extends FragmentActivity implements AdminCodeL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ConfigHelper config = new ConfigHelper(this);
+
         if (savedInstanceState == null) {
 
             // If we have admin mode set, we don't need to show the pincode
-            if (getResources().getBoolean(R.bool.admin_mode)) {
+            if (config.adminMode()) {
                 setResult(RESULT_OK);
                 finish();
             }
