@@ -2,6 +2,8 @@
 <resources>
 
     <!-- List of default servers to be used with this build -->
+    <!-- We are now using a hack to convert deployment name to configuration -->
+    <!-- Make sure these names match the names in LoginActivity#configureForDeployment -->
     <string-array name="servers">
         <item>https://lausd.mobilizingcs.org/</item>
     </string-array>

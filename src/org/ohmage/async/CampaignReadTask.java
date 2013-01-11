@@ -11,8 +11,6 @@ import android.os.RemoteException;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +26,7 @@ import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;

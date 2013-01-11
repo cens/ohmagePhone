@@ -18,8 +18,6 @@ import android.widget.TextView;
 
 import com.google.android.imageloader.ImageLoader;
 
-import edu.ucla.cens.systemlog.Analytics;
-
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignXmlDownloadTask;
@@ -27,6 +25,7 @@ import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;

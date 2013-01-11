@@ -1,13 +1,12 @@
 package org.ohmage.activity;
 
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-import org.ohmage.fragments.CampaignListFragment;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import org.ohmage.R;
+import org.ohmage.fragments.CampaignListFragment;
+import org.ohmage.logprobe.Log;
 
 public class CampaignListActivity extends BaseCampaignListActivity {
 

@@ -10,14 +10,13 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
 import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.LogProbe.Status;
 
 public class AdminSettingsActivity extends PreferenceActivity  {
 
@@ -58,7 +57,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY)).setChecked(userPrefHelper.showMobility());
         ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY_FEEDBACK)).setChecked(userPrefHelper.showMobilityFeedback());
 
-		((CheckBoxPreference) findPreference(ConfigHelper.KEY_SINGLE_CAMPAIGN_MODE)).setChecked(ConfigHelper.isSingleCampaignMode());
+		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SINGLE_CAMPAIGN_MODE)).setChecked(userPrefHelper.isSingleCampaignMode());
 
 		mUpdatePassword = (PreferenceScreen) findPreference(KEY_UPDATE_PASSWORD);
 		mUpdatePassword.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

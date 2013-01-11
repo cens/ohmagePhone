@@ -33,13 +33,13 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Response;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe;
+import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.responsesync.ResponseSyncService;
@@ -74,6 +74,8 @@ public class OhmageApplication extends Application {
 
     private ImageLoader mImageLoader;
 
+    private LogProbe logger;
+
     private static OhmageApplication self;
 
     private static ContentResolver mFakeContentResolver;
@@ -83,12 +85,14 @@ public class OhmageApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Analytics.activity(this, Status.ON);
 
         self = this;
 
-        Log.initialize(this, "Ohmage");
+        ConfigHelper config = new ConfigHelper(this);
 
-        Analytics.activity(this, Status.ON);
+        logger = new LogProbe(config.getLogAnalytics(), config.getLogLevel());
+        logger.connect(this);
 
         mImageLoader = createImageLoader(this);
 
@@ -128,6 +132,13 @@ public class OhmageApplication extends Application {
                 throw new RuntimeException("At least one server must be specified in config.xml");
             ConfigHelper.setServerUrl(servers.get(0));
         }
+    }
+
+    public void updateLogLevel() {
+        ConfigHelper config = new ConfigHelper(this);
+        logger.close();
+        logger = new LogProbe(config.getLogAnalytics(), config.getLogLevel());
+        logger.connect(this);
     }
 
     /**
@@ -244,6 +255,10 @@ public class OhmageApplication extends Application {
             mHttpClient.close();
             mHttpClient = null;
         }
+        if (logger != null) {
+            logger.close();
+            logger = null;
+        }
         mImageLoader = null;
         Analytics.activity(this, Status.OFF);
         super.onTerminate();
@@ -288,8 +303,7 @@ public class OhmageApplication extends Application {
      * @return true if we are running Debug
      * @throws Exception
      */
-    public static boolean isDebugBuild()
-    {
+    public static boolean isDebugBuild() {
         PackageManager pm = getContext().getPackageManager();
         PackageInfo pi;
         try {

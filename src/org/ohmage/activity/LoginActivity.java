@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage.activity;
 
 import android.app.AlertDialog;
@@ -38,494 +39,565 @@ import android.widget.Toast;
 
 import com.slezica.tools.async.ManagedAsyncTask;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApplication;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
 
 public class LoginActivity extends FragmentActivity {
-	
-	public static final String TAG = "LoginActivity";
-	
-	/**
-	 * The {@link LoginActivity} looks for this extra to determine if
-	 * it should update the credentials for the user
-	 */
-	public static final String PARAM_USERNAME = "username";
-	
+
+    public static final String TAG = "LoginActivity";
+
+    /**
+     * The {@link LoginActivity} looks for this extra to determine if it should
+     * update the credentials for the user
+     */
+    public static final String PARAM_USERNAME = "username";
+
     private static final int DIALOG_FIRST_RUN = 1;
     private static final int DIALOG_LOGIN_ERROR = 2;
     private static final int DIALOG_NETWORK_ERROR = 3;
     private static final int DIALOG_LOGIN_PROGRESS = 4;
     private static final int DIALOG_INTERNAL_ERROR = 5;
     private static final int DIALOG_USER_DISABLED = 6;
-	private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 7;
-	private static final int DIALOG_SERVER_LIST = 8;
+    private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 7;
+    private static final int DIALOG_SERVER_LIST = 8;
 
-	private EditText mUsernameEdit;
-	private EditText mPasswordEdit;
-	private EditText mServerEdit;
-	private TextView mRegisterAccountLink;
-	private Button mLoginButton;
-	private TextView mVersionText;
-	private UserPreferencesHelper mPreferencesHelper;
+    private EditText mUsernameEdit;
+    private EditText mPasswordEdit;
+    private EditText mServerEdit;
+    private TextView mRegisterAccountLink;
+    private Button mLoginButton;
+    private TextView mVersionText;
+    private UserPreferencesHelper mPreferencesHelper;
 
-	private ConfigHelper mAppPrefs;
+    private ConfigHelper mAppPrefs;
 
     private String mUsername;
 
     private boolean mRequestNewAccount;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Log.i(TAG, "onCreate");
-		setContentView(R.layout.login);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.login);
 
-		// first see if they are already logged in
+        // first see if they are already logged in
         mPreferencesHelper = new UserPreferencesHelper(this);
-		mAppPrefs = new ConfigHelper(LoginActivity.this);
-		
-		mUsername = getIntent().getStringExtra(PARAM_USERNAME);
-		mRequestNewAccount = mUsername == null;
+        mAppPrefs = new ConfigHelper(LoginActivity.this);
 
-		mLoginButton = (Button) findViewById(R.id.login);
-        mUsernameEdit = (EditText) findViewById(R.id.login_username); 
+        mUsername = getIntent().getStringExtra(PARAM_USERNAME);
+        mRequestNewAccount = mUsername == null;
+
+        mLoginButton = (Button) findViewById(R.id.login);
+        mUsernameEdit = (EditText) findViewById(R.id.login_username);
         mPasswordEdit = (EditText) findViewById(R.id.login_password);
-		mServerEdit = (EditText) findViewById(R.id.login_server_edit);
-		mRegisterAccountLink = (TextView) findViewById(R.id.login_register_new_account);
+        mServerEdit = (EditText) findViewById(R.id.login_server_edit);
+        mRegisterAccountLink = (TextView) findViewById(R.id.login_register_new_account);
 
         mVersionText = (TextView) findViewById(R.id.version);
-        
+
         try {
-			mVersionText.setText("v" + getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
-		} catch (Exception e) {
-			Log.e(TAG, "unable to retrieve version", e);
-			mVersionText.setText(" ");
-		}
-        
+            mVersionText.setText("v"
+                    + getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
+        } catch (Exception e) {
+            Log.e(TAG, "unable to retrieve version", e);
+            mVersionText.setText(" ");
+        }
+
         mLoginButton.setOnClickListener(mClickListener);
         mRegisterAccountLink.setOnClickListener(mClickListener);
 
-        if(!mRequestNewAccount) {
+        if (!mRequestNewAccount) {
             mUsernameEdit.setText(mUsername);
             mUsernameEdit.setEnabled(false);
             mUsernameEdit.setFocusable(false);
         }
 
-		if(getResources().getBoolean(R.bool.allow_custom_server)) {
-			View serverContainer = findViewById(R.id.login_server_container);
-			serverContainer.setVisibility(View.VISIBLE);
-		}
+        if (getResources().getBoolean(R.bool.allow_custom_server)) {
+            View serverContainer = findViewById(R.id.login_server_container);
+            serverContainer.setVisibility(View.VISIBLE);
+        }
 
-		String defaultServer = ConfigHelper.serverUrl();
-		if(TextUtils.isEmpty(defaultServer))
-			defaultServer = getResources().getStringArray(R.array.servers)[0];
-		mServerEdit.setText(defaultServer);
-		ensureServerUrl();
-		mServerEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        String defaultServer = ConfigHelper.serverUrl();
+        if (TextUtils.isEmpty(defaultServer))
+            defaultServer = getResources().getStringArray(R.array.servers)[0];
+        mServerEdit.setText(defaultServer);
+        ensureServerUrl();
+        mServerEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if(!hasFocus) {
-					ensureServerUrl();
-				}
-			}
-		});
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    ensureServerUrl();
+                }
+            }
+        });
 
-		ImageButton addServer = (ImageButton) findViewById(R.id.login_add_server);
-		addServer.setOnClickListener(new View.OnClickListener() {
+        ImageButton addServer = (ImageButton) findViewById(R.id.login_add_server);
+        addServer.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				ensureServerUrl();
-				showDialog(DIALOG_SERVER_LIST);
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                ensureServerUrl();
+                showDialog(DIALOG_SERVER_LIST);
+            }
+        });
 
-        mCampaignDownloadTask = (CampaignReadTask) getSupportLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
+        mCampaignDownloadTask = (CampaignReadTask) getSupportLoaderManager().initLoader(0, null,
+                new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
 
-			@Override
-			public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-				return new CampaignReadTask(LoginActivity.this, null, null);
-			}
+                    @Override
+                    public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
+                        return new CampaignReadTask(LoginActivity.this, null, null);
+                    }
 
-			@Override
-			public void onLoadFinished(Loader<CampaignReadResponse> loader,
-					CampaignReadResponse data) {
-				String urn = Campaign.getSingleCampaign(LoginActivity.this);
-				if(urn == null) {
-					// Downloading the campaign failed so we should reset the username and password
-					MobilityHelper.setUsername(LoginActivity.this, null);
-					mPreferencesHelper.clearCredentials();
-					Toast.makeText(LoginActivity.this, R.string.login_error_downloading_campaign, Toast.LENGTH_LONG).show();
-				} else {
-					loginFinished(((CampaignReadTask) loader).getUsername(), ((CampaignReadTask) loader).getHashedPassword());
-				}
-				dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
-			}
+                    @Override
+                    public void onLoadFinished(Loader<CampaignReadResponse> loader,
+                            CampaignReadResponse data) {
+                        String urn = Campaign.getSingleCampaign(LoginActivity.this);
+                        if (urn == null) {
+                            // Downloading the campaign failed so we should
+                            // reset the username and password
+                            MobilityHelper.setUsername(LoginActivity.this, null);
+                            mPreferencesHelper.clearCredentials();
+                            Toast.makeText(LoginActivity.this,
+                                    R.string.login_error_downloading_campaign, Toast.LENGTH_LONG)
+                                    .show();
+                        } else {
+                            loginFinished(((CampaignReadTask) loader).getUsername(),
+                                    ((CampaignReadTask) loader).getHashedPassword());
+                        }
+                        dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+                    }
 
-			@Override
-			public void onLoaderReset(Loader<CampaignReadResponse> loader) {
-			}
-		});
-	}
+                    @Override
+                    public void onLoaderReset(Loader<CampaignReadResponse> loader) {
+                    }
+                });
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
 
-		getSupportLoaderManager().destroyLoader(0);
-	}
+        getSupportLoaderManager().destroyLoader(0);
+    }
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		Analytics.activity(this, Status.OFF);
-	}
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Analytics.activity(this, Status.OFF);
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		Analytics.activity(this, Status.ON);
+    @Override
+    public void onResume() {
+        super.onResume();
+        Analytics.activity(this, Status.ON);
 
-		// Hide any notifications since we started the login activity
-		NotificationHelper.hideAuthNotification(this);
-	}
+        // Hide any notifications since we started the login activity
+        NotificationHelper.hideAuthNotification(this);
+    }
 
-	private final OnClickListener mClickListener = new OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			switch (v.getId()) {
-				case R.id.login:
-					Log.i(TAG, "login button clicked");
-					Analytics.widget(v);
-					if(ensureServerUrl()) {
-						ConfigHelper.setServerUrl(mServerEdit.getText().toString());
-						doLogin();
-					} else
-						Toast.makeText(LoginActivity.this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
-					break;
-					
-				case R.id.login_register_new_account:
-					// reads the currently selected server and fires a browser intent
-					// which takes the user to the registration page for that server
-					Log.i(TAG, "register new account linkbutton clicked");
-					
-					Analytics.widget(v);
-					if (ensureServerUrl()) {
-						// use the textbox to make a url and send the user on their way
-						String url = mServerEdit.getText().toString() + "#register";
-						Intent i = new Intent(Intent.ACTION_VIEW);
-						i.setData(Uri.parse(url));
-						startActivity(i);
-					} else
-						Toast.makeText(LoginActivity.this, R.string.login_invalid_server, Toast.LENGTH_SHORT).show();
-					
-					break;
-			}
-		}
-	};
+    private final OnClickListener mClickListener = new OnClickListener() {
 
-	private CampaignReadTask mCampaignDownloadTask;
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.login:
+                    Analytics.widget(v);
+                    if (ensureServerUrl()) {
+                        String server = mServerEdit.getText().toString();
+                        ConfigHelper.setServerUrl(server.split("\\(")[0].trim());
+                        configureForDeployment(server);
+                        doLogin();
+                    } else
+                        Toast.makeText(LoginActivity.this, R.string.login_invalid_server,
+                                Toast.LENGTH_SHORT).show();
+                    break;
 
-	private void doLogin() {
-		String username = mUsernameEdit.getText().toString();
-		String password = mPasswordEdit.getText().toString();
-		
-		new LoginTask(LoginActivity.this).execute(username, password);
-	}
-	
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = super.onCreateDialog(id);
-		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-		switch (id) {
-			case DIALOG_FIRST_RUN:
-				dialogBuilder.setTitle(R.string.eula_title)
-				.setMessage(R.string.eula_text)
-				.setCancelable(false)
-				.setPositiveButton(R.string.eula_accept, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						mAppPrefs.setFirstRun(false);
-					}
-				})
-				.setNegativeButton(R.string.eula_cancel, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						LoginActivity.this.finish();
-					}
-				});
-				dialog = dialogBuilder.create();
-				break;
+                case R.id.login_register_new_account:
+                    // reads the currently selected server and fires a browser
+                    // intent
+                    // which takes the user to the registration page for that
+                    // server
+                    Analytics.widget(v);
+                    if (ensureServerUrl()) {
+                        // use the textbox to make a url and send the user on
+                        // their way
+                        String url = mServerEdit.getText().toString() + "#register";
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(url));
+                        startActivity(i);
+                    } else
+                        Toast.makeText(LoginActivity.this, R.string.login_invalid_server,
+                                Toast.LENGTH_SHORT).show();
 
-			case DIALOG_LOGIN_ERROR:
-				dialogBuilder.setTitle(R.string.login_error)
-				.setMessage(R.string.login_invalid_password)
-				.setCancelable(true)
-				.setPositiveButton(R.string.ok, null)
-				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
-								//put extras for specific help on login error
-							}
-						})*/;
-				//add button for contact
-				dialog = dialogBuilder.create();        	
-				break;
+                    break;
+            }
+        }
+    };
 
-			case DIALOG_USER_DISABLED:
-				dialogBuilder.setTitle(R.string.login_error)
-				.setMessage(R.string.login_account_disabled)
-				.setCancelable(true)
-				.setPositiveButton(R.string.ok, null)
-				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
-								//put extras for specific help on login error
-							}
-						})*/;
-				//add button for contact
-				dialog = dialogBuilder.create();        	
-				break;
+    private CampaignReadTask mCampaignDownloadTask;
 
-			case DIALOG_NETWORK_ERROR:
-				dialogBuilder.setTitle(R.string.login_error)
-				.setMessage(R.string.login_network_error)
-				.setCancelable(true)
-				.setPositiveButton(R.string.ok, null)
-				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
-								//put extras for specific help on http error
-							}
-						})*/;
-				//add button for contact
-				dialog = dialogBuilder.create();
-				break;
+    private void doLogin() {
+        String username = mUsernameEdit.getText().toString();
+        String password = mPasswordEdit.getText().toString();
 
-			case DIALOG_INTERNAL_ERROR:
-				dialogBuilder.setTitle(R.string.login_error)
-				.setMessage(R.string.login_server_error)
-				.setCancelable(true)
-				.setPositiveButton(R.string.ok, null)
-				/*.setNeutralButton("Help", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(LoginActivity.this, HelpActivity.class));
-								//put extras for specific help on http error
-							}
-						})*/;
-				//add button for contact
-				dialog = dialogBuilder.create();
-				break;
+        new LoginTask(LoginActivity.this).execute(username, password);
+    }
 
-			case DIALOG_LOGIN_PROGRESS: {
-				ProgressDialog pDialog = new ProgressDialog(this);
-				pDialog.setMessage(getString(R.string.login_authenticating, getString(R.string.server_name)));
-				pDialog.setCancelable(false);
-				//pDialog.setIndeterminate(true);
-				dialog = pDialog;
-				break;
-			}
-			case DIALOG_DOWNLOADING_CAMPAIGNS: {
-				ProgressDialog pDialog = new ProgressDialog(this);
-				pDialog.setMessage(getString(R.string.login_download_campaign));
-				pDialog.setCancelable(false);
-				//pDialog.setIndeterminate(true);
-				dialog = pDialog;
-				break;
-			}
-			case DIALOG_SERVER_LIST: {
-	            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				CharSequence[] servers = getResources().getStringArray(R.array.servers);
-				final ArrayAdapter<CharSequence> adapter =
-						new ArrayAdapter<CharSequence>(this, R.layout.simple_list_item_1, servers);
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = super.onCreateDialog(id);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        switch (id) {
+            case DIALOG_FIRST_RUN:
+                dialogBuilder
+                        .setTitle(R.string.eula_title)
+                        .setMessage(R.string.eula_text)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.eula_accept,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mAppPrefs.setFirstRun(false);
+                                    }
+                                })
+                        .setNegativeButton(R.string.eula_cancel,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        LoginActivity.this.finish();
+                                    }
+                                });
+                dialog = dialogBuilder.create();
+                break;
 
-	            builder.setTitle(R.string.login_choose_server);
-				builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            case DIALOG_LOGIN_ERROR:
+                dialogBuilder.setTitle(R.string.login_error)
+                        .setMessage(R.string.login_invalid_password).setCancelable(true)
+                        .setPositiveButton(R.string.ok, null)
+                /*
+                 * .setNeutralButton("Help", new
+                 * DialogInterface.OnClickListener() {
+                 * @Override public void onClick(DialogInterface dialog, int
+                 * which) { startActivity(new Intent(LoginActivity.this,
+                 * HelpActivity.class)); //put extras for specific help on login
+                 * error } })
+                 */;
+                // add button for contact
+                dialog = dialogBuilder.create();
+                break;
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						mServerEdit.setText(((AlertDialog) dialog).getListView().getAdapter().getItem(which).toString());
-					}
-				});
+            case DIALOG_USER_DISABLED:
+                dialogBuilder.setTitle(R.string.login_error)
+                        .setMessage(R.string.login_account_disabled).setCancelable(true)
+                        .setPositiveButton(R.string.ok, null)
+                /*
+                 * .setNeutralButton("Help", new
+                 * DialogInterface.OnClickListener() {
+                 * @Override public void onClick(DialogInterface dialog, int
+                 * which) { startActivity(new Intent(LoginActivity.this,
+                 * HelpActivity.class)); //put extras for specific help on login
+                 * error } })
+                 */;
+                // add button for contact
+                dialog = dialogBuilder.create();
+                break;
 
-				dialog = builder.create();
-				break;
-			}
-		}
+            case DIALOG_NETWORK_ERROR:
+                dialogBuilder.setTitle(R.string.login_error)
+                        .setMessage(R.string.login_network_error).setCancelable(true)
+                        .setPositiveButton(R.string.ok, null)
+                /*
+                 * .setNeutralButton("Help", new
+                 * DialogInterface.OnClickListener() {
+                 * @Override public void onClick(DialogInterface dialog, int
+                 * which) { startActivity(new Intent(LoginActivity.this,
+                 * HelpActivity.class)); //put extras for specific help on http
+                 * error } })
+                 */;
+                // add button for contact
+                dialog = dialogBuilder.create();
+                break;
 
-		return dialog;
-	}
-	
-	private void onLoginTaskDone(OhmageApi.AuthenticateResponse response, final String username) {
+            case DIALOG_INTERNAL_ERROR:
+                dialogBuilder.setTitle(R.string.login_error)
+                        .setMessage(R.string.login_server_error).setCancelable(true)
+                        .setPositiveButton(R.string.ok, null)
+                /*
+                 * .setNeutralButton("Help", new
+                 * DialogInterface.OnClickListener() {
+                 * @Override public void onClick(DialogInterface dialog, int
+                 * which) { startActivity(new Intent(LoginActivity.this,
+                 * HelpActivity.class)); //put extras for specific help on http
+                 * error } })
+                 */;
+                // add button for contact
+                dialog = dialogBuilder.create();
+                break;
 
-		try {
-			dismissDialog(DIALOG_LOGIN_PROGRESS);
-		} catch (IllegalArgumentException e) {
-			Log.e(TAG, "Attempting to dismiss dialog that had not been shown.");
-			e.printStackTrace();
-		}
-		
-		switch (response.getResult()) {
-		case SUCCESS:
-			Log.i(TAG, "login success");
-			final String hashedPassword = response.getHashedPassword();
+            case DIALOG_LOGIN_PROGRESS: {
+                ProgressDialog pDialog = new ProgressDialog(this);
+                pDialog.setMessage(getString(R.string.login_authenticating,
+                        getString(R.string.server_name)));
+                pDialog.setCancelable(false);
+                // pDialog.setIndeterminate(true);
+                dialog = pDialog;
+                break;
+            }
+            case DIALOG_DOWNLOADING_CAMPAIGNS: {
+                ProgressDialog pDialog = new ProgressDialog(this);
+                pDialog.setMessage(getString(R.string.login_download_campaign));
+                pDialog.setCancelable(false);
+                // pDialog.setIndeterminate(true);
+                dialog = pDialog;
+                break;
+            }
+            case DIALOG_SERVER_LIST: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                CharSequence[] servers = getResources().getStringArray(R.array.servers);
+                final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this,
+                        R.layout.simple_list_item_1, servers);
 
-			if(ConfigHelper.isSingleCampaignMode()) {
-				// Download the single campaign
-				showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+                builder.setTitle(R.string.login_choose_server);
+                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
 
-				// Temporarily set the user credentials. If the download fails, they will be removed
-				// We need to set this so the ResponseSyncService can use them once the campaign is downloaded
-				mPreferencesHelper.putUsername(username);
-				mPreferencesHelper.putHashedPassword(hashedPassword);
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mServerEdit.setText(((AlertDialog) dialog).getListView().getAdapter()
+                                .getItem(which).toString());
+                    }
+                });
 
-				mCampaignDownloadTask.setCredentials(username, hashedPassword);
-				mCampaignDownloadTask.forceLoad();
-			} else {
-				loginFinished(username, hashedPassword);
-			}
-			break;
-		case FAILURE:
-			//clear password so user will re-enter it
-			mPasswordEdit.setText("");
+                dialog = builder.create();
+                break;
+            }
+        }
 
-			//show error dialog
-			if (response.getErrorCodes().contains(OhmageApi.ERROR_ACCOUNT_DISABLED)) {
-				showDialog(DIALOG_USER_DISABLED);
-			} else {
-				showDialog(DIALOG_LOGIN_ERROR);
-			}
-			break;
-		case HTTP_ERROR:
-			//show error dialog
-			showDialog(DIALOG_NETWORK_ERROR);
-			break;
-		case INTERNAL_ERROR:
-			//show error dialog
-			showDialog(DIALOG_INTERNAL_ERROR);
-			break;
-		}
-	}
+        return dialog;
+    }
 
-	private void loginFinished(String username, String hashedPassword) {
+    private void onLoginTaskDone(OhmageApi.AuthenticateResponse response, final String username) {
 
-		//save creds
-		mPreferencesHelper.putUsername(username);
-		mPreferencesHelper.putHashedPassword(hashedPassword);
+        try {
+            dismissDialog(DIALOG_LOGIN_PROGRESS);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Attempting to dismiss dialog that had not been shown.");
+            e.printStackTrace();
+        }
 
-		// Upgrading the mobility data will set the username so we only need to set it if we don't upgrade
-		if(MobilityHelper.upgradeMobilityData(this) != MobilityHelper.VERSION_AGGREGATE_AND_USERNAME)
-			MobilityHelper.setUsername(this, username);
+        switch (response.getResult()) {
+            case SUCCESS:
+                Log.i(TAG, "login success");
+                final String hashedPassword = response.getHashedPassword();
 
-		//clear related notifications
-		//NotificationHelper.cancel(LoginActivity.this, NotificationHelper.NOTIFY_LOGIN_FAIL);
-		//makes more sense to clear notification on launch, so moved to oncreate
+                if (ConfigHelper.isSingleCampaignMode()) {
+                    // Download the single campaign
+                    showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
 
-		//start services
-		//set alarms
-		//register receivers
-		//BackgroundManager.initAuthComponents(this);
+                    // Temporarily set the user credentials. If the download
+                    // fails, they will be removed
+                    // We need to set this so the ResponseSyncService can use
+                    // them once the campaign is downloaded
+                    mPreferencesHelper.putUsername(username);
+                    mPreferencesHelper.putHashedPassword(hashedPassword);
 
-		if (mAppPrefs.isFirstRun()) {
-			Log.i(TAG, "this is the first run");
+                    mCampaignDownloadTask.setCredentials(username, hashedPassword);
+                    mCampaignDownloadTask.forceLoad();
+                } else {
+                    loginFinished(username, hashedPassword);
+                }
+                break;
+            case FAILURE:
+                // clear password so user will re-enter it
+                mPasswordEdit.setText("");
 
-			BackgroundManager.initComponents(this);
+                // show error dialog
+                if (response.getErrorCodes().contains(OhmageApi.ERROR_ACCOUNT_DISABLED)) {
+                    showDialog(DIALOG_USER_DISABLED);
+                } else {
+                    showDialog(DIALOG_LOGIN_ERROR);
+                }
+                break;
+            case HTTP_ERROR:
+                // show error dialog
+                showDialog(DIALOG_NETWORK_ERROR);
+                break;
+            case INTERNAL_ERROR:
+                // show error dialog
+                showDialog(DIALOG_INTERNAL_ERROR);
+                break;
+        }
+    }
 
-			//cancel get started notification. this works regardless of how we start the app (notification or launcher)
-			//NotificationHelper.cancel(this, NotificationHelper.NOTIFY_GET_STARTED, null);
+    private void loginFinished(String username, String hashedPassword) {
 
-			//show intro dialog
-			//showDialog(DIALOG_FIRST_RUN);
-			mAppPrefs.setFirstRun(false);
-		} else {
-			Log.i(TAG, "this is not the first run");
-		}
+        // save creds
+        mPreferencesHelper.putUsername(username);
+        mPreferencesHelper.putHashedPassword(hashedPassword);
 
-		mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
+        // Upgrading the mobility data will set the username so we only need to
+        // set it if we don't upgrade
+        if (MobilityHelper.upgradeMobilityData(this) != MobilityHelper.VERSION_AGGREGATE_AND_USERNAME)
+            MobilityHelper.setUsername(this, username);
 
-		if(!mRequestNewAccount)
-			finish();
-		else {
-			startActivity(new Intent(this, OhmageLauncher.class));
-			finish();
-		}
-	}
-	
-	private static class LoginTask extends ManagedAsyncTask<String, Void, OhmageApi.AuthenticateResponse>{
+        // clear related notifications
+        // NotificationHelper.cancel(LoginActivity.this,
+        // NotificationHelper.NOTIFY_LOGIN_FAIL);
+        // makes more sense to clear notification on launch, so moved to
+        // oncreate
 
-		private String mUsername;
-		private String mPassword;
+        // start services
+        // set alarms
+        // register receivers
+        // BackgroundManager.initAuthComponents(this);
 
-		public LoginTask(FragmentActivity activity) {
-			super(activity);
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			getActivity().showDialog(DIALOG_LOGIN_PROGRESS);
-		}
+        if (mAppPrefs.isFirstRun()) {
+            Log.i(TAG, "this is the first run");
 
-		@Override
-		protected OhmageApi.AuthenticateResponse doInBackground(String... params) {
-			mUsername = params[0];
-			mPassword = params[1];
-			
-//			if (mPassword.equals(DUMMY_PASSWORD)) {
-//				Log.i(TAG, "using stored hashed password");
-//			} else {
-//				Log.i(TAG, "password field modified, attempting to hash");
-//				try {
-//		        	mHashedPassword = BCrypt.hashpw(mPassword, BCRYPT_KEY);
-//		        	Log.i(TAG, "hash complete");
-//		        } catch (Exception e) {
-//		        	Log.e(TAG, "unable to hash password");
-//		        	e.printStackTrace();
-//		        }
-//			}
-			OhmageApi api = new OhmageApi(getActivity());
-			return api.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword, OhmageApi.CLIENT_NAME);
-		}
+            BackgroundManager.initComponents(this);
 
-		@Override
-		protected void onPostExecute(OhmageApi.AuthenticateResponse response) {
-			super.onPostExecute(response);
-			response.handleError(getActivity());
-			((LoginActivity) getActivity()).onLoginTaskDone(response, mUsername);
-		}
-	}
+            // cancel get started notification. this works regardless of how we
+            // start the app (notification or launcher)
+            // NotificationHelper.cancel(this,
+            // NotificationHelper.NOTIFY_GET_STARTED, null);
 
-	/**
-	 * Ensures that the server url provided is valid. Once it is made valid, it is set as the server url.
-	 * @return 
-	 */
-	private boolean ensureServerUrl() {
-		String text = mServerEdit.getText().toString();
-		text = URLUtil.guessUrl(text);
+            // show intro dialog
+            // showDialog(DIALOG_FIRST_RUN);
+            mAppPrefs.setFirstRun(false);
+        } else {
+            Log.i(TAG, "this is not the first run");
+        }
 
-		if(URLUtil.isHttpsUrl(text) || URLUtil.isHttpUrl(text)) {
-			mServerEdit.setText(text);
-			return true;
-		}
+        mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
 
-		return false;
-	}
+        if (!mRequestNewAccount)
+            finish();
+        else {
+            startActivity(new Intent(this, OhmageLauncher.class));
+            finish();
+        }
+    }
+
+    private static class LoginTask extends
+            ManagedAsyncTask<String, Void, OhmageApi.AuthenticateResponse> {
+
+        private String mUsername;
+        private String mPassword;
+        private final OhmageApi mApi;
+
+        public LoginTask(FragmentActivity activity) {
+            super(activity);
+            mApi = new OhmageApi(activity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            getActivity().showDialog(DIALOG_LOGIN_PROGRESS);
+        }
+
+        @Override
+        protected OhmageApi.AuthenticateResponse doInBackground(String... params) {
+            mUsername = params[0];
+            mPassword = params[1];
+
+            // if (mPassword.equals(DUMMY_PASSWORD)) {
+            // Log.i(TAG, "using stored hashed password");
+            // } else {
+            // Log.i(TAG, "password field modified, attempting to hash");
+            // try {
+            // mHashedPassword = BCrypt.hashpw(mPassword, BCRYPT_KEY);
+            // Log.i(TAG, "hash complete");
+            // } catch (Exception e) {
+            // Log.e(TAG, "unable to hash password");
+            // e.printStackTrace();
+            // }
+            // }
+            return mApi.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword,
+                    OhmageApi.CLIENT_NAME);
+        }
+
+        @Override
+        protected void onPostExecute(OhmageApi.AuthenticateResponse response) {
+            super.onPostExecute(response);
+            response.handleError(getActivity());
+            ((LoginActivity) getActivity()).onLoginTaskDone(response, mUsername);
+        }
+    }
+
+    /**
+     * Ensures that the server url provided is valid. Once it is made valid, it
+     * is set as the server url.
+     * 
+     * @return
+     */
+    private boolean ensureServerUrl() {
+        String text = mServerEdit.getText().toString();
+        text = URLUtil.guessUrl(text);
+
+        if (URLUtil.isHttpsUrl(text) || URLUtil.isHttpUrl(text)) {
+            mServerEdit.setText(text);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Configures some settings based on the deployment. Looks at the server url
+     * and deployment name to figure out what the settings should be
+     * 
+     * @param server
+     */
+    private void configureForDeployment(String server) {
+        if (server == null)
+            return;
+
+        server = server.split(" ")[0];
+
+        ConfigHelper config = new ConfigHelper(this);
+
+        if ("https://lausd.mobilizingcs.org/".equals(server)) {
+            mPreferencesHelper.setShowFeedback(true);
+            mPreferencesHelper.setShowMobility(false);
+            mPreferencesHelper.setUploadResponsesWifiOnly(false);
+            mPreferencesHelper.setUploadProbesWifiOnly(true);
+            config.setAdminMode(false);
+            config.setLogLevel("verbose");
+            config.setLogAnalytics(true);
+            ((OhmageApplication) getApplication()).updateLogLevel();
+        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
+            mPreferencesHelper.setShowFeedback(true);
+            mPreferencesHelper.setShowMobility(false);
+            mPreferencesHelper.setUploadResponsesWifiOnly(false);
+            mPreferencesHelper.setUploadProbesWifiOnly(true);
+            config.setAdminMode(false);
+            config.setLogLevel("error");
+            config.setLogAnalytics(false);
+            ((OhmageApplication) getApplication()).updateLogLevel();
+        } else if ("https://dev.ohmage.org/".equals(server)
+                || "https://test.ohmage.org/".equals(server)) {
+            mPreferencesHelper.setShowFeedback(true);
+            mPreferencesHelper.setShowMobility(true);
+            mPreferencesHelper.setUploadResponsesWifiOnly(false);
+            mPreferencesHelper.setUploadProbesWifiOnly(false);
+            config.setAdminMode(true);
+            config.setLogLevel("verbose");
+            config.setLogAnalytics(true);
+            ((OhmageApplication) getApplication()).updateLogLevel();
+        }
+    }
 }

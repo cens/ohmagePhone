@@ -34,8 +34,6 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.ucla.cens.mobility.glue.IMobility;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Log;
 
 import org.ohmage.MobilityHelper;
 import org.ohmage.R;
@@ -43,6 +41,8 @@ import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.service.ProbeUploadService;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
 import org.ohmage.ui.BaseActivity;
 
 public class MobilityControlFragment extends Fragment implements LoaderCallbacks<Cursor> {

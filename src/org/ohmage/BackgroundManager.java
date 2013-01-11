@@ -22,12 +22,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.responsesync.ResponseSyncReceiver;
-import org.ohmage.service.UploadReceiver;
+import org.ohmage.service.SyncReceiver;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.base.TriggerInit;
 
 public class BackgroundManager {
@@ -53,7 +51,7 @@ public class BackgroundManager {
 
         // uploadservice
         AlarmManager alarms = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
-        Intent intentToFire = new Intent(UploadReceiver.ACTION_UPLOAD_ALARM);
+        Intent intentToFire = new Intent(SyncReceiver.ACTION_SYNC_ALARM);
 
         // Set the alarm if it is not already set
         if (PendingIntent.getBroadcast(context, 0, intentToFire, PendingIntent.FLAG_NO_CREATE) == null) {
@@ -62,22 +60,6 @@ public class BackgroundManager {
             alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
             Log.i(TAG, "UploadReceiver repeating alarm set");
-        }
-
-        // response sync service
-        if (context.getResources().getBoolean(R.bool.allows_feedback)) {
-            Intent fbServiceSyncIntent = new Intent(ResponseSyncReceiver.ACTION_FBSYNC_ALARM);
-
-            // Set the alarm if it is not already set
-            if (PendingIntent.getBroadcast(context, 0, fbServiceSyncIntent,
-                    PendingIntent.FLAG_NO_CREATE) == null) {
-                PendingIntent fbServiceSyncPendingIntent = PendingIntent.getBroadcast(appContext,
-                        0, fbServiceSyncIntent, 0);
-                alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR,
-                        fbServiceSyncPendingIntent);
-                Log.i(TAG, "Feedback sync repeating alarm set");
-            }
         }
     }
 }

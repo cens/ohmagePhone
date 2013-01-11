@@ -1,11 +1,10 @@
 package org.ohmage.activity;
 
 
-import edu.ucla.cens.systemlog.Log;
+import android.os.Bundle;
 
 import org.ohmage.fragments.CampaignListFragment;
-
-import android.os.Bundle;
+import org.ohmage.logprobe.Log;
 
 public class CampaignAddActivity extends BaseCampaignListActivity {
 
@@ -25,6 +24,6 @@ public class CampaignAddActivity extends BaseCampaignListActivity {
 
 	@Override
 	public void onCampaignActionError(String campaignUrn, int status) {
-		Log.e(TAG, "onCampaignActionError should not be exposed in this activity.");
+	    Log.e(TAG, "onCampaignActionError should not be exposed in this activity.");
 	}
 }

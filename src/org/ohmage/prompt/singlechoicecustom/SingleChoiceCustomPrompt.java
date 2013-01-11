@@ -360,4 +360,11 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		mEnteredText = "";
 		mIsAddingNewItem = false;
 	}
+	
+	public int getSelectedIndex() {
+	    if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size()) {
+	       return mSelectedIndex;
+	    }
+	    return -1;
+	}
 }

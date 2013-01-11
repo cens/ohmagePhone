@@ -1,12 +1,11 @@
 package org.ohmage.triggers.notif;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
-import org.ohmage.R;
-
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+
+import org.ohmage.R;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.LogProbe.Status;
 
 public class NotifSettingsActivity extends PreferenceActivity {
 

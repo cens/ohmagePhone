@@ -15,15 +15,15 @@
  ******************************************************************************/
 package org.ohmage.activity.test;
 
+import android.content.Intent;
+import android.test.ActivityInstrumentationTestCase2;
+
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.test.helper.SharedPreferencesHelper;
-
-import android.content.Intent;
-import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * <p>This class contains tests for the {@link LoginActivity}</p>
@@ -59,10 +59,10 @@ public class LoginActivityTest extends ActivityInstrumentationTestCase2<LoginAct
 		// We need to get the username and hashed pass from the preferences and clear them with a context object
 		// but also before the activity starts. So the first time we setUp, we will create an activity, change the
 		// data we need to change and close the activity. The next time we start the activity for realz.
-		setActivityIntent(new Intent().putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
 		mPrefsHelper = new UserPreferencesHelper(getActivity());
 		userName = mPrefsHelper.getUsername();
 		hashedPass = mPrefsHelper.getHashedPassword();
+        setActivityIntent(new Intent().putExtra(LoginActivity.PARAM_USERNAME, userName));
 
 		// Clear the user information
 		mPrefsHelper.clearCredentials();

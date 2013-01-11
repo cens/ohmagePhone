@@ -15,21 +15,20 @@
  ******************************************************************************/
 package org.ohmage.triggers.notif;
 
-import edu.ucla.cens.systemlog.Log;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.base.TriggerActionDesc;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.triggers.base.TriggerRunTimeDesc;
 import org.ohmage.triggers.base.TriggerTypeMap;
 import org.ohmage.triggers.utils.TrigPrefManager;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -317,7 +316,7 @@ public class NotifSurveyAdaptor {
 
 	/*
 	 * To be called when a trigger expires. This function logs using
-	 * SystemLog, the list of all surveys not taken by the user 
+	 * LogProbe, the list of all surveys not taken by the user 
 	 * but were activated by the given trigger. 
 	 */
 	public static void handleExpiredTrigger(Context context, int trigId) {
@@ -391,7 +390,6 @@ public class NotifSurveyAdaptor {
 		String msg = "Expired trigger has surveys not taken: " + 
 					 jExpired.toString();
 		
-		Log.i(TAG, "NotifSurveyAdaptor: SystemLogging the following message: ");
 		Log.i(TAG, msg);		
 	}
 }

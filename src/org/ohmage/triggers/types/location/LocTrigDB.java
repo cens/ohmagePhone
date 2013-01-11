@@ -16,18 +16,17 @@
 package org.ohmage.triggers.types.location;
 
 
-import com.google.android.maps.GeoPoint;
-
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.google.android.maps.GeoPoint;
+
+import org.ohmage.R;
+import org.ohmage.logprobe.Log;
 
 /*
  * Database to store the location triggers settings. 

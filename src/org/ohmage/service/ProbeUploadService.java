@@ -12,10 +12,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -24,6 +20,9 @@ import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
 
 import java.util.ArrayList;
 

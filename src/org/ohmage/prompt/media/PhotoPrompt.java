@@ -15,12 +15,6 @@
  ******************************************************************************/
 package org.ohmage.prompt.media;
 
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.R;
-import org.ohmage.Utilities;
-import org.ohmage.activity.SurveyActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +29,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+
+import org.ohmage.R;
+import org.ohmage.Utilities;
+import org.ohmage.activity.SurveyActivity;
+import org.ohmage.logprobe.Log;
 
 public class PhotoPrompt extends MediaPrompt {
 

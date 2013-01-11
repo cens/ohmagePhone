@@ -7,8 +7,6 @@ import android.content.Intent;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,11 +16,11 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.responsesync.ResponseSyncService;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import java.text.SimpleDateFormat;
@@ -69,6 +67,8 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				JSONObject campaignJson = campaignResponse.getData().getJSONObject(mCampaignUrn);
 				values.put(Campaigns.CAMPAIGN_CREATED, campaignJson.getString("creation_timestamp"));
 				values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+				if("stopped".equals(campaignJson.getString("running_state")))
+				    values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_STOPPED);
 				cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
 
 				// We iterate through the list of user roles, if participant is included, then the status of this
@@ -114,15 +114,13 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 				//update occurred successfully
 			}
 			
-			if (getContext().getResources().getBoolean(R.bool.allows_feedback)) {
-				// create an intent to fire off the feedback service
-				Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
-				// annotate the request with the current campaign's URN
-				fbIntent.putExtra(ResponseSyncService.EXTRA_CAMPAIGN_URN, mCampaignUrn);
-				fbIntent.putExtra(ResponseSyncService.EXTRA_FORCE_ALL, true);
-				// and go!
-				WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
-			}
+			// create an intent to fire off the feedback service
+			Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
+			// annotate the request with the current campaign's URN
+			fbIntent.putExtra(ResponseSyncService.EXTRA_CAMPAIGN_URN, mCampaignUrn);
+			fbIntent.putExtra(ResponseSyncService.EXTRA_FORCE_ALL, true);
+			// and go!
+			WakefulIntentService.sendWakefulWork(getContext(), fbIntent);
 		} else { 
 			ContentValues values = new ContentValues();
 			values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_REMOTE);

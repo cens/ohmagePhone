@@ -15,7 +15,9 @@
  ******************************************************************************/
 package org.ohmage.triggers.base;
 
-import edu.ucla.cens.systemlog.Log;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +26,7 @@ import org.ohmage.R;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.config.NotifConfig;
 import org.ohmage.triggers.notif.NotifDesc;
 import org.ohmage.triggers.notif.Notifier;
@@ -31,10 +34,6 @@ import org.ohmage.triggers.types.location.LocTrigMapsActivity;
 import org.ohmage.triggers.types.location.LocationTrigger;
 import org.ohmage.triggers.types.time.TimeTrigger;
 import org.ohmage.triggers.utils.TrigPrefManager;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 
 /*
  * Boot listener. Starts all the active triggers. 

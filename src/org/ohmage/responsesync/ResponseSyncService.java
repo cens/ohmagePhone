@@ -11,10 +11,6 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.ImageLoader;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
 import org.codehaus.jackson.JsonNode;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +21,6 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
-import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
@@ -34,6 +29,9 @@ import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,11 +83,6 @@ public class ResponseSyncService extends WakefulIntentService {
 		// 2) somehow figure out which surveys the server has and we don't via the hashcode and sync accordingly
 		
 		Log.v(TAG, "Response sync service starting");
-		
-		if (!getResources().getBoolean(R.bool.allows_feedback)) {
-			Log.e(TAG, "Response sync service aborted, because feedback is not allowed in the preferences");
-			return;
-		}
 		
 		// ==================================================================
 		// === 1. acquire handles to api and database, build campaign list

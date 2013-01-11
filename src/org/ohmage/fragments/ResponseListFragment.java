@@ -1,7 +1,15 @@
 package org.ohmage.fragments;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Log;
+import android.app.Activity;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import org.ohmage.R;
 import org.ohmage.activity.SubActionClickListener;
@@ -15,17 +23,8 @@ import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.DbProvider;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.utils.SelectionBuilder;
-
-import android.app.Activity;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
 
 public class ResponseListFragment extends FilterableListFragment implements SubActionClickListener {
 	

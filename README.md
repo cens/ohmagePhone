@@ -18,7 +18,11 @@ specific to the NIH campaign including charts and the food/stress button
 Dependencies
 ------------
 
-All the external libraries which are needed are included in the libs directory of the project,
+You will need to download [ProbeLog](https://github.com/cens/ProbeLog) and make it available to
+ohmage as a library apk. (Alternatively you could just change all logging functionality to use
+the default android logs instead of using ProbeLog)
+
+All other external libraries which are needed are included in the libs directory of the project,
 but you will need the android SDK to build.
 
 1. Download and install the the android SDK. Instructions on downloading and installing the

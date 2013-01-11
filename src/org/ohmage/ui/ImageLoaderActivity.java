@@ -1,18 +1,17 @@
 package org.ohmage.ui;
 
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-
-import org.ohmage.OhmageCache;
-import org.ohmage.R;
-import org.ohmage.widget.TouchImageView;
-
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.google.android.imageloader.ImageLoader;
+
+import org.ohmage.OhmageCache;
+import org.ohmage.R;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.widget.TouchImageView;
 
 import java.io.File;
 import java.net.URI;

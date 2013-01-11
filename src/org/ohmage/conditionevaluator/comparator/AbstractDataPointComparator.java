@@ -35,33 +35,24 @@ public abstract class AbstractDataPointComparator implements DataPointComparator
 	 */
 	@Override
 	public boolean compare(DataPoint dataPoint, String value, String condition) {
-		// If the data point is NOT_DISPLAYED, then immediately return false no matter the value or condition
-	    if (dataPoint.isNotDisplayed()) {
-	        return false;
+		// If the data point is NOT_DISPLAYED, then return false unless we are comparing
+	    // DataPoint      condition   value
+	    // NOT_DISPLAYED  ==          NOT_DISPLAYED
+	    // DISPLAYED      !=          NOT_DISPLAYED
+	    if(AbstractPrompt.NOT_DISPLAYED_VALUE.equals(value)) {
+            return ("==".equals(condition) && dataPoint.isNotDisplayed())
+                    || ("!=".equals(condition) && !dataPoint.isNotDisplayed());
 	    }
-	    
-	    // If the data point is SKIPPED, then immediately return false UNLESS the condition is "=="
-	    // and the value is skipped (A SKIPPED data point can equal "SKIPPED")
-	    if (dataPoint.isSkipped()) {
-	        if ("==".equals(condition) && AbstractPrompt.SKIPPED_VALUE.equals(value)) {
-	            return true;
-	        }
-	        else {
-	            return false;
-	        }
-	    }
-	    
-	    if (value.equalsIgnoreCase(AbstractPrompt.SKIPPED_VALUE)) {
-	    	if ("==".equals(condition)) {
-	    		return dataPoint.isSkipped();
-	    	} else if ("!=".equals(condition)) {
-	    		return !dataPoint.isSkipped();
-	    	} else {
-	    		//this is an invalid condition
-	    		return false;
-	    	}
-	    } 
-	    
+
+        // If the data point is SKIPPED, then return false unless we are comparing
+        // DataPoint      condition   value
+        // SKIPPED        ==          SKIPPED
+        // SHOWN          !=          SKIPPED
+        if(AbstractPrompt.SKIPPED_VALUE.equals(value)) {
+            return ("==".equals(condition) && dataPoint.isSkipped())
+                    || ("!=".equals(condition) && !dataPoint.isSkipped());
+        }
+
 	    // Do the standard comparisons
 		if ("==".equals(condition)) {
 			return equals(dataPoint, value);

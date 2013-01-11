@@ -1,11 +1,5 @@
 package org.ohmage.controls;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-import org.ohmage.UIUtils;
-import org.ohmage.activity.DashboardActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +12,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.ohmage.R;
+import org.ohmage.UIUtils;
+import org.ohmage.activity.DashboardActivity;
+import org.ohmage.logprobe.Analytics;
 
 import java.util.ArrayList;
 import java.util.List;

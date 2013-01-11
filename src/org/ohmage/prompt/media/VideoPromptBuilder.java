@@ -15,11 +15,10 @@
  ******************************************************************************/
 package org.ohmage.prompt.media;
 
-import edu.ucla.cens.systemlog.Log;
-
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
+import org.ohmage.logprobe.Log;
 
 import java.util.ArrayList;
 

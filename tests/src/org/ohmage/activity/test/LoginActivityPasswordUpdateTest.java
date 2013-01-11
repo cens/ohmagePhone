@@ -55,11 +55,11 @@ public class LoginActivityPasswordUpdateTest extends ActivityInstrumentationTest
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		setActivityIntent(new Intent().putExtra(LoginActivity.EXTRA_UPDATE_CREDENTIALS, true));
 
 		mPrefsHelper = new UserPreferencesHelper(getActivity());
 		userName = mPrefsHelper.getUsername();
 		hashedPass = mPrefsHelper.getHashedPassword();
+		setActivityIntent(new Intent().putExtra(LoginActivity.PARAM_USERNAME, userName));
 
 		if(userName == null && SharedPreferencesHelper.USERNAME != null) {
 			mPrefsHelper.putUsername(SharedPreferencesHelper.USERNAME);

@@ -26,12 +26,12 @@
  */
 package org.ohmage.db.utils;
 
-import edu.ucla.cens.systemlog.Log;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+
+import org.ohmage.logprobe.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -44,11 +44,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-import edu.ucla.cens.systemlog.OhmageAnalytics;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,6 +78,10 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.WakefulService;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.OhmageAnalytics;
+import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -337,16 +336,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 
 		@Override
 		public void onClick(View v) {
-			v.setClickable(false);
-
-			if(v.getId() != R.id.next_button || !mReachedEnd) {
-				// We have special logic for logging the submit button
-				Analytics.widget(v);
-
-				// After we click the submit button once, it should not be clickable again
-				v.setClickable(true);
-			}
-
 			if (mCurrentPosition < mSurveyElements.size() && mSurveyElements.get(mCurrentPosition) instanceof AbstractPrompt) {
 				// Tell the current prompt that it is being hidden
 				((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).onHidden();
@@ -355,13 +344,15 @@ public class SurveyActivity extends Activity implements LocationListener {
 			switch (v.getId()) {
 				case R.id.next_button:
 					if (mReachedEnd) {
-						mSurveyFinished = true;
-						String uuid = storeResponse();
-						Analytics.widget(v, null, uuid);
-						TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
-						UserPreferencesHelper prefs = new UserPreferencesHelper(SurveyActivity.this);
-						prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
-						finish();
+					    if(!mSurveyFinished) {
+							mSurveyFinished = true;
+							String uuid = storeResponse();
+							Analytics.widget(v, null, uuid);
+							TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn, mSurveyTitle);
+							UserPreferencesHelper prefs = new UserPreferencesHelper(SurveyActivity.this);
+							prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
+							finish();
+						}
 					} else {
 						if (mSurveyElements.get(mCurrentPosition) instanceof Prompt || mSurveyElements.get(mCurrentPosition) instanceof Message) {
 							//show toast if not answered
@@ -850,10 +841,10 @@ public class SurveyActivity extends Activity implements LocationListener {
 			return;
 
 		if(mLastElement instanceof AbstractPrompt) {
-			OhmageAnalytics.prompt(this, (AbstractPrompt) mLastElement, Status.OFF);
+			OhmageAnalytics.prompt((AbstractPrompt) mLastElement, Status.OFF);
 		}
 		if(element  instanceof AbstractPrompt) {
-			OhmageAnalytics.prompt(this, (AbstractPrompt) element, Status.ON);
+			OhmageAnalytics.prompt((AbstractPrompt) element, Status.ON);
 		}
 		mLastElement = element;
 	}
@@ -951,6 +942,13 @@ public class SurveyActivity extends Activity implements LocationListener {
 						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.single_choice_custom.equals(dataPoint.getPromptType())) {
 						dataPoint.setValue(prompt.getResponseObject());
+						
+						// The condition evaluator needs to know the index of hardcoded options
+						if(prompt instanceof SingleChoiceCustomPrompt) {
+						    int idx = ((SingleChoiceCustomPrompt) prompt).getSelectedIndex();
+						    if(idx != -1)
+						        dataPoint.setIndex(idx);
+						}
 					} else if (PromptType.multi_choice.equals(dataPoint.getPromptType())) {
 						JSONArray jsonArray;
 						ArrayList<Integer> dataPointValue = new ArrayList<Integer>();
@@ -977,6 +975,11 @@ public class SurveyActivity extends Activity implements LocationListener {
 							e.printStackTrace();
 						}
 						dataPoint.setValue(dataPointValue);
+						
+	                      // The condition evaluator needs to know the index of hardcoded options
+                        if(prompt instanceof MultiChoiceCustomPrompt) {
+                            dataPoint.setIndexes(((MultiChoiceCustomPrompt) prompt).getSelectedIndexes());
+                        }
 					} else if (PromptType.number.equals(dataPoint.getPromptType())) {
 						dataPoint.setValue(prompt.getResponseObject());
 					} else if (PromptType.hours_before_now.equals(dataPoint.getPromptType())) {

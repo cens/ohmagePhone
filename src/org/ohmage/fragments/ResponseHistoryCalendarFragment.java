@@ -1,15 +1,5 @@
 package org.ohmage.fragments;
 
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-import org.ohmage.activity.ResponseListActivity;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.ui.OhmageFilterable.CampaignFilter;
-import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
-import org.ohmage.ui.OhmageFilterable.TimeFilter;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +21,15 @@ import android.widget.GridView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+
+import org.ohmage.R;
+import org.ohmage.activity.ResponseListActivity;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
+import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
+import org.ohmage.ui.OhmageFilterable.TimeFilter;
 
 import java.util.ArrayList;
 import java.util.Calendar;

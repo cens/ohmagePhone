@@ -24,88 +24,77 @@ import org.ohmage.conditionevaluator.DataPoint;
  *
  */
 public class SingleChoiceCustomDataPointComparator extends AbstractDataPointComparator {
-	
-	// The methods here all need to be updated to support conditions after changes made due to 2.9 api changes
-	// dataPoint.getValue() will now return a String instead of an Integer
-	// the integer key for that string needs to be looked up in the campaign config
-	// then that key can be compared to the value parameter (after casting to Integer)
 
 	@Override
 	protected boolean equals(DataPoint dataPoint, String value) {
-//		Integer dataPointValue = (Integer) dataPoint.getValue();
-//        Integer valueToCompare = Integer.parseInt(value);
-//        
-//        if (dataPointValue.compareTo(valueToCompare) == 0) {
-//            return true;
-//        } else {
-//        	return false;
-//        }
-		return false;
+		Integer dataPointValue = (Integer) dataPoint.getIndex();
+        Integer valueToCompare = Integer.parseInt(value);
+        
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) == 0) {
+            return true;
+        } else {
+        	return false;
+        }
 	}
 
 	@Override
 	protected boolean greaterThan(DataPoint dataPoint, String value) {
-//		Integer dataPointValue = (Integer) dataPoint.getValue();
-//		Integer valueToCompare = Integer.parseInt(value);
-//        
-//        if (dataPointValue.compareTo(valueToCompare) > 0) {
-//            return true;
-//        } else {
-//        	return false;
-//        }
-		return false;
+		Integer dataPointValue = (Integer) dataPoint.getIndex();
+		Integer valueToCompare = Integer.parseInt(value);
+        
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) > 0) {
+            return true;
+        } else {
+        	return false;
+        }
 	}
 
 	@Override
 	protected boolean greaterThanOrEquals(DataPoint dataPoint, String value) {
-//		Integer dataPointValue = (Integer) dataPoint.getValue();
-//		Integer valueToCompare = Integer.parseInt(value);
-//        
-//        if (dataPointValue.compareTo(valueToCompare) >= 0) {
-//            return true;
-//        } else {
-//        	return false;
-//        }
-		return false;
+		Integer dataPointValue = (Integer) dataPoint.getIndex();
+		Integer valueToCompare = Integer.parseInt(value);
+        
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) >= 0) {
+            return true;
+        } else {
+        	return false;
+        }
 	}
 
 	@Override
 	protected boolean lessThan(DataPoint dataPoint, String value) {
-//		Integer dataPointValue = (Integer) dataPoint.getValue();
-//		Integer valueToCompare = Integer.parseInt(value);
-//        
-//        if (dataPointValue.compareTo(valueToCompare) < 0) {
-//            return true;
-//        } else {
-//        	return false;
-//        }
-		return false;
+		Integer dataPointValue = (Integer) dataPoint.getIndex();
+		Integer valueToCompare = Integer.parseInt(value);
+        
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) < 0) {
+            return true;
+        } else {
+        	return false;
+        }
 	}
 
 	@Override
 	protected boolean lessThanOrEquals(DataPoint dataPoint, String value) {
-//		Integer dataPointValue = (Integer) dataPoint.getValue();
-//		Integer valueToCompare = Integer.parseInt(value);
-//        
-//        if (dataPointValue.compareTo(valueToCompare) <= 0) {
-//            return true;
-//        } else {
-//        	return false;
-//        }
-		return false;
+		Integer dataPointValue = (Integer) dataPoint.getIndex();
+		Integer valueToCompare = Integer.parseInt(value);
+        
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) <= 0) {
+            return true;
+        } else {
+        	return false;
+        }
 	}
 
 	@Override
 	protected boolean notEquals(DataPoint dataPoint, String value) {
-//		Integer dataPointValue = (Integer) dataPoint.getValue();
-//		Integer valueToCompare = Integer.parseInt(value);
-//        
-//        if (dataPointValue.compareTo(valueToCompare) != 0) {
-//            return true;
-//        } else {
-//        	return false;
-//        }
-		return false;
+		Integer dataPointValue = (Integer) dataPoint.getIndex();
+		Integer valueToCompare = Integer.parseInt(value);
+        
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) != 0) {
+            return true;
+        } else {
+        	return false;
+        }
 	}
 
 }

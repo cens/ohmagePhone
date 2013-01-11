@@ -15,15 +15,15 @@
  ******************************************************************************/
 package org.ohmage.service;
 
-import org.ohmage.activity.SurveyListActivity;
-import org.ohmage.triggers.glue.TriggerFramework;
-import org.ohmage.triggers.notif.Notifier;
-import org.ohmage.ui.OhmageFilterable.CampaignFilter;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.activity.SurveyListActivity;
+import org.ohmage.logprobe.Log;
+import org.ohmage.triggers.glue.TriggerFramework;
+import org.ohmage.triggers.notif.Notifier;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 public class TriggerNotificationReceiver extends BroadcastReceiver {
 	

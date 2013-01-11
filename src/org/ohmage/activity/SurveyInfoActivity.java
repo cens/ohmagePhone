@@ -1,24 +1,5 @@
 package org.ohmage.activity;
 
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.ConfigHelper;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.controls.ActionBarControl;
-import org.ohmage.controls.ActionBarControl.ActionListener;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Survey;
-import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.ui.BaseInfoActivity;
-import org.ohmage.ui.OhmageFilterable.CampaignFilter;
-import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
-
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -33,6 +14,24 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.android.imageloader.ImageLoader;
+
+import org.ohmage.ConfigHelper;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.controls.ActionBarControl;
+import org.ohmage.controls.ActionBarControl.ActionListener;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.Models.Survey;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.triggers.base.TriggerDB;
+import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
+import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -18,9 +18,6 @@ package org.ohmage;
 import android.content.Context;
 import android.widget.Toast;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Log;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -44,6 +41,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.CountingInputStream;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -634,8 +633,6 @@ public class OhmageApi {
 
 		candidate.setResponseStatus(result, errorCodes);
 
-		Analytics.network(mContext, url, result);
-
 		return candidate;
 	}
 	
@@ -967,8 +964,6 @@ public class OhmageApi {
 			result = Result.HTTP_ERROR;
 		}
 
-		Analytics.network(mContext, url, result);
-
 		return new AuthenticateResponse(result, hashedPassword, authToken, errorCodes);
 	}
 
@@ -1017,8 +1012,6 @@ public class OhmageApi {
 			Log.e(TAG, "Response is null");
 			result = Result.HTTP_ERROR;
 		}
-
-		Analytics.network(mContext, url, result);
 
 		return new UploadResponse(result, errorCodes);
 	}
@@ -1085,8 +1078,6 @@ public class OhmageApi {
 		}
 
 		candidate.setResponseStatus(result, errorCodes);
-
-		Analytics.network(mContext, url, result);
 
 		return candidate;
 	}
@@ -1244,9 +1235,6 @@ public class OhmageApi {
 
 		if(inputstream != null && result == Result.SUCCESS)
 			Analytics.network(mContext, url, inputstream.amountRead());
-		else
-			Analytics.network(mContext, url, result);
-
 
 		listener.readResult(result, errorCodes);
 		candidate.setResponseStatus(result, errorCodes);

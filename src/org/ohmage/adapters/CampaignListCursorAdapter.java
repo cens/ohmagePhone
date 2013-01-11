@@ -1,14 +1,5 @@
 package org.ohmage.adapters;
 
-import com.google.android.imageloader.ImageLoader;
-
-import edu.ucla.cens.systemlog.Analytics;
-
-import org.ohmage.R;
-import org.ohmage.activity.SubActionClickListener;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.Models.Campaign;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -21,6 +12,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.imageloader.ImageLoader;
+
+import org.ohmage.R;
+import org.ohmage.activity.SubActionClickListener;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.logprobe.Analytics;
 
 public class CampaignListCursorAdapter extends CursorAdapter{
 	
@@ -53,6 +52,7 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		nameText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		urnText.setText(campaignUrn);
 		actionButton.setFocusable(false);
+		actionButton.setEnabled(true);
 		actionButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -90,6 +90,7 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 			
 		case Campaign.STATUS_DOWNLOADING:
 			actionButton.setContentDescription(context.getString(R.string.campaign_list_item_action_button_downloading_description));
+	        actionButton.setEnabled(false);
 			actionButton.setImageResource(R.drawable.spinner_white_48);
 			
 			if (actionButton.getAnimation() == null) {

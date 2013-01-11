@@ -15,19 +15,6 @@
  ******************************************************************************/
 package org.ohmage.triggers.ui;
 
-import org.ohmage.R;
-import org.ohmage.activity.AdminPincodeActivity;
-import org.ohmage.triggers.base.TriggerActionDesc;
-import org.ohmage.triggers.base.TriggerBase;
-import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.triggers.base.TriggerTypeMap;
-import org.ohmage.triggers.config.TrigUserConfig;
-import org.ohmage.triggers.notif.NotifDesc;
-import org.ohmage.triggers.notif.NotifEditActivity;
-import org.ohmage.triggers.notif.NotifSettingsActivity;
-import org.ohmage.triggers.notif.Notifier;
-import org.ohmage.triggers.utils.TrigPrefManager;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -49,9 +36,22 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
+
+import org.ohmage.R;
+import org.ohmage.activity.AdminPincodeActivity;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.triggers.base.TriggerActionDesc;
+import org.ohmage.triggers.base.TriggerBase;
+import org.ohmage.triggers.base.TriggerDB;
+import org.ohmage.triggers.base.TriggerTypeMap;
+import org.ohmage.triggers.config.TrigUserConfig;
+import org.ohmage.triggers.notif.NotifDesc;
+import org.ohmage.triggers.notif.NotifEditActivity;
+import org.ohmage.triggers.notif.NotifSettingsActivity;
+import org.ohmage.triggers.notif.Notifier;
+import org.ohmage.triggers.utils.TrigPrefManager;
 
 public class TriggerListActivity extends ListActivity 
 			implements OnClickListener {

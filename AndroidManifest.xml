@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ohmage"
-    android:versionCode="12102900"
-    android:versionName="2.13.4" >
+    android:versionCode="13011100"
+    android:versionName="2.14" >
     
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -10,7 +10,6 @@
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
 	<uses-permission android:name="android.permission.ACCESS_CELL_ID" />
-	<uses-permission android:name="android.permission.CONTROL_LOCATION_UPDATES"/>
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" /> 
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -20,6 +19,7 @@
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.BROADCAST_STICKY"/>
 	<uses-permission android:name="android.permission.READ_LOGS" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"/>
 
@@ -199,9 +199,9 @@
 	    <service android:name=".service.UploadService"/>
 	    <service android:name=".service.ProbeUploadService"/>
     	
-		<receiver android:name=".service.UploadReceiver">
+		<receiver android:name=".service.SyncReceiver">
 			<intent-filter>
-	    		<action android:name="org.ohmage.service.ACTION_UPLOAD_ALARM"/>
+			<action android:name="org.ohmage.service.ACTION_SYNC_ALARM"/>
 	    	</intent-filter>
 	    </receiver>
 	    
@@ -323,13 +323,7 @@
         -->       
 
 	    <service android:name=".responsesync.ResponseSyncService" />
-	    
-	   	<receiver android:name=".responsesync.ResponseSyncReceiver">
-	    	<intent-filter>
-				<action android:name="org.ohmage.responsesync.ACTION_FBSYNC_ALARM"/>
-	    	</intent-filter>
-	    </receiver>
-	    
+
 	    <provider android:name=".db.DbProvider"
 	    	android:authorities="org.ohmage.db">
 	    </provider>

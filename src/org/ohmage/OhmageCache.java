@@ -15,11 +15,11 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.content.Context;
+
 import com.google.android.filecache.FileResponseCache;
 
-import edu.ucla.cens.systemlog.Log;
-
-import android.content.Context;
+import org.ohmage.logprobe.Log;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -85,10 +85,10 @@ public class OhmageCache extends FileResponseCache {
 			}
 			return new File(parent, builder.toString());
 		} catch (NoSuchAlgorithmException e) {
-			Log.d(TAG, "MD5 algorithm not found");
+			Log.e(TAG, "MD5 algorithm not found");
 			throw new RuntimeException(e);
 		} catch (UnsupportedEncodingException e) {
-			Log.d(TAG, "Unsupported Encoding Exception");
+			Log.e(TAG, "Unsupported Encoding Exception");
 			throw new RuntimeException(e);
 		}
 	}

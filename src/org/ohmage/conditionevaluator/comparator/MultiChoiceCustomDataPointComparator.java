@@ -40,20 +40,19 @@ public class MultiChoiceCustomDataPointComparator extends AbstractDataPointCompa
 
 	@Override
 	boolean equals(DataPoint dataPoint, String value) {
-//		// Run through all the responses, if any of them are true assume the whole thing is true
-//        Integer valueToCompare = Integer.parseInt(value);
-//        Integer dataPointValue = null;
-//        @SuppressWarnings("unchecked")
-//        List<Integer> dataPointValues = (List<Integer>) dataPoint.getValue();
-//        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
-//        while (dataPointValuesIterator.hasNext()) {
-//            dataPointValue = dataPointValuesIterator.next();
-//            
-//            if (dataPointValue.compareTo(valueToCompare) == 0) {
-//                return true;
-//            }
-//        }
-//		return false;
+		// Run through all the responses, if any of them are true assume the whole thing is true
+        Integer valueToCompare = Integer.parseInt(value);
+        Integer dataPointValue = null;
+        @SuppressWarnings("unchecked")
+        List<Integer> dataPointValues = (List<Integer>) dataPoint.getIndexes();
+        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
+        while (dataPointValuesIterator.hasNext()) {
+            dataPointValue = dataPointValuesIterator.next();
+            
+            if (dataPointValue.compareTo(valueToCompare) == 0) {
+                return true;
+            }
+        }
 		return false;
 	}
 
@@ -87,21 +86,20 @@ public class MultiChoiceCustomDataPointComparator extends AbstractDataPointCompa
 
 	@Override
 	boolean notEquals(DataPoint dataPoint, String value) {
-//		// Run through all the responses, if any of them are true assume the whole thing is true
-//		Integer valueToCompare = Integer.parseInt(value);
-//        Integer dataPointValue = null;
-//        @SuppressWarnings("unchecked")
-//        List<Integer> dataPointValues = (List<Integer>) dataPoint.getValue();
-//        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
-//        while (dataPointValuesIterator.hasNext()) {
-//            dataPointValue = dataPointValuesIterator.next();
-//            
-//            if (dataPointValue.compareTo(valueToCompare) == 0) {
-//                return false;
-//            }
-//        }
-//		return true;
-		return false;
+		// Run through all the responses, if any of them are true assume the whole thing is true
+		Integer valueToCompare = Integer.parseInt(value);
+        Integer dataPointValue = null;
+        @SuppressWarnings("unchecked")
+        List<Integer> dataPointValues = (List<Integer>) dataPoint.getIndexes();
+        Iterator<Integer> dataPointValuesIterator = dataPointValues.iterator();
+        while (dataPointValuesIterator.hasNext()) {
+            dataPointValue = dataPointValuesIterator.next();
+            
+            if (dataPointValue.compareTo(valueToCompare) == 0) {
+                return false;
+            }
+        }
+		return true;
 	}
 
 }

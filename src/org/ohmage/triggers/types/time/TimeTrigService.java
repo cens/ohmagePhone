@@ -15,12 +15,6 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.time;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
-
-import org.ohmage.triggers.utils.SimpleTime;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -31,6 +25,11 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
+
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.triggers.utils.SimpleTime;
 
 import java.util.Calendar;
 import java.util.Random;

@@ -1,21 +1,21 @@
 package org.ohmage.activity;
 
-import edu.ucla.cens.systemlog.Analytics;
-import edu.ucla.cens.systemlog.Analytics.Status;
-import edu.ucla.cens.systemlog.Log;
+import android.content.Intent;
+import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import org.ohmage.ConfigHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
-import android.text.TextUtils;
-import android.widget.Toast;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
 
 public class OhmagePreferenceActivity extends PreferenceActivity  {
 	private static final String TAG = "OhmagePreferenceActivity";
@@ -42,6 +42,10 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+        PreferenceManager prefMgr = getPreferenceManager();
+        prefMgr.setSharedPreferencesName(UserPreferencesHelper.getPreferencesName(this));
+        prefMgr.setSharedPreferencesMode(MODE_PRIVATE);
 
 		mUserPreferenceHelper = new UserPreferencesHelper(this);
 
