@@ -38,9 +38,9 @@
     <item name="reminder_admin_mode" type="bool">true</item>
 
     <!-- If true, analaytics interactions will be logged to systemlog -->
-    <item name="log_analytics" type="bool">true</item>
+    <item name="log_analytics" type="bool">false</item>
 
     <!-- Determines the log level to be logged to systemlog -->
-    <item name="log_level" type="string">verbose</item>
+    <item name="log_level" type="string">error</item>
 
 </resources>
