@@ -12,7 +12,7 @@ import android.provider.BaseColumns;
  * @author cketcham
  */
 public class DbContract {
-    public static final String CONTENT_AUTHORITY = "org.ohmage.probemanager";
+    public static final String CONTENT_AUTHORITY = "org.mobilizingcs.probemanager";
     private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public interface BaseProbeColumns {

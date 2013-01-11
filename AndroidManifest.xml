@@ -325,7 +325,7 @@
 	    <service android:name="org.ohmage.responsesync.ResponseSyncService" />
 
 	    <provider android:name="org.ohmage.db.DbProvider"
-	    	android:authorities="org.ohmage.db">
+	    	android:authorities="org.mobilizingcs.db">
 	    </provider>
 
 		<!--
@@ -347,7 +347,7 @@
 
         <provider
             android:name="org.ohmage.probemanager.ProbeContentProvider"
-            android:authorities="org.ohmage.probemanager"
+            android:authorities="org.mobilizingcs.probemanager"
             android:enabled="true"
             android:exported="true" >
 	    </provider>

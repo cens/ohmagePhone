@@ -5,7 +5,7 @@
 
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:data="content://org.ohmage.db/campaigns" />
+			android:data="content://org.mobilizingcs.db/campaigns" />
 	</PreferenceScreen>
 
 	<CheckBoxPreference
