@@ -130,9 +130,6 @@ public class OhmageApplication extends Application {
             prefs.setLastVersionCode(currentVersionCode);
         }
 
-        // Verfiy all the alarms are set to upload and sync data
-        BackgroundManager.verifyAlarms(this);
-
         // Make sure mobility is registered to collect points for the current
         // user and it has the correct aggregate data
         // This will happen if mobility is removed and reinstalled

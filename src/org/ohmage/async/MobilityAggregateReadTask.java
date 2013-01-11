@@ -101,7 +101,7 @@ public class MobilityAggregateReadTask extends AuthenticatedTaskLoader<Response>
 				if(mobilityTimestamp != 0 || operations.isEmpty())
 					MobilityHelper.recalculateAggregate(mContext, getUsername(), mobilityTimestamp);
 
-				mContext.getContentResolver().notifyChange(MobilityInterface.AGGREGATES_URI, null);
+				mContext.getContentResolver().notifyChange(MobilityInterface.AGGREGATES_URI, null, false);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

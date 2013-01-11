@@ -1,0 +1,6 @@
+<sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
+    android:contentAuthority="org.ohmage.db"
+    android:accountType="org.ohmage"
+    android:supportsUploading="true"
+    android:userVisible="true"
+/>

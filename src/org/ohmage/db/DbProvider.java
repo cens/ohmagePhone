@@ -208,9 +208,9 @@ public class DbProvider extends ContentProvider {
 					resultingUri = Responses.buildResponseUri(insertID);
 
 					// notify on the related entity URIs
-					cr.notifyChange(Responses.CONTENT_URI, null);
-					cr.notifyChange(PromptResponses.CONTENT_URI, null);
-					cr.notifyChange(Campaigns.buildCampaignUri(campaignUrn), null);
+					cr.notifyChange(Responses.CONTENT_URI, null, false);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null, false);
+					cr.notifyChange(Campaigns.buildCampaignUri(campaignUrn), null, false);
 				}
 
 				break;
@@ -220,9 +220,9 @@ public class DbProvider extends ContentProvider {
 				resultingUri = Campaigns.buildCampaignUri(campaignUrn);
 
 				// notify on the related entity URIs
-				cr.notifyChange(Campaigns.CONTENT_URI, null);
-				cr.notifyChange(Surveys.CONTENT_URI, null);
-				cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
+				cr.notifyChange(Campaigns.CONTENT_URI, null, false);
+				cr.notifyChange(Surveys.CONTENT_URI, null, false);
+				cr.notifyChange(SurveyPrompts.CONTENT_URI, null, false);
 				
 				break;
 			default:
@@ -283,24 +283,24 @@ public class DbProvider extends ContentProvider {
 				case MatcherTypes.RESPONSE_BY_PID:
 				case MatcherTypes.RESPONSES:
 					// notify on the related entity URIs
-					cr.notifyChange(Responses.CONTENT_URI, null);
-					cr.notifyChange(PromptResponses.CONTENT_URI, null);
-					cr.notifyChange(Campaigns.CONTENT_URI, null);
+					cr.notifyChange(Responses.CONTENT_URI, null, false);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null, false);
+					cr.notifyChange(Campaigns.CONTENT_URI, null, false);
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
 					// notify on the related entity URIs
-					cr.notifyChange(Campaigns.CONTENT_URI, null);
-					cr.notifyChange(Surveys.CONTENT_URI, null);
-					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
-					cr.notifyChange(Responses.CONTENT_URI, null);
-					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null, false);
+					cr.notifyChange(Surveys.CONTENT_URI, null, false);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null, false);
+					cr.notifyChange(Responses.CONTENT_URI, null, false);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null, false);
 					break;
 			}
 			
 			// we should always notify on our own uri regardless
-			cr.notifyChange(uri, null);
+			cr.notifyChange(uri, null, false);
 		}
 		
 		return count;
@@ -357,23 +357,23 @@ public class DbProvider extends ContentProvider {
 				case MatcherTypes.RESPONSE_BY_PID:
 				case MatcherTypes.RESPONSES:
 					// notify on the related entity URIs
-					cr.notifyChange(Responses.CONTENT_URI, null);
-					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					cr.notifyChange(Responses.CONTENT_URI, null, false);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null, false);
 					break;
 					
 				case MatcherTypes.CAMPAIGN_BY_URN:
 				case MatcherTypes.CAMPAIGNS:
 					// notify on the related entity URIs
-					cr.notifyChange(Campaigns.CONTENT_URI, null);
-					cr.notifyChange(Surveys.CONTENT_URI, null);
-					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
-					cr.notifyChange(Responses.CONTENT_URI, null);
-					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null, false);
+					cr.notifyChange(Surveys.CONTENT_URI, null, false);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null, false);
+					cr.notifyChange(Responses.CONTENT_URI, null, false);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null, false);
 					break;
 			}
 
 			// we should always notify on our own uri regardless
-			cr.notifyChange(uri, null);
+			cr.notifyChange(uri, null, false);
 
 			// Clean up the data associated with each of the models we deleted
 			for(DbModel model : models) {
@@ -410,8 +410,8 @@ public class DbProvider extends ContentProvider {
 					}
 					
 					// notify on the related entity URIs
-					cr.notifyChange(Responses.CONTENT_URI, null);
-					cr.notifyChange(PromptResponses.CONTENT_URI, null);
+					cr.notifyChange(Responses.CONTENT_URI, null, false);
+					cr.notifyChange(PromptResponses.CONTENT_URI, null, false);
 					
 					break;
 				case MatcherTypes.CAMPAIGNS:
@@ -421,9 +421,9 @@ public class DbProvider extends ContentProvider {
 					}
 
 					// notify on the related entity URIs
-					cr.notifyChange(Campaigns.CONTENT_URI, null);
-					cr.notifyChange(Surveys.CONTENT_URI, null);
-					cr.notifyChange(SurveyPrompts.CONTENT_URI, null);
+					cr.notifyChange(Campaigns.CONTENT_URI, null, false);
+					cr.notifyChange(Surveys.CONTENT_URI, null, false);
+					cr.notifyChange(SurveyPrompts.CONTENT_URI, null, false);
 					
 					break;
 				default:

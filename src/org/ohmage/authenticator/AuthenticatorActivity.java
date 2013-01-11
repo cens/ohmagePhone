@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -53,6 +52,7 @@ import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.async.CampaignReadTask;
+import org.ohmage.db.DbContract;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.utils.Lists;
 import org.ohmage.logprobe.Analytics;
@@ -501,8 +501,11 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         if (mRequestNewAccount) {
             mAccountManager.addAccountExplicitly(account, mPassword, null);
             mAccountManager.setAuthToken(account, OhmageApplication.AUTHTOKEN_TYPE, mAuthtoken);
-            // Set contacts sync for this account.
-            ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY, true);
+            // Set sync for this account.
+            ContentResolver.setIsSyncable(account, DbContract.CONTENT_AUTHORITY, 1);
+            ContentResolver.setSyncAutomatically(account, DbContract.CONTENT_AUTHORITY, true);
+            ContentResolver.addPeriodicSync(account, DbContract.CONTENT_AUTHORITY, new Bundle(),
+                    3600);
         } else {
             mAccountManager.setPassword(account, mPassword);
         }

@@ -46,7 +46,7 @@ public class CampaignContentProvider extends DelegatingMockContentProvider {
 		if(mCampaigns != null && values != null && values.containsKey(Campaigns.CAMPAIGN_STATUS)) {
 			for(Campaign campaign : mCampaigns) {
 				campaign.mStatus = values.getAsInteger(Campaigns.CAMPAIGN_STATUS);
-				OhmageApplication.getContext().getContentResolver().notifyChange(uri, null);
+				OhmageApplication.getContext().getContentResolver().notifyChange(uri, null, false);
 			}
 			return mCampaigns.length;
 		}

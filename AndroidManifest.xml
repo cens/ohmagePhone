@@ -270,15 +270,19 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name=".syncadapter.SyncService"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
         <service android:name=".service.UploadService" />
         <service android:name=".service.ProbeUploadService" />
-
-        <receiver android:name=".service.SyncReceiver" >
-            <intent-filter>
-                <action android:name="org.ohmage.service.ACTION_SYNC_ALARM" />
-            </intent-filter>
-        </receiver>
-
         <service android:name=".service.SurveyGeotagService" />
 
         <activity

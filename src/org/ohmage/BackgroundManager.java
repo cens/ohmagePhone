@@ -25,7 +25,6 @@ import android.os.SystemClock;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.logprobe.Log;
-import org.ohmage.service.SyncReceiver;
 import org.ohmage.triggers.base.TriggerInit;
 
 public class BackgroundManager {
@@ -40,26 +39,6 @@ public class BackgroundManager {
         DbHelper dbHelper = new DbHelper(context);
         for (Campaign c : dbHelper.getReadyCampaigns()) {
             TriggerInit.initTriggers(context, c.mUrn);
-        }
-    }
-
-    public static void verifyAlarms(Context context) {
-
-        Log.v(TAG, "verifying application alarms");
-
-        Context appContext = context.getApplicationContext();
-
-        // uploadservice
-        AlarmManager alarms = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
-        Intent intentToFire = new Intent(SyncReceiver.ACTION_SYNC_ALARM);
-
-        // Set the alarm if it is not already set
-        if (PendingIntent.getBroadcast(context, 0, intentToFire, PendingIntent.FLAG_NO_CREATE) == null) {
-            PendingIntent pendingIntent = PendingIntent
-                    .getBroadcast(appContext, 0, intentToFire, 0);
-            alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
-            Log.v(TAG, "UploadReceiver repeating alarm set");
         }
     }
 }

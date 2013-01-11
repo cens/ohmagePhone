@@ -74,12 +74,12 @@ public class ProbeContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case MatcherTypes.PROBES:
                 id = dbHelper.getWritableDatabase().insert(Tables.Probes, BaseColumns._ID, values);
-                cr.notifyChange(Probes.CONTENT_URI, null);
+                cr.notifyChange(Probes.CONTENT_URI, null, false);
                 break;
             case MatcherTypes.RESPONSES:
                 id = dbHelper.getWritableDatabase().insert(Tables.Responses, BaseColumns._ID,
                         values);
-                cr.notifyChange(Responses.CONTENT_URI, null);
+                cr.notifyChange(Responses.CONTENT_URI, null, false);
                 break;
             default:
                 throw new UnsupportedOperationException("insert(): Unknown URI: " + uri);
@@ -167,11 +167,11 @@ public class ProbeContentProvider extends ContentProvider {
             // potentially many URIs
             switch (sUriMatcher.match(uri)) {
                 case MatcherTypes.PROBES:
-                    cr.notifyChange(Probes.CONTENT_URI, null);
+                    cr.notifyChange(Probes.CONTENT_URI, null, false);
                     break;
 
                 case MatcherTypes.RESPONSES:
-                    cr.notifyChange(Responses.CONTENT_URI, null);
+                    cr.notifyChange(Responses.CONTENT_URI, null, false);
                     break;
             }
         }
