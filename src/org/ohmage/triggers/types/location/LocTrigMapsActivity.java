@@ -89,7 +89,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
 import org.ohmage.OhmageApplication;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;

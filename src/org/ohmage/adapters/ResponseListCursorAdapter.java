@@ -1,7 +1,7 @@
 package org.ohmage.adapters;
 
 import org.ohmage.ConfigHelper;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;

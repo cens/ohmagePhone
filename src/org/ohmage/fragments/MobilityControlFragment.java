@@ -36,7 +36,7 @@ import edu.ucla.cens.mobility.glue.IMobility;
 import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 import org.ohmage.MobilityHelper;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;

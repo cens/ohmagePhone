@@ -3,7 +3,7 @@ package org.ohmage.prompt.timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.app.DatePickerDialog;

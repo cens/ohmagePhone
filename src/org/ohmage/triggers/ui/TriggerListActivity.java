@@ -37,7 +37,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;

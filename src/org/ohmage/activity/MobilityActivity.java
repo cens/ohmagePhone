@@ -13,7 +13,7 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 import org.ohmage.MobilityHelper;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.fragments.MobilityControlFragment;
 import org.ohmage.fragments.RecentMobilityChartFragment;

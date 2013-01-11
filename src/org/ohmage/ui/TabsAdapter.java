@@ -13,7 +13,7 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.logprobe.Analytics;
 
 import java.util.ArrayList;

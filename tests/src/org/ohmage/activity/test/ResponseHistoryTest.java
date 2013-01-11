@@ -20,7 +20,7 @@ import com.google.android.maps.Overlay;
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.OhmageApplication;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.ResponseHistoryActivity;
 import org.ohmage.activity.ResponseInfoActivity;

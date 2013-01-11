@@ -25,7 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.google.android.maps.GeoPoint;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.logprobe.Log;
 
 /*

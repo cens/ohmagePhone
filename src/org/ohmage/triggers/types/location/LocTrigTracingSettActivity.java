@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.ohmage.triggers.types.location;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 
 import android.content.Context;
 import android.content.Intent;

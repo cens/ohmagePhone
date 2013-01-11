@@ -9,7 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Response;

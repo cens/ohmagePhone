@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.ohmage.prompt.hoursbeforenow;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.prompt.number.NumberPrompt;
 
 public class HoursBeforeNowPrompt extends NumberPrompt {

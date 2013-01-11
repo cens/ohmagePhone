@@ -22,7 +22,7 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.activity.ResponseListActivity;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;

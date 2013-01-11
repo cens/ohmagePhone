@@ -19,7 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.json.JSONObject;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.ui.TriggerListActivity;

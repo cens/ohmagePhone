@@ -5,7 +5,7 @@ import org.achartengine.chart.XYChart;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.Utilities;
 
 import android.content.Context;

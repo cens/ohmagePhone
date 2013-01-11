@@ -22,7 +22,7 @@ import android.database.Cursor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;

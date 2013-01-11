@@ -10,7 +10,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import org.ohmage.ConfigHelper;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
 import org.ohmage.logprobe.Analytics;

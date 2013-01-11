@@ -4,7 +4,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 
 import org.ohmage.OhmageApplication;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 
 import android.content.Context;
 import android.location.Criteria;

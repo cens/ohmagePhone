@@ -21,6 +21,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
 
+import org.mobilizingcs.R;
+
 import org.ohmage.db.DbContract.Responses;
 
 import java.util.Calendar;

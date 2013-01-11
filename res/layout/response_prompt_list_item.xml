@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:imageview="http://schemas.android.com/apk/res/org.ohmage"
+	xmlns:imageview="http://schemas.android.com/apk/res/org.mobilizingcs"
 
 	android:padding="@dimen/gutter"
 	android:layout_width="match_parent"

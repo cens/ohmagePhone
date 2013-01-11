@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.CampaignListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;

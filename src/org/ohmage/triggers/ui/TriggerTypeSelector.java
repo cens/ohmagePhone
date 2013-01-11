@@ -18,7 +18,7 @@ package org.ohmage.triggers.ui;
 
 import java.util.Collection;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.triggers.base.TriggerTypeMap;
 
 import android.app.Dialog;

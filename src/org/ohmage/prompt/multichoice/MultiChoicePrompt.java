@@ -17,7 +17,7 @@ package org.ohmage.prompt.multichoice;
 
 import org.json.JSONArray;
 import org.ohmage.OhmageMarkdown;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.AbstractPrompt;
 

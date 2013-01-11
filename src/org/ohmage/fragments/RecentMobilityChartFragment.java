@@ -4,7 +4,7 @@ import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 import org.achartengine.GraphicalView;
 import org.ohmage.MobilityHelper;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;

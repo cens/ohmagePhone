@@ -32,7 +32,7 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.logprobe.Log;
 

@@ -30,7 +30,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.Utilities;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.logprobe.Log;

@@ -1,6 +1,6 @@
 package org.ohmage.widget;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;

@@ -4,7 +4,7 @@ package org.ohmage.widget;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 
 import android.content.Context;
 import android.os.Parcel;

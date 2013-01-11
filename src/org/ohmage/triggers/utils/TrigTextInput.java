@@ -16,7 +16,7 @@
 package org.ohmage.triggers.utils;
 
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

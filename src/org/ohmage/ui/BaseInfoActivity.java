@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.logprobe.Analytics;
 
 /**

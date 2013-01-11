@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 
 import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.logprobe.Analytics;

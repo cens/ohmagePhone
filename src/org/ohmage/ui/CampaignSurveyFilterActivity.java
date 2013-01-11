@@ -1,7 +1,7 @@
 package org.ohmage.ui;
 
 import org.ohmage.ConfigHelper;
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.controls.FilterControl;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;

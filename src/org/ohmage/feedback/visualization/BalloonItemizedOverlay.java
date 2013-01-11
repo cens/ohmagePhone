@@ -31,7 +31,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.logprobe.Log;
 
 import java.lang.reflect.Method;

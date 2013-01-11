@@ -33,7 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.Utilities;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.logprobe.Log;

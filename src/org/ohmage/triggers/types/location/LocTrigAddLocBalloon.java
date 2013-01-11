@@ -18,7 +18,7 @@ package org.ohmage.triggers.types.location;
 import java.util.List;
 import java.util.Locale;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 
 import android.content.Context;
 import android.graphics.Canvas;

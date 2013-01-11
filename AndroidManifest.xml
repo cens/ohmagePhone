@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.ohmage"
+    package="org.mobilizingcs"
     android:versionCode="13011100"
     android:versionName="2.14" >
     
@@ -24,23 +24,23 @@
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"/>
 
 	<application
-		android:name="OhmageApplication"
+		android:name="org.ohmage.OhmageApplication"
 		android:theme="@style/OhmageTheme"
 		android:icon="@drawable/icon"
 		android:label="@string/app_name">
 
-		<activity android:name=".activity.OhmageLauncher">
+		<activity android:name="org.ohmage.activity.OhmageLauncher">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".activity.LoginActivity" />
-		<activity android:name=".activity.DashboardActivity"
+		<activity android:name="org.ohmage.activity.LoginActivity" />
+		<activity android:name="org.ohmage.activity.DashboardActivity"
 			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<activity
-			android:name=".ui.ImageLoaderActivity"
+			android:name="org.ohmage.ui.ImageLoaderActivity"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
 			<intent-filter>
 				<action android:name="org.ohmage.action.VIEW_REMOTE_IMAGE" />
@@ -50,7 +50,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".activity.SendLogActivity">
+		<activity android:name="org.ohmage.activity.SendLogActivity">
 			<intent-filter>
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
@@ -62,14 +62,14 @@
 		================================================
 		-->
 		<activity
-			android:name=".activity.SurveyActivity"
+			android:name="org.ohmage.activity.SurveyActivity"
 			android:launchMode="standard"
 			android:windowSoftInputMode="adjustResize" />
 
-		<activity android:name=".activity.SurveyListActivity" android:label="@string/title_surveys" 
+		<activity android:name="org.ohmage.activity.SurveyListActivity" android:label="@string/title_surveys" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.CampaignListActivity" android:label="@string/title_campaigns" 
+		<activity android:name="org.ohmage.activity.CampaignListActivity" android:label="@string/title_campaigns" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 			<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -78,19 +78,19 @@
             </intent-filter>
 		</activity>
 
-		<activity android:name=".activity.CampaignAddActivity" android:label="@string/title_add_campaign" 
+		<activity android:name="org.ohmage.activity.CampaignAddActivity" android:label="@string/title_add_campaign" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
 		<activity
-			android:name=".activity.UploadQueueActivity"
+			android:name="org.ohmage.activity.UploadQueueActivity"
 			android:label="@string/title_upload_queue"
 			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
 			android:launchMode="singleTask" />
 
-		<activity android:name=".activity.ProfileActivity" android:label="@string/title_profile" 
+		<activity android:name="org.ohmage.activity.ProfileActivity" android:label="@string/title_profile" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 					
-		<activity android:name=".activity.MobilityActivity" android:label="@string/title_mobility" 
+		<activity android:name="org.ohmage.activity.MobilityActivity" android:label="@string/title_mobility" 
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
 					android:launchMode="singleTask">
 			<intent-filter>
@@ -99,15 +99,15 @@
 			</intent-filter>
 		</activity>
           
-		<activity android:name=".activity.OhmagePreferenceActivity" android:theme="@android:style/Theme.Black" />
-		<activity android:name=".activity.AdminSettingsActivity" android:theme="@android:style/Theme.Black" />
+		<activity android:name="org.ohmage.activity.OhmagePreferenceActivity" android:theme="@android:style/Theme.Black" />
+		<activity android:name="org.ohmage.activity.AdminSettingsActivity" android:theme="@android:style/Theme.Black" />
 
 		<!-- 
 		================================================
 		=== entity info activities
 		================================================
 		-->
-		<activity android:name=".activity.CampaignInfoActivity" android:label="@string/title_campaign_info"
+		<activity android:name="org.ohmage.activity.CampaignInfoActivity" android:label="@string/title_campaign_info"
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -116,7 +116,7 @@
             </intent-filter>
 		</activity>
 		
-		<activity android:name=".activity.SurveyInfoActivity" android:label="@string/title_survey_info"
+		<activity android:name="org.ohmage.activity.SurveyInfoActivity" android:label="@string/title_survey_info"
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -125,7 +125,7 @@
             </intent-filter>
 		</activity>
 		
-	    <activity android:name=".activity.ResponseInfoActivity" android:label="@string/title_response"
+	    <activity android:name="org.ohmage.activity.ResponseInfoActivity" android:label="@string/title_response"
 	    			android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 	    	<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -140,10 +140,10 @@
 		================================================
 		-->
 
-		<activity android:name=".activity.HelpActivity" android:label="@string/title_help"
+		<activity android:name="org.ohmage.activity.HelpActivity" android:label="@string/title_help"
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.ResponseInfoMapActivity" android:label="@string/title_response"
+		<activity android:name="org.ohmage.activity.ResponseInfoMapActivity" android:label="@string/title_response"
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden">
 			<intent-filter>
                 <action android:name="ohmage.intent.action.VIEW_MAP" />
@@ -152,11 +152,11 @@
             </intent-filter>
 		</activity>
 		
-		<activity android:name=".activity.ResponseHistoryActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+		<activity android:name="org.ohmage.activity.ResponseHistoryActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.ResponseListActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
+		<activity android:name="org.ohmage.activity.ResponseListActivity" android:label="@string/title_response_history" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"/>
 
-		<activity android:name=".activity.LauncherActivity" android:label="@string/app_name">
+		<activity android:name="org.ohmage.activity.LauncherActivity" android:label="@string/app_name">
 			<!--
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -166,20 +166,20 @@
 		</activity>
 
 		<!-- allows queries against the contentprovider to be tested -->
-		<activity android:name=".activity.QueryTestActivity" android:label="@string/app_name"
+		<activity android:name="org.ohmage.activity.QueryTestActivity" android:label="@string/app_name"
 			android:windowSoftInputMode="adjustResize" android:theme="@android:style/Theme.Light">
 		</activity>
 		
-		<receiver android:name=".service.TriggerNotificationReceiver">
+		<receiver android:name="org.ohmage.service.TriggerNotificationReceiver">
     		<intent-filter>
         		<action android:name="org.ohmage.triggers.TRIGGER_NOTIFICATION"/>
         	</intent-filter>
     	</receiver>
     
-	    <activity android:name=".activity.StatusActivity">
+	    <activity android:name="org.ohmage.activity.StatusActivity">
 	    </activity>
 
-	    <receiver android:name=".service.BootReceiver">
+	    <receiver android:name="org.ohmage.service.BootReceiver">
 	    	<intent-filter>
 	    		<action android:name="android.intent.action.BOOT_COMPLETED"/>
 	    	</intent-filter>
@@ -190,25 +190,25 @@
 			</intent-filter> -->
 	    </receiver>
 	    
-	    <receiver android:name=".service.TriggerReceiver">
+	    <receiver android:name="org.ohmage.service.TriggerReceiver">
 			<intent-filter>
 	    		<action android:name="org.ohmage.triggers.SURVEY_LIST_CHANGED"/>
 	    	</intent-filter>
 	    </receiver>
 	        
-	    <service android:name=".service.UploadService"/>
-	    <service android:name=".service.ProbeUploadService"/>
+	    <service android:name="org.ohmage.service.UploadService"/>
+	    <service android:name="org.ohmage.service.ProbeUploadService"/>
     	
-		<receiver android:name=".service.SyncReceiver">
+		<receiver android:name="org.ohmage.service.SyncReceiver">
 			<intent-filter>
 			<action android:name="org.ohmage.service.ACTION_SYNC_ALARM"/>
 	    	</intent-filter>
 	    </receiver>
 	    
-	    <service android:name=".service.SurveyGeotagService"/>
+	    <service android:name="org.ohmage.service.SurveyGeotagService"/>
 
-	    <activity android:name=".activity.AdminPincodeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-	    <activity android:name=".activity.ErrorDialogActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+	    <activity android:name="org.ohmage.activity.AdminPincodeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+	    <activity android:name="org.ohmage.activity.ErrorDialogActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <!-- 
         ******************************************************
@@ -216,26 +216,26 @@
         ******************************************************
         -->
         
-    	<activity android:name=".triggers.ui.TriggerListActivity" />
+    	<activity android:name="org.ohmage.triggers.ui.TriggerListActivity" />
 
     	<!-- Lock the orientation until the TimePicker rotate bug is fixed -->
-    	<activity android:name=".triggers.types.time.TimeTrigEditActivity"
+    	<activity android:name="org.ohmage.triggers.types.time.TimeTrigEditActivity"
     			  android:screenOrientation="portrait"/>
 		
-    	<activity android:name=".triggers.notif.NotifEditActivity"/>
+    	<activity android:name="org.ohmage.triggers.notif.NotifEditActivity"/>
     	
-    	<activity android:name=".triggers.notif.NotifSettingsActivity"/>
+    	<activity android:name="org.ohmage.triggers.notif.NotifSettingsActivity"/>
 		
 	    <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
-		<activity android:name=".triggers.types.location.LocTrigEditActivity"
+		<activity android:name="org.ohmage.triggers.types.location.LocTrigEditActivity"
 					  android:screenOrientation="portrait"/>
 		
-	    <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
-		<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
-	    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
+	    <activity android:name="org.ohmage.triggers.types.location.LocTrigSettingsActivity"/>
+		<activity android:name="org.ohmage.triggers.types.location.LocTrigTracingSettActivity"/>
+	    <activity android:name="org.ohmage.triggers.types.location.LocTrigMapsActivity"
 					  android:screenOrientation="portrait"/>
 		
-		<receiver android:name=".triggers.base.TriggerTimeReceiver">
+		<receiver android:name="org.ohmage.triggers.base.TriggerTimeReceiver">
 	    	<intent-filter>
 	    		<action android:name="android.intent.action.TIME_SET" />
 	    	</intent-filter>
@@ -244,18 +244,18 @@
 	    	</intent-filter>
 		</receiver>
 		
-		<service android:name=".triggers.types.time.TimeTrigService"/>
+		<service android:name="org.ohmage.triggers.types.time.TimeTrigService"/>
 		
-    	<receiver android:name=".triggers.types.time.TimeTrigService$AlarmReceiver">
+    	<receiver android:name="org.ohmage.triggers.types.time.TimeTrigService$AlarmReceiver">
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.types.time.TimeTriggerAlarm" />
 	    		<data android:scheme="timetrigger" />
 	    	</intent-filter>
 		</receiver>
 		
-		<service android:name=".triggers.types.location.LocTrigService"/>
+		<service android:name="org.ohmage.triggers.types.location.LocTrigService"/>
 		
-    	<receiver android:name=".triggers.types.location.LocTrigService$AlarmReceiver">
+    	<receiver android:name="org.ohmage.triggers.types.location.LocTrigService$AlarmReceiver">
 	    	<intent-filter>
 	    		<action android:name="org.ohmage.triggers.types.location.LocTrigService.TRIGGER_ALWAYS" />
 	    		<data android:scheme="locationtrigger" />
@@ -274,7 +274,7 @@
 	    	</intent-filter>
 		</receiver>
 		
-		<receiver android:name=".triggers.notif.Notifier$NotifReceiver">
+		<receiver android:name="org.ohmage.triggers.notif.Notifier$NotifReceiver">
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.notif.Notifier.expire_notif" />
 	    		<data android:scheme="notifier" />
@@ -322,9 +322,9 @@
         ******************************************************
         -->       
 
-	    <service android:name=".responsesync.ResponseSyncService" />
+	    <service android:name="org.ohmage.responsesync.ResponseSyncService" />
 
-	    <provider android:name=".db.DbProvider"
+	    <provider android:name="org.ohmage.db.DbProvider"
 	    	android:authorities="org.ohmage.db">
 	    </provider>
 
@@ -337,7 +337,7 @@
 		<uses-library android:name="com.google.android.maps" />
 
 		<service
-            android:name=".probemanager.ProbeManager"
+            android:name="org.ohmage.probemanager.ProbeManager"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>
@@ -346,7 +346,7 @@
         </service>
 
         <provider
-            android:name=".probemanager.ProbeContentProvider"
+            android:name="org.ohmage.probemanager.ProbeContentProvider"
             android:authorities="org.ohmage.probemanager"
             android:enabled="true"
             android:exported="true" >

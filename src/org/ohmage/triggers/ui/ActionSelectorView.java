@@ -1,6 +1,6 @@
 package org.ohmage.triggers.ui;
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 
 import android.content.Context;
 import android.view.View;

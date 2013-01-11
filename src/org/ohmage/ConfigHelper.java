@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import org.mobilizingcs.R;
+
 /**
  * Preference helper for application wide settings. Any user specific settings
  * are specified in {@link UserPreferencesHelper} which is cleared on logout

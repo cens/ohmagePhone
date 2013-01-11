@@ -6,7 +6,7 @@
 package org.ohmage.activity;
 
 
-import org.ohmage.R;
+import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 
 import android.app.Activity;
