@@ -178,6 +178,9 @@ public class OhmageApplication extends Application {
         // clear user prefs first so isAuthenticated call will return false
         new UserPreferencesHelper(this).clearAll();
 
+        // clear all deployment settings
+        new ConfigHelper(this).clearDeploymentSettings();
+
         // clear triggers
         TriggerFramework.resetAllTriggerSettings(this);
 
