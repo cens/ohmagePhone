@@ -609,6 +609,15 @@ public class LoginActivity extends FragmentActivity {
             config.setLogLevel("verbose");
             config.setLogAnalytics(true);
             ((OhmageApplication) getApplication()).updateLogLevel();
+        } else if ("https://play.ohmage.org/".equals(server)) {
+            mPreferencesHelper.setShowFeedback(true);
+            mPreferencesHelper.setShowMobility(true);
+            mPreferencesHelper.setUploadResponsesWifiOnly(false);
+            mPreferencesHelper.setUploadProbesWifiOnly(true);
+            config.setAdminMode(true);
+            config.setLogLevel("error");
+            config.setLogAnalytics(false);
+            ((OhmageApplication) getApplication()).updateLogLevel();
         }
     }
 }
