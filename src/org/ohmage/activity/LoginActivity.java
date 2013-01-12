@@ -238,7 +238,7 @@ public class LoginActivity extends FragmentActivity {
                     if (ensureServerUrl()) {
                         // use the textbox to make a url and send the user on
                         // their way
-                        String url = mServerEdit.getText().toString() + "#register";
+                        String url = mServerEdit.getText().toString().split(" ")[0] + "#register";
                         Intent i = new Intent(Intent.ACTION_VIEW);
                         i.setData(Uri.parse(url));
                         startActivity(i);
