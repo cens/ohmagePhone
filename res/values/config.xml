@@ -6,15 +6,8 @@
     <!-- Make sure these names match the names in LoginActivity#configureForDeployment -->
     <string-array name="servers">
         <item>https://play.ohmage.org/ (Public)</item>
-        <item>https://pilots.mobilizelabs.org/ (GMen, MWF)</item>
-        <item>https://lausd.mobilizingcs.org/ (Mobilize)</item>
-        <item>https://dev.ohmage.org/ (odev)</item>
-        <item>https://test.ohmage.org/ (otest)</item>
-        <item>https://internal.ohmage.org/</item>
-        <item>https://pilots.ohmage.org/</item>
-        <item>https://demo.ohmage.org/</item>
-        <item>https://dev.omh.io/</item>
-        <item>https://pilots.omh.io/</item>
+        <item>https://pilots.mobilizelabs.org/</item>
+        <item>https://lausd.mobilizingcs.org/</item>
     </string-array>
 
     <!--

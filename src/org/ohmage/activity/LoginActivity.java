@@ -50,9 +50,12 @@ import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.utils.Lists;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
+
+import java.util.ArrayList;
 
 public class LoginActivity extends FragmentActivity {
 
@@ -367,8 +370,16 @@ public class LoginActivity extends FragmentActivity {
             }
             case DIALOG_SERVER_LIST: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                CharSequence[] servers = getResources().getStringArray(R.array.servers);
-                final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this,
+                ArrayList<String> servers = Lists.newArrayList(getResources().getStringArray(
+                        R.array.servers));
+
+                if (OhmageApplication.isDebugBuild()) {
+
+                    servers.add("https://test.ohmage.org/");
+                    servers.add("https://dev.ohmage.org/");
+                }
+
+                final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                         R.layout.simple_list_item_1, servers);
 
                 builder.setTitle(R.string.login_choose_server);
