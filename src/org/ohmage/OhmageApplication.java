@@ -74,8 +74,6 @@ public class OhmageApplication extends Application {
 
     private ImageLoader mImageLoader;
 
-    private LogProbe logger;
-
     private static OhmageApplication self;
 
     private static ContentResolver mFakeContentResolver;
@@ -91,8 +89,8 @@ public class OhmageApplication extends Application {
 
         ConfigHelper config = new ConfigHelper(this);
 
-        logger = new LogProbe(config.getLogAnalytics(), config.getLogLevel());
-        logger.connect(this);
+        LogProbe.setLevel(config.getLogAnalytics(), config.getLogLevel());
+        LogProbe.get(this);
 
         mImageLoader = createImageLoader(this);
 
@@ -136,9 +134,7 @@ public class OhmageApplication extends Application {
 
     public void updateLogLevel() {
         ConfigHelper config = new ConfigHelper(this);
-        logger.close();
-        logger = new LogProbe(config.getLogAnalytics(), config.getLogLevel());
-        logger.connect(this);
+        LogProbe.setLevel(config.getLogAnalytics(), config.getLogLevel());
     }
 
     /**
@@ -258,10 +254,7 @@ public class OhmageApplication extends Application {
             mHttpClient.close();
             mHttpClient = null;
         }
-        if (logger != null) {
-            logger.close();
-            logger = null;
-        }
+        LogProbe.close(this);
         mImageLoader = null;
         Analytics.activity(this, Status.OFF);
         super.onTerminate();
