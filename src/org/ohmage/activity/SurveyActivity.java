@@ -60,6 +60,10 @@ import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.logprobe.OhmageAnalytics;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
@@ -76,12 +80,9 @@ import org.ohmage.prompt.number.NumberPrompt;
 import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
+import org.ohmage.prompt.timestamp.TimestampPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.WakefulService;
-import org.ohmage.logprobe.Analytics;
-import org.ohmage.logprobe.Log;
-import org.ohmage.logprobe.OhmageAnalytics;
-import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.triggers.glue.TriggerFramework;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -931,7 +932,9 @@ public class SurveyActivity extends Activity implements LocationListener {
 					dataPoint.setPromptType("photo");
 				} else if (prompt instanceof VideoPrompt) {
 					dataPoint.setPromptType("video");
-				}
+				} else if (prompt instanceof TimestampPrompt) {
+                    dataPoint.setPromptType("timestamp");
+                }
 
 				if (prompt.isSkipped()) {
 					dataPoint.setSkipped();
