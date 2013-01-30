@@ -23,7 +23,7 @@ import org.ohmage.conditionevaluator.DataPoint;
  * @author Mohamad Monibi
  *
  */
-public class SingleChoiceDataPointComparator extends AbstractDataPointComparator {
+public class SingleChoiceDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean equals(DataPoint dataPoint, String value) {
