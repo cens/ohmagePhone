@@ -56,7 +56,7 @@ public class SingleChoiceCustomDbAdapter {
 			mDb = mDbHelper.getWritableDatabase();
 		}
 		catch (SQLException e) {
-			Log.e(TAG, e.toString());
+		    Log.e(TAG, "Error opening singlechoice custom db", e);
 			return false;
 		}
 		return true;

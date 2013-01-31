@@ -142,7 +142,7 @@ public class OhmageApi {
 				}
 				break;
 			case HTTP_ERROR:
-				Log.e(TAG, "Failed due to http error");
+				Log.w(TAG, "Failed due to http error");
 				break;
 			case INTERNAL_ERROR:
 				Log.e(TAG, "Failed due to internal error");
@@ -205,7 +205,7 @@ public class OhmageApi {
                 Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
                 break;
             case HTTP_ERROR:
-                Log.e(TAG, "Failed due to http error");
+                Log.w(TAG, "Failed due to http error");
                 break;
             case INTERNAL_ERROR:
                 Log.e(TAG, "Failed due to internal error");
@@ -916,7 +916,7 @@ public class OhmageApi {
 		String url = "/" + AUTHENTICATE_PATH;
 
 		if (response != null) {
-			Log.i(TAG, response.getStatusLine().toString());
+			Log.v(TAG, response.getStatusLine().toString());
 			if (response.getStatusLine().getStatusCode() == 200) {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
@@ -972,7 +972,7 @@ public class OhmageApi {
 		String[] errorCodes = null;
 
 		if (response != null) {
-			Log.i(TAG, response.getStatusLine().toString());
+			Log.v(TAG, response.getStatusLine().toString());
 			if (response.getStatusLine().getStatusCode() == 200) {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
@@ -982,7 +982,7 @@ public class OhmageApi {
 						if (rootJson.getString("result").equals("success")) {
 							result = Result.SUCCESS;
 						} else {
-						    Log.e(TAG, rootJson.toString());
+						    Log.v(TAG, rootJson.toString());
 							result = Result.FAILURE;
 							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
 							int errorCount = errorsJsonArray.length();
@@ -1033,7 +1033,7 @@ public class OhmageApi {
 		}
 
 		if (response != null) {
-			Log.i(TAG, response.getStatusLine().toString());
+			Log.v(TAG, response.getStatusLine().toString());
 			if (response.getStatusLine().getStatusCode() == 200) {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
@@ -1133,7 +1133,7 @@ public class OhmageApi {
 		CountingInputStream inputstream = null;
 
 		if (response != null) {
-			Log.i(TAG, response.getStatusLine().toString());
+			Log.v(TAG, response.getStatusLine().toString());
 			if (response.getStatusLine().getStatusCode() == 200) {
 				HttpEntity responseEntity = response.getEntity();
 				if (responseEntity != null) {
@@ -1205,7 +1205,7 @@ public class OhmageApi {
 							}
 							else {
 								// don't know what to do with this, just skip it?
-								Log.i(TAG, "Unprocessed field in response: " + fieldName);
+								Log.v(TAG, "Unprocessed field in response: " + fieldName);
 								jp.skipChildren();
 							}
 						}

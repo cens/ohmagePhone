@@ -43,6 +43,6 @@ public class CampaignListActivity extends BaseCampaignListActivity {
 	@Override
 	public void onCampaignActionDownload(String campaignUrn) {
 		Toast.makeText(this, R.string.campaign_list_download_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.e(TAG, "onCampaignActionDownload should not be exposed in this activity.");
+		Log.w(TAG, "onCampaignActionDownload should not be exposed in this activity.");
 	}
 }

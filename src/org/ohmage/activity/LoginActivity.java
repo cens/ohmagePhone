@@ -411,7 +411,7 @@ public class LoginActivity extends FragmentActivity {
 
         switch (response.getResult()) {
             case SUCCESS:
-                Log.i(TAG, "login success");
+                Log.v(TAG, "login success");
                 final String hashedPassword = response.getHashedPassword();
 
                 if (ConfigHelper.isSingleCampaignMode()) {
@@ -476,7 +476,7 @@ public class LoginActivity extends FragmentActivity {
         // BackgroundManager.initAuthComponents(this);
 
         if (mAppPrefs.isFirstRun()) {
-            Log.i(TAG, "this is the first run");
+            Log.v(TAG, "this is the first run");
 
             BackgroundManager.initComponents(this);
 
@@ -489,7 +489,7 @@ public class LoginActivity extends FragmentActivity {
             // showDialog(DIALOG_FIRST_RUN);
             mAppPrefs.setFirstRun(false);
         } else {
-            Log.i(TAG, "this is not the first run");
+            Log.v(TAG, "this is not the first run");
         }
 
         mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
@@ -525,18 +525,6 @@ public class LoginActivity extends FragmentActivity {
             mUsername = params[0];
             mPassword = params[1];
 
-            // if (mPassword.equals(DUMMY_PASSWORD)) {
-            // Log.i(TAG, "using stored hashed password");
-            // } else {
-            // Log.i(TAG, "password field modified, attempting to hash");
-            // try {
-            // mHashedPassword = BCrypt.hashpw(mPassword, BCRYPT_KEY);
-            // Log.i(TAG, "hash complete");
-            // } catch (Exception e) {
-            // Log.e(TAG, "unable to hash password");
-            // e.printStackTrace();
-            // }
-            // }
             return mApi.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword,
                     OhmageApi.CLIENT_NAME);
         }

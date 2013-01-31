@@ -246,13 +246,13 @@ public class LocTrigService extends Service
     				PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
 
 		if(LocTrigConfig.useNetworkLocation) {
-			Log.i(TAG, "LocTrigService: Using network location");
+			Log.v(TAG, "LocTrigService: Using network location");
 			WifiManager wifiMan = (WifiManager) getSystemService(WIFI_SERVICE);
 			mWifiLock = wifiMan.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY, TAG);
 		}
 		
 		if(LocTrigConfig.useMotionDetection) {
-			Log.i(TAG, "LocTrigService: Using motion detection");
+			Log.v(TAG, "LocTrigService: Using motion detection");
 		}
 		
 		mMotionDetectCB = new ILocationChangedCallback.Stub() {
@@ -459,7 +459,7 @@ public class LocTrigService extends Service
 			return;
 		}
 		
-		Log.i(TAG, "LocTrigService: Setting trigger always alarm(" + 
+		Log.v(TAG, "LocTrigService: Setting trigger always alarm(" + 
 				trigId + ", " + trigDesc + ")");
 		
 		Calendar target = Calendar.getInstance();
@@ -481,7 +481,7 @@ public class LocTrigService extends Service
 	    
 	    AlarmManager alarmMan = (AlarmManager) getSystemService(ALARM_SERVICE);
 	    
-	    Log.i(TAG, "LocTrigService: Calculated target time: " +
+	    Log.v(TAG, "LocTrigService: Calculated target time: " +
 				  target.getTime().toString());
 	    
 	    long alarmTime = target.getTimeInMillis();
@@ -493,13 +493,13 @@ public class LocTrigService extends Service
 	     */
 	    long elapsedRT = alarmTime - System.currentTimeMillis();
 	    if(elapsedRT <= 0) {
-	    	Log.i(TAG, "LocTrigService: negative elapsed realtime - "
+	    	Log.v(TAG, "LocTrigService: negative elapsed realtime - "
 	    			+ "alarm not setting: "
 					+ trigId);
 	    	return;
 	    }
 	    
-	    Log.i(TAG, "LocTrigService: Setting alarm for " + elapsedRT
+	    Log.v(TAG, "LocTrigService: Setting alarm for " + elapsedRT
 				 + " millis into the future");
 	    
 	    alarmMan.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
@@ -518,13 +518,13 @@ public class LocTrigService extends Service
 								LocTrigTracingSettActivity.PREF_KEY_UPLOAD_ALWAYS, 
 								false);
 		
-		Log.i(TAG, "LocTrigService: Updating tracing status to: " 
+		Log.v(TAG, "LocTrigService: Updating tracing status to: " 
 							+ mLocTraceEnabled + ", Upload always = "
 							+ mLocTraceUploadAlways);
 	}
 	
  	private void initState() {
-		Log.i(TAG, "LocTrigService: initState");
+		Log.v(TAG, "LocTrigService: initState");
 		
 		mCurrSleepTime = 0;
         mCurrSpeed = 0;
@@ -552,7 +552,7 @@ public class LocTrigService extends Service
 			return;
 		}
 
-		Log.i(TAG, "LocTrigService: Starting sampling");
+		Log.v(TAG, "LocTrigService: Starting sampling");
 		
 		startGPS();    
 		mSamplingStarted = true;
@@ -563,7 +563,7 @@ public class LocTrigService extends Service
 			return;
 		}
 
-		Log.i(TAG, "LocTrigService: Stopping sampling");
+		Log.v(TAG, "LocTrigService: Stopping sampling");
 		
 		stopGPS();
 		
@@ -605,9 +605,7 @@ public class LocTrigService extends Service
 			//AccelService must return a typed list
 			fList = mAccelServ.getLastForce();
 		} catch (RemoteException e) {
-			Log.e(TAG, "LocTrigService: Exception while " +
-						"getLastForce");
-			Log.v(TAG, e.toString());
+			Log.e(TAG, "LocTrigService: Exception while getLastForce", e);
 			return false;
 		}
 		
@@ -618,7 +616,7 @@ public class LocTrigService extends Service
 		}
 		
 		if(fList.size() == 0) {
-			Log.i(TAG, "LocTrigService: AccelService returned empty" +
+			Log.e(TAG, "LocTrigService: AccelService returned empty" +
 						" force list");
 			return false;
 		}
@@ -636,57 +634,57 @@ public class LocTrigService extends Service
 		var /= fList.size();
 		var *= 1000;
 		
-		Log.i(TAG, "LocTrigService: Variance = " + var);
+		Log.v(TAG, "LocTrigService: Variance = " + var);
 		
 		if(var < MOTION_DETECT_ACCEL_THRESHOLD) {
 			return false;
 		}
 		
-		Log.i(TAG, "LocTrigService: Motion detected");
+		Log.v(TAG, "LocTrigService: Motion detected");
 		return true;
 	}
 	
 	private void handleWifiGPSLocChange() {
-		Log.i(TAG, "LocTrigService: WifiGPS loc changed");
+		Log.v(TAG, "LocTrigService: WifiGPS loc changed");
 		
 		long elapsed = SystemClock.elapsedRealtime() - mMotionDetectTS;
 		if(elapsed < MOTION_DETECT_DELAY || 
 				mCurrSleepTime < SLEEP_TIME_MIN_MOTION_DETECT) {
 			
-			Log.i(TAG, "LocTrigService: Too early, ignoring WifiGPS loc change");
+			Log.v(TAG, "LocTrigService: Too early, ignoring WifiGPS loc change");
 			return;
 		}
 		
 		try {
 			if(mAccelServ == null || !mAccelServ.isRunning()) {
-				Log.i(TAG, "Accel service is not running, " +
+				Log.v(TAG, "Accel service is not running, " +
 						"stopping motion detection");
 				
 				stopMotionDetection();
 				return;
 			}
 		} catch (RemoteException e) {
-			Log.e(TAG, "Error while checking accel status");
+			Log.e(TAG, "Error while checking accel status", e);
 			return;
 		}
 		
 		if(hasUserMoved()) {
-			Log.i(TAG, "LocTrigService: Starting GPS due to movement");
+			Log.v(TAG, "LocTrigService: Starting GPS due to movement");
 			
 			startGPS();
 		}
 	}
 	
 	private void registerMotionDetectionCB(){
-		Log.i(TAG, "LocTrigService: Registering for WifiGPS CB");
+		Log.v(TAG, "LocTrigService: Registering for WifiGPS CB");
 		
 		if(mWiFiGPSServ == null || mAccelServ == null) {
-			Log.i(TAG, "LocTrigService: Not all services are connected yet." +
+			Log.v(TAG, "LocTrigService: Not all services are connected yet." +
 					" Skipping...");
 			return;
 		}
 		
-		Log.i(TAG, "LocTrigService: All services connected, " +
+		Log.v(TAG, "LocTrigService: All services connected, " +
 				"attempting to register");
 		
 		//Use the services opportunistically. Do not start
@@ -694,7 +692,7 @@ public class LocTrigService extends Service
 		//running
 		try {
 			if(!mWiFiGPSServ.isRunning() || !mAccelServ.isRunning()) {
-				Log.i(TAG, "LocTrigService: Motion detection NOT started " +
+				Log.v(TAG, "LocTrigService: Motion detection NOT started " +
 						"as the services are not already running");
 				
 				disconnectRemoteServices();
@@ -714,26 +712,24 @@ public class LocTrigService extends Service
 			 */
 			mWiFiGPSServ.stop(REMOTE_CLIENT_NAME);
 		} catch (RemoteException e) {
-			Log.e(TAG, "LocTrigService: Exception while " +
-								"registering wifigps cb");
-			Log.v(TAG, e.toString());
+			Log.e(TAG, "LocTrigService: Exception while registering wifigps cb", e);
 		}
 	}
 	
 	private void startMotionDetection() {
-		Log.i(TAG, "LocTrigService: Starting motion detection...");
+		Log.v(TAG, "LocTrigService: Starting motion detection...");
 		
 		mWifiGPSServConn = new ServiceConnection() {
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
-				Log.i(TAG, "LocTrigService: WifiGPS disconnected");
+				Log.v(TAG, "LocTrigService: WifiGPS disconnected");
 				
 				mWiFiGPSServ = null;
 			}
 			
 			@Override
 			public void onServiceConnected(ComponentName name, IBinder service) {
-				Log.i(TAG, "LocTrigService: WifiGPS connected");
+				Log.v(TAG, "LocTrigService: WifiGPS connected");
 				
 				mWiFiGPSServ = IWiFiGPSLocationService.Stub.asInterface(service);
 				registerMotionDetectionCB();		}
@@ -743,14 +739,14 @@ public class LocTrigService extends Service
 		mAccelServConn = new ServiceConnection() {
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
-				Log.i(TAG, "LocTrigService: AccelService disconnected");
+				Log.v(TAG, "LocTrigService: AccelService disconnected");
 				
 				mAccelServ = null;
 			}
 			
 			@Override
 			public void onServiceConnected(ComponentName name, IBinder service) {
-				Log.i(TAG, "LocTrigService: AccelService connected");
+				Log.v(TAG, "LocTrigService: AccelService connected");
 				
 				mAccelServ = IAccelService.Stub.asInterface(service);
 				registerMotionDetectionCB();
@@ -761,7 +757,7 @@ public class LocTrigService extends Service
 	}
 	
 	private void stopMotionDetection() {
-		Log.i(TAG, "LocTrigService: Stopping motion detection...");
+		Log.v(TAG, "LocTrigService: Stopping motion detection...");
 		
 		if(mWiFiGPSServ != null) {
 			try {
@@ -773,9 +769,7 @@ public class LocTrigService extends Service
 				 */
 				mWiFiGPSServ.stop(REMOTE_CLIENT_NAME);
 			} catch (RemoteException e) {
-				Log.e(TAG, "LocTrigService: Exception while " +
-									"stopping motion detection");
-				Log.v(TAG, e.toString());
+				Log.e(TAG, "LocTrigService: Exception while stopping motion detection", e);
 			}
 		}
 	
@@ -797,7 +791,7 @@ public class LocTrigService extends Service
 		mNSamples = 0;
 		mPrevSpeed = mCurrSpeed;
 		
-		Log.i(TAG, "LocTrigService: Turning on location updates");
+		Log.v(TAG, "LocTrigService: Turning on location updates");
 		
 		LocationManager locMan = (LocationManager) getSystemService(LOCATION_SERVICE);
 		locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
@@ -830,7 +824,7 @@ public class LocTrigService extends Service
 		
 		cancelSamplingAlarm(ACTION_ALRM_GPS_TIMEOUT);
 		
-		Log.i(TAG, "LocTrigService: Turning off location updates");
+		Log.v(TAG, "LocTrigService: Turning off location updates");
 		
 		LocationManager locMan = (LocationManager) getSystemService(LOCATION_SERVICE);
 		locMan.removeUpdates(this);
@@ -875,7 +869,7 @@ public class LocTrigService extends Service
 				if(mLastKnownLoc.getTime() - mLastLocTrace.getTime() < 
 					LocTrigConfig.LOC_TRACE_MAX_GAP_BETWEEN_UPLOADS) {
 					
-					Log.i(TAG, "LocTrigService: Skipping the location" +
+					Log.v(TAG, "LocTrigService: Skipping the location" +
 							" trace upload");
 					return;
 				}
@@ -905,7 +899,7 @@ public class LocTrigService extends Service
 		
 		String msg = "Location trace: " + jLoc.toString();
 		//Upload the trace using LogProbe
-		Log.i(TAG, "LocTrigService: Upload location trace: " + msg);
+		Log.v(TAG, "LocTrigService: Upload location trace: " + msg);
 		
 		//Save this location locally
 		mLastLocTrace.set(mLastKnownLoc);
@@ -944,7 +938,7 @@ public class LocTrigService extends Service
 	}
 	
 	private void handleSampleGPSAlarm() {
-		Log.i(TAG, "LocTrigService: Handling GPS sample alarm");
+		Log.v(TAG, "LocTrigService: Handling GPS sample alarm");
 		
 		if(!mSamplingStarted) {
 			return;
@@ -954,11 +948,11 @@ public class LocTrigService extends Service
 	}
 	
 	private void handleGPSTimeoutAlarm() {
-		Log.i(TAG, "LocTrigService: Handling GPS timeout");
+		Log.v(TAG, "LocTrigService: Handling GPS timeout");
 		
 		//If insufficient samples are obtained, timeout the GPS
 		if(mNSamples < SAMPLES_LIMIT) {
-			Log.i(TAG, "LocTrigService: Unable to obtain samples. " +
+			Log.v(TAG, "LocTrigService: Unable to obtain samples. " +
 					"Timing out");
 			
 			/* If a pass-through checking is scheduled, notify the user
@@ -971,7 +965,7 @@ public class LocTrigService extends Service
 			if(mPassThroughChecking) {
 				mPassThroughChecking = false;
 				
-				Log.i(TAG, "LocTrigService: Unable to verify location" +
+				Log.v(TAG, "LocTrigService: Unable to verify location" +
 						" after passthrough timer, still notifying");
 			
 				triggerIfRequired(mPassThroughCheckCateg);
@@ -990,7 +984,7 @@ public class LocTrigService extends Service
 	}
 	
 	private void handlePassThroughCheckAlarm(int categId) {
-		Log.i(TAG, "LocTrigService: Handling pass through alarm");
+		Log.v(TAG, "LocTrigService: Handling pass through alarm");
 		
 		mPassThroughChecking = true;
 		mPassThroughCheckCateg = categId;
@@ -1009,7 +1003,7 @@ public class LocTrigService extends Service
 	}
 	
 	private void setSamplingAlarm(String action, long timeOut, int extra) {
-		Log.i(TAG, "LocTrigService: Setting alarm: " + action);
+		Log.v(TAG, "LocTrigService: Setting alarm: " + action);
 	
 		cancelSamplingAlarm(action);
 		
@@ -1037,7 +1031,7 @@ public class LocTrigService extends Service
 		db.open();
 		Cursor c = db.getAllLocations();
 		
-		Log.i(TAG, "LocTrigService: populating loc list with "
+		Log.v(TAG, "LocTrigService: populating loc list with "
 			  + c.getCount() + " locations");
 		
 		if(c.moveToFirst()) {
@@ -1047,7 +1041,7 @@ public class LocTrigService extends Service
 				int cId = c.getInt(c.getColumnIndexOrThrow(LocTrigDB.KEY_CATEGORY_ID));
 				float r = c.getFloat(c.getColumnIndexOrThrow(LocTrigDB.KEY_RADIUS));
 				
-				Log.i(TAG, "LocTrigService: adding to the list the location: "
+				Log.v(TAG, "LocTrigService: adding to the list the location: "
 						  + latE6 + ", " + longE6
 						  + ", category id = " + cId
 						  + ", radius = " + r);
@@ -1204,7 +1198,7 @@ public class LocTrigService extends Service
 		
 		float proximityDist = getDistanceToClosestCategory();
 		
-		Log.i(TAG, "LocTrigService: Proximity dist: " + proximityDist);
+		Log.v(TAG, "LocTrigService: Proximity dist: " + proximityDist);
 		
 		//Based on the proximity, calculate the distance (sleepDist) 
 		//which should be covered before the next sampling
@@ -1252,7 +1246,7 @@ public class LocTrigService extends Service
 		//Bound the sleep time
 		sTime = Math.min(MAX_SLEEP_TIME, sTime);
 		
-		Log.i(TAG, "LocTrigService: Sleep time updated to: " + sTime);
+		Log.v(TAG, "LocTrigService: Sleep time updated to: " + sTime);
 		mCurrSleepTime = sTime;
 		return sTime;
 	}
@@ -1267,12 +1261,12 @@ public class LocTrigService extends Service
 				mLastKnownLocBackup.getAccuracy() <= INACCURATE_SAMPLE_THRESHOLD) {
 					
 			float disp = mLastKnownLoc.distanceTo(mLastKnownLocBackup);
-			Log.i(TAG, "LocTrigService: displacement: " + disp);
+			Log.v(TAG, "LocTrigService: displacement: " + disp);
 			
 			//Calculate the speed only if the user has moved beyond
 			//a threshold value. 
 			if(disp > SPEED_CALC_MIN_DISPLACEMENT) {
-				Log.i(TAG, "LocTrigService: Calculating speed...");
+				Log.v(TAG, "LocTrigService: Calculating speed...");
 				
 				long dT = mLastKnownLocTime - mLastKnownLocTimeBackup;
 				mCurrSpeed = disp / dT; 
@@ -1284,7 +1278,7 @@ public class LocTrigService extends Service
 			mCurrSpeed = 0;
 		}
 		
-		Log.i(TAG, "LocTrigService: Current speed: " + mCurrSpeed);
+		Log.v(TAG, "LocTrigService: Current speed: " + mCurrSpeed);
 	}
 	
 	private void recordLocation(Location loc) {
@@ -1339,11 +1333,11 @@ public class LocTrigService extends Service
 			
 			if(desc.isRangeEnabled()) {
 				
-				Log.i(TAG, "LocTrigService: Range enabling. Checking whether" +
+				Log.v(TAG, "LocTrigService: Range enabling. Checking whether" +
 						" to trigger");
 				
 				if(locTrig.hasTriggeredToday(this, trigId)) {
-					Log.i(TAG, "LocTrigService: Has triggered today, skipping");
+					Log.v(TAG, "LocTrigService: Has triggered today, skipping");
 					continue;
 				}
 			
@@ -1363,12 +1357,12 @@ public class LocTrigService extends Service
 					continue;
 				}
 				
-				Log.i(TAG, "LocTrigService: Triggering now");
+				Log.v(TAG, "LocTrigService: Triggering now");
 				cancelTriggerAlwaysAlarm(trigId);
 				locTrig.notifyTrigger(this, trigId);
 			}
 			else if(mCategPrevTS == LocTrigDB.TIME_STAMP_INVALID) { 
-				Log.i(TAG, "LocTrigService: Invalid categ timestamp." +
+				Log.v(TAG, "LocTrigService: Invalid categ timestamp." +
 						" Triggering...");
 				
 				locTrig.notifyTrigger(this, trigId);
@@ -1378,12 +1372,12 @@ public class LocTrigService extends Service
 				long minReentry = desc.getMinReentryInterval() * 60 * 1000;
 				
 				if(elapsed > minReentry) {
-					Log.i(TAG, "LocTrigService: Beyond minimum re-entry. " +
+					Log.v(TAG, "LocTrigService: Beyond minimum re-entry. " +
 							"Triggering...");
 					locTrig.notifyTrigger(this, trigId);
 				}
 				else {
-					Log.i(TAG, "LocTrigService: Minimum re-entry has not expired. " +
+					Log.v(TAG, "LocTrigService: Minimum re-entry has not expired. " +
 							" Not triggering.");
 				}
 			}
@@ -1394,7 +1388,7 @@ public class LocTrigService extends Service
 	private void handlePassThroughCheckIfRequired(int categId) {
 		if(mPassThroughChecking) {
 			if(categId == mPassThroughCheckCateg) {
-				Log.i(TAG, "LocTrigService: User hasnt changed category, " +
+				Log.v(TAG, "LocTrigService: User hasnt changed category, " +
 						"notifying");
 				
 				triggerIfRequired(categId);
@@ -1413,7 +1407,7 @@ public class LocTrigService extends Service
 	
 	@Override
 	public void onLocationChanged(Location loc) {
-		Log.i(TAG, "LocTrigService: new location received: " +
+		Log.v(TAG, "LocTrigService: new location received: " +
 						 loc.getLatitude() + ", " +
 						 loc.getLongitude() + " (" + 
 						 loc.getProvider() + "), accuracy = " +
@@ -1422,7 +1416,7 @@ public class LocTrigService extends Service
 						 new Date(loc.getTime()).toString());
 		
 		if(!mGPSStarted) {
-			Log.i(TAG, "LocTrigService: Discarding stray location " +
+			Log.v(TAG, "LocTrigService: Discarding stray location " +
 					"after disabling locaiton updates");
 			return;
 		}
@@ -1430,7 +1424,7 @@ public class LocTrigService extends Service
 		//Discard if a stale location is received (could be possible in network
 		//location)
 		if((loc.getTime() + STALE_LOC_TIME) < System.currentTimeMillis()) {
-			Log.i(TAG, "LocTrigService: Discarding stale location");
+			Log.v(TAG, "LocTrigService: Discarding stale location");
 			return;
 		}
 		
@@ -1450,19 +1444,19 @@ public class LocTrigService extends Service
 		 */
 		int prevCateg = getLocCategory(mLastKnownLoc);
 		if(prevCateg != CATEG_ID_INVAL && mLatestCateg == CATEG_ID_INVAL) {
-			Log.i(TAG, "LocTrigService: Assigning category to the prev loc");
+			Log.v(TAG, "LocTrigService: Assigning category to the prev loc");
 			recordLatestCategory(prevCateg);
 		}
 				
 		if(!loc.hasAccuracy()) {
-			Log.i(TAG, "LocTrigService: Discarding loc with no accuracy info");
+			Log.v(TAG, "LocTrigService: Discarding loc with no accuracy info");
 			return;
 		}
 
 		recordLocation(loc);
 		
 		int locCateg = getLocCategory(loc);
-		Log.i(TAG, "LocTrigService: Loc category = " + locCateg);
+		Log.v(TAG, "LocTrigService: Loc category = " + locCateg);
 		
 		if(locCateg != CATEG_ID_INVAL) {
 			handlePassThroughCheckIfRequired(locCateg);
@@ -1479,7 +1473,7 @@ public class LocTrigService extends Service
 					LocTrigDB db = new LocTrigDB(this);
 					db.open();
 					mCategPrevTS = db.getCategoryTimeStamp(locCateg);
-					Log.i(TAG, "LocTrigService: Caching category time stamp: " +
+					Log.v(TAG, "LocTrigService: Caching category time stamp: " +
 							mCategPrevTS);
 					
 					db.close();
@@ -1509,7 +1503,7 @@ public class LocTrigService extends Service
 				 */
 				recordLatestCategory(mLatestCateg);
 				
-				Log.i(TAG, "LocTrigService: Discarding inaccurate sample");
+				Log.v(TAG, "LocTrigService: Discarding inaccurate sample");
 				return;
 			}
 			
@@ -1525,7 +1519,7 @@ public class LocTrigService extends Service
 			if(LocTrigConfig.useNetworkLocation) {
 				if(loc.getProvider().equals(LocationManager.NETWORK_PROVIDER) && 
 				   !loc.hasSpeed()) {
-					Log.i(TAG, "LocTrigService: Discarding network " +
+					Log.v(TAG, "LocTrigService: Discarding network " +
 							"location without speed");
 					return;
 				}
@@ -1540,7 +1534,7 @@ public class LocTrigService extends Service
 			if(mNInitialSamples < SAMPLES_LIMIT) {
 				mNInitialSamples++;
 				
-				Log.i(TAG, "LocTrigService: Collecting initial samples");
+				Log.v(TAG, "LocTrigService: Collecting initial samples");
 				return;
 			}
 			

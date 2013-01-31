@@ -176,7 +176,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 			}
 
 			if (!preferencesHelper.isAuthenticated()) {
-				Log.i(TAG, "no credentials saved, so launch Login");
+				Log.v(TAG, "no credentials saved, so launch Login");
 				startActivity(AccountHelper.getLoginIntent(this));
 				finish();
 				return;
@@ -504,7 +504,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 				case R.id.skip_button:
 					if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
 						((AbstractPrompt)mSurveyElements.get(mCurrentPosition)).setSkipped(true);
-						//Log.i(TAG, mSurveyElements.get(mCurrentPosition).getResponseJson());
 
 						while (mCurrentPosition < mSurveyElements.size()) {
 							//increment position

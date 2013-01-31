@@ -33,8 +33,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.R;
-import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.logprobe.Log;
+import org.ohmage.prompt.AbstractPrompt;
 
 import java.util.Iterator;
 import java.util.List;
@@ -102,7 +102,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 		catch(ClassCastException e)
 		{
 			callingActivity = null;
-			Log.e(TAG, "getView() recieved a Context that wasn't an Activity.");
+			Log.e(TAG, "getView() recieved a Context that wasn't an Activity.", e);
 			// Should we error out here?
 		}
 		

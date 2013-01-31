@@ -23,7 +23,7 @@ public class OhmageLauncher extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "OhmageLauncher is created!");
+        Log.i(TAG, "OhmageLauncher is created!");
 
         mUser = new UserPreferencesHelper(this);
     }

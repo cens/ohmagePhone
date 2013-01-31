@@ -284,7 +284,7 @@ public class ConditionDepthFirst<R, A> extends GJDepthFirst<R, A> {
                    " " + nodeValue + " and got " + ((Boolean) _ret).toString());
        }*/
        
-       Log.i(TAG, "Evaluated " + nodeId + " " + nodeCondition + " " + nodeValue + " and got " + ((Boolean) _ret).toString());
+       Log.v(TAG, "Evaluated " + nodeId + " " + nodeCondition + " " + nodeValue + " and got " + ((Boolean) _ret).toString());
        
        return _ret;
     }

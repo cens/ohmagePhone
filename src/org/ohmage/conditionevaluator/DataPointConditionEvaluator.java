@@ -75,7 +75,7 @@ public class DataPointConditionEvaluator {
                 /*if (DataPointConditionEvaluator._logger.isDebugEnabled()) {
                     DataPointConditionEvaluator._logger.debug("Condition [" + condition + "] evaluated as " + conditionValue.toString());
                 }*/
-                Log.i(TAG, "Condition [" + condition + "] evaluated as " + conditionValue.toString());
+                Log.v(TAG, "Condition [" + condition + "] evaluated as " + conditionValue.toString());
                 
                 return conditionValue.booleanValue();
                 

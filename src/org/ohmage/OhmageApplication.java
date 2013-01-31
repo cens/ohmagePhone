@@ -169,7 +169,7 @@ public class OhmageApplication extends Application {
 
     public void resetAll() {
         // clear everything?
-        Log.i(TAG, "Reseting all data");
+        Log.v(TAG, "Reseting all data");
 
         // clear user prefs first so isAuthenticated call will return false
         new UserPreferencesHelper(this).clearAll();

@@ -75,7 +75,7 @@ public class TriggerTimeReceiver extends BroadcastReceiver{
 		if(i.getAction().equals(Intent.ACTION_TIME_CHANGED) || 
 		   i.getAction().equals(Intent.ACTION_TIMEZONE_CHANGED)) {
 			
-			Log.i(DEBUG_TAG, "TriggerTimeReceiver: " + i.getAction());
+			Log.v(DEBUG_TAG, "TriggerTimeReceiver: " + i.getAction());
 			
 			DbHelper dbHelper = new DbHelper(context);
 			for (Campaign c : dbHelper.getReadyCampaigns()) {

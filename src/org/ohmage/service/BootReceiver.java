@@ -34,10 +34,10 @@ public class BootReceiver extends BroadcastReceiver {
 		boolean isFirstRun = preferencesHelper.isFirstRun();
 		
 		if (isFirstRun) {
-			Log.i(TAG, "this is the first run");
+			Log.v(TAG, "this is the first run");
 			
 		} else {
-			Log.i(TAG, "this is not the first run");
+			Log.v(TAG, "this is not the first run");
 			
 			//start components
 			BackgroundManager.initComponents(context);

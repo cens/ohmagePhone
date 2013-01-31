@@ -186,7 +186,7 @@ public class LocationTrigger extends TriggerBase {
 
 	@Override
 	public void stopTrigger(Context context, int trigId, String trigDesc) {
-		Log.i(TAG, "LocationTrigger: removeTrigger(" + trigId +
+		Log.v(TAG, "LocationTrigger: removeTrigger(" + trigId +
 										", " + trigDesc + ")");
 		
 		//Tell the service to stop this trigger
@@ -199,7 +199,7 @@ public class LocationTrigger extends TriggerBase {
 
 	@Override
 	public void resetTrigger(Context context, int trigId, String trigDesc) {
-		Log.i(TAG, "LocationTrigger: resetTrigger(" + trigId +
+		Log.v(TAG, "LocationTrigger: resetTrigger(" + trigId +
 				", " + trigDesc + ")");
 		
 		//Tell the service to restart the trigger
@@ -212,7 +212,7 @@ public class LocationTrigger extends TriggerBase {
 
 	@Override
 	public void startTrigger(Context context, int trigId, String trigDesc) {
-		Log.i(TAG, "LocationTrigger: startTrigger(" + trigId +
+		Log.v(TAG, "LocationTrigger: startTrigger(" + trigId +
 				", " + trigDesc + ")");
 		
 		//Tell the service to start the trigger
@@ -253,7 +253,7 @@ public class LocationTrigger extends TriggerBase {
 					jLocs.put(jLoc);
 				} catch (JSONException e) {
 					Log.e(TAG, "LocationTrigger: Error adding locations to " +
-									 "preference JSON");
+									 "preference JSON", e);
 				}
 				
 			} while(cLocs.moveToNext());
@@ -292,7 +292,7 @@ public class LocationTrigger extends TriggerBase {
 					jPlaces.put(jPlace);
 				} catch (JSONException e) {
 					Log.e(TAG, "LocationTrigger: Error adding place to " +
-					 				  "preference JSON");
+					 				  "preference JSON", e);
 				}
 				
 			} while(cCategs.moveToNext());
@@ -307,7 +307,7 @@ public class LocationTrigger extends TriggerBase {
 			jPref.put(KEY_PLACES, jPlaces);
 		} catch (JSONException e) {
 			Log.e(TAG, "LocationTrigger: Error adding places to " +
-			 				 "preference JSON");
+			 				 "preference JSON", e);
 		}
 		
 		return jPref;

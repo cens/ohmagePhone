@@ -19,11 +19,11 @@ public class CampaignAddActivity extends BaseCampaignListActivity {
 
 	@Override
 	public void onCampaignActionSurveys(String campaignUrn) {
-		Log.e(TAG, "onCampaignActionSurveys should not be exposed in this activity.");
+		Log.w(TAG, "onCampaignActionSurveys should not be exposed in this activity.");
 	}
 
 	@Override
 	public void onCampaignActionError(String campaignUrn, int status) {
-	    Log.e(TAG, "onCampaignActionError should not be exposed in this activity.");
+	    Log.w(TAG, "onCampaignActionError should not be exposed in this activity.");
 	}
 }

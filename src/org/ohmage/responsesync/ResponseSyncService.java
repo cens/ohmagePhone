@@ -28,10 +28,10 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.prompt.AbstractPrompt;
 
 import java.io.File;
 import java.io.IOException;
@@ -459,10 +459,10 @@ public class ResponseSyncService extends WakefulIntentService {
 		try {
 			cr.applyBatch(DbContract.CONTENT_AUTHORITY, operations);
 		} catch (RemoteException e) {
-			Log.e(TAG, "Error applying database operations");
+			Log.e(TAG, "Error applying database operations", e);
 			e.printStackTrace();
 		} catch (OperationApplicationException e) {
-			Log.e(TAG, "Error applying database operations");
+			Log.e(TAG, "Error applying database operations", e);
 			e.printStackTrace();
 		}
 
