@@ -19,9 +19,9 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.DashboardActivity;
+import org.ohmage.activity.MobilityActivity;
 import org.ohmage.activity.OhmagePreferenceActivity;
 
 /**
@@ -33,6 +33,13 @@ import org.ohmage.activity.OhmagePreferenceActivity;
 public class AdminSettingsDashboardTest extends ActivityInstrumentationTestCase2<DashboardActivity> {
 
 	private Solo solo;
+	private UserPreferencesHelper mPrefs;
+	private boolean oldShowFeedback;
+	private boolean oldShowMobility;
+	private boolean oldShowMobilityFeedback;
+	private boolean oldShowProfile;
+	private boolean oldShowUploadQueue;
+	private boolean oldSingleCampaignMode;
 
 	public AdminSettingsDashboardTest() {
 		super(DashboardActivity.class);
@@ -43,10 +50,36 @@ public class AdminSettingsDashboardTest extends ActivityInstrumentationTestCase2
 		super.setUp();
 
 		solo = new Solo(getInstrumentation(), getActivity());
+		mPrefs = new UserPreferencesHelper(getActivity());
+		
+		// Save old pref values
+		oldShowFeedback = mPrefs.showFeedback();
+		oldShowMobility = mPrefs.showMobility();
+		oldShowMobilityFeedback = mPrefs.showMobilityFeedback();
+		oldShowProfile = mPrefs.showProfile();
+		oldShowUploadQueue = mPrefs.showUploadQueue();
+		oldSingleCampaignMode = mPrefs.isSingleCampaignMode();
+
+		// Set state for tests
+		mPrefs.setShowFeedback(true);
+		mPrefs.setShowMobility(true);
+		mPrefs.setShowMobilityFeedback(true);
+		mPrefs.setShowProfile(true);
+		mPrefs.setShowUploadQueue(true);
+		mPrefs.setIsSingleCampaignMode(false);
+		
 	}
 
 	@Override
 	protected void tearDown() throws Exception{
+		
+		// Replace old pref values
+		mPrefs.setShowFeedback(oldShowFeedback);
+		mPrefs.setShowMobility(oldShowMobility);
+		mPrefs.setShowMobilityFeedback(oldShowMobilityFeedback);
+		mPrefs.setShowProfile(oldShowProfile);
+		mPrefs.setShowUploadQueue(oldShowUploadQueue);
+		mPrefs.setIsSingleCampaignMode(oldSingleCampaignMode);
 
 		try {
 			solo.finalize();
@@ -57,48 +90,47 @@ public class AdminSettingsDashboardTest extends ActivityInstrumentationTestCase2
 		super.tearDown();
 	}
 
-	public void testPreconditions() {
-		if(ConfigHelper.isSingleCampaignMode() && !getActivity().getResources().getBoolean(R.bool.admin_mode)) {
-			fail("Make sure to do these tests single campaign mode off and admin mode on");
-		} else if(ConfigHelper.isSingleCampaignMode()) {
-			fail("Make sure to do these tests single campaign mode off");
-		} else if(!getActivity().getResources().getBoolean(R.bool.admin_mode)) {
-			fail("Make sure to do these tests with admin mode on");
-		}
-	}
-
-	public void testCampaigns() {
-		if(!ConfigHelper.isSingleCampaignMode()) {
-			assertTrue(solo.searchText("Campaigns", true));
-		}
+	public void testSingleCampaignMode() {
+		assertTrue(solo.searchText("Campaigns", true));
+		clickOnDashPref("Single Campaign Mode");
+		assertFalse(solo.searchText("Campaigns", true));
 	}
 
 	public void testFeedback() {
 		assertTrue(solo.searchText("Response\nHistory", true));
 		clickOnDashPref("Show Feedback");
 		assertFalse(solo.searchText("Response\nHistory", true));
-		clickOnDashPref("Show Feedback");
 	}
 
 	public void testProfile() {
 		assertTrue(solo.searchText("Profile", true));
 		clickOnDashPref("Show Profile");
 		assertFalse(solo.searchText("Profile", true));
-		clickOnDashPref("Show Profile");
 	}
 
 	public void testUploadQueue() {
 		assertTrue(solo.searchText("Upload\nQueue", true));
 		clickOnDashPref("Show Upload Queue");
 		assertFalse(solo.searchText("Upload\nQueue", true));
-		clickOnDashPref("Show Upload Queue");
 	}
 
 	public void testMobility() {
 		assertTrue(solo.searchText("Mobility", true));
 		clickOnDashPref("Show Mobility");
 		assertFalse(solo.searchText("Mobility", true));
-		clickOnDashPref("Show Mobility");
+	}
+	
+	public void testMobilityFeedback() {
+		assertTrue(solo.searchText("Mobility", true));
+		solo.clickOnText("Mobility");
+		solo.assertCurrentActivity("expected MobilityActivity", MobilityActivity.class);
+		assertTrue(solo.searchText("ANALYTICS", true));
+		solo.goBack();
+		clickOnDashPref("Show Mobility Feedback");
+		solo.clickOnText("Mobility");
+		solo.assertCurrentActivity("expected MobilityActivity", MobilityActivity.class);
+		assertFalse(solo.searchText("ANALYTICS", true));
+		solo.goBack();
 	}
 
 	private void clickOnDashPref(String pref) {
