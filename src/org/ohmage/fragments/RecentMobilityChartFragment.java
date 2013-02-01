@@ -1,6 +1,5 @@
 package org.ohmage.fragments;
 
-import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 import org.achartengine.GraphicalView;
 import org.ohmage.MobilityHelper;
@@ -11,6 +10,7 @@ import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
 import org.ohmage.loader.MobilityAggregateLoader;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
+import org.ohmage.mobility.glue.MobilityInterface;
 
 import android.database.Cursor;
 import android.os.Bundle;

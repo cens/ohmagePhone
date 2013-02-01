@@ -1,8 +1,8 @@
 package org.ohmage.loader;
 
-import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 import org.ohmage.MobilityHelper;
+import org.ohmage.mobility.glue.MobilityInterface;
 
 import android.content.Context;
 import android.database.Cursor;

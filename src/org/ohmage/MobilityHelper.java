@@ -7,10 +7,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
-import edu.ucla.cens.mobility.glue.IMobility;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
+import org.ohmage.mobility.glue.IMobility;
 
 import org.ohmage.async.MobilityAggregateReadTask;
+import org.ohmage.mobility.glue.MobilityInterface;
 
 public class MobilityHelper {
 
@@ -108,7 +108,7 @@ public class MobilityHelper {
     private static PackageInfo getMobilityPackageInfo(Context context) {
         try {
             PackageManager pm = context.getPackageManager();
-            PackageInfo info = pm.getPackageInfo("edu.ucla.cens.mobility", 0);
+            PackageInfo info = pm.getPackageInfo("org.ohmage.mobility", 0);
 
             // if it's not the combined mobility package specifically, check for
             // accelservice, too

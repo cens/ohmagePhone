@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 
-import edu.ucla.cens.mobility.glue.MobilityInterface;
 
 import org.codehaus.jackson.JsonNode;
 import org.ohmage.ConfigHelper;
@@ -18,6 +17,7 @@ import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.logprobe.Log;
+import org.ohmage.mobility.glue.MobilityInterface;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

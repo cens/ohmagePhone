@@ -24,7 +24,7 @@
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"/>
 
 	<application
-		android:name="OhmageApplication"
+		android:name="org.ohmage.OhmageApplication"
 		android:theme="@style/OhmageTheme"
 		android:icon="@drawable/icon"
 		android:label="@string/app_name">
@@ -94,7 +94,7 @@
 					android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
 					android:launchMode="singleTask">
 			<intent-filter>
-				<action android:name="edu.ucla.cens.mobility.control"/>
+				<action android:name="org.ohmage.mobility.control"/>
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 		</activity>
@@ -232,7 +232,7 @@
 		
 	    <activity android:name=".triggers.types.location.LocTrigSettingsActivity"/>
 		<activity android:name=".triggers.types.location.LocTrigTracingSettActivity"/>
-	    <activity android:name=".triggers.types.location.LocTrigMapsActivity"
+	    <activity android:name="org.ohmage.triggers.types.location.LocTrigMapsActivity"
 					  android:screenOrientation="portrait"/>
 		
 		<receiver android:name=".triggers.base.TriggerTimeReceiver">
@@ -274,7 +274,7 @@
 	    	</intent-filter>
 		</receiver>
 		
-		<receiver android:name=".triggers.notif.Notifier$NotifReceiver">
+		<receiver android:name="org.ohmage.triggers.notif.Notifier$NotifReceiver">
 	    	<intent-filter>
 	    		<action android:name="edu.ucla.cens.triggers.notif.Notifier.expire_notif" />
 	    		<data android:scheme="notifier" />
@@ -337,7 +337,7 @@
 		<uses-library android:name="com.google.android.maps" />
 
 		<service
-            android:name=".probemanager.ProbeManager"
+            android:name="org.ohmage.probemanager.ProbeManager"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>
@@ -346,7 +346,7 @@
         </service>
 
         <provider
-            android:name=".probemanager.ProbeContentProvider"
+            android:name="org.ohmage.probemanager.ProbeContentProvider"
             android:authorities="org.ohmage.probemanager"
             android:enabled="true"
             android:exported="true" >
