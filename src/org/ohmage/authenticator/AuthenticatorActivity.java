@@ -87,6 +87,8 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
     public static final String PARAM_USERNAME = "username";
     public static final String PARAM_AUTHTOKEN_TYPE = "authtokenType";
 
+    private static final String KEY_OHMAGE_SERVER = "key_ohmage_server";
+
     private AccountManager mAccountManager;
     private Thread mAuthThread;
     private String mAuthtoken;
@@ -496,10 +498,12 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
     protected void finishLogin() {
         Log.v(TAG, "finishLogin()");
         final Account account = new Account(mUsername, OhmageApplication.ACCOUNT_TYPE);
+        Bundle userData = new Bundle();
+        userData.putString(KEY_OHMAGE_SERVER, mServerEdit.getText().toString());
         mAuthtoken = mHashedPassword;
 
         if (mRequestNewAccount) {
-            mAccountManager.addAccountExplicitly(account, mPassword, null);
+            mAccountManager.addAccountExplicitly(account, mPassword, userData);
             mAccountManager.setAuthToken(account, OhmageApplication.AUTHTOKEN_TYPE, mAuthtoken);
             // Set sync for this account.
             ContentResolver.setIsSyncable(account, DbContract.CONTENT_AUTHORITY, 1);
