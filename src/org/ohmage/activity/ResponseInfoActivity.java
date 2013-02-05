@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -57,9 +58,9 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Response;
+import org.ohmage.logprobe.Analytics;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.logprobe.Analytics;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.ResponseActivityHelper;
 
@@ -474,6 +475,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 						if(file != null && file.exists()) {
 							try {
+							    BitmapDrawable d = (BitmapDrawable) imageView.getDrawable();
+							    if(d!=null) d.getBitmap().recycle();
 								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
 								imageView.setImageBitmap(img);
 								imageView.setOnClickListener(new View.OnClickListener() {
