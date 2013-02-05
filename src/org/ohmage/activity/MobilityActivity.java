@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TabHost;
-import android.widget.TextView;
 
 import org.ohmage.MobilityHelper;
 import org.mobilizingcs.R;
@@ -50,12 +48,6 @@ public class MobilityActivity extends BaseActivity {
 					startActivity(intent);
 				}
 			});
-		} else if (!MobilityHelper.isMobilityVersionCorrect(this)) {
-			TextView view = new TextView(this);
-			view.setText("Please make sure Mobility is up to date.");
-			view.setTextAppearance(this, android.R.attr.textAppearanceLarge);
-			view.setGravity(Gravity.CENTER);
-			setContentView(view);
 		} else {
 		    mUserPrefs = new UserPreferencesHelper(this);
 			setContentView(R.layout.tab_layout);

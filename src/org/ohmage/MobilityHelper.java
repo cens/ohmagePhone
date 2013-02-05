@@ -7,18 +7,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
-import org.ohmage.mobility.glue.IMobility;
-
 import org.ohmage.async.MobilityAggregateReadTask;
+import org.ohmage.mobility.glue.IMobility;
 import org.ohmage.mobility.glue.MobilityInterface;
 
 public class MobilityHelper {
-
-    /** The version number of the mobility release which has the username column **/
-    public static final int VERSION_AGGREGATE_AND_USERNAME = 25;
-
-    /** The version of mobility we require to show feedback **/
-    public static final int REQUIRED_MOBILITY_VERSION = 25;
 
     private static final String TAG = "MobilityHelper";
 
@@ -27,10 +20,6 @@ public class MobilityHelper {
     }
 
     public static void setUsername(Context context, String username, long loginTimestamp) {
-        // If we are using an old version of mobility we can't set the username
-        if (getMobilityVersion(context) < VERSION_AGGREGATE_AND_USERNAME)
-            return;
-
         if (TextUtils.isEmpty(username)) {
             username = null;
         } else {
@@ -46,9 +35,6 @@ public class MobilityHelper {
     public static void recalculateAggregate(Context context, String username, Long startDate) {
         // If we are using an old version of mobility we can't calculate
         // aggregates
-        if (getMobilityVersion(context) < VERSION_AGGREGATE_AND_USERNAME)
-            return;
-
         if (username == null)
             throw new IllegalArgumentException("Must specifiy username");
 
@@ -74,19 +60,6 @@ public class MobilityHelper {
     }
 
     /**
-     * Returns true if the mobility is newer than the minimum required version
-     * 
-     * @param context
-     * @return
-     */
-    public static boolean isMobilityVersionCorrect(Context context) {
-        PackageInfo info = getMobilityPackageInfo(context);
-        if (info != null)
-            return info.versionCode >= REQUIRED_MOBILITY_VERSION;
-        return false;
-    }
-
-    /**
      * Returns the version of mobility if it exists, -1 otherwise
      * 
      * @param context
@@ -108,24 +81,7 @@ public class MobilityHelper {
     private static PackageInfo getMobilityPackageInfo(Context context) {
         try {
             PackageManager pm = context.getPackageManager();
-            PackageInfo info = pm.getPackageInfo("org.ohmage.mobility", 0);
-
-            // if it's not the combined mobility package specifically, check for
-            // accelservice, too
-            if (info != null && !info.versionName.equalsIgnoreCase("1.3.7_combined")
-                    && info.versionCode < 30) {
-                PackageInfo info2 = pm.getPackageInfo("edu.ucla.cens.accelservice", 0);
-
-                // if accelservice is missing, we need to notify the client
-                if (info2 == null)
-                    return null;
-            }
-
-            // mobility is present in some form if we got this far; tell the
-            // client all is well
-            if (info != null) {
-                return info;
-            }
+            return pm.getPackageInfo("org.ohmage.mobility", 0);
         } catch (PackageManager.NameNotFoundException e) {
             // Don't do anything
         }
@@ -139,7 +95,7 @@ public class MobilityHelper {
      * @param context
      * @return int version that mobility was upgraded to
      */
-    public static int upgradeMobilityData(Context context) {
+    public static int ensureMobilityData(Context context) {
         UserPreferencesHelper prefs = new UserPreferencesHelper(context);
 
         // The user needs to be logged in before we can upgrade mobility data
@@ -153,8 +109,7 @@ public class MobilityHelper {
         int newMobilityVersion = getMobilityVersion(context);
         appPrefs.setMobilityVersion(newMobilityVersion);
 
-        if (oldMobilityVersion < VERSION_AGGREGATE_AND_USERNAME
-                && newMobilityVersion >= VERSION_AGGREGATE_AND_USERNAME) {
+        if (oldMobilityVersion == -1 && isMobilityInstalled(context)) {
 
             // If we are upgrading into a version of ohmage which has
             // aggregates,
@@ -174,13 +129,8 @@ public class MobilityHelper {
      * @param context
      */
     public static void downloadAggregate(Context context) {
-        if (getMobilityVersion(context) >= VERSION_AGGREGATE_AND_USERNAME) {
-            // If we are upgrading into a version of ohmage which has
-            // aggregates,
-            // we should make a call to the server to get the aggregate data
-            MobilityAggregateReadTask task = new MobilityAggregateReadTask(context);
-            task.setCredentials();
-            task.forceLoad();
-        }
+        MobilityAggregateReadTask task = new MobilityAggregateReadTask(context);
+        task.setCredentials();
+        task.forceLoad();
     }
 }

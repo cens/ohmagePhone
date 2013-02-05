@@ -119,8 +119,8 @@ public class OhmageApplication extends Application {
 
         // Make sure mobility is registered to collect points for the current
         // user and it has the correct aggregate data
-        // This will happen if mobility is
-        MobilityHelper.upgradeMobilityData(this);
+        // This will happen if mobility is removed and reinstalled
+        MobilityHelper.ensureMobilityData(this);
 
         verifyState();
 
