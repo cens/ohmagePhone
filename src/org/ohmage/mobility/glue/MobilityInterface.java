@@ -1,4 +1,4 @@
-package edu.ucla.cens.mobility.glue;
+package org.ohmage.mobility.glue;
 
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -10,8 +10,8 @@ import android.widget.Toast;
 
 public class MobilityInterface
 {
-	public static final String ACTION_SET_USERNAME = "edu.ucla.cens.mobility.glue.ACTION_SET_USERNAME";
-	public static final String ACTION_RECALCULATE_AGGREGATES = "edu.ucla.cens.mobility.glue.ACTION_RECALCULATE_AGGREGATES";
+	public static final String ACTION_SET_USERNAME = "org.ohmage.mobility.glue.ACTION_SET_USERNAME";
+	public static final String ACTION_RECALCULATE_AGGREGATES = "org.ohmage.mobility.glue.ACTION_RECALCULATE_AGGREGATES";
 	public static final String EXTRA_USERNAME = "extra_username";
 	public static final String EXTRA_BACKDATE = "extra_backdate";
 
@@ -43,7 +43,7 @@ public class MobilityInterface
 
 	private static String [] columns = {KEY_ROWID, KEY_ID, KEY_MODE, KEY_SPEED, KEY_STATUS, KEY_LOC_TIMESTAMP, KEY_ACCURACY, KEY_PROVIDER, KEY_WIFIDATA, KEY_ACCELDATA, KEY_TIME, KEY_TIMEZONE, KEY_LATITUDE, KEY_LONGITUDE};
 	// Content provider strings
-	public static final String AUTHORITY = "edu.ucla.cens.mobility.MobilityContentProvider";
+	public static final String AUTHORITY = "org.ohmage.mobility.MobilityContentProvider";
 	public static final String PATH_MOBILITY = "mobility";
 	public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY + "/" + PATH_MOBILITY);
 
@@ -65,7 +65,7 @@ public class MobilityInterface
 		try
 		{
 			final Intent intentDeviceTest = new Intent("android.intent.action.MAIN");
-			intentDeviceTest.setComponent(new ComponentName("edu.ucla.cens.mobility","edu.ucla.cens.mobility.MobilityControl"));
+			intentDeviceTest.setComponent(new ComponentName("org.ohmage.mobility","org.ohmage.mobility.MobilityControl"));
 			context.startActivity(intentDeviceTest);
 		}
 		catch(Exception e)

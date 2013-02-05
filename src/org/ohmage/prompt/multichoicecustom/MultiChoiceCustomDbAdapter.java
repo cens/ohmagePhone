@@ -56,7 +56,7 @@ public class MultiChoiceCustomDbAdapter {
 			mDb = mDbHelper.getWritableDatabase();
 		}
 		catch (SQLException e) {
-			Log.e(TAG, e.toString());
+			Log.e(TAG, "Error opening multichoice custom db", e);
 			return false;
 		}
 		return true;

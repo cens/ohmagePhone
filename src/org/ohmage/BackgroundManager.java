@@ -24,8 +24,8 @@ import android.os.SystemClock;
 
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
-import org.ohmage.service.SyncReceiver;
 import org.ohmage.logprobe.Log;
+import org.ohmage.service.SyncReceiver;
 import org.ohmage.triggers.base.TriggerInit;
 
 public class BackgroundManager {
@@ -34,7 +34,7 @@ public class BackgroundManager {
 
     public static void initComponents(Context context) {
 
-        Log.i(TAG, "initializing application components");
+        Log.v(TAG, "initializing application components");
 
         // init triggers for all campaigns
         DbHelper dbHelper = new DbHelper(context);
@@ -45,7 +45,7 @@ public class BackgroundManager {
 
     public static void verifyAlarms(Context context) {
 
-        Log.i(TAG, "verifying application alarms");
+        Log.v(TAG, "verifying application alarms");
 
         Context appContext = context.getApplicationContext();
 
@@ -59,7 +59,7 @@ public class BackgroundManager {
                     .getBroadcast(appContext, 0, intentToFire, 0);
             alarms.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR, pendingIntent);
-            Log.i(TAG, "UploadReceiver repeating alarm set");
+            Log.v(TAG, "UploadReceiver repeating alarm set");
         }
     }
 }

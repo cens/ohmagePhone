@@ -54,7 +54,7 @@ public class OhmageCache extends FileResponseCache {
 	public static void install(Context context) {
 		ResponseCache responseCache = ResponseCache.getDefault();
 		if (responseCache instanceof OhmageCache) {
-			Log.i(TAG, "Cache has already been installed.");
+			Log.v(TAG, "Cache has already been installed.");
 		} else if (responseCache == null) {
 			OhmageCache dropCache = new OhmageCache(context);
 			ResponseCache.setDefault(dropCache);

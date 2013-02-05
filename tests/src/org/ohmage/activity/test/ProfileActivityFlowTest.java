@@ -91,14 +91,14 @@ public class ProfileActivityFlowTest extends ActivityInstrumentationTestCase2<Pr
 	@Smoke
 	public void testDontLogout() {
 		solo.clickOnText("Log Out");
-		solo.clickOnText("No");
+		solo.clickOnText("Cancel");
 		solo.assertCurrentActivity("Expected to stay on profile", ProfileActivity.class);
 	}
 
 	@Smoke
 	public void testLogout() {
 		solo.clickOnText("Log Out");
-		solo.clickOnText("Yes");
+		solo.clickOnText("Logout");
 
 		solo.assertCurrentActivity("Expected Login Screen", LoginActivity.class);
 

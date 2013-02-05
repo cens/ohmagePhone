@@ -119,4 +119,13 @@ public class ConfigHelper {
     public void setLogAnalytics(Boolean value) {
         mPreferences.edit().putBoolean(KEY_LOG_ANALYTICS, value).commit();
     }
+
+    /**
+     * Clears all settings specific to deployments
+     */
+    public void clearDeploymentSettings() {
+        setLogAnalytics(mContext.getResources().getBoolean(R.bool.log_analytics));
+        setLogLevel(mContext.getResources().getString(R.string.log_level));
+        setAdminMode(mContext.getResources().getBoolean(R.bool.admin_mode));
+    }
 }

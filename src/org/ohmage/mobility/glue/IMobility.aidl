@@ -1,4 +1,4 @@
-package edu.ucla.cens.mobility.glue;
+package org.ohmage.mobility.glue;
 
 // Declare the interface.
 interface IMobility 

@@ -107,6 +107,10 @@ public class UserPreferencesHelper {
     public boolean showMobilityFeedback() {
         return mPreferences.getBoolean(KEY_SHOW_MOBILITY_FEEDBACK, DEFAULT_SHOW_MOBILITY_FEEDBACK);
     }
+    
+    public boolean setShowMobilityFeedback(Boolean value) {
+        return mPreferences.edit().putBoolean(KEY_SHOW_MOBILITY_FEEDBACK, value).commit();
+    }
 
     /**
      * Returns the baseline, or a time 10 weeks after the start time if it is
@@ -259,5 +263,9 @@ public class UserPreferencesHelper {
     public boolean isSingleCampaignMode() {
         return mPreferences.getBoolean(KEY_SINGLE_CAMPAIGN_MODE, OhmageApplication.getContext()
                 .getResources().getBoolean(R.bool.single_campaign_mode));
+    }
+    
+    public boolean setIsSingleCampaignMode(Boolean value) {
+        return mPreferences.edit().putBoolean(KEY_SINGLE_CAMPAIGN_MODE, value).commit();
     }
 }

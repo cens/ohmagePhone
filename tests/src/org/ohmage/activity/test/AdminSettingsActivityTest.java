@@ -19,7 +19,6 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.jayway.android.robotium.solo.Solo;
 
-import org.ohmage.ConfigHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.AdminSettingsActivity;
 import org.ohmage.activity.CampaignListActivity;
@@ -61,18 +60,10 @@ public class AdminSettingsActivityTest extends ActivityInstrumentationTestCase2<
 		super.tearDown();
 	}
 
-	public void testSinglePreconditions() {
-		if(!ConfigHelper.isSingleCampaignMode()) {
-			fail("Make sure to do these tests single campaign mode on");
-		}
-	}
-
 	public void testCampaignManagement() {
-		if(ConfigHelper.isSingleCampaignMode()) {
-			solo.clickOnText("Campaign Management");
-			solo.assertCurrentActivity("Expected Campaign List", CampaignListActivity.class);
-			solo.goBack();
-		}
+		solo.clickOnText("Campaign Management");
+		solo.assertCurrentActivity("Expected Campaign List", CampaignListActivity.class);
+		solo.goBack();
 	}
 
 	public void testFeedback() {
@@ -105,6 +96,14 @@ public class AdminSettingsActivityTest extends ActivityInstrumentationTestCase2<
 		assertFalse(mPrefs.showMobility() == old);
 		checkboxState(old, "Mobility");
 		assertTrue(mPrefs.showMobility() == old);
+	}
+	
+	public void testMobilityFeedback() {
+		boolean old = mPrefs.showMobilityFeedback();
+		checkboxState(old, "Mobility Feedback");
+		assertFalse(mPrefs.showMobilityFeedback() == old);
+		checkboxState(old, "Mobility Feedback");
+		assertTrue(mPrefs.showMobilityFeedback() == old);
 	}
 
 	private void checkboxState(boolean old, String name) {

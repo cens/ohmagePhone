@@ -87,7 +87,7 @@ public class NotifSurveyAdaptor {
 		String campaignUrn = trig.getString(
 				 trig.getColumnIndexOrThrow(TriggerDB.KEY_CAMPAIGN_URN));
 	
-		Log.i(TAG, "NotifSurveyAdaptor: Calculating active surveys for trigger");
+		Log.v(TAG, "NotifSurveyAdaptor: Calculating active surveys for trigger");
 		
 		TriggerRunTimeDesc rtDesc = new TriggerRunTimeDesc();
 		NotifDesc notifDesc = new NotifDesc();
@@ -97,13 +97,13 @@ public class NotifSurveyAdaptor {
 		   !notifDesc.loadString(notif) || 
 		   !actDesc.loadString(actions)) {
 				
-			Log.w(TAG, "NotifSurveyAdaptor: Descritptor(s) failed to parse");
+			Log.e(TAG, "NotifSurveyAdaptor: Descritptor(s) failed to parse");
 			
 			return actSurveys;
 		}
 		
 		if(!rtDesc.hasTriggerTimeStamp()) {
-			Log.i(TAG, "NotifSurveyAdaptor: Trigger time stamp is invalid");
+			Log.e(TAG, "NotifSurveyAdaptor: Trigger time stamp is invalid");
 			
 			return actSurveys;
 		}
@@ -112,7 +112,7 @@ public class NotifSurveyAdaptor {
 		long trigTS = rtDesc.getTriggerTimeStamp();
 			
 		if(trigTS > now) {
-			Log.w(TAG, "NotifSurveyAdaptor: Trigger time stamp is in the future!");
+			Log.e(TAG, "NotifSurveyAdaptor: Trigger time stamp is in the future!");
 			return actSurveys;
 		}
 		
@@ -387,9 +387,6 @@ public class NotifSurveyAdaptor {
 		}
 		
 		//Log the info
-		String msg = "Expired trigger has surveys not taken: " + 
-					 jExpired.toString();
-		
-		Log.i(TAG, msg);		
+		Log.v(TAG, "Expired trigger has surveys not taken: " + jExpired.toString());		
 	}
 }

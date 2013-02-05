@@ -35,7 +35,7 @@ public class TriggerNotificationReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 		String campaignUrn = intent.getStringExtra(Notifier.KEY_CAMPAIGN_URN);
 
-		Log.i(TAG, "Broadcast received: " + action);
+		Log.v(TAG, "Broadcast received: " + action);
 
 		if (TriggerFramework.ACTION_TRIGGER_NOTIFICATION.equals(action)) {
 			Intent i = new Intent(context, SurveyListActivity.class);

@@ -28,8 +28,8 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Responses;
-import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.logprobe.Log;
+import org.ohmage.responsesync.ResponseSyncService;
 
 public class SyncReceiver extends BroadcastReceiver {
 

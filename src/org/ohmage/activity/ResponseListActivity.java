@@ -106,12 +106,12 @@ public class ResponseListActivity extends CampaignSurveyFilterActivity implement
 	@Override
 	public void onResponseActionUpload(Uri responseUri) {
 		Toast.makeText(this, R.string.response_list_upload_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.e(TAG, "onResponseActionUpload should not be exposed in this activity.");
+		Log.w(TAG, "onResponseActionUpload should not be exposed in this activity.");
 	}
 
 	@Override
 	public void onResponseActionError(Uri responseUri, int status) {
 		Toast.makeText(this, R.string.response_list_error_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.e(TAG, "onResponseActionError should not be exposed in this activity.");
+		Log.w(TAG, "onResponseActionError should not be exposed in this activity.");
 	}
 }

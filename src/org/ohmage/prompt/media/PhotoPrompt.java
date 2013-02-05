@@ -66,9 +66,9 @@ public class PhotoPrompt extends MediaPrompt {
 			// original size? there is not much we can do here
 			if(!Utilities.resizeImage(getMedia(), 800)) {
 				System.gc();
-				Log.d(TAG, "First image resize failed. Trying again.");
+				Log.e(TAG, "First image resize failed. Trying again.");
 				if(!Utilities.resizeImage(getMedia(), 800)) {
-					Log.d(TAG, "Second image resize failed. Using original size image");
+					Log.e(TAG, "Second image resize failed. Using original size image");
 				}
 			}
 

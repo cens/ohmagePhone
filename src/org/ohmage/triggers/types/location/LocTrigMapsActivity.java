@@ -176,7 +176,7 @@ public class LocTrigMapsActivity extends MapActivity
         }
         
         mCategId = extras.getInt(LocTrigDB.KEY_ID);
-        Log.i(TAG, "Maps: category id = " + mCategId);
+        Log.v(TAG, "Maps: category id = " + mCategId);
         	
         FrameLayout mapContainer = (FrameLayout) findViewById(R.id.mapViewContainer);
         mMapView = new MapView(this, OhmageApplication.isDebugBuild() ?
@@ -352,7 +352,7 @@ public class LocTrigMapsActivity extends MapActivity
    
     @Override
     public void onDestroy() {
-    	Log.i(TAG, "Maps: onDestroy");
+    	Log.v(TAG, "Maps: onDestroy");
     	
     	if(mSearchTask != null) {
     		mSearchTask.cancel(true);
@@ -373,7 +373,7 @@ public class LocTrigMapsActivity extends MapActivity
     
     @Override
     public void onStop() {
-    	Log.i(TAG, "Maps: onStop");
+    	Log.v(TAG, "Maps: onStop");
     	
     	stopGPS();
     	super.onStop();
@@ -549,7 +549,7 @@ public class LocTrigMapsActivity extends MapActivity
     
     /* Stop GPS */
     private void stopGPS() {
-    	Log.i(TAG, "Maps: stopGPS");
+    	Log.v(TAG, "Maps: stopGPS");
     	
     	mLocMan.removeUpdates(this);
     	
@@ -563,7 +563,7 @@ public class LocTrigMapsActivity extends MapActivity
 
     /* Get GPS samples. Also, set GPS timeout alarm */
     private void getGPSSamples() {
-    	Log.i(TAG, "Maps: getGPSSamples");
+    	Log.v(TAG, "Maps: getGPSSamples");
     	
     	BroadcastReceiver bRecr = new BroadcastReceiver() {
 			@Override
@@ -605,7 +605,7 @@ public class LocTrigMapsActivity extends MapActivity
     
     /* Handle long press on maps. Display the 'add location' balloon */
 	private void handleLongPress(Point p) {
-		Log.i(TAG, "Maps: Handling long press");
+		Log.v(TAG, "Maps: Handling long press");
 	
 		GeoPoint gp = mMapView.getProjection().fromPixels(p.x, p.y);
 		mAddLocBalloon.show(gp, getString(R.string.add_this_loc), "");
@@ -615,7 +615,7 @@ public class LocTrigMapsActivity extends MapActivity
 	 * display 'add my location' balloon
 	 */
 	private void handleMarkerTap(int locId) {
-		Log.i(TAG, "Maps: Hanlding overlay tap");
+		Log.v(TAG, "Maps: Hanlding overlay tap");
 		
 		if(locId == CURR_LOC_ID) {
 			//Stop the GPS, no need of any more samples
@@ -631,7 +631,7 @@ public class LocTrigMapsActivity extends MapActivity
 	
 	/* Handle long press on a marker. Display the 'delete' message */
 	private void handleMarkerLongPress(int locId) {
-		Log.i(TAG, "Maps: Hanlding overlay long press");
+		Log.v(TAG, "Maps: Hanlding overlay long press");
 		
 		if(locId != CURR_LOC_ID) {
 			new DeleteLocDialog(locId).show(this);
@@ -641,7 +641,7 @@ public class LocTrigMapsActivity extends MapActivity
 	/* GPS location changed callback. Display the blue marker */
 	@Override
 	public void onLocationChanged(Location loc) {
-		Log.i(TAG, "Maps: new location received: " +
+		Log.v(TAG, "Maps: new location received: " +
 				 loc.getLatitude() + ", " +
 				 loc.getLongitude() + " (" + 
 				 loc.getProvider() + "), accuracy = " +
@@ -901,7 +901,7 @@ public class LocTrigMapsActivity extends MapActivity
 		/* Handle touch event to detect long press, tap and drag */
 		@Override
 		public boolean onTouchEvent(MotionEvent ev, MapView view) {
-			//Log.i(DEBUG_TAG, "Maps: onTouchEvent: " + ev.getAction());
+			//Log.v(DEBUG_TAG, "Maps: onTouchEvent: " + ev.getAction());
 			
 			Point currP = new Point((int) ev.getX(), (int) ev.getY());
 			
@@ -1139,7 +1139,7 @@ public class LocTrigMapsActivity extends MapActivity
 		
 		/* The focused red circle is about to get resized */
 		private void handleCircleDragStart(Point p) {
-			Log.i(TAG, "Maps: Drag Start");
+			Log.v(TAG, "Maps: Drag Start");
 			
 			MapsOverlayItem item = getFocus();
 			if(item == null) {
@@ -1156,7 +1156,7 @@ public class LocTrigMapsActivity extends MapActivity
 		
 		/* The focused red circle is being resized */ 
 		private void handleCircleDrag(Point p) {
-			//Log.i(DEBUG_TAG, "Maps: Dragging");
+			//Log.v(DEBUG_TAG, "Maps: Dragging");
 			
 			if(!mCircleResizing) {
 				return;
@@ -1190,7 +1190,7 @@ public class LocTrigMapsActivity extends MapActivity
 		
 		/* Handle circle resize end */
 		private void handleCircleDragEnd(Point p) {
-			Log.i(TAG, "Maps: Drag End");
+			Log.v(TAG, "Maps: Drag End");
 			
 			mCircleResizing = false;
 			

@@ -69,7 +69,7 @@ public class TriggerDB {
 	
 	/* Open the database */
 	public boolean open() {
-		Log.i(TAG, "DB: open");
+		Log.v(TAG, "DB: open");
 	
 		
 		mDbHelper = new DatabaseHelper(mContext);
@@ -78,7 +78,7 @@ public class TriggerDB {
 			mDb = mDbHelper.getWritableDatabase();
 		}
 		catch (SQLException e) {
-			Log.e(TAG, e.toString());
+			Log.e(TAG, "Error opening trigger db", e);
 			return false;
 		}
 		return true;
@@ -86,7 +86,7 @@ public class TriggerDB {
 	
 	/* Close the database */
 	public void close() {
-		Log.i(TAG, "DB: close");
+		Log.v(TAG, "DB: close");
 		
 		if(mDbHelper != null) {
 			mDbHelper.close();
@@ -102,7 +102,7 @@ public class TriggerDB {
 					      String notifDescript, 
 					      String rtDescript) {
 		
-		Log.i(TAG, "DB: addTrigger(" + campaignUrn +
+		Log.v(TAG, "DB: addTrigger(" + campaignUrn +
 										 ", " + trigType  +
 										 ", " + trigDescript + 
 										 ", " + trigActDesc + 
@@ -124,7 +124,7 @@ public class TriggerDB {
 	 * Get the row corresponding to a trigger id
 	 */
 	public Cursor getTrigger(int trigId) {
-		Log.i(TAG, "DB: getTrigger(" + trigId + ")");
+		Log.v(TAG, "DB: getTrigger(" + trigId + ")");
 		
 		return mDb.query(TABLE_TRIGGERS, null, 
 						 KEY_ID + "=?", new String[] {String.valueOf(trigId)},  
@@ -145,7 +145,7 @@ public class TriggerDB {
 	 * Get all the triggers corresponding to a type for a campaign
 	 */
 	public Cursor getTriggers(String campaignUrn, String trigType) {
-		Log.i(TAG, "DB: getTriggers(" + trigType + ")");
+		Log.v(TAG, "DB: getTriggers(" + trigType + ")");
 		
 		return mDb.query(TABLE_TRIGGERS, null, 
 						 KEY_CAMPAIGN_URN + "=? AND " + KEY_TRIG_TYPE + "=?", 
@@ -157,7 +157,7 @@ public class TriggerDB {
 	 * Get all triggers in the system for a campaign
 	 */
 	public Cursor getAllTriggers(String campaignUrn) {
-		Log.i(TAG, "DB: getAllTriggers");
+		Log.v(TAG, "DB: getAllTriggers");
 		
 		return mDb.query(TABLE_TRIGGERS, null, 
 				KEY_CAMPAIGN_URN + "=?", 
@@ -169,7 +169,7 @@ public class TriggerDB {
 //	 * Get all the triggers corresponding to a type
 //	 */
 //	public Cursor getTriggers(String trigType) {
-//		Log.i(DEBUG_TAG, "DB: getTriggers(" + trigType + ")");
+//		Log.v(DEBUG_TAG, "DB: getTriggers(" + trigType + ")");
 //		
 //		return mDb.query(TABLE_TRIGGERS, null, 
 //						 KEY_TRIG_TYPE + "=?", 
@@ -181,7 +181,7 @@ public class TriggerDB {
 //	 * Get all triggers in the system
 //	 */
 //	public Cursor getAllTriggers() {
-//		Log.i(DEBUG_TAG, "DB: getAllTriggers");
+//		Log.v(DEBUG_TAG, "DB: getAllTriggers");
 //		
 //		return mDb.query(TABLE_TRIGGERS, null, null, 
 //				null, null, null, null);
@@ -191,7 +191,7 @@ public class TriggerDB {
 	 * Get the notification description for a trigger
 	 */
 	public String getNotifDescription(int trigId) {
-		Log.i(TAG, "DB: getNotifDescription(" + trigId + ")");
+		Log.v(TAG, "DB: getNotifDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_NOTIF_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -210,7 +210,7 @@ public class TriggerDB {
 	 * Get the type of a trigger
 	 */
 	public String getTriggerType(int trigId) {
-		Log.i(TAG, "DB: getTriggerType(" + trigId + ")");
+		Log.v(TAG, "DB: getTriggerType(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_TRIG_TYPE}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -229,7 +229,7 @@ public class TriggerDB {
 	 * Get the campaignUrn of a trigger
 	 */
 	public String getCampaignUrn(int trigId) {
-		Log.i(TAG, "DB: getCampaignUrn(" + trigId + ")");
+		Log.v(TAG, "DB: getCampaignUrn(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_CAMPAIGN_URN}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -248,7 +248,7 @@ public class TriggerDB {
 	 * Get the description of a trigger
 	 */
 	public String getTriggerDescription(int trigId) {
-		Log.i(TAG, "DB: getTriggerDescription(" + trigId + ")");
+		Log.v(TAG, "DB: getTriggerDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_TRIG_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -267,7 +267,7 @@ public class TriggerDB {
 	 * Get the action description of a trigger
 	 */
 	public String getActionDescription(int trigId) {
-		Log.i(TAG, "DB: getActionDescription(" + trigId + ")");
+		Log.v(TAG, "DB: getActionDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_TRIG_ACTION_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -286,7 +286,7 @@ public class TriggerDB {
 	 * Get the run time description of a trigger
 	 */
 	public String getRunTimeDescription(int trigId) {
-		Log.i(TAG, "DB: getRunTimeDescription(" + trigId + ")");
+		Log.v(TAG, "DB: getRunTimeDescription(" + trigId + ")");
 		
 		Cursor c = mDb.query(TABLE_TRIGGERS, new String[] {KEY_RUNTIME_DESCRIPT}, 
 							 KEY_ID + "=?", new String[] {String.valueOf(trigId)}, 
@@ -305,7 +305,7 @@ public class TriggerDB {
 	 * Update the trigger description of an existing trigger
 	 */
 	public boolean updateTriggerDescription(int trigId, String newDesc) {
-		Log.i(TAG, "DB: updateTriggerDescription(" + trigId + 
+		Log.v(TAG, "DB: updateTriggerDescription(" + trigId + 
 													   ", " + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
@@ -324,7 +324,7 @@ public class TriggerDB {
 	 * Update the action description of an existing trigger
 	 */
 	public boolean updateActionDescription(int trigId, String newDesc) {
-		Log.i(TAG, "DB: updateActionDescription(" + trigId + 
+		Log.v(TAG, "DB: updateActionDescription(" + trigId + 
 				   ", " + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
@@ -343,7 +343,7 @@ public class TriggerDB {
 	 * Update the run time description of an existing trigger
 	 */
 	public boolean updateRunTimeDescription(int trigId, String newDesc) {
-		Log.i(TAG, "DB: updateRunTimeDescription(" + trigId + 
+		Log.v(TAG, "DB: updateRunTimeDescription(" + trigId + 
 				   ", " + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
@@ -363,7 +363,7 @@ public class TriggerDB {
 //	 * a new one
 //	 */
 //	public boolean updateAllNotificationDescriptions(String newDesc) {
-//		Log.i(DEBUG_TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
+//		Log.v(DEBUG_TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
 //		
 //		ContentValues values = new ContentValues();
 //		values.put(KEY_NOTIF_DESCRIPT, newDesc);
@@ -377,7 +377,7 @@ public class TriggerDB {
 	 * a new one
 	 */
 	public boolean updateAllNotificationDescriptions(String newDesc) {
-		Log.i(TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
+		Log.v(TAG, "DB: updateAllNotificationDescriptions(" + newDesc + ")");
 		
 		ContentValues values = new ContentValues();
 		values.put(KEY_NOTIF_DESCRIPT, newDesc);
@@ -390,7 +390,7 @@ public class TriggerDB {
 	 * Delete a specific trigger
 	 */
 	public boolean deleteTrigger(int trigId) {
-		Log.i(TAG, "DB: deleteTrigger(" + trigId + ")");
+		Log.v(TAG, "DB: deleteTrigger(" + trigId + ")");
 		
 		mDb.delete(TABLE_TRIGGERS, KEY_ID + "=?", 
 				   new String[] {String.valueOf(trigId)});
@@ -408,7 +408,7 @@ public class TriggerDB {
 
 		@Override
 		public void onCreate(SQLiteDatabase mDb) {
-			Log.i(TAG, "DB: SQLiteOpenHelper.onCreate");
+			Log.v(TAG, "DB: SQLiteOpenHelper.onCreate");
 			
 			final String QUERY_CREATE_TRIGGERS_TB = 
 				"create table " + TABLE_TRIGGERS + " ("

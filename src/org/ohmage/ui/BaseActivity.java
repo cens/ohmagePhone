@@ -48,7 +48,7 @@ public abstract class BaseActivity extends FragmentActivity {
 		}
 
 		if (!preferencesHelper.isAuthenticated()) {
-			Log.i(TAG, "no credentials saved, so launch Login");
+			Log.v(TAG, "no credentials saved, so launch Login");
 			startActivity(AccountHelper.getLoginIntent(this));
 			finish();
 			return;

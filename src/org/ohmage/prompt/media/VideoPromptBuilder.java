@@ -16,9 +16,9 @@
 package org.ohmage.prompt.media;
 
 import org.ohmage.Utilities.KVLTriplet;
+import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
-import org.ohmage.logprobe.Log;
 
 import java.util.ArrayList;
 
@@ -51,7 +51,7 @@ public class VideoPromptBuilder implements PromptBuilder {
 				try {
 					videoPrompt.setMaxDuration(Integer.valueOf(property.label));
 				} catch (NumberFormatException e) {
-					Log.e(TAG, "invalid video maximum duration value");
+					Log.e(TAG, "invalid video maximum duration value", e);
 				}
 			} 
 		}

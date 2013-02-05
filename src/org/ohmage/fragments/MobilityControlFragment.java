@@ -32,8 +32,7 @@ import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import edu.ucla.cens.mobility.glue.IMobility;
-import edu.ucla.cens.mobility.glue.MobilityInterface;
+import org.ohmage.mobility.glue.IMobility;
 
 import org.ohmage.MobilityHelper;
 import org.mobilizingcs.R;
@@ -43,6 +42,7 @@ import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.service.ProbeUploadService;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
+import org.ohmage.mobility.glue.MobilityInterface;
 import org.ohmage.ui.BaseActivity;
 
 public class MobilityControlFragment extends Fragment implements LoaderCallbacks<Cursor> {

@@ -26,7 +26,8 @@
 		<CheckBoxPreference
 			android:key="key_upload_probes_wifi_only"
 			android:summary="To reduce carrier data charges, don't upload over mobile networks. Depending on what probes are running, a lot of data can be generated."
-			android:title="Upload Probes via Wi-Fi" />
+			android:title="Upload Probes via Wi-Fi"
+			android:defaultValue="true" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Status" >

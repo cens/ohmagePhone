@@ -286,7 +286,6 @@ public class ResponseHistoryCalendarFragment extends FilterableFragment {
 
 			// ACCOUNT FOR SPACING
 
-			// Log.d(tag, "Current Day: " + getCurrentDayOfMonth());
 			String[] day_color = list.get(position).split("-");
 			String theday = day_color[0];
 

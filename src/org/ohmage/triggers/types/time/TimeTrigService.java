@@ -67,14 +67,14 @@ public class TimeTrigService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
-		Log.i(TAG, "TimeTriggerService: onStart");
+		Log.v(TAG, "TimeTriggerService: onStart");
 
 		String action = intent.getAction();
 		if(action == null ||
 				!intent.hasExtra(KEY_TRIG_ID) ||
 				!intent.hasExtra(KEY_TRIG_DESC)) {
 
-			Log.w(TAG, "TimeTriggerService: Started with invalid intent");
+			Log.e(TAG, "TimeTriggerService: Started with invalid intent");
 
 			releaseWakeLock();
 			return START_NOT_STICKY;
@@ -84,7 +84,7 @@ public class TimeTrigService extends Service {
 		String trigDesc = intent.getStringExtra(KEY_TRIG_DESC);		
 
 		if(action.equals(ACTION_HANDLE_TRIGGER)) {
-			Log.i(TAG, "TimeTriggerService: Handling trigger "
+			Log.v(TAG, "TimeTriggerService: Handling trigger "
 					+ trigId);
 
 			//Notify user
@@ -93,19 +93,19 @@ public class TimeTrigService extends Service {
 			setTrigger(trigId, trigDesc);
 		}
 		else if(action.equals(ACTION_SET_TRIGGER)) {
-			Log.i(TAG, "TimeTriggerService: Setting trigger "
+			Log.v(TAG, "TimeTriggerService: Setting trigger "
 					+ trigId);
 
 			setTrigger(trigId, trigDesc);
 		}
 		else if(action.equals(ACTION_REMOVE_TRIGGER)) {
-			Log.i(TAG, "TimeTriggerService: Removing trigger "
+			Log.v(TAG, "TimeTriggerService: Removing trigger "
 					+ trigId);
 
 			removeTrigger(trigId, trigDesc);
 		}
 		else if(action.equals(ACTION_RESET_TRIGGER)) {
-			Log.i(TAG, "TimeTriggerService: Resetting trigger "
+			Log.v(TAG, "TimeTriggerService: Resetting trigger "
 					+ trigId);
 
 			removeTrigger(trigId, trigDesc);
@@ -253,15 +253,14 @@ public class TimeTrigService extends Service {
 
 			Calendar target = getTriggerTimeForDay(trigId, trigDesc, i);
 			if(target != null) {
-				Log.i(TAG, "TimeTriggerService: Calculated target time: " +
+				Log.v(TAG, "TimeTriggerService: Calculated target time: " +
 						target.getTime().toString());
 
 				return target.getTimeInMillis();
 			}
 		}
 
-		Log.w(TAG, "TimeTriggerService: No valid day of " +
-				"the week found!");
+		Log.e(TAG, "TimeTriggerService: No valid day of the week found!");
 
 		//Must not reach here
 		return -1;
@@ -275,7 +274,7 @@ public class TimeTrigService extends Service {
 
 		if(pi != null) {
 			//remove the pending intent
-			Log.i(TAG, "TimeTriggerService: Canceling the pending" +
+			Log.v(TAG, "TimeTriggerService: Canceling the pending" +
 					" intent and alarm for id: " + trigId);
 
 			mAlarmMan.cancel(pi);
@@ -288,7 +287,7 @@ public class TimeTrigService extends Service {
 		//Cancel the pending intent and the existing alarm first
 		cancelAlarm(trigId, desc.toString());
 
-		Log.i(TAG, "TimeTriggerService: Attempting to set trigger " 
+		Log.v(TAG, "TimeTriggerService: Attempting to set trigger " 
 				+ trigId);
 
 		Intent i = createAlarmIntent(trigId, desc.toString());
@@ -297,7 +296,7 @@ public class TimeTrigService extends Service {
 
 		long alarmTime = getAlarmTimeInMillis(trigId, desc);
 		if(alarmTime == -1) {
-			Log.i(TAG, "TimeTriggerService: No valid time found for " 
+			Log.v(TAG, "TimeTriggerService: No valid time found for " 
 					+ trigId);
 			return;
 		}
@@ -309,13 +308,13 @@ public class TimeTrigService extends Service {
 		 */
 		long elapsedRT = alarmTime - System.currentTimeMillis();
 		if(elapsedRT <= 0) {
-			Log.i(TAG, "TimeTriggerService: negative elapsed realtime - "
+			Log.v(TAG, "TimeTriggerService: negative elapsed realtime - "
 					+ "alarm not setting: "
 					+ trigId);
 			return;
 		}
 
-		Log.i(TAG, "TimeTriggerService: Setting alarm for " + elapsedRT
+		Log.v(TAG, "TimeTriggerService: Setting alarm for " + elapsedRT
 				+ " millis into the future");
 
 		mAlarmMan.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
@@ -324,7 +323,7 @@ public class TimeTrigService extends Service {
 
 	private void setTrigger(int trigId, String trigDesc) {
 
-		Log.i(TAG, "TimeTriggerService: Attempting to set " +
+		Log.v(TAG, "TimeTriggerService: Attempting to set " +
 				"the trigger: " + trigId);
 
 		TimeTrigDesc desc = new TimeTrigDesc();
@@ -332,7 +331,7 @@ public class TimeTrigService extends Service {
 			setAlarm(trigId, desc);
 		}
 		else {
-			Log.i(TAG, "TimeTriggerService: Failed to parse" +
+			Log.e(TAG, "TimeTriggerService: Failed to parse" +
 					" trigger config: id = " + trigId);
 		}
 	}
@@ -354,11 +353,11 @@ public class TimeTrigService extends Service {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 
-			Log.i(TAG, "TimeTriggerService: Recieved broadcast");
+			Log.v(TAG, "TimeTriggerService: Recieved broadcast");
 
 			if(intent.getAction().equals(ACTION_TRIG_ALM)) {
 
-				Log.i(TAG, "TimeTriggerService: Handling alarm event");
+				Log.v(TAG, "TimeTriggerService: Handling alarm event");
 
 				acquireWakeLock(context);
 

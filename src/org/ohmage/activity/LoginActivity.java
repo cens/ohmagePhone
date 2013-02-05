@@ -50,9 +50,12 @@ import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.db.utils.Lists;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
+
+import java.util.ArrayList;
 
 public class LoginActivity extends FragmentActivity {
 
@@ -235,7 +238,7 @@ public class LoginActivity extends FragmentActivity {
                     if (ensureServerUrl()) {
                         // use the textbox to make a url and send the user on
                         // their way
-                        String url = mServerEdit.getText().toString() + "#register";
+                        String url = mServerEdit.getText().toString().split(" ")[0] + "#register";
                         Intent i = new Intent(Intent.ACTION_VIEW);
                         i.setData(Uri.parse(url));
                         startActivity(i);
@@ -367,8 +370,16 @@ public class LoginActivity extends FragmentActivity {
             }
             case DIALOG_SERVER_LIST: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                CharSequence[] servers = getResources().getStringArray(R.array.servers);
-                final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this,
+                ArrayList<String> servers = Lists.newArrayList(getResources().getStringArray(
+                        R.array.servers));
+
+                if (OhmageApplication.isDebugBuild()) {
+
+                    servers.add("https://test.ohmage.org/");
+                    servers.add("https://dev.ohmage.org/");
+                }
+
+                final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                         R.layout.simple_list_item_1, servers);
 
                 builder.setTitle(R.string.login_choose_server);
@@ -400,7 +411,7 @@ public class LoginActivity extends FragmentActivity {
 
         switch (response.getResult()) {
             case SUCCESS:
-                Log.i(TAG, "login success");
+                Log.v(TAG, "login success");
                 final String hashedPassword = response.getHashedPassword();
 
                 if (ConfigHelper.isSingleCampaignMode()) {
@@ -465,7 +476,7 @@ public class LoginActivity extends FragmentActivity {
         // BackgroundManager.initAuthComponents(this);
 
         if (mAppPrefs.isFirstRun()) {
-            Log.i(TAG, "this is the first run");
+            Log.v(TAG, "this is the first run");
 
             BackgroundManager.initComponents(this);
 
@@ -478,7 +489,7 @@ public class LoginActivity extends FragmentActivity {
             // showDialog(DIALOG_FIRST_RUN);
             mAppPrefs.setFirstRun(false);
         } else {
-            Log.i(TAG, "this is not the first run");
+            Log.v(TAG, "this is not the first run");
         }
 
         mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
@@ -514,18 +525,6 @@ public class LoginActivity extends FragmentActivity {
             mUsername = params[0];
             mPassword = params[1];
 
-            // if (mPassword.equals(DUMMY_PASSWORD)) {
-            // Log.i(TAG, "using stored hashed password");
-            // } else {
-            // Log.i(TAG, "password field modified, attempting to hash");
-            // try {
-            // mHashedPassword = BCrypt.hashpw(mPassword, BCRYPT_KEY);
-            // Log.i(TAG, "hash complete");
-            // } catch (Exception e) {
-            // Log.e(TAG, "unable to hash password");
-            // e.printStackTrace();
-            // }
-            // }
             return mApi.authenticate(ConfigHelper.serverUrl(), mUsername, mPassword,
                     OhmageApi.CLIENT_NAME);
         }
@@ -597,6 +596,15 @@ public class LoginActivity extends FragmentActivity {
             config.setAdminMode(true);
             config.setLogLevel("verbose");
             config.setLogAnalytics(true);
+            ((OhmageApplication) getApplication()).updateLogLevel();
+        } else if ("https://play.ohmage.org/".equals(server)) {
+            mPreferencesHelper.setShowFeedback(true);
+            mPreferencesHelper.setShowMobility(true);
+            mPreferencesHelper.setUploadResponsesWifiOnly(false);
+            mPreferencesHelper.setUploadProbesWifiOnly(true);
+            config.setAdminMode(true);
+            config.setLogLevel("error");
+            config.setLogAnalytics(false);
             ((OhmageApplication) getApplication()).updateLogLevel();
         }
     }

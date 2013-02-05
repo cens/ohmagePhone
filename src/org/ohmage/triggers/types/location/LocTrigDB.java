@@ -86,7 +86,7 @@ public class LocTrigDB {
 			mDb = mDbHelper.getWritableDatabase();
 		}
 		catch (SQLException e) {
-			Log.e(TAG, "DB: " + e.toString());
+			Log.e(TAG, "Error opening location trigger db", e);
 			return false;
 		}
 		return true;
@@ -283,7 +283,7 @@ public class LocTrigDB {
 
 		@Override
 		public void onCreate(SQLiteDatabase mDb) {
-			Log.i("LocationTriggers", "SQLiteOpenHelper: onCreate");
+			Log.v("LocationTriggers", "SQLiteOpenHelper: onCreate");
 		
 			//Category table
 			final String QUERY_CREATE_CATEGORY_TB = 

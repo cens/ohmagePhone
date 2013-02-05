@@ -1,11 +1,5 @@
 package org.ohmage.adapters;
 
-import org.ohmage.ConfigHelper;
-import org.mobilizingcs.R;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.Surveys;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -14,6 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.mobilizingcs.R;
+import org.ohmage.ConfigHelper;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
 
 public class ResponseListCursorAdapter extends CursorAdapter {
 

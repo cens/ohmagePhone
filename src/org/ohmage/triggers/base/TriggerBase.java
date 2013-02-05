@@ -50,7 +50,7 @@ public abstract class TriggerBase {
 	 * when a trigger of that types goes off. 
 	 */
 	public void notifyTrigger(Context context, int trigId) {
-		Log.i(TAG, "TriggerBase: notifyTrigger(" + trigId + ")");
+		Log.v(TAG, "TriggerBase: notifyTrigger(" + trigId + ")");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
@@ -84,7 +84,7 @@ public abstract class TriggerBase {
 	 */
 	public LinkedList<Integer> getAllTriggerIds(Context context, String campaignUrn) {
 	
-		Log.i(TAG, "TriggerBase: getAllTriggerIds()");
+		Log.v(TAG, "TriggerBase: getAllTriggerIds()");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
@@ -117,7 +117,7 @@ public abstract class TriggerBase {
 	 * count separately in the db.
 	 */
 	public LinkedList<Integer> getAllActiveTriggerIds(Context context, String campaignUrn) {
-		Log.i(TAG, "TriggerBase: getAllActiveTriggerIds()");
+		Log.v(TAG, "TriggerBase: getAllActiveTriggerIds()");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
@@ -161,7 +161,7 @@ public abstract class TriggerBase {
 	 * TODO: check if trigId corresponds to a trigger of this type
 	 */
 	public String getTrigger(Context context, int trigId) {
-		Log.i(TAG, "TriggerBase: getTrigger(" + trigId + ")");
+		Log.v(TAG, "TriggerBase: getTrigger(" + trigId + ")");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
@@ -196,7 +196,7 @@ public abstract class TriggerBase {
 	 * TODO: check if trigId corresponds to a trigger of this type
 	 */
 	public long getTriggerLatestTimeStamp(Context context, int trigId) {
-		Log.i(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId + ")");
+		Log.v(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId + ")");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
@@ -224,7 +224,7 @@ public abstract class TriggerBase {
 	 * this type
 	 */
 	public void deleteTrigger(Context context, int trigId) {
-		Log.i(TAG, "TriggerBase: deleteTrigger(" + trigId + ")");
+		Log.v(TAG, "TriggerBase: deleteTrigger(" + trigId + ")");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
@@ -256,7 +256,7 @@ public abstract class TriggerBase {
 	 * Save a new trigger description to the database.
 	 */
 	public void addNewTrigger(Context context, String campaignUrn, String trigDesc, String actDesc) {
-		Log.i(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigDesc + ")");
+		Log.v(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigDesc + ")");
 		
 		TriggerDB db = new TriggerDB(context);
 		db.open();
@@ -285,7 +285,7 @@ public abstract class TriggerBase {
 	 * Update the description of an existing trigger
 	 */
 	public void updateTrigger(Context context, int trigId, String trigDesc, String actDesc) {
-		Log.i(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId 
+		Log.v(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId 
 										+ ", " + trigDesc + ")");
 		
 		TriggerDB db = new TriggerDB(context);
@@ -307,7 +307,7 @@ public abstract class TriggerBase {
 	}	
 	
 	public void updateTrigger(Context context, int trigId, String trigDesc) {
-		Log.i(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId 
+		Log.v(TAG, "TriggerBase: getTriggerLatestTimeStamp(" + trigId 
 										+ ", " + trigDesc + ")");
 		
 		TriggerDB db = new TriggerDB(context);
@@ -333,7 +333,7 @@ public abstract class TriggerBase {
 	 * supposed to go off only once per day at most.
 	 */
 	public boolean hasTriggeredToday(Context context, int trigId) {
-		Log.i(TAG, "TriggerBase: hasTriggeredToday(" + trigId + ")");
+		Log.v(TAG, "TriggerBase: hasTriggeredToday(" + trigId + ")");
 		
 		long trigTS = getTriggerLatestTimeStamp(context, trigId);
 		

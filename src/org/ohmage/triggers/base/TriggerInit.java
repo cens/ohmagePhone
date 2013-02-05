@@ -45,7 +45,7 @@ public class TriggerInit {
 	
 	public static void initTriggers(Context context, String campaignUrn) {
 		
-		Log.i(TAG, "TriggerInit: Initializing triggers for " + campaignUrn);
+		Log.v(TAG, "TriggerInit: Initializing triggers for " + campaignUrn);
 		
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
@@ -74,7 +74,7 @@ public class TriggerInit {
 				String actDesc = c.getString(
  		   		  				 c.getColumnIndexOrThrow(TriggerDB.KEY_TRIG_ACTION_DESCRIPT));
 				
-				Log.i(TAG, "TriggerInit: Read from db: " + trigId +
+				Log.v(TAG, "TriggerInit: Read from db: " + trigId +
 								 ", " + trigDesc + ", " + actDesc);	
 				
 				TriggerBase trig = trigMap.getTrigger(trigType);
@@ -84,7 +84,7 @@ public class TriggerInit {
 					TriggerActionDesc aDesc = new TriggerActionDesc();
 					//Start only if it has a positive number of surveys
 					if(aDesc.loadString(actDesc) && aDesc.getCount() > 0) {
-						Log.i(TAG, "TriggerInit: Starting trigger: " + trigId + 
+						Log.v(TAG, "TriggerInit: Starting trigger: " + trigId + 
 										 ", " + trigDesc);
 						
 						trig.startTrigger(context, trigId, trigDesc);
@@ -93,7 +93,7 @@ public class TriggerInit {
 					//Restore the notification states for this trigger
 					TriggerRunTimeDesc desc = new TriggerRunTimeDesc();
 					if(desc.loadString(rtDesc) && desc.hasTriggerTimeStamp()) {
-						Log.i(TAG, "TriggerInit: Restoring notifications for " + trigId);
+						Log.v(TAG, "TriggerInit: Restoring notifications for " + trigId);
 						
 						Notifier.restorePastNotificationStates(context, trigId, notifDesc, 
 														desc.getTriggerTimeStamp());
@@ -116,7 +116,7 @@ public class TriggerInit {
 	 * Removes all triggers from the database after stopping them.
 	 */
 	public static boolean resetTriggersAndSettings(Context context, String campaignUrn) {
-		Log.i(TAG, "TriggerInit: Resetting all triggers for " + campaignUrn);
+		Log.v(TAG, "TriggerInit: Resetting all triggers for " + campaignUrn);
 		
 		TriggerTypeMap trigMap = new TriggerTypeMap();
 		
@@ -155,7 +155,7 @@ public class TriggerInit {
 	}
 	
 	public static boolean resetAllTriggersAndSettings(Context context) {
-		Log.i(TAG, "TriggerInit: Resetting all triggers");
+		Log.v(TAG, "TriggerInit: Resetting all triggers");
 		
 		DbHelper dbHelper = new DbHelper(context);
 		for (Campaign c : dbHelper.getReadyCampaigns()) {

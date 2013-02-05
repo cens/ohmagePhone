@@ -192,14 +192,14 @@ public class Notifier {
 	 */
 	public static void refreshNotification(Context context, String campaignUrn, boolean quiet) {
 		
-		Log.i(TAG, "Notifier: Refreshing notification, quiet = " + quiet);
+		Log.v(TAG, "Notifier: Refreshing notification, quiet = " + quiet);
 		
 		//Get the list of all the surveys active at the moment
 		Set<String> actSurveys = NotifSurveyAdaptor.getAllActiveSurveys(context, campaignUrn);
 		
 		//Remove the notification if there are no active surveys
 		if(actSurveys.size() == 0) {
-			Log.i(TAG, "Notifier: No active surveys");
+			Log.v(TAG, "Notifier: No active surveys");
 			hideNotification(context, campaignUrn);
 		}
 		else {
@@ -256,7 +256,7 @@ public class Notifier {
 						  		 int mins,
 						  		 Bundle extras) {
 		
-		Log.i(TAG, "Notifier: Setting alarm(" + trigId + 
+		Log.v(TAG, "Notifier: Setting alarm(" + trigId + 
 						 ", " + mins + ", " + action + ")");
 		
 		AlarmManager alarmMan = (AlarmManager) 
@@ -481,7 +481,7 @@ public class Notifier {
 	
 	private static void handleTriggerExpired(Context context, int trigId) {
 	
-		Log.i(TAG, "Notifier: Handling expiration alarm for: " 
+		Log.v(TAG, "Notifier: Handling expiration alarm for: " 
 				+ trigId);
 
 		OhmageAnalytics.trigger(context, TriggerStatus.IGNORE, trigId);

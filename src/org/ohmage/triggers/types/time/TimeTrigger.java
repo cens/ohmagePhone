@@ -85,7 +85,7 @@ public class TimeTrigger extends TriggerBase {
 			public void onDone(Context context, int trigId, 
 							   String trigDesc, String actDesc) {
 				
-				Log.i(TAG, "TimeTrigger: Saving new trigger: " + trigDesc);
+				Log.v(TAG, "TimeTrigger: Saving new trigger: " + trigDesc);
 				addNewTrigger(context, campaignUrn, trigDesc, actDesc);
 			}
 		});

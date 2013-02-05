@@ -56,609 +56,609 @@ import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 public class OhmageApi {
-    private static final String TAG = "OhmageApi";
+	private static final String TAG = "OhmageApi";
 
-    private static final String AUTHENTICATE_PATH = "app/user/auth";
-    private static final String AUTHENTICATE_TOKEN_PATH = "app/user/auth_token";
-    private static final String OBSERVER_UPLOAD_PATH = "app/stream/upload";
-    private static final String SURVEY_UPLOAD_PATH = "app/survey/upload";
-    private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
-    private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
-    private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
-    private static final String MOBILITY_AGGREGATE_READ_PATH = "app/mobility/aggregate/read";
-    public static final String IMAGE_READ_PATH = "app/image/read";
+	private static final String AUTHENTICATE_PATH = "app/user/auth";
+	private static final String AUTHENTICATE_TOKEN_PATH = "app/user/auth_token";
+	private static final String OBSERVER_UPLOAD_PATH = "app/stream/upload";
+	private static final String SURVEY_UPLOAD_PATH = "app/survey/upload";
+	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
+	private static final String CAMPAIGN_READ_PATH = "app/campaign/read";
+	private static final String SURVEYRESPONSE_READ_PATH = "app/survey_response/read";
+	private static final String MOBILITY_AGGREGATE_READ_PATH = "app/mobility/aggregate/read";
+	public static final String IMAGE_READ_PATH = "app/image/read";
 
-    public static final String CLIENT_NAME = "ohmage-android";
+	public static final String CLIENT_NAME = "ohmage-android";
 
-    private final Context mContext;
+	private final Context mContext;
 
-    public OhmageApi() {
-        mContext = OhmageApplication.getContext();
-    }
+	public OhmageApi() {
+		mContext = OhmageApplication.getContext();
+	}
 
-    public OhmageApi(Context context) {
-        mContext = context;
-    }
+	public OhmageApi(Context context) {
+		mContext = context;
+	}
 
-    public static enum Result {
+	public static enum Result {
         SUCCESS, FAILURE, HTTP_ERROR, INTERNAL_ERROR
-    }
+	}
 
-    public static String ERROR_AUTHENTICATION = "0200";
-    public static String ERROR_ACCOUNT_DISABLED = "0201";
+	public static String ERROR_AUTHENTICATION = "0200";
+	public static String ERROR_ACCOUNT_DISABLED = "0201";
 
-    public static class Response {
-        protected Result mResult;
-        protected List<String> mErrorCodes;
+	public static class Response {
+		protected Result mResult;
+		protected List<String> mErrorCodes;
 
-        public Response() {
-            // do-nothing constructor so we can create instances via reflection
-        }
+		public Response() {
+			// do-nothing constructor so we can create instances via reflection
+		}
 
-        public Response(Result result, String[] errorCodes) {
-            setResponseStatus(result, errorCodes);
-        }
+		public Response(Result result, String[] errorCodes) {
+		    setResponseStatus(result, errorCodes);
+		}
 
-        public void setResponseStatus(Result result, String[] errorCodes) {
-            mResult = result;
-            mErrorCodes = errorCodes == null ? new ArrayList<String>() : Arrays.asList(errorCodes);
-        }
+		public void setResponseStatus(Result result, String[] errorCodes) {
+			mResult = result;
+			mErrorCodes = errorCodes == null ? new ArrayList<String>() : Arrays.asList(errorCodes);
+		}
 
-        public Result getResult() {
-            return mResult;
-        }
+		public Result getResult() {
+			return mResult;
+		}
 
-        public List<String> getErrorCodes() {
-            return mErrorCodes;
-        }
+		public List<String> getErrorCodes() {
+			return mErrorCodes;
+		}
 
-        public void setResult(Result result) {
-            this.mResult = result;
-        }
+		public void setResult(Result result) {
+			this.mResult = result;
+		}
 
-        public void setErrorCodes(String[] errorCodes) {
-            this.mErrorCodes = Arrays.asList(errorCodes);
-        }
+		public void setErrorCodes(String[] errorCodes) {
+			this.mErrorCodes = Arrays.asList(errorCodes);
+		}
 
-        public void populateFromJSON(JSONObject rootJson) throws JSONException {
-            // do nothing here
-        }
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			// do nothing here
+		}
 
-        public void handleError(Context context) {
-            switch (mResult) {
-                case SUCCESS:
-                    NotificationHelper.hideAuthNotification(context);
-                    break;
-                case FAILURE:
-                    Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
+		public void handleError(Context context) {
+			switch(mResult) {
+			case SUCCESS:
+				NotificationHelper.hideAuthNotification(context);
+				break;
+			case FAILURE:
+				Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
 
-                    if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
-                        new UserPreferencesHelper(context).setUserDisabled(true);
-                    }
+				if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
+					new UserPreferencesHelper(context).setUserDisabled(true);
+				}
 
-                    if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
-                        UserPreferencesHelper user = new UserPreferencesHelper(context);
-                        NotificationHelper.showAuthNotification(context, user.getUsername());
-                    }
-                    break;
-                case HTTP_ERROR:
-                    Log.e(TAG, "Failed due to http error");
-                    break;
-                case INTERNAL_ERROR:
-                    Log.e(TAG, "Failed due to internal error");
-                    break;
-            }
-        }
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+				    UserPreferencesHelper user = new UserPreferencesHelper(context);
+					NotificationHelper.showAuthNotification(context, user.getUsername());
+				}
+				break;
+			case HTTP_ERROR:
+				Log.w(TAG, "Failed due to http error");
+				break;
+			case INTERNAL_ERROR:
+				Log.e(TAG, "Failed due to internal error");
+				break;
+			}
+		}
 
-        public boolean hasAuthError() {
-            for (String code : mErrorCodes) {
-                if (code.charAt(1) == '2') {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+		public boolean hasAuthError() {
+			for (String code : mErrorCodes) {
+				if (code.charAt(1) == '2') {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 
-    public static class AuthenticateResponse extends Response {
-        private String mHashedPassword;
-        private String mToken;
+	public static class AuthenticateResponse extends Response {
+		private String mHashedPassword;
+		private String mToken;
 
         public AuthenticateResponse(Result result, String hashedPassword, String token,
                 String[] errorCodes) {
-            super(result, errorCodes);
-            mHashedPassword = hashedPassword;
-            mToken = token;
-        }
+			super(result, errorCodes);
+			mHashedPassword = hashedPassword;
+			mToken = token;
+		}
 
-        public String getHashedPassword() {
-            return mHashedPassword;
-        }
+		public String getHashedPassword() {
+			return mHashedPassword;
+		}
 
-        public void setHashedPassword(String hashedPassword) {
-            this.mHashedPassword = hashedPassword;
-        }
+		public void setHashedPassword(String hashedPassword) {
+			this.mHashedPassword = hashedPassword;
+		}
 
-        public void setToken(String mToken) {
-            this.mToken = mToken;
-        }
+		public void setToken(String mToken) {
+			this.mToken = mToken;
+		}
 
-        public String getToken() {
-            return mToken;
-        }
+		public String getToken() {
+			return mToken;
+		}
 
-        @Override
-        public void populateFromJSON(JSONObject rootJson) throws JSONException {
-            if (rootJson.has("hashed_password"))
-                mHashedPassword = rootJson.getString("hashed_password");
+		@Override
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			if (rootJson.has("hashed_password"))
+				mHashedPassword = rootJson.getString("hashed_password");
 
-            if (rootJson.has("token"))
-                mToken = rootJson.getString("token");
-        }
+			if (rootJson.has("token"))
+				mToken = rootJson.getString("token");
+		}
 
-        @Override
-        public void handleError(Context context) {
-            switch (mResult) {
-                case SUCCESS:
-                    NotificationHelper.hideAuthNotification(context);
-                    break;
-                case FAILURE:
-                    Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
-                    break;
-                case HTTP_ERROR:
-                    Log.e(TAG, "Failed due to http error");
-                    break;
-                case INTERNAL_ERROR:
-                    Log.e(TAG, "Failed due to internal error");
-                    break;
+		@Override
+		public void handleError(Context context) {
+            switch(mResult) {
+            case SUCCESS:
+                NotificationHelper.hideAuthNotification(context);
+                break;
+            case FAILURE:
+                Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
+                break;
+            case HTTP_ERROR:
+                Log.w(TAG, "Failed due to http error");
+                break;
+            case INTERNAL_ERROR:
+                Log.e(TAG, "Failed due to internal error");
+                break;
             }
         }
-    }
+	}
 
-    public static class UploadResponse extends Response {
-        public UploadResponse(Result result, String[] errorCodes) {
-            super(result, errorCodes);
-        }
+	public static class UploadResponse extends Response {
+		public UploadResponse(Result result, String[] errorCodes) {
+			super(result, errorCodes);
+		}
 
-        @Override
-        public void populateFromJSON(JSONObject rootJson) {
-            // does nothing, since we don't use the response
-        }
-    }
+		@Override
+		public void populateFromJSON(JSONObject rootJson) {
+			// does nothing, since we don't use the response
+		}
+	}
 
-    public static class CampaignReadResponse extends Response {
-        protected JSONObject mData;
-        protected JSONObject mMetadata;
+	public static class CampaignReadResponse extends Response {
+		protected JSONObject mData;
+		protected JSONObject mMetadata;
 
-        public JSONObject getData() {
-            return mData;
-        }
+		public JSONObject getData() {
+			return mData;
+		}
 
-        public JSONObject getMetadata() {
-            return mMetadata;
-        }
+		public JSONObject getMetadata() {
+			return mMetadata;
+		}
 
-        public void setData(JSONObject data) {
-            this.mData = data;
-        }
+		public void setData(JSONObject data) {
+			this.mData = data;
+		}
 
-        public void setMetadata(JSONObject metadata) {
-            this.mMetadata = metadata;
-        }
+		public void setMetadata(JSONObject metadata) {
+			this.mMetadata = metadata;
+		}
 
-        @Override
-        public void populateFromJSON(JSONObject rootJson) throws JSONException {
-            if (rootJson.has("data"))
-                mData = rootJson.getJSONObject("data");
-            if (rootJson.has("metadata"))
-                mMetadata = rootJson.getJSONObject("metadata");
-        }
+		@Override
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			if (rootJson.has("data"))
+				mData = rootJson.getJSONObject("data");
+			if (rootJson.has("metadata"))
+				mMetadata = rootJson.getJSONObject("metadata");
+		}
 
-        @Override
-        public void handleError(Context context) {
-            super.handleError(context);
+		@Override
+		public void handleError(Context context) {
+			super.handleError(context);
 
-            switch (mResult) {
-                case FAILURE:
-                    if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
+			switch(mResult) {
+			case FAILURE:
+				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {
                         Toast.makeText(context, R.string.campaign_read_auth_error,
                                 Toast.LENGTH_SHORT).show();
-                    } else {
+				} else {
                         Toast.makeText(context, R.string.campaign_read_unexpected_response,
                                 Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case HTTP_ERROR:
+				}
+				break;
+			case HTTP_ERROR:
                     Toast.makeText(context, R.string.campaign_read_network_error,
                             Toast.LENGTH_SHORT).show();
-                    break;
-                case INTERNAL_ERROR:
+				break;
+			case INTERNAL_ERROR:
                     Toast.makeText(context, R.string.campaign_read_internal_error,
                             Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    }
+				break;
+			}
+		}
+	}
 
-    public static class CampaignXmlResponse extends Response {
-        protected String mXml;
+	public static class CampaignXmlResponse extends Response {
+		protected String mXml;
 
-        public String getXml() {
-            return mXml;
-        }
+		public String getXml() {
+			return mXml;
+		}
 
-        public void setXml(String xml) {
-            this.mXml = xml;
-        }
+		public void setXml(String xml) {
+			this.mXml = xml;
+		}
 
-        @Override
-        public void populateFromJSON(JSONObject rootJson) throws JSONException {
-            // do nothing, b/c there's no json data
-        }
-    }
+		@Override
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			// do nothing, b/c there's no json data
+		}
+	}
 
-    public static class SurveyReadResponse extends Response {
-        protected JSONArray mData;
-        protected JSONObject mMetadata;
+	public static class SurveyReadResponse extends Response {
+		protected JSONArray mData;
+		protected JSONObject mMetadata;
 
-        public JSONArray getData() {
-            return mData;
-        }
+		public JSONArray getData() {
+			return mData;
+		}
 
-        public JSONObject getMetadata() {
-            return mMetadata;
-        }
+		public JSONObject getMetadata() {
+			return mMetadata;
+		}
 
-        public void setData(JSONArray data) {
-            this.mData = data;
-        }
+		public void setData(JSONArray data) {
+			this.mData = data;
+		}
 
-        public void setMetadata(JSONObject metadata) {
-            this.mMetadata = metadata;
-        }
+		public void setMetadata(JSONObject metadata) {
+			this.mMetadata = metadata;
+		}
 
-        @Override
-        public void populateFromJSON(JSONObject rootJson) throws JSONException {
-            if (rootJson.has("data"))
-                mData = rootJson.getJSONArray("data");
-            if (rootJson.has("metadata"))
-                mMetadata = rootJson.getJSONObject("metadata");
-        }
-    }
+		@Override
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			if (rootJson.has("data"))
+				mData = rootJson.getJSONArray("data");
+			if (rootJson.has("metadata"))
+				mMetadata = rootJson.getJSONObject("metadata");
+		}
+	}
 
-    public class ImageReadResponse extends Response {
-        private byte[] data;
-        private String type;
+	public class ImageReadResponse extends Response {
+		private byte[] data;
+		private String type;
 
-        @Override
-        public void populateFromJSON(JSONObject rootJson) throws JSONException {
-            // do nothing, b/c there's no json data
-        }
+		@Override
+		public void populateFromJSON(JSONObject rootJson) throws JSONException {
+			// do nothing, b/c there's no json data
+		}
 
-        public void setData(byte[] data) {
-            this.data = data;
-        }
+		public void setData(byte[] data) {
+			this.data = data;
+		}
 
-        public byte[] getData() {
-            return data;
-        }
+		public byte[] getData() {
+			return data;
+		}
 
-        public String getType() {
-            return type;
-        }
+		public String getType() {
+			return type;
+		}
 
-        public void setType(String type) {
-            this.type = type;
-        }
-    }
+		public void setType(String type) {
+			this.type = type;
+		}
+	}
 
     public AuthenticateResponse authenticate(String serverUrl, String username, String password,
             String client) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + AUTHENTICATE_PATH;
+		String url = serverUrl + AUTHENTICATE_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", password));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", password));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
-            return parseAuthenticateResponse(doHttpPost(url, formEntity, GZIP));
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            return new AuthenticateResponse(Result.INTERNAL_ERROR, null, null, null);
-        }
-    }
+			return parseAuthenticateResponse(doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new AuthenticateResponse(Result.INTERNAL_ERROR, null, null, null);
+		}
+	}
 
     public AuthenticateResponse authenticateToken(String serverUrl, String username,
             String password, String client) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + AUTHENTICATE_TOKEN_PATH;
+		String url = serverUrl + AUTHENTICATE_TOKEN_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", password));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", password));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
-            return parseAuthenticateResponse(doHttpPost(url, formEntity, GZIP));
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            return new AuthenticateResponse(Result.INTERNAL_ERROR, null, null, null);
-        }
-    }
+			return parseAuthenticateResponse(doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new AuthenticateResponse(Result.INTERNAL_ERROR, null, null, null);
+		}
+	}
 
     public UploadResponse observerUpload(String serverUrl, String username, String hashedPassword,
             String client, String observerId, String observerVersion, String data) {
 
-        final boolean GZIP = true;
+		final boolean GZIP = true;
 
-        String url = serverUrl + OBSERVER_UPLOAD_PATH;
+		String url = serverUrl + OBSERVER_UPLOAD_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            nameValuePairs.add(new BasicNameValuePair("observer_id", observerId));
-            nameValuePairs.add(new BasicNameValuePair("observer_version", observerVersion));
-            nameValuePairs.add(new BasicNameValuePair("data", data));
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("observer_id", observerId));
+	        nameValuePairs.add(new BasicNameValuePair("observer_version", observerVersion));
+	        nameValuePairs.add(new BasicNameValuePair("data", data));
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
-            return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            return new UploadResponse(Result.INTERNAL_ERROR, null);
-        }
-    }
+			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
+		}
+	}
 
     public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword,
             String client, String campaignUrn, String campaignCreationTimestamp, String data) {
 
-        final boolean GZIP = true;
+		final boolean GZIP = true;
 
-        String url = serverUrl + SURVEY_UPLOAD_PATH;
+		String url = serverUrl + SURVEY_UPLOAD_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
             nameValuePairs.add(new BasicNameValuePair("campaign_creation_timestamp",
                     campaignCreationTimestamp));
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            nameValuePairs.add(new BasicNameValuePair("surveys", data));
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("surveys", data));
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
-            return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            return new UploadResponse(Result.INTERNAL_ERROR, null);
-        }
-    }
+			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
+		}
+	}
 
-    public static class MediaPart {
-        public static final int IMAGE_TYPE = 0;
-        public static final int VIDEO_TYPE = 1;
-        private final File mFile;
-        private final int mType;
+	public static class MediaPart {
+		public static final int IMAGE_TYPE = 0;
+		public static final int VIDEO_TYPE = 1;
+		private final File mFile;
+		private final int mType;
 
-        public MediaPart(File file, String type) {
-            mFile = file;
-            if (PromptType.photo.toString().equals(type))
-                mType = IMAGE_TYPE;
-            else if (PromptType.video.toString().equals(type))
-                mType = VIDEO_TYPE;
-            else
-                throw new RuntimeException("Invalid media type");
-        }
+		public MediaPart(File file, String type) {
+			mFile = file;
+			if(PromptType.photo.toString().equals(type))
+				mType = IMAGE_TYPE;
+			else if(PromptType.video.toString().equals(type))
+				mType = VIDEO_TYPE;
+			else
+				throw new RuntimeException("Invalid media type");
+		}
 
-        public FileBody getFileBody() {
-            return new FileBody(mFile, getFileType());
-        }
+		public FileBody getFileBody() {
+			return new FileBody(mFile, getFileType());
+		}
 
-        private String getFileType() {
-            switch (mType) {
-                case IMAGE_TYPE:
-                    return "image/jpeg";
-                case VIDEO_TYPE:
-                    return "video/mp4";
-            }
-            return null;
-        }
+		private String getFileType() {
+			switch(mType) {
+				case IMAGE_TYPE:
+					return "image/jpeg";
+				case VIDEO_TYPE:
+					return "video/mp4";
+			}
+			return null;
+		}
 
-        public String getName() {
-            return mFile.getName().split("\\.")[0];
-        }
-    }
+		public String getName() {
+			return mFile.getName().split("\\.")[0];
+		}
+	}
 
     public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword,
             String client, String campaignUrn, String campaignCreationTimestamp,
             String responseJson, ArrayList<MediaPart> media) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + SURVEY_UPLOAD_PATH;
+		String url = serverUrl + SURVEY_UPLOAD_PATH;
 
-        try {
-            MultipartEntity multipartEntity = new MultipartEntity();
-            multipartEntity.addPart("campaign_urn", new StringBody(campaignUrn));
+		try {
+			MultipartEntity multipartEntity = new MultipartEntity();
+			multipartEntity.addPart("campaign_urn", new StringBody(campaignUrn));
             multipartEntity.addPart("campaign_creation_timestamp", new StringBody(
                     campaignCreationTimestamp));
-            multipartEntity.addPart("user", new StringBody(username));
-            multipartEntity.addPart("password", new StringBody(hashedPassword));
-            multipartEntity.addPart("client", new StringBody(client));
-            multipartEntity.addPart("surveys", new StringBody(responseJson));
+			multipartEntity.addPart("user", new StringBody(username));
+			multipartEntity.addPart("password", new StringBody(hashedPassword));
+			multipartEntity.addPart("client", new StringBody(client));
+			multipartEntity.addPart("surveys", new StringBody(responseJson));
 
-            for (MediaPart m : media) {
-                multipartEntity.addPart(m.getName(), m.getFileBody());
-            }
+			for(MediaPart m : media) {
+				multipartEntity.addPart(m.getName(), m.getFileBody());
+			}
 
-            return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            return new UploadResponse(Result.INTERNAL_ERROR, null);
-        }
-    }
+			return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
+		}
+	}
 
     public UploadResponse mediaUpload(String serverUrl, String username, String hashedPassword,
             String client, String campaignUrn, String campaignCreationTimestamp, String uuid,
             File data) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + IMAGE_UPLOAD_PATH;
+		String url = serverUrl + IMAGE_UPLOAD_PATH;
 
-        try {
-            MultipartEntity multipartEntity = new MultipartEntity();
-            multipartEntity.addPart("campaign_urn", new StringBody(campaignUrn));
+		try {
+			MultipartEntity multipartEntity = new MultipartEntity();
+			multipartEntity.addPart("campaign_urn", new StringBody(campaignUrn));
             multipartEntity.addPart("campaign_creation_timestamp", new StringBody(
                     campaignCreationTimestamp));
-            multipartEntity.addPart("user", new StringBody(username));
-            multipartEntity.addPart("password", new StringBody(hashedPassword));
-            multipartEntity.addPart("client", new StringBody(client));
-            multipartEntity.addPart("id", new StringBody(uuid));
-            multipartEntity.addPart("data", new FileBody(data, "image/jpeg"));
+			multipartEntity.addPart("user", new StringBody(username));
+			multipartEntity.addPart("password", new StringBody(hashedPassword));
+			multipartEntity.addPart("client", new StringBody(client));
+			multipartEntity.addPart("id", new StringBody(uuid));
+			multipartEntity.addPart("data", new FileBody(data, "image/jpeg"));
 
-            return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            return new UploadResponse(Result.INTERNAL_ERROR, null);
-        }
-    }
+			return parseUploadResponse(url, doHttpPost(url, multipartEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			return new UploadResponse(Result.INTERNAL_ERROR, null);
+		}
+	}
 
     public CampaignReadResponse campaignRead(String serverUrl, String username,
             String hashedPassword, String client, String outputFormat, String campaignUrnList) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + CAMPAIGN_READ_PATH;
+		String url = serverUrl + CAMPAIGN_READ_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            nameValuePairs.add(new BasicNameValuePair("output_format", outputFormat));
-            if (campaignUrnList != null) {
-                nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrnList));
-            }
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("output_format", outputFormat));
+			if (campaignUrnList != null) {
+				nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrnList));
+			}
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
             return (CampaignReadResponse) parseReadResponse(url, doHttpPost(url, formEntity, GZIP),
                     CampaignReadResponse.class);
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            CampaignReadResponse candidate = new CampaignReadResponse();
-            candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
-            return candidate;
-        }
-    }
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			CampaignReadResponse candidate = new CampaignReadResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
+	}
 
     public CampaignXmlResponse campaignXmlRead(String serverUrl, String username,
             String hashedPassword, String client, String campaignUrn) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + CAMPAIGN_READ_PATH;
+		String url = serverUrl + CAMPAIGN_READ_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            nameValuePairs.add(new BasicNameValuePair("output_format", "xml"));
-            nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrn));
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("output_format", "xml"));
+			nameValuePairs.add(new BasicNameValuePair("campaign_urn_list", campaignUrn));
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
-            return parseXmlResponse(url, doHttpPost(url, formEntity, GZIP));
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            CampaignXmlResponse candidate = new CampaignXmlResponse();
-            candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
-            return candidate;
-        }
-    }
+			return parseXmlResponse(url, doHttpPost(url, formEntity, GZIP));
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			CampaignXmlResponse candidate = new CampaignXmlResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
+	}
 
-    private CampaignXmlResponse parseXmlResponse(String url, HttpResponse response) {
-        Result result = Result.HTTP_ERROR;
-        String[] errorCodes = null;
+	private CampaignXmlResponse parseXmlResponse(String url, HttpResponse response) {
+		Result result = Result.HTTP_ERROR;
+		String[] errorCodes = null;
 
-        CampaignXmlResponse candidate = new CampaignXmlResponse();
+		CampaignXmlResponse candidate = new CampaignXmlResponse();
 
-        if (response != null) {
-            Log.v(TAG, response.getStatusLine().toString());
-            if (response.getStatusLine().getStatusCode() == 200) {
-                HttpEntity responseEntity = response.getEntity();
-                if (responseEntity != null) {
-                    if (responseEntity.getContentType().getValue().equals("text/xml")) {
-                        try {
-                            String xml = parseContent(url, responseEntity);
-                            result = Result.SUCCESS;
-                            candidate.setXml(xml);
-                        } catch (ParseException e) {
-                            Log.e(TAG, "Problem reading response body", e);
-                            result = Result.INTERNAL_ERROR;
-                        } catch (IOException e) {
-                            Log.e(TAG, "Problem reading response body", e);
-                            result = Result.INTERNAL_ERROR;
-                        }
-                    } else if (responseEntity.getContentType().getValue().equals("text/html")) {
-                        try {
-                            JSONObject rootJson = parseContentToJSON(url, responseEntity);
-                            if (rootJson.getString("result").equals("success")) {
-                                result = Result.INTERNAL_ERROR;
-                                Log.e(TAG, "CampaignReadXml should never return json with SUCCESS!");
-                            } else {
-                                result = Result.FAILURE;
-                                JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
-                                int errorCount = errorsJsonArray.length();
-                                errorCodes = new String[errorCount];
-                                for (int i = 0; i < errorCount; i++) {
+		if (response != null) {
+			Log.v(TAG, response.getStatusLine().toString());
+			if (response.getStatusLine().getStatusCode() == 200) {
+				HttpEntity responseEntity = response.getEntity();
+				if (responseEntity != null) {
+					if (responseEntity.getContentType().getValue().equals("text/xml")) {
+						try {
+							String xml = parseContent(url, responseEntity);
+							result = Result.SUCCESS;
+							candidate.setXml(xml);
+						} catch (ParseException e) {
+							Log.e(TAG, "Problem reading response body", e);
+							result = Result.INTERNAL_ERROR;
+						} catch (IOException e) {
+							Log.e(TAG, "Problem reading response body", e);
+							result = Result.INTERNAL_ERROR;
+						}
+					} else if (responseEntity.getContentType().getValue().equals("text/html")) {
+						try {
+							JSONObject rootJson = parseContentToJSON(url, responseEntity);
+							if (rootJson.getString("result").equals("success")) {
+								result = Result.INTERNAL_ERROR;
+								Log.e(TAG, "CampaignReadXml should never return json with SUCCESS!");
+							} else {
+								result = Result.FAILURE;
+								JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+								int errorCount = errorsJsonArray.length();
+								errorCodes = new String[errorCount];
+								for (int i = 0; i < errorCount; i++) {
                                     errorCodes[i] = errorsJsonArray.getJSONObject(i).getString(
                                             "code");
-                                }
-                            }
-                        } catch (JSONException e) {
-                            Log.e(TAG, "Problem parsing response json", e);
-                            result = Result.INTERNAL_ERROR;
-                        } catch (IOException e) {
-                            Log.e(TAG, "Problem reading response body", e);
-                            result = Result.INTERNAL_ERROR;
-                        }
-                    } else {
-                        result = Result.INTERNAL_ERROR;
-                        Log.e(TAG, "Unexpected content type returned for CampaignXmlRead.");
-                    }
-                } else {
-                    Log.e(TAG, "No response entity in response");
-                    result = Result.HTTP_ERROR;
-                }
+								}
+							}
+						} catch (JSONException e) {
+							Log.e(TAG, "Problem parsing response json", e);
+							result = Result.INTERNAL_ERROR;
+						} catch (IOException e) {
+							Log.e(TAG, "Problem reading response body", e);
+							result = Result.INTERNAL_ERROR;
+						}
+					} else {
+						result = Result.INTERNAL_ERROR;
+						Log.e(TAG, "Unexpected content type returned for CampaignXmlRead.");
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+					result = Result.HTTP_ERROR;
+				}
 
-            } else {
+			} else {
                 Log.e(TAG,
                         "Returned status code: "
                                 + String.valueOf(response.getStatusLine().getStatusCode()));
-                result = Result.HTTP_ERROR;
-            }
+				result = Result.HTTP_ERROR;
+			}
 
-        } else {
-            Log.e(TAG, "Response is null");
-            result = Result.HTTP_ERROR;
-        }
+		} else {
+			Log.e(TAG, "Response is null");
+			result = Result.HTTP_ERROR;
+		}
 
-        candidate.setResponseStatus(result, errorCodes);
+		candidate.setResponseStatus(result, errorCodes);
 
-        return candidate;
-    }
-
-    /**
+		return candidate;
+	}
+	
+	/**
      * Returns survey responses for the specified campaign, with a number of
      * parameters to filter the result.<br>
      * <br>
@@ -669,11 +669,11 @@ public class OhmageApi {
      * Consult <a href=
      * "http://www.lecs.cs.ucla.edu/wikis/andwellness/index.php/AndWellness_Survey_Manipulation_2.4#Survey_Response__Read"
      * >the documentation on survey_response_read</a> for more information.
-     * 
-     * @param serverUrl the url of the server to contact for the list
+	 * 
+	 * @param serverUrl the url of the server to contact for the list
      * @param username username of a valid user; will constrain the result in
      *            keeping with the user's permissions
-     * @param hashedPassword hashed password of the aforementioned user
+	 * @param hashedPassword hashed password of the aforementioned user
      * @param client the client used to retrieve the results, generally
      *            "android"
      * @param campaignUrn the urn of the campaign for which to retrieve survey
@@ -696,54 +696,54 @@ public class OhmageApi {
      * @return an instance of type {@link ReadResponse} containing the resulting
      *         data; note that the Object returned by getData() is a JSONArray,
      *         not a JSONObject
-     */
-
-    /**
+	 */
+	
+	/**
      * Returns mobility aggregate responses for a specified date range chunked
      * by the given duration
-     * 
-     * @param serverUrl the url of the server to contact for the list
+	 * 
+	 * @param serverUrl the url of the server to contact for the list
      * @param username username of a valid user; will constrain the result in
      *            keeping with the user's permissions
-     * @param hashedPassword hashed password of the aforementioned user
+	 * @param hashedPassword hashed password of the aforementioned user
      * @param client the client used to retrieve the results, generally
      *            "android"
-     * @param startDate must be present
-     * @param endDate must be present and at most 10 days after start date
-     * @param days specifies the maximum size of a chunk in days
-     * @param listener
+	 * @param startDate must be present
+	 * @param endDate must be present and at most 10 days after start date
+	 * @param days specifies the maximum size of a chunk in days
+	 * @param listener
      * @return an instance of type {@link ReadResponse} containing the resulting
      *         data; note that the Object returned by getData() is a JSONObject
-     */
+	 */
     public Response mobilityAggregateRead(String serverUrl, String username, String hashedPassword,
             String client, String startDate, String endDate, int days,
-            StreamingResponseListener listener) {
+			StreamingResponseListener listener) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + MOBILITY_AGGREGATE_READ_PATH;
+		String url = serverUrl + MOBILITY_AGGREGATE_READ_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
-            nameValuePairs.add(new BasicNameValuePair("end_date", endDate));
-            nameValuePairs.add(new BasicNameValuePair("duration", String.valueOf(days)));
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
+			nameValuePairs.add(new BasicNameValuePair("end_date", endDate));
+			nameValuePairs.add(new BasicNameValuePair("duration", String.valueOf(days)));
 
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
-            return parseStreamingReadResponse(url, doHttpPost(url, formEntity, GZIP), listener);
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            SurveyReadResponse candidate = new SurveyReadResponse();
-            candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
-            return candidate;
-        }
-    }
+			return parseStreamingReadResponse(url, doHttpPost(url, formEntity, GZIP), listener);
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			SurveyReadResponse candidate = new SurveyReadResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
+	}
 
-    /**
+	/**
      * Returns survey responses for the specified campaign, with a number of
      * parameters to filter the result.<br>
      * <br>
@@ -754,11 +754,11 @@ public class OhmageApi {
      * Consult <a href=
      * "http://www.lecs.cs.ucla.edu/wikis/andwellness/index.php/AndWellness_Survey_Manipulation_2.4#Survey_Response__Read"
      * >the documentation on survey_response_read</a> for more information.
-     * 
-     * @param serverUrl the url of the server to contact for the list
+	 * 
+	 * @param serverUrl the url of the server to contact for the list
      * @param username username of a valid user; will constrain the result in
      *            keeping with the user's permissions
-     * @param hashedPassword hashed password of the aforementioned user
+	 * @param hashedPassword hashed password of the aforementioned user
      * @param client the client used to retrieve the results, generally
      *            "android"
      * @param campaignUrn the urn of the campaign for which to retrieve survey
@@ -781,46 +781,46 @@ public class OhmageApi {
      * @return an instance of type {@link ReadResponse} containing the resulting
      *         data; note that the Object returned by getData() is a JSONArray,
      *         not a JSONObject
-     */
+	 */
     public Response surveyResponseRead(String serverUrl, String username, String hashedPassword,
             String client, String campaignUrn, String userList, String surveyIdList,
             String columnList, String outputFormat, boolean returnID, String startDate,
             String endDate, StreamingResponseListener listener) {
 
-        final boolean GZIP = false;
+		final boolean GZIP = false;
 
-        String url = serverUrl + SURVEYRESPONSE_READ_PATH;
+		String url = serverUrl + SURVEYRESPONSE_READ_PATH;
 
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("user", username));
-            nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-            nameValuePairs.add(new BasicNameValuePair("client", client));
-            nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("user", username));
+			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
+			nameValuePairs.add(new BasicNameValuePair("client", client));
+			nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
             nameValuePairs.add(new BasicNameValuePair("user_list", (userList != null) ? userList
                     : "urn:ohmage:special:all"));
             nameValuePairs.add(new BasicNameValuePair("survey_id_list",
                     (surveyIdList != null) ? surveyIdList : "urn:ohmage:special:all"));
             nameValuePairs.add(new BasicNameValuePair("column_list",
                     (columnList != null) ? columnList : "urn:ohmage:special:all"));
-            nameValuePairs.add(new BasicNameValuePair("output_format", outputFormat));
-            nameValuePairs.add(new BasicNameValuePair("return_id", returnID ? "true" : "false"));
+			nameValuePairs.add(new BasicNameValuePair("output_format", outputFormat));
+			nameValuePairs.add(new BasicNameValuePair("return_id", returnID?"true":"false"));
 
-            if (startDate != null && endDate != null) {
-                nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
-                nameValuePairs.add(new BasicNameValuePair("end_date", endDate));
-            }
+			if (startDate != null && endDate != null) {
+				nameValuePairs.add(new BasicNameValuePair("start_date", startDate));
+				nameValuePairs.add(new BasicNameValuePair("end_date", endDate));
+			}
 
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
-            return parseStreamingReadResponse(url, doHttpPost(url, formEntity, GZIP), listener);
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while creating http entity", e);
-            SurveyReadResponse candidate = new SurveyReadResponse();
-            candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
-            return candidate;
-        }
-    }
+			return parseStreamingReadResponse(url, doHttpPost(url, formEntity, GZIP), listener);
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while creating http entity", e);
+			SurveyReadResponse candidate = new SurveyReadResponse();
+			candidate.setResponseStatus(Result.INTERNAL_ERROR, null);
+			return candidate;
+		}
+	}
 
     // same as above, except some parameters are substituted with their default
     // values.
@@ -831,11 +831,11 @@ public class OhmageApi {
             boolean returnID, StreamingResponseListener listener) {
         return surveyResponseRead(serverUrl, username, hashedPassword, client, campaignUrn, null,
                 null, columnList, outputFormat, returnID, null, null, listener);
-    }
+	}
 
     public static String imageReadUrl(String serverUrl, String username, String hashedPassword,
             String client, String campaignUrn, String owner, String id, String size) {
-        StringBuilder url = new StringBuilder(serverUrl + IMAGE_READ_PATH);
+		StringBuilder url = new StringBuilder(serverUrl + IMAGE_READ_PATH);
 
         url.append("?user=").append(username).append("&password=").append(hashedPassword)
                 .append("&client=").append(client).append("&campaign_urn=").append(campaignUrn)
@@ -843,32 +843,32 @@ public class OhmageApi {
         if (size != null)
             url.append("&size=").append(size);
 
-        return url.toString();
-    }
+		return url.toString();
+	}
 
-    public static String defaultImageReadUrl(String uuid, String campaign, String size) {
-        UserPreferencesHelper prefs = new UserPreferencesHelper(OhmageApplication.getContext());
-        String username = prefs.getUsername();
-        String hashedPassword = prefs.getHashedPassword();
+	public static String defaultImageReadUrl(String uuid, String campaign, String size) {
+		UserPreferencesHelper prefs = new UserPreferencesHelper(OhmageApplication.getContext());
+		String username = prefs.getUsername();
+		String hashedPassword = prefs.getHashedPassword();
         return OhmageApi.imageReadUrl(ConfigHelper.serverUrl(), username, hashedPassword,
                 CLIENT_NAME, campaign, username, uuid, size);
 
-    }
+	}
 
-    private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
+	private HttpResponse doHttpPost(String url, HttpEntity requestEntity, boolean gzip) {
 
-        HttpPost httpPost = new HttpPost(url);
+		HttpPost httpPost = new HttpPost(url);
 
-        if (gzip) {
-            try {
-                // InputStream is = requestEntity.getContent();
+		if (gzip) {
+			try {
+				//InputStream is = requestEntity.getContent();
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 // BufferedOutputStream zipper = new BufferedOutputStream(new
                 // GZIPOutputStream(baos));
-                GZIPOutputStream zipper = new GZIPOutputStream(baos);
+				GZIPOutputStream zipper = new GZIPOutputStream(baos);
 
-                requestEntity.writeTo(zipper);
+				requestEntity.writeTo(zipper);
 
                 /*
                  * byte [] data2 = new byte[(int)formEntity.getContentLength()];
@@ -884,277 +884,277 @@ public class OhmageApi {
                  * String(buffer, 0, len); Log.i("api", new String(buffer, 0,
                  * len)); } Log.i("api", fullString); is.close();
                  */
-                // zipper.flush();
-                // zipper.finish();
-                zipper.close();
+				//zipper.flush();
+				//zipper.finish();
+				zipper.close();
 
-                ByteArrayEntity byteEntity = new ByteArrayEntity(baos.toByteArray());
-                // baos.close();
-                byteEntity.setContentEncoding("gzip");
+				ByteArrayEntity byteEntity = new ByteArrayEntity(baos.toByteArray());
+				//baos.close();
+				byteEntity.setContentEncoding("gzip");
 
-                httpPost.setEntity(byteEntity);
-            } catch (IOException e) {
-                Log.e(TAG, "Unable to gzip entity, using unzipped entity", e);
-                httpPost.setEntity(requestEntity);
-            }
+				httpPost.setEntity(byteEntity);
+			} catch (IOException e) {
+				Log.e(TAG, "Unable to gzip entity, using unzipped entity", e);
+				httpPost.setEntity(requestEntity);
+			}
 
-        } else {
-            httpPost.setEntity(requestEntity);
-        }
+		} else {
+			httpPost.setEntity(requestEntity);
+		}
 
-        try {
-            Analytics.network(mContext, httpPost);
-            return OhmageApplication.getHttpClient().execute(httpPost);
-        } catch (ClientProtocolException e) {
-            Log.e(TAG, "ClientProtocolException while executing httpPost", e);
-            return null;
-        } catch (IOException e) {
-            Log.e(TAG, "IOException while executing httpPost", e);
-            return null;
-        }
-    }
+		try {
+			Analytics.network(mContext, httpPost);
+			return OhmageApplication.getHttpClient().execute(httpPost);
+		} catch (ClientProtocolException e) {
+			Log.e(TAG, "ClientProtocolException while executing httpPost", e);
+			return null;
+		} catch (IOException e) {
+			Log.e(TAG, "IOException while executing httpPost", e);
+			return null;
+		}
+	}
 
-    /**
-     * Parses and logs to the network analytics
+	/**
+	 * Parses and logs to the network analytics
      * 
-     * @param url
-     * @param entity
-     * @return
-     * @throws ParseException
-     * @throws IOException
-     */
-    private String parseContent(String url, HttpEntity entity) throws ParseException, IOException {
-        String content = EntityUtils.toString(entity);
-        Analytics.network(mContext, url, content.length());
-        return content;
-    }
+	 * @param url
+	 * @param entity
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	private String parseContent(String url, HttpEntity entity) throws ParseException, IOException {
+		String content = EntityUtils.toString(entity);
+		Analytics.network(mContext, url, content.length());
+		return content;
+	}
 
-    /**
-     * Parses the content to JSON
+	/**
+	 * Parses the content to JSON
      * 
-     * @param url
-     * @param entity
-     * @return
-     * @throws ParseException
-     * @throws IOException
-     * @throws JSONException
-     */
+	 * @param url
+	 * @param entity
+	 * @return
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
     private JSONObject parseContentToJSON(String url, HttpEntity entity) throws ParseException,
             IOException, JSONException {
-        JSONObject json = new JSONObject(parseContent(url, entity));
-        Log.v(TAG, "result: " + json.getString("result"));
-        return json;
-    }
+		JSONObject json = new JSONObject(parseContent(url, entity));
+		Log.v(TAG, "result: " + json.getString("result"));
+		return json;
+	}
 
-    private AuthenticateResponse parseAuthenticateResponse(HttpResponse response) {
-        Result result = Result.HTTP_ERROR;
-        String hashedPassword = null;
-        String authToken = null;
-        String[] errorCodes = null;
-        String url = "/" + AUTHENTICATE_PATH;
+	private AuthenticateResponse parseAuthenticateResponse(HttpResponse response) {
+		Result result = Result.HTTP_ERROR;
+		String hashedPassword = null;
+		String authToken = null;
+		String[] errorCodes = null;
+		String url = "/" + AUTHENTICATE_PATH;
 
-        if (response != null) {
-            Log.i(TAG, response.getStatusLine().toString());
-            if (response.getStatusLine().getStatusCode() == 200) {
-                HttpEntity responseEntity = response.getEntity();
-                if (responseEntity != null) {
-                    try {
-                        JSONObject rootJson = parseContentToJSON(url, responseEntity);
+		if (response != null) {
+			Log.v(TAG, response.getStatusLine().toString());
+			if (response.getStatusLine().getStatusCode() == 200) {
+				HttpEntity responseEntity = response.getEntity();
+				if (responseEntity != null) {
+					try {
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
-                        if (rootJson.getString("result").equals("success")) {
-                            result = Result.SUCCESS;
-                            if (rootJson.has("hashed_password")) {
-                                hashedPassword = rootJson.getString("hashed_password");
-                            }
+						if (rootJson.getString("result").equals("success")) {
+							result = Result.SUCCESS;
+							if (rootJson.has("hashed_password")) {
+								hashedPassword = rootJson.getString("hashed_password");
+							}
 
-                            if (rootJson.has("token")) {
-                                authToken = rootJson.getString("token");
-                            }
+							if (rootJson.has("token")) {
+								authToken = rootJson.getString("token");
+							}
 
-                        } else {
-                            result = Result.FAILURE;
-                            JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
-                            int errorCount = errorsJsonArray.length();
-                            errorCodes = new String[errorCount];
-                            for (int i = 0; i < errorCount; i++) {
-                                errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
-                            }
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Problem parsing response json", e);
-                        result = Result.INTERNAL_ERROR;
-                    } catch (IOException e) {
-                        Log.e(TAG, "Problem reading response body", e);
-                        result = Result.INTERNAL_ERROR;
-                    }
-                } else {
-                    Log.e(TAG, "No response entity in response");
-                    result = Result.HTTP_ERROR;
-                }
+						} else {
+							result = Result.FAILURE;
+							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+							int errorCount = errorsJsonArray.length();
+							errorCodes = new String[errorCount];
+							for (int i = 0; i < errorCount; i++) {
+								errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
+							}
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "Problem parsing response json", e);
+						result = Result.INTERNAL_ERROR;
+					} catch (IOException e) {
+						Log.e(TAG, "Problem reading response body", e);
+						result = Result.INTERNAL_ERROR;
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+					result = Result.HTTP_ERROR;
+				}
 
-            } else {
+			} else {
                 Log.e(TAG,
                         "Returned status code: "
                                 + String.valueOf(response.getStatusLine().getStatusCode()));
-                result = Result.HTTP_ERROR;
-            }
+				result = Result.HTTP_ERROR;
+			}
 
-        } else {
-            Log.e(TAG, "Response is null");
-            result = Result.HTTP_ERROR;
-        }
+		} else {
+			Log.e(TAG, "Response is null");
+			result = Result.HTTP_ERROR;
+		}
 
-        return new AuthenticateResponse(result, hashedPassword, authToken, errorCodes);
-    }
+		return new AuthenticateResponse(result, hashedPassword, authToken, errorCodes);
+	}
 
-    private UploadResponse parseUploadResponse(String url, HttpResponse response) {
-        Result result = Result.HTTP_ERROR;
-        String[] errorCodes = null;
+	private UploadResponse parseUploadResponse(String url, HttpResponse response) {
+		Result result = Result.HTTP_ERROR;
+		String[] errorCodes = null;
 
-        if (response != null) {
-            Log.i(TAG, response.getStatusLine().toString());
-            if (response.getStatusLine().getStatusCode() == 200) {
-                HttpEntity responseEntity = response.getEntity();
-                if (responseEntity != null) {
-                    try {
-                        JSONObject rootJson = parseContentToJSON(url, responseEntity);
+		if (response != null) {
+			Log.v(TAG, response.getStatusLine().toString());
+			if (response.getStatusLine().getStatusCode() == 200) {
+				HttpEntity responseEntity = response.getEntity();
+				if (responseEntity != null) {
+					try {
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
-                        if (rootJson.getString("result").equals("success")) {
-                            result = Result.SUCCESS;
-                        } else {
-                            Log.e(TAG, rootJson.toString());
-                            result = Result.FAILURE;
-                            JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
-                            int errorCount = errorsJsonArray.length();
-                            errorCodes = new String[errorCount];
-                            for (int i = 0; i < errorCount; i++) {
-                                errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
-                            }
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Problem parsing response json", e);
-                        result = Result.INTERNAL_ERROR;
-                    } catch (IOException e) {
-                        Log.e(TAG, "Problem reading response body", e);
-                        result = Result.INTERNAL_ERROR;
-                    }
-                } else {
-                    Log.e(TAG, "No response entity in response");
-                    result = Result.HTTP_ERROR;
-                }
+						if (rootJson.getString("result").equals("success")) {
+							result = Result.SUCCESS;
+						} else {
+						    Log.v(TAG, rootJson.toString());
+							result = Result.FAILURE;
+							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+							int errorCount = errorsJsonArray.length();
+							errorCodes = new String[errorCount];
+							for (int i = 0; i < errorCount; i++) {
+								errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
+							}
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "Problem parsing response json", e);
+						result = Result.INTERNAL_ERROR;
+					} catch (IOException e) {
+						Log.e(TAG, "Problem reading response body", e);
+						result = Result.INTERNAL_ERROR;
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+					result = Result.HTTP_ERROR;
+				}
 
-            } else {
+			} else {
                 Log.e(TAG,
                         "Returned status code: "
                                 + String.valueOf(response.getStatusLine().getStatusCode()));
-                result = Result.HTTP_ERROR;
-            }
+				result = Result.HTTP_ERROR;
+			}
 
-        } else {
-            Log.e(TAG, "Response is null");
-            result = Result.HTTP_ERROR;
-        }
+		} else {
+			Log.e(TAG, "Response is null");
+			result = Result.HTTP_ERROR;
+		}
 
-        return new UploadResponse(result, errorCodes);
-    }
+		return new UploadResponse(result, errorCodes);
+	}
 
     private Response parseReadResponse(String url, HttpResponse response,
             Class<? extends Response> outputType) {
-        Result result = Result.HTTP_ERROR;
-        String[] errorCodes = null;
+		Result result = Result.HTTP_ERROR;
+		String[] errorCodes = null;
 
         // the response object that will be returned; its type is decided by
         // outputType
         // it's also populated by a call to populateFromJSON() which transforms
         // the server response into the Response object
-        Response candidate;
+		Response candidate;
 
-        try {
-            candidate = outputType.newInstance();
+		try {
+			candidate = outputType.newInstance();
         } catch (Exception e) {
-            Log.e(TAG, "Problem instantiating response type", e);
-            return null;
-        }
+			Log.e(TAG, "Problem instantiating response type", e);
+			return null;
+		}
 
-        if (response != null) {
-            Log.i(TAG, response.getStatusLine().toString());
-            if (response.getStatusLine().getStatusCode() == 200) {
-                HttpEntity responseEntity = response.getEntity();
-                if (responseEntity != null) {
-                    try {
-                        JSONObject rootJson = parseContentToJSON(url, responseEntity);
+		if (response != null) {
+			Log.v(TAG, response.getStatusLine().toString());
+			if (response.getStatusLine().getStatusCode() == 200) {
+				HttpEntity responseEntity = response.getEntity();
+				if (responseEntity != null) {
+					try {
+						JSONObject rootJson = parseContentToJSON(url, responseEntity);
 
-                        if (rootJson.getString("result").equals("success")) {
-                            result = Result.SUCCESS;
+						if (rootJson.getString("result").equals("success")) {
+							result = Result.SUCCESS;
 
                             // allow the output type to determine how to extract
                             // data from the json collection
-                            candidate.populateFromJSON(rootJson);
+							candidate.populateFromJSON(rootJson);
 
-                        } else {
-                            result = Result.FAILURE;
-                            JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
-                            int errorCount = errorsJsonArray.length();
-                            errorCodes = new String[errorCount];
-                            for (int i = 0; i < errorCount; i++) {
-                                errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
-                            }
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Problem parsing response json", e);
-                        result = Result.INTERNAL_ERROR;
-                    } catch (IOException e) {
-                        Log.e(TAG, "Problem reading response body", e);
-                        result = Result.INTERNAL_ERROR;
-                    }
-                } else {
-                    Log.e(TAG, "No response entity in response");
-                    result = Result.HTTP_ERROR;
-                }
+						} else {
+							result = Result.FAILURE;
+							JSONArray errorsJsonArray = rootJson.getJSONArray("errors");
+							int errorCount = errorsJsonArray.length();
+							errorCodes = new String[errorCount];
+							for (int i = 0; i < errorCount; i++) {
+								errorCodes[i] = errorsJsonArray.getJSONObject(i).getString("code");
+							}
+						}
+					} catch (JSONException e) {
+						Log.e(TAG, "Problem parsing response json", e);
+						result = Result.INTERNAL_ERROR;
+					} catch (IOException e) {
+						Log.e(TAG, "Problem reading response body", e);
+						result = Result.INTERNAL_ERROR;
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+					result = Result.HTTP_ERROR;
+				}
 
-            } else {
+			} else {
                 Log.e(TAG,
                         "Returned status code: "
                                 + String.valueOf(response.getStatusLine().getStatusCode()));
-                result = Result.HTTP_ERROR;
-            }
+				result = Result.HTTP_ERROR;
+			}
 
-        } else {
-            Log.e(TAG, "Response is null");
-            result = Result.HTTP_ERROR;
-        }
+		} else {
+			Log.e(TAG, "Response is null");
+			result = Result.HTTP_ERROR;
+		}
 
-        candidate.setResponseStatus(result, errorCodes);
+		candidate.setResponseStatus(result, errorCodes);
 
-        return candidate;
-    }
+		return candidate;
+	}
 
-    /**
+	/**
      * Allows the implementor to consume a stream of JSON entities (at the
      * moment just objects, but hopefully more in the future).
-     * 
-     * @author faisal
-     */
-    public static abstract class StreamingResponseListener {
-        /**
+	 * 
+	 * @author faisal
+	 */
+	public static abstract class StreamingResponseListener {
+		/**
          * Called for each record found in the "data" section of a JSON
          * response.
          * 
-         * @param object the JsonNode which was read from the input stream
-         */
-        public abstract void readObject(JsonNode object);
+		 * @param object the JsonNode which was read from the input stream
+		 */
+		public abstract void readObject(JsonNode object);
 
-        /**
+		/**
          * Called once when the "result" section is read to indicate the status
          * of the call. Note that, depending on the ordering of fields in the
          * JSON (which is officially not defined by the spec), this may be
          * called after the "data" section is read.
-         * 
+		 * 
          * @param result a member of the Result enumeration, either
          *            Result.SUCCESS or an error
          * @param errorCodes a list of errors returned from the request, null if
          *            no errors occurred
-         */
+		 */
         public void readResult(Result result, String[] errorCodes) {
         }
 
@@ -1163,160 +1163,160 @@ public class OhmageApi {
          * caller to terminate the reading process prematurely by returning
          * false.
          * 
-         * @return true to continue returning results, false to stop.
-         */
+		 * @return true to continue returning results, false to stop.
+		 */
         public boolean isListening() {
             return true;
         }
 
-        /**
+		/** 
          * Called immediately before reading the first record. Note that this
          * will not be called if the "data" section is not present.
-         */
+		 */
         public void beforeRead() {
         }
 
-        /**
+		/** 
          * Called immediately after reading the last record. Note that this will
          * not be called if the "data" section is not present.
-         */
+		 */
         public void afterRead() {
-        }
+	}
     }
 
     private Response parseStreamingReadResponse(String url, HttpResponse response,
             StreamingResponseListener listener) {
-        Result result = Result.HTTP_ERROR;
-        String[] errorCodes = null;
+		Result result = Result.HTTP_ERROR;
+		String[] errorCodes = null;
 
         // the response object that will be returned; its type is decided by
         // outputType
         // it's also populated by a call to populateFromJSON() which transforms
         // the server response into the Response object
-        Response candidate = new Response();
-        CountingInputStream inputstream = null;
+		Response candidate = new Response();
+		CountingInputStream inputstream = null;
 
-        if (response != null) {
-            Log.i(TAG, response.getStatusLine().toString());
-            if (response.getStatusLine().getStatusCode() == 200) {
-                HttpEntity responseEntity = response.getEntity();
-                if (responseEntity != null) {
-                    try {
+		if (response != null) {
+			Log.v(TAG, response.getStatusLine().toString());
+			if (response.getStatusLine().getStatusCode() == 200) {
+				HttpEntity responseEntity = response.getEntity();
+				if (responseEntity != null) {
+					try {
                         // rather than use the regular json parsing library
                         // here,
-                        // we use jackson to parse the first part, then return a
-                        // reference to use for reading the data section
+						// we use jackson to parse the first part, then return a
+						// reference to use for reading the data section
 
                         // note that we open the inputstream rather than reading
                         // the whole thing to a string
-                        JsonFactory f = new MappingJsonFactory();
-                        inputstream = new CountingInputStream(responseEntity.getContent());
-                        JsonParser jp = f.createJsonParser(inputstream);
+						JsonFactory f = new MappingJsonFactory();
+						inputstream = new CountingInputStream(responseEntity.getContent());
+						JsonParser jp = f.createJsonParser(inputstream);
 
-                        // expecting: {result: "<status>", data: [{},{},{}...]}
+						// expecting: {result: "<status>", data: [{},{},{}...]}
 
                         // ensure the first token in the stream is the start of
                         // an object
-                        JsonToken cur = jp.nextToken();
-                        if (cur != JsonToken.START_OBJECT)
+						JsonToken cur = jp.nextToken();
+						if (cur != JsonToken.START_OBJECT)
                             throw new JSONException(
                                     "Top-level entity expected to be an object, found "
                                             + cur.toString());
 
                         // read through the top-level object one attribute at a
                         // time
-                        while (jp.nextToken() != JsonToken.END_OBJECT) {
-                            // get the field name first...
-                            String fieldName = jp.getCurrentName();
+						while (jp.nextToken() != JsonToken.END_OBJECT) {
+							// get the field name first...
+							String fieldName = jp.getCurrentName();
                             // ...and move on to the token representing the
                             // value
-                            cur = jp.nextToken();
+							cur = jp.nextToken();
 
-                            // dispatch on the field name
-                            if (fieldName.equalsIgnoreCase("result")) {
-                                // figure out the data in the result type
-                                JsonNode resultNode = jp.readValueAsTree();
+							// dispatch on the field name
+							if (fieldName.equalsIgnoreCase("result")) {
+								// figure out the data in the result type
+								JsonNode resultNode = jp.readValueAsTree();
 
-                                if (resultNode.getTextValue().equalsIgnoreCase("success")) {
-                                    result = Result.SUCCESS;
-                                } else {
-                                    result = Result.FAILURE;
-                                }
+								if (resultNode.getTextValue().equalsIgnoreCase("success")) {
+									result = Result.SUCCESS;
+								} else {
+									result = Result.FAILURE;
+								}
                             } else if (fieldName.equalsIgnoreCase("data")) {
-                                // ensure that the data section is an array
-                                if (cur != JsonToken.START_ARRAY)
+								// ensure that the data section is an array
+								if (cur != JsonToken.START_ARRAY)
                                     throw new JSONException(
                                             "Data section expected to be an array, found "
                                                     + cur.toString());
 
-                                // do pre-read init
-                                listener.beforeRead();
+								// do pre-read init
+								listener.beforeRead();
 
                                 // now that we know it's an array, read it off
                                 // and call the listener on each object read
                                 while (jp.nextToken() != JsonToken.END_ARRAY
                                         && listener.isListening()) {
-                                    listener.readObject(jp.readValueAsTree());
-                                }
+									listener.readObject(jp.readValueAsTree());
+								}
 
-                                // do post-read cleanup
-                                listener.afterRead();
+								// do post-read cleanup
+								listener.afterRead();
                             } else if (fieldName.equalsIgnoreCase("errors")) {
-                                // ensure that the errors section is an array
-                                if (cur != JsonToken.START_ARRAY)
+								// ensure that the errors section is an array
+								if (cur != JsonToken.START_ARRAY)
                                     throw new JSONException(
                                             "Errors section expected to be an array, found "
                                                     + cur.toString());
 
-                                List<String> errorList = new ArrayList<String>();
+								List<String> errorList = new ArrayList<String>();
 
-                                while (jp.nextToken() != JsonToken.END_ARRAY) {
+								while(jp.nextToken() != JsonToken.END_ARRAY) {
                                     // read off each of the errors and stick it
                                     // into the error array
-                                    JsonNode error = jp.readValueAsTree();
-                                    errorList.add(error.get("code").getTextValue());
-                                }
+									JsonNode error = jp.readValueAsTree();
+									errorList.add(error.get("code").getTextValue());
+								}
 
-                                errorCodes = errorList.toArray(new String[errorList.size()]);
-                            } else {
-                                // don't know what to do with this, just skip
-                                // it?
-                                Log.i(TAG, "Unprocessed field in response: " + fieldName);
-                                jp.skipChildren();
-                            }
-                        }
+								errorCodes = errorList.toArray(new String[errorList.size()]);
+							}
+							else {
+								// don't know what to do with this, just skip it?
+								Log.v(TAG, "Unprocessed field in response: " + fieldName);
+								jp.skipChildren();
+							}
+						}
 
-                        // and we're done!
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Problem parsing response json", e);
-                        result = Result.INTERNAL_ERROR;
-                    } catch (IOException e) {
-                        Log.e(TAG, "Problem reading response body", e);
-                        result = Result.INTERNAL_ERROR;
-                    }
-                } else {
-                    Log.e(TAG, "No response entity in response");
-                    result = Result.HTTP_ERROR;
-                }
+						// and we're done!
+					} catch (JSONException e) {
+						Log.e(TAG, "Problem parsing response json", e);
+						result = Result.INTERNAL_ERROR;
+					} catch (IOException e) {
+						Log.e(TAG, "Problem reading response body", e);
+						result = Result.INTERNAL_ERROR;
+					}
+				} else {
+					Log.e(TAG, "No response entity in response");
+					result = Result.HTTP_ERROR;
+				}
 
-            } else {
+			} else {
                 Log.e(TAG,
                         "Returned status code: "
                                 + String.valueOf(response.getStatusLine().getStatusCode()));
-                result = Result.HTTP_ERROR;
-            }
+				result = Result.HTTP_ERROR;
+			}
 
-        } else {
-            Log.e(TAG, "Response is null");
-            result = Result.HTTP_ERROR;
-        }
+		} else {
+			Log.e(TAG, "Response is null");
+			result = Result.HTTP_ERROR;
+		}
 
-        if (inputstream != null && result == Result.SUCCESS)
-            Analytics.network(mContext, url, inputstream.amountRead());
+		if(inputstream != null && result == Result.SUCCESS)
+			Analytics.network(mContext, url, inputstream.amountRead());
 
-        listener.readResult(result, errorCodes);
-        candidate.setResponseStatus(result, errorCodes);
+		listener.readResult(result, errorCodes);
+		candidate.setResponseStatus(result, errorCodes);
 
-        return candidate;
-    }
+		return candidate;
+	}
 }
