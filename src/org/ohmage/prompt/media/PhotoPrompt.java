@@ -69,10 +69,10 @@ public class PhotoPrompt extends MediaPrompt {
 		    if(mResolution != null) {
 		        // Give the image two tries to resize... and then we just use the
 		        // original size? there is not much we can do here
-		        if(!Utilities.resizeImage(getMedia(), mResolution)) {
+		        if(!Utilities.resizeImageFile(getMedia(), mResolution)) {
 		            System.gc();
 		            Log.e(TAG, "First image resize failed. Trying again.");
-		            if(!Utilities.resizeImage(getMedia(), mResolution)) {
+		            if(!Utilities.resizeImageFile(getMedia(), mResolution)) {
 		                Log.e(TAG, "Second image resize failed. Using original size image");
 		            }
 		        }
