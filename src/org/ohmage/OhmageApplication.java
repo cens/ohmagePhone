@@ -130,11 +130,6 @@ public class OhmageApplication extends Application {
             prefs.setLastVersionCode(currentVersionCode);
         }
 
-        // Make sure mobility is registered to collect points for the current
-        // user and it has the correct aggregate data
-        // This will happen if mobility is removed and reinstalled
-        MobilityHelper.ensureMobilityData(this);
-
         verifyState();
 
         // If they can't set a custom server, verify the server that is set is
@@ -240,9 +235,6 @@ public class OhmageApplication extends Application {
         } catch (IOException e) {
             Log.e(TAG, "Error deleting cache directory", e);
         }
-
-        // Reset mobility username
-        MobilityHelper.setUsername(this, null);
     }
 
     private static ImageLoader createImageLoader(Context context) {

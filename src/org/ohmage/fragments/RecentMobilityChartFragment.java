@@ -1,18 +1,6 @@
 package org.ohmage.fragments;
 
 
-import org.achartengine.GraphicalView;
-import org.ohmage.AccountHelper;
-import org.ohmage.MobilityHelper;
-import org.ohmage.R;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.Utilities;
-import org.ohmage.charts.Histogram;
-import org.ohmage.charts.HistogramBase.HistogramRenderer;
-import org.ohmage.loader.MobilityAggregateLoader;
-import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
-import org.ohmage.mobility.glue.MobilityInterface;
-
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,6 +12,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.achartengine.GraphicalView;
+import org.ohmage.AccountHelper;
+import org.ohmage.R;
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.Utilities;
+import org.ohmage.charts.Histogram;
+import org.ohmage.charts.HistogramBase.HistogramRenderer;
+import org.ohmage.loader.MobilityAggregateLoader;
+import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
+import org.ohmage.mobility.glue.MobilityInterface;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -99,7 +98,7 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 						MobilityInterface.KEY_DAY + " <= date('now', 'localtime')" + " AND " +
 						MobilityInterface.KEY_DAY + " > date('now', 'localtime', '-10 days') AND " +
 						MobilityInterface.KEY_USERNAME + "=?", new String[] {
-					MobilityHelper.getMobilityUsername(mAccount.getUsername())
+					mAccount.getUsername()
 				}, MobilityInterface.KEY_DAY + " DESC");
 			case LOAD_MOBILITY_BASELINE_AGGREGATE:
 				return new MobilityAggregateLoader(getActivity(),

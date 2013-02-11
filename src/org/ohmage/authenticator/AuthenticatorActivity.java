@@ -43,7 +43,6 @@ import android.widget.Toast;
 import org.ohmage.AccountHelper;
 import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
-import org.ohmage.MobilityHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi.AuthenticateResponse;
 import org.ohmage.OhmageApi.CampaignReadResponse;
@@ -230,9 +229,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                             CampaignReadResponse data) {
                         String urn = Campaign.getSingleCampaign(AuthenticatorActivity.this);
                         if (urn == null) {
-                            // Downloading the campaign failed so we should
-                            // reset the username and password
-                            MobilityHelper.setUsername(AuthenticatorActivity.this, null);
                             Toast.makeText(AuthenticatorActivity.this,
                                     R.string.login_error_downloading_campaign, Toast.LENGTH_LONG)
                                     .show();
@@ -521,9 +517,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         }
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
-
-        // Tell mobility what the username is
-        MobilityHelper.setUsername(this, mUsername);
 
         if (mAppPrefs.isFirstRun()) {
             Log.v(TAG, "this is the first run");

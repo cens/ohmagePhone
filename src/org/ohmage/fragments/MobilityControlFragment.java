@@ -32,18 +32,16 @@ import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import org.ohmage.mobility.glue.IMobility;
-
 import org.ohmage.AccountHelper;
-import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
+import org.ohmage.mobility.glue.IMobility;
+import org.ohmage.mobility.glue.MobilityInterface;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.service.ProbeUploadService;
-import org.ohmage.logprobe.Analytics;
-import org.ohmage.logprobe.Log;
-import org.ohmage.mobility.glue.MobilityInterface;
 import org.ohmage.ui.BaseActivity;
 
 public class MobilityControlFragment extends Fragment implements LoaderCallbacks<Cursor> {
@@ -325,7 +323,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
 		// Filters the user by username and login time (in case they just upgraded mobility)
 		final String filterUser = " (" + MobilityInterface.KEY_USERNAME + "=? OR " + MobilityInterface.KEY_TIME + " > " + loginTimestamp + ") ";
-		final String[] filterUserParams = new String[] { MobilityHelper.getMobilityUsername(username) };
+		final String[] filterUserParams = new String[] { username };
 
 		switch (id) {
 			case RECENT_LOADER:

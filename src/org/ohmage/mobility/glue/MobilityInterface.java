@@ -10,11 +10,6 @@ import android.widget.Toast;
 
 public class MobilityInterface
 {
-	public static final String ACTION_SET_USERNAME = "org.ohmage.mobility.glue.ACTION_SET_USERNAME";
-	public static final String ACTION_RECALCULATE_AGGREGATES = "org.ohmage.mobility.glue.ACTION_RECALCULATE_AGGREGATES";
-	public static final String EXTRA_USERNAME = "extra_username";
-	public static final String EXTRA_BACKDATE = "extra_backdate";
-
 	public static final String KEY_MODE = "mode";
 	public static final String KEY_ID = "id";
 	public static final String KEY_SPEED = "speed";
@@ -44,11 +39,13 @@ public class MobilityInterface
 	private static String [] columns = {KEY_ROWID, KEY_ID, KEY_MODE, KEY_SPEED, KEY_STATUS, KEY_LOC_TIMESTAMP, KEY_ACCURACY, KEY_PROVIDER, KEY_WIFIDATA, KEY_ACCELDATA, KEY_TIME, KEY_TIMEZONE, KEY_LATITUDE, KEY_LONGITUDE};
 	// Content provider strings
 	public static final String AUTHORITY = "org.ohmage.mobility.MobilityContentProvider";
+
 	public static final String PATH_MOBILITY = "mobility";
 	public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY + "/" + PATH_MOBILITY);
-
 	public static final String PATH_AGGREGATES = PATH_MOBILITY + "/" + "aggregates";
 	public static final Uri AGGREGATES_URI = Uri.parse("content://"+AUTHORITY + "/" + PATH_AGGREGATES);
+	public static final String PATH_AGGREGATES_ADD = PATH_AGGREGATES + "/" + "add";
+	public static final Uri AGGREGATES_ADD_URI = Uri.parse("content://"+AUTHORITY + "/" + PATH_AGGREGATES_ADD);
 
 	/**
 	 * Helper function to get cursor to data with only the last retrieved timestamp.

@@ -5,15 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
 import org.ohmage.AccountActivityHelper;
-import org.ohmage.AccountHelper;
-import org.ohmage.ConfigHelper;
-import org.ohmage.MobilityHelper;
 import org.ohmage.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.logprobe.Analytics;
@@ -98,25 +94,9 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 				UserPreferencesHelper.clearBaseLineTime(AdminSettingsActivity.this);
 				findPreference(KEY_BASELINE_START_TIME).setSummary(null);
 				findPreference(KEY_BASELINE_END_TIME).setSummary(null);
-				MobilityHelper.downloadAggregate(preference.getContext());
 				return true;
 			}
 		});
-
-		OnPreferenceChangeListener updateAggregates = new Preference.OnPreferenceChangeListener() {
-
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				if(newValue instanceof Long &&
-						preference.getSharedPreferences().getLong(preference.getKey(), 0) != ((Long)newValue).longValue()) {
-					MobilityHelper.downloadAggregate(preference.getContext());
-				}
-				return true;
-			};
-		};
-
-		findPreference(KEY_BASELINE_START_TIME).setOnPreferenceChangeListener(updateAggregates);
-		findPreference(KEY_BASELINE_END_TIME).setOnPreferenceChangeListener(updateAggregates);
 	}
 
 	@Override

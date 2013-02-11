@@ -1,12 +1,11 @@
 package org.ohmage.loader;
 
 
-import org.ohmage.MobilityHelper;
-import org.ohmage.mobility.glue.MobilityInterface;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.content.CursorLoader;
+
+import org.ohmage.mobility.glue.MobilityInterface;
 
 public class MobilityAggregateLoader extends CursorLoader {
 
@@ -24,9 +23,8 @@ public class MobilityAggregateLoader extends CursorLoader {
 				new String[] { MobilityInterface.KEY_MODE, "AVG(" + MobilityInterface.KEY_DURATION + ")", MobilityInterface.KEY_DAY },
 				MobilityInterface.KEY_DAY + " >= date('" + startTime/1000 + "', 'unixepoch', 'localtime')"
 						+ " AND " + MobilityInterface.KEY_DAY + " <= date('" + endTime/1000 + "', 'unixepoch', 'localtime')"
-						+ " AND " + MobilityInterface.KEY_USERNAME + "=?", new String[] {
-				MobilityHelper.getMobilityUsername(username)
-		}, MobilityInterface.KEY_DAY + " DESC");
+						+ " AND " + MobilityInterface.KEY_USERNAME + "=?", new String[] { username},
+						MobilityInterface.KEY_DAY + " DESC");
 	}
 
 	@Override
