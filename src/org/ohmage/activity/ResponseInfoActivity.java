@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -50,6 +50,7 @@ import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageMarkdown;
 import org.mobilizingcs.R;
+import org.ohmage.Utilities;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
@@ -57,15 +58,16 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Response;
+import org.ohmage.logprobe.Analytics;
+import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.service.SurveyGeotagService;
-import org.ohmage.logprobe.Analytics;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.ResponseActivityHelper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -474,7 +476,9 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 						if(file != null && file.exists()) {
 							try {
-								Bitmap img = BitmapFactory.decodeStream(new FileInputStream(file));
+								BitmapDrawable d = (BitmapDrawable) imageView.getDrawable();
+								if(d!=null) d.getBitmap().recycle();
+								Bitmap img = Utilities.decodeImage(file, 600);
 								imageView.setImageBitmap(img);
 								imageView.setOnClickListener(new View.OnClickListener() {
 
@@ -490,6 +494,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
+							} catch (IOException e) {
+								Log.e(TAG, "Error decoding image", e);
 							}
 						}
 

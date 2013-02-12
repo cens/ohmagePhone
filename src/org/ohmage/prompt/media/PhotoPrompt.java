@@ -39,14 +39,18 @@ public class PhotoPrompt extends MediaPrompt {
 
 	private static final String TAG = "PhotoPrompt";
 
-	String mResolution;
+	Integer mResolution = 800;
 
 	public PhotoPrompt() {
 		super();
 	}
 
 	public void setResolution(String res) {
-		this.mResolution = res;
+	    try{
+	        this.mResolution = Integer.parseInt(res);
+	    } catch(NumberFormatException e) {
+	        Log.e(TAG, "Error parsing resolution for image", e);
+	    }
 	}
 
 	/**
@@ -62,15 +66,17 @@ public class PhotoPrompt extends MediaPrompt {
 	public void handleActivityResult(Context context, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 
-			// Give the image two tries to resize... and then we just use the
-			// original size? there is not much we can do here
-			if(!Utilities.resizeImage(getMedia(), 800)) {
-				System.gc();
-				Log.e(TAG, "First image resize failed. Trying again.");
-				if(!Utilities.resizeImage(getMedia(), 800)) {
-					Log.e(TAG, "Second image resize failed. Using original size image");
-				}
-			}
+		    if(mResolution != null) {
+		        // Give the image two tries to resize... and then we just use the
+		        // original size? there is not much we can do here
+		        if(!Utilities.resizeImageFile(getMedia(), mResolution)) {
+		            System.gc();
+		            Log.e(TAG, "First image resize failed. Trying again.");
+		            if(!Utilities.resizeImageFile(getMedia(), mResolution)) {
+		                Log.e(TAG, "Second image resize failed. Using original size image");
+		            }
+		        }
+		    }
 
 			((SurveyActivity) context).reloadCurrentPrompt();
 		} 

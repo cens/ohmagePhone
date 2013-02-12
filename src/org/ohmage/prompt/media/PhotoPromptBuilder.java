@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage.prompt.media;
 
 import org.ohmage.Utilities.KVLTriplet;
@@ -21,36 +22,36 @@ import org.ohmage.prompt.PromptBuilder;
 
 import java.util.ArrayList;
 
-
 public class PhotoPromptBuilder implements PromptBuilder {
 
-	@Override
-	public void build(Prompt prompt, String id, String displayType,
-			String displayLabel, String promptText, String abbreviatedText,
-			String explanationText, String defaultValue, String condition,
-			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
+    @Override
+    public void build(Prompt prompt, String id, String displayType, String displayLabel,
+            String promptText, String abbreviatedText, String explanationText, String defaultValue,
+            String condition, String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 
-		PhotoPrompt photoPrompt = (PhotoPrompt) prompt;
-		photoPrompt.setId(id);
-		photoPrompt.setDisplayType(displayType);
-		photoPrompt.setDisplayLabel(displayLabel);
-		photoPrompt.setPromptText(promptText);
-		photoPrompt.setAbbreviatedText(abbreviatedText);
-		photoPrompt.setExplanationText(explanationText);
-		photoPrompt.setDefaultValue(defaultValue);
-		photoPrompt.setCondition(condition);
-		photoPrompt.setSkippable(skippable);
-		photoPrompt.setSkipLabel(skipLabel);
-		photoPrompt.setProperties(properties);
+        PhotoPrompt photoPrompt = (PhotoPrompt) prompt;
+        photoPrompt.setId(id);
+        photoPrompt.setDisplayType(displayType);
+        photoPrompt.setDisplayLabel(displayLabel);
+        photoPrompt.setPromptText(promptText);
+        photoPrompt.setAbbreviatedText(abbreviatedText);
+        photoPrompt.setExplanationText(explanationText);
+        photoPrompt.setDefaultValue(defaultValue);
+        photoPrompt.setCondition(condition);
+        photoPrompt.setSkippable(skippable);
+        photoPrompt.setSkipLabel(skipLabel);
+        photoPrompt.setProperties(properties);
 
-		for (KVLTriplet property : properties) {
-			if (property.key.equals("res")) {
-				photoPrompt.setResolution(property.label);
-			} 
-		}
+        if (properties != null) {
+            for (KVLTriplet property : properties) {
+                if (property.key.equals("maxDimension")) {
+                    photoPrompt.setResolution(property.label);
+                }
+            }
+        }
 
-		photoPrompt.clearTypeSpecificResponseData();
+        photoPrompt.clearTypeSpecificResponseData();
 
-	}
+    }
 
 }
