@@ -53,8 +53,8 @@
     <string name="login_network_error">Unable to communicate with server. Please try again later.</string>
     <string name="login_server_error">The server returned an unexpected response. Please try again later.</string>
     <string name="login_authenticating">Authenticating with %s servers...</string>
-    <string name="login_download_campaign">Downloading Campaign...</string>
-    <string name="login_error_downloading_campaign">Error downloading campaign</string>
+    <string name="login_download_campaign">Downloading Project...</string>
+    <string name="login_error_downloading_campaign">Error downloading project</string>
     <string name="login_username_title">Username:</string>
     <string name="login_password_title">Password:</string>
     <string name="login_server_title">Server:</string>
@@ -89,7 +89,7 @@
     <string name="admin_dialog_invalid_pin">Wrong pin code.</string>
 
     <!-- Filter -->
-    <string name="filter_all_campaigns">All Campaigns</string>
+    <string name="filter_all_campaigns">All Projects</string>
     <string name="filter_all_surveys">All Surveys</string>
     <string name="controls_filter_prev_description">Filter Previous Button</string>
     <string name="controls_filter_current_description">Filter Button</string>
@@ -97,7 +97,7 @@
 
     <!-- Titles -->
     <!-- main screen titles -->
-    <string name="title_campaigns">My Campaigns</string>
+    <string name="title_campaigns">My Projects</string>
     <string name="title_surveys">Surveys</string>
     <string name="title_response_history">Response History</string>
     <string name="title_upload_queue">Upload Queue</string>
@@ -106,20 +106,20 @@
     <string name="title_mobility">Mobility</string>
 
     <!-- subscreen titles -->
-    <string name="title_add_campaign">Add Campaign</string>
+    <string name="title_add_campaign">Add Project</string>
     <string name="title_response">Response</string>
-    <string name="title_campaign_info">Campaign Info</string>
+    <string name="title_campaign_info">Project Info</string>
     <string name="title_survey_info">Survey Info</string>
 
     <!-- Dashboard entries -->
-    <string name="dashboard_campaigns">Campaigns</string>
+    <string name="dashboard_campaigns">Projects</string>
     <string name="dashboard_surveys">Surveys</string>
     <string name="dashboard_response_history">Response\nHistory</string>
     <string name="dashboard_upload_queue">Upload\nQueue</string>
     <string name="dashboard_profile">Profile</string>
     <string name="dashboard_help">Help</string>
     <string name="dashboard_mobility">Mobility</string>
-    <string name="dashboard_campaigns_btn_description">Campaign List Dashboard Button</string>
+    <string name="dashboard_campaigns_btn_description">Project List Dashboard Button</string>
     <string name="dashboard_surveys_btn_description">Surveys Dashboard Button</string>
     <string name="dashboard_feedback_btn_description">Response History Dashboard Button</string>
     <string name="dashboard_upload_queue_btn_description">Upload Queue Dashboard Button</string>
@@ -132,12 +132,12 @@
     <string name="help_goto_dashboard">Dashboard</string>
     <string name="help_goto_filter">Filter</string>
     <string name="help_goto_list">List</string>
-    <string name="help_dashboard_header_text">The Dashboard makes it easy to get to campaigns, surveys, and your response history&lt;br/></string>
+    <string name="help_dashboard_header_text">The Dashboard makes it easy to get to projects, surveys, and your response history&lt;br/></string>
     <string name="help_dashboard_section">&lt;h2>&lt;img src=%1$s>%2$s&lt;/h2>&lt;p>%3$s&lt;/p></string>
-    <string name="help_dashboard_campaigns_title">Campaigns</string>
-    <string name="help_dashboard_campaigns_text">On the &lt;b>Campaign List&lt;/b> screen you can see the campaigns you are participating in (which have already been downloaded to the phone) as well as campaigns available for participation (which are on the server, available to be downloaded to the phone). You can access information about the campaigns you are participating in, as well as set up triggered reminders.</string>
+    <string name="help_dashboard_campaigns_title">Projects</string>
+    <string name="help_dashboard_campaigns_text">On the &lt;b>Project List&lt;/b> screen you can see the projects you are participating in (which have already been downloaded to the phone) as well as projects available for participation (which are on the server, available to be downloaded to the phone). You can access information about the projects in which you are participating as well as set up triggered reminders.</string>
     <string name="help_dashboard_surveys_title">Surveys</string>
-    <string name="help_dashboard_surveys_text">On the &lt;b>Survey List&lt;/b> screen you can see and take surveys from all the campaigns you are participating in.</string>
+    <string name="help_dashboard_surveys_text">On the &lt;b>Survey List&lt;/b> screen you can see and take surveys from all the projects in which you are participating.</string>
     <string name="help_dashboard_response_history_title">Response History</string>
     <string name="help_dashboard_response_history_text">On the &lt;b>Response History&lt;/b> screen you can see calendar and map views of your response history.</string>
     <string name="help_dashboard_upload_queue_title">Upload Queue</string>
@@ -180,10 +180,10 @@
     <string name="upload_queue_response_waiting_for_gps">This response is currently waiting for a GPS location before it is uploaded. You can force the response to upload now or continue to wait for the location.</string>
     <string name="upload_queue_response_error">An error occurred while trying attempting to upload this response.</string>
     <string name="upload_queue_auth_error">Unable to authenticate. Please update your credentials via the Profile screen.</string>
-    <string name="upload_queue_campaign_no_exist">The campaign this survey response belongs to no longer exists.</string>
-    <string name="upload_queue_campaign_out_of_date">The campaign this survey response belongs to is out of date.</string>
-    <string name="upload_queue_campaign_stopped">The campaign this survey response belongs to is no longer running.</string>
-    <string name="upload_queue_invalid_user_role">Your user role does not permit you to upload responses for this campaign.</string>
+    <string name="upload_queue_campaign_no_exist">The project to which this survey response belongs no longer exists.</string>
+    <string name="upload_queue_campaign_out_of_date">The project to which this survey response belongs is out of date.</string>
+    <string name="upload_queue_campaign_stopped">The project to which this survey response belongs is no longer running.</string>
+    <string name="upload_queue_invalid_user_role">Your user role does not permit you to upload responses for this project.</string>
     <string name="upload_queue_network_error">Unable to connect to the server.</string>
     <string name="upload_queue_upload_all">Upload All</string>
     <string name="upload_button_description">Upload Button</string>
@@ -205,13 +205,13 @@
 
     <!-- Campaign List -->
     <string name="campaign_list_download_action_invalid">The Download action should not be exposed in this activity!</string>
-    <string name="campaign_list_campaign_unavailable">This campaign is unavailable.</string>
-    <string name="campaign_list_campaign_stopped">This campaign is stopped.</string>
-    <string name="campaign_list_campaign_out_of_date">This campaign is out of date</string>
+    <string name="campaign_list_campaign_unavailable">This project is unavailable.</string>
+    <string name="campaign_list_campaign_stopped">This project is stopped.</string>
+    <string name="campaign_list_campaign_out_of_date">This project is out of date</string>
     <string name="campaign_list_campaign_invalid_user_role">Invalid user role.</string>
-    <string name="campaign_list_campaign_no_exist">This campaign no longer exists.</string>
-    <string name="campaign_list_empty">You are not participating in any campaigns.\n\nHit the + icon on the top right to view and download available campaigns.</string>
-    <string name="campaign_add_list_empty">No campaigns available at this time.</string>
+    <string name="campaign_list_campaign_no_exist">This project no longer exists.</string>
+    <string name="campaign_list_empty">You are not participating in any projects.\n\nHit the + icon on the top right to view and download available projects.</string>
+    <string name="campaign_add_list_empty">No projects available at this time.</string>
 	<string name="campaign_list_add_action_button_description">Add Action Button</string>
 	<string name="campaign_list_refresh_action_button_description">Refresh Action Button</string>
 	<string name="campaign_list_item_action_button_error_description">List Item Action Button (Error)</string>
@@ -239,10 +239,10 @@
     <string name="preferences_querytest_title">Test Queries (DEBUG)</string>
     <string name="preferences_querytest_summary">Run queries against the content provider and view the results</string>
     <string name="admin_settings">Admin Settings</string>
-    <string name="preferences_no_single_campaign">Invalid campaign setup</string>
-    <string name="preferences_single_campaign_status">Single-Campaign Mode</string>
+    <string name="preferences_no_single_campaign">Invalid project setup</string>
+    <string name="preferences_single_campaign_status">Single-Project Mode</string>
     <string name="unknown">Unknown</string>
-    <string name="preferences_muli_campaign_status">Multi-Campaign Mode</string>
+    <string name="preferences_muli_campaign_status">Multi-Project Mode</string>
     <string name="shown">Shown</string>
     <string name="hidden">Hidden</string>
     <string name="preferences_response_history_title">Response History</string>
@@ -255,7 +255,7 @@
     <string name="preferences_ohamage_version_title">Version</string>
 
     <!-- Campaign Info -->
-    <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>
+    <string name="campaign_info_remove_text">Are you sure that you want to remove this project?</string>
     <string name="campaign_info_view_surveys">View Surveys</string>
     <string name="campaign_info_participate">Participate</string>
     <string name="campaign_info_privacy_title">privacy</string>
@@ -308,13 +308,13 @@
     <string name="survey_info_take_survey">Take Survey</string>
     <string name="survey_info_error_test">this is test error text</string>
     <string name="survey_info_description_test">this is a test description</string>
-    <string name="survey_info_campaign_urn_title">campaign\nurn</string>
+    <string name="survey_info_campaign_urn_title">project\nurn</string>
     <string name="survey_info_status_title">status</string>
     <string name="survey_info_responses_title">responses</string>
     <string name="survey_info_last_response_title">last\nresponse</string>
     <string name="survey_info_triggers_title">reminders</string>
     <string name="survey_info_entity_action_button_take_survey_description">Take Survey Entity Button</string>
-    <string name="survey_info_campaign_urn_header_description">Campaign Urn Info Button</string>
+    <string name="survey_info_campaign_urn_header_description">Project Urn Info Button</string>
     <string name="survey_info_status_header_description">Status Info Button</string>
     <string name="survey_info_responses_header_description">Responses Info Button</string>
     <string name="survey_info_last_response_header_description">Last Response Info Button</string>
@@ -335,11 +335,11 @@
     <!-- Survey List -->
     <string name="surveys_all">@string/all</string>
     <string name="surveys_pending">Pending</string>
-    <string name="surveys_empty_all">There are no surveys to display.\n\nAfter selecting campaigns to participate in, you can view a list of their surveys here.</string>
-    <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey reminders via each campaign\'s information screen.</string>
+    <string name="surveys_empty_all">There are no surveys to display.\n\nAfter selecting projects to participate in, you can view a list of their surveys here.</string>
+    <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey reminders via each project\'s information screen.</string>
     <string name="surveys_empty_pending_single">You have no pending surveys.\n\nYou can manage survey reminders via the Settings on the Dashboard.</string>
-    <string name="single_campaign_error">There is a problem with the campaign setup. \n\nIf the problem continues, please contact an Administrator.</string>
-	<string name="survey_list_campaign_error">The campaign this survey belongs to is stopped, or otherwise unavailable. Please make sure the campaign it belongs to is up to date.</string>
+    <string name="single_campaign_error">There is a problem with the project setup. \n\nIf the problem continues, please contact an Administrator.</string>
+	<string name="survey_list_campaign_error">The project this survey belongs to is stopped, or otherwise unavailable. Please make sure the project it belongs to is up to date.</string>
 	<string name="survey_list_item_action_button_description">List Item Action Button (Take Survey)</string>
 	<string name="survey_list_item_action_button_disabled_description">List Item Action Button (Disabled)</string>
 	<string name="survey_list_item_action_button_pending_description">List Item Action Button (Pending)</string>
@@ -356,18 +356,18 @@
     <string name="campaign_status_unknown">unknown status</string>
 
     <!-- Campaign Read -->
-    <string name="campaign_read_auth_error">Authentication error while trying to read campaigns from server.</string>
-    <string name="campaign_read_unexpected_response">Unexpected response received from server while trying to read campaigns from server.</string>
-    <string name="campaign_read_network_error">Network error occurred while trying to read campaigns from server.</string>
-    <string name="campaign_read_internal_error">Internal error occurred while trying to read campaigns from server.</string>
-    <string name="campaign_xml_auth_error">Authentication error while trying to download campaign xml.</string>
-    <string name="campaign_xml_unexpected_response">Unexpected response received from server while trying to download campaign xml.</string>
-    <string name="campaign_xml_network_error">Network error occurred while trying to download campaign xml.</string>
-    <string name="campaign_xml_internal_error">Internal error occurred while trying to download campaign xml.</string>
+    <string name="campaign_read_auth_error">Authentication error while trying to read projects from server.</string>
+    <string name="campaign_read_unexpected_response">Unexpected response received from server while trying to read projects from server.</string>
+    <string name="campaign_read_network_error">Network error occurred while trying to read projects from server.</string>
+    <string name="campaign_read_internal_error">Internal error occurred while trying to read projects from server.</string>
+    <string name="campaign_xml_auth_error">Authentication error while trying to download project xml.</string>
+    <string name="campaign_xml_unexpected_response">Unexpected response received from server while trying to download project xml.</string>
+    <string name="campaign_xml_network_error">Network error occurred while trying to download project xml.</string>
+    <string name="campaign_xml_internal_error">Internal error occurred while trying to download project xml.</string>
 
     <!-- Single Campaign Mode -->
-    <string name="single_campaign_changed_title">Campaign changed</string>
-    <string name="single_campaign_changed_message">The campaign you were participating in has changed. Any responses and charts associated with the old campaign have been removed.</string>
+    <string name="single_campaign_changed_title">Project changed</string>
+    <string name="single_campaign_changed_message">The project in which you were participating has changed. Any responses and charts associated with the old project have been removed.</string>
 
     <!-- Image Loader Activity -->
     <string name="image_loader_failed">There was a problem downloading the image. Please try again later.</string>

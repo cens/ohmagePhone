@@ -3,35 +3,35 @@
 	<!-- html-formatted errorbox messages -->
 	<string name="campaign_info_errorbox_stopped">
 		<![CDATA[
-		<b>warning:</b> this campaign is <b>stopped</b>, meaning that you can no longer submit surveys for it.
+		<b>warning:</b> this project is <b>stopped</b>, meaning that you can no longer submit surveys for it.
 		]]>
 	</string>
 	
 	<string name="campaign_info_errorbox_invalid_role">
 		<![CDATA[
-		<b>warning:</b> you don\'t seem to have sufficient permission to access this campaign at this time.
+		<b>warning:</b> you don\'t seem to have sufficient permission to access this project at this time.
 		]]>
 	</string>
 	
 	<string name="campaign_info_errorbox_outofdate">
 		<![CDATA[
-		<b>warning:</b> this campaign is <b>out of date</b>.
+		<b>warning:</b> this project is <b>out of date</b>.
 		]]>
 	</string>
 	
 	<string name="campaign_info_errorbox_no_exist">
 		<![CDATA[
-		<b>warning:</b> this campaign has been <b>deleted</b> on the server; refreshing will remove this campaign.
+		<b>warning:</b> this project has been <b>deleted</b> on the server; refreshing will remove this project.
 		]]>
 	</string>
 	
 	<!-- explanatory text sections -->
 	<string name="campaign_info_privacy_details">
 		<![CDATA[
-		The <b>privacy</b> of the campaign determines who can view the shared data associated with the campaign.
+		The <b>privacy</b> of the project determines who can view the shared data associated with the project.
 		Remember, all data is private until you mark it shared on-line.<br /><br />
 
-		A campaign may be in one of two privacy states:<br />
+		A project may be in one of two privacy states:<br />
 		* <b>private</b>: only you and the administrator can see your data, even if it is shared.<br />
 		* <b>shared</b>: administrators, authors and analysis can see your shared data.<br />
 		]]>
@@ -39,32 +39,32 @@
 
 	<string name="campaign_info_status_details">
 		<![CDATA[
-		The above displays the status of the campaign. <br /><br />
+		The above displays the status of the project. <br /><br />
 
-		Normally, you are either <b>participating</b> in a campaign, meaning the associated surveys are available
-		for you to complete on your phone, or the campaign is <b>available for participation</b> meaning that you
-		can download the campaign and its surveys to your phone. Any other status indicates that there\'s a problem with the campaign.
+		Normally, you are either <b>participating</b> in a project, meaning the associated surveys are available
+		for you to complete on your phone, or the project is <b>available for participation</b> meaning that you
+		can download the project and its surveys to your phone. Any other status indicates that there\'s a problem with the project.
 		]]>
 	</string>
 	
 	<string name="survey_info_status_details">
 		<![CDATA[
-		The above displays the status of the campaign to which this survey belongs.<br /><br />
+		The above displays the status of the project to which this survey belongs.<br /><br />
 
-		Normally, this is <b>participating</b>, meaning that you can submit a survey for the campaign.
-		Any other status indicates that there\'s a problem with the campaign.
+		Normally, this is <b>participating</b>, meaning that you can submit a survey for the project.
+		Any other status indicates that there\'s a problem with the project.
 		]]>
 	</string>
 
 	<string name="survey_info_campaign_urn_details">
 		<![CDATA[
-		The above displays the urn of the campaign to which this survey belongs.
+		The above displays the urn of the project to which this survey belongs.
 		]]>
 	</string>
 
 	<string name="campaign_info_responses_details">
 		<![CDATA[
-		The above count is the number of responses you have submitted for all surveys in this campaign.
+		The above count is the number of responses you have submitted for all surveys in this project.
 		]]>
 	</string>
 	
@@ -82,7 +82,7 @@
 	
 	<string name="campaign_info_triggers_details">
 		<![CDATA[
-		The above count is the number of reminders configured for this campaign.<br /><br />
+		The above count is the number of reminders configured for this project.<br /><br />
 		
 		Tap the bell icon in the action bar to configure the reminders.
 		]]>

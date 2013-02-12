@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceScreen android:title="Campaign Management">
+	<PreferenceScreen android:title="Project Management">
 
 		<intent
 			android:action="android.intent.action.VIEW"
@@ -10,7 +10,7 @@
 
 	<CheckBoxPreference
 		android:key="key_single_campaign_mode"
-		android:title="Single Campaign Mode" />
+		android:title="Single Project Mode" />
 
 	<PreferenceCategory android:title="User Action Management">
 
