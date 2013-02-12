@@ -39,7 +39,7 @@ public class PhotoPrompt extends MediaPrompt {
 
 	private static final String TAG = "PhotoPrompt";
 
-	Integer mResolution = null;
+	Integer mResolution = 800;
 
 	public PhotoPrompt() {
 		super();
