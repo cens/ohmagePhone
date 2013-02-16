@@ -14,7 +14,7 @@
 
     <PreferenceScreen android:title="Send Crash Report">
 		<intent
-			android:targetPackage="org.ohmage"
+			android:targetPackage="org.mobilizingcs"
 			android:targetClass="org.ohmage.activity.SendLogActivity"/>
 	</PreferenceScreen>
 

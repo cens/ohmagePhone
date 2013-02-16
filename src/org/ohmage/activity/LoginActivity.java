@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import com.slezica.tools.async.ManagedAsyncTask;
 
+import org.mobilizingcs.R;
 import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
@@ -46,7 +47,6 @@ import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApplication;
-import org.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.Models.Campaign;
@@ -112,7 +112,7 @@ public class LoginActivity extends FragmentActivity {
 
         try {
             mVersionText.setText("v"
-                    + getPackageManager().getPackageInfo("org.ohmage", 0).versionName);
+                    + getPackageManager().getPackageInfo("org.mobilizingcs", 0).versionName);
         } catch (Exception e) {
             Log.e(TAG, "unable to retrieve version", e);
             mVersionText.setText(" ");

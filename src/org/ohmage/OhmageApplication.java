@@ -34,7 +34,6 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 
 import org.mobilizingcs.R;
-
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Response;
@@ -99,7 +98,7 @@ public class OhmageApplication extends Application {
         int currentVersionCode = 0;
 
         try {
-            currentVersionCode = getPackageManager().getPackageInfo("org.ohmage", 0).versionCode;
+            currentVersionCode = getPackageManager().getPackageInfo("org.mobilizingcs", 0).versionCode;
         } catch (NameNotFoundException e) {
             Log.e(TAG, "unable to retrieve current version code", e);
         }
