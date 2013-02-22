@@ -1,6 +1,8 @@
 ohmagePhone
 ============
 
+**Note: This repository only contains developement up to version 2.14 and only required bug fixes are being backported. No new development will happen on this repo. Go to [ohmageAndroidLib](https://github.com/ohmage/ohmageAndroidLib) to use our new Library for Android**
+
 ohmage (http://ohmage.org) is an open-source, mobile to web platform that records, 
 analyzes, and visualizes data from both prompted experience samples entered by the 
 user, as well as continuous streams of data passively collected from sensors or 
