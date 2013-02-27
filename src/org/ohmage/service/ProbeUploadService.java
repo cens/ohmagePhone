@@ -18,14 +18,15 @@ import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.UploadResponse;
 import org.ohmage.UserPreferencesHelper;
-import org.ohmage.probemanager.DbContract.BaseProbeColumns;
-import org.ohmage.probemanager.DbContract.Probes;
-import org.ohmage.probemanager.DbContract.Responses;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.probemanager.DbContract.BaseProbeColumns;
+import org.ohmage.probemanager.DbContract.Probes;
+import org.ohmage.probemanager.DbContract.Responses;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ProbeUploadService extends WakefulIntentService {
 
@@ -83,7 +84,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
         mAccount = new AccountHelper(ProbeUploadService.this);
         mPrefs = new UserPreferencesHelper(this);
-        
+
         if (mApi == null)
             setOhmageApi(new OhmageApi(this));
 
@@ -156,94 +157,98 @@ public class ProbeUploadService extends WakefulIntentService {
 
             uploadStarted();
 
-            Cursor c = getContentResolver().query(getContentURI(), getProjection(),
-                    BaseProbeColumns.USERNAME + "=?", new String[] {
-                        mAccount.getUsername()
-                    }, getNameColumn() + ", " + getVersionColumn());
+            Cursor observersCursor = getContentResolver().query(getContentURI(), new String[] {
+                    "distinct " + getNameColumn(), getVersionColumn()
+            }, BaseProbeColumns.USERNAME + "=?", new String[] {
+                mAccount.getUsername()
+            }, null);
 
-            JsonArray probes = new JsonArray();
+            HashMap<String, String> observers = new HashMap<String, String>();
 
-            String currentObserver = null;
-            String currentVersion = null;
-            String observerId = null;
-            String observerVersion = null;
-
-            ArrayList<Long> delete = new ArrayList<Long>();
-            StringBuilder deleteString = new StringBuilder();
-
-            int payloadSize = 0;
-
-            if (c.moveToFirst()) {
-                currentObserver = c.getString(getNameIndex());
-                currentVersion = c.getString(getVersionIndex());
+            while (observersCursor.moveToNext()) {
+                observers.put(observersCursor.getString(0), observersCursor.getString(1));
             }
+            observersCursor.close();
 
-            for (int i = 0; i < c.getCount() + 1; i++) {
+            for (String currentObserver : observers.keySet()) {
+                String currentVersion = observers.get(currentObserver);
 
-                try {
-                    c.moveToPosition(i);
-                } catch (IllegalStateException e) {
-                    // Due to a bug in 4.0 and greater(?) a crash can occur
-                    // during the move.
-                    // There is no good way to recover so we just restart
-                    // More info here:
-                    // http://code.google.com/p/android/issues/detail?id=32472
-                    Log.e(TAG, "illegal state exception moving to " + i + " of "
-                            + (c.getCount() + 1));
-                    // Lets restart!
-                    upload();
-                    return;
-                }
+                Cursor c = getContentResolver().query(
+                        getContentURI(),
+                        getProjection(),
+                        BaseProbeColumns.USERNAME + "=? AND " + getNameColumn() + "=? AND "
+                                + getVersionColumn() + "=?", new String[] {
+                                mAccount.getUsername(), currentObserver, currentVersion
+                        }, null);
 
-                if (!c.isAfterLast()) {
-                    observerId = c.getString(getNameIndex());
-                    observerVersion = c.getString(getVersionIndex());
-                }
+                JsonArray probes = new JsonArray();
 
-                // If we have a batch or we see a different point, upload all
-                // the points we have so far
-                if (payloadSize > BATCH_SIZE
-                        || c.isAfterLast()
-                        || (!observerId.equals(currentObserver) || !observerVersion
-                                .equals(currentVersion))) {
-                    Log.d(TAG, "total payload for " + currentObserver + "=" + payloadSize);
-                    if (!upload(probes, currentObserver, currentVersion)) {
-                        c.close();
+                ArrayList<Long> delete = new ArrayList<Long>();
+                StringBuilder deleteString = new StringBuilder();
+
+                int payloadSize = 0;
+
+                for (int i = 0; i < c.getCount() + 1; i++) {
+
+                    try {
+                        c.moveToPosition(i);
+                    } catch (IllegalStateException e) {
+                        // Due to a bug in 4.0 and greater(?) a crash can occur
+                        // during the move.
+                        // There is no good way to recover so we just restart
+                        // More info here:
+                        // http://code.google.com/p/android/issues/detail?id=32472
+                        Log.e(TAG,
+                                "illegal state exception moving to " + i + " of "
+                                        + (c.getCount() + 1));
+                        // Lets restart!
+                        upload();
                         return;
                     }
 
-                    // Deleting this batch of points. We can only delete with a
-                    // maximum expression tree depth of 1000
-                    for (int batch = 0; batch < delete.size(); batch++) {
-                        if (deleteString.length() != 0)
-                            deleteString.append(" OR ");
-                        deleteString.append(BaseColumns._ID + "=" + delete.get(batch));
-
-                        // If we have 1000 Expressions or we are at the last
-                        // point, delete them
-                        if ((batch != 0 && batch % (1000 - 2) == 0) || batch == delete.size() - 1) {
-                            getContentResolver().delete(getContentURI(), deleteString.toString(),
-                                    null);
-                            deleteString = new StringBuilder();
+                    // If we have a batch, upload all
+                    // the points we have so far
+                    if (payloadSize > BATCH_SIZE || c.isAfterLast()) {
+                        Log.d(TAG, "total payload for " + currentObserver + "=" + payloadSize);
+                        if (!upload(probes, currentObserver, currentVersion)) {
+                            c.close();
+                            return;
                         }
+
+                        // Deleting this batch of points. We can only delete
+                        // with a
+                        // maximum expression tree depth of 1000
+                        for (int batch = 0; batch < delete.size(); batch++) {
+                            if (deleteString.length() != 0)
+                                deleteString.append(" OR ");
+                            deleteString.append(BaseColumns._ID + "=" + delete.get(batch));
+
+                            // If we have 1000 Expressions or we are at the last
+                            // point, delete them
+                            if ((batch != 0 && batch % (1000 - 2) == 0)
+                                    || batch == delete.size() - 1) {
+                                getContentResolver().delete(getContentURI(),
+                                        deleteString.toString(), null);
+                                deleteString = new StringBuilder();
+                            }
+                        }
+                        delete.clear();
+
+                        if (c.isAfterLast())
+                            break;
+
+                        payloadSize = 0;
+                        probes = new JsonArray();
                     }
-                    delete.clear();
 
-                    if (c.isAfterLast())
-                        break;
-
-                    payloadSize = 0;
-                    probes = new JsonArray();
+                    payloadSize += addProbe(probes, c);
+                    delete.add(c.getLong(0));
                 }
 
-                currentObserver = observerId;
-                currentVersion = observerVersion;
+                c.close();
 
-                payloadSize += addProbe(probes, c);
-                delete.add(c.getLong(0));
             }
 
-            c.close();
             uploadFinished();
         }
 
@@ -370,8 +375,8 @@ public class ProbeUploadService extends WakefulIntentService {
         @Override
         protected UploadResponse uploadCall(String serverUrl, String username, String password,
                 String client, String observerId, String observerVersion, JsonArray data) {
-            return mApi.observerUpload(ConfigHelper.serverUrl(), username,
-                    password, OhmageApi.CLIENT_NAME, observerId, observerVersion, data.toString());
+            return mApi.observerUpload(ConfigHelper.serverUrl(), username, password,
+                    OhmageApi.CLIENT_NAME, observerId, observerVersion, data.toString());
         }
 
         @Override
@@ -456,8 +461,8 @@ public class ProbeUploadService extends WakefulIntentService {
         @Override
         protected UploadResponse uploadCall(String serverUrl, String username, String password,
                 String client, String campaignUrn, String campaignCreated, JsonArray data) {
-            return mApi.surveyUpload(ConfigHelper.serverUrl(), username,
-                    password, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreated, data.toString());
+            return mApi.surveyUpload(ConfigHelper.serverUrl(), username, password,
+                    OhmageApi.CLIENT_NAME, campaignUrn, campaignCreated, data.toString());
         }
 
         @Override
