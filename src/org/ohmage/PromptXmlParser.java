@@ -18,6 +18,7 @@ package org.ohmage;
 import android.util.Xml;
 
 import org.ohmage.Utilities.KVLTriplet;
+import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
@@ -26,7 +27,6 @@ import org.ohmage.prompt.PromptFactory;
 import org.ohmage.prompt.RepeatableSetHeader;
 import org.ohmage.prompt.RepeatableSetTerminator;
 import org.ohmage.prompt.SurveyElement;
-import org.ohmage.logprobe.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -54,7 +54,6 @@ public class PromptXmlParser {
 	private static final String REPEATABLE_SET_CONDITION = "condition";
 	private static final String PROMPT = "prompt";
 	private static final String PROMPT_ID = "id";
-	private static final String PROMPT_DISPLAY_TYPE = "displayType";
 	private static final String PROMPT_DISPLAY_LABEL = "displayLabel";
 	private static final String PROMPT_UNIT = "unit";
 	private static final String PROMPT_TEXT = "promptText";
@@ -91,7 +90,6 @@ public class PromptXmlParser {
 		boolean surveyFound = false;
 		
 		String id = null;
-		String displayType = null;
 		String displayLabel = null;
 		String unit = null;
 		String promptText = null;
@@ -159,7 +157,6 @@ public class PromptXmlParser {
 							promptInProgress = true;
 							
 							id  = null;
-							displayType = null;
 							displayLabel = null;
 							unit = null;
 							promptText = null;
@@ -180,8 +177,6 @@ public class PromptXmlParser {
 						} else if (promptInProgress) {
 							if (tagName.equalsIgnoreCase(PROMPT_ID)) {
 								id = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_TYPE)) {
-								displayType = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_DISPLAY_LABEL)) {
 								displayLabel = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_UNIT)) {
@@ -252,7 +247,7 @@ public class PromptXmlParser {
 						try {
 							Prompt prompt = PromptFactory.createPrompt(promptType);
 							PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
-							builder.build(prompt, id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+							builder.build(prompt, id, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
 							if (repeatableSetInProgress) {
 								repeatableSetPrompts.add(prompt);
 							} else {

@@ -15,11 +15,6 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoice;
 
-import org.ohmage.OhmageMarkdown;
-import org.ohmage.R;
-import org.ohmage.Utilities.KVLTriplet;
-import org.ohmage.prompt.AbstractPrompt;
-
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
@@ -30,6 +25,11 @@ import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
+
+import org.ohmage.OhmageMarkdown;
+import org.ohmage.R;
+import org.ohmage.Utilities.KVLTriplet;
+import org.ohmage.prompt.AbstractPrompt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,13 +56,13 @@ public class SingleChoicePrompt extends AbstractPrompt {
 		mChoices = choices;
 	}
 	
-	/*public SingleChoicePrompt( 	String id, String displayType, String displayLabel,
+	/*public SingleChoicePrompt( 	String id, String displayLabel,
 								String promptText, String abbreviatedText, String explanationText,
 								String defaultValue, String condition, 
 								String skippable, String skipLabel,
 								List<KVPair> properties) {
 		
-		super(id, displayType, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel);
+		super(id, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel);
 		
 		mKVPairs = properties;
 		//mSelectedKey = "RESPONSE_SKIPPED";

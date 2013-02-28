@@ -25,13 +25,12 @@ import java.util.ArrayList;
 public class PhotoPromptBuilder implements PromptBuilder {
 
     @Override
-    public void build(Prompt prompt, String id, String displayType, String displayLabel,
+    public void build(Prompt prompt, String id, String displayLabel,
             String promptText, String abbreviatedText, String explanationText, String defaultValue,
             String condition, String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 
         PhotoPrompt photoPrompt = (PhotoPrompt) prompt;
         photoPrompt.setId(id);
-        photoPrompt.setDisplayType(displayType);
         photoPrompt.setDisplayLabel(displayLabel);
         photoPrompt.setPromptText(promptText);
         photoPrompt.setAbbreviatedText(abbreviatedText);

@@ -15,17 +15,17 @@
  ******************************************************************************/
 package org.ohmage.prompt.multichoice;
 
-import java.util.ArrayList;
-
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
+
+import java.util.ArrayList;
 
 
 public class MultiChoicePromptBuilder implements PromptBuilder {
 
 	@Override
-	public void build(	Prompt prompt, String id, String displayType,
+	public void build(	Prompt prompt, String id,
 						String displayLabel, String promptText, String abbreviatedText,
 						String explanationText, String defaultValue, String condition,
 						String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
@@ -34,7 +34,6 @@ public class MultiChoicePromptBuilder implements PromptBuilder {
 		
 		MultiChoicePrompt multiChoicePrompt = (MultiChoicePrompt) prompt;
 		multiChoicePrompt.setId(id);
-		multiChoicePrompt.setDisplayType(displayType);
 		multiChoicePrompt.setDisplayLabel(displayLabel);
 		multiChoicePrompt.setPromptText(promptText);
 		multiChoicePrompt.setAbbreviatedText(abbreviatedText);

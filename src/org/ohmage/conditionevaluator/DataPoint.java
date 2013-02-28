@@ -23,7 +23,6 @@ public class DataPoint {
     // List of data fields in a data point, add more if necessary for extended data points
     private String id;
     private Object value;  
-    private DataPoint.DisplayType displayType;
     private DataPoint.PromptType promptType;
     
     // Need to know whether the DataPoint was "SKIPPED" or "NOT_DISPLAYED"
@@ -33,12 +32,7 @@ public class DataPoint {
     
     // Map to store all possible metadata
     Map<String, Object> metadata = new HashMap<String, Object>();
-    
-    // Possible display types
-    public static enum DisplayType {
-        category, measurement, event, count, metadata
-    }
-    
+
     // Possible prompt types
     public static enum PromptType {
         timestamp, number, hours_before_now, text, multi_choice, single_choice, single_choice_custom, multi_choice_custom, photo, video
@@ -123,41 +117,7 @@ public class DataPoint {
     public List<Integer> getIndexes() {
         return (List<Integer>) metadata.get("indexes");
     }
-    
-    public void setDisplayType(DisplayType _displayType) {
-        displayType = _displayType;
-    }
-    
-    /**
-     * Convenience function to set display type directly from a String
-     * 
-     * @param _displayType A String representing a type from DisplayType
-     */
-    public void setDisplayType(String _displayType) {
-        if (DisplayType.category.toString().equals(_displayType)) {
-            displayType = DisplayType.category;
-        }
-        else if (DisplayType.event.toString().equals(_displayType)) {
-            displayType = DisplayType.event;
-        }
-        else if (DisplayType.measurement.toString().equals(_displayType)) {
-            displayType = DisplayType.measurement;
-        }
-        else if (DisplayType.count.toString().equals(_displayType)) {
-            displayType = DisplayType.count;
-        }
-        else if (DisplayType.metadata.toString().equals(_displayType)) {
-            displayType = DisplayType.metadata;
-        }
-        else {
-            throw new IllegalArgumentException("Display type does not exist: " + _displayType);
-        }
-    }
-    
-    public DisplayType getDisplayType() {
-        return displayType;
-    }
-    
+
     public void setPromptType(PromptType _promptType) {
         promptType = _promptType;
     }
@@ -165,7 +125,7 @@ public class DataPoint {
     /**
      * Convenience function to set prompt type directly from a String
      * 
-     * @param _promptType A String representing a type from DisplayType
+     * @param _promptType A String representing a type from PromptType
      */
     public void setPromptType(String _promptType) {
         // timestamp, number, hours_before_now, text, multi_choice, single_choice, single_choice_custom, multi_choice_custom, photo
@@ -224,15 +184,8 @@ public class DataPoint {
     public boolean isNotDisplayed() {
         return isNotDisplayed;
     }
-    
-    public boolean isMetadata() {
-        if (DisplayType.metadata.equals(displayType)) {
-            return true;
-        }
-            
-        return false;
-    }
 
+    @Override
     public String toString() {
         return "type " + promptType.toString() + " id " + id + " value " + value;
     }
@@ -244,6 +197,7 @@ public class DataPoint {
      * @param toCompare The DataPoint to compare to.
      * @return true/false
      */
+    @Override
     public boolean equals(Object toCompare) {
         if (toCompare instanceof DataPoint)
             return getId().equals(((DataPoint) toCompare).getId());
