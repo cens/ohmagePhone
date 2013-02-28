@@ -57,7 +57,6 @@ public class PromptXmlParser {
 	private static final String PROMPT_DISPLAY_LABEL = "displayLabel";
 	private static final String PROMPT_UNIT = "unit";
 	private static final String PROMPT_TEXT = "promptText";
-	private static final String PROMPT_ABBREVIATED_TEXT = "abbreviatedText";
 	private static final String PROMPT_EXPLANATION_TEXT = "explanationText";
 	private static final String PROMPT_TYPE = "promptType";
 	private static final String PROMPT_DEFAULT = "default";
@@ -93,7 +92,6 @@ public class PromptXmlParser {
 		String displayLabel = null;
 		String unit = null;
 		String promptText = null;
-		String abbreviatedText = null;
 		String explanationText = null;
 		String promptType = null;
 		String defaultValue = null;
@@ -160,7 +158,6 @@ public class PromptXmlParser {
 							displayLabel = null;
 							unit = null;
 							promptText = null;
-							abbreviatedText = null;
 							explanationText = null;
 							promptType = null;
 							defaultValue = null;
@@ -183,8 +180,6 @@ public class PromptXmlParser {
 								unit = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_TEXT)) {
 								promptText = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(PROMPT_ABBREVIATED_TEXT)) {
-								abbreviatedText = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_EXPLANATION_TEXT)) {
 								explanationText = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_TYPE)) {
@@ -247,7 +242,7 @@ public class PromptXmlParser {
 						try {
 							Prompt prompt = PromptFactory.createPrompt(promptType);
 							PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
-							builder.build(prompt, id, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+							builder.build(prompt, id, displayLabel, promptText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
 							if (repeatableSetInProgress) {
 								repeatableSetPrompts.add(prompt);
 							} else {

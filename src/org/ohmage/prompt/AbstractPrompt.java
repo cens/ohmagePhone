@@ -48,7 +48,6 @@ public abstract class AbstractPrompt implements Prompt {
 	protected String mPromptType;
 	protected String mDisplayLabel;
 	protected String mPromptText;
-	protected String mAbbreviatedText;
 	protected String mExplanationText;
 	protected String mDefaultValue;
 	protected String mCondition;
@@ -126,13 +125,12 @@ public abstract class AbstractPrompt implements Prompt {
 	}
 	
 	/*public AbstractPrompt(	String id, String displayLabel,
-					String promptText, String abbreviatedText, String explanationText, 
+					String promptText, String explanationText, 
 					String defaultValue, String condition, 
 					String skippable, String skipLabel) {
 		
 		this.mId = id;
 		this.mPromptText = promptText;
-		this.mAbbreviatedText = abbreviatedText;
 		this.mExplanationText = explanationText;
 		this.mDefaultValue = defaultValue;
 		this.mCondition = condition;
@@ -151,11 +149,7 @@ public abstract class AbstractPrompt implements Prompt {
 	public String getPromptText() {
 		return mPromptText;
 	}
-		
-	public String getAbbreviatedText() {
-		return mAbbreviatedText;
-	}
-	
+
 	public String getExplanationText() {
 		return mExplanationText;
 	}
@@ -190,10 +184,6 @@ public abstract class AbstractPrompt implements Prompt {
 
 	public void setPromptText(String promptText) {
 		this.mPromptText = promptText;
-	}
-
-	public void setAbbreviatedText(String abbreviatedText) {
-		this.mAbbreviatedText = abbreviatedText;
 	}
 
 	public void setExplanationText(String explanationText) {
@@ -260,7 +250,7 @@ public abstract class AbstractPrompt implements Prompt {
 			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.REMOTE_ACTIVITY);
 		}
 
-		builder.build(prompt, mId, mDisplayLabel, mPromptText, mAbbreviatedText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
+		builder.build(prompt, mId, mDisplayLabel, mPromptText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
 		return prompt;
 	}
 

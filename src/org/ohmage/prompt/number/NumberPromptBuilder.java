@@ -26,7 +26,7 @@ public class NumberPromptBuilder implements PromptBuilder {
 
 	@Override
 	public void build(Prompt prompt, String id,
-			String displayLabel, String promptText, String abbreviatedText,
+			String displayLabel, String promptText,
 			String explanationText, String defaultValue, String condition,
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
@@ -34,7 +34,6 @@ public class NumberPromptBuilder implements PromptBuilder {
 		numberPrompt.setId(id);
 		numberPrompt.setDisplayLabel(displayLabel);
 		numberPrompt.setPromptText(promptText);
-		numberPrompt.setAbbreviatedText(abbreviatedText);
 		numberPrompt.setExplanationText(explanationText);
 		numberPrompt.setDefaultValue(defaultValue);
 		numberPrompt.setCondition(condition);

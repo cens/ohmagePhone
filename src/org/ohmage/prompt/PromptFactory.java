@@ -46,7 +46,7 @@ public class PromptFactory {
 	public static Prompt createPrompt (String promptType) {
 		
 		if (promptType.equals(SINGLE_CHOICE)) {
-			return new SingleChoicePrompt();//id, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+			return new SingleChoicePrompt();//id, displayLabel, promptText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
 		} else if (promptType.equals(SINGLE_CHOICE_CUSTOM)) {
 			return new SingleChoiceCustomPrompt();
 		} else if (promptType.equals(MULTI_CHOICE)) {

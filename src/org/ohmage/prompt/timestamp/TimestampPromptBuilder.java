@@ -11,7 +11,7 @@ public class TimestampPromptBuilder implements PromptBuilder {
 
 	@Override
 	public void build(Prompt prompt, String id,
-			String displayLabel, String promptText, String abbreviatedText,
+			String displayLabel, String promptText,
 			String explanationText, String defaultValue, String condition,
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
@@ -19,7 +19,6 @@ public class TimestampPromptBuilder implements PromptBuilder {
 		timestampPrompt.setId(id);
 		timestampPrompt.setDisplayLabel(displayLabel);
 		timestampPrompt.setPromptText(promptText);
-		timestampPrompt.setAbbreviatedText(abbreviatedText);
 		timestampPrompt.setExplanationText(explanationText);
 		timestampPrompt.setDefaultValue(defaultValue);
 		timestampPrompt.setCondition(condition);

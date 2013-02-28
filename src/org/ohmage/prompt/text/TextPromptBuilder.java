@@ -26,7 +26,7 @@ public class TextPromptBuilder implements PromptBuilder {
 
 	@Override
 	public void build(Prompt prompt, String id,
-			String displayLabel, String promptText, String abbreviatedText,
+			String displayLabel, String promptText,
 			String explanationText, String defaultValue, String condition,
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
@@ -34,7 +34,6 @@ public class TextPromptBuilder implements PromptBuilder {
 		textPrompt.setId(id);
 		textPrompt.setDisplayLabel(displayLabel);
 		textPrompt.setPromptText(promptText);
-		textPrompt.setAbbreviatedText(abbreviatedText);
 		textPrompt.setExplanationText(explanationText);
 		textPrompt.setDefaultValue(defaultValue);
 		textPrompt.setCondition(condition);

@@ -26,7 +26,7 @@ public class MultiChoicePromptBuilder implements PromptBuilder {
 
 	@Override
 	public void build(	Prompt prompt, String id,
-						String displayLabel, String promptText, String abbreviatedText,
+						String displayLabel, String promptText,
 						String explanationText, String defaultValue, String condition,
 						String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
@@ -36,7 +36,6 @@ public class MultiChoicePromptBuilder implements PromptBuilder {
 		multiChoicePrompt.setId(id);
 		multiChoicePrompt.setDisplayLabel(displayLabel);
 		multiChoicePrompt.setPromptText(promptText);
-		multiChoicePrompt.setAbbreviatedText(abbreviatedText);
 		multiChoicePrompt.setExplanationText(explanationText);
 		multiChoicePrompt.setDefaultValue(defaultValue);
 		multiChoicePrompt.setCondition(condition);

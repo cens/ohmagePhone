@@ -57,12 +57,12 @@ public class SingleChoicePrompt extends AbstractPrompt {
 	}
 	
 	/*public SingleChoicePrompt( 	String id, String displayLabel,
-								String promptText, String abbreviatedText, String explanationText,
+								String promptText, String explanationText,
 								String defaultValue, String condition, 
 								String skippable, String skipLabel,
 								List<KVPair> properties) {
 		
-		super(id, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel);
+		super(id, displayLabel, promptText, explanationText, defaultValue, condition, skippable, skipLabel);
 		
 		mKVPairs = properties;
 		//mSelectedKey = "RESPONSE_SKIPPED";

@@ -26,7 +26,7 @@ public class HoursBeforeNowPromptBuilder implements PromptBuilder {
 
 	@Override
 	public void build(Prompt prompt, String id,
-			String displayLabel, String promptText, String abbreviatedText,
+			String displayLabel, String promptText,
 			String explanationText, String defaultValue, String condition,
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
@@ -34,7 +34,6 @@ public class HoursBeforeNowPromptBuilder implements PromptBuilder {
 		hoursBeforeNowPrompt.setId(id);
 		hoursBeforeNowPrompt.setDisplayLabel(displayLabel);
 		hoursBeforeNowPrompt.setPromptText(promptText);
-		hoursBeforeNowPrompt.setAbbreviatedText(abbreviatedText);
 		hoursBeforeNowPrompt.setExplanationText(explanationText);
 		hoursBeforeNowPrompt.setDefaultValue(defaultValue);
 		hoursBeforeNowPrompt.setCondition(condition);

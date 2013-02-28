@@ -29,7 +29,7 @@ public class VideoPromptBuilder implements PromptBuilder {
 
 	@Override
 	public void build(Prompt prompt, String id,
-			String displayLabel, String promptText, String abbreviatedText,
+			String displayLabel, String promptText,
 			String explanationText, String defaultValue, String condition,
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 
@@ -37,7 +37,6 @@ public class VideoPromptBuilder implements PromptBuilder {
 		videoPrompt.setId(id);
 		videoPrompt.setDisplayLabel(displayLabel);
 		videoPrompt.setPromptText(promptText);
-		videoPrompt.setAbbreviatedText(abbreviatedText);
 		videoPrompt.setExplanationText(explanationText);
 		videoPrompt.setDefaultValue(defaultValue);
 		videoPrompt.setCondition(condition);

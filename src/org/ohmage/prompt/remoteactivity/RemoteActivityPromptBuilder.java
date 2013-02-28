@@ -34,7 +34,7 @@ public class RemoteActivityPromptBuilder implements PromptBuilder
 	
 	@Override
 	public void build(Prompt prompt, String id,
-			String displayLabel, String promptText, String abbreviatedText,
+			String displayLabel, String promptText,
 			String explanationText, String defaultValue, String condition,
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties)
 	{
@@ -42,7 +42,6 @@ public class RemoteActivityPromptBuilder implements PromptBuilder
 		remoteActivityPrompt.setId(id);
 		remoteActivityPrompt.setDisplayLabel(displayLabel);
 		remoteActivityPrompt.setPromptText(promptText);
-		remoteActivityPrompt.setAbbreviatedText(abbreviatedText);
 		remoteActivityPrompt.setExplanationText(explanationText);
 		remoteActivityPrompt.setDefaultValue(defaultValue);
 		remoteActivityPrompt.setCondition(condition);

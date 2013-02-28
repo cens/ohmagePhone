@@ -34,7 +34,7 @@ public class PromptBuilderFactory {
 	public static PromptBuilder createPromptBuilder(String promptType ) {
 		
 		if (promptType.equals(PromptFactory.SINGLE_CHOICE)) {
-			return new SingleChoicePromptBuilder();//id, displayLabel, promptText, abbreviatedText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+			return new SingleChoicePromptBuilder();//id, displayLabel, promptText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
 		} else if (promptType.equals(PromptFactory.SINGLE_CHOICE_CUSTOM)) {
 			return new SingleChoiceCustomPromptBuilder();
 		} else if (promptType.equals(PromptFactory.MULTI_CHOICE)) {

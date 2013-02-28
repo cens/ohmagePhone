@@ -26,7 +26,7 @@ public class SingleChoiceCustomPromptBuilder implements PromptBuilder {
 
 	@Override
 	public void build(	Prompt prompt, String id,
-						String displayLabel, String promptText, String abbreviatedText,
+						String displayLabel, String promptText,
 						String explanationText, String defaultValue, String condition,
 						String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
@@ -36,7 +36,6 @@ public class SingleChoiceCustomPromptBuilder implements PromptBuilder {
 		singleChoiceCustomPrompt.setId(id);
 		singleChoiceCustomPrompt.setDisplayLabel(displayLabel);
 		singleChoiceCustomPrompt.setPromptText(promptText);
-		singleChoiceCustomPrompt.setAbbreviatedText(abbreviatedText);
 		singleChoiceCustomPrompt.setExplanationText(explanationText);
 		singleChoiceCustomPrompt.setDefaultValue(defaultValue);
 		singleChoiceCustomPrompt.setCondition(condition);
