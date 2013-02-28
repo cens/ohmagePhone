@@ -337,9 +337,6 @@ public class Models {
 		public String mTitle;
 		public String mDescription;
 		public String mSubmitText;
-		public boolean mShowSummary;
-		public boolean mEditSummary;
-		public String mSummaryText;
 		public String mIntroText;
 		public boolean mAnytime;
 		public int mStatus;
@@ -364,9 +361,6 @@ public class Models {
     			s.mTitle = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE));
     			s.mDescription = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_DESCRIPTION));
     			s.mSubmitText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUBMIT_TEXT));
-    			s.mShowSummary = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_SHOW_SUMMARY)) == 0 ? false : true;
-    			s.mEditSummary = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_EDIT_SUMMARY)) == 0 ? false : true;
-    			s.mSummaryText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_SUMMARY_TEXT));
     			s.mIntroText = cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_INTRO_TEXT));
     			s.mAnytime = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_ANYTIME)) == 0 ? false : true;
     			s.mStatus = cursor.getInt(cursor.getColumnIndex(Surveys.SURVEY_STATUS));
@@ -388,9 +382,6 @@ public class Models {
         	values.put(Surveys.SURVEY_TITLE, mTitle);
         	values.put(Surveys.SURVEY_DESCRIPTION, mDescription);
         	values.put(Surveys.SURVEY_SUBMIT_TEXT, mSubmitText);
-        	values.put(Surveys.SURVEY_SHOW_SUMMARY, mShowSummary);
-        	values.put(Surveys.SURVEY_EDIT_SUMMARY, mEditSummary);
-        	values.put(Surveys.SURVEY_SUMMARY_TEXT, mSummaryText);
         	values.put(Surveys.SURVEY_INTRO_TEXT, mIntroText);
         	values.put(Surveys.SURVEY_ANYTIME, mAnytime);
         	values.put(Surveys.SURVEY_STATUS, mStatus);
