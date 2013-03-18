@@ -23,7 +23,7 @@ import org.ohmage.conditionevaluator.DataPoint;
  * @author Mohamad Monibi
  *
  */
-public class HoursBeforeNowDataPointComparator extends AbstractDataPointComparator {
+public class HoursBeforeNowDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean equals(DataPoint dataPoint, String value) {
