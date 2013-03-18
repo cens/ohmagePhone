@@ -30,7 +30,7 @@ public class SingleChoiceDataPointComparator extends BasicDataPointComparator {
 		Integer dataPointValue = (Integer) dataPoint.getValue();
         Integer valueToCompare = Integer.parseInt(value);
         
-        if (dataPointValue.compareTo(valueToCompare) == 0) {
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) == 0) {
             return true;
         } else {
         	return false;
@@ -42,7 +42,7 @@ public class SingleChoiceDataPointComparator extends BasicDataPointComparator {
 		Integer dataPointValue = (Integer) dataPoint.getValue();
 		Integer valueToCompare = Integer.parseInt(value);
         
-        if (dataPointValue.compareTo(valueToCompare) > 0) {
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) > 0) {
             return true;
         } else {
         	return false;
@@ -54,7 +54,7 @@ public class SingleChoiceDataPointComparator extends BasicDataPointComparator {
 		Integer dataPointValue = (Integer) dataPoint.getValue();
 		Integer valueToCompare = Integer.parseInt(value);
         
-        if (dataPointValue.compareTo(valueToCompare) >= 0) {
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) >= 0) {
             return true;
         } else {
         	return false;
@@ -66,7 +66,7 @@ public class SingleChoiceDataPointComparator extends BasicDataPointComparator {
 		Integer dataPointValue = (Integer) dataPoint.getValue();
 		Integer valueToCompare = Integer.parseInt(value);
         
-        if (dataPointValue.compareTo(valueToCompare) < 0) {
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) < 0) {
             return true;
         } else {
         	return false;
@@ -78,7 +78,7 @@ public class SingleChoiceDataPointComparator extends BasicDataPointComparator {
 		Integer dataPointValue = (Integer) dataPoint.getValue();
 		Integer valueToCompare = Integer.parseInt(value);
         
-        if (dataPointValue.compareTo(valueToCompare) <= 0) {
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) <= 0) {
             return true;
         } else {
         	return false;
@@ -90,7 +90,7 @@ public class SingleChoiceDataPointComparator extends BasicDataPointComparator {
 		Integer dataPointValue = (Integer) dataPoint.getValue();
 		Integer valueToCompare = Integer.parseInt(value);
         
-        if (dataPointValue.compareTo(valueToCompare) != 0) {
+        if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) != 0) {
             return true;
         } else {
         	return false;
