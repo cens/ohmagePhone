@@ -464,12 +464,12 @@ public class ProbeUploadService extends WakefulIntentService {
 
         @Override
         protected String getVersionColumn() {
-            return Responses.CAMPAIGN_URN;
+            return Responses.CAMPAIGN_CREATED;
         }
 
         @Override
         protected String getNameColumn() {
-            return Responses.CAMPAIGN_CREATED;
+            return Responses.CAMPAIGN_URN;
         }
     }
 }
