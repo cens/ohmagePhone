@@ -68,9 +68,11 @@ import org.ohmage.ui.ResponseActivityHelper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * This Activity is used to display Information for an individual response. It
@@ -154,6 +156,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		String[] PROJECTION = { Campaigns.CAMPAIGN_NAME,
 				Surveys.SURVEY_TITLE,
 				Responses.RESPONSE_TIME,
+				Responses.RESPONSE_TIMEZONE,
 				Campaigns.CAMPAIGN_ICON,
 				Responses.RESPONSE_LOCATION_STATUS,
 				Responses.RESPONSE_STATUS};
@@ -161,9 +164,10 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		int CAMPAIGN_NAME = 0;
 		int SURVEY_TITLE = 1;
 		int TIME = 2;
-		int CAMPAIGN_ICON = 3;
-		int LOCATION_STATUS = 4;
-		int STATUS = 5;
+		int RESPONSE_TIMEZONE = 3;
+		int CAMPAIGN_ICON = 4;
+		int LOCATION_STATUS = 5;
+		int STATUS = 6;
 	}
 
 	@Override
@@ -195,7 +199,9 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
 		// If we aren't in single campaign mode, show the campaign name
 		mSubtext.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
-		SimpleDateFormat df = new SimpleDateFormat();
+
+		DateFormat df = SimpleDateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT);
+		df.setTimeZone(TimeZone.getTimeZone(data.getString(ResponseQuery.RESPONSE_TIMEZONE)));
 		mNotetext.setText(df.format(new Date(completedDate)));
 		
 		final String iconUrl = data.getString(ResponseQuery.CAMPAIGN_ICON);
