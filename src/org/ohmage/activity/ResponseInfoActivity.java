@@ -30,7 +30,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.text.Html;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -58,6 +57,7 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Response;
+import org.ohmage.db.utils.ISO8601Utilities;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.AbstractPrompt;
@@ -69,7 +69,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -564,18 +563,11 @@ LoaderManager.LoaderCallbacks<Cursor> {
 								((TextView) view.getTag()).setText(OhmageMarkdown.parse(value));
 								return true;
 						} else if("timestamp".equals(prompt_type)) {
-							SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 							try {
-								long time = format.parse(value).getTime();
-								StringBuilder timeDisplay =  new StringBuilder(DateUtils.formatDateTime(mContext, time, DateUtils.FORMAT_SHOW_YEAR));
-								timeDisplay.append(" at ");
-								timeDisplay.append(DateUtils.formatDateTime(mContext, time, DateUtils.FORMAT_SHOW_TIME));
-
-								((TextView) view.getTag()).setText(timeDisplay);
+								((TextView) view.getTag()).setText(ISO8601Utilities.print(value));
 								return true;
-							} catch (ParseException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+							} catch (IllegalArgumentException e) {
+								Log.e(TAG, "Unable to parse timestsamp", e);
 							}
 						}
 						((TextView) view.getTag()).setText(value);

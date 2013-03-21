@@ -332,6 +332,13 @@
 		******************************************************
 		-->
 
+		<receiver android:name=".TimeZoneChangedReceiver"
+			android:enabled="true">
+			<intent-filter>
+				<action android:name="android.intent.action.TIMEZONE_CHANGED" />
+			</intent-filter>
+		</receiver>
+
 		<uses-library android:name="com.google.android.maps" />
 
 		<service
