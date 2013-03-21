@@ -1,11 +1,5 @@
 package org.ohmage.prompt.timestamp;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import org.ohmage.R;
-import org.ohmage.prompt.AbstractPrompt;
-
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Context;
@@ -18,14 +12,20 @@ import android.widget.LinearLayout;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
+import org.ohmage.R;
+import org.ohmage.db.utils.ISO8601Utilities;
+import org.ohmage.prompt.AbstractPrompt;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class TimestampPrompt extends AbstractPrompt {
 
 	private Calendar mTime;
 	
 	@Override
 	protected Object getTypeSpecificResponseObject() {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		return dateFormat.format(mTime.getTime());
+		return ISO8601Utilities.format(mTime.getTime());
 	}
 
 	@Override
