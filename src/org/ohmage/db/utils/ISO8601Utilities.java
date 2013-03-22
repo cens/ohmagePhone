@@ -1,29 +1,70 @@
+
 package org.ohmage.db.utils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 import java.util.Date;
 
 public class ISO8601Utilities {
-    private static DateFormat m_ISO8601Local =
-        new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss");
+    /**
+     * Prints a nice human readable format
+     */
+    private static DateTimeFormatter printer = DateTimeFormat
+            .forPattern("MMMM d',' yyyy 'at' h:mma");
 
-    public static String formatDateTime()
-    {
-        return formatDateTime (new Date());
+    /**
+     * Parses objects from ISO8601 format
+     */
+    private static DateTimeFormatter parser = ISODateTimeFormat.dateTime();
+
+    /**
+     * Parses objects from ISO8601 format, but doesn't convert times in other
+     * timezones to local time
+     */
+    private static DateTimeFormatter parserWithOffset = parser.withOffsetParsed();
+
+    /**
+     * Prints an ISO8601 formatted timestamp in a human readable way. Note: does
+     * not convert timestamp to local time.
+     * 
+     * @param string
+     * @return a string like 'March 20, 2013 at 2:28pm'
+     */
+    public static String print(String string) {
+        return print(parse(string));
     }
 
-    public static String formatDateTime (Date date)
-    {
-        if (date == null) {
-            return formatDateTime (new Date());
-        }
+    /**
+     * Prints a {@link DateTime} in a human readable way.
+     * 
+     * @param dateTime
+     * @return a string like 'March 20, 2013 at 2:28pm'
+     */
+    public static String print(DateTime dateTime) {
+        return printer.print(dateTime).replace("AM", "am").replace("PM", "pm");
+    }
 
-        // format in (almost) ISO8601 format
-        String dateStr = m_ISO8601Local.format (date);
+    /**
+     * Parses an ISO8601 formatted timestamp to a {@link DateTime}. Note: does
+     * not convert timestamp to local time.
+     * 
+     * @param string
+     * @return a {@link DateTime}
+     */
+    public static DateTime parse(String string) {
+        return parserWithOffset.parseDateTime(string);
+    }
 
-        // remap the timezone from 0000 to 00:00 (starts at char 22)
-        return dateStr.substring (0, 22)
-            + ":" + dateStr.substring (22);
+    /**
+     * Formats a date to an ISO8601 formatted timestamp
+     * 
+     * @param time
+     * @return an ISO8601 formatted timestamp
+     */
+    public static String format(Date time) {
+        return parser.print(time.getTime());
     }
 }

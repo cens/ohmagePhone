@@ -15,6 +15,17 @@
  ******************************************************************************/
 package org.ohmage.db;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
+import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
+import android.util.Xml;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,17 +41,6 @@ import org.ohmage.db.Models.Survey;
 import org.ohmage.db.Models.SurveyPrompt;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
-import android.support.v4.widget.CursorAdapter;
-import android.text.TextUtils;
-import android.util.Xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 33;
+	private static final int DB_VERSION = 34;
 	
 	private final Context mContext;
 
@@ -138,9 +138,6 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Surveys.SURVEY_TITLE + " TEXT, "
 				+ Surveys.SURVEY_DESCRIPTION + " TEXT, "
 				+ Surveys.SURVEY_SUBMIT_TEXT + " TEXT, "
-				+ Surveys.SURVEY_SHOW_SUMMARY + " INTEGER DEFAULT 0, "
-				+ Surveys.SURVEY_EDIT_SUMMARY + " INTEGER DEFAULT 0, "
-				+ Surveys.SURVEY_SUMMARY_TEXT + " TEXT, "
 				+ Surveys.SURVEY_INTRO_TEXT + " TEXT, "
 				+ Surveys.SURVEY_ANYTIME + " INTEGER DEFAULT 1, "
 				+ Surveys.SURVEY_STATUS + " INTEGER DEFAULT 0"
@@ -578,17 +575,6 @@ public class DbHelper extends SQLiteOpenHelper {
 							else if (tagStack.peek().equalsIgnoreCase(
 									"submitText"))
 								curSurvey.mSubmitText = xpp.getText();
-							else if (tagStack.peek().equalsIgnoreCase(
-									"showSummary"))
-								curSurvey.mShowSummary = xpp.getText().equals(
-										"true") ? true : false;
-							else if (tagStack.peek().equalsIgnoreCase(
-									"editSummary"))
-								curSurvey.mEditSummary = xpp.getText().equals(
-										"true") ? true : false;
-							else if (tagStack.peek().equalsIgnoreCase(
-									"summaryText"))
-								curSurvey.mSummaryText = xpp.getText();
 							else if (tagStack.peek().equalsIgnoreCase(
 									"introText"))
 								curSurvey.mIntroText = xpp.getText();

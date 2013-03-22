@@ -28,17 +28,15 @@ public class VideoPromptBuilder implements PromptBuilder {
 	private static final String TAG = "VideoPromptBuilder";
 
 	@Override
-	public void build(Prompt prompt, String id, String displayType,
-			String displayLabel, String promptText, String abbreviatedText,
+	public void build(Prompt prompt, String id,
+			String displayLabel, String promptText,
 			String explanationText, String defaultValue, String condition,
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 
 		VideoPrompt videoPrompt = (VideoPrompt) prompt;
 		videoPrompt.setId(id);
-		videoPrompt.setDisplayType(displayType);
 		videoPrompt.setDisplayLabel(displayLabel);
 		videoPrompt.setPromptText(promptText);
-		videoPrompt.setAbbreviatedText(abbreviatedText);
 		videoPrompt.setExplanationText(explanationText);
 		videoPrompt.setDefaultValue(defaultValue);
 		videoPrompt.setCondition(condition);

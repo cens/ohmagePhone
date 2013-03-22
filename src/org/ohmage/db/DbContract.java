@@ -1,10 +1,10 @@
 package org.ohmage.db;
 
-import org.ohmage.service.SurveyGeotagService;
-
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+
+import org.ohmage.service.SurveyGeotagService;
 
 import java.util.List;
 
@@ -49,9 +49,6 @@ public class DbContract {
     	/** Description of this survey. */
     	String SURVEY_DESCRIPTION = "survey_description";
     	String SURVEY_SUBMIT_TEXT = "survey_submit_text";
-    	String SURVEY_SHOW_SUMMARY = "survey_show_summary";
-    	String SURVEY_EDIT_SUMMARY = "survey_edit_summary";
-    	String SURVEY_SUMMARY_TEXT = "survey_summary_text";
     	String SURVEY_INTRO_TEXT = "survey_intro_text";
     	String SURVEY_ANYTIME = "survey_anytime";
     	String SURVEY_STATUS = "survey_status";

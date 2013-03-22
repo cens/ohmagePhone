@@ -15,18 +15,18 @@
  ******************************************************************************/
 package org.ohmage.prompt.singlechoice;
 
-import java.util.ArrayList;
-
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
+
+import java.util.ArrayList;
 
 
 public class SingleChoicePromptBuilder implements PromptBuilder {
 
 	@Override
-	public void build(	Prompt prompt, String id, String displayType,
-						String displayLabel, String promptText, String abbreviatedText,
+	public void build(	Prompt prompt, String id,
+						String displayLabel, String promptText,
 						String explanationText, String defaultValue, String condition,
 						String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
@@ -34,10 +34,8 @@ public class SingleChoicePromptBuilder implements PromptBuilder {
 		
 		SingleChoicePrompt singleChoicePrompt = (SingleChoicePrompt) prompt;
 		singleChoicePrompt.setId(id);
-		singleChoicePrompt.setDisplayType(displayType);
 		singleChoicePrompt.setDisplayLabel(displayLabel);
 		singleChoicePrompt.setPromptText(promptText);
-		singleChoicePrompt.setAbbreviatedText(abbreviatedText);
 		singleChoicePrompt.setExplanationText(explanationText);
 		singleChoicePrompt.setDefaultValue(defaultValue);
 		singleChoicePrompt.setCondition(condition);

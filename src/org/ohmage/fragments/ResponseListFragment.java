@@ -139,6 +139,7 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 				Campaigns.CAMPAIGN_NAME,
 				Surveys.SURVEY_TITLE,
 				Responses.RESPONSE_TIME,
+				Responses.RESPONSE_TIMEZONE,
 				Tables.RESPONSES + "." + Responses.RESPONSE_STATUS,
 				Responses.RESPONSE_UUID
 		};

@@ -911,7 +911,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 				AbstractPrompt prompt = ((AbstractPrompt)mSurveyElements.get(i));
 
 				DataPoint dataPoint = new DataPoint(prompt.getId());
-				dataPoint.setDisplayType(prompt.getDisplayType());
 
 				if (prompt instanceof SingleChoicePrompt) {
 					dataPoint.setPromptType("single_choice");

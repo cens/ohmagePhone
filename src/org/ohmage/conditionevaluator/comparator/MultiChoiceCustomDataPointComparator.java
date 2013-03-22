@@ -31,7 +31,7 @@ import org.ohmage.conditionevaluator.DataPoint;
  * @author Mohamad Monibi
  *
  */
-public class MultiChoiceCustomDataPointComparator extends AbstractDataPointComparator {
+public class MultiChoiceCustomDataPointComparator extends BasicDataPointComparator {
 	
 	// The methods here all need to be updated to support conditions after changes made due to 2.9 api changes
 	// dataPoint.getValue() will now return a List of Strings instead of Integers

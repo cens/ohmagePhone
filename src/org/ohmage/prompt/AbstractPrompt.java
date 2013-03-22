@@ -15,6 +15,11 @@
  ******************************************************************************/
 package org.ohmage.prompt;
 
+import android.content.Context;
+import android.content.Intent;
+import android.view.View;
+import android.view.ViewGroup;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.KVLTriplet;
@@ -30,11 +35,6 @@ import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
 import org.ohmage.prompt.timestamp.TimestampPrompt;
 
-import android.content.Context;
-import android.content.Intent;
-import android.view.View;
-import android.view.ViewGroup;
-
 import java.util.ArrayList;
 
 
@@ -46,10 +46,8 @@ public abstract class AbstractPrompt implements Prompt {
 	// TODO change private to protected
 	protected String mId;
 	protected String mPromptType;
-	protected String mDisplayType;
 	protected String mDisplayLabel;
 	protected String mPromptText;
-	protected String mAbbreviatedText;
 	protected String mExplanationText;
 	protected String mDefaultValue;
 	protected String mCondition;
@@ -126,16 +124,13 @@ public abstract class AbstractPrompt implements Prompt {
 		setSkipped(false);
 	}
 	
-	/*public AbstractPrompt(	String id, String displayType, String displayLabel,
-					String promptText, String abbreviatedText, String explanationText, 
+	/*public AbstractPrompt(	String id, String displayLabel,
+					String promptText, String explanationText, 
 					String defaultValue, String condition, 
 					String skippable, String skipLabel) {
 		
 		this.mId = id;
-		this.mDisplayType = displayType;
-		this.mDisplayLabel = displayLabel;
 		this.mPromptText = promptText;
-		this.mAbbreviatedText = abbreviatedText;
 		this.mExplanationText = explanationText;
 		this.mDefaultValue = defaultValue;
 		this.mCondition = condition;
@@ -146,11 +141,7 @@ public abstract class AbstractPrompt implements Prompt {
 	public String getId() {
 		return mId;
 	}
-	
-	public String getDisplayType() {
-		return mDisplayType;
-	}
-	
+
 	public String getDisplayLabel() {
 		return mDisplayLabel;
 	}
@@ -158,11 +149,7 @@ public abstract class AbstractPrompt implements Prompt {
 	public String getPromptText() {
 		return mPromptText;
 	}
-		
-	public String getAbbreviatedText() {
-		return mAbbreviatedText;
-	}
-	
+
 	public String getExplanationText() {
 		return mExplanationText;
 	}
@@ -191,20 +178,12 @@ public abstract class AbstractPrompt implements Prompt {
 		this.mId = id;
 	}
 
-	public void setDisplayType(String displayType) {
-		this.mDisplayType = displayType;
-	}
-
 	public void setDisplayLabel(String displayLabel) {
 		this.mDisplayLabel = displayLabel;
 	}
 
 	public void setPromptText(String promptText) {
 		this.mPromptText = promptText;
-	}
-
-	public void setAbbreviatedText(String abbreviatedText) {
-		this.mAbbreviatedText = abbreviatedText;
 	}
 
 	public void setExplanationText(String explanationText) {
@@ -271,7 +250,7 @@ public abstract class AbstractPrompt implements Prompt {
 			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.REMOTE_ACTIVITY);
 		}
 
-		builder.build(prompt, mId, mDisplayType, mDisplayLabel, mPromptText, mAbbreviatedText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
+		builder.build(prompt, mId, mDisplayLabel, mPromptText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
 		return prompt;
 	}
 
