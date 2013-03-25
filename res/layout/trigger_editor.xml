@@ -3,13 +3,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <ListView
-        android:id="@+id/android:list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" />
-
     <LinearLayout
+        android:id="@+id/container"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -39,5 +34,12 @@
             android:text="@string/cancel" >
         </Button>
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/android:list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/container"
+        android:layout_alignParentTop="true" />
 
 </RelativeLayout>
