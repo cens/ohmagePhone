@@ -22,7 +22,6 @@ import android.database.Cursor;
 import android.preference.PreferenceManager;
 
 import org.mobilizingcs.R;
-
 import org.ohmage.db.DbContract.Responses;
 
 import java.util.Calendar;
@@ -76,40 +75,20 @@ public class UserPreferencesHelper {
         return mPreferences.getBoolean(KEY_SHOW_FEEDBACK, DEFAULT_SHOW_FEEDBACK);
     }
 
-    public boolean setShowFeedback(Boolean value) {
-        return mPreferences.edit().putBoolean(KEY_SHOW_FEEDBACK, value).commit();
-    }
-
     public boolean showProfile() {
         return mPreferences.getBoolean(KEY_SHOW_PROFILE, DEFAULT_SHOW_PROFILE);
-    }
-
-    public boolean setShowProfile(Boolean value) {
-        return mPreferences.edit().putBoolean(KEY_SHOW_PROFILE, value).commit();
     }
 
     public boolean showUploadQueue() {
         return mPreferences.getBoolean(KEY_SHOW_UPLOAD_QUEUE, DEFAULT_SHOW_UPLOAD_QUEUE);
     }
 
-    public boolean setShowUploadQueue(Boolean value) {
-        return mPreferences.edit().putBoolean(KEY_SHOW_UPLOAD_QUEUE, value).commit();
-    }
-
     public boolean showMobility() {
         return mPreferences.getBoolean(KEY_SHOW_MOBILITY, DEFAULT_SHOW_MOBILITY);
     }
 
-    public boolean setShowMobility(Boolean value) {
-        return mPreferences.edit().putBoolean(KEY_SHOW_MOBILITY, value).commit();
-    }
-
     public boolean showMobilityFeedback() {
         return mPreferences.getBoolean(KEY_SHOW_MOBILITY_FEEDBACK, DEFAULT_SHOW_MOBILITY_FEEDBACK);
-    }
-    
-    public boolean setShowMobilityFeedback(Boolean value) {
-        return mPreferences.edit().putBoolean(KEY_SHOW_MOBILITY_FEEDBACK, value).commit();
     }
 
     /**
@@ -245,19 +224,15 @@ public class UserPreferencesHelper {
     }
 
     public boolean getUploadProbesWifiOnly() {
-        return mPreferences.getBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY, true);
-    }
-
-    public boolean setUploadProbesWifiOnly(boolean wifiOnly) {
-        return mPreferences.edit().putBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY, wifiOnly).commit();
+        return mPreferences.getBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY, false);
     }
 
     public boolean getUploadResponsesWifiOnly() {
         return mPreferences.getBoolean(KEY_UPLOAD_RESPONSES_WIFI_ONLY, false);
     }
 
-    public boolean setUploadResponsesWifiOnly(boolean wifiOnly) {
-        return mPreferences.edit().putBoolean(KEY_UPLOAD_RESPONSES_WIFI_ONLY, wifiOnly).commit();
+    public boolean clearWifiSettings() {
+        return mPreferences.edit().remove(KEY_UPLOAD_PROBES_WIFI_ONLY).remove(KEY_UPLOAD_RESPONSES_WIFI_ONLY).commit();
     }
 
     public boolean isSingleCampaignMode() {

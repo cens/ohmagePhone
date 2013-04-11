@@ -24,7 +24,7 @@
          If false, the user needs to enter the correct pin number to access the
          admin settings.
     -->
-    <item name="admin_mode" type="bool">true</item>
+    <item name="admin_mode" type="bool">false</item>
 
     <!--
          If false, the user needs to enter the correct pin number to access the

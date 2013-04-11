@@ -26,8 +26,7 @@
 		<CheckBoxPreference
 			android:key="key_upload_probes_wifi_only"
 			android:summary="To reduce mobile network traffic, upload probes (e.g. logs) via Wi-Fi only. Depending on the probe types, a lot of data can be generated."
-			android:title="Upload Probes via Wi-Fi"
-			android:defaultValue="true" />
+			android:title="Upload Probes via Wi-Fi" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Status" >

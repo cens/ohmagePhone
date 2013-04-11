@@ -98,34 +98,13 @@ public class ConfigHelper {
                 mContext.getResources().getBoolean(R.bool.admin_mode));
     }
 
-    public void setAdminMode(Boolean value) {
-        mPreferences.edit().putBoolean(KEY_ADMIN_MODE, value).commit();
-    }
-
     public String getLogLevel() {
         return mPreferences.getString(KEY_LOG_LEVEL,
                 mContext.getResources().getString(R.string.log_level));
     }
 
-    public void setLogLevel(String level) {
-        mPreferences.edit().putString(KEY_LOG_LEVEL, level).commit();
-    }
-
     public Boolean getLogAnalytics() {
         return mPreferences.getBoolean(KEY_LOG_ANALYTICS,
                 mContext.getResources().getBoolean(R.bool.log_analytics));
-    }
-
-    public void setLogAnalytics(Boolean value) {
-        mPreferences.edit().putBoolean(KEY_LOG_ANALYTICS, value).commit();
-    }
-
-    /**
-     * Clears all settings specific to deployments
-     */
-    public void clearDeploymentSettings() {
-        setLogAnalytics(mContext.getResources().getBoolean(R.bool.log_analytics));
-        setLogLevel(mContext.getResources().getString(R.string.log_level));
-        setAdminMode(mContext.getResources().getBoolean(R.bool.admin_mode));
     }
 }

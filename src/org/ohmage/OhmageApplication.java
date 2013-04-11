@@ -110,6 +110,9 @@ public class OhmageApplication extends Application {
         if (currentVersionCode != lastVersionCode && !isFirstRun) {
             BackgroundManager.initComponents(this);
 
+            UserPreferencesHelper uprefs = new UserPreferencesHelper(this);
+            uprefs.clearWifiSettings();
+
             prefs.setLastVersionCode(currentVersionCode);
         }
 
@@ -174,9 +177,6 @@ public class OhmageApplication extends Application {
 
         // clear user prefs first so isAuthenticated call will return false
         new UserPreferencesHelper(this).clearAll();
-
-        // clear all deployment settings
-        new ConfigHelper(this).clearDeploymentSettings();
 
         // clear triggers
         TriggerFramework.resetAllTriggerSettings(this);
