@@ -571,7 +571,7 @@ public class LoginActivity extends FragmentActivity {
             mPreferencesHelper.setShowFeedback(true);
             mPreferencesHelper.setShowMobility(false);
             mPreferencesHelper.setUploadResponsesWifiOnly(false);
-            mPreferencesHelper.setUploadProbesWifiOnly(true);
+            mPreferencesHelper.setUploadProbesWifiOnly(false);
             config.setAdminMode(false);
             config.setLogLevel("verbose");
             config.setLogAnalytics(true);
