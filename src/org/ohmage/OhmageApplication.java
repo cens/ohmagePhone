@@ -110,9 +110,6 @@ public class OhmageApplication extends Application {
         if (currentVersionCode != lastVersionCode && !isFirstRun) {
             BackgroundManager.initComponents(this);
 
-            UserPreferencesHelper uprefs = new UserPreferencesHelper(this);
-            uprefs.clearWifiSettings();
-
             prefs.setLastVersionCode(currentVersionCode);
         }
 
