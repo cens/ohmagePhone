@@ -91,6 +91,7 @@ public class OhmageApplication extends Application {
         ConfigHelper config = new ConfigHelper(this);
 
         LogProbe.setLevel(config.getLogAnalytics(), config.getLogLevel());
+        LogProbe.setLogDeviceId(true);
         LogProbe.get(this);
 
         mImageLoader = createImageLoader(this);
