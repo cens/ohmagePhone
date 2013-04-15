@@ -143,7 +143,7 @@
     <string name="help_dashboard_upload_queue_title">Upload Queue</string>
     <string name="help_dashboard_upload_queue_text">In the &lt;b>Upload Queue&lt;/b> you can manage the upload status of the responses you have just completed.</string>
     <string name="help_dashboard_profile_title">Profile</string>
-    <string name="help_dashboard_profile_text">On the &lt;b>Profile&lt;/b> screen you can update your password, or logout and wipe your data.</string>
+    <string name="help_dashboard_profile_text">On the &lt;b>Profile&lt;/b> screen you can sync your password, or logout and wipe your data.</string>
     <string name="help_dashboard_mobility_title">Mobility</string>
     <string name="help_dashboard_mobility_text">On the &lt;b>Mobility&lt;/b> screen you can see your mobility data.</string>
 
@@ -232,8 +232,8 @@
     <!-- Preferences -->
     <string name="preferences_reminders_setup_title">Reminders</string>
     <string name="preferences_reminders_setup_summary">Set up reminders so you never forget to take a survey</string>
-    <string name="preferences_update_password_title">Update Password</string>
-    <string name="preferences_update_password_summary">Update your password if you get an Authentication Error</string>
+    <string name="preferences_update_password_title">Sync Password</string>
+    <string name="preferences_update_password_summary">Sync your password if you changed it on the server</string>
     <string name="preferences_logout_title">Logout and Wipe</string>
     <string name="preferences_logout_summary">Logging out will remove all data from the phone including any data that has not been uploaded</string>
     <string name="preferences_querytest_title">Test Queries (DEBUG)</string>
@@ -321,9 +321,9 @@
     <string name="survey_info_reminders_header_description">Reminders Info Button</string>
 
     <!-- Profile Info -->
-    <string name="profile_info_update_password">Update Password</string>
+    <string name="profile_info_update_password">Sync Password</string>
     <string name="profile_info_logout">Log Out, Wipe Data</string>
-    <string name="profile_info_entity_action_button_update_password_description">Update Password Button</string>
+    <string name="profile_info_entity_action_button_update_password_description">Sync Password Button</string>
     <string name="profile_info_entity_action_button_logout_description">Logout Button</string>
     <string name="logout_message">Are you sure you wish to clear all user data? Any custom reminders will be lost, and the app will be restored to its initial state.</string>
     <string name="logging_out_message">Clearing local user data…</string>
