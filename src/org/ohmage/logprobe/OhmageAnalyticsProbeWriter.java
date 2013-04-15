@@ -21,9 +21,9 @@ import android.os.RemoteException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.OhmageApplication;
-import org.ohmage.probemanager.ProbeBuilder;
-import org.ohmage.logprobe.OhmageAnalytics.TriggerStatus;
 import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.logprobe.OhmageAnalytics.TriggerStatus;
+import org.ohmage.probemanager.ProbeBuilder;
 
 /**
  * Ohmage Specific probe writer which has additional Analytics logging. Uses the
@@ -35,13 +35,13 @@ import org.ohmage.logprobe.LogProbe.Status;
 public class OhmageAnalyticsProbeWriter {
 
     private static final String OBSERVER_ID = "org.ohmage.Analytics";
-    private static final int OBSERVER_VERSION = 1;
+    private static final int OBSERVER_VERSION = 2;
 
     private static final String STREAM_PROMPT = "prompt";
-    private static final int STREAM_PROMPT_VERSION = 1;
+    private static final int STREAM_PROMPT_VERSION = 2;
 
     private static final String STREAM_TRIGGER = "trigger";
-    private static final int STREAM_TRIGGER_VERSION = 1;
+    private static final int STREAM_TRIGGER_VERSION = 2;
 
     public static void prompt(String type, String id, Status status) {
         try {
@@ -52,6 +52,7 @@ public class OhmageAnalyticsProbeWriter {
             data.put("type", type);
             data.put("id", id);
             data.put("status", status);
+            LogProbe.probeWriter.addDeviceId(data);
             probe.setData(data.toString());
             probe.withId().now();
 
@@ -75,6 +76,7 @@ public class OhmageAnalyticsProbeWriter {
             data.put("type", type);
             data.put("count", count);
             data.put("campaign", campaign);
+            LogProbe.probeWriter.addDeviceId(data);
             probe.setData(data.toString());
             probe.withId().now();
 
