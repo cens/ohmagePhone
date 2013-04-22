@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ohmage.mobilizingcs"
-    android:versionCode="13041500"
+    android:versionCode="13042200"
     android:versionName="2.14.8" >
     
 	<uses-permission android:name="android.permission.INTERNET"/>
