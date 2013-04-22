@@ -224,7 +224,7 @@ public class UserPreferencesHelper {
     }
 
     public boolean getUploadProbesWifiOnly() {
-        return mPreferences.getBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY, false);
+        return mPreferences.getBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY, true);
     }
 
     public boolean getUploadResponsesWifiOnly() {
