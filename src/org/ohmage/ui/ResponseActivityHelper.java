@@ -13,7 +13,7 @@ import android.os.Bundle;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Response;
 import org.ohmage.service.UploadService;

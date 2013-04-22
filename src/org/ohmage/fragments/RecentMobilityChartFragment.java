@@ -3,7 +3,7 @@ package org.ohmage.fragments;
 
 import org.achartengine.GraphicalView;
 import org.ohmage.MobilityHelper;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;

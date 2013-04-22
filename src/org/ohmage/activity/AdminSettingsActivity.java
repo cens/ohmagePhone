@@ -13,7 +13,7 @@ import android.preference.PreferenceScreen;
 import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.LogProbe.Status;

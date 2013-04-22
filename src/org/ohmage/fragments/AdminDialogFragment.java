@@ -1,6 +1,6 @@
 package org.ohmage.fragments;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.triggers.utils.TrigTextInput;
 
 import android.app.Activity;

@@ -19,7 +19,7 @@ package org.ohmage;
 import android.content.Context;
 import android.widget.Toast;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

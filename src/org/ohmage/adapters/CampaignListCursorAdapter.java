@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.google.android.imageloader.ImageLoader;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;

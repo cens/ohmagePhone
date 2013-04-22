@@ -8,7 +8,7 @@ import android.widget.Toast;
 import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.OhmageCache;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.widget.TouchImageView;

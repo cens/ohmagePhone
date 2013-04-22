@@ -9,7 +9,7 @@ import android.preference.PreferenceScreen;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.ConfigHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.Models.Campaign;
@@ -80,7 +80,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 		findPreference(STATUS_SERVER_URL).setSummary(ConfigHelper.serverUrl());
 
 		try {
-			findPreference(INFO_OHMAGE_VERSION).setSummary(getPackageManager().getPackageInfo("org.mobilizingcs", 0).versionName);
+			findPreference(INFO_OHMAGE_VERSION).setSummary(getPackageManager().getPackageInfo("org.ohmage.mobilizingcs", 0).versionName);
 		} catch (Exception e) {
 			Log.e(TAG, "unable to retrieve version", e);
 		}

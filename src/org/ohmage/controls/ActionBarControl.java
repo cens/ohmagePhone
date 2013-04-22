@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.UIUtils;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.logprobe.Analytics;

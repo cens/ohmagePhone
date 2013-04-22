@@ -17,7 +17,7 @@ package org.ohmage.prompt.number;
 
 import org.ohmage.NumberPicker;
 import org.ohmage.NumberPicker.OnChangedListener;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.prompt.AbstractPrompt;
 
 import android.content.Context;

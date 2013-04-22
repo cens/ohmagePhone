@@ -15,7 +15,7 @@ import java.util.List;
  *
  */
 public class DbContract {
-	public static final String CONTENT_AUTHORITY = "org.mobilizingcs.db";
+	public static final String CONTENT_AUTHORITY = "org.ohmage.mobilizingcs.db";
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     interface CampaignColumns {

@@ -11,7 +11,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.Html;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.OhmageLauncher;

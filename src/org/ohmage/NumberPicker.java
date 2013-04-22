@@ -29,7 +29,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 
 /**
  * A view for selecting a number For a dialog using this view, see

@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 
 import java.io.File;
@@ -87,7 +87,7 @@ public class SendLogActivity extends Activity
         try {
             logHeader.append(LINE_SEPARATOR);
             logHeader.append("ver: ");
-			logHeader.append(getPackageManager().getPackageInfo("org.mobilizingcs", 0).versionName);
+			logHeader.append(getPackageManager().getPackageInfo("org.ohmage.mobilizingcs", 0).versionName);
 		} catch (NameNotFoundException e) {
 			Log.e(TAG, "unable to retrieve current version code", e);
 		}

@@ -35,7 +35,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import org.ohmage.mobility.glue.IMobility;
 
 import org.ohmage.MobilityHelper;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;

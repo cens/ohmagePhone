@@ -1,6 +1,6 @@
 package org.ohmage.activity;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.fragments.ResponseMapFragment;
 import org.ohmage.ui.BaseActivity;
 

@@ -15,7 +15,7 @@
 
 package org.ohmage.feedback.visualization;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 
 import android.content.Context;
 import android.view.Gravity;

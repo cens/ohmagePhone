@@ -10,7 +10,7 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.Toast;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.controls.DateFilterControl.DateFilterChangeListener;

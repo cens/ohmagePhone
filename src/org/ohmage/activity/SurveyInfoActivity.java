@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.ConfigHelper;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;

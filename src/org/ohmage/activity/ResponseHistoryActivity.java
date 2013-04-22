@@ -2,7 +2,7 @@ package org.ohmage.activity;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.DateFilterControl;

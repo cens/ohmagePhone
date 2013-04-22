@@ -16,7 +16,7 @@
 package org.ohmage.prompt.singlechoicecustom;
 
 import org.ohmage.OhmageMarkdown;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;

@@ -22,7 +22,7 @@ import android.database.Cursor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.logprobe.Log;
 import org.ohmage.triggers.base.TriggerBase;
 import org.ohmage.triggers.ui.TriggerListActivity;

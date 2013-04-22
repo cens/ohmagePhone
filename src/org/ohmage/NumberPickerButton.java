@@ -22,7 +22,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 
 /**
  * This class exists purely to cancel long click events.

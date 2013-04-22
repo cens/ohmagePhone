@@ -48,7 +48,7 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageMarkdown;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;

@@ -7,7 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 
 import org.ohmage.activity.LoginActivity;
 import org.ohmage.activity.MobilityActivity;

@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.db.utils.ISO8601Utilities;
 import org.ohmage.prompt.AbstractPrompt;
 

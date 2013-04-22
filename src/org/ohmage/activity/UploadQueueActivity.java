@@ -14,7 +14,7 @@ import android.widget.Button;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.ConfigHelper;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;

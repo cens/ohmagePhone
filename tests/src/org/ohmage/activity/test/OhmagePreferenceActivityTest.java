@@ -20,7 +20,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.ConfigHelper;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.activity.AdminSettingsActivity;
 import org.ohmage.activity.OhmagePreferenceActivity;

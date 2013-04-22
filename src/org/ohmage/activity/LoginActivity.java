@@ -39,7 +39,7 @@ import android.widget.Toast;
 
 import com.slezica.tools.async.ManagedAsyncTask;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
 import org.ohmage.MobilityHelper;
@@ -112,7 +112,7 @@ public class LoginActivity extends FragmentActivity {
 
         try {
             mVersionText.setText("v"
-                    + getPackageManager().getPackageInfo("org.mobilizingcs", 0).versionName);
+                    + getPackageManager().getPackageInfo("org.ohmage.mobilizingcs", 0).versionName);
         } catch (Exception e) {
             Log.e(TAG, "unable to retrieve version", e);
             mVersionText.setText(" ");

@@ -1,6 +1,6 @@
 package org.ohmage.activity;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

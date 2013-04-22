@@ -18,7 +18,7 @@ package org.ohmage.activity.test;
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.OhmageApplication;
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.activity.CampaignInfoActivity;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.ResponseHistoryActivity;

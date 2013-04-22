@@ -3,7 +3,7 @@ package org.ohmage.triggers.notif;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-import org.mobilizingcs.R;
+import org.ohmage.mobilizingcs.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.LogProbe.Status;
 
