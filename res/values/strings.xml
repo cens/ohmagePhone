@@ -2,7 +2,7 @@
 <resources>
 
     <!-- General -->
-    <string name="app_name">mobilize</string>
+    <string name="app_name">UCLA MobilizingCS</string>
     <string name="server_name">mobilize</string>
     <string name="cancel">Cancel</string>
     <string name="remove">Remove</string>
