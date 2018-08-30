@@ -27,7 +27,7 @@ the default android logs instead of using ProbeLog)
 All other external libraries which are needed are included in the libs directory of the project,
 but you will need the android SDK to build.
 
-1. Download and install the the android SDK. Instructions on downloading and installing the
+1. Download and install the android SDK. Instructions on downloading and installing the
 SDK can be found here: http://developer.android.com/sdk/installing.html. You can skip the parts
 related to eclipse unless you want to setup eclipse as well.
 2. Start the android configuration tool using `/path/to/android-sdk/tools/android`
